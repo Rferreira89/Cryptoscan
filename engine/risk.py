@@ -25,6 +25,17 @@ def _levels_above(a4, a1):
     return sorted(set(lv))
 
 
+def leverage_for(stop_frac, cfg):
+    """Alavancagem a usar e maximo seguro para uma distancia de stop.
+
+    Maximo seguro: a liquidacao estimada (1/L menos margem de manutencao)
+    fica a pelo menos 2.5 vezes a distancia do stop. Teto absoluto de 3x.
+    """
+    max_safe = max(1.0, min(3.0, math.floor(2 / (2.5 * stop_frac + MMR)) / 2))
+    use = max(1.0, min(cfg.get("swing_leverage", 1.0), max_safe))
+    return {"use": use, "max_safe": max_safe, "needed": 1.0}
+
+
 def plan(setup, a4, a1, cfg):
     """Devolve (plano, None) ou (None, motivo)."""
     fee = cfg["fee_pct"] / 100
@@ -62,16 +73,15 @@ def plan(setup, a4, a1, cfg):
     if rr < cfg["min_rr"] - 1e-9:
         return None, f"POOR R:R: {rr:.2f} abaixo do mínimo {cfg['min_rr']}"
     stop_pct = risk_unit / entry * 100
-    size_pct = min(cfg["risk_pct"] / stop_pct * 100, cfg["max_position_pct"])
-    # Alavancagem: com a dimensao definida pelo risco, nunca e necessaria.
-    # Se o utilizador usar margem, o maximo "seguro" e o que deixa a
-    # liquidacao estimada a mais do dobro da distancia do stop (teto 3x).
-    stop_frac = dist / entry
-    lev = max(1.0, min(3.0, math.floor(2 / (2.5 * stop_frac + MMR)) / 2))
-    liq = entry * (1 - 1 / lev + MMR) if lev > 1 else None
-    leverage = {"needed": 1.0, "max_safe": lev,
-                "collateral_pct": round(size_pct / lev, 1),
-                "liquidation_est": liq}
+    lev = leverage_for(dist / entry, cfg)
+    # com alavancagem L a posicao e o risco sao L vezes maiores; o capital
+    # proprio em jogo (colateral) fica dentro do teto por posicao
+    size_pct = min(cfg["risk_pct"] * lev["use"] / stop_pct * 100,
+                   cfg["max_position_pct"] * lev["use"])
+    leverage = dict(lev, collateral_pct=round(size_pct / lev["use"], 1),
+                    borrowed_pct=round(size_pct - size_pct / lev["use"], 1),
+                    liquidation_est=entry * (1 - 1 / lev["use"] + MMR)
+                    if lev["use"] > 1 else None)
     return {"leverage": leverage,
             "entry_zone": [lo, hi], "entry_ref": entry, "stop": stop,
             "tp": tps, "tp_projected": projected,

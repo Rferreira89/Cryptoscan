@@ -5,7 +5,7 @@ from engine import config, events, inbox, ledger, monitor, review, signals
 from engine import validation
 from tests import test_phase4 as T4
 
-CFG = dict(config.DEFAULTS)
+CFG = dict(config.DEFAULTS, swing_leverage=1.0)   # numeros base sem margem
 NY = events.NY
 
 
@@ -177,7 +177,8 @@ class Delivery(unittest.TestCase):
                                  setattr(alerts, "configured", orig[1])))
         plan = {"entry_zone": [99.7, 100.0], "stop": 98.0, "tp": [104, 108, 112],
                 "rr": 2.4, "risk_pct": 0.5, "position_pct": 20.0, "stop_pct": 2.2,
-                "leverage": {"max_safe": 3.0}}
+                "leverage": {"use": 2.0, "max_safe": 3.0, "collateral_pct": 10.0,
+                             "liquidation_est": 55.0}}
         sig = {"asset": "LINK", "pair": "LINK/USDC", "venue": "Bybit EU",
                "strategy": "PULLBACK", "timeframe": "4H / 1D", "score": 70,
                "mode": "REAL", "plan": plan}
@@ -187,8 +188,8 @@ class Delivery(unittest.TestCase):
                                  {"event": "TP1", "id": "k", "price": 104.0,
                                   "sold_pct": 50}], [("daily", "relatório")])
         self.assertEqual(sent[0], ("relatório", None))
-        self.assertIn("Alavancagem: não é necessária", sent[1][0])
-        self.assertIn("3x", sent[1][0])
+        self.assertIn("Margem 2x", sent[1][0])
+        self.assertIn("Liquidação estimada", sent[1][0])
         self.assertEqual(sent[1][1]["inline_keyboard"][0][0]["callback_data"], "x|1|k")
         self.assertIsNone(sent[2][1])
         state["ledger"][0]["executed"] = False

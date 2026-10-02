@@ -171,9 +171,11 @@ const DEC={LONG:"COMPRA",WATCHLIST:"A VIGIAR","NO TRADE":"NÃO OPERAR"};
 const hm=t=>new Date(t*1000).toLocaleString("pt-PT",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
 function capital(){const v=parseFloat(($("cap").value||"").replace(",","."));return v>0?v:null}
 function sizing(p){
-  const c=capital();if(!c) return `Investir <b>${num(p.position_pct,1)}%</b> do capital (risco real ${num(p.risk_pct,2)}%). Escreve o teu capital em cima para veres os valores.`;
+  const c=capital(),L=p.leverage&&p.leverage.use>1?p.leverage:null;
+  const mg=L?` com <b>margem ${L.use}x</b> (${num(L.collateral_pct,1)}% teus, ${num(L.borrowed_pct,1)}% emprestados)`:"";
+  if(!c) return `Posição de <b>${num(p.position_pct,1)}%</b> do capital${mg}; risco ${num(p.risk_pct,2)}%. Escreve o teu capital em cima para veres os valores.`;
   const pos=c*p.position_pct/100,qty=pos/p.entry_ref,loss=c*p.risk_pct/100;
-  return `Investir <b>${num(pos,2)} USDC</b> (${num(p.position_pct,1)}% do capital) ≈ ${Number(qty.toPrecision(4)).toLocaleString("pt-PT",{maximumSignificantDigits:4})} unidades. Perda máxima se o stop for atingido: <b>${num(loss,2)} USDC</b>.`+(pos<5?` <span class="warn">Valor abaixo do mínimo habitual por ordem; confirma na Bybit.</span>`:"");
+  return `Posição de <b>${num(pos,2)} USDC</b>${L?` com <b>margem ${L.use}x</b>: ${num(c*L.collateral_pct/100,2)} USDC teus e ${num(c*L.borrowed_pct/100,2)} emprestados`:` (${num(p.position_pct,1)}% do capital)`} ≈ ${Number(qty.toPrecision(4)).toLocaleString("pt-PT",{maximumSignificantDigits:4})} unidades. Perda máxima se o stop for atingido: <b>${num(loss,2)} USDC</b>.`+(pos<5?` <span class="warn">Valor abaixo do mínimo habitual por ordem; confirma na Bybit.</span>`:"");
 }
 function planSteps(p,pair){
   const pr=i=>p.tp_projected.includes(i)?" (projetado)":"";
@@ -181,7 +183,7 @@ function planSteps(p,pair){
   <li>Na Bybit UE, par <b>${esc(pair)}</b>, spot: ordem <b>limite de compra</b> entre <b>${price(p.entry_zone[0])}</b> e <b>${price(p.entry_zone[1])}</b>.</li>
   <li>${sizing(p)}</li>
   <li>Stop-loss em <b>${price(p.stop)}</b> (−${num(p.stop_pct,2)}% com comissões).</li>
-  ${p.leverage?`<li>Alavancagem: <b>não é necessária</b>.${p.leverage.max_safe>1?` Se usares margem, no máximo <b>${p.leverage.max_safe}x</b>: a posição e o risco ficam iguais, só reduzes o capital parado para ${num(p.leverage.collateral_pct,1)}% (liquidação estimada perto de ${price(p.leverage.liquidation_est)}, confirma na Bybit).`:""}</li>`:""}
+  ${p.leverage&&p.leverage.use>1?`<li>Com margem ${p.leverage.use}x a liquidação estimada fica perto de <b>${price(p.leverage.liquidation_est)}</b>, bem abaixo do stop. Confirma o valor no ecrã da Bybit e coloca o stop logo a seguir à entrada.</li>`:""}
   <li>Vender ${p.partials[0]}% em <b>${price(p.tp[0])}</b>${pr(1)} e subir o stop para o preço de entrada.</li>
   <li>Vender ${p.partials[1]}% em <b>${price(p.tp[1])}</b>${pr(2)} e os restantes ${p.partials[2]}% em <b>${price(p.tp[2])}</b>${pr(3)}.</li></ol>
   <div class="chips"><span class="chip">R:R 1:${num(p.rr,2)}</span><span class="chip">Stop ${num(p.stop_atr,1)} ATR</span></div>`;

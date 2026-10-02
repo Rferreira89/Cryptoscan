@@ -1,4 +1,4 @@
-"""Passagem leve de 5 minutos: so acompanha o que esta aberto.
+"""Passagem leve de 1 minuto: so acompanha o que esta aberto.
 
 Nao analisa nem emite sinais novos (isso e o scan de 15 minutos). Le os
 precos, verifica stops e objetivos, le as respostas do Telegram, atualiza
@@ -46,7 +46,7 @@ def main():
         return
     cfg = config.load()
     now = int(time.time())
-    run.process_inbox(state)
+    replied = run.process_inbox(state)
     events, assets = [], needed_assets(state)
     if assets:
         _, data = scanner.collect_tickers()
@@ -60,6 +60,9 @@ def main():
         res["paper_trend"]["positions"] = pt["positions"]
         res["paper_trend"]["closed"] = pt["closed"][-15:]
     run.save(state, res, events)
+    # so publica quando ha algo novo, ou de 5 em 5 minutos como sinal de vida
+    if events or replied or now % 300 < 60:
+        open(os.path.join(OUT, ".publish"), "w").close()
     print(f"monitor: {len(assets)} ativos, {len(events)} eventos")
     run.deliver(cfg, state, events)
 

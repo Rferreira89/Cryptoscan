@@ -12,7 +12,8 @@ Nenhuma estratégia está validada. O backtest (2021 a 2026, custos incluídos) 
 
 Por decisão do utilizador (2026-10-02, `real_money_unvalidated` em `engine/config.py`), os sinais são mesmo assim emitidos como operações reais, com estas salvaguardas:
 
-- risco por operação reduzido a metade (0,5%) enquanto a estratégia não estiver validada
+- risco base por operação reduzido a metade (0,5%) enquanto a estratégia não estiver validada
+- alavancagem de swing (`swing_leverage`, 2x por decisão do utilizador): multiplica a posição e o risco, limitada ao valor que mantém a liquidação estimada a pelo menos 2,5 vezes a distância do stop, com teto de 3x. `{"swing_leverage": 1}` desliga-a
 - sem compras novas com o BTC abaixo da média de 200 dias
 - travão de perdas: −3R num dia, −6R numa semana ou 3 perdas seguidas suspendem sinais novos
 - cada alerta traz o registo da estratégia no backtest

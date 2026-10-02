@@ -270,6 +270,23 @@ def run(now=None, state=None, cfg=None):
         state.get("halt") or block
         or ("desligada" if "TREND_DAILY" in disabled else None))
     events += ev
+    # pre-aviso: uma vez por dia por ativo e estrategia em vigilancia
+    seen = state.setdefault("watch_alerted", {})
+    for k in [k for k, t in seen.items() if now - t > 86400]:
+        del seen[k]
+    for r in eligible:
+        d = r["decision"]
+        if d["decision"] == "WATCHLIST" and d.get("state") == "WAITING" \
+                and d.get("plan") and d.get("mode") == "REAL":
+            key = f"{r['asset']}-{d['strategy']}"
+            if key not in seen:
+                seen[key] = now
+                events.append({"t": now, "event": "WATCH", "id": f"watch-{key}",
+                               "asset": r["asset"], "pair": d["venue"]["pair"],
+                               "strategy": d["strategy"], "trigger": d["trigger"],
+                               "entry": d["plan"]["entry_zone"],
+                               "stop": d["plan"]["stop"],
+                               "tp1": d["plan"]["tp"][0]})
     led = ledger.apply(state, events)
     result["journal"] = ledger.view(led)
     result["active_signals"] = [s for s in state["signals"].values()

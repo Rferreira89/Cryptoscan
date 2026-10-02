@@ -60,6 +60,17 @@ def _px(x):
     return strategies.px_str(x)
 
 
+def invest_line(position_pct, risk_pct, lev):
+    """Linha de dimensao, com ou sem margem."""
+    if not lev or lev.get("use", 1) <= 1:
+        return f"Investir: {position_pct}% do capital (risco {risk_pct}%)"
+    return (f"Margem {lev['use']:g}x: posição de {position_pct}% do capital, "
+            f"dos quais {lev['collateral_pct']}% teus e o resto emprestado "
+            f"(risco {risk_pct}%)\n"
+            f"Liquidação estimada perto de {_px(lev['liquidation_est'])} "
+            "(confirma na Bybit)")
+
+
 def paper_text(e, s, head, note):
     """Sinais de estrategias nao validadas: simulacao, nunca uma ordem."""
     p, k = s["plan"], e["event"]
@@ -95,6 +106,12 @@ def alert_text(e, sigs, note):
                 + ("Historicamente é o contexto favorável a compras."
                    if e["above"] else
                    "Historicamente é o contexto em que comprar perde mais."))
+    if k == "WATCH":
+        return (f"👀 PREPARA — {e['asset']} ({e['pair']}) · {e['strategy']}\n"
+                f"Ainda não é sinal. Gatilho: {e['trigger']}.\n"
+                f"Se acontecer: entrada {_px(e['entry'][0])} a "
+                f"{_px(e['entry'][1])}, stop {_px(e['stop'])}, "
+                f"1.º objetivo {_px(e['tp1'])}.")
     if k == "STRATEGY_DISABLED":
         return (f"⛔ ESTRATÉGIA DESLIGADA — {e['strategy']}: {e['n']} operações "
                 f"ao vivo com resultado {e['sum_r']:+.2f}R. Deixa de gerar "
@@ -103,8 +120,11 @@ def alert_text(e, sigs, note):
         return (f"🟢 COMPRA — {e['asset']} ({e['pair']}, Bybit EU)\n"
                 "TENDÊNCIA DIÁRIA · quebra do máximo de 20 dias\n"
                 f"Ordem a mercado, perto de {_px(e['price'])}\n"
-                f"Investir: {e['position_pct']}% do capital "
-                f"(risco {e['risk_pct']}%)\n"
+                + invest_line(e["position_pct"], e["risk_pct"],
+                              {"use": e.get("leverage", 1),
+                               "collateral_pct": e.get("collateral_pct"),
+                               "liquidation_est": e.get("liquidation_est")})
+                + "\n"
                 f"Stop: {_px(e['stop'])} (-{e['stop_pct']}%)\n"
                 "Sem objetivo fixo: aviso de venda quando o fecho diário "
                 "ficar abaixo do mínimo de 20 dias.\n"
@@ -136,16 +156,11 @@ def alert_text(e, sigs, note):
         return (f"🟢 COMPRA — {head}\n"
                 f"{s['strategy']} · {s['timeframe']} · score {s['score']}/100\n"
                 f"Ordem limite: {_px(p['entry_zone'][0])} a {_px(p['entry_zone'][1])}\n"
-                f"Investir: {p['position_pct']}% do capital (risco {p['risk_pct']}%)\n"
+                f"{invest_line(p['position_pct'], p['risk_pct'], p.get('leverage'))}\n"
                 f"Stop: {_px(p['stop'])} (-{p['stop_pct']}%)\n"
                 f"TP1 {_px(p['tp'][0])} (vender 50%) · TP2 {_px(p['tp'][1])} "
                 f"(30%) · TP3 {_px(p['tp'][2])} (20%)\n"
-                f"R:R 1:{p['rr']} · válido 12h\n"
-                f"Alavancagem: não é necessária"
-                + (f"; com margem, no máximo {p['leverage']['max_safe']:g}x "
-                   "(a posição e o risco não mudam)"
-                   if p.get("leverage", {}).get("max_safe", 1) > 1 else "")
-                + f".\n{note}")
+                f"R:R 1:{p['rr']} · válido 12h\n{note}")
     if k == "TRIGGERED":
         return (f"🔵 ENTRADA — {head}\nPreço entrou na zona de compra "
                 f"({_px(e['price'])}). Coloca o stop em {_px(p['stop'])}.")
@@ -178,9 +193,10 @@ def process_inbox(state):
     """Le respostas do Telegram e aplica-as ao registo."""
     chat = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
     if not alerts.configured():
-        return
-    replies = inbox.apply(state, inbox.fetch(state), chat)
-    inbox.reply(replies, alerts.send)
+        return False
+    ups = inbox.fetch(state)
+    inbox.reply(inbox.apply(state, ups, chat), alerts.send)
+    return bool(ups)
 
 
 def deliver(cfg, state, events, extra=()):

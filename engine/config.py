@@ -23,6 +23,11 @@ DEFAULTS = {
     "paper_unvalidated": True,
     # Estrategias nao validadas arriscam metade (nunca mais do que risk_pct)
     "unvalidated_risk_pct": 0.5,
+    # Decisao do utilizador (2026-10-02): alavancagem nas estrategias de
+    # swing (margem spot da Bybit UE). A posicao e o risco por operacao sao
+    # multiplicados por este valor, ate ao maximo que mantem a liquidacao
+    # estimada a mais do dobro da distancia do stop. 1 = sem alavancagem.
+    "swing_leverage": 2.0,
     # Sem compras novas com o BTC abaixo da media de 200 dias
     "require_btc_above_sma200": True,
     # Travao de perdas (em R, soma das operacoes fechadas)
@@ -43,4 +48,6 @@ def load(path="config.json"):
         cfg.update(user)
     if not 0 < cfg["risk_pct"] <= 2:
         raise ValueError("risk_pct tem de estar entre 0 e 2")
+    if not 1 <= cfg["swing_leverage"] <= 3:
+        raise ValueError("swing_leverage tem de estar entre 1 e 3")
     return cfg

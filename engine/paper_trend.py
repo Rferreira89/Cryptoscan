@@ -11,6 +11,8 @@ dias anteriores com o preco acima da media de 200 dias; stop inicial a
 anteriores. Risco de 1% por operacao, maximo de 4 posicoes, so grandes
 moedas de 2021 listadas na Bybit UE.
 """
+from . import risk
+
 MAJORS21 = ["BTC", "ETH", "BNB", "XRP", "ADA", "DOGE", "SOL", "DOT", "LTC",
             "LINK", "BCH", "XLM", "UNI", "AVAX", "TRX", "ATOM", "FIL", "ALGO",
             "AAVE", "NEAR", "ICP", "HBAR", "CRV", "INJ"]
@@ -109,7 +111,9 @@ def update(state, rows, daily, cfg, now, market_ok=True, halted=None):
                 risk_unit = entry - stop + fee * (entry + stop)
                 rp = min(cfg["risk_pct"],
                          cfg.get("unvalidated_risk_pct", cfg["risk_pct"]))
-                frac = min(rp / 100 / (risk_unit / entry), CAP)
+                lev = risk.leverage_for((entry - stop) / entry, cfg)
+                frac = min(rp * lev["use"] / 100 / (risk_unit / entry),
+                           CAP * lev["use"])
                 st["positions"][a] = {
                     "entry": entry, "stop0": stop, "entry_t": now,
                     "pair": r["venue"]["pair"], "position_pct": round(frac * 100, 1),
@@ -120,6 +124,10 @@ def update(state, rows, daily, cfg, now, market_ok=True, halted=None):
                            "position_pct": round(frac * 100, 1),
                            "risk_pct": round(frac * risk_unit / entry * 100, 2),
                            "stop_pct": round(risk_unit / entry * 100, 2),
+                           "leverage": lev["use"],
+                           "collateral_pct": round(frac * 100 / lev["use"], 1),
+                           "liquidation_est": entry * (1 - 1 / lev["use"] + risk.MMR)
+                           if lev["use"] > 1 else None,
                            "real": bool(cfg.get("real_money_unvalidated"))})
         if new_day:
             st["last_day"][a] = last["t"]

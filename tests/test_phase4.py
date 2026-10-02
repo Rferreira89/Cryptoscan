@@ -8,7 +8,7 @@ from tests.test_analysis import walk
 
 from engine import validation
 
-CFG = dict(config.DEFAULTS)
+CFG = dict(config.DEFAULTS, swing_leverage=1.0)   # numeros base sem margem
 PAPER = dict(CFG, real_money_unvalidated=False)
 _ORIG_LOAD = validation.load
 

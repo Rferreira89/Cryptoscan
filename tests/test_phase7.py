@@ -2,7 +2,7 @@ import unittest
 
 from engine import config, ledger, reports, risk, signals
 
-CFG = dict(config.DEFAULTS)
+CFG = dict(config.DEFAULTS, swing_leverage=1.0)   # numeros base sem margem
 PLAN = {"entry_zone": [99.7, 100.0], "stop": 98.0, "tp": [104.0, 108.0, 112.0],
         "rr": 2.4, "risk_pct": 0.5, "position_pct": 20.0}
 SIG = {"asset": "LINK", "pair": "LINK/USDC", "strategy": "PULLBACK",
@@ -66,22 +66,63 @@ class Ledger(unittest.TestCase):
 
 
 class Leverage(unittest.TestCase):
-    def test_never_needed_and_liquidation_beyond_stop(self):
+    def plan(self, stop, lev):
         from tests.test_phase4 import a4h, a1d
+        return risk.plan({"strategy": "X", "entry": [99.7, 100.0], "stop": stop},
+                         a4h(), a1d(), dict(CFG, swing_leverage=lev))[0]
+
+    def test_no_leverage_is_unchanged(self):
+        p = self.plan(98.0, 1.0)
+        self.assertEqual(p["leverage"]["use"], 1.0)
+        self.assertIsNone(p["leverage"]["liquidation_est"])
+        self.assertEqual(p["leverage"]["borrowed_pct"], 0.0)
+        self.assertLessEqual(p["position_pct"], CFG["max_position_pct"])
+
+    def test_leverage_scales_position_and_risk_within_bounds(self):
+        base, lev = self.plan(98.0, 1.0), self.plan(98.0, 2.0)
+        self.assertEqual(lev["leverage"]["use"], 2.0)
+        self.assertAlmostEqual(lev["position_pct"], 2 * base["position_pct"], places=1)
+        self.assertAlmostEqual(lev["risk_pct"], 2 * base["risk_pct"], places=2)
+        # capital proprio em jogo nunca passa o teto por posicao
+        self.assertLessEqual(lev["leverage"]["collateral_pct"],
+                             CFG["max_position_pct"] + 1e-9)
+        self.assertAlmostEqual(lev["leverage"]["collateral_pct"]
+                               + lev["leverage"]["borrowed_pct"],
+                               lev["position_pct"], places=1)
+        # risco por operacao nunca passa risco base x alavancagem
         for stop in (99.1, 98.0, 97.0, 96.5):
-            p, _ = risk.plan({"strategy": "X", "entry": [99.7, 100.0],
-                              "stop": stop}, a4h(), a1d(), CFG)
-            if not p:
-                continue
-            lv = p["leverage"]
-            self.assertEqual(lv["needed"], 1.0)
-            self.assertTrue(1.0 <= lv["max_safe"] <= 3.0)
-            if lv["max_safe"] > 1:
-                # liquidacao estimada a mais do dobro da distancia do stop
-                self.assertGreaterEqual(100.0 - lv["liquidation_est"],
-                                        2 * (100.0 - stop))
-            self.assertAlmostEqual(lv["collateral_pct"],
-                                   p["position_pct"] / lv["max_safe"], places=1)
+            p = self.plan(stop, 3.0)
+            if p:
+                self.assertLessEqual(p["risk_pct"],
+                                     CFG["risk_pct"] * p["leverage"]["use"] + 0.01)
+
+    def test_liquidation_stays_far_from_stop(self):
+        for sf in (0.01, 0.03, 0.05, 0.08, 0.12, 0.2, 0.35):
+            lv = risk.leverage_for(sf, dict(CFG, swing_leverage=3.0))
+            self.assertTrue(1.0 <= lv["use"] <= lv["max_safe"] <= 3.0)
+            if lv["use"] > 1:
+                liq_dist = 1 / lv["use"] - risk.MMR
+                self.assertGreaterEqual(liq_dist, 2.5 * sf - 1e-9)
+        # stop muito largo: sem margem
+        self.assertEqual(risk.leverage_for(0.35, dict(CFG, swing_leverage=3.0))["use"], 1.0)
+
+    def test_config_bounds_and_backtest_ignores_leverage(self):
+        import json, os, tempfile
+        d = tempfile.mkdtemp()
+        f = os.path.join(d, "c.json")
+        json.dump({"swing_leverage": 5}, open(f, "w"))
+        with self.assertRaises(ValueError):
+            config.load(f)
+        self.assertEqual(config.load("nao-existe.json")["swing_leverage"], 2.0)
+
+    def test_alert_lines(self):
+        from engine import run
+        self.assertEqual(run.invest_line(20.0, 0.5, {"use": 1.0}),
+                         "Investir: 20.0% do capital (risco 0.5%)")
+        t = run.invest_line(40.0, 1.0, {"use": 2.0, "collateral_pct": 20.0,
+                                        "liquidation_est": 55.0})
+        for part in ("Margem 2x", "40.0%", "20.0% teus", "risco 1.0%", "55"):
+            self.assertIn(part, t)
 
 
 def series(vals, t0=0):

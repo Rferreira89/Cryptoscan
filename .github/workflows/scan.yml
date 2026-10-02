@@ -1,6 +1,6 @@
 name: Market Scanner
 # Um job corre em ciclo (scan completo de 15 em 15 minutos e acompanhamento
-# das operacoes abertas de 5 em 5) durante ~5h20 e no fim
+# das operacoes abertas de minuto a minuto) durante ~5h20 e no fim
 # relanca-se a si proprio. O agendamento do GitHub e pouco fiavel, por isso
 # serve apenas de vigia: se a cadeia parar, volta a arranca-la.
 on:
@@ -42,9 +42,9 @@ jobs:
           }
           while [ "$(date +%s)" -lt "$END" ]; do
             NOW=$(date +%s)
-            # scan completo de 15 em 15 minutos; nos outros 5 minutos, so
-            # acompanhamento das operacoes abertas
-            if [ $(( NOW % 900 )) -lt 300 ]; then MODE=scan; else MODE=monitor; fi
+            # scan completo no primeiro minuto de cada quarto de hora; nos
+            # restantes minutos, so acompanhamento das operacoes abertas
+            if [ $(( NOW % 900 )) -lt 60 ]; then MODE=scan; else MODE=monitor; fi
             echo "::group::$MODE $(date -u +%FT%TZ)"
             # codigo mais recente em cada ciclo
             git fetch -q origin main && git reset -q --hard FETCH_HEAD || true
@@ -63,7 +63,11 @@ jobs:
               fi
             fi
             if [ "$OK" = 1 ] && [ "$MODE" = monitor ]; then
-              python -m engine.monitor out && publish monitor || echo "monitor falhou"
+              if python -m engine.monitor out; then
+                if [ -f out/.publish ]; then rm -f out/.publish; publish monitor; fi
+              else
+                echo "monitor falhou"
+              fi
             elif [ "$OK" = 1 ] && python -m unittest discover -q -s tests -t . ; then
               if python -m engine.run out > /dev/null; then
                 head -12 out/resumo.txt
@@ -76,7 +80,7 @@ jobs:
             fi
             echo "::endgroup::"
             NOW=$(date +%s)
-            sleep $(( 300 - NOW % 300 + 20 ))
+            sleep $(( 60 - NOW % 60 + 5 ))
           done
       - name: Relancar
         if: always()
