@@ -10,7 +10,8 @@ import statistics
 import time
 from concurrent.futures import ThreadPoolExecutor
 
-from . import (analysis, config, derivatives, liquidity, regime, signals,
+from . import (analysis, config, derivatives, liquidity, paper_trend, regime,
+               signals,
                sources, validate, venue, volume)
 
 MIN_VOLUME_USD = 5_000_000
@@ -143,6 +144,7 @@ def deep_check(row, src_order, now):
                                     - (0 if len(row["sources"]) > 1 else 10)))
     # Sem dados validos nao ha analise (hierarquia: 1. dados validos?)
     out["_c4"] = clean.get("4h")
+    out["_c1"] = clean.get("1d")
     usable = (out["data_status"] != validate.INVALID
               and len(clean) == len(TIMEFRAMES))
     out["analysis"] = analysis.multi(clean) if usable else None
@@ -246,7 +248,14 @@ def run(now=None, state=None, cfg=None):
         else:
             r["decision"] = signals.decide(r, c4, cfg, ven.get(r["asset"]),
                                            btc_reg, changed.get(r["asset"], False))
+    daily = {r["asset"]: r.pop("_c1", None) for r in eligible}
     events = signals.update_state(state, eligible, cfg, now)
+    result["market_filter"], ev = paper_trend.market_filter(
+        daily.get("BTC"), state, now)
+    events += ev
+    result["paper_trend"], ev = paper_trend.update(state, eligible, daily,
+                                                   cfg, now)
+    events += ev
     result["active_signals"] = [s for s in state["signals"].values()
                                 if s["status"] in ("ACTIVE", "TRIGGERED")]
     result["closed_signals"] = sorted(

@@ -44,6 +44,10 @@ def summary(res):
             L.append(f"      familias {d['families']} conflitos {d['conflicts']}")
         for x in d.get("rejected", []):
             L.append(f"      rejeitado {x}")
+    L.append(f"FILTRO DE MERCADO {res.get('market_filter')}")
+    pt = res.get("paper_trend") or {}
+    L.append(f"PAPEL TENDENCIA capital {pt.get('equity_pct')}% n {pt.get('n')} "
+             f"posicoes {list((pt.get('positions') or {}))}")
     L.append(f"SINAIS ATIVOS {len(res['active_signals'])}")
     for s in res["active_signals"]:
         L.append(f"  {s['id']} {s['status']} {s['plan']}")
@@ -56,10 +60,29 @@ def _px(x):
 
 def alert_text(e, sigs, note):
     """Texto do Telegram para um evento. None = não notificar."""
+    k = e["event"]
+    if k == "MARKET_FILTER":
+        return ("📊 REGIME DE MERCADO — o BTC passou para "
+                + ("ACIMA" if e["above"] else "ABAIXO")
+                + f" da média de 200 dias ({_px(e['close'])} vs "
+                f"{_px(e['sma200'])}). "
+                + ("Historicamente é o contexto favorável a compras."
+                   if e["above"] else
+                   "Historicamente é o contexto em que comprar perde mais."))
+    if k == "PAPER_BUY":
+        return (f"📝 PAPEL (simulação, não validado) — compra {e['asset']} "
+                f"({e['pair']}) a {_px(e['price'])}, stop {_px(e['stop'])}, "
+                f"{e['position_pct']}% do capital. Tendência diária.")
+    if k == "PAPER_SELL":
+        why = {"STOP": "stop atingido", "TRAIL": "fecho abaixo do mínimo "
+               "de 20 dias"}[e["reason"]]
+        return (f"📝 PAPEL (simulação, não validado) — venda {e['asset']} "
+                f"({e['pair']}) a {_px(e['price'])}: {why}. "
+                f"Resultado {e['r']:+.2f}R.")
     s = sigs.get(e["id"]) or e.get("signal")
     if not s:
         return None
-    p, k = s["plan"], e["event"]
+    p = s["plan"]
     head = f"{s['asset']} ({s['pair']}, {s['venue']})"
     if k == "ISSUED":
         return (f"🟢 COMPRA — {head}\n"

@@ -202,3 +202,66 @@ class Stats(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PaperTrend(unittest.TestCase):
+    def daily(self, closes, t0=0):
+        return [{"t": t0 + k * 86400, "o": c, "h": c * 1.01, "l": c * 0.99,
+                 "c": c, "v": 1.0} for k, c in enumerate(closes)]
+
+    def test_market_filter_flip_alerts_once(self):
+        from engine import paper_trend as P
+        st = {}
+        up = self.daily([100.0] * 199 + [120.0])
+        info, ev = P.market_filter(up, st, 1)
+        self.assertTrue(info["btc_above_sma200"])
+        self.assertEqual(ev, [])                       # primeiro registo: sem alerta
+        self.assertEqual(P.market_filter(up, st, 2)[1], [])
+        dn = self.daily([100.0] * 199 + [80.0])
+        info, ev = P.market_filter(dn, st, 3)
+        self.assertFalse(info["btc_above_sma200"])
+        self.assertEqual(ev[0]["event"], "MARKET_FILTER")
+        self.assertEqual(P.market_filter(None, st, 4), (None, []))
+
+    def test_buy_trail_stop_and_once_per_day(self):
+        from engine import paper_trend as P
+        st = {}
+        c = self.daily([100.0] * 220 + [104.0])        # quebra do maximo de 20d
+        row = lambda px: [{"asset": "LINK", "price": px,
+                           "venue": {"pair": "LINK/USDC"}}]
+        s, ev = P.update(st, row(104.2), {"LINK": c}, CFG, 10)
+        self.assertEqual(ev[0]["event"], "PAPER_BUY")
+        pos = st["paper_trend"]["positions"]["LINK"]
+        self.assertLess(pos["stop0"], pos["entry"])
+        self.assertLessEqual(pos["risk_frac"], 0.0101)
+        # mesmo dia, novo scan: nao volta a comprar nem a avaliar
+        self.assertEqual(P.update(st, row(104.5), {"LINK": c}, CFG, 20)[1], [])
+        # stop intradiario
+        s, ev = P.update(st, row(pos["stop0"] * 0.99), {"LINK": c}, CFG, 30)
+        self.assertEqual((ev[0]["event"], ev[0]["reason"]), ("PAPER_SELL", "STOP"))
+        self.assertLess(ev[0]["r"], -0.9)
+        self.assertLess(s["equity_pct"], 0)
+        self.assertEqual(s["n"], 1)
+
+    def test_filters(self):
+        from engine import paper_trend as P
+        c = self.daily([100.0] * 220 + [104.0])
+        mk = lambda a, px, v={"pair": "X/USDC"}: [{"asset": a, "price": px,
+                                                   "venue": v}]
+        self.assertEqual(P.update({}, mk("PEPE", 104.2), {"PEPE": c}, CFG, 1)[1], [])
+        self.assertEqual(P.update({}, mk("LINK", 104.2, None), {"LINK": c}, CFG, 1)[1], [])
+        self.assertEqual(P.update({}, mk("LINK", 112.0), {"LINK": c}, CFG, 1)[1], [])  # tarde
+        below = self.daily([200.0] * 180 + [100.0] * 40 + [104.0])   # abaixo da SMA200
+        self.assertEqual(P.update({}, mk("LINK", 104.2), {"LINK": below}, CFG, 1)[1], [])
+
+    def test_alert_texts(self):
+        from engine import run
+        t = run.alert_text({"event": "PAPER_BUY", "id": "p", "asset": "LINK",
+                            "pair": "LINK/USDC", "price": 14.2, "stop": 12.9,
+                            "position_pct": 10.0}, {}, "")
+        self.assertIn("PAPEL", t)
+        self.assertIn("não validado", t)
+        t = run.alert_text({"event": "MARKET_FILTER", "id": "market",
+                            "above": False, "close": 80000, "sma200": 85000},
+                           {}, "")
+        self.assertIn("ABAIXO", t)
