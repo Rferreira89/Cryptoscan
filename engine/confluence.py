@@ -53,7 +53,7 @@ def score(setup, plan, a4, mtf_conflict, reg, btc_reg, deriv, is_btc,
         fl = min(1.0, fl + 0.2)
     if v.get("divergence") == "BEARISH":
         fl = 0.1
-        conflicts.append("fluxo vendedor com preco a subir")
+        conflicts.append("fluxo vendedor com preço a subir")
     elif v.get("divergence") == "BULLISH":
         fl = min(1.0, fl + 0.2)
     f["flow"] = fl

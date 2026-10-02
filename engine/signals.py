@@ -32,11 +32,11 @@ def decide(row, c4, cfg, v, btc_reg, regime_changed):
     an = row.get("analysis")
     ok = row.get("data_status") != validate.INVALID and an and \
         an["1d"]["ok"] and an["4h"]["ok"]
-    if not chk(1, "dados validos", ok, row.get("data_status") or ""):
-        return stop("dados invalidos ou historico insuficiente")
+    if not chk(1, "dados válidos", ok, row.get("data_status") or ""):
+        return stop("dados inválidos ou histórico insuficiente")
 
     v_ok, v_why = venue.check(v, row["price"], cfg)
-    if not chk(2, "execucao na Bybit UE", v_ok, "; ".join(v_why)):
+    if not chk(2, "execução na Bybit UE", v_ok, "; ".join(v_why)):
         return stop(v_why[0])
     out["venue"] = {"name": cfg["venue"], "pair": v["pair"], "last": v["last"],
                     "spread_pct": v["spread_pct"], "url": v["url"]}
@@ -47,16 +47,16 @@ def decide(row, c4, cfg, v, btc_reg, regime_changed):
     out["regime_changed"] = regime_changed
     ok = reg["regime"] not in ("UNCLEAR", "HIGH VOLATILITY")
     if not chk(3, "regime identificado", ok, reg["regime"]):
-        return stop(f"regime {reg['regime']}: sem vantagem identificavel")
+        return stop(f"regime {reg['regime']}: sem vantagem identificável")
 
     found = strategies.evaluate(c4, a4, a1, reg)
     setups = [s for s in found if "rejected" not in s]
     out["rejected"] = [f"{s['strategy']}: {s['rejected']}" for s in found
                        if "rejected" in s]
-    if not chk(4, "estrategia adequada ao regime", setups,
+    if not chk(4, "estratégia adequada ao regime", setups,
                ", ".join(s["strategy"] for s in setups)):
         return stop(out["rejected"][0] if out["rejected"] else
-                    f"nenhuma estrategia aplicavel em regime {reg['regime']}")
+                    f"nenhuma estratégia aplicável em regime {reg['regime']}")
 
     ok = not (a4["structure"] == "BEARISH" and a1["structure"] == "BEARISH")
     if not chk(5, "estrutura", ok, f"1D {a1['structure']}, 4H {a4['structure']}"):
@@ -92,12 +92,12 @@ def decide(row, c4, cfg, v, btc_reg, regime_changed):
                    "setup_quality": sc["score"],
                    "regime_compatibility": round(100 * sc["families"]["regime"]),
                    "historical_strategy_quality": None})   # sem backtest ainda
-    chk(6, "setup valido (gatilho)", ready, s["trigger"])
-    chk(7, "confluencia", sc["score"] >= cfg["min_score"],
-        f"{sc['score']}/100, minimo {cfg['min_score']}")
+    chk(6, "setup válido (gatilho)", ready, s["trigger"])
+    chk(7, "confluência", sc["score"] >= cfg["min_score"],
+        f"{sc['score']}/100, mínimo {cfg['min_score']}")
     chk(8, "R:R", True, f"1:{p['rr']}")
-    chk(9, "risco aceitavel", True,
-        f"stop {p['stop_pct']}%, posicao {p['position_pct']}% do capital")
+    chk(9, "risco aceitável", True,
+        f"stop {p['stop_pct']}%, posição {p['position_pct']}% do capital")
     grave = len(sc["conflicts"]) >= 2
     chk(10, "sem conflito grave", not grave, "; ".join(sc["conflicts"]))
     out["checks"] = checks
@@ -106,13 +106,13 @@ def decide(row, c4, cfg, v, btc_reg, regime_changed):
                    reason="SIGNAL CONFLICT: " + "; ".join(sc["conflicts"]))
     elif sc["score"] < 50:
         out.update(decision="NO TRADE",
-                   reason=f"confluencia insuficiente ({sc['score']}/100)")
+                   reason=f"confluência insuficiente ({sc['score']}/100)")
     elif ready and sc["score"] >= cfg["min_score"]:
         out.update(decision="LONG", reason=s["trigger"])
     else:
         out.update(decision="WATCHLIST", reason=(
             s["trigger"] if not ready else
-            f"confluencia {sc['score']}/100 abaixo do minimo {cfg['min_score']}"))
+            f"confluência {sc['score']}/100 abaixo do mínimo {cfg['min_score']}"))
     return out
 
 
@@ -123,14 +123,14 @@ def explain(row):
     fam = sorted(d["families"].items(), key=lambda kv: kv[1])
     weakest = fam[0][0]
     return {
-        "why": "; ".join(d["notes"]) + f". Regime diario {d['regime']}.",
+        "why": "; ".join(d["notes"]) + f". Regime diário {d['regime']}.",
         "why_now": d["trigger"],
         "confirms": [k for k, v in d["families"].items() if v >= 0.7],
         "invalidates": f"fecho de 4H abaixo de {strategies.px_str(p['stop'])}",
         "main_risk": (d["conflicts"][0] if d["conflicts"] else
-                      f"ponto mais fraco da confluencia: {weakest}"),
-        "would_change": ("perda da estrutura de 4H, mudanca do regime diario "
-                         "ou o preco afastar-se da zona de entrada sem a tocar")}
+                      f"ponto mais fraco da confluência: {weakest}"),
+        "would_change": ("perda da estrutura de 4H, mudança do regime diário "
+                         "ou o preço afastar-se da zona de entrada sem a tocar")}
 
 
 def update_state(state, rows, cfg, now):
@@ -150,9 +150,9 @@ def update_state(state, rows, cfg, now):
             px = r["price"] if r else None
             if s["status"] == "ACTIVE":
                 if px is not None and px <= s["plan"]["stop"]:
-                    close(key, "INVALIDATED", "preco atingiu o stop antes da entrada")
+                    close(key, "INVALIDATED", "preço atingiu o stop antes da entrada")
                 elif px is not None and px > s["plan"]["tp"][0]:
-                    close(key, "INVALIDATED", "preco chegou ao TP1 sem dar entrada")
+                    close(key, "INVALIDATED", "preço chegou ao TP1 sem dar entrada")
                 elif now >= s["expires_at"]:
                     close(key, "EXPIRED", "validade do sinal terminou")
                 elif px is not None and px <= s["plan"]["entry_zone"][1]:
@@ -174,7 +174,7 @@ def update_state(state, rows, cfg, now):
         d = r["decision"]
         if slots <= 0:
             d.update(decision="WATCHLIST",
-                     reason="limite de sinais ativos em simultaneo atingido")
+                     reason="limite de sinais ativos em simultâneo atingido")
             continue
         slots -= 1
         key = f"{r['asset']}-{d['strategy']}-{now}"

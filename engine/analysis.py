@@ -18,7 +18,7 @@ def _r(v, nd=6):
 
 def timeframe(c):
     if len(c) < MIN_BARS:
-        return {"ok": False, "reason": f"historico insuficiente ({len(c)}/{MIN_BARS})"}
+        return {"ok": False, "reason": f"histórico insuficiente ({len(c)}/{MIN_BARS})"}
     close = [x["c"] for x in c]
     px = close[-1]
     e20, e50, e200 = (I.ema(close, n)[-1] for n in (20, 50, 200))
@@ -60,6 +60,6 @@ def multi(candles_by_tf):
         elif dn_hi and not up_hi and lo["structure"] == "BULLISH":
             conflict = "4H bullish contra 1D bearish"
         elif up_hi and dn_hi:
-            conflict = "1D: medias e estrutura discordam"
+            conflict = "1D: médias e estrutura discordam"
     out["mtf_conflict"] = conflict
     return out

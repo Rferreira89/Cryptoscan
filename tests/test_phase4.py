@@ -160,7 +160,7 @@ class Risk(unittest.TestCase):
     def test_rejections(self):
         self.assertIn("curto", risk.plan(self.setup_(stop=99.6), a4h(), a1d(), CFG)[1])
         self.assertIn("largo", risk.plan(self.setup_(stop=95.0), a4h(), a1d(), CFG)[1])
-        self.assertIn("invalido", risk.plan(self.setup_(stop=99.9), a4h(), a1d(), CFG)[1])
+        self.assertIn("inválido", risk.plan(self.setup_(stop=99.9), a4h(), a1d(), CFG)[1])
         near = a4h(liquidity=dict(a4h()["liquidity"], pools_above=[101.0]),
                    swing_high=101.0)
         self.assertIn("POOR R:R", risk.plan(self.setup_(), near, a1d(), CFG)[1])
@@ -226,7 +226,7 @@ V = {"pair": "X/USDC", "last": 100.0, "volume_usd": 5e6, "spread_pct": 0.05,
 class Venue(unittest.TestCase):
     def test_checks(self):
         self.assertEqual(venue.check(None, 100, CFG),
-                         (False, ["nao listado na Bybit UE"]))
+                         (False, ["não listado na Bybit UE"]))
         self.assertTrue(venue.check(V, 100.2, CFG)[0])
         self.assertFalse(venue.check(dict(V, spread_pct=0.9), 100, CFG)[0])
         self.assertFalse(venue.check(dict(V, volume_usd=10), 100, CFG)[0])
@@ -262,7 +262,7 @@ class Signals(unittest.TestCase):
         self.assertEqual((d["decision"], len(d["checks"])), ("NO TRADE", 1))
         d = signals.decide(row(), C4, CFG, None, "BULL", False)
         self.assertEqual((d["decision"], d["reason"]),
-                         ("NO TRADE", "nao listado na Bybit UE"))
+                         ("NO TRADE", "não listado na Bybit UE"))
         d = signals.decide(row(a1=a1d(structure="UNCLEAR")), C4, CFG, V, "BULL", False)
         self.assertEqual(d["decision"], "NO TRADE")
         self.assertEqual(d["checks"][-1]["n"], 3)

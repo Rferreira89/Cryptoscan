@@ -11,7 +11,7 @@ def classify(a):
     """a = analise do timeframe diario."""
     if not a or not a.get("ok"):
         return {"regime": "UNCLEAR", "high_volatility": False,
-                "why": ["sem analise diaria"]}
+                "why": ["sem análise diária"]}
     hv = a.get("atr_pctile") is not None and a["atr_pctile"] >= 95
     if a["structure"] == "UNCLEAR":
         return {"regime": "UNCLEAR", "high_volatility": hv,
@@ -22,7 +22,7 @@ def classify(a):
             a["close"] < a["ema50"]]
     nb, ns = sum(bull), sum(bear)
     strong = a["adx"] is not None and a["adx"] >= 25
-    why = [f"medias {a['ema_trend']}", f"estrutura {a['structure']}",
+    why = [f"médias {a['ema_trend']}", f"estrutura {a['structure']}",
            f"ADX {a['adx']}", f"ATR percentil {a.get('atr_pctile')}"]
     if nb == 3:
         reg = "STRONG BULL" if strong else "BULL"

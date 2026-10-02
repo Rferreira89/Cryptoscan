@@ -37,15 +37,15 @@ def fetch(quote="USDC", max_pages=4):
 def check(v, global_price, cfg):
     """Devolve (ok, motivos) para executar neste par."""
     if v is None:
-        return False, ["nao listado na Bybit UE"]
+        return False, ["não listado na Bybit UE"]
     why = []
     if v["stale"] or not v["last"]:
-        why.append("preco da Bybit UE desatualizado")
+        why.append("preço da Bybit UE desatualizado")
     if v["spread_pct"] is None or v["spread_pct"] > cfg["max_venue_spread_pct"]:
         why.append("spread elevado na Bybit UE")
     if (v["volume_usd"] or 0) < cfg["min_venue_volume_usd"]:
         why.append("volume baixo na Bybit UE")
     if v["last"] and global_price and \
             abs(v["last"] / global_price - 1) > 0.01:
-        why.append("preco da Bybit UE diverge do mercado")
+        why.append("preço da Bybit UE diverge do mercado")
     return not why, why

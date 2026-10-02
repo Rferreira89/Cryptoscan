@@ -195,7 +195,7 @@ def run(now=None, state=None, cfg=None):
                              "max_spread_bps": MAX_SPREAD_BPS,
                              "deep_n": DEEP_N},
               "signals_note": "Estrategias NAO validadas por backtest. "
-                              "O score nao e uma probabilidade."}
+                              "O score não é uma probabilidade."}
     if not live:
         result.update(status_global="DATA SOURCE ERROR", universe=[])
         return result, state, []
@@ -213,7 +213,7 @@ def run(now=None, state=None, cfg=None):
         r["venue"] = v
         if ven is not None and v is None and r["eligible"]:
             r["eligible"] = False
-            r["excluded_for"].append("nao listado na Bybit UE")
+            r["excluded_for"].append("não listado na Bybit UE")
     eligible = [r for r in uni if r["eligible"]][:DEEP_N]
     with ThreadPoolExecutor(max_workers=6) as ex:
         for row, deep in zip(eligible, ex.map(
@@ -242,7 +242,7 @@ def run(now=None, state=None, cfg=None):
         if ven is None:
             r["decision"] = {"decision": "NO TRADE", "validated": False,
                              "reason": "DATA SOURCE ERROR: lista da Bybit UE "
-                                       "indisponivel", "checks": []}
+                                       "indisponível", "checks": []}
         else:
             r["decision"] = signals.decide(r, c4, cfg, ven.get(r["asset"]),
                                            btc_reg, changed.get(r["asset"], False))

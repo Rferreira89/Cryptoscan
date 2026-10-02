@@ -4,6 +4,8 @@ O stop vem da estrutura (definido pela estrategia) e e validado contra a
 volatilidade: nem tao curto que seja ruido, nem tao largo que o R:R seja
 artificial. Nunca se aumenta o risco por o score ser elevado.
 """
+from .strategies import px_str
+
 MIN_STOP_ATR, MAX_STOP_ATR = 0.8, 4.0
 
 
@@ -26,10 +28,10 @@ def plan(setup, a4, a1, cfg):
     lo, hi = sorted(setup["entry"])
     entry, stop = hi, setup["stop"]          # pior preco da zona: conservador
     if stop <= 0 or stop >= lo:
-        return None, "stop invalido face a zona de entrada"
+        return None, "stop inválido face a zona de entrada"
     dist = entry - stop
     if dist < MIN_STOP_ATR * atr:
-        return None, f"stop demasiado curto ({dist / atr:.1f} ATR): ruido"
+        return None, f"stop demasiado curto ({dist / atr:.1f} ATR): ruído"
     if dist > MAX_STOP_ATR * atr:
         return None, f"stop demasiado largo ({dist / atr:.1f} ATR)"
     risk_unit = dist + fee * (entry + stop)   # perda por unidade com comissoes
@@ -40,7 +42,7 @@ def plan(setup, a4, a1, cfg):
     levels = [x for x in (setup.get("targets") or _levels_above(a4, a1))
               if x > entry]
     if levels and net_r(levels[0]) < 1.0:
-        return None, (f"POOR R:R: resistencia em {levels[0]:.6g} a menos de "
+        return None, (f"POOR R:R: resistência em {px_str(levels[0])} a menos de "
                       "1R da entrada")
     tps, projected = [], []
     for need in (1.0, cfg["min_rr"], cfg["min_rr"] + 1.0):
@@ -54,7 +56,7 @@ def plan(setup, a4, a1, cfg):
         tps.append(cand)
     rr = net_r(tps[1])
     if rr < cfg["min_rr"] - 1e-9:
-        return None, f"POOR R:R: {rr:.2f} abaixo do minimo {cfg['min_rr']}"
+        return None, f"POOR R:R: {rr:.2f} abaixo do mínimo {cfg['min_rr']}"
     stop_pct = risk_unit / entry * 100
     size_pct = min(cfg["risk_pct"] / stop_pct * 100, cfg["max_position_pct"])
     return {"entry_zone": [lo, hi], "entry_ref": entry, "stop": stop,

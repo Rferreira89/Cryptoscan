@@ -49,8 +49,8 @@ def pullback(c4, a4, a1, reg):
     low5 = min(x["l"] for x in c4[-5:])
     stop = low5 - 0.3 * atr
     s = {"strategy": "PULLBACK", "stop": stop,
-         "notes": [f"recuo de {round((recent_high - px) / atr, 1)} ATR ate as "
-                   "medias de 4H em tendencia diaria de subida"]}
+         "notes": [f"recuo de {round((recent_high - px) / atr, 1)} ATR até as "
+                   "médias de 4H em tendência diaria de subida"]}
     if _bull_trigger(c4, a4):
         s.update(state="READY", entry=[px - 0.3 * atr, px],
                  trigger="vela de 4H confirmou a retoma")
@@ -67,24 +67,24 @@ def breakout(c4, a4, a1, reg, rvol_at):
         return None
     if reg["regime"] in BEARISH:
         return {"strategy": "BREAKOUT",
-                "rejected": "quebra em alta contra regime diario de descida"}
+                "rejected": "quebra em alta contra regime diário de descida"}
     atr, px, level = a4["atr"], a4["close"], ev["level"]
     j = len(c4) - 1 - ev["bars_ago"]
     rv = rvol_at(j)
     if px < level:
-        return {"strategy": "BREAKOUT", "rejected": "FAKE BREAKOUT: preco "
+        return {"strategy": "BREAKOUT", "rejected": "FAKE BREAKOUT: preço "
                 "voltou a fechar abaixo do nivel quebrado"}
     if rv is not None and rv < 1.2:
         return {"strategy": "BREAKOUT", "rejected":
-                f"LOW VOLUME BREAKOUT: volume da quebra {rv}x a media"}
+                f"LOW VOLUME BREAKOUT: volume da quebra {rv}x a média"}
     zone = [level, level + 0.4 * atr]
     s = {"strategy": "BREAKOUT", "stop": level - 1.0 * atr, "entry": zone,
-         "notes": [f"{ev['type']} em alta ha {ev['bars_ago']} velas de 4H, "
-                   f"volume {rv}x a media"]}
+         "notes": [f"{ev['type']} em alta há {ev['bars_ago']} velas de 4H, "
+                   f"volume {rv}x a média"]}
     retested = any(x["l"] <= zone[1] for x in c4[j + 1:]) and px >= level
     if px > level + 1.5 * atr:
         s.update(state="WAITING", notes=s["notes"] + ["MOVE EXTENDED"],
-                 trigger=f"recuo ate {px_str(zone[0])}-{px_str(zone[1])} (reteste)")
+                 trigger=f"recuo até {px_str(zone[0])}-{px_str(zone[1])} (reteste)")
     elif retested and px <= zone[1] + 0.6 * atr and c4[-1]["c"] > c4[-1]["o"]:
         s.update(state="READY", trigger="reteste do nivel quebrado aguentou")
     else:
@@ -104,15 +104,15 @@ def sweep(c4, a4, a1, reg):
     atr, px = a4["atr"], a4["close"]
     cs = c4[len(c4) - 1 - sw["bars_ago"]]
     s = {"strategy": "LIQUIDITY_SWEEP", "stop": cs["l"] - 0.3 * atr,
-         "notes": [f"sweep do fundo {px_str(sw['level'])} ha {sw['bars_ago']} "
+         "notes": [f"sweep do fundo {px_str(sw['level'])} há {sw['bars_ago']} "
                    "velas de 4H"]}
     if not sw["confirmed"]:
         s.update(state="WAITING", entry=[cs["c"], cs["h"]],
-                 trigger=f"fecho de 4H acima de {px_str(cs['h'])} (confirmacao)")
+                 trigger=f"fecho de 4H acima de {px_str(cs['h'])} (confirmação)")
     elif px > cs["h"] + 1.0 * atr:
         s.update(state="WAITING", entry=[cs["c"], cs["h"]],
                  notes=s["notes"] + ["MOVE EXTENDED"],
-                 trigger=f"recuo ate {px_str(cs['h'])}")
+                 trigger=f"recuo até {px_str(cs['h'])}")
     else:
         s.update(state="READY", entry=[px - 0.3 * atr, px],
                  trigger="sweep confirmado por fecho acima da vela do sweep")
@@ -130,11 +130,11 @@ def range_reversion(c4, a4, a1, reg):
         return None                       # so interessa o quarto inferior
     s = {"strategy": "RANGE", "stop": lo - 0.5 * a1["atr"],
          "targets": [lo + width / 2, hi],
-         "notes": [f"preco no quarto inferior do range diario "
+         "notes": [f"preço no quarto inferior do range diário "
                    f"{px_str(lo)}-{px_str(hi)}"]}
     if _bull_trigger(c4, a4):
         s.update(state="READY", entry=[px - 0.3 * a4["atr"], px],
-                 trigger="rejeicao do fundo do range em 4H")
+                 trigger="rejeição do fundo do range em 4H")
     else:
         s.update(state="WAITING", entry=[lo, lo + 0.25 * width],
                  trigger=f"fecho de 4H acima de {px_str(c4[-1]['h'])}")
