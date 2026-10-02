@@ -6,7 +6,8 @@ from engine import validation
 from tests import test_phase4 as T4
 
 CFG = dict(config.DEFAULTS, swing_leverage=1.0, max_open_positions=4,
-           unvalidated_risk_pct=0.5)   # valores de base fixos para os testes
+           unvalidated_risk_pct=0.5,
+           fixed_position_usdc=None)   # valores de base fixos para os testes
 NY = events.NY
 
 
@@ -371,12 +372,13 @@ class Concentrated(unittest.TestCase):
         c = config.load("nao-existe.json")
         self.assertEqual((c["max_open_positions"], c["unvalidated_risk_pct"],
                           c["capital_usdc"], c["swing_leverage"]), (2, 1.0, 50.0, 2.0))
+        self.assertEqual((c["fixed_position_usdc"], c["max_risk_usdc"]), (25.0, 2.0))
 
     def test_risk_and_position_caps_at_50_usdc(self):
         orig = validation.load
         validation.load = lambda: None
         self.addCleanup(lambda: setattr(validation, "load", orig))
-        cfg = config.load("nao-existe.json")
+        cfg = dict(config.load("nao-existe.json"), fixed_position_usdc=None)
         d = signals.decide(T4.row(), T4.C4, cfg, T4.V, "BULL", False)
         p = d["plan"]
         self.assertLessEqual(p["position_usdc"], 25.0 + 1e-9)
@@ -410,3 +412,59 @@ class Concentrated(unittest.TestCase):
         out = P.update(state, rw, {"LINK": c}, dict(cfg, capital_usdc=500.0),
                        1_800_000_000)[1]
         self.assertEqual(out, [])
+
+
+class FixedStake(unittest.TestCase):
+    def plan(self, stop, lev=2.0, **kw):
+        from engine import risk
+        cfg = dict(config.load("nao-existe.json"), swing_leverage=lev, **kw)
+        return risk.plan({"strategy": "X", "entry": [99.7, 100.0], "stop": stop},
+                         T4.a4h(), T4.a1d(), cfg)
+
+    def test_always_25_usdc_with_or_without_margin(self):
+        for lev in (1.0, 2.0):
+            p, _ = self.plan(98.0, lev)
+            self.assertEqual(p["position_usdc"], 25.0)
+            self.assertEqual(p["position_pct"], 50.0)
+            self.assertEqual(p["partials"], [50, 30, 20])     # 12.5 / 7.5 / 5
+            self.assertAlmostEqual(p["collateral_usdc"], 25.0 / lev, places=2)
+        p, _ = self.plan(98.0)
+        self.assertAlmostEqual(p["risk_usdc"], 25 * 0.02198, places=2)   # 0.55
+        self.assertAlmostEqual(p["risk_pct"], 1.1, places=1)
+
+    def test_wide_stop_is_rejected_by_risk_limit(self):
+        from engine import risk
+        # stop a 9% -> risco de 2.3 USDC, acima do limite de 2
+        a4 = T4.a4h(atr=4.0, liquidity=dict(T4.a4h()["liquidity"],
+                                            pools_above=[130.0, 150.0]),
+                    swing_high=130.0)
+        cfg = config.load("nao-existe.json")
+        p, why = risk.plan({"strategy": "X", "entry": [99.7, 100.0],
+                            "stop": 91.0}, a4, T4.a1d(), cfg)
+        self.assertIsNone(p)
+        self.assertIn("acima do limite de 2", why)
+        p, _ = risk.plan({"strategy": "X", "entry": [99.7, 100.0], "stop": 93.0},
+                         a4, T4.a1d(), cfg)
+        self.assertEqual(p["position_usdc"], 25.0)
+        self.assertLessEqual(p["risk_usdc"], 2.0)
+
+    def test_live_decision_and_two_positions_use_whole_capital(self):
+        orig = validation.load
+        validation.load = lambda: None
+        self.addCleanup(lambda: setattr(validation, "load", orig))
+        cfg = config.load("nao-existe.json")
+        for conflict in (None, "1D: médias e estrutura discordam"):
+            r = T4.row()
+            r["analysis"]["mtf_conflict"] = conflict
+            p = signals.decide(r, T4.C4, cfg, T4.V, "BULL", False)["plan"]
+            self.assertEqual(p["position_usdc"], 25.0)
+        self.assertEqual(cfg["max_open_positions"] * cfg["fixed_position_usdc"],
+                         cfg["capital_usdc"])
+
+    def test_trend_uses_fixed_stake(self):
+        from engine import paper_trend as P
+        c = [{"t": k * 86400, "o": v, "h": v * 1.01, "l": v * 0.99, "c": v,
+              "v": 1.0} for k, v in enumerate([100.0] * 220 + [104.0])]
+        rw = [{"asset": "LINK", "price": 104.2, "venue": {"pair": "LINK/USDC"}}]
+        ev = P.update({}, rw, {"LINK": c}, config.load("nao-existe.json"), 1)[1]
+        self.assertEqual(ev[0]["position_usdc"], 25.0)

@@ -84,6 +84,18 @@ def plan(setup, a4, a1, cfg):
                     if lev["use"] > 1 else None)
     partials, be_note, usdc = [50, 30, 20], None, {}
     cap = cfg.get("capital_usdc")
+    fixed = cfg.get("fixed_position_usdc")
+    if cap and fixed:
+        # posicao fixa: o risco e o que a distancia do stop ditar
+        size_pct = min(fixed, cap * lev["use"]) / cap * 100
+        risk_usdc = cap * size_pct / 100 * stop_pct / 100
+        if risk_usdc > cfg.get("max_risk_usdc", float("inf")) + 1e-9:
+            return None, (f"stop demasiado largo para uma posição de "
+                          f"{fixed:g} USDC: risco de {risk_usdc:.2f} USDC "
+                          f"acima do limite de {cfg['max_risk_usdc']:g}")
+        leverage.update(
+            collateral_pct=round(size_pct / lev["use"], 1),
+            borrowed_pct=round(size_pct - size_pct / lev["use"], 1))
     if cap:
         pos_usdc = cap * size_pct / 100
         mn = cfg.get("min_order_usdc", 5.0)

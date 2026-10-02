@@ -80,7 +80,7 @@ def regimes(c4):
 
 def candidates(asset, c4, btc_regimes, cfg, start_t=0, end_t=None):
     """Todos os setups READY com plano valido. Sem filtro de score."""
-    cfg0 = dict(cfg, min_score=0, swing_leverage=1.0, capital_usdc=None)
+    cfg0 = dict(cfg, min_score=0, swing_leverage=1.0, capital_usdc=None, fixed_position_usdc=None)
     d1 = daily(c4)
     d_idx, a1, out = 0, None, []
     first = max(analysis.MIN_BARS, 1)

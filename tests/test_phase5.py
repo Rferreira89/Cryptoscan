@@ -5,7 +5,8 @@ from engine import config, stats, trade
 from tests.test_analysis import walk
 
 CFG = dict(config.DEFAULTS, swing_leverage=1.0, max_open_positions=4,
-           unvalidated_risk_pct=0.5)   # valores de base fixos para os testes
+           unvalidated_risk_pct=0.5,
+           fixed_position_usdc=None)   # valores de base fixos para os testes
 PLAN = {"entry_zone": [99.7, 100.0], "stop": 98.0, "tp": [104.0, 108.0, 112.0],
         "partials": [50, 30, 20], "risk_pct": 1.0}
 bar = lambda t, o, h, l, c: {"t": t * 14400, "o": o, "h": h, "l": l, "c": c,

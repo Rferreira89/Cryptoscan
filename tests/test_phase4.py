@@ -9,7 +9,8 @@ from tests.test_analysis import walk
 from engine import validation
 
 CFG = dict(config.DEFAULTS, swing_leverage=1.0, max_open_positions=4,
-           unvalidated_risk_pct=0.5)   # valores de base fixos para os testes
+           unvalidated_risk_pct=0.5,
+           fixed_position_usdc=None)   # valores de base fixos para os testes
 PAPER = dict(CFG, real_money_unvalidated=False)
 _ORIG_LOAD = validation.load
 

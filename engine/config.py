@@ -38,6 +38,12 @@ DEFAULTS = {
     # as operacoes a ordem minima da Bybit UE.
     "capital_usdc": 50.0,
     "min_order_usdc": 5.0,
+    # Decisao do utilizador (2026-10-02): todas as operacoes com posicao
+    # fixa de 25 USDC. O risco passa a depender da distancia do stop; uma
+    # operacao cujo risco exceda max_risk_usdc nao e emitida. None = dimensao
+    # pelo risco (risk_pct).
+    "fixed_position_usdc": 25.0,
+    "max_risk_usdc": 2.0,
     # Sem compras novas com o BTC abaixo da media de 200 dias
     "require_btc_above_sma200": True,
     # Travao de perdas (em R, soma das operacoes fechadas)
