@@ -330,6 +330,7 @@ class Signals(unittest.TestCase):
         d = signals.decide(row(), C4, CFG, V, "BULL", False, market_ok=False)
         self.assertEqual(d["decision"], "NO TRADE")
         self.assertIn("filtro de mercado", d["reason"])
+        self.assertIn("sem compras de tendência", d["reason"])
 
     def test_trading_halt(self):
         now = 1_800_000_000

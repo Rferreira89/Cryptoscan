@@ -189,7 +189,28 @@ class ShortDecision(unittest.TestCase):
         d = signals.decide(r, T4.C4, CFG, T4.V, "BULL", False, market_ok=False,
                            suffix=short.SUFFIX)
         self.assertEqual(d["decision"], "NO TRADE")
-        self.assertIn("sem shorts novos", d["reason"])
+        self.assertIn("sem shorts de tendência", d["reason"])
+
+    def test_range_trades_on_both_sides_of_the_market_filter(self):
+        # ativo lateral, preco no quarto inferior do range: compra permitida
+        # mesmo com o BTC abaixo da media de 200 dias
+        rng = T4.a1d(ema_trend="MIXED", structure="NEUTRAL", adx=15.0,
+                     close=99.0, swing_low=95.0, swing_high=130.0, atr=4.0)
+        c = [T4.mk(100, 101, 99, 100)] * 19 + [T4.mk(96, 97.2, 95.8, 97.0)]
+        a4 = T4.a4h(close=97.0, atr=1.0, swing_high=112.0,
+                    liquidity=dict(T4.a4h()["liquidity"], pools_above=[]))
+        r = T4.row(a4=a4, a1=rng, price=97.0)
+        v = dict(T4.V, last=97.0)
+        d = signals.decide(r, c, CFG, v, "BEAR", False, market_ok=False)
+        c4 = [x for x in d["checks"] if x["n"] == 4][0]
+        self.assertTrue(c4["ok"])                      # passou o filtro
+        self.assertEqual(c4["detail"], "RANGE")
+        self.assertNotIn("filtro de mercado", d.get("reason") or "")
+        # um setup de tendencia no mesmo contexto continua bloqueado
+        t = signals.decide(T4.row(), T4.C4, CFG, T4.V, "BEAR", False,
+                           market_ok=False)
+        self.assertEqual(t["decision"], "NO TRADE")
+        self.assertIn("filtro de mercado", t["reason"])
 
 
 class EndToEndShort(unittest.TestCase):

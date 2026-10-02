@@ -51,11 +51,14 @@ def decide(row, c4, cfg, v, btc_reg, regime_changed, market_ok=True,
     if not chk(3, "regime identificado", ok, reg["regime"]):
         return stop(f"regime {reg['regime']}: sem vantagem identificável")
 
-    if cfg["min_score"] > 0 and cfg.get("require_btc_above_sma200") \
-            and not market_ok:
-        side_txt = ("BTC acima da média de 200 dias, sem shorts novos"
-                    if suffix else
-                    "BTC abaixo da média de 200 dias, sem compras novas")
+    # Filtro de mercado: contra a tendencia do BTC so se negoceia o range
+    # (mercado lateral nao tem tendencia para respeitar).
+    against = (cfg["min_score"] > 0 and cfg.get("require_btc_above_sma200")
+               and not market_ok)
+    side_txt = ("BTC acima da média de 200 dias, sem shorts de tendência"
+                if suffix else
+                "BTC abaixo da média de 200 dias, sem compras de tendência")
+    if against and reg["regime"] != "RANGE":
         chk(3, "filtro de mercado", False, side_txt)
         return stop("filtro de mercado: " + side_txt)
 
@@ -69,6 +72,9 @@ def decide(row, c4, cfg, v, btc_reg, regime_changed, market_ok=True,
     setups = []
     for s in found:
         if "rejected" in s:
+            continue
+        if against and s["strategy"] != "RANGE":
+            out["rejected"].append(f"{s['strategy']}: {side_txt}")
             continue
         # So estrategias validadas em backtest geram operacoes REAIS. As
         # restantes correm em PAPEL (ou nao correm, conforme a configuracao).
