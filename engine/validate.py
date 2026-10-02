@@ -20,6 +20,12 @@ def validate_candles(raw, tf_seconds, now, min_history=200):
         fatal.append(f"{bad_fields} velas com campos ilegiveis")
     rows = [c for c in raw if all(c[k] is not None for k in "ohlcv")]
 
+    # volume comprador nao pode exceder o volume total
+    bad_tb = sum(1 for c in rows if c.get("tb") is not None
+                 and not 0 <= c["tb"] <= c["v"] * 1.0001)
+    if bad_tb:
+        issues.append(f"{bad_tb} velas com volume comprador incoerente")
+
     by_t, conflicts, dups = {}, 0, 0
     for c in rows:
         p = by_t.get(c["t"])

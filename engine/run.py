@@ -19,6 +19,7 @@ def main():
               else "ERRO " + s["error"])
     if res["universe"]:
         print("COUNTS", res["counts"])
+        print("DERIVADOS", res.get("derivatives_source"))
         for r in res["universe"][:45]:
             if not r["eligible"]:
                 continue
@@ -42,6 +43,20 @@ def main():
                           f"{','.join(a['patterns'])}")
                 elif a:
                     print(f"      {tf} {a['reason']}")
+            for tf in ("1d", "4h"):
+                a = an and an.get(tf)
+                if a and a["ok"] and a.get("volume"):
+                    v, lq = a["volume"], a.get("liquidity") or {}
+                    print(f"      {tf} rvol {v['rvol']} {v['flow_source']} "
+                          f"{v['flow_20']} div:{v['divergence']} "
+                          f"{','.join(v['labels'])} | sweep:{lq.get('sweep')} "
+                          f"eqh:{lq.get('equal_highs')} eql:{lq.get('equal_lows')} "
+                          f"fvg-:{lq.get('fvg_below')} fvg+:{lq.get('fvg_above')} "
+                          f"ob:{lq.get('order_block')}")
+            if r.get("book"):
+                print(f"      livro {r['book']}")
+            if "derivatives" in r:
+                print(f"      deriv {r['derivatives']}")
             if an and an.get("mtf_conflict"):
                 print(f"      CONFLITO: {an['mtf_conflict']}")
     # falha o job se nenhuma fonte respondeu: nunca publicar dados vazios

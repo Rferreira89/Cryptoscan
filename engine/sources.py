@@ -40,9 +40,11 @@ def _ticker(base, last, bid, ask, vol_quote, chg_pct):
             "vol_quote": _f(vol_quote), "chg_pct": chg_pct}
 
 
-def _candle(ts_ms, o, h, l, c, v):
+def _candle(ts_ms, o, h, l, c, v, taker_buy=None):
+    """tb = volume comprador agressor (negocios executados), se a fonte o der."""
     return {"t": int(ts_ms) // 1000, "o": _f(o), "h": _f(h), "l": _f(l),
-            "c": _f(c), "v": _f(v)}
+            "c": _f(c), "v": _f(v),
+            "tb": None if taker_buy is None else _f(taker_buy)}
 
 
 class Bybit:
@@ -95,7 +97,13 @@ class Binance:
         d = _get(self.base_url + "/api/v3/klines",
                  {"symbol": base + QUOTE, "interval": tf,
                   "limit": min(limit, 1000)})
-        return [_candle(r[0], r[1], r[2], r[3], r[4], r[5]) for r in d]
+        return [_candle(r[0], r[1], r[2], r[3], r[4], r[5], r[9]) for r in d]
+
+    def book(self, base):
+        d = _get(self.base_url + "/api/v3/depth",
+                 {"symbol": base + QUOTE, "limit": 500})
+        conv = lambda rows: [(float(p), float(q)) for p, q in rows]
+        return conv(d["bids"]), conv(d["asks"])
 
 
 class OKX:
@@ -124,6 +132,14 @@ class OKX:
         if d.get("code") != "0":
             raise SourceError(f"code {d.get('code')}: {d.get('msg')}")
         return [_candle(r[0], r[1], r[2], r[3], r[4], r[5]) for r in d["data"]]
+
+    def book(self, base):
+        d = _get(self.base_url + "/api/v5/market/books",
+                 {"instId": f"{base}-{QUOTE}", "sz": 400})
+        if d.get("code") != "0":
+            raise SourceError(f"code {d.get('code')}: {d.get('msg')}")
+        conv = lambda rows: [(float(r[0]), float(r[1])) for r in rows]
+        return conv(d["data"][0]["bids"]), conv(d["data"][0]["asks"])
 
 
 class KuCoin:

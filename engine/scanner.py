@@ -10,7 +10,7 @@ import statistics
 import time
 from concurrent.futures import ThreadPoolExecutor
 
-from . import analysis, sources, validate
+from . import analysis, derivatives, liquidity, sources, validate, volume
 
 MIN_VOLUME_USD = 5_000_000
 MAX_SPREAD_BPS = 20
@@ -141,21 +141,54 @@ def deep_check(row, src_order, now):
                            else max(50, 100 - 10 * n_issues
                                     - (0 if len(row["sources"]) > 1 else 10)))
     # Sem dados validos nao ha analise (hierarquia: 1. dados validos?)
-    out["analysis"] = (analysis.multi(clean)
-                       if out["data_status"] != validate.INVALID
-                       and len(clean) == len(TIMEFRAMES) else None)
+    usable = (out["data_status"] != validate.INVALID
+              and len(clean) == len(TIMEFRAMES))
+    out["analysis"] = analysis.multi(clean) if usable else None
+    if usable:
+        for tf in TIMEFRAMES:
+            a = out["analysis"][tf]
+            if a["ok"]:
+                a["volume"] = volume.analyse(clean[tf])
+                a["liquidity"] = liquidity.analyse(clean[tf])
+    # Livro de ordens: so para medir slippage real de uma ordem pequena.
+    out["book"] = None
+    for src in src_order:
+        if src.name in row["sources"] and hasattr(src, "book"):
+            try:
+                m = liquidity.book_metrics(*src.book(row["asset"]))
+                out["book"] = dict(m, source=src.name) if m else None
+            except (sources.SourceError, KeyError, IndexError, ValueError):
+                continue
+            break
     return out
+
+
+def add_derivatives(rows, now):
+    """Derivados para os ativos analisados. Devolve o estado da fonte."""
+    try:
+        snap = derivatives.market_snapshot()
+    except (sources.SourceError, KeyError, TypeError) as e:
+        for r in rows:
+            r["derivatives"] = None
+        return {"ok": False, "error": str(e)[:200]}
+    with ThreadPoolExecutor(max_workers=4) as ex:
+        res = list(ex.map(lambda r: derivatives.analyse(
+            r["asset"], r["price"], snap, now), rows))
+    for r, d in zip(rows, res):
+        r["derivatives"] = d
+    return {"ok": True, "with_perp": sum(d is not None for d in res),
+            "incomplete": sum(bool(d and d["missing"]) for d in res)}
 
 
 def run(now=None):
     now = int(now or time.time())
     status, data = collect_tickers()
     live = [s for s in sources.ALL if status[s.name]["ok"]]
-    result = {"generated_at": now, "phase": 2, "sources": status,
+    result = {"generated_at": now, "phase": 3, "sources": status,
               "thresholds": {"min_volume_usd": MIN_VOLUME_USD,
                              "max_spread_bps": MAX_SPREAD_BPS,
                              "deep_n": DEEP_N},
-              "signals": "Fase 2: analise descritiva. Ainda sem sinais."}
+              "signals": "Fase 3: analise descritiva. Ainda sem sinais."}
     if not live:
         result.update(status_global="DATA SOURCE ERROR", universe=[])
         return result
@@ -165,6 +198,8 @@ def run(now=None):
         for row, deep in zip(eligible, ex.map(
                 lambda r: deep_check(r, live, now), eligible)):
             row.update(deep)
+    result["derivatives_source"] = add_derivatives(
+        [r for r in eligible if r.get("analysis")], now)
     result.update(
         status_global="OK" if len(live) == len(sources.ALL) else "DEGRADED",
         counts={"pairs_seen": len(uni),
