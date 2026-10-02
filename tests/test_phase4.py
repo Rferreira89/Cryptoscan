@@ -31,6 +31,16 @@ def a4h(**k):
     return d
 
 
+class Format(unittest.TestCase):
+    def test_px_str(self):
+        f = strategies.px_str
+        self.assertEqual(f(4.5758e-06), "0.0000045758")
+        self.assertEqual(f(86416.01), "86416")
+        self.assertEqual(f(14.889), "14.889")
+        self.assertEqual(f(0.2525), "0.2525")
+        self.assertEqual(f(176.28), "176.28")
+
+
 class Regime(unittest.TestCase):
     def test_classes(self):
         c = lambda **k: regime.classify(a1d(**k))["regime"]

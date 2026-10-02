@@ -13,7 +13,18 @@ coberta por PULLBACK e BREAKOUT; Reversal por LIQUIDITY_SWEEP.
 
 NENHUMA destas estrategias esta validada estatisticamente.
 """
+from math import floor, log10
+
 from .regime import BULLISH, BEARISH
+
+
+def px_str(x):
+    """Preco com 5 algarismos significativos, sem notacao cientifica."""
+    if not x or x <= 0:
+        return str(x)
+    dec = max(0, 4 - floor(log10(x)))
+    out = f"{x:.{dec}f}"
+    return out.rstrip("0").rstrip(".") if "." in out else out
 
 
 def _bull_trigger(c4, a4):
@@ -46,7 +57,7 @@ def pullback(c4, a4, a1, reg):
     else:
         # entrada prevista = nivel do gatilho; o plano e indicativo ate la
         s.update(state="WAITING", entry=[px, c4[-1]["h"]],
-                 trigger=f"fecho de 4H acima de {c4[-1]['h']:.6g}")
+                 trigger=f"fecho de 4H acima de {px_str(c4[-1]['h'])}")
     return s
 
 
@@ -73,12 +84,12 @@ def breakout(c4, a4, a1, reg, rvol_at):
     retested = any(x["l"] <= zone[1] for x in c4[j + 1:]) and px >= level
     if px > level + 1.5 * atr:
         s.update(state="WAITING", notes=s["notes"] + ["MOVE EXTENDED"],
-                 trigger=f"recuo ate {zone[0]:.6g}-{zone[1]:.6g} (reteste)")
+                 trigger=f"recuo ate {px_str(zone[0])}-{px_str(zone[1])} (reteste)")
     elif retested and px <= zone[1] + 0.6 * atr and c4[-1]["c"] > c4[-1]["o"]:
         s.update(state="READY", trigger="reteste do nivel quebrado aguentou")
     else:
         s.update(state="WAITING",
-                 trigger=f"reteste de {zone[0]:.6g}-{zone[1]:.6g} com fecho "
+                 trigger=f"reteste de {px_str(zone[0])}-{px_str(zone[1])} com fecho "
                          "de 4H positivo")
     return s
 
@@ -93,15 +104,15 @@ def sweep(c4, a4, a1, reg):
     atr, px = a4["atr"], a4["close"]
     cs = c4[len(c4) - 1 - sw["bars_ago"]]
     s = {"strategy": "LIQUIDITY_SWEEP", "stop": cs["l"] - 0.3 * atr,
-         "notes": [f"sweep do fundo {sw['level']:.6g} ha {sw['bars_ago']} "
+         "notes": [f"sweep do fundo {px_str(sw['level'])} ha {sw['bars_ago']} "
                    "velas de 4H"]}
     if not sw["confirmed"]:
         s.update(state="WAITING", entry=[cs["c"], cs["h"]],
-                 trigger=f"fecho de 4H acima de {cs['h']:.6g} (confirmacao)")
+                 trigger=f"fecho de 4H acima de {px_str(cs['h'])} (confirmacao)")
     elif px > cs["h"] + 1.0 * atr:
         s.update(state="WAITING", entry=[cs["c"], cs["h"]],
                  notes=s["notes"] + ["MOVE EXTENDED"],
-                 trigger=f"recuo ate {cs['h']:.6g}")
+                 trigger=f"recuo ate {px_str(cs['h'])}")
     else:
         s.update(state="READY", entry=[px - 0.3 * atr, px],
                  trigger="sweep confirmado por fecho acima da vela do sweep")
@@ -120,13 +131,13 @@ def range_reversion(c4, a4, a1, reg):
     s = {"strategy": "RANGE", "stop": lo - 0.5 * a1["atr"],
          "targets": [lo + width / 2, hi],
          "notes": [f"preco no quarto inferior do range diario "
-                   f"{lo:.6g}-{hi:.6g}"]}
+                   f"{px_str(lo)}-{px_str(hi)}"]}
     if _bull_trigger(c4, a4):
         s.update(state="READY", entry=[px - 0.3 * a4["atr"], px],
                  trigger="rejeicao do fundo do range em 4H")
     else:
         s.update(state="WAITING", entry=[lo, lo + 0.25 * width],
-                 trigger=f"fecho de 4H acima de {c4[-1]['h']:.6g}")
+                 trigger=f"fecho de 4H acima de {px_str(c4[-1]['h'])}")
     return s
 
 

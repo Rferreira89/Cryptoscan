@@ -210,6 +210,7 @@ def run(now=None, state=None, cfg=None):
     for r in uni:
         v = ven.get(r["asset"]) if ven else None
         r["on_venue"] = v is not None
+        r["venue"] = v
         if ven is not None and v is None and r["eligible"]:
             r["eligible"] = False
             r["excluded_for"].append("nao listado na Bybit UE")

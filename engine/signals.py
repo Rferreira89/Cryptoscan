@@ -126,7 +126,7 @@ def explain(row):
         "why": "; ".join(d["notes"]) + f". Regime diario {d['regime']}.",
         "why_now": d["trigger"],
         "confirms": [k for k, v in d["families"].items() if v >= 0.7],
-        "invalidates": f"fecho de 4H abaixo de {p['stop']}",
+        "invalidates": f"fecho de 4H abaixo de {strategies.px_str(p['stop'])}",
         "main_risk": (d["conflicts"][0] if d["conflicts"] else
                       f"ponto mais fraco da confluencia: {weakest}"),
         "would_change": ("perda da estrutura de 4H, mudanca do regime diario "
