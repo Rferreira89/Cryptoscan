@@ -15,6 +15,7 @@ BASE = "https://www.okx.com"
 _lock = threading.Lock()
 _last = {}
 _GAP = {"rubik": 0.45, "public": 0.12}     # limites de pedidos da OKX
+MAX_LIQ_PAGES = 12
 
 
 def _get(kind, path, params):
@@ -33,7 +34,11 @@ def pctile(value, hist):
     hist = [h for h in hist if h is not None]
     if value is None or len(hist) < 20:
         return None
-    return round(100 * sum(1 for h in hist if h <= value) / len(hist))
+    # posicao media nos empates: um valor igual a quase todo o historico
+    # (ex.: funding na taxa base) fica perto de 50, nao de 100
+    below = sum(1 for h in hist if h < value)
+    equal = sum(1 for h in hist if h == value)
+    return round(100 * (below + 0.5 * equal) / len(hist))
 
 
 def quadrant(price_chg, oi_chg, eps=1.0):
@@ -87,7 +92,9 @@ def analyse(base, spot_price, snap, now):
     inst = f"{base}-USDT-SWAP"
     if inst not in snap["ctval"] or inst not in snap["tick"]:
         return None
-    d = {"venue": "okx", "missing": [], "oi_usd": snap["oi"].get(inst)}
+    oi = snap["oi"].get(inst)
+    d = {"venue": "okx", "missing": [],
+         "oi_usd": None if oi is None else round(oi)}
     last = f(snap["tick"][inst].get("last"))
     d["basis_pct"] = round((last / spot_price - 1) * 100, 3) \
         if last and spot_price else None
@@ -133,19 +140,48 @@ def analyse(base, spot_price, snap, now):
 
     def liquidations():
         d["liquidations"] = None
-        rows = _get("public", "/api/v5/public/liquidation-orders",
-                    {"instType": "SWAP", "instFamily": f"{base}-USDT",
-                     "state": "filled", "limit": 100})
-        det = [x for r in rows for x in r.get("details", [])
-               if int(x["ts"]) / 1000 >= now - 86400]
+        cutoff, det, after, complete = now - 86400, [], None, False
+        for _ in range(MAX_LIQ_PAGES):
+            params = {"instType": "SWAP", "instFamily": f"{base}-USDT",
+                      "state": "filled", "limit": 100}
+            if after:
+                params["after"] = after
+            try:
+                rows = _get("public", "/api/v5/public/liquidation-orders",
+                            params)
+            except sources.SourceError:
+                if not det:
+                    raise
+                break                      # fica com o que ja tem, incompleto
+            page = [x for r in rows for x in r.get("details", [])]
+            if not page:
+                complete = True
+                break
+            det += page
+            oldest_ms = min(int(x["ts"]) for x in page)
+            if oldest_ms / 1000 < cutoff:
+                complete = True
+                break
+            if after == str(oldest_ms):
+                break
+            after = str(oldest_ms)
+        seen, uniq = set(), []
+        for x in det:
+            k = (x["ts"], x["posSide"], x["sz"], x["bkPx"])
+            if k not in seen and int(x["ts"]) / 1000 >= cutoff:
+                seen.add(k)
+                uniq.append(x)
         ctv = snap["ctval"][inst]
         usd = lambda side: round(sum(
-            f(x["sz"]) * ctv * f(x["bkPx"]) for x in det
+            f(x["sz"]) * ctv * f(x["bkPx"]) for x in uniq
             if x["posSide"] == side))
-        oldest = min((int(x["ts"]) / 1000 for x in det), default=now)
-        d["liquidations"] = {"long_usd": usd("long"), "short_usd": usd("short"),
-                             "hours_covered": round((now - oldest) / 3600, 1),
-                             "truncated": len(det) >= 100}
+        oldest = min((int(x["ts"]) / 1000 for x in uniq), default=cutoff)
+        # complete=False: as paginas nao chegaram as 24h; os totais cobrem
+        # apenas hours_covered e nao devem ser lidos como totais diarios.
+        d["liquidations"] = {
+            "long_usd": usd("long"), "short_usd": usd("short"),
+            "hours_covered": 24.0 if complete else round((now - oldest) / 3600, 1),
+            "complete": complete}
 
     step("funding", funding)
     step("open_interest_history", oi_hist)

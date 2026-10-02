@@ -121,6 +121,7 @@ class Derivatives(unittest.TestCase):
         h = list(range(100))
         self.assertEqual(D.pctile(99, h), 100)
         self.assertEqual(D.pctile(49, h), 50)
+        self.assertEqual(D.pctile(1e-4, [1e-4] * 30), 50)   # empates
         self.assertIsNone(D.pctile(5, [1, 2, 3]))        # amostra curta
         self.assertIsNone(D.pctile(None, h))
 
@@ -182,7 +183,8 @@ class Derivatives(unittest.TestCase):
         self.assertAlmostEqual(d["basis_pct"], 0.833, places=3)
         self.assertEqual(d["liquidations"]["long_usd"], 120)   # exclui >24h
         self.assertEqual(d["liquidations"]["short_usd"], 60)
-        self.assertEqual(d["liquidations"]["hours_covered"], 2.0)
+        self.assertEqual(d["liquidations"]["hours_covered"], 24.0)
+        self.assertTrue(d["liquidations"]["complete"])
         self.assertIn("CROWDED_LONGS", d["flags"])
         self.assertIn("FUNDING_EXTREME_POSITIVE", d["flags"])
 
@@ -198,6 +200,32 @@ class Derivatives(unittest.TestCase):
         self.assertIsNone(d["ls_ratio"])
         self.assertEqual(d["flags"], [])
         self.assertEqual(d["positioning"], "LONG_BUILDUP")
+
+    def test_liquidations_pagination_incomplete(self):
+        r = self._ok()
+        calls = []
+
+        def page(n):
+            ts = (self.NOW - 600 * n) * 1000
+            return [{"details": [{"posSide": "short", "sz": "10", "bkPx": "2",
+                                  "ts": str(ts)}]}]
+        orig = D._get
+
+        def fake(kind, path, params):
+            key = path.rsplit("/", 1)[-1]
+            if key == "liquidation-orders":
+                calls.append(params.get("after"))
+                return page(len(calls))
+            return r[key]
+        D._get = fake
+        self.addCleanup(lambda: setattr(D, "_get", orig))
+        d = D.analyse("SUI", 1.20, self.SNAP, self.NOW)
+        liq = d["liquidations"]
+        self.assertEqual(len(calls), D.MAX_LIQ_PAGES)
+        self.assertIsNone(calls[0])
+        self.assertFalse(liq["complete"])
+        self.assertEqual(liq["short_usd"], 20 * D.MAX_LIQ_PAGES)
+        self.assertEqual(liq["hours_covered"], round(600 * D.MAX_LIQ_PAGES / 3600, 1))
 
     def test_no_perp(self):
         self.assertIsNone(D.analyse("NOPE", 1.0, self.SNAP, self.NOW))

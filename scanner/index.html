@@ -42,7 +42,7 @@ input{flex:1 1 100%}
 <main>
 <h1>Cryptoscan · Scanner</h1>
 <div class="sub" id="sub">A carregar…</div>
-<div class="banner"><b>Fase 2 — análise descritiva, sem sinais</b>Esta página mostra liquidez, qualidade dos dados, tendência e estrutura. Ainda não indica compras nem vendas: isso só existe depois de as estratégias serem testadas com dados históricos.</div>
+<div class="banner"><b>Fase 3 — análise descritiva, sem sinais</b>Esta página mostra liquidez, qualidade dos dados, tendência, estrutura, volume, fluxo e derivados. Ainda não indica compras nem vendas: isso só existe depois de as estratégias serem testadas com dados históricos.</div>
 <div class="stats" id="stats"></div>
 <div class="bar">
 <input id="q" placeholder="Procurar ativo" autocomplete="off">
@@ -59,6 +59,8 @@ input{flex:1 1 100%}
 <option value="DOWN">Tendência 1D: descida</option>
 <option value="event">Com BOS/CHOCH recente (4H)</option>
 <option value="conflict">Com conflito entre timeframes</option>
+<option value="sweep">Com sweep recente (4H)</option>
+<option value="dflags">Com alertas de derivados</option>
 </select>
 </div>
 <div id="list"></div>
@@ -71,6 +73,57 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 const num=(v,d)=>v==null?"–":Number(v).toLocaleString("pt-PT",{maximumFractionDigits:d,minimumFractionDigits:0});
 const price=v=>v==null?"–":v>=100?num(v,2):v>=1?num(v,3):Number(v).toPrecision(4);
 const vol=v=>v>=1e9?num(v/1e9,2)+" mM $":num(v/1e6,1)+" M $";
+const LBL={VOLUME_EXPANSION:"volume em expansão",VOLUME_CONTRACTION:"volume em contração",POSSIBLE_ABSORPTION:"possível absorção",
+LONG_BUILDUP:"novos longs (preço ↑, OI ↑)",SHORT_COVERING:"shorts a fechar (preço ↑, OI ↓)",SHORT_BUILDUP:"novos shorts (preço ↓, OI ↑)",LONG_LIQUIDATION:"longs a sair (preço ↓, OI ↓)",FLAT:"sem alteração relevante",
+FUNDING_EXTREME_POSITIVE:"funding extremo positivo",FUNDING_EXTREME_NEGATIVE:"funding extremo negativo",CROWDED_LONGS:"longs em excesso",CROWDED_SHORTS:"shorts em excesso",LEVERAGE_EXPANSION:"alavancagem a aumentar",LEVERAGE_CONTRACTION:"alavancagem a diminuir"};
+const usd=v=>v==null?"–":v>=1e9?num(v/1e9,2)+" mM $":v>=1e6?num(v/1e6,1)+" M $":v>=1e3?num(v/1e3,0)+" mil $":num(v,0)+" $";
+const zone=z=>z?price(z[0])+" – "+price(z[1]):null;
+function flowBlock(a){
+  const v=a.volume,l=a.liquidity;let h="";
+  if(v){
+    const fl=v.flow_20==null?"–":(v.flow_20>0?"+":"")+num(v.flow_20*100,1)+"%";
+    h+=`<div class="kv" style="margin-top:6px"><div><span>Volume relativo</span><b>${num(v.rvol,2)}×</b></div>
+    <div><span>Fluxo 20 velas (${v.flow_source||"–"})</span><b class="${v.flow_20>0?"up":v.flow_20<0?"dn":""}">${fl}</b></div></div>`;
+    const tags=v.labels.map(x=>LBL[x]||x);
+    if(v.divergence) tags.push(v.divergence==="BEARISH"?"divergência: preço sobe com fluxo vendedor":"divergência: preço desce com fluxo comprador");
+    if(tags.length) h+=`<div class="warn">${tags.map(esc).join(" · ")}</div>`;
+  }
+  if(l){
+    const rows=[];
+    if(l.pools_above.length) rows.push(["Liquidez acima",l.pools_above.map(price).join(" · ")]);
+    if(l.pools_below.length) rows.push(["Liquidez abaixo",l.pools_below.map(price).join(" · ")]);
+    if(l.equal_highs!=null) rows.push(["Equal highs",price(l.equal_highs)]);
+    if(l.equal_lows!=null) rows.push(["Equal lows",price(l.equal_lows)]);
+    if(l.fvg_above) rows.push(["FVG acima",zone(l.fvg_above)]);
+    if(l.fvg_below) rows.push(["FVG abaixo",zone(l.fvg_below)]);
+    if(l.order_block) rows.push([l.order_block.side==="DEMAND"?"Order block (procura)":"Order block (oferta)",zone(l.order_block.zone)]);
+    if(l.sweep) rows.push(["Sweep",`${l.sweep.side==="HIGH"?"de topo":"de fundo"} em ${price(l.sweep.level)}, há ${l.sweep.bars_ago} velas — ${l.sweep.confirmed?"confirmado":"por confirmar"}`]);
+    h+=rows.map(([k,x])=>`<div><span style="color:var(--mut)">${k}:</span> ${esc(x)}</div>`).join("");
+  }
+  return h;
+}
+function derivBlock(r){
+  const d=r.derivatives,b=r.book;let h="";
+  if(b) h+=`<div class="tf"><h3>Livro de ordens (${esc(b.source)})</h3><div class="kv">
+  <div><span>Profundidade ±1%</span><b>${b.depth_complete?"":"≥ "}${usd(b.depth_1pct_usd)}</b></div>
+  <div><span>Slippage ordem 10 mil $</span><b>${b.slippage_bps_10k==null?"livro insuficiente":num(b.slippage_bps_10k,2)+" bps"}</b></div></div></div>`;
+  if(d===undefined) return h;
+  if(!d) return h+`<div class="tf"><h3>Derivados</h3><span style="color:var(--mut)">Sem perpétuo na OKX.</span></div>`;
+  const q=d.liquidations;
+  h+=`<div class="tf"><h3>Derivados (só OKX)</h3><div class="kv">
+  <div><span>Funding anualizado</span><b>${d.funding_apr==null?"–":num(d.funding_apr,1)+"%"}</b></div>
+  <div><span>Funding vs. histórico</span><b>${d.funding_pctile==null?"–":"percentil "+d.funding_pctile}</b></div>
+  <div><span>Open interest</span><b>${usd(d.oi_usd)}</b></div>
+  <div><span>OI em 24h</span><b>${d.oi_chg_24h_pct==null?"–":(d.oi_chg_24h_pct>0?"+":"")+num(d.oi_chg_24h_pct,1)+"%"}</b></div>
+  <div><span>Long/short (contas)</span><b>${d.ls_ratio==null?"–":num(d.ls_ratio,2)+" · p"+d.ls_pctile}</b></div>
+  <div><span>Basis</span><b>${d.basis_pct==null?"–":num(d.basis_pct,3)+"%"}</b></div></div>
+  ${d.positioning?`<div><span style="color:var(--mut)">Posicionamento 24h:</span> ${esc(LBL[d.positioning]||d.positioning)}</div>`:""}
+  ${q?`<div><span style="color:var(--mut)">Liquidações (${q.complete?"24h":"últimas "+num(q.hours_covered,1)+"h, incompleto"}):</span> longs ${usd(q.long_usd)} · shorts ${usd(q.short_usd)}</div>`:""}
+  ${d.flags.length?`<div class="warn">${d.flags.map(x=>esc(LBL[x]||x)).join(" · ")}</div>`:""}
+  ${d.missing.length?`<div class="warn">Dados em falta: ${d.missing.map(esc).join(", ")}</div>`:""}
+  </div>`;
+  return h;
+}
 const T={UP:"subida",DOWN:"descida",MIXED:"misto",BULLISH:"bullish",BEARISH:"bearish",NEUTRAL:"neutra",UNCLEAR:"indefinida",STRONG:"forte",MODERATE:"moderada",WEAK:"fraca"};
 let D=null,open=new Set();
 function tfBlock(name,a){
@@ -89,6 +142,7 @@ function tfBlock(name,a){
   </div><div style="margin-top:4px"><span style="color:var(--mut)">Quebra de estrutura:</span> ${esc(ev)}</div>
   ${a.sequence.length?`<div><span style="color:var(--mut)">Sequência:</span> ${a.sequence.map(esc).join(" → ")}</div>`:""}
   ${a.patterns.length?`<div><span style="color:var(--mut)">Última vela:</span> ${a.patterns.map(esc).join(", ")}</div>`:""}
+  ${flowBlock(a)}
   </div>`;
 }
 function render(){
@@ -97,7 +151,10 @@ function render(){
   const key=r=>s==="adx"||s==="rsi"?(r.analysis&&r.analysis["1d"]&&r.analysis["1d"].ok?r.analysis["1d"][s]:-1):(r[s]??-1e18);
   let rows=D.universe.filter(r=>r.eligible&&r.timeframes);
   if(q) rows=rows.filter(r=>r.asset.toUpperCase().includes(q));
-  if(f) rows=rows.filter(r=>{const a=r.analysis;if(!a)return false;
+  if(f) rows=rows.filter(r=>{const a=r.analysis;
+    if(f==="dflags")return !!(r.derivatives&&r.derivatives.flags.length);
+    if(!a)return false;
+    if(f==="sweep")return !!(a["4h"]&&a["4h"].ok&&a["4h"].liquidity&&a["4h"].liquidity.sweep);
     if(f==="conflict")return !!a.mtf_conflict;
     if(f==="event")return a["4h"]&&a["4h"].ok&&a["4h"].event&&a["4h"].event.bars_ago<=6;
     return a["1d"]&&a["1d"].ok&&a["1d"].ema_trend===f;});
@@ -109,6 +166,7 @@ function render(){
     if(d) chips.push(`<span class="chip ${d.ema_trend==="UP"?"up":d.ema_trend==="DOWN"?"dn":""}">1D ${T[d.ema_trend]}</span>`);
     if(h) chips.push(`<span class="chip ${h.structure==="BULLISH"?"up":h.structure==="BEARISH"?"dn":""}">4H ${T[h.structure]}</span>`);
     if(a&&a.mtf_conflict) chips.push(`<span class="chip warn">Conflito</span>`);
+    if(r.derivatives&&r.derivatives.flags.length) chips.push(`<span class="chip warn">Derivados</span>`);
     const issues=Object.entries(r.timeframes).filter(([,v])=>v.issues.length).map(([tf,v])=>`${tf.toUpperCase()}: ${esc(v.issues.join("; "))}`);
     return `<div class="row ${open.has(r.asset)?"open":""}" data-a="${esc(r.asset)}">
     <div class="head"><div><div class="sym">${esc(r.asset)}</div><div class="chips">${chips.join("")}</div></div>
@@ -117,6 +175,7 @@ function render(){
     <div class="kv" style="margin-bottom:10px"><div><span>Volume 24h</span><b>${vol(r.volume_24h)}</b></div><div><span>Spread</span><b>${num(r.spread_bps,2)} bps</b></div>
     <div><span>Fontes</span><b>${r.sources.map(esc).join(", ")}</b></div><div><span>Qualidade dos dados</span><b>${r.data_quality}/100</b></div></div>
     ${a?tfBlock("Diário (1D)",a["1d"])+tfBlock("4 horas (4H)",a["4h"]):`<div class="warn">Sem análise: dados inválidos.</div>`}
+    ${derivBlock(r)}
     ${a&&a.mtf_conflict?`<div class="warn">Conflito: ${esc(a.mtf_conflict)}</div>`:""}
     ${issues.length?`<div class="warn" style="margin-top:6px">Avisos de dados — ${issues.join(" · ")}</div>`:""}
     </div></div>`}).join("")||`<div class="banner">Nenhum ativo corresponde ao filtro.</div>`;
