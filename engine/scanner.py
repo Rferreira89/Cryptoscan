@@ -17,7 +17,7 @@ from . import (analysis, config, derivatives, events as calendar, ledger,
 
 MIN_VOLUME_USD = 5_000_000
 MAX_SPREAD_BPS = 20
-DEEP_N = 40
+DEEP_N = 60                 # cobre todos os ativos elegiveis da Bybit UE
 TIMEFRAMES = ["1d", "4h"]
 
 STABLE_OR_PEGGED = {
