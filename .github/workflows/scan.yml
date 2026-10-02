@@ -1,0 +1,36 @@
+name: Market Scanner
+on:
+  schedule:
+    - cron: "7,22,37,52 * * * *"
+  workflow_dispatch:
+  push:
+    branches: [fase-1-dados-scanner]
+    paths: ["engine/**", "tests/**", ".github/workflows/scan.yml"]
+permissions:
+  contents: write
+concurrency:
+  group: scan
+  cancel-in-progress: false
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Testes
+        run: python -m unittest -q tests.test_validate
+      - name: Scan
+        run: python -m engine.run out
+      - name: Publicar snapshot no ramo data
+        if: github.ref == 'refs/heads/main'
+        run: |
+          cd out
+          git init -q -b data
+          git config user.name "cryptoscan-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add scan.json
+          git commit -q -m "scan $(date -u +%FT%TZ)"
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" data
