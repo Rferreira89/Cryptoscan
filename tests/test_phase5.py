@@ -126,6 +126,7 @@ class Alerts(unittest.TestCase):
     def test_texts_for_every_event(self):
         from engine import run, validation
         sig = {"asset": "LINK", "pair": "LINK/USDC", "venue": "Bybit EU",
+               "mode": "REAL",
                "strategy": "PULLBACK", "timeframe": "4H / 1D", "score": 72,
                "plan": dict(PLAN, rr=2.4, stop_pct=2.2, position_pct=25.0,
                             risk_pct=0.55)}

@@ -258,6 +258,7 @@ def run(now=None, state=None, cfg=None):
     events += ev
     result["active_signals"] = [s for s in state["signals"].values()
                                 if s["status"] in ("ACTIVE", "TRIGGERED")]
+    result["track_record"] = state.get("track", {})
     result["closed_signals"] = sorted(
         (s for s in state["signals"].values()
          if s["status"] in ("EXPIRED", "INVALIDATED", "CLOSED")),
@@ -273,7 +274,13 @@ def run(now=None, state=None, cfg=None):
                                   for r in eligible),
                 "data_invalid": sum(r.get("data_status") == validate.INVALID
                                     for r in eligible),
-                "long": dec.count("LONG"), "watchlist": dec.count("WATCHLIST"),
+                "long": sum(r["decision"]["decision"] == "LONG"
+                            and r["decision"].get("mode") == "REAL"
+                            for r in eligible),
+                "paper": sum(r["decision"]["decision"] == "LONG"
+                             and r["decision"].get("mode") == "PAPER"
+                             for r in eligible),
+                "watchlist": dec.count("WATCHLIST"),
                 "no_trade": dec.count("NO TRADE")},
         universe=eligible)
     return result, state, events

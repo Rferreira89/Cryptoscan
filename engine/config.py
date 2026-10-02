@@ -16,6 +16,9 @@ DEFAULTS = {
     "max_venue_spread_pct": 0.30,
     "min_venue_volume_usd": 25_000,   # ordens pequenas: o spread pesa mais
     "alerts": True,             # Telegram em cada compra e venda
+    # Estrategias nao validadas correm em PAPEL (simulacao acompanhada,
+    # com alertas marcados como tal). False = nao geram nada.
+    "paper_unvalidated": True,
 }
 
 

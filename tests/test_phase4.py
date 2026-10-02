@@ -284,21 +284,44 @@ class Signals(unittest.TestCase):
                                       close=80.0)), C4, CFG, V, "BULL", False)
         self.assertEqual(d["decision"], "NO TRADE")          # sem shorts
 
-    def test_backtest_verdict_gates_operations(self):
+    def test_backtest_verdict_sets_mode(self):
         res = {"strategies": {"PULLBACK": {"validated": False, "n": 500,
                "label": "RETIRADA: expectativa negativa"}}}
         validation.load = lambda: res
         self.addCleanup(lambda: setattr(validation, "load", lambda: None))
         d = signals.decide(row(), C4, CFG, V, "BULL", False)
-        self.assertEqual(d["decision"], "NO TRADE")
-        self.assertIn("não validada", d["reason"])
+        self.assertEqual((d["decision"], d["mode"]), ("LONG", "PAPER"))
+        off = signals.decide(row(), C4, dict(CFG, paper_unvalidated=False), V,
+                             "BULL", False)
+        self.assertEqual(off["decision"], "NO TRADE")
+        self.assertIn("não validada", off["reason"])
         res["strategies"]["PULLBACK"] = {"validated": True, "label": "VALIDADA"}
-        self.assertEqual(signals.decide(row(), C4, CFG, V, "BULL", False)["decision"],
-                         "LONG")
-        # o proprio backtest (min_score 0) nunca e travado pelo veredicto
-        res["strategies"]["PULLBACK"] = {"validated": False, "label": "RETIRADA"}
-        d = signals.decide(row(), C4, dict(CFG, min_score=0), V, "BULL", False)
-        self.assertEqual(d["decision"], "LONG")
+        d = signals.decide(row(), C4, CFG, V, "BULL", False)
+        self.assertEqual((d["decision"], d["mode"]), ("LONG", "REAL"))
+
+    def test_paper_never_looks_like_an_order(self):
+        from engine import run
+        state = {}
+        rows = self._rows()                    # sem backtest: tudo em PAPEL
+        ev = signals.update_state(state, rows, CFG, 1_800_000_000)
+        sig = next(iter(state["signals"].values()))
+        self.assertEqual(sig["mode"], "PAPER")
+        t = run.alert_text(ev[0], state["signals"], "nota")
+        self.assertIn("PAPEL (simulação)", t)
+        self.assertNotIn("COMPRA", t)
+        self.assertNotIn("Investir", t)
+
+    def test_track_record(self):
+        state, now = {}, 1_800_000_000
+        signals.update_state(state, self._rows(), CFG, now)
+        rows = self._rows(); rows[0]["price"] = 100.9
+        signals.update_state(state, rows, CFG, now + 900)        # entrada
+        rows = self._rows(); rows[0]["price"] = 90.0
+        ev = signals.update_state(state, rows, CFG, now + 1800)  # stop
+        self.assertEqual(ev[0]["event"], "STOP")
+        tk = state["track"]["PAPER:PULLBACK"]
+        self.assertEqual((tk["n"], tk["wins"]), (1, 0))
+        self.assertLess(tk["sum_r"], -0.9)
 
     def test_waiting_is_watchlist_never_early_entry(self):
         c = C4[:-1] + [mk(99.8, 100.2, 99.5, 99.7)]

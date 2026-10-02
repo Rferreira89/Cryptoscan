@@ -73,7 +73,7 @@ h2{font-size:16px;margin:18px 0 8px}
 </select>
 <select id="flt">
 <option value="">Todos</option>
-<option value="LONG">Decisão: compra</option>
+<option value="LONG">Decisão: setup ou compra</option>
 <option value="WATCHLIST">Decisão: a vigiar</option>
 <option value="UP">Tendência 1D: subida</option>
 <option value="DOWN">Tendência 1D: descida</option>
@@ -198,6 +198,15 @@ function sigCard(s){
   ${s.status==="TRIGGERED"&&s.position?`<div class="why"><span>Posição:</span> entrada ${price(s.position.entry)} · stop atual ${price(s.position.stop)} · TPs atingidos ${s.position.tp_hit}/3 · por vender ${num(s.position.remaining,0)}%</div>`:""}
   <div class="${s.validated?"up":"warn"}" style="margin-top:6px">${s.validated?"Estratégia validada em backtest.":"Estratégia não validada ("+esc((s.validation&&s.validation.label)||"sem backtest")+") — acompanhar em papel."}</div></div>`;
 }
+function paperCard(s){
+  const p=s.plan,trig=s.status==="TRIGGERED",v=s.validation||{};
+  return `<div class="op wait"><h3>${esc(s.asset)} · ${esc(STR[s.strategy]||s.strategy)} <span class="tag">${trig?"em simulação":"à espera de entrada"}</span></h3>
+  <div class="meta">${esc(s.pair)} · regime ${esc(s.regime)} · score ${s.score}/100 · ${hm(s.issued_at)}${trig?"":" · válido até "+hm(s.expires_at)}</div>
+  <div>Entrada ${price(p.entry_zone[0])}–${price(p.entry_zone[1])} · stop ${price(p.stop)} · TP ${p.tp.map(price).join(" / ")} · R:R 1:${num(p.rr,2)}</div>
+  ${trig&&s.position?`<div class="why"><span>Simulação:</span> entrada ${price(s.position.entry)} · stop atual ${price(s.position.stop)} · TPs ${s.position.tp_hit}/3</div>`:""}
+  <div class="why"><span>Porquê:</span> ${esc(s.explain.why)}</div>
+  <div class="warn" style="margin-top:4px">Simulação. ${v.n?`Em backtest esta estratégia deu ${v.expectancy_r>0?"+":""}${num(v.expectancy_r,2)}R por operação, com ${num(v.win_rate,0)}% de acerto em ${v.n} operações.`:"Estratégia sem backtest."}</div></div>`;
+}
 function watchCard(r){
   const d=r.decision;
   return `<div class="op wait"><h3>${esc(r.asset)} · A VIGIAR</h3>
@@ -209,8 +218,8 @@ function watchCard(r){
   <div class="why"><span>Sem entrada antecipada: só conta depois do gatilho.</span></div></div>`;
 }
 function renderOps(){
-  const act=D.active_signals||[];
-  $("ops").innerHTML=act.map(sigCard).join("")||`<div class="banner">Nenhuma operação neste momento. Não operar também é uma decisão: o sistema só emite um setup quando todas as condições se alinham.</div>`;
+  const act=(D.active_signals||[]).filter(s=>s.mode!=="PAPER");
+  $("ops").innerHTML=act.map(sigCard).join("")||`<div class="banner">Nenhuma operação real. Só aparecem aqui operações de estratégias validadas em backtest; neste momento nenhuma está validada.</div>`;
   const w=D.universe.filter(r=>r.decision&&r.decision.decision==="WATCHLIST"&&r.decision.plan&&!r.decision.active_signal).sort((a,b)=>b.decision.score-a.decision.score);
   $("watch").innerHTML=w.map(watchCard).join("")||`<div class="banner">Nada em vigilância.</div>`;
   const cl=D.closed_signals||[];
@@ -229,7 +238,7 @@ async function loadBT(){
     const B=await r.json(),d=new Date(B.period.start*1000),sp=new Date(B.period.split*1000),e=new Date(B.period.end*1000);
     const f=x=>x.toLocaleDateString("pt-PT",{month:"2-digit",year:"numeric"});
     const val=Object.entries(B.strategies).filter(([,m])=>m.validated).map(([k])=>STR[k]||k);
-    $("vtext").innerHTML=(val.length?`Estratégias validadas em backtest: <b style="display:inline">${val.map(esc).join(", ")}</b>. `:`<b style="display:inline" class="warn">Nenhuma estratégia está validada.</b> As operações servem para acompanhar em papel, não para arriscar dinheiro. `)+`O score mede a qualidade do setup, não a probabilidade de ganhar. Só compras em spot na Bybit UE.`;
+    $("vtext").innerHTML=(val.length?`Estratégias validadas em backtest: <b style="display:inline">${val.map(esc).join(", ")}</b>. `:`<b style="display:inline" class="warn">Nenhuma estratégia está validada.</b> Todas correm em papel (simulação acompanhada), não com dinheiro. `)+`O score mede a qualidade do setup, não a probabilidade de ganhar. Só compras em spot na Bybit UE.`;
     const head=`<tr><th>Conjunto</th><th>N</th><th>Acerto</th><th>Expectativa [IC 95%]</th><th>PF</th><th>DD máx.</th></tr>`;
     const bl=o=>Object.entries(o).map(([k,v])=>`<tr><td>${esc(k.replace(/_/g," "))}</td><td>${v.return_pct>0?"+":""}${num(v.return_pct,0)}%</td><td>${num(v.max_drawdown_pct,0)}%</td><td>${v.sharpe??"–"}</td></tr>`).join("");
     const mc=B.design.monte_carlo;
@@ -246,10 +255,13 @@ async function loadBT(){
 function renderExtra(){
   const m=D.market_filter;
   $("mf").innerHTML=m?`<b>Filtro de mercado: BTC ${m.btc_above_sma200?`<span class="up">acima</span>`:`<span class="dn">abaixo</span>`} da média de 200 dias</b>Preço ${price(m.close)} contra média ${price(m.sma200)} (${m.distance_pct>0?"+":""}${num(m.distance_pct,1)}%). Foi a única regra que resistiu fora da amostra: ${m.btc_above_sma200?"contexto historicamente favorável a compras.":"contexto em que comprar historicamente perde mais."}`:`<b>Filtro de mercado</b>Sem dados suficientes.`;
-  const p=D.paper_trend;if(!p){$("paper").innerHTML="";return}
+  const ps=(D.active_signals||[]).filter(s=>s.mode==="PAPER"),tr=D.track_record||{};
+  const trRows=Object.entries(tr).filter(([k])=>k.startsWith("PAPER:")).map(([k,v])=>`<tr><td>${esc(STR[k.slice(6)]||k.slice(6))}</td><td>${v.n}</td><td>${num(100*v.wins/v.n,0)}%</td><td class="${v.sum_r>0?"up":"dn"}">${v.sum_r>0?"+":""}${num(v.sum_r,2)}R</td></tr>`).join("");
+  const sigHtml=`<div class="banner"><b>Estratégias de 4H — só em papel</b>Recuo, quebra com reteste, sweep e fundo de range correm em todos os ativos listados na Bybit UE, mas em simulação: no backtest perderam dinheiro. Cada setup é acompanhado até ao fim e o resultado fica registado aqui.</div>${ps.map(paperCard).join("")||`<div class="banner">Sem setups em simulação neste momento.</div>`}${trRows?`<div class="tw"><table><tr><th>Registo ao vivo (papel)</th><th>N</th><th>Acerto</th><th>Total</th></tr>${trRows}</table></div>`:""}`;
+  const p=D.paper_trend;if(!p){$("paper").innerHTML=sigHtml;return}
   const pos=Object.entries(p.positions).map(([a,x])=>`<div class="op wait"><b>${esc(a)}</b> (${esc(x.pair)}) · comprado a ${price(x.entry)} em ${hm(x.entry_t)} · stop ${price(x.stop0)} · ${num(x.position_pct,1)}% do capital</div>`).join("");
   const cl=p.closed.slice().reverse().map(x=>`<div class="op closed"><b>${esc(x.asset)}</b> · ${hm(x.entry_t)} → ${hm(x.exit_t)} · ${x.reason==="STOP"?"stop":"saída por tendência"} · <b class="${x.r>0?"up":"dn"}">${x.r>0?"+":""}${num(x.r,2)}R</b></div>`).join("");
-  $("paper").innerHTML=`<div class="banner"><b>Tendência diária — só em papel</b>Esta estratégia não passou a validação. Corre em simulação para acumular evidência real: ${p.n} operações fechadas${p.n?`, acerto ${num(p.win_rate,0)}%, total ${p.total_r>0?"+":""}${num(p.total_r,2)}R, capital ${p.equity_pct>0?"+":""}${num(p.equity_pct,2)}%`:""}. Não a sigas com dinheiro.</div>${pos||`<div class="banner">Sem posições em papel.</div>`}${cl}`;
+  $("paper").innerHTML=sigHtml+`<div class="banner"><b>Tendência diária — só em papel</b>Esta estratégia não passou a validação. Corre em simulação para acumular evidência real: ${p.n} operações fechadas${p.n?`, acerto ${num(p.win_rate,0)}%, total ${p.total_r>0?"+":""}${num(p.total_r,2)}R, capital ${p.equity_pct>0?"+":""}${num(p.equity_pct,2)}%`:""}. Não a sigas com dinheiro.</div>${pos||`<div class="banner">Sem posições em papel.</div>`}${cl}`;
 }
 async function loadRS(){
   try{
@@ -265,7 +277,7 @@ function decBlock(r){
   const d=r.decision;if(!d) return "";
   const rej=(d.rejected||[]).map(x=>`<div class="warn">Rejeitado — ${esc(x)}</div>`).join("");
   const ch=(d.checks||[]).map(c=>`<div><span class="${c.ok?"up":"dn"}">${c.ok?"✓":"✗"}</span><span>${c.n}. ${esc(c.check)}${c.detail?" — "+esc(c.detail):""}</span></div>`).join("");
-  return `<div class="tf"><h3>Decisão</h3><div><b>${DEC[d.decision]}</b>${d.reason?" — "+esc(d.reason):""}</div>${rej}<div class="chk">${ch}</div></div>`;
+  return `<div class="tf"><h3>Decisão</h3><div><b>${d.decision==="LONG"&&d.mode==="PAPER"?"SETUP EM PAPEL (estratégia não validada)":DEC[d.decision]}</b>${d.reason?" — "+esc(d.reason):""}</div>${rej}<div class="chk">${ch}</div></div>`;
 }
 function render(){
   if(!D) return;
@@ -286,7 +298,8 @@ function render(){
   $("list").innerHTML=rows.map(r=>{
     const a=r.analysis,d=a&&a["1d"]&&a["1d"].ok?a["1d"]:null,h=a&&a["4h"]&&a["4h"].ok?a["4h"]:null;
     const dd=r.decision?r.decision.decision:null;
-    const chips=[dd?`<span class="chip ${dd==="LONG"?"up":dd==="WATCHLIST"?"warn":""}">${DEC[dd]}</span>`:"",`<span class="chip">Liquidez ${r.liquidity_score}</span>`,
+    const pm=dd==="LONG"&&r.decision.mode==="PAPER";
+    const chips=[dd?`<span class="chip ${pm?"warn":dd==="LONG"?"up":dd==="WATCHLIST"?"warn":""}">${pm?"SETUP EM PAPEL":DEC[dd]}</span>`:"",`<span class="chip">Liquidez ${r.liquidity_score}</span>`,
       `<span class="chip ${r.data_status==="VALID"?"":"warn"}">Dados ${r.data_status==="VALID"?"válidos":r.data_status==="DEGRADED"?"com avisos":"inválidos"}</span>`];
     if(d) chips.push(`<span class="chip ${d.ema_trend==="UP"?"up":d.ema_trend==="DOWN"?"dn":""}">1D ${T[d.ema_trend]}</span>`);
     if(h) chips.push(`<span class="chip ${h.structure==="BULLISH"?"up":h.structure==="BEARISH"?"dn":""}">4H ${T[h.structure]}</span>`);
@@ -315,7 +328,7 @@ async function load(){
     const src=Object.entries(D.sources).map(([n,s])=>n+(s.ok?" ✓":" ✗")).join(" · ")+" · Bybit UE"+(D.venue_source&&D.venue_source.ok?" ✓":" ✗");
     $("sub").innerHTML=`Atualizado há ${age} min · ${esc(src)}`+(age>45?` · <span class="warn">dados atrasados</span>`:"");
     const c=D.counts||{};
-    $("stats").innerHTML=[["Analisados",c.deep_checked],["Compra",c.long],["A vigiar",c.watchlist],["Não operar",c.no_trade]].map(([l,v])=>`<div class="stat"><b>${v??"–"}</b><span>${l}</span></div>`).join("");
+    $("stats").innerHTML=[["Analisados",c.deep_checked],["Operações reais",c.long],["Em papel",c.paper],["A vigiar",c.watchlist]].map(([l,v])=>`<div class="stat"><b>${v??"–"}</b><span>${l}</span></div>`).join("");
     $("note").textContent=`Regime do BTC: ${D.market_regime?D.market_regime.btc:"–"}. Só entram ativos listados na Bybit UE em USDC. As análises usam preços dos mercados globais em USDT; na Bybit UE os valores em USDC podem diferir alguns cêntimos. Filtro de liquidez: volume 24h ≥ ${num(D.thresholds.min_volume_usd/1e6,0)} M $ e spread ≤ ${D.thresholds.max_spread_bps} bps. Análise aprofundada só nos ${D.thresholds.deep_n} ativos mais líquidos. Toca num ativo para ver o detalhe.`;
     render();
   }catch(e){$("sub").innerHTML=`<span class="warn">Não foi possível carregar os dados (${esc(e.message)}).</span>`}

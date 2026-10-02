@@ -57,11 +57,13 @@ def decide(row, c4, cfg, v, btc_reg, regime_changed):
     for s in found:
         if "rejected" in s:
             continue
-        # Com backtest publicado, so geram operacoes as estrategias
-        # validadas. (min_score = 0 e o proprio backtest a correr.)
-        if cfg["min_score"] > 0 and validation.load() is not None:
+        # So estrategias validadas em backtest geram operacoes REAIS. As
+        # restantes correm em PAPEL (ou nao correm, conforme a configuracao).
+        # min_score = 0 e o proprio backtest: nunca e travado.
+        if cfg["min_score"] > 0:
             st = validation.status(s["strategy"])
-            if not st.get("validated"):
+            s["mode"] = "REAL" if st.get("validated") else "PAPER"
+            if s["mode"] == "PAPER" and not cfg.get("paper_unvalidated", True):
                 out["rejected"].append(
                     f"{s['strategy']}: estratégia não validada em backtest "
                     f"({st['label']})")
@@ -95,6 +97,7 @@ def decide(row, c4, cfg, v, btc_reg, regime_changed):
     _, _, s, p, sc = best
     ready = s["state"] == "READY"
     out.update(strategy=s["strategy"], state=s["state"], trigger=s["trigger"],
+               mode=s.get("mode", "REAL"),
                notes=s["notes"], score=sc["score"], score_label=sc["label"],
                families=sc["families"], conflicts=sc["conflicts"],
                plan={k: ([_fmt(x) for x in val] if k in ("entry_zone", "tp")
@@ -184,24 +187,33 @@ def update_state(state, rows, cfg, now):
             if pos["closed"]:
                 s.update(status="CLOSED", closed_at=now, result_r=pos["r"],
                          close_reason=pos["exit_reason"])
+                tk = state.setdefault("track", {}).setdefault(
+                    f"{s.get('mode', 'REAL')}:{s['strategy']}",
+                    {"n": 0, "wins": 0, "sum_r": 0.0})
+                tk["n"] += 1
+                tk["wins"] += pos["r"] > 0
+                tk["sum_r"] = round(tk["sum_r"] + pos["r"], 3)
         elif s["status"] in ("EXPIRED", "INVALIDATED", "CLOSED") and \
                 now - s.get("closed_at", now) > 30 * 86400:
             del sigs[key]
 
     live = {s["asset"] for s in sigs.values()
             if s["status"] in ("ACTIVE", "TRIGGERED")}
-    slots = cfg["max_open_positions"] - sum(
-        1 for s in sigs.values() if s["status"] in ("ACTIVE", "TRIGGERED"))
+    def used(mode):
+        return sum(1 for s in sigs.values()
+                   if s["status"] in ("ACTIVE", "TRIGGERED")
+                   and s.get("mode", "REAL") == mode)
+    slots = {m: cfg["max_open_positions"] - used(m) for m in ("REAL", "PAPER")}
     cands = sorted((r for r in rows if r["decision"]["decision"] == "LONG"
                     and r["asset"] not in live),
                    key=lambda r: -r["decision"]["score"])
     for r in cands:
         d = r["decision"]
-        if slots <= 0:
+        if slots[d["mode"]] <= 0:
             d.update(decision="WATCHLIST",
                      reason="limite de operações em simultâneo atingido")
             continue
-        slots -= 1
+        slots[d["mode"]] -= 1
         key = f"{r['asset']}-{d['strategy']}-{now}"
         sig = {"id": key, "asset": r["asset"], "pair": d["venue"]["pair"],
                "venue": d["venue"]["name"], "direction": "LONG",
@@ -211,7 +223,7 @@ def update_state(state, rows, cfg, now):
                "confidence": d["confidence"], "conflicts": d["conflicts"],
                "explain": explain(r), "issued_at": now,
                "expires_at": now + cfg["signal_expiry_hours"] * 3600,
-               "status": "ACTIVE",
+               "status": "ACTIVE", "mode": d["mode"],
                "validation": validation.status(d["strategy"])}
         sig["validated"] = bool(sig["validation"].get("validated"))
         sigs[key] = sig

@@ -31,7 +31,7 @@ def summary(res):
     L.append(f"REGIME BTC {res['market_regime']['btc']}")
     for r in res["universe"]:
         d = r["decision"]
-        L.append(f"  {r['asset']:8s} {d['decision']:9s} "
+        L.append(f"  {r['asset']:8s} {d['decision']:9s} {d.get('mode', '-'):5s} "
                  f"{d.get('regime', '-'):11s} {d.get('strategy', '-'):16s} "
                  f"{d.get('state', '-'):8s} score {d.get('score', '-')} | "
                  f"{d.get('reason', '')}")
@@ -48,6 +48,7 @@ def summary(res):
     pt = res.get("paper_trend") or {}
     L.append(f"PAPEL TENDENCIA capital {pt.get('equity_pct')}% n {pt.get('n')} "
              f"posicoes {list((pt.get('positions') or {}))}")
+    L.append(f"REGISTO {res.get('track_record')}")
     L.append(f"SINAIS ATIVOS {len(res['active_signals'])}")
     for s in res["active_signals"]:
         L.append(f"  {s['id']} {s['status']} {s['plan']}")
@@ -56,6 +57,30 @@ def summary(res):
 
 def _px(x):
     return strategies.px_str(x)
+
+
+def paper_text(e, s, head, note):
+    """Sinais de estrategias nao validadas: simulacao, nunca uma ordem."""
+    p, k = s["plan"], e["event"]
+    tag = f"📝 PAPEL (simulação) — {head} · {s['strategy']}"
+    if k == "ISSUED":
+        return (f"{tag}\nSetup: entrada {_px(p['entry_zone'][0])} a "
+                f"{_px(p['entry_zone'][1])}, stop {_px(p['stop'])}, "
+                f"TP1 {_px(p['tp'][0])} · TP2 {_px(p['tp'][1])} · "
+                f"TP3 {_px(p['tp'][2])}, R:R 1:{p['rr']}, score {s['score']}.\n"
+                f"{note}")
+    if k == "TRIGGERED":
+        return f"{tag}\nEntrada simulada a {_px(e['price'])}."
+    if k in ("TP1", "TP2", "TP3"):
+        r = f" Resultado final: {e['r']:+.2f}R." if "r" in e else ""
+        return f"{tag}\n{k} atingido em {_px(e['price'])}.{r}"
+    if k in ("STOP", "BREAKEVEN", "TIME"):
+        txt = {"STOP": "Stop atingido", "BREAKEVEN": "Stop na entrada atingido",
+               "TIME": "Tempo máximo atingido"}[k]
+        return f"{tag}\n{txt} em {_px(e['price'])}. Resultado: {e['r']:+.2f}R."
+    if k in ("EXPIRED", "INVALIDATED"):
+        return f"{tag}\nSetup cancelado: {e['reason']}."
+    return None
 
 
 def alert_text(e, sigs, note):
@@ -84,6 +109,8 @@ def alert_text(e, sigs, note):
         return None
     p = s["plan"]
     head = f"{s['asset']} ({s['pair']}, {s['venue']})"
+    if s.get("mode") == "PAPER":
+        return paper_text(e, s, head, note)
     if k == "ISSUED":
         return (f"🟢 COMPRA — {head}\n"
                 f"{s['strategy']} · {s['timeframe']} · score {s['score']}/100\n"
