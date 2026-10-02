@@ -87,6 +87,14 @@ def plan(setup, a4, a1, cfg):
     if cap:
         pos_usdc = cap * size_pct / 100
         mn = cfg.get("min_order_usdc", 5.0)
+        if 0.9 * mn <= pos_usdc < mn:
+            # a centimos do minimo: arredonda para a ordem minima (o risco
+            # sobe no maximo 10% do seu valor, p. ex. de 0.50% para 0.55%)
+            size_pct = mn / cap * 100
+            pos_usdc = mn
+            leverage.update(
+                collateral_pct=round(size_pct / lev["use"], 1),
+                borrowed_pct=round(size_pct - size_pct / lev["use"], 1))
         if pos_usdc < mn:
             return None, (f"posição de {pos_usdc:.2f} USDC abaixo da ordem "
                           f"mínima de {mn:g} USDC com o capital atual")
