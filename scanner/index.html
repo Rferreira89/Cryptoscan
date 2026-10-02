@@ -36,13 +36,27 @@ input{flex:1 1 100%}
 .kv div{display:flex;justify-content:space-between;gap:8px;font-variant-numeric:tabular-nums}
 .kv span{color:var(--mut)}
 .note{color:var(--mut);font-size:12.5px;margin-top:14px}
+h2{font-size:16px;margin:18px 0 8px}
+.op{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--up);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.op.wait{border-left-color:var(--warn)}.op.closed{border-left-color:var(--mut);opacity:.75}
+.op h3{margin:0 0 2px;font-size:16px}.op .meta{color:var(--mut);font-size:12.5px;margin-bottom:8px}
+.steps{margin:6px 0;padding-left:20px}.steps li{margin-bottom:4px}
+.tag{display:inline-block;background:var(--chip);border-radius:6px;padding:1px 7px;font-size:12px;font-weight:600}
+.cap{display:flex;gap:8px;align-items:center;margin-bottom:10px;font-size:13.5px}.cap input{flex:0 0 120px}
+.why{font-size:13px;margin-top:6px}.why span{color:var(--mut)}
+.chk{font-size:12.5px;margin-top:6px}.chk div{display:flex;gap:6px}
 </style>
 </head>
 <body>
 <main>
 <h1>Cryptoscan · Scanner</h1>
 <div class="sub" id="sub">A carregar…</div>
-<div class="banner"><b>Fase 3 — análise descritiva, sem sinais</b>Esta página mostra liquidez, qualidade dos dados, tendência, estrutura, volume, fluxo e derivados. Ainda não indica compras nem vendas: isso só existe depois de as estratégias serem testadas com dados históricos.</div>
+<div class="banner"><b>Fase 4 — setups não validados</b>As operações abaixo seguem regras ainda <b style="display:inline">não testadas com dados históricos</b>. Servem para acompanhar em papel, não para arriscar dinheiro. O score mede a qualidade do setup, não a probabilidade de ganhar. Só compras em spot na Bybit UE, sem alavancagem.</div>
+<div class="cap"><label for="cap">O teu capital (USDC):</label><input id="cap" inputmode="decimal" placeholder="ex.: 500"><span id="capnote" style="color:var(--mut)"></span></div>
+<h2>Operações</h2><div id="ops"></div>
+<h2>A vigiar</h2><div id="watch"></div>
+<h2>Sinais fechados</h2><div id="closed"></div>
+<h2>Todos os ativos</h2>
 <div class="stats" id="stats"></div>
 <div class="bar">
 <input id="q" placeholder="Procurar ativo" autocomplete="off">
@@ -55,6 +69,8 @@ input{flex:1 1 100%}
 </select>
 <select id="flt">
 <option value="">Todos</option>
+<option value="LONG">Decisão: compra</option>
+<option value="WATCHLIST">Decisão: a vigiar</option>
 <option value="UP">Tendência 1D: subida</option>
 <option value="DOWN">Tendência 1D: descida</option>
 <option value="event">Com BOS/CHOCH recente (4H)</option>
@@ -145,13 +161,71 @@ function tfBlock(name,a){
   ${flowBlock(a)}
   </div>`;
 }
+const STR={PULLBACK:"Recuo em tendência",BREAKOUT:"Quebra com reteste",LIQUIDITY_SWEEP:"Sweep de liquidez",RANGE:"Fundo de range"};
+const DEC={LONG:"COMPRA",WATCHLIST:"A VIGIAR","NO TRADE":"NÃO OPERAR"};
+const hm=t=>new Date(t*1000).toLocaleString("pt-PT",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
+function capital(){const v=parseFloat(($("cap").value||"").replace(",","."));return v>0?v:null}
+function sizing(p){
+  const c=capital();if(!c) return `Investir <b>${num(p.position_pct,1)}%</b> do capital (risco real ${num(p.risk_pct,2)}%). Escreve o teu capital em cima para veres os valores.`;
+  const pos=c*p.position_pct/100,qty=pos/p.entry_ref,loss=c*p.risk_pct/100;
+  return `Investir <b>${num(pos,2)} USDC</b> (${num(p.position_pct,1)}% do capital) ≈ ${Number(qty.toPrecision(4)).toLocaleString("pt-PT",{maximumSignificantDigits:4})} unidades. Perda máxima se o stop for atingido: <b>${num(loss,2)} USDC</b>.`+(pos<5?` <span class="warn">Valor abaixo do mínimo habitual por ordem; confirma na Bybit.</span>`:"");
+}
+function planSteps(p,pair){
+  const pr=i=>p.tp_projected.includes(i)?" (projetado)":"";
+  return `<ol class="steps">
+  <li>Na Bybit UE, par <b>${esc(pair)}</b>, spot: ordem <b>limite de compra</b> entre <b>${price(p.entry_zone[0])}</b> e <b>${price(p.entry_zone[1])}</b>.</li>
+  <li>${sizing(p)}</li>
+  <li>Stop-loss em <b>${price(p.stop)}</b> (−${num(p.stop_pct,2)}% com comissões).</li>
+  <li>Vender ${p.partials[0]}% em <b>${price(p.tp[0])}</b>${pr(1)} e subir o stop para o preço de entrada.</li>
+  <li>Vender ${p.partials[1]}% em <b>${price(p.tp[1])}</b>${pr(2)} e os restantes ${p.partials[2]}% em <b>${price(p.tp[2])}</b>${pr(3)}.</li></ol>
+  <div class="chips"><span class="chip">R:R 1:${num(p.rr,2)}</span><span class="chip">Stop ${num(p.stop_atr,1)} ATR</span></div>`;
+}
+function sigCard(s){
+  const e=s.explain,trig=s.status==="TRIGGERED";
+  return `<div class="op"><h3>${esc(s.asset)} · COMPRA <span class="tag">${trig?"zona de entrada atingida":"ativo"}</span></h3>
+  <div class="meta">${esc(STR[s.strategy]||s.strategy)} · ${esc(s.timeframe)} · regime ${esc(s.regime)} · score ${s.score}/100 · emitido ${hm(s.issued_at)}${trig?"":" · válido até "+hm(s.expires_at)}</div>
+  ${planSteps(s.plan,s.pair)}
+  <div class="why"><span>Porquê:</span> ${esc(e.why)}</div>
+  <div class="why"><span>Porquê agora:</span> ${esc(e.why_now)}</div>
+  <div class="why"><span>Invalidação:</span> ${esc(e.invalidates)}</div>
+  <div class="why"><span>Risco principal:</span> ${esc(e.main_risk)}</div>
+  <div class="why"><span>O que mudaria o sinal:</span> ${esc(e.would_change)}</div>
+  <div class="why"><span>Confiança:</span> dados ${s.confidence.data_quality}/100 · liquidez ${s.confidence.liquidity_quality}/100 · regime ${s.confidence.regime_compatibility}/100 · histórico da estratégia: sem backtest</div>
+  <div class="warn" style="margin-top:6px">Não validado — acompanhar em papel.</div></div>`;
+}
+function watchCard(r){
+  const d=r.decision;
+  return `<div class="op wait"><h3>${esc(r.asset)} · A VIGIAR</h3>
+  <div class="meta">${esc(STR[d.strategy]||d.strategy)} · regime ${esc(d.regime)} · score ${d.score}/100</div>
+  <div><b>Gatilho:</b> ${esc(d.reason)}</div>
+  <div class="why"><span>Contexto:</span> ${esc(d.notes.join("; "))}</div>
+  <div class="why"><span>Plano indicativo se o gatilho ocorrer:</span> entrada ${price(d.plan.entry_zone[0])}–${price(d.plan.entry_zone[1])}, stop ${price(d.plan.stop)}, TP1 ${price(d.plan.tp[0])}, R:R 1:${num(d.plan.rr,2)}</div>
+  ${d.conflicts.length?`<div class="warn">Conflito: ${d.conflicts.map(esc).join("; ")}</div>`:""}
+  <div class="why"><span>Sem entrada antecipada: só conta depois do gatilho.</span></div></div>`;
+}
+function renderOps(){
+  const act=D.active_signals||[];
+  $("ops").innerHTML=act.map(sigCard).join("")||`<div class="banner">Nenhuma operação neste momento. Não operar também é uma decisão: o sistema só emite um setup quando todas as condições se alinham.</div>`;
+  const w=D.universe.filter(r=>r.decision&&r.decision.decision==="WATCHLIST"&&r.decision.plan&&!r.decision.active_signal).sort((a,b)=>b.decision.score-a.decision.score);
+  $("watch").innerHTML=w.map(watchCard).join("")||`<div class="banner">Nada em vigilância.</div>`;
+  const cl=D.closed_signals||[];
+  $("closed").innerHTML=cl.map(s=>`<div class="op closed"><b>${esc(s.asset)}</b> · ${esc(STR[s.strategy]||s.strategy)} · ${s.status==="EXPIRED"?"expirado":"invalidado"} ${hm(s.closed_at)} — ${esc(s.close_reason)}</div>`).join("")||`<div class="banner">Ainda sem sinais fechados.</div>`;
+}
+function decBlock(r){
+  const d=r.decision;if(!d) return "";
+  const rej=(d.rejected||[]).map(x=>`<div class="warn">Rejeitado — ${esc(x)}</div>`).join("");
+  const ch=(d.checks||[]).map(c=>`<div><span class="${c.ok?"up":"dn"}">${c.ok?"✓":"✗"}</span><span>${c.n}. ${esc(c.check)}${c.detail?" — "+esc(c.detail):""}</span></div>`).join("");
+  return `<div class="tf"><h3>Decisão</h3><div><b>${DEC[d.decision]}</b>${d.reason?" — "+esc(d.reason):""}</div>${rej}<div class="chk">${ch}</div></div>`;
+}
 function render(){
   if(!D) return;
   const q=$("q").value.trim().toUpperCase(),s=$("sort").value,f=$("flt").value;
   const key=r=>s==="adx"||s==="rsi"?(r.analysis&&r.analysis["1d"]&&r.analysis["1d"].ok?r.analysis["1d"][s]:-1):(r[s]??-1e18);
+  renderOps();
   let rows=D.universe.filter(r=>r.eligible&&r.timeframes);
   if(q) rows=rows.filter(r=>r.asset.toUpperCase().includes(q));
   if(f) rows=rows.filter(r=>{const a=r.analysis;
+    if(f==="LONG"||f==="WATCHLIST")return r.decision&&r.decision.decision===f;
     if(f==="dflags")return !!(r.derivatives&&r.derivatives.flags.length);
     if(!a)return false;
     if(f==="sweep")return !!(a["4h"]&&a["4h"].ok&&a["4h"].liquidity&&a["4h"].liquidity.sweep);
@@ -161,7 +235,8 @@ function render(){
   rows.sort((a,b)=>key(b)-key(a));
   $("list").innerHTML=rows.map(r=>{
     const a=r.analysis,d=a&&a["1d"]&&a["1d"].ok?a["1d"]:null,h=a&&a["4h"]&&a["4h"].ok?a["4h"]:null;
-    const chips=[`<span class="chip">Liquidez ${r.liquidity_score}</span>`,
+    const dd=r.decision?r.decision.decision:null;
+    const chips=[dd?`<span class="chip ${dd==="LONG"?"up":dd==="WATCHLIST"?"warn":""}">${DEC[dd]}</span>`:"",`<span class="chip">Liquidez ${r.liquidity_score}</span>`,
       `<span class="chip ${r.data_status==="VALID"?"":"warn"}">Dados ${r.data_status==="VALID"?"válidos":r.data_status==="DEGRADED"?"com avisos":"inválidos"}</span>`];
     if(d) chips.push(`<span class="chip ${d.ema_trend==="UP"?"up":d.ema_trend==="DOWN"?"dn":""}">1D ${T[d.ema_trend]}</span>`);
     if(h) chips.push(`<span class="chip ${h.structure==="BULLISH"?"up":h.structure==="BEARISH"?"dn":""}">4H ${T[h.structure]}</span>`);
@@ -172,6 +247,7 @@ function render(){
     <div class="head"><div><div class="sym">${esc(r.asset)}</div><div class="chips">${chips.join("")}</div></div>
     <div class="px"><div>${price(r.price)} $</div><div class="${r.chg_24h>=0?"up":"dn"}">${r.chg_24h==null?"–":(r.chg_24h>=0?"+":"")+num(r.chg_24h,2)+"%"}</div></div></div>
     <div class="det">
+    ${decBlock(r)}
     <div class="kv" style="margin-bottom:10px"><div><span>Volume 24h</span><b>${vol(r.volume_24h)}</b></div><div><span>Spread</span><b>${num(r.spread_bps,2)} bps</b></div>
     <div><span>Fontes</span><b>${r.sources.map(esc).join(", ")}</b></div><div><span>Qualidade dos dados</span><b>${r.data_quality}/100</b></div></div>
     ${a?tfBlock("Diário (1D)",a["1d"])+tfBlock("4 horas (4H)",a["4h"]):`<div class="warn">Sem análise: dados inválidos.</div>`}
@@ -186,16 +262,18 @@ async function load(){
     if(!r.ok) throw new Error("HTTP "+r.status);
     D=await r.json();
     const age=Math.round((Date.now()/1000-D.generated_at)/60);
-    const src=Object.entries(D.sources).map(([n,s])=>n+(s.ok?" ✓":" ✗")).join(" · ");
+    const src=Object.entries(D.sources).map(([n,s])=>n+(s.ok?" ✓":" ✗")).join(" · ")+" · Bybit UE"+(D.venue_source&&D.venue_source.ok?" ✓":" ✗");
     $("sub").innerHTML=`Atualizado há ${age} min · ${esc(src)}`+(age>45?` · <span class="warn">dados atrasados</span>`:"");
     const c=D.counts||{};
-    $("stats").innerHTML=[["Pares vistos",c.pairs_seen],["Passam o filtro",c.eligible],["Analisados",c.deep_checked],["Dados válidos",c.data_valid]].map(([l,v])=>`<div class="stat"><b>${v??"–"}</b><span>${l}</span></div>`).join("");
-    $("note").textContent=`Filtro de liquidez: volume 24h ≥ ${num(D.thresholds.min_volume_usd/1e6,0)} M $ e spread ≤ ${D.thresholds.max_spread_bps} bps. Análise aprofundada só nos ${D.thresholds.deep_n} ativos mais líquidos. Toca num ativo para ver o detalhe.`;
+    $("stats").innerHTML=[["Analisados",c.deep_checked],["Compra",c.long],["A vigiar",c.watchlist],["Não operar",c.no_trade]].map(([l,v])=>`<div class="stat"><b>${v??"–"}</b><span>${l}</span></div>`).join("");
+    $("note").textContent=`Regime do BTC: ${D.market_regime?D.market_regime.btc:"–"}. Só entram ativos listados na Bybit UE em USDC. As análises usam preços dos mercados globais em USDT; na Bybit UE os valores em USDC podem diferir alguns cêntimos. Filtro de liquidez: volume 24h ≥ ${num(D.thresholds.min_volume_usd/1e6,0)} M $ e spread ≤ ${D.thresholds.max_spread_bps} bps. Análise aprofundada só nos ${D.thresholds.deep_n} ativos mais líquidos. Toca num ativo para ver o detalhe.`;
     render();
   }catch(e){$("sub").innerHTML=`<span class="warn">Não foi possível carregar os dados (${esc(e.message)}).</span>`}
 }
 $("list").addEventListener("click",e=>{const row=e.target.closest(".row");if(!row||!e.target.closest(".head"))return;const a=row.dataset.a;open.has(a)?open.delete(a):open.add(a);row.classList.toggle("open")});
 ["q","sort","flt"].forEach(i=>$(i).addEventListener("input",render));
+try{$("cap").value=localStorage.getItem("capital")||""}catch(e){}
+$("cap").addEventListener("input",()=>{try{localStorage.setItem("capital",$("cap").value)}catch(e){}$("capnote").textContent=capital()?"guardado só neste telemóvel":"";if(D)renderOps()});
 load();setInterval(load,300000);
 </script>
 </body>

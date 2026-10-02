@@ -10,7 +10,8 @@ import statistics
 import time
 from concurrent.futures import ThreadPoolExecutor
 
-from . import analysis, derivatives, liquidity, sources, validate, volume
+from . import (analysis, config, derivatives, liquidity, regime, signals,
+               sources, validate, venue, volume)
 
 MIN_VOLUME_USD = 5_000_000
 MAX_SPREAD_BPS = 20
@@ -141,6 +142,7 @@ def deep_check(row, src_order, now):
                            else max(50, 100 - 10 * n_issues
                                     - (0 if len(row["sources"]) > 1 else 10)))
     # Sem dados validos nao ha analise (hierarquia: 1. dados validos?)
+    out["_c4"] = clean.get("4h")
     usable = (out["data_status"] != validate.INVALID
               and len(clean) == len(TIMEFRAMES))
     out["analysis"] = analysis.multi(clean) if usable else None
@@ -180,34 +182,88 @@ def add_derivatives(rows, now):
             "incomplete": sum(bool(d and d["missing"]) for d in res)}
 
 
-def run(now=None):
+def run(now=None, state=None, cfg=None):
+    """Devolve (resultado, estado, eventos de auditoria)."""
     now = int(now or time.time())
+    state = state if state is not None else {}
+    cfg = cfg or config.load()
     status, data = collect_tickers()
     live = [s for s in sources.ALL if status[s.name]["ok"]]
-    result = {"generated_at": now, "phase": 3, "sources": status,
+    result = {"generated_at": now, "phase": 4, "sources": status,
+              "config": cfg,
               "thresholds": {"min_volume_usd": MIN_VOLUME_USD,
                              "max_spread_bps": MAX_SPREAD_BPS,
                              "deep_n": DEEP_N},
-              "signals": "Fase 3: analise descritiva. Ainda sem sinais."}
+              "signals_note": "Estrategias NAO validadas por backtest. "
+                              "O score nao e uma probabilidade."}
     if not live:
         result.update(status_global="DATA SOURCE ERROR", universe=[])
-        return result
+        return result, state, []
+    try:
+        ven = venue.fetch(cfg["quote"])
+        result["venue_source"] = {"ok": True, "pairs": len(ven)}
+    except (sources.SourceError, KeyError, TypeError) as e:
+        ven = None
+        result["venue_source"] = {"ok": False, "error": str(e)[:200]}
+
     uni = build_universe(data)
+    for r in uni:
+        v = ven.get(r["asset"]) if ven else None
+        r["on_venue"] = v is not None
+        if ven is not None and v is None and r["eligible"]:
+            r["eligible"] = False
+            r["excluded_for"].append("nao listado na Bybit UE")
     eligible = [r for r in uni if r["eligible"]][:DEEP_N]
     with ThreadPoolExecutor(max_workers=6) as ex:
         for row, deep in zip(eligible, ex.map(
                 lambda r: deep_check(r, live, now), eligible)):
             row.update(deep)
-    result["derivatives_source"] = add_derivatives(
-        [r for r in eligible if r.get("analysis")], now)
+    analysed = [r for r in eligible if r.get("analysis")]
+    result["derivatives_source"] = add_derivatives(analysed, now)
+
+    # Regimes: o do BTC e contexto para todos; mudancas reduzem confianca.
+    prev = state.get("regimes", {})
+    regs, changed = {}, {}
+    for r in analysed:
+        reg = regime.classify(r["analysis"]["1d"])["regime"]
+        old = prev.get(r["asset"], {})
+        since = old.get("since", now) if old.get("regime") == reg else now
+        regs[r["asset"]] = {"regime": reg, "since": since,
+                            "previous": old.get("regime")
+                            if old.get("regime") != reg else old.get("previous")}
+        changed[r["asset"]] = bool(old) and now - since < 86400
+    state["regimes"] = regs
+    btc_reg = regs.get("BTC", {}).get("regime")
+    result["market_regime"] = {"btc": btc_reg}
+
+    for r in eligible:
+        c4 = r.pop("_c4", None)
+        if ven is None:
+            r["decision"] = {"decision": "NO TRADE", "validated": False,
+                             "reason": "DATA SOURCE ERROR: lista da Bybit UE "
+                                       "indisponivel", "checks": []}
+        else:
+            r["decision"] = signals.decide(r, c4, cfg, ven.get(r["asset"]),
+                                           btc_reg, changed.get(r["asset"], False))
+    events = signals.update_state(state, eligible, cfg, now)
+    result["active_signals"] = [s for s in state["signals"].values()
+                                if s["status"] in ("ACTIVE", "TRIGGERED")]
+    result["closed_signals"] = sorted(
+        (s for s in state["signals"].values()
+         if s["status"] in ("EXPIRED", "INVALIDATED")),
+        key=lambda s: -s["closed_at"])[:10]
+    ok_all = len(live) == len(sources.ALL) and ven is not None
+    dec = [r["decision"]["decision"] for r in eligible]
     result.update(
-        status_global="OK" if len(live) == len(sources.ALL) else "DEGRADED",
+        status_global="OK" if ok_all else "DEGRADED",
         counts={"pairs_seen": len(uni),
                 "eligible": sum(r["eligible"] for r in uni),
                 "deep_checked": len(eligible),
                 "data_valid": sum(r.get("data_status") == validate.VALID
                                   for r in eligible),
                 "data_invalid": sum(r.get("data_status") == validate.INVALID
-                                    for r in eligible)},
-        universe=[r for r in uni if r["volume_24h"] >= 1_000_000][:150])
-    return result
+                                    for r in eligible),
+                "long": dec.count("LONG"), "watchlist": dec.count("WATCHLIST"),
+                "no_trade": dec.count("NO TRADE")},
+        universe=eligible)
+    return result, state, events

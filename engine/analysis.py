@@ -29,12 +29,18 @@ def timeframe(c):
         ema_trend = "DOWN"
     else:
         ema_trend = "MIXED"
+    # percentil do ATR% atual face as ultimas 200 velas (regime de volatilidade)
+    atr_s = I.atr(c)
+    hist = [atr_s[i] / close[i] for i in range(len(c) - 200, len(c))
+            if atr_s[i] is not None]
+    atr_pctile = round(100 * sum(1 for h in hist if h <= hist[-1]) / len(hist))
     st = S.analyse(c)
     return {"ok": True, "close": px, "ema20": _r(e20), "ema50": _r(e50),
             "ema200": _r(e200), "ema_trend": ema_trend,
             "trend_strength": "STRONG" if d >= 25 else "WEAK" if d < 20
             else "MODERATE",
             "adx": _r(d, 1), "rsi": _r(r, 1), "atr_pct": _r(a / px * 100, 2),
+            "atr": _r(a, 10), "atr_pctile": atr_pctile,
             "dist_ema200_pct": _r((px / e200 - 1) * 100, 1),
             "structure": st["trend"], "sequence": st["sequence"],
             "swing_high": st["last_high"], "swing_low": st["last_low"],

@@ -1,41 +1,76 @@
 name: Market Scanner
+# Um job corre em ciclo (scan de 15 em 15 minutos) durante ~5h20 e no fim
+# relanca-se a si proprio. O agendamento do GitHub e pouco fiavel, por isso
+# serve apenas de vigia: se a cadeia parar, volta a arranca-la.
 on:
   schedule:
-    - cron: "7,22,37,52 * * * *"
+    - cron: "11,41 * * * *"
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths: ["engine/**", "tests/**", ".github/workflows/scan.yml"]
 permissions:
   contents: write
+  actions: write
 concurrency:
   group: scan
   cancel-in-progress: false
-defaults:
-  run:
-    shell: bash
 jobs:
   scan:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 345
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Testes
-        run: python -m unittest discover -q -s tests -t .
-      - name: Scan
+      - name: Ciclo de scans
+        shell: bash
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          PUSH_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
         run: |
-          mkdir -p out
-          python -m engine.run out | tee out/resumo.txt
-      - name: Publicar snapshot (data em main, data-preview nos outros ramos)
+          END=$(( $(date +%s) + 5*3600 + 20*60 ))
+          while [ "$(date +%s)" -lt "$END" ]; do
+            echo "::group::scan $(date -u +%FT%TZ)"
+            # codigo mais recente em cada ciclo
+            git fetch -q origin main && git reset -q --hard FETCH_HEAD || true
+            # paragem de emergencia: um ficheiro STOP na raiz do repositorio
+            if [ -f STOP ]; then echo "STOP encontrado: scanner parado"; echo "::endgroup::"; break; fi
+            rm -rf out && mkdir out
+            OK=1
+            # estado anterior (sinais ativos, registo de auditoria)
+            if git ls-remote --exit-code -q origin refs/heads/data >/dev/null 2>&1; then
+              if git fetch -q origin data; then
+                for f in state.json audit.jsonl; do
+                  git show "FETCH_HEAD:$f" > "out/$f" 2>/dev/null || rm -f "out/$f"
+                done
+              else
+                echo "nao foi possivel ler o estado anterior: ciclo ignorado"; OK=0
+              fi
+            fi
+            if [ "$OK" = 1 ] && python -m unittest discover -q -s tests -t . ; then
+              if python -m engine.run out > /dev/null; then
+                head -12 out/resumo.txt
+                ( cd out && git init -q -b data \
+                  && git config user.name cryptoscan-bot \
+                  && git config user.email bot@users.noreply.github.com \
+                  && git add scan.json resumo.txt state.json \
+                  && { [ -f audit.jsonl ] && git add audit.jsonl || true; } \
+                  && git commit -q -m "scan $(date -u +%FT%TZ)" \
+                  && git push -q -f "$PUSH_URL" data:data ) || echo "publicacao falhou"
+              else
+                echo "scan falhou: nada publicado"
+              fi
+            elif [ "$OK" = 1 ]; then
+              echo "testes falharam: nada publicado"
+            fi
+            echo "::endgroup::"
+            NOW=$(date +%s)
+            sleep $(( 900 - NOW % 900 + 20 ))
+          done
+      - name: Relancar
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          TARGET=$([ "$GITHUB_REF" = refs/heads/main ] && echo data || echo data-preview)
-          cd out
-          git init -q -b data
-          git config user.name "cryptoscan-bot"
-          git config user.email "bot@users.noreply.github.com"
-          git add scan.json resumo.txt
-          git commit -q -m "scan $(date -u +%FT%TZ)"
-          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" "data:$TARGET"
+          if [ -f STOP ]; then echo "STOP: nao relanca"; exit 0; fi
+          gh workflow run scan.yml --repo "${{ github.repository }}" --ref main
