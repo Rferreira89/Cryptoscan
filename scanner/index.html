@@ -71,7 +71,7 @@ const URL_DATA="https://raw.githubusercontent.com/Rferreira89/Cryptoscan/data/sc
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const num=(v,d)=>v==null?"–":Number(v).toLocaleString("pt-PT",{maximumFractionDigits:d,minimumFractionDigits:0});
-const price=v=>v==null?"–":v>=100?num(v,2):v>=1?num(v,3):Number(v).toPrecision(4);
+const price=v=>v==null?"–":v>=100?num(v,2):v>=1?num(v,3):Number(v).toLocaleString("pt-PT",{maximumSignificantDigits:4});
 const vol=v=>v>=1e9?num(v/1e9,2)+" mM $":num(v/1e6,1)+" M $";
 const LBL={VOLUME_EXPANSION:"volume em expansão",VOLUME_CONTRACTION:"volume em contração",POSSIBLE_ABSORPTION:"possível absorção",
 LONG_BUILDUP:"novos longs (preço ↑, OI ↑)",SHORT_COVERING:"shorts a fechar (preço ↑, OI ↓)",SHORT_BUILDUP:"novos shorts (preço ↓, OI ↑)",LONG_LIQUIDATION:"longs a sair (preço ↓, OI ↓)",FLAT:"sem alteração relevante",
@@ -115,7 +115,7 @@ function derivBlock(r){
   <div><span>Funding vs. histórico</span><b>${d.funding_pctile==null?"–":"percentil "+d.funding_pctile}</b></div>
   <div><span>Open interest</span><b>${usd(d.oi_usd)}</b></div>
   <div><span>OI em 24h</span><b>${d.oi_chg_24h_pct==null?"–":(d.oi_chg_24h_pct>0?"+":"")+num(d.oi_chg_24h_pct,1)+"%"}</b></div>
-  <div><span>Long/short (contas)</span><b>${d.ls_ratio==null?"–":num(d.ls_ratio,2)+" · p"+d.ls_pctile}</b></div>
+  <div><span>Long/short (contas)</span><b>${d.ls_ratio==null?"–":num(d.ls_ratio,2)+(d.ls_pctile==null?"":" · p"+d.ls_pctile)}</b></div>
   <div><span>Basis</span><b>${d.basis_pct==null?"–":num(d.basis_pct,3)+"%"}</b></div></div>
   ${d.positioning?`<div><span style="color:var(--mut)">Posicionamento 24h:</span> ${esc(LBL[d.positioning]||d.positioning)}</div>`:""}
   ${q?`<div><span style="color:var(--mut)">Liquidações (${q.complete?"24h":"últimas "+num(q.hours_covered,1)+"h, incompleto"}):</span> longs ${usd(q.long_usd)} · shorts ${usd(q.short_usd)}</div>`:""}
