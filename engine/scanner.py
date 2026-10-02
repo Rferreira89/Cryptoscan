@@ -251,8 +251,8 @@ def run(now=None, state=None, cfg=None):
                                 if s["status"] in ("ACTIVE", "TRIGGERED")]
     result["closed_signals"] = sorted(
         (s for s in state["signals"].values()
-         if s["status"] in ("EXPIRED", "INVALIDATED")),
-        key=lambda s: -s["closed_at"])[:10]
+         if s["status"] in ("EXPIRED", "INVALIDATED", "CLOSED")),
+        key=lambda s: -s["closed_at"])[:15]
     ok_all = len(live) == len(sources.ALL) and ven is not None
     dec = [r["decision"]["decision"] for r in eligible]
     result.update(

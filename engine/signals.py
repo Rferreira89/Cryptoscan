@@ -8,7 +8,8 @@ Hierarquia (falha critica => NO TRADE):
 Um sinal emitido fica congelado: os niveis nao sao recalculados nem
 reutilizados. Expira ao fim de signal_expiry_hours ou e invalidado.
 """
-from . import confluence, regime, risk, strategies, validate, venue
+from . import (confluence, regime, risk, strategies, trade, validate,
+               validation, venue)
 
 H4 = 14400
 
@@ -50,9 +51,22 @@ def decide(row, c4, cfg, v, btc_reg, regime_changed):
         return stop(f"regime {reg['regime']}: sem vantagem identificável")
 
     found = strategies.evaluate(c4, a4, a1, reg)
-    setups = [s for s in found if "rejected" not in s]
     out["rejected"] = [f"{s['strategy']}: {s['rejected']}" for s in found
                        if "rejected" in s]
+    setups = []
+    for s in found:
+        if "rejected" in s:
+            continue
+        # Com backtest publicado, so geram operacoes as estrategias
+        # validadas. (min_score = 0 e o proprio backtest a correr.)
+        if cfg["min_score"] > 0 and validation.load() is not None:
+            st = validation.status(s["strategy"])
+            if not st.get("validated"):
+                out["rejected"].append(
+                    f"{s['strategy']}: estratégia não validada em backtest "
+                    f"({st['label']})")
+                continue
+        setups.append(s)
     if not chk(4, "estratégia adequada ao regime", setups,
                ", ".join(s["strategy"] for s in setups)):
         return stop(out["rejected"][0] if out["rejected"] else
@@ -142,31 +156,42 @@ def update_state(state, rows, cfg, now):
     def close(key, status, why):
         s = sigs[key]
         s.update(status=status, closed_at=now, close_reason=why)
-        events.append({"t": now, "event": status, "id": key, "reason": why})
+        events.append({"t": now, "event": status, "id": key,
+                       "asset": s["asset"], "reason": why})
 
     for key, s in list(sigs.items()):
-        if s["status"] in ("ACTIVE", "TRIGGERED"):
-            r = by_asset.get(s["asset"])
-            px = r["price"] if r else None
-            if s["status"] == "ACTIVE":
-                if px is not None and px <= s["plan"]["stop"]:
-                    close(key, "INVALIDATED", "preço atingiu o stop antes da entrada")
-                elif px is not None and px > s["plan"]["tp"][0]:
-                    close(key, "INVALIDATED", "preço chegou ao TP1 sem dar entrada")
-                elif now >= s["expires_at"]:
-                    close(key, "EXPIRED", "validade do sinal terminou")
-                elif px is not None and px <= s["plan"]["entry_zone"][1]:
-                    s.update(status="TRIGGERED", triggered_at=now)
-                    events.append({"t": now, "event": "TRIGGERED", "id": key,
-                                   "price": px})
-        elif now - s.get("closed_at", now) > 7 * 86400:
+        r = by_asset.get(s["asset"])
+        px = r["price"] if r else None
+        if s["status"] == "ACTIVE":
+            if px is not None and px <= s["plan"]["stop"]:
+                close(key, "INVALIDATED", "preço atingiu o stop antes da entrada")
+            elif px is not None and px > s["plan"]["tp"][0]:
+                close(key, "INVALIDATED", "preço chegou ao TP1 sem dar entrada")
+            elif now >= s["expires_at"]:
+                close(key, "EXPIRED", "validade do sinal terminou")
+            elif px is not None and px <= s["plan"]["entry_zone"][1]:
+                s.update(status="TRIGGERED", triggered_at=now,
+                         position=trade.open_position(
+                             s["plan"], px, now, cfg["fee_pct"]))
+                events.append({"t": now, "event": "TRIGGERED", "id": key,
+                               "asset": s["asset"], "price": px})
+        elif s["status"] == "TRIGGERED" and px is not None:
+            # acompanhamento com o preço de cada scan (15 min): pavios mais
+            # curtos do que isso podem não ser vistos
+            pos = s["position"]
+            for e in trade.step(pos, px, px, px, px, now):
+                events.append(dict(e, t=now, id=key, asset=s["asset"]))
+            if pos["closed"]:
+                s.update(status="CLOSED", closed_at=now, result_r=pos["r"],
+                         close_reason=pos["exit_reason"])
+        elif s["status"] in ("EXPIRED", "INVALIDATED", "CLOSED") and \
+                now - s.get("closed_at", now) > 30 * 86400:
             del sigs[key]
-    # sinais TRIGGERED: o acompanhamento ate stop/TP e a Fase 6 (paper trading)
 
     live = {s["asset"] for s in sigs.values()
             if s["status"] in ("ACTIVE", "TRIGGERED")}
-    slots = cfg["max_new_signals"] - sum(
-        1 for s in sigs.values() if s["status"] == "ACTIVE")
+    slots = cfg["max_open_positions"] - sum(
+        1 for s in sigs.values() if s["status"] in ("ACTIVE", "TRIGGERED"))
     cands = sorted((r for r in rows if r["decision"]["decision"] == "LONG"
                     and r["asset"] not in live),
                    key=lambda r: -r["decision"]["score"])
@@ -174,7 +199,7 @@ def update_state(state, rows, cfg, now):
         d = r["decision"]
         if slots <= 0:
             d.update(decision="WATCHLIST",
-                     reason="limite de sinais ativos em simultâneo atingido")
+                     reason="limite de operações em simultâneo atingido")
             continue
         slots -= 1
         key = f"{r['asset']}-{d['strategy']}-{now}"
@@ -186,9 +211,12 @@ def update_state(state, rows, cfg, now):
                "confidence": d["confidence"], "conflicts": d["conflicts"],
                "explain": explain(r), "issued_at": now,
                "expires_at": now + cfg["signal_expiry_hours"] * 3600,
-               "status": "ACTIVE", "validated": False}
+               "status": "ACTIVE",
+               "validation": validation.status(d["strategy"])}
+        sig["validated"] = bool(sig["validation"].get("validated"))
         sigs[key] = sig
-        events.append({"t": now, "event": "ISSUED", "id": key, "signal": sig,
+        events.append({"t": now, "event": "ISSUED", "id": key,
+                       "asset": r["asset"], "signal": sig,
                        "features": {"analysis": r["analysis"],
                                     "derivatives": r.get("derivatives"),
                                     "families": d["families"],

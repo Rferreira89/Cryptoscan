@@ -44,6 +44,7 @@ h2{font-size:16px;margin:18px 0 8px}
 .tag{display:inline-block;background:var(--chip);border-radius:6px;padding:1px 7px;font-size:12px;font-weight:600}
 .cap{display:flex;gap:8px;align-items:center;margin-bottom:10px;font-size:13.5px}.cap input{flex:0 0 120px}
 .why{font-size:13px;margin-top:6px}.why span{color:var(--mut)}
+.tw{overflow-x:auto;margin-bottom:10px}table{border-collapse:collapse;width:100%;font-size:12.5px;background:var(--card);border-radius:10px}th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}th:first-child,td:first-child{text-align:left;white-space:normal}th{color:var(--mut);font-weight:600}h3.sm{font-size:13px;color:var(--mut);margin:12px 0 6px}
 .chk{font-size:12.5px;margin-top:6px}.chk div{display:flex;gap:6px}
 </style>
 </head>
@@ -51,11 +52,12 @@ h2{font-size:16px;margin:18px 0 8px}
 <main>
 <h1>Cryptoscan · Scanner</h1>
 <div class="sub" id="sub">A carregar…</div>
-<div class="banner"><b>Fase 4 — setups não validados</b>As operações abaixo seguem regras ainda <b style="display:inline">não testadas com dados históricos</b>. Servem para acompanhar em papel, não para arriscar dinheiro. O score mede a qualidade do setup, não a probabilidade de ganhar. Só compras em spot na Bybit UE, sem alavancagem.</div>
+<div class="banner" id="vbanner"><b>Estado de validação</b><span id="vtext">A carregar o backtest…</span></div>
 <div class="cap"><label for="cap">O teu capital (USDC):</label><input id="cap" inputmode="decimal" placeholder="ex.: 500"><span id="capnote" style="color:var(--mut)"></span></div>
 <h2>Operações</h2><div id="ops"></div>
 <h2>A vigiar</h2><div id="watch"></div>
-<h2>Sinais fechados</h2><div id="closed"></div>
+<h2>Operações e sinais fechados</h2><div id="closed"></div>
+<h2>Backtest</h2><div id="bt"></div>
 <h2>Todos os ativos</h2>
 <div class="stats" id="stats"></div>
 <div class="bar">
@@ -182,7 +184,7 @@ function planSteps(p,pair){
 }
 function sigCard(s){
   const e=s.explain,trig=s.status==="TRIGGERED";
-  return `<div class="op"><h3>${esc(s.asset)} · COMPRA <span class="tag">${trig?"zona de entrada atingida":"ativo"}</span></h3>
+  return `<div class="op"><h3>${esc(s.asset)} · COMPRA <span class="tag">${trig?"operação aberta":"à espera de entrada"}</span></h3>
   <div class="meta">${esc(STR[s.strategy]||s.strategy)} · ${esc(s.timeframe)} · regime ${esc(s.regime)} · score ${s.score}/100 · emitido ${hm(s.issued_at)}${trig?"":" · válido até "+hm(s.expires_at)}</div>
   ${planSteps(s.plan,s.pair)}
   <div class="why"><span>Porquê:</span> ${esc(e.why)}</div>
@@ -191,7 +193,8 @@ function sigCard(s){
   <div class="why"><span>Risco principal:</span> ${esc(e.main_risk)}</div>
   <div class="why"><span>O que mudaria o sinal:</span> ${esc(e.would_change)}</div>
   <div class="why"><span>Confiança:</span> dados ${s.confidence.data_quality}/100 · liquidez ${s.confidence.liquidity_quality}/100 · regime ${s.confidence.regime_compatibility}/100 · histórico da estratégia: sem backtest</div>
-  <div class="warn" style="margin-top:6px">Não validado — acompanhar em papel.</div></div>`;
+  ${s.status==="TRIGGERED"&&s.position?`<div class="why"><span>Posição:</span> entrada ${price(s.position.entry)} · stop atual ${price(s.position.stop)} · TPs atingidos ${s.position.tp_hit}/3 · por vender ${num(s.position.remaining,0)}%</div>`:""}
+  <div class="${s.validated?"up":"warn"}" style="margin-top:6px">${s.validated?"Estratégia validada em backtest.":"Estratégia não validada ("+esc((s.validation&&s.validation.label)||"sem backtest")+") — acompanhar em papel."}</div></div>`;
 }
 function watchCard(r){
   const d=r.decision;
@@ -209,7 +212,34 @@ function renderOps(){
   const w=D.universe.filter(r=>r.decision&&r.decision.decision==="WATCHLIST"&&r.decision.plan&&!r.decision.active_signal).sort((a,b)=>b.decision.score-a.decision.score);
   $("watch").innerHTML=w.map(watchCard).join("")||`<div class="banner">Nada em vigilância.</div>`;
   const cl=D.closed_signals||[];
-  $("closed").innerHTML=cl.map(s=>`<div class="op closed"><b>${esc(s.asset)}</b> · ${esc(STR[s.strategy]||s.strategy)} · ${s.status==="EXPIRED"?"expirado":"invalidado"} ${hm(s.closed_at)} — ${esc(s.close_reason)}</div>`).join("")||`<div class="banner">Ainda sem sinais fechados.</div>`;
+  const ST={EXPIRED:"expirado",INVALIDATED:"invalidado",CLOSED:"fechada"},RS={STOP:"stop atingido",BREAKEVEN:"stop na entrada",TP3:"todos os objetivos",TIME:"tempo máximo"};
+  $("closed").innerHTML=cl.map(s=>`<div class="op closed"><b>${esc(s.asset)}</b> · ${esc(STR[s.strategy]||s.strategy)} · ${ST[s.status]} ${hm(s.closed_at)} — ${s.status==="CLOSED"?`${esc(RS[s.close_reason]||s.close_reason)}, resultado <b class="${s.result_r>0?"up":"dn"}">${s.result_r>0?"+":""}${num(s.result_r,2)}R</b>`:esc(s.close_reason)}</div>`).join("")||`<div class="banner">Ainda sem sinais fechados.</div>`;
+}
+const BT_URL="https://raw.githubusercontent.com/Rferreira89/Cryptoscan/main/backtest/results.json";
+function mrow(name,m){
+  if(!m||!m.n) return `<tr><td>${esc(name)}</td><td colspan="5" style="color:var(--mut)">sem operações</td></tr>`;
+  const ci=m.expectancy_ci95?` <span style="color:var(--mut)">[${num(m.expectancy_ci95[0],2)}; ${num(m.expectancy_ci95[1],2)}]</span>`:"";
+  return `<tr><td>${esc(name)}</td><td>${m.n}</td><td>${num(m.win_rate,0)}%</td><td class="${m.expectancy_r>0?"up":"dn"}">${m.expectancy_r>0?"+":""}${num(m.expectancy_r,2)}R${ci}</td><td>${m.profit_factor==null?"–":num(m.profit_factor,2)}</td><td>${num(m.max_drawdown_pct,1)}%</td></tr>`;
+}
+async function loadBT(){
+  try{
+    const r=await fetch(BT_URL+"?t="+Date.now(),{cache:"no-store"});if(!r.ok) throw new Error("sem backtest");
+    const B=await r.json(),d=new Date(B.period.start*1000),sp=new Date(B.period.split*1000),e=new Date(B.period.end*1000);
+    const f=x=>x.toLocaleDateString("pt-PT",{month:"2-digit",year:"numeric"});
+    const val=Object.entries(B.strategies).filter(([,m])=>m.validated).map(([k])=>STR[k]||k);
+    $("vtext").innerHTML=(val.length?`Estratégias validadas em backtest: <b style="display:inline">${val.map(esc).join(", ")}</b>. `:`<b style="display:inline" class="warn">Nenhuma estratégia está validada.</b> As operações servem para acompanhar em papel, não para arriscar dinheiro. `)+`O score mede a qualidade do setup, não a probabilidade de ganhar. Só compras em spot na Bybit UE.`;
+    const head=`<tr><th>Conjunto</th><th>N</th><th>Acerto</th><th>Expectativa [IC 95%]</th><th>PF</th><th>DD máx.</th></tr>`;
+    const bl=o=>Object.entries(o).map(([k,v])=>`<tr><td>${esc(k.replace(/_/g," "))}</td><td>${v.return_pct>0?"+":""}${num(v.return_pct,0)}%</td><td>${num(v.max_drawdown_pct,0)}%</td><td>${v.sharpe??"–"}</td></tr>`).join("");
+    const mc=B.design.monte_carlo;
+    $("bt").innerHTML=`<div class="banner"><b>Como ler</b>Período de desenho ${f(d)}–${f(sp)}; reserva ${f(sp)}–${f(e)}, avaliada uma única vez. ${B.universe.assets.length} ativos, custos incluídos (${B.costs.fee_pct_per_side}% por lado + ${B.costs.slippage_pct}% de slippage). R = múltiplos do risco por operação.</div>
+    <div class="tw"><table>${head}${mrow("Sistema (desenho)",B.design.all)}${mrow("Walk-forward (fora da amostra)",B.walk_forward.oos)}${mrow("Reserva",B.holdout.all)}</table></div>
+    <h3 class="sm">Por estratégia (desenho)</h3><div class="tw"><table>${head}${Object.entries(B.strategies).map(([k,m])=>mrow((STR[k]||k)+" — "+m.label,m)).join("")}</table></div>
+    <h3 class="sm">Por regime do ativo (desenho)</h3><div class="tw"><table>${head}${Object.entries(B.design.by_regime).map(([k,m])=>mrow(k,m)).join("")}</table></div>
+    <h3 class="sm">Por ano (desenho)</h3><div class="tw"><table>${head}${Object.entries(B.design.by_year).map(([k,m])=>mrow(k,m)).join("")}</table></div>
+    <h3 class="sm">Comparação: estratégias simples em BTC (desenho)</h3><div class="tw"><table><tr><th>Estratégia</th><th>Retorno</th><th>DD máx.</th><th>Sharpe</th></tr>${bl(B.baselines_design)}<tr><td><b>Este sistema</b></td><td>${B.design.all.n?(B.design.all.return_pct>0?"+":"")+num(B.design.all.return_pct,0)+"%":"–"}</td><td>${B.design.all.n?num(B.design.all.max_drawdown_pct,0)+"%":"–"}</td><td>${B.design.all.sharpe??"–"}</td></tr></table></div>
+    ${mc?`<h3 class="sm">Monte Carlo (${mc.runs} simulações)</h3><div class="banner">Retorno: pior 5% ${num(mc.return_pct.p5,0)}%, mediana ${num(mc.return_pct.p50,0)}%, melhor 5% ${num(mc.return_pct.p95,0)}%. Drawdown máximo: mediana ${num(mc.max_drawdown_pct.p50,0)}%, pior 5% ${num(mc.max_drawdown_pct.p95,0)}%. Sequência de perdas: mediana ${mc.longest_loss_streak.p50}, pior 5% ${mc.longest_loss_streak.p95}. Probabilidade de acabar a perder: ${num(mc.prob_loss_pct,0)}%.</div>`:""}
+    <div class="note">${B.caveats.map(esc).join(" ")}${B.overfitting_flag?" OVERFITTING RISK: o resultado muda de sinal com pequenas alterações do score mínimo.":""}</div>`;
+  }catch(err){$("vtext").innerHTML=`<b style="display:inline" class="warn">Sem backtest disponível.</b> As operações não estão validadas: acompanhar em papel.`;$("bt").innerHTML=`<div class="banner">Backtest ainda não publicado.</div>`}
 }
 function decBlock(r){
   const d=r.decision;if(!d) return "";
@@ -274,7 +304,7 @@ $("list").addEventListener("click",e=>{const row=e.target.closest(".row");if(!ro
 ["q","sort","flt"].forEach(i=>$(i).addEventListener("input",render));
 try{$("cap").value=localStorage.getItem("capital")||""}catch(e){}
 $("cap").addEventListener("input",()=>{try{localStorage.setItem("capital",$("cap").value)}catch(e){}$("capnote").textContent=capital()?"guardado só neste telemóvel":"";if(D)renderOps()});
-load();setInterval(load,300000);
+load();loadBT();setInterval(load,300000);
 </script>
 </body>
 </html>

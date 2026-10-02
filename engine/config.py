@@ -11,11 +11,11 @@ DEFAULTS = {
     "fee_pct": 0.1,             # comissao spot por lado (taxa base Bybit)
     "min_rr": 2.0,
     "min_score": 65,
-    "max_new_signals": 3,       # setups ativos em simultaneo
+    "max_open_positions": 4,    # sinais ativos + operacoes abertas
     "signal_expiry_hours": 12,  # 3 velas de 4H
     "max_venue_spread_pct": 0.30,
     "min_venue_volume_usd": 25_000,   # ordens pequenas: o spread pesa mais
-    "alerts_unvalidated": False,  # nao enviar alertas antes do backtest
+    "alerts": True,             # Telegram em cada compra e venda
 }
 
 

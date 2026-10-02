@@ -6,7 +6,21 @@ from engine import scanner as S
 from engine import sources
 from tests.test_analysis import walk
 
+from engine import validation
+
 CFG = dict(config.DEFAULTS)
+_ORIG_LOAD = validation.load
+
+
+def setUpModule():
+    # estes testes medem a logica de decisao, sem o veredicto do backtest
+    validation.load = lambda: None
+
+
+def tearDownModule():
+    validation.load = _ORIG_LOAD
+
+
 mk = lambda o, h, l, c, v=10.0: {"t": 0, "o": o, "h": h, "l": l, "c": c, "v": v}
 
 
@@ -270,6 +284,22 @@ class Signals(unittest.TestCase):
                                       close=80.0)), C4, CFG, V, "BULL", False)
         self.assertEqual(d["decision"], "NO TRADE")          # sem shorts
 
+    def test_backtest_verdict_gates_operations(self):
+        res = {"strategies": {"PULLBACK": {"validated": False, "n": 500,
+               "label": "RETIRADA: expectativa negativa"}}}
+        validation.load = lambda: res
+        self.addCleanup(lambda: setattr(validation, "load", lambda: None))
+        d = signals.decide(row(), C4, CFG, V, "BULL", False)
+        self.assertEqual(d["decision"], "NO TRADE")
+        self.assertIn("não validada", d["reason"])
+        res["strategies"]["PULLBACK"] = {"validated": True, "label": "VALIDADA"}
+        self.assertEqual(signals.decide(row(), C4, CFG, V, "BULL", False)["decision"],
+                         "LONG")
+        # o proprio backtest (min_score 0) nunca e travado pelo veredicto
+        res["strategies"]["PULLBACK"] = {"validated": False, "label": "RETIRADA"}
+        d = signals.decide(row(), C4, dict(CFG, min_score=0), V, "BULL", False)
+        self.assertEqual(d["decision"], "LONG")
+
     def test_waiting_is_watchlist_never_early_entry(self):
         c = C4[:-1] + [mk(99.8, 100.2, 99.5, 99.7)]
         d = signals.decide(row(a4=a4h(close=99.7)), c, CFG, V, "BULL", False)
@@ -328,9 +358,9 @@ class Signals(unittest.TestCase):
         state = {}
         rows = self._rows(5)
         ev = signals.update_state(state, rows, CFG, 1_800_000_000)
-        self.assertEqual(len(ev), CFG["max_new_signals"])
+        self.assertEqual(len(ev), CFG["max_open_positions"])
         self.assertEqual(sum(r["decision"]["decision"] == "WATCHLIST"
-                             for r in rows), 2)
+                             for r in rows), 1)
 
     def test_explain_fields(self):
         r = self._rows()[0]
@@ -344,7 +374,7 @@ class Config(unittest.TestCase):
         c = config.load("nao-existe.json")
         self.assertEqual((c["risk_pct"], c["direction"], c["quote"]),
                          (1.0, "LONG_ONLY", "USDC"))
-        self.assertFalse(c["alerts_unvalidated"])
+        self.assertTrue(c["alerts"])
 
 
 class EndToEnd(unittest.TestCase):
@@ -388,7 +418,7 @@ class EndToEnd(unittest.TestCase):
         self.assertIn("BTC", state["regimes"])
         # segunda passagem com o mesmo estado nao rebenta nem duplica
         res2, state, _ = S.run(now=now + 900, state=state, cfg=dict(CFG))
-        self.assertLessEqual(len(res2["active_signals"]), CFG["max_new_signals"])
+        self.assertLessEqual(len(res2["active_signals"]), CFG["max_open_positions"])
 
     def test_venue_down_means_no_trade(self):
         now = 1_800_000_000

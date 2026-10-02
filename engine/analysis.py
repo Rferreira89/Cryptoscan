@@ -47,19 +47,23 @@ def timeframe(c):
             "event": st["event"], "patterns": S.patterns(c)}
 
 
+def mtf_conflict(hi, lo):
+    """Conflito entre o diario (hi) e o 4H (lo). None se nao houver."""
+    if not (hi and lo and hi["ok"] and lo["ok"]):
+        return None
+    up_hi = hi["ema_trend"] == "UP" or hi["structure"] == "BULLISH"
+    dn_hi = hi["ema_trend"] == "DOWN" or hi["structure"] == "BEARISH"
+    if up_hi and not dn_hi and lo["structure"] == "BEARISH":
+        return "4H bearish contra 1D bullish"
+    if dn_hi and not up_hi and lo["structure"] == "BULLISH":
+        return "4H bullish contra 1D bearish"
+    if up_hi and dn_hi:
+        return "1D: médias e estrutura discordam"
+    return None
+
+
 def multi(candles_by_tf):
     """candles_by_tf: {'1d': [...], '4h': [...]} ja validadas."""
     out = {tf: timeframe(c) for tf, c in candles_by_tf.items()}
-    hi, lo = out.get("1d"), out.get("4h")
-    conflict = None
-    if hi and lo and hi["ok"] and lo["ok"]:
-        up_hi = hi["ema_trend"] == "UP" or hi["structure"] == "BULLISH"
-        dn_hi = hi["ema_trend"] == "DOWN" or hi["structure"] == "BEARISH"
-        if up_hi and not dn_hi and lo["structure"] == "BEARISH":
-            conflict = "4H bearish contra 1D bullish"
-        elif dn_hi and not up_hi and lo["structure"] == "BULLISH":
-            conflict = "4H bullish contra 1D bearish"
-        elif up_hi and dn_hi:
-            conflict = "1D: médias e estrutura discordam"
-    out["mtf_conflict"] = conflict
+    out["mtf_conflict"] = mtf_conflict(out.get("1d"), out.get("4h"))
     return out
