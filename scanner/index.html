@@ -55,7 +55,7 @@ h2{font-size:16px;margin:18px 0 8px}
 <div class="banner" id="vbanner"><b>Como ler os sinais</b>Só compras em spot na Bybit UE. O score mede a qualidade do setup, não a probabilidade de ganhar. As estratégias ainda não estão validadas, por isso cada operação arrisca metade do normal.</div>
 <div class="banner" id="mf"></div>
 <div class="cap"><label for="cap">O teu capital (USDC):</label><input id="cap" inputmode="decimal" placeholder="ex.: 500"><span id="capnote" style="color:var(--mut)"></span></div>
-<h2>Operações</h2><div id="ops"></div>
+<h2>Operações</h2><div id="bynote" class="note" style="margin:0 0 8px"></div><div id="ops"></div>
 <h2>A vigiar</h2><div id="watch"></div>
 <h2>Registo de operações</h2><div id="journal"></div>
 <div id="closed" hidden></div>
@@ -181,6 +181,7 @@ function planSteps(p,pair){
   const pr=i=>p.tp_projected.includes(i)?" (projetado)":"";
   return `<ol class="steps">
   <li>Na Bybit UE, par <b>${esc(pair)}</b>, spot: ordem <b>limite de compra</b> entre <b>${price(p.entry_zone[0])}</b> e <b>${price(p.entry_zone[1])}</b>.</li>
+  <li>Alavancagem nesta operação: <b>${p.leverage&&p.leverage.use>1?p.leverage.use+"x":"1x (sem margem)"}</b>${p.leverage&&p.leverage.reason?" — "+esc(p.leverage.reason):""}.</li>
   <li>${sizing(p)}</li>
   <li>Stop-loss em <b>${price(p.stop)}</b> (−${num(p.stop_pct,2)}% com comissões).</li>
   ${p.leverage&&p.leverage.use>1?`<li>Com margem ${p.leverage.use}x a liquidação estimada fica perto de <b>${price(p.leverage.liquidation_est)}</b>, bem abaixo do stop. Confirma o valor no ecrã da Bybit e coloca o stop logo a seguir à entrada.</li>`:""}
@@ -192,6 +193,7 @@ function sigCard(s){
   const e=s.explain,trig=s.status==="TRIGGERED";
   return `<div class="op"><h3>${esc(s.asset)} · COMPRA <span class="tag">${trig?"operação aberta":"à espera de entrada"}</span></h3>
   <div class="meta">${esc(STR[s.strategy]||s.strategy)} · ${esc(s.timeframe)} · regime ${esc(s.regime)} · score ${s.score}/100 · emitido ${hm(s.issued_at)}${trig?"":" · válido até "+hm(s.expires_at)}</div>
+  <div class="bybit" data-pair="${esc(s.pair)}"></div>
   ${planSteps(s.plan,s.pair)}
   <div class="why"><span>Porquê:</span> ${esc(e.why)}</div>
   <div class="why"><span>Porquê agora:</span> ${esc(e.why_now)}</div>
@@ -215,11 +217,32 @@ function watchCard(r){
   const d=r.decision;
   return `<div class="op wait"><h3>${esc(r.asset)} · A VIGIAR</h3>
   <div class="meta">${esc(STR[d.strategy]||d.strategy)} · regime ${esc(d.regime)} · score ${d.score}/100</div>
+  <div class="bybit" data-pair="${esc(d.venue.pair)}"></div>
   <div><b>Gatilho:</b> ${esc(d.reason)}</div>
   <div class="why"><span>Contexto:</span> ${esc(d.notes.join("; "))}</div>
-  <div class="why"><span>Plano indicativo se o gatilho ocorrer:</span> entrada ${price(d.plan.entry_zone[0])}–${price(d.plan.entry_zone[1])}, stop ${price(d.plan.stop)}, TP1 ${price(d.plan.tp[0])}, R:R 1:${num(d.plan.rr,2)}</div>
+  <div class="why"><span>Plano indicativo se o gatilho ocorrer:</span> entrada ${price(d.plan.entry_zone[0])}–${price(d.plan.entry_zone[1])}, stop ${price(d.plan.stop)}, TP1 ${price(d.plan.tp[0])}, R:R 1:${num(d.plan.rr,2)}, alavancagem ${d.plan.leverage&&d.plan.leverage.use>1?d.plan.leverage.use+"x":"1x"}${d.plan.leverage&&d.plan.leverage.reason?" ("+esc(d.plan.leverage.reason)+")":""}</div>
   ${d.conflicts.length?`<div class="warn">Conflito: ${d.conflicts.map(esc).join("; ")}</div>`:""}
   <div class="why"><span>Sem entrada antecipada: só conta depois do gatilho.</span></div></div>`;
+}
+// Leitura direta da Bybit UE a partir deste telemovel (o servidor do
+// GitHub nao consegue). Se o browser nao deixar, a pagina funciona na mesma.
+const BY={},BYURL="https://api.bybit.eu/v5/market/";
+async function bybitInfo(pair){
+  if(BY[pair]&&Date.now()-BY[pair].at<60000) return BY[pair];
+  const sym=pair.replace("/","");
+  const get=async p=>{const r=await fetch(BYURL+p+"?category=spot&symbol="+sym);const j=await r.json();if(j.retCode!==0||!j.result.list.length) throw new Error(j.retMsg||"vazio");return j.result.list[0]};
+  const [t,i]=await Promise.all([get("tickers"),get("instruments-info")]);
+  return BY[pair]={at:Date.now(),last:+t.lastPrice,bid:+t.bid1Price,ask:+t.ask1Price,tick:i.priceFilter.tickSize,minAmt:i.lotSizeFilter.minOrderAmt,minQty:i.lotSizeFilter.minOrderQty,step:i.lotSizeFilter.basePrecision};
+}
+let byFail=false;
+async function fillBybit(){
+  for(const el of document.querySelectorAll(".bybit")){
+    try{
+      const b=await bybitInfo(el.dataset.pair);
+      el.innerHTML=`<div class="why" style="margin:0 0 6px"><span>Bybit UE agora:</span> ${price(b.last)} (compra ${price(b.bid)} · venda ${price(b.ask)}) · passo de preço ${esc(b.tick)} · ordem mínima ${esc(b.minAmt)} USDC · quantidade em múltiplos de ${esc(b.step)}</div>`;
+    }catch(e){byFail=true;el.innerHTML="";}
+  }
+  const n=$("bynote");if(n) n.textContent=byFail?"Leitura direta da Bybit UE indisponível neste browser; os níveis vêm dos mercados globais.":"";
 }
 function renderOps(){
   const act=(D.active_signals||[]).filter(s=>s.mode!=="PAPER");
@@ -283,7 +306,7 @@ function render(){
   if(!D) return;
   const q=$("q").value.trim().toUpperCase(),s=$("sort").value,f=$("flt").value;
   const key=r=>s==="adx"||s==="rsi"?(r.analysis&&r.analysis["1d"]&&r.analysis["1d"].ok?r.analysis["1d"][s]:-1):(r[s]??-1e18);
-  renderOps();renderExtra();
+  renderOps();renderExtra();fillBybit();
   let rows=D.universe.filter(r=>r.eligible&&r.timeframes);
   if(q) rows=rows.filter(r=>r.asset.toUpperCase().includes(q));
   if(f) rows=rows.filter(r=>{const a=r.analysis;

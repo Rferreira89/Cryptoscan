@@ -188,7 +188,7 @@ class Delivery(unittest.TestCase):
                                  {"event": "TP1", "id": "k", "price": 104.0,
                                   "sold_pct": 50}], [("daily", "relatório")])
         self.assertEqual(sent[0], ("relatório", None))
-        self.assertIn("Margem 2x", sent[1][0])
+        self.assertIn("Alavancagem: 2x", sent[1][0])
         self.assertIn("Liquidação estimada", sent[1][0])
         self.assertEqual(sent[1][1]["inline_keyboard"][0][0]["callback_data"], "x|1|k")
         self.assertIsNone(sent[2][1])

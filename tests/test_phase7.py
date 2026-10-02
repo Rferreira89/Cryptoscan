@@ -117,12 +117,55 @@ class Leverage(unittest.TestCase):
 
     def test_alert_lines(self):
         from engine import run
-        self.assertEqual(run.invest_line(20.0, 0.5, {"use": 1.0}),
-                         "Investir: 20.0% do capital (risco 0.5%)")
+        t = run.invest_line(20.0, 0.5, {"use": 1.0, "reason": "sem margem: x"})
+        self.assertIn("Alavancagem: 1x (sem margem) — sem margem: x", t)
+        self.assertIn("Investir: 20.0% do capital (risco 0.5%)", t)
         t = run.invest_line(40.0, 1.0, {"use": 2.0, "collateral_pct": 20.0,
-                                        "liquidation_est": 55.0})
-        for part in ("Margem 2x", "40.0%", "20.0% teus", "risco 1.0%", "55"):
+                                        "liquidation_est": 55.0,
+                                        "reason": "condições normais"})
+        for part in ("Alavancagem: 2x — condições normais", "40.0%",
+                     "20.0% teus", "risco 1.0%", "55"):
             self.assertIn(part, t)
+
+    def test_per_operation_leverage_only_goes_down(self):
+        f = signals.operation_leverage
+        cfg = dict(CFG, swing_leverage=2.0)
+        plan = {"leverage": {"use": 2.0}}
+        bull = {"regime": "BULL", "high_volatility": False}
+        ok = {"conflicts": []}
+        a1 = {"atr_pctile": 50}
+        self.assertEqual(f(cfg, plan, ok, bull, a1, "BULL", False)[0], 2.0)
+        self.assertEqual(f(cfg, plan, {"conflicts": ["x"]}, bull, a1, "BULL", False)[0], 1.0)
+        self.assertEqual(f(cfg, plan, ok, bull, {"atr_pctile": 95}, "BULL", False)[0], 1.0)
+        self.assertEqual(f(cfg, plan, ok, {"regime": "NEUTRAL",
+                                            "high_volatility": False}, a1, "BULL", False)[0], 1.0)
+        self.assertEqual(f(cfg, plan, ok, bull, a1, "NEUTRAL", False)[0], 1.5)
+        self.assertEqual(f(cfg, plan, ok, bull, a1, "NEUTRAL", True)[0], 2.0)   # o proprio BTC
+        self.assertEqual(f(cfg, {"leverage": {"use": 1.5}}, ok, bull, a1, "BULL", False)[0], 1.5)
+        self.assertEqual(f(CFG, {"leverage": {"use": 1.0}}, ok, bull, a1, "BULL", False)[0], 1.0)
+        for args in ((cfg, plan, ok, bull, a1, "BULL", False),
+                     (cfg, plan, {"conflicts": ["x"]}, bull, a1, "BEAR", False)):
+            lev, why = f(*args)
+            self.assertLessEqual(lev, cfg["swing_leverage"])
+            self.assertTrue(why)
+
+    def test_decision_carries_leverage_and_reason(self):
+        from tests import test_phase4 as T4
+        from engine import validation
+        orig = validation.load
+        validation.load = lambda: None
+        self.addCleanup(lambda: setattr(validation, "load", orig))
+        cfg = dict(CFG, swing_leverage=2.0)
+        d = signals.decide(T4.row(), T4.C4, cfg, T4.V, "BULL", False)
+        lv = d["plan"]["leverage"]
+        self.assertEqual((lv["use"], d["plan"]["risk_pct"] <= 1.0 + 1e-9), (2.0, True))
+        self.assertIn("normais", lv["reason"])
+        r = T4.row()
+        r["analysis"]["mtf_conflict"] = "1D: médias e estrutura discordam"
+        d = signals.decide(r, T4.C4, cfg, T4.V, "BULL", False)
+        self.assertEqual(d["plan"]["leverage"]["use"], 1.0)
+        self.assertLessEqual(d["plan"]["risk_pct"], 0.5 + 1e-9)
+        self.assertIn("conflito", d["plan"]["leverage"]["reason"])
 
 
 def series(vals, t0=0):

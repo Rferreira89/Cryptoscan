@@ -125,6 +125,11 @@ def update(state, rows, daily, cfg, now, market_ok=True, halted=None):
                            "risk_pct": round(frac * risk_unit / entry * 100, 2),
                            "stop_pct": round(risk_unit / entry * 100, 2),
                            "leverage": lev["use"],
+                           "leverage_reason": (
+                               "reduzida pelo stop largo, para manter a "
+                               "liquidação longe do stop"
+                               if lev["use"] < cfg.get("swing_leverage", 1)
+                               else "condições normais"),
                            "collateral_pct": round(frac * 100 / lev["use"], 1),
                            "liquidation_est": entry * (1 - 1 / lev["use"] + risk.MMR)
                            if lev["use"] > 1 else None,

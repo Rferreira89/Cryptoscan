@@ -108,6 +108,14 @@ def decide(row, c4, cfg, v, btc_reg, regime_changed, market_ok=True,
         sc = confluence.score(s, p, a4, an.get("mtf_conflict"), reg, btc_reg,
                               row.get("derivatives"), row["asset"] == "BTC",
                               regime_changed)
+        # Alavancagem desta operacao: parte do valor configurado e so pode
+        # descer, nunca subir por o score ser alto.
+        lev, why = operation_leverage(cfg, p, sc, reg, a1, btc_reg,
+                                      row["asset"] == "BTC")
+        if lev < p["leverage"]["use"]:
+            p, _ = risk.plan(s, a4, a1, dict(cfg, risk_pct=rp,
+                                             swing_leverage=lev))
+        p["leverage"]["reason"] = why
         cand = (s["state"] == "READY", sc["score"], s, p, sc)
         if best is None or cand[:2] > best[:2]:
             best = cand
@@ -152,6 +160,25 @@ def decide(row, c4, cfg, v, btc_reg, regime_changed, market_ok=True,
             s["trigger"] if not ready else
             f"confluência {sc['score']}/100 abaixo do mínimo {cfg['min_score']}"))
     return out
+
+
+def operation_leverage(cfg, plan, sc, reg, a1, btc_reg, is_btc):
+    """Quanto alavancar NESTA operacao e porque. Devolve (valor, motivo)."""
+    base = plan["leverage"]["use"]
+    if cfg.get("swing_leverage", 1.0) <= 1:
+        return 1.0, "alavancagem desligada na configuração"
+    if sc["conflicts"]:
+        return 1.0, "sem margem: há um conflito (" + sc["conflicts"][0] + ")"
+    if reg["high_volatility"] or (a1.get("atr_pctile") or 0) >= 90:
+        return 1.0, "sem margem: volatilidade diária muito alta"
+    if reg["regime"] not in regime.BULLISH:
+        return min(base, 1.0), f"sem margem: regime {reg['regime']}"
+    if not is_btc and btc_reg not in regime.BULLISH:
+        return min(base, 1.5), f"reduzida: BTC em regime {btc_reg}"
+    if base < cfg["swing_leverage"]:
+        return base, ("reduzida pelo stop largo, para manter a liquidação "
+                      "longe do stop")
+    return base, "condições normais: tendência a favor e sem conflitos"
 
 
 def explain(row):

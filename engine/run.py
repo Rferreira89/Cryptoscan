@@ -61,11 +61,14 @@ def _px(x):
 
 
 def invest_line(position_pct, risk_pct, lev):
-    """Linha de dimensao, com ou sem margem."""
+    """Linhas de dimensao e de alavancagem recomendada para a operacao."""
+    why = f" — {lev['reason']}" if lev and lev.get("reason") else ""
     if not lev or lev.get("use", 1) <= 1:
-        return f"Investir: {position_pct}% do capital (risco {risk_pct}%)"
-    return (f"Margem {lev['use']:g}x: posição de {position_pct}% do capital, "
-            f"dos quais {lev['collateral_pct']}% teus e o resto emprestado "
+        return (f"Alavancagem: 1x (sem margem){why}\n"
+                f"Investir: {position_pct}% do capital (risco {risk_pct}%)")
+    return (f"Alavancagem: {lev['use']:g}x{why}\n"
+            f"Posição: {position_pct}% do capital, dos quais "
+            f"{lev['collateral_pct']}% teus e o resto emprestado "
             f"(risco {risk_pct}%)\n"
             f"Liquidação estimada perto de {_px(lev['liquidation_est'])} "
             "(confirma na Bybit)")
@@ -122,6 +125,7 @@ def alert_text(e, sigs, note):
                 f"Ordem a mercado, perto de {_px(e['price'])}\n"
                 + invest_line(e["position_pct"], e["risk_pct"],
                               {"use": e.get("leverage", 1),
+                               "reason": e.get("leverage_reason"),
                                "collateral_pct": e.get("collateral_pct"),
                                "liquidation_est": e.get("liquidation_est")})
                 + "\n"
