@@ -146,7 +146,7 @@ class Alerts(unittest.TestCase):
         self.assertIn("CANCELAR", run.alert_text(
             {"event": "EXPIRED", "id": "k", "reason": "x"}, sigs, ""))
         self.assertIsNone(run.alert_text({"event": "?", "id": "k"}, sigs, ""))
-        self.assertIn("sem backtest", validation.note("NAO_EXISTE"))
+        self.assertIn("Não validada", validation.note("NAO_EXISTE"))
 
 
 class Stats(unittest.TestCase):
@@ -266,7 +266,7 @@ class PaperTrend(unittest.TestCase):
         self.assertTrue(ev[0]["real"])
         self.assertLessEqual(ev[0]["risk_pct"], 0.5 + 1e-9)
         t = run.alert_text(ev[0], {}, "")
-        for part in ("COMPRA", "LINK/USDC", "Stop", "NÃO validada"):
+        for part in ("COMPRA", "LINK/USDC", "Stop", "Não validada"):
             self.assertIn(part, t)
         ev = P.update(st, [dict(rw[0], price=50.0)], {"LINK": c}, CFG, 2,
                       market_ok=False, halted="x")[1]       # stop funciona sempre

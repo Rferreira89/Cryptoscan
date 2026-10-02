@@ -10,7 +10,8 @@ import statistics
 import time
 from concurrent.futures import ThreadPoolExecutor
 
-from . import (analysis, config, derivatives, liquidity, paper_trend, regime,
+from . import (analysis, config, derivatives, ledger, liquidity, paper_trend,
+               regime,
                signals,
                sources, validate, venue, volume)
 
@@ -254,11 +255,13 @@ def run(now=None, state=None, cfg=None):
             r["decision"] = signals.decide(r, c4, cfg, ven.get(r["asset"]),
                                            btc_reg, changed.get(r["asset"], False),
                                            market_ok)
-    events += signals.update_state(state, eligible, cfg, now)
+    events += signals.update_state(state, eligible, cfg, now, daily)
     result["halt"] = state.get("halt")
     result["paper_trend"], ev = paper_trend.update(
         state, eligible, daily, cfg, now, market_ok, state.get("halt"))
     events += ev
+    led = ledger.apply(state, events)
+    result["journal"] = {"summary": ledger.summary(led), "rows": led[-150:]}
     result["active_signals"] = [s for s in state["signals"].values()
                                 if s["status"] in ("ACTIVE", "TRIGGERED")]
     result["track_record"] = state.get("track", {})

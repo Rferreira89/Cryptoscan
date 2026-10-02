@@ -2,7 +2,7 @@ import json
 import os
 import sys
 
-from . import alerts, paper_trend, scanner, strategies, validation
+from . import alerts, paper_trend, reports, scanner, strategies, validation
 
 OUT = sys.argv[1] if len(sys.argv) > 1 else "out"
 
@@ -135,7 +135,12 @@ def alert_text(e, sigs, note):
                 f"Stop: {_px(p['stop'])} (-{p['stop_pct']}%)\n"
                 f"TP1 {_px(p['tp'][0])} (vender 50%) · TP2 {_px(p['tp'][1])} "
                 f"(30%) · TP3 {_px(p['tp'][2])} (20%)\n"
-                f"R:R 1:{p['rr']} · válido 12h\n{note}")
+                f"R:R 1:{p['rr']} · válido 12h\n"
+                f"Alavancagem: não é necessária"
+                + (f"; com margem, no máximo {p['leverage']['max_safe']:g}x "
+                   "(a posição e o risco não mudam)"
+                   if p.get("leverage", {}).get("max_safe", 1) > 1 else "")
+                + f".\n{note}")
     if k == "TRIGGERED":
         return (f"🔵 ENTRADA — {head}\nPreço entrou na zona de compra "
                 f"({_px(e['price'])}). Coloca o stop em {_px(p['stop'])}.")
@@ -171,7 +176,15 @@ def main():
     with open(os.path.join(OUT, "resumo.txt"), "w") as f:
         f.write(text + "\n")
     print(text)
+    extra = reports.due(res, state, res["generated_at"]) if res["universe"] else []
+    with open(os.path.join(OUT, "state.json"), "w") as f:      # inclui relatorios
+        json.dump(state, f, separators=(",", ":"))
     if res.get("config", {}).get("alerts") and alerts.configured():
+        for _, txt in extra:
+            try:
+                alerts.send(txt)
+            except alerts.AlertError as err:
+                print("ALERTA FALHOU", err)
         sigs = state.get("signals", {})
         for e in events:
             s = sigs.get(e["id"]) or e.get("signal") or {}

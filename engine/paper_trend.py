@@ -43,9 +43,7 @@ def market_filter(c1_btc, state, now):
             "since": prev["since"]}, ev
 
 
-RECORD = ("⚠️ Estratégia NÃO validada: fora da amostra deu +109% "
-          "(2023 a ago. 2025), mas -1% nas grandes moedas e -21% em todas "
-          "desde então. Risco reduzido a metade.")
+RECORD = "⚠️ Não validada (desde ago. 2025: -1% nas grandes moedas). Risco a metade."
 
 
 def update(state, rows, daily, cfg, now, market_ok=True, halted=None):

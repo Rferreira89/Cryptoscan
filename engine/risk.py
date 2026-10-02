@@ -4,7 +4,11 @@ O stop vem da estrutura (definido pela estrategia) e e validado contra a
 volatilidade: nem tao curto que seja ruido, nem tao largo que o R:R seja
 artificial. Nunca se aumenta o risco por o score ser elevado.
 """
+import math
+
 from .strategies import px_str
+
+MMR = 0.05                      # margem de manutencao assumida
 
 MIN_STOP_ATR, MAX_STOP_ATR = 0.8, 4.0
 
@@ -59,7 +63,17 @@ def plan(setup, a4, a1, cfg):
         return None, f"POOR R:R: {rr:.2f} abaixo do mínimo {cfg['min_rr']}"
     stop_pct = risk_unit / entry * 100
     size_pct = min(cfg["risk_pct"] / stop_pct * 100, cfg["max_position_pct"])
-    return {"entry_zone": [lo, hi], "entry_ref": entry, "stop": stop,
+    # Alavancagem: com a dimensao definida pelo risco, nunca e necessaria.
+    # Se o utilizador usar margem, o maximo "seguro" e o que deixa a
+    # liquidacao estimada a mais do dobro da distancia do stop (teto 3x).
+    stop_frac = dist / entry
+    lev = max(1.0, min(3.0, math.floor(2 / (2.5 * stop_frac + MMR)) / 2))
+    liq = entry * (1 - 1 / lev + MMR) if lev > 1 else None
+    leverage = {"needed": 1.0, "max_safe": lev,
+                "collateral_pct": round(size_pct / lev, 1),
+                "liquidation_est": liq}
+    return {"leverage": leverage,
+            "entry_zone": [lo, hi], "entry_ref": entry, "stop": stop,
             "tp": tps, "tp_projected": projected,
             "rr": round(rr, 2), "rr_tp1": round(net_r(tps[0]), 2),
             "rr_tp3": round(net_r(tps[2]), 2),

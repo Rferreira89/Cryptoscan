@@ -181,7 +181,29 @@ def trading_halt(sigs, cfg, now):
     return None
 
 
-def update_state(state, rows, cfg, now):
+def correlation(ca, cb, n=60):
+    """Correlacao dos retornos diarios dos ultimos n dias (ou None)."""
+    if not ca or not cb:
+        return None
+    a = {x["t"]: x["c"] for x in ca[-n - 1:]}
+    b = {x["t"]: x["c"] for x in cb[-n - 1:]}
+    ts = sorted(set(a) & set(b))
+    if len(ts) < 30:
+        return None
+    ra = [a[ts[i]] / a[ts[i - 1]] - 1 for i in range(1, len(ts))]
+    rb = [b[ts[i]] / b[ts[i - 1]] - 1 for i in range(1, len(ts))]
+    ma, mb = sum(ra) / len(ra), sum(rb) / len(rb)
+    va = sum((x - ma) ** 2 for x in ra)
+    vb = sum((x - mb) ** 2 for x in rb)
+    if va == 0 or vb == 0:
+        return None
+    return sum((x - ma) * (y - mb) for x, y in zip(ra, rb)) / (va * vb) ** 0.5
+
+
+MAX_CORRELATED, CORR_LIMIT = 2, 0.8
+
+
+def update_state(state, rows, cfg, now, daily=None):
     """Emite, mantem, expira e invalida sinais. Devolve eventos de auditoria."""
     sigs = state.setdefault("signals", {})
     events = []
@@ -248,11 +270,24 @@ def update_state(state, rows, cfg, now):
                    key=lambda r: -r["decision"]["score"])
     for r in cands:
         d = r["decision"]
+        # exposicao efetiva: posicoes muito correlacionadas sao o mesmo risco
+        held = live | set(state.get("paper_trend", {}).get("positions", {}))
+        corr = {}
+        for h in held:
+            c = correlation((daily or {}).get(r["asset"]), (daily or {}).get(h))
+            if c is not None:
+                corr[h] = round(c, 2)
+        if sum(1 for c in corr.values() if c > CORR_LIMIT) >= MAX_CORRELATED:
+            d.update(decision="WATCHLIST", reason=(
+                "exposição correlacionada: já há " + str(MAX_CORRELATED)
+                + " posições com correlação acima de " + str(CORR_LIMIT)))
+            continue
         if slots[d["mode"]] <= 0:
             d.update(decision="WATCHLIST",
                      reason="limite de operações em simultâneo atingido")
             continue
         slots[d["mode"]] -= 1
+        live.add(r["asset"])
         key = f"{r['asset']}-{d['strategy']}-{now}"
         sig = {"id": key, "asset": r["asset"], "pair": d["venue"]["pair"],
                "venue": d["venue"]["name"], "direction": "LONG",
@@ -262,7 +297,7 @@ def update_state(state, rows, cfg, now):
                "confidence": d["confidence"], "conflicts": d["conflicts"],
                "explain": explain(r), "issued_at": now,
                "expires_at": now + cfg["signal_expiry_hours"] * 3600,
-               "status": "ACTIVE", "mode": d["mode"],
+               "status": "ACTIVE", "mode": d["mode"], "correlation": corr,
                "validation": validation.status(d["strategy"])}
         sig["validated"] = bool(sig["validation"].get("validated"))
         sigs[key] = sig

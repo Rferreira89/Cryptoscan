@@ -27,15 +27,11 @@ def status(strategy):
 
 
 def note(strategy):
-    """Linha factual sobre o registo da estrategia, para cada alerta."""
+    """Linha curta e factual sobre a estrategia, para cada alerta."""
     st = status(strategy)
     if st.get("validated"):
-        return (f"Estratégia validada em backtest: {st['expectancy_r']:+.2f}R "
-                f"por operação, acerto {st['win_rate']:.0f}%, {st['n']} "
-                "operações.")
+        return "Estratégia validada."
     if st.get("n"):
-        return (f"⚠️ Estratégia NÃO validada: em backtest deu "
-                f"{st['expectancy_r']:+.2f}R por operação, acerto "
-                f"{st['win_rate']:.0f}% em {st['n']} operações. Risco reduzido "
-                "a metade.")
-    return "⚠️ Estratégia sem backtest. Risco reduzido a metade."
+        return (f"⚠️ Não validada (histórico {st['expectancy_r']:+.2f}R/op., "
+                f"acerto {st['win_rate']:.0f}%). Risco a metade.")
+    return "⚠️ Não validada. Risco a metade."
