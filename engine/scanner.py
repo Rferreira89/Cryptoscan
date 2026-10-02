@@ -189,7 +189,9 @@ def run(now=None, state=None, cfg=None):
     """Devolve (resultado, estado, eventos de auditoria)."""
     now = int(now or time.time())
     state = state if state is not None else {}
-    cfg = cfg or config.load()
+    cfg = dict(cfg or config.load())
+    if state.get("capital"):                 # definido pelo Telegram
+        cfg["capital_usdc"] = state["capital"]
     status, data = collect_tickers()
     live = [s for s in sources.ALL if status[s.name]["ok"]]
     result = {"generated_at": now, "phase": 4, "sources": status,

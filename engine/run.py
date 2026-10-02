@@ -60,18 +60,33 @@ def _px(x):
     return strategies.px_str(x)
 
 
-def invest_line(position_pct, risk_pct, lev):
+def invest_line(position_pct, risk_pct, lev, usdc=None):
     """Linhas de dimensao e de alavancagem recomendada para a operacao."""
     why = f" — {lev['reason']}" if lev and lev.get("reason") else ""
+    amt = f"{usdc:.2f} USDC, " if usdc else ""
     if not lev or lev.get("use", 1) <= 1:
         return (f"Alavancagem: 1x (sem margem){why}\n"
-                f"Investir: {position_pct}% do capital (risco {risk_pct}%)")
+                f"Investir: {amt}{position_pct}% do capital (risco {risk_pct}%)")
+    mine = (f"{usdc / lev['use']:.2f} USDC teus e {usdc - usdc / lev['use']:.2f} "
+            "emprestados" if usdc else
+            f"{lev['collateral_pct']}% teus e o resto emprestado")
     return (f"Alavancagem: {lev['use']:g}x{why}\n"
-            f"Posição: {position_pct}% do capital, dos quais "
-            f"{lev['collateral_pct']}% teus e o resto emprestado "
+            f"Posição: {amt}{position_pct}% do capital, {mine} "
             f"(risco {risk_pct}%)\n"
             f"Liquidação estimada perto de {_px(lev['liquidation_est'])} "
             "(confirma na Bybit)")
+
+
+def targets_line(p):
+    """Objetivos e vendas, conforme o esquema de parciais da operacao."""
+    parts = p.get("partials", [50, 30, 20])
+    sells = [f"TP{i + 1} {_px(p['tp'][i])} (vender {parts[i]}%)"
+             for i in range(3) if parts[i] > 0]
+    txt = " · ".join(sells)
+    if parts[0] == 0:
+        txt += (f"\nAo chegar a {_px(p['tp'][0])}, sobe o stop para o preço "
+                "de entrada (sem vender)")
+    return txt
 
 
 def paper_text(e, s, head, note):
@@ -124,6 +139,7 @@ def alert_text(e, sigs, note):
                 "TENDÊNCIA DIÁRIA · quebra do máximo de 20 dias\n"
                 f"Ordem a mercado, perto de {_px(e['price'])}\n"
                 + invest_line(e["position_pct"], e["risk_pct"],
+                              usdc=e.get("position_usdc"), lev=
                               {"use": e.get("leverage", 1),
                                "reason": e.get("leverage_reason"),
                                "collateral_pct": e.get("collateral_pct"),
@@ -160,19 +176,25 @@ def alert_text(e, sigs, note):
         return (f"🟢 COMPRA — {head}\n"
                 f"{s['strategy']} · {s['timeframe']} · score {s['score']}/100\n"
                 f"Ordem limite: {_px(p['entry_zone'][0])} a {_px(p['entry_zone'][1])}\n"
-                f"{invest_line(p['position_pct'], p['risk_pct'], p.get('leverage'))}\n"
+                f"{invest_line(p['position_pct'], p['risk_pct'], p.get('leverage'), p.get('position_usdc'))}\n"
                 f"Stop: {_px(p['stop'])} (-{p['stop_pct']}%)\n"
-                f"TP1 {_px(p['tp'][0])} (vender 50%) · TP2 {_px(p['tp'][1])} "
-                f"(30%) · TP3 {_px(p['tp'][2])} (20%)\n"
+                f"{targets_line(p)}\n"
                 f"R:R 1:{p['rr']} · válido 12h\n{note}")
     if k == "TRIGGERED":
         return (f"🔵 ENTRADA — {head}\nPreço entrou na zona de compra "
                 f"({_px(e['price'])}). Coloca o stop em {_px(p['stop'])}.")
     if k in ("TP1", "TP2", "TP3"):
         extra = " Sobe o stop para o preço de entrada." if k == "TP1" else ""
-        r = f" Resultado final: {e['r']:+.2f}R." if "r" in e else ""
+        if "r" in e:
+            return (f"🟢 VENDA FINAL — {head}\n{k} atingido em "
+                    f"{_px(e['price'])}: vender o resto da posição. "
+                    f"Resultado: {e['r']:+.2f}R.")
+        if not e["sold_pct"]:
+            return (f"🟠 STOP PARA A ENTRADA — {head}\n{k} atingido em "
+                    f"{_px(e['price'])}: não vendas, sobe só o stop para o "
+                    "teu preço de entrada.")
         return (f"🟠 VENDA PARCIAL — {head}\n{k} atingido em {_px(e['price'])}: "
-                f"vender {e['sold_pct']:.0f}% da posição.{extra}{r}")
+                f"vender {e['sold_pct']:.0f}% da posição.{extra}")
     if k in ("STOP", "BREAKEVEN", "TIME"):
         txt = {"STOP": "Stop atingido", "BREAKEVEN": "Stop na entrada atingido",
                "TIME": "Tempo máximo (30 dias) atingido"}[k]

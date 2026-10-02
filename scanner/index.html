@@ -193,8 +193,8 @@ function planSteps(p,pair){
   <li>${sizing(p)}</li>
   <li>Stop-loss em <b>${price(p.stop)}</b> (−${num(p.stop_pct,2)}% com comissões).</li>
   ${p.leverage&&p.leverage.use>1?`<li>Com margem ${p.leverage.use}x a liquidação estimada fica perto de <b>${price(p.leverage.liquidation_est)}</b>, bem abaixo do stop. Confirma o valor no ecrã da Bybit e coloca o stop logo a seguir à entrada.</li>`:""}
-  <li>Vender ${p.partials[0]}% em <b>${price(p.tp[0])}</b>${pr(1)} e subir o stop para o preço de entrada.</li>
-  <li>Vender ${p.partials[1]}% em <b>${price(p.tp[1])}</b>${pr(2)} e os restantes ${p.partials[2]}% em <b>${price(p.tp[2])}</b>${pr(3)}.</li></ol>
+  ${p.partials[0]>0?`<li>Vender ${p.partials[0]}% em <b>${price(p.tp[0])}</b>${pr(1)} e subir o stop para o preço de entrada.</li>`:`<li>Quando o preço chegar a <b>${price(p.tp[0])}</b>${pr(1)}: não vender, só subir o stop para o preço de entrada.</li>`}
+  ${p.partials[2]>0?`<li>Vender ${p.partials[1]}% em <b>${price(p.tp[1])}</b>${pr(2)} e os restantes ${p.partials[2]}% em <b>${price(p.tp[2])}</b>${pr(3)}.</li>`:`<li>Vender ${p.partials[0]>0?"os restantes "+p.partials[1]+"%":"tudo"} em <b>${price(p.tp[1])}</b>${pr(2)}. Com este capital não há terceira venda: ficaria abaixo da ordem mínima.</li>`}</ol>
   <div class="chips"><span class="chip">R:R 1:${num(p.rr,2)}</span><span class="chip">Stop ${num(p.stop_atr,1)} ATR</span></div>`;
 }
 function sigCard(s){
@@ -209,7 +209,7 @@ function sigCard(s){
   <div class="why"><span>Risco principal:</span> ${esc(e.main_risk)}</div>
   <div class="why"><span>O que mudaria o sinal:</span> ${esc(e.would_change)}</div>
   <div class="why"><span>Confiança:</span> dados ${s.confidence.data_quality}/100 · liquidez ${s.confidence.liquidity_quality}/100 · regime ${s.confidence.regime_compatibility}/100 · histórico da estratégia: sem backtest</div>
-  ${s.status==="TRIGGERED"&&s.position?`<div class="why"><span>Posição:</span> entrada ${price(s.position.entry)} · stop atual ${price(s.position.stop)} · TPs atingidos ${s.position.tp_hit}/3 · por vender ${num(s.position.remaining,0)}%</div>`:""}
+  ${s.status==="TRIGGERED"&&s.position?`<div class="why"><span>Posição:</span> entrada ${price(s.position.entry)} · stop atual ${price(s.position.stop)} · objetivos atingidos ${s.position.tp_hit} · por vender ${num(s.position.remaining,0)}%</div>`:""}
   <div class="${s.validated?"up":"warn"}" style="margin-top:6px">${s.validated?"Estratégia validada em backtest.":"Estratégia não validada"+(s.validation&&s.validation.n?": em backtest deu "+num(s.validation.expectancy_r,2)+"R por operação, com "+num(s.validation.win_rate,0)+"% de acerto em "+s.validation.n+" operações":" (sem backtest)")+". Risco já reduzido a metade."}</div></div>`;
 }
 function paperCard(s){
@@ -365,6 +365,7 @@ async function load(){
     const r=await fetch(URL_DATA+"?t="+Date.now(),{cache:"no-store"});
     if(!r.ok) throw new Error("HTTP "+r.status);
     D=await r.json();
+    if(!capSet&&D.config&&D.config.capital_usdc&&!$("cap").value){$("cap").value=D.config.capital_usdc;$("capnote").textContent="definido no programa; muda com /capital no Telegram"}
     const age=Math.round((Date.now()/1000-Math.max(D.generated_at,D.monitored_at||0))/60);
     const src=Object.entries(D.sources).map(([n,s])=>n+(s.ok?" ✓":" ✗")).join(" · ")+" · Bybit UE"+(D.venue_source&&D.venue_source.ok?" ✓":" ✗");
     $("sub").innerHTML=`Atualizado há ${age} min · ${esc(src)}`+(age>45?` · <span class="warn">dados atrasados</span>`:"");
@@ -376,7 +377,7 @@ async function load(){
 }
 $("list").addEventListener("click",e=>{const row=e.target.closest(".row");if(!row||!e.target.closest(".head"))return;const a=row.dataset.a;open.has(a)?open.delete(a):open.add(a);row.classList.toggle("open")});
 ["q","sort","flt"].forEach(i=>$(i).addEventListener("input",render));
-try{$("cap").value=localStorage.getItem("capital")||""}catch(e){}
+let capSet=false;try{const v=localStorage.getItem("capital");if(v){$("cap").value=v;capSet=true}}catch(e){}
 $("cap").addEventListener("input",()=>{try{localStorage.setItem("capital",$("cap").value)}catch(e){}$("capnote").textContent=capital()?"guardado só neste telemóvel":"";if(D){renderOps();renderJournal();fillBybit()}});
 load();setInterval(load,60000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)load()});

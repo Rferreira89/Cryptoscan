@@ -14,6 +14,9 @@ CMD = re.compile(r"^/?pre[cç]o\s+([A-Za-z0-9]+)\s+([0-9]+(?:[.,][0-9]+)?)\s*$",
                  re.I)
 
 
+CAP = re.compile(r"^/?capital\s+([0-9]+(?:[.,][0-9]+)?)\s*$", re.I)
+
+
 def buttons(op_id):
     return {"inline_keyboard": [[
         {"text": "✅ Executei", "callback_data": f"x|1|{op_id}"},
@@ -71,7 +74,18 @@ def apply(state, updates, chat_id):
         elif msg:
             if str(msg.get("chat", {}).get("id")) != str(chat_id):
                 continue
-            m = CMD.match((msg.get("text") or "").strip())
+            text = (msg.get("text") or "").strip()
+            c = CAP.match(text)
+            if c:
+                val = float(c.group(1).replace(",", "."))
+                if 5 <= val <= 1_000_000:
+                    state["capital"] = val
+                    out.append((f"Capital de trading atualizado para {val:g} "
+                                "USDC. Aplica-se aos próximos sinais.", None))
+                else:
+                    out.append(("Valor de capital fora dos limites.", None))
+                continue
+            m = CMD.match(text)
             if not m:
                 continue
             asset, px = m.group(1).upper(), float(m.group(2).replace(",", "."))

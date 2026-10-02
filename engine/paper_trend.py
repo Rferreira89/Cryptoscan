@@ -114,6 +114,11 @@ def update(state, rows, daily, cfg, now, market_ok=True, halted=None):
                 lev = risk.leverage_for((entry - stop) / entry, cfg)
                 frac = min(rp * lev["use"] / 100 / (risk_unit / entry),
                            CAP * lev["use"])
+                cap = cfg.get("capital_usdc")
+                pos_usdc = cap * frac if cap else None
+                if cap and pos_usdc < cfg.get("min_order_usdc", 5.0):
+                    st["last_day"][a] = last["t"]
+                    continue                 # abaixo da ordem minima
                 st["positions"][a] = {
                     "entry": entry, "stop0": stop, "entry_t": now,
                     "pair": r["venue"]["pair"], "position_pct": round(frac * 100, 1),
@@ -124,6 +129,7 @@ def update(state, rows, daily, cfg, now, market_ok=True, halted=None):
                            "position_pct": round(frac * 100, 1),
                            "risk_pct": round(frac * risk_unit / entry * 100, 2),
                            "stop_pct": round(risk_unit / entry * 100, 2),
+                           "position_usdc": round(pos_usdc, 2) if cap else None,
                            "leverage": lev["use"],
                            "leverage_reason": (
                                "reduzida pelo stop largo, para manter a "

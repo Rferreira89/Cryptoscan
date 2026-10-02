@@ -48,7 +48,8 @@ def step(pos, o, h, l, c, t):
         _sell(pos, pos["remaining"], px)
         _finish(pos, reason, t)
         return [{"event": reason, "price": px, "r": pos["r"]}]
-    while pos["tp_hit"] < len(pos["tps"]) and h >= pos["tps"][pos["tp_hit"]]:
+    while pos["remaining"] > 1e-9 and pos["tp_hit"] < len(pos["tps"]) \
+            and h >= pos["tps"][pos["tp_hit"]]:
         k = pos["tp_hit"]
         tp = pos["tps"][k]
         pct = pos["partials"][k] if k < len(pos["tps"]) - 1 else pos["remaining"]
@@ -64,7 +65,7 @@ def step(pos, o, h, l, c, t):
                            "r": pos["r"]})
                 return ev
     if pos["remaining"] <= 1e-9:
-        _finish(pos, "TP3", t)
+        _finish(pos, ev[-1]["event"], t)       # objetivo que fechou a posicao
         ev[-1]["r"] = pos["r"]
     elif t - pos["opened_at"] >= MAX_HOLD_SECONDS:
         _sell(pos, pos["remaining"], c * (1 - pos["slip"]))

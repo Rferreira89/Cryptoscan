@@ -28,6 +28,11 @@ DEFAULTS = {
     # multiplicados por este valor, ate ao maximo que mantem a liquidacao
     # estimada a mais do dobro da distancia do stop. 1 = sem alavancagem.
     "swing_leverage": 2.0,
+    # Capital de trading em USDC (2026-10-02: 50). Atualiza-se pelo Telegram
+    # com /capital <valor>. Serve para dar valores em USDC e para adaptar
+    # as operacoes a ordem minima da Bybit UE.
+    "capital_usdc": 50.0,
+    "min_order_usdc": 5.0,
     # Sem compras novas com o BTC abaixo da media de 200 dias
     "require_btc_above_sma200": True,
     # Travao de perdas (em R, soma das operacoes fechadas)

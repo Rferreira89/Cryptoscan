@@ -201,3 +201,106 @@ class Delivery(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SmallCapital(unittest.TestCase):
+    def plan(self, capital, stop=98.0, lev=1.0):
+        from engine import risk
+        return risk.plan({"strategy": "X", "entry": [99.7, 100.0], "stop": stop},
+                         T4.a4h(), T4.a1d(),
+                         dict(CFG, capital_usdc=capital, swing_leverage=lev,
+                              risk_pct=0.5))
+
+    def test_partials_follow_order_minimum(self):
+        # stop 2.2% e risco 0.5% -> posicao de 22.7% do capital
+        p, _ = self.plan(1000)
+        self.assertEqual(p["partials"], [50, 30, 20])
+        self.assertAlmostEqual(p["position_usdc"], 227.48, delta=0.5)
+        p, _ = self.plan(50)                       # 11.4 USDC: so 50/50
+        self.assertEqual(p["partials"], [50, 50, 0])
+        p, _ = self.plan(30)                       # 6.8 USDC: saida unica
+        self.assertEqual(p["partials"], [0, 100, 0])
+        p, why = self.plan(20)                     # 4.5 USDC: nao executavel
+        self.assertIsNone(p)
+        self.assertIn("ordem mínima", why)
+
+    def test_usdc_amounts_with_leverage(self):
+        p, _ = self.plan(50, lev=2.0)
+        self.assertAlmostEqual(p["collateral_usdc"] + p["borrowed_usdc"],
+                               p["position_usdc"], delta=0.011)
+        self.assertAlmostEqual(p["collateral_usdc"], p["position_usdc"] / 2, places=2)
+        self.assertAlmostEqual(p["risk_usdc"], 50 * p["risk_pct"] / 100, delta=0.01)
+        self.assertLessEqual(p["risk_usdc"], 0.51)          # 1% de 50 USDC
+
+    def test_single_exit_and_two_exit_management(self):
+        from engine import trade
+        plan = {"stop": 98.0, "tp": [104.0, 108.0, 112.0], "partials": [0, 100, 0]}
+        pos = trade.open_position(plan, 100.0, 0, 0.1)
+        ev = trade.step(pos, 100.5, 104.5, 100.2, 104.2, 14400)
+        self.assertEqual((ev[0]["event"], ev[0]["sold_pct"]), ("TP1", 0))
+        self.assertEqual((pos["remaining"], pos["stop"]), (100.0, 100.0))
+        ev = trade.step(pos, 104.2, 113.0, 104.0, 112.0, 28800)
+        self.assertEqual([e["event"] for e in ev], ["TP2"])   # fecha no TP2
+        self.assertTrue(pos["closed"])
+        self.assertEqual(pos["exit_reason"], "TP2")
+        self.assertAlmostEqual(pos["r"], (8 - 0.208) / 2.198, places=3)
+        two = trade.open_position(dict(plan, partials=[50, 50, 0]), 100.0, 0, 0.1)
+        ev = trade.step(two, 100.5, 113.0, 100.2, 112.0, 14400)
+        self.assertEqual([e["event"] for e in ev], ["TP1", "TP2"])
+        self.assertEqual(two["exit_reason"], "TP2")
+
+    def test_ledger_and_alerts_for_adapted_exits(self):
+        from engine import run
+        st = {}
+        ledger.apply(st, [{"t": 1, "event": "ISSUED", "id": "a", "signal": {
+            "asset": "LINK", "pair": "LINK/USDC", "strategy": "PULLBACK",
+            "score": 70, "plan": {"entry_zone": [99.7, 100], "stop": 98,
+                                  "tp": [104, 108, 112], "rr": 2.4,
+                                  "risk_pct": 1.0, "position_pct": 20,
+                                  "position_usdc": 10.0, "risk_usdc": 0.5}}},
+            {"t": 2, "event": "TRIGGERED", "id": "a", "price": 100},
+            {"t": 3, "event": "TP1", "id": "a", "price": 104, "sold_pct": 0},
+            {"t": 4, "event": "TP2", "id": "a", "price": 108, "sold_pct": 100,
+             "r": 3.5}])
+        r = st["ledger"][0]
+        self.assertEqual((r["status"], r["tp_hit"], r["reason"]), ("CLOSED", 2, "TP2"))
+        p = {"tp": [104.0, 108.0, 112.0], "partials": [0, 100, 0]}
+        t = run.targets_line(p)
+        self.assertIn("TP2 108 (vender 100%)", t)
+        self.assertNotIn("TP3", t)
+        self.assertIn("sobe o stop", t)
+        self.assertIn("TP1 104 (vender 50%) · TP2 108 (vender 50%)",
+                      run.targets_line(dict(p, partials=[50, 50, 0])))
+        sig = {"asset": "LINK", "pair": "LINK/USDC", "venue": "Bybit EU",
+               "mode": "REAL", "plan": p}
+        t = run.alert_text({"event": "TP1", "id": "k", "price": 104.0,
+                            "sold_pct": 0}, {"k": sig}, "")
+        self.assertIn("não vendas", t)
+        t = run.alert_text({"event": "TP2", "id": "k", "price": 108.0,
+                            "sold_pct": 100, "r": 3.5}, {"k": sig}, "")
+        self.assertIn("VENDA FINAL", t)
+        self.assertIn("+3.50R", t)
+        t = run.invest_line(20.0, 1.0, {"use": 2.0, "liquidation_est": 55.0,
+                                        "collateral_pct": 10.0}, 10.0)
+        self.assertIn("10.00 USDC", t)
+        self.assertIn("5.00 USDC teus e 5.00 emprestados", t)
+
+    def test_capital_command(self):
+        st = {"ledger": []}
+        out = inbox.apply(st, [msg("/capital 62,5")], 7)
+        self.assertEqual(st["capital"], 62.5)
+        self.assertIn("62.5", out[0][0])
+        inbox.apply(st, [msg("/capital 1")], 7)
+        self.assertEqual(st["capital"], 62.5)               # fora dos limites
+        inbox.apply(st, [msg("/capital 900", chat=999)], 7)
+        self.assertEqual(st["capital"], 62.5)               # estranho ignorado
+
+    def test_trend_skips_below_minimum_order(self):
+        from engine import paper_trend as P
+        c = [{"t": k * 86400, "o": v, "h": v * 1.01, "l": v * 0.99, "c": v,
+              "v": 1.0} for k, v in enumerate([100.0] * 220 + [104.0])]
+        rw = [{"asset": "LINK", "price": 104.2, "venue": {"pair": "LINK/USDC"}}]
+        self.assertEqual(P.update({}, rw, {"LINK": c}, dict(CFG, capital_usdc=20.0), 1)[1], [])
+        ev = P.update({}, rw, {"LINK": c}, dict(CFG, capital_usdc=500.0), 1)[1]
+        self.assertEqual(ev[0]["event"], "PAPER_BUY")
+        self.assertGreaterEqual(ev[0]["position_usdc"], 5.0)

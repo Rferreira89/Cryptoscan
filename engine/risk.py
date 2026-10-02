@@ -82,7 +82,26 @@ def plan(setup, a4, a1, cfg):
                     borrowed_pct=round(size_pct - size_pct / lev["use"], 1),
                     liquidation_est=entry * (1 - 1 / lev["use"] + MMR)
                     if lev["use"] > 1 else None)
-    return {"leverage": leverage,
+    partials, be_note, usdc = [50, 30, 20], None, {}
+    cap = cfg.get("capital_usdc")
+    if cap:
+        pos_usdc = cap * size_pct / 100
+        mn = cfg.get("min_order_usdc", 5.0)
+        if pos_usdc < mn:
+            return None, (f"posição de {pos_usdc:.2f} USDC abaixo da ordem "
+                          f"mínima de {mn:g} USDC com o capital atual")
+        # vendas parciais so quando cada parte e executavel na corretora
+        if 0.2 * pos_usdc >= mn:
+            partials = [50, 30, 20]
+        elif 0.5 * pos_usdc >= mn:
+            partials = [50, 50, 0]
+        else:
+            partials = [0, 100, 0]
+        usdc = {"position_usdc": round(pos_usdc, 2),
+                "collateral_usdc": round(pos_usdc / lev["use"], 2),
+                "borrowed_usdc": round(pos_usdc - pos_usdc / lev["use"], 2),
+                "risk_usdc": round(pos_usdc * stop_pct / 100, 2)}
+    return {"leverage": leverage, **usdc,
             "entry_zone": [lo, hi], "entry_ref": entry, "stop": stop,
             "tp": tps, "tp_projected": projected,
             "rr": round(rr, 2), "rr_tp1": round(net_r(tps[0]), 2),
@@ -90,4 +109,4 @@ def plan(setup, a4, a1, cfg):
             "stop_pct": round(stop_pct, 2), "stop_atr": round(dist / atr, 2),
             "position_pct": round(size_pct, 1),
             "risk_pct": round(size_pct * stop_pct / 100, 2),
-            "partials": [50, 30, 20]}, None
+            "partials": partials}, None

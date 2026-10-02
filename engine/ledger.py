@@ -5,7 +5,7 @@ precos sao os do mercado no momento de cada scan, nao os das ordens do
 utilizador: e o registo do que o sistema sinalizou, nao da conta real.
 """
 MAX = 1000
-CLOSERS = ("STOP", "BREAKEVEN", "TIME", "TP3")
+CLOSERS = ("STOP", "BREAKEVEN", "TIME", "TP1", "TP2", "TP3")
 
 
 def apply(state, events):
@@ -21,6 +21,8 @@ def apply(state, events):
                    "issued_at": e["t"], "entry_zone": p["entry_zone"],
                    "stop": p["stop"], "tp": p["tp"], "rr": p["rr"],
                    "risk_pct": p["risk_pct"], "position_pct": p["position_pct"],
+                   "position_usdc": p.get("position_usdc"),
+                   "risk_usdc": p.get("risk_usdc"),
                    "status": "WAITING", "tp_hit": 0}
             led.append(rec)
             by_id[rec["id"]] = rec
@@ -54,7 +56,7 @@ def apply(state, events):
                 rec["tp_hit"] = int(k[2])
             if "r" in e and k in CLOSERS:
                 if k.startswith("TP"):
-                    rec["tp_hit"] = 3
+                    rec["tp_hit"] = int(k[2])
                 rec.update(status="CLOSED", closed_at=e["t"], exit=e["price"],
                            result_r=e["r"], reason=k)
     del led[:-MAX]

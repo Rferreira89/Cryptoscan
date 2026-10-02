@@ -46,6 +46,7 @@ Para voltar ao modo de simulação: `{"real_money_unvalidated": false}` em `conf
 
 - Botões "Executei" / "Não executei" em cada alerta de compra.
 - `/preco LINK 14.25` regista o preço real de entrada.
+- `/capital 80` atualiza o capital de trading usado nos cálculos.
 - Relatório diário às 8h (Lisboa) e semanal à segunda-feira.
 
 ## Manutenção
