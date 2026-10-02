@@ -14,7 +14,7 @@ DEFAULTS = {
     "max_new_signals": 3,       # setups ativos em simultaneo
     "signal_expiry_hours": 12,  # 3 velas de 4H
     "max_venue_spread_pct": 0.30,
-    "min_venue_volume_usd": 100_000,
+    "min_venue_volume_usd": 25_000,   # ordens pequenas: o spread pesa mais
     "alerts_unvalidated": False,  # nao enviar alertas antes do backtest
 }
 
