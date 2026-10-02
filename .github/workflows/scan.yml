@@ -1,5 +1,5 @@
 name: Market Scanner
-# Um job corre em ciclo (scan completo de 15 em 15 minutos e acompanhamento
+# Um job corre em ciclo (scan completo de 5 em 5 minutos e acompanhamento
 # das operacoes abertas de minuto a minuto) durante ~5h20 e no fim
 # relanca-se a si proprio. O agendamento do GitHub e pouco fiavel, por isso
 # serve apenas de vigia: se a cadeia parar, volta a arranca-la.
@@ -42,9 +42,9 @@ jobs:
           }
           while [ "$(date +%s)" -lt "$END" ]; do
             NOW=$(date +%s)
-            # scan completo no primeiro minuto de cada quarto de hora; nos
+            # scan completo no primeiro minuto de cada 5 minutos; nos
             # restantes minutos, so acompanhamento das operacoes abertas
-            if [ $(( NOW % 900 )) -lt 60 ]; then MODE=scan; else MODE=monitor; fi
+            if [ $(( NOW % 300 )) -lt 60 ]; then MODE=scan; else MODE=monitor; fi
             echo "::group::$MODE $(date -u +%FT%TZ)"
             # codigo mais recente em cada ciclo
             git fetch -q origin main && git reset -q --hard FETCH_HEAD || true

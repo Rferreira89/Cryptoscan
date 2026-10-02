@@ -368,7 +368,7 @@ async function load(){
     if(!capSet&&D.config&&D.config.capital_usdc&&!$("cap").value){$("cap").value=D.config.capital_usdc;$("capnote").textContent="definido no programa; muda com /capital no Telegram"}
     const age=Math.round((Date.now()/1000-Math.max(D.generated_at,D.monitored_at||0))/60);
     const src=Object.entries(D.sources).map(([n,s])=>n+(s.ok?" ✓":" ✗")).join(" · ")+" · Bybit UE"+(D.venue_source&&D.venue_source.ok?" ✓":" ✗");
-    $("sub").innerHTML=`Atualizado há ${age} min · ${esc(src)}`+(age>45?` · <span class="warn">dados atrasados</span>`:"");
+    $("sub").innerHTML=`Atualizado há ${age} min · ${esc(src)}`+(age>20?` · <span class="warn">dados atrasados</span>`:"");
     const c=D.counts||{};
     $("stats").innerHTML=[["Analisados",c.deep_checked],["Sinais de compra",c.long],["A vigiar",c.watchlist],["Não operar",c.no_trade]].map(([l,v])=>`<div class="stat"><b>${v??"–"}</b><span>${l}</span></div>`).join("");
     $("note").textContent=`Regime do BTC: ${D.market_regime?D.market_regime.btc:"–"}. Só entram ativos listados na Bybit UE em USDC. As análises usam preços dos mercados globais em USDT; na Bybit UE os valores em USDC podem diferir alguns cêntimos. Filtro de liquidez: volume 24h ≥ ${num(D.thresholds.min_volume_usd/1e6,0)} M $ e spread ≤ ${D.thresholds.max_spread_bps} bps. Análise aprofundada só nos ${D.thresholds.deep_n} ativos mais líquidos. Toca num ativo para ver o detalhe.`;

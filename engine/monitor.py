@@ -60,8 +60,8 @@ def main():
         res["paper_trend"]["positions"] = pt["positions"]
         res["paper_trend"]["closed"] = pt["closed"][-15:]
     run.save(state, res, events)
-    # so publica quando ha algo novo, ou de 5 em 5 minutos como sinal de vida
-    if events or replied or now % 300 < 60:
+    # so publica quando ha algo novo (o scan de 5 minutos e o sinal de vida)
+    if events or replied:
         open(os.path.join(OUT, ".publish"), "w").close()
     print(f"monitor: {len(assets)} ativos, {len(events)} eventos")
     run.deliver(cfg, state, events)
