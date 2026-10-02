@@ -11,6 +11,9 @@ permissions:
 concurrency:
   group: scan
   cancel-in-progress: false
+defaults:
+  run:
+    shell: bash
 jobs:
   scan:
     runs-on: ubuntu-latest
@@ -23,14 +26,16 @@ jobs:
       - name: Testes
         run: python -m unittest -q tests.test_validate
       - name: Scan
-        run: python -m engine.run out
-      - name: Publicar snapshot no ramo data
-        if: github.ref == 'refs/heads/main'
         run: |
+          mkdir -p out
+          python -m engine.run out | tee out/resumo.txt
+      - name: Publicar snapshot (data em main, data-preview nos outros ramos)
+        run: |
+          TARGET=$([ "$GITHUB_REF" = refs/heads/main ] && echo data || echo data-preview)
           cd out
           git init -q -b data
           git config user.name "cryptoscan-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add scan.json
+          git add scan.json resumo.txt
           git commit -q -m "scan $(date -u +%FT%TZ)"
-          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" data
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" "data:$TARGET"
