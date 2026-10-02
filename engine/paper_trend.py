@@ -46,6 +46,35 @@ def market_filter(c1_btc, state, now):
 RECORD = "⚠️ Não validada (desde ago. 2025: -1% nas grandes moedas). Risco a metade."
 
 
+def check_stops(state, prices, cfg, now):
+    """So stops, com os precos dados (passagens de 5 minutos)."""
+    st = state.get("paper_trend")
+    if not st:
+        return []
+    ev, fee = [], cfg["fee_pct"] / 100
+    for a in list(st["positions"]):
+        px = prices.get(a)
+        if px is not None and px <= st["positions"][a]["stop0"]:
+            _close(st, ev, a, min(px, st["positions"][a]["stop0"]), "STOP",
+                   fee, now, cfg)
+    return ev
+
+
+def _close(st, ev, a, px, reason, fee, now, cfg):
+    p = st["positions"].pop(a)
+    exit_px = px * (1 - SLIP)
+    risk_unit = p["entry"] - p["stop0"] + fee * (p["entry"] + p["stop0"])
+    r = (exit_px - p["entry"] - fee * (exit_px + p["entry"])) / risk_unit
+    st["equity"] *= 1 + r * p["risk_frac"]
+    rec = dict(p, asset=a, exit=exit_px, exit_t=now, r=round(r, 2),
+               reason=reason)
+    st["closed"] = (st["closed"] + [rec])[-200:]
+    ev.append({"t": now, "event": "PAPER_SELL", "id": f"paper-{a}",
+               "asset": a, "price": exit_px, "r": rec["r"],
+               "reason": reason, "pair": p["pair"],
+               "real": bool(cfg.get("real_money_unvalidated"))})
+
+
 def update(state, rows, daily, cfg, now, market_ok=True, halted=None):
     """rows: ativos analisados; daily: {ativo: velas diarias fechadas}."""
     st = state.setdefault("paper_trend", {"equity": 1.0, "positions": {},
@@ -54,18 +83,7 @@ def update(state, rows, daily, cfg, now, market_ok=True, halted=None):
     ev = []
 
     def close(a, px, reason):
-        p = st["positions"].pop(a)
-        exit_px = px * (1 - SLIP)
-        risk_unit = p["entry"] - p["stop0"] + fee * (p["entry"] + p["stop0"])
-        r = (exit_px - p["entry"] - fee * (exit_px + p["entry"])) / risk_unit
-        st["equity"] *= 1 + r * p["risk_frac"]
-        rec = dict(p, asset=a, exit=exit_px, exit_t=now, r=round(r, 2),
-                   reason=reason)
-        st["closed"] = (st["closed"] + [rec])[-200:]
-        ev.append({"t": now, "event": "PAPER_SELL", "id": f"paper-{a}",
-                   "asset": a, "price": exit_px, "r": rec["r"],
-                   "reason": reason, "pair": p["pair"],
-                   "real": bool(cfg.get("real_money_unvalidated"))})
+        _close(st, ev, a, px, reason, fee, now, cfg)
 
     for r in rows:
         a, c = r["asset"], daily.get(r["asset"])

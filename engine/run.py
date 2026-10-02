@@ -2,7 +2,8 @@ import json
 import os
 import sys
 
-from . import alerts, paper_trend, reports, scanner, strategies, validation
+from . import (alerts, config, inbox, ledger, paper_trend, reports, scanner,
+               strategies, validation)
 
 OUT = sys.argv[1] if len(sys.argv) > 1 else "out"
 
@@ -94,6 +95,10 @@ def alert_text(e, sigs, note):
                 + ("Historicamente é o contexto favorável a compras."
                    if e["above"] else
                    "Historicamente é o contexto em que comprar perde mais."))
+    if k == "STRATEGY_DISABLED":
+        return (f"⛔ ESTRATÉGIA DESLIGADA — {e['strategy']}: {e['n']} operações "
+                f"ao vivo com resultado {e['sum_r']:+.2f}R. Deixa de gerar "
+                "sinais.")
     if k == "PAPER_BUY" and e.get("real"):
         return (f"🟢 COMPRA — {e['asset']} ({e['pair']}, Bybit EU)\n"
                 "TENDÊNCIA DIÁRIA · quebra do máximo de 20 dias\n"
@@ -160,10 +165,50 @@ def alert_text(e, sigs, note):
     return None
 
 
-def main():
-    os.makedirs(OUT, exist_ok=True)
-    state = _load("state.json", {})
-    res, state, events = scanner.run(state=state)
+def op_id(e):
+    """Id da operacao no registo, para os botoes de confirmacao."""
+    if e["event"] == "ISSUED":
+        return e["id"]
+    if e["event"] == "PAPER_BUY":
+        return f"{e['id']}-{e['t']}"
+    return None
+
+
+def process_inbox(state):
+    """Le respostas do Telegram e aplica-as ao registo."""
+    chat = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
+    if not alerts.configured():
+        return
+    replies = inbox.apply(state, inbox.fetch(state), chat)
+    inbox.reply(replies, alerts.send)
+
+
+def deliver(cfg, state, events, extra=()):
+    """Envia os alertas dos eventos (e relatorios) pelo Telegram."""
+    if not (cfg.get("alerts") and alerts.configured()):
+        return
+    sigs = state.get("signals", {})
+    for _, txt in extra:
+        try:
+            alerts.send(txt)
+        except alerts.AlertError as err:
+            print("ALERTA FALHOU", err)
+    for e in events:
+        if inbox.muted(state, e):
+            continue
+        s = sigs.get(e["id"]) or e.get("signal") or {}
+        txt = alert_text(e, sigs, validation.note(s.get("strategy")))
+        if not txt:
+            continue
+        oid = op_id(e)
+        real = s.get("mode") != "PAPER" and e.get("real", True)
+        try:
+            alerts.send(txt, inbox.buttons(oid) if oid and real else None)
+        except alerts.AlertError as err:
+            print("ALERTA FALHOU", err)
+
+
+def save(state, res, events):
     with open(os.path.join(OUT, "scan.json"), "w") as f:
         json.dump(res, f, separators=(",", ":"))
     with open(os.path.join(OUT, "state.json"), "w") as f:
@@ -172,28 +217,21 @@ def main():
         with open(os.path.join(OUT, "audit.jsonl"), "a") as f:
             for e in events:
                 f.write(json.dumps(e, separators=(",", ":")) + "\n")
+
+
+def main():
+    os.makedirs(OUT, exist_ok=True)
+    state = _load("state.json", {})
+    process_inbox(state)
+    res, state, events = scanner.run(state=state)
+    extra = reports.due(res, state, res["generated_at"]) if res["universe"] else []
+    res["journal"] = ledger.view(state.get("ledger", []))
+    save(state, res, events)
     text = "\n".join(summary(res))
     with open(os.path.join(OUT, "resumo.txt"), "w") as f:
         f.write(text + "\n")
     print(text)
-    extra = reports.due(res, state, res["generated_at"]) if res["universe"] else []
-    with open(os.path.join(OUT, "state.json"), "w") as f:      # inclui relatorios
-        json.dump(state, f, separators=(",", ":"))
-    if res.get("config", {}).get("alerts") and alerts.configured():
-        for _, txt in extra:
-            try:
-                alerts.send(txt)
-            except alerts.AlertError as err:
-                print("ALERTA FALHOU", err)
-        sigs = state.get("signals", {})
-        for e in events:
-            s = sigs.get(e["id"]) or e.get("signal") or {}
-            txt = alert_text(e, sigs, validation.note(s.get("strategy")))
-            if txt:
-                try:
-                    alerts.send(txt)
-                except alerts.AlertError as err:
-                    print("ALERTA FALHOU", err)
+    deliver(res.get("config", {}), state, events, extra)
     # falha o job se nenhuma fonte respondeu: nunca publicar dados vazios
     sys.exit(0 if res["universe"] else 1)
 

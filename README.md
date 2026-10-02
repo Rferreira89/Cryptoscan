@@ -33,10 +33,24 @@ Para voltar ao modo de simulação: `{"real_money_unvalidated": false}` em `conf
 | `engine/paper_trend.py` | Filtro de mercado (BTC vs média de 200 dias) e tendência diária em papel |
 | `engine/backtest.py`, `stats.py`, `validation.py` | Backtest, métricas, walk-forward, Monte Carlo, veredicto |
 | `engine/alerts.py`, `run.py` | Telegram e execução de um scan |
+| `engine/monitor.py` | Passagem de 5 minutos: stops, objetivos e respostas do Telegram |
+| `engine/ledger.py`, `inbox.py` | Registo de operações e confirmação de execuções |
+| `engine/events.py`, `review.py`, `reports.py` | Calendário de eventos, revisão das estratégias, relatórios |
 | `tools/` | Descarga de histórico, backtest completo e investigação |
 | `backtest/` | Resultados publicados |
 | `tests/` | Testes automáticos; correm antes de cada scan |
 | `scanner/` | Página para telemóvel |
+
+## Telegram
+
+- Botões "Executei" / "Não executei" em cada alerta de compra.
+- `/preco LINK 14.25` regista o preço real de entrada.
+- Relatório diário às 8h (Lisboa) e semanal à segunda-feira.
+
+## Manutenção
+
+- `engine/events.py`: acrescentar as datas do CPI de 2027 quando o BLS as publicar (o sistema avisa quando o calendário fica desatualizado).
+- Uma estratégia desligada pela revisão automática só volta a ligar apagando-a de `disabled` no `state.json` do ramo `data`.
 
 ## Parâmetros
 

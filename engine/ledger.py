@@ -61,7 +61,20 @@ def apply(state, events):
     return led
 
 
-def summary(led, since=None):
+def user_r(r):
+    """Resultado ajustado ao preco de entrada real (estimativa)."""
+    ep, entry = r.get("exec_price"), r.get("entry")
+    if not ep or not entry or entry <= r["stop"] or ep <= r["stop"]:
+        return r["result_r"]
+    # mesmo preco de saida, outro preco de entrada e outro risco inicial
+    pnl = r["result_r"] * (entry - r["stop"]) - (ep - entry)
+    return round(pnl / (ep - r["stop"]), 2)
+
+
+def summary(led, since=None, executed_only=False):
+    if executed_only:
+        led = [dict(r, result_r=user_r(r)) if r["status"] == "CLOSED" else r
+               for r in led if r.get("executed")]
     closed = sorted((r for r in led if r["status"] == "CLOSED"
                      and r.get("mode", "REAL") == "REAL"
                      and (since is None or r["closed_at"] >= since)),
@@ -93,3 +106,10 @@ def summary(led, since=None):
                                 / (len(rs) - len(wins)), 2)
             if len(rs) > len(wins) else None,
             "max_drawdown_r": round(dd, 2), "by_strategy": by, "curve": curve}
+
+
+def view(led):
+    return {"summary": summary(led),
+            "mine": summary(led, executed_only=True)
+            if any(r.get("executed") is not None for r in led) else None,
+            "rows": led[-150:]}

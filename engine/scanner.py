@@ -10,8 +10,8 @@ import statistics
 import time
 from concurrent.futures import ThreadPoolExecutor
 
-from . import (analysis, config, derivatives, ledger, liquidity, paper_trend,
-               regime,
+from . import (analysis, config, derivatives, events as calendar, ledger,
+               liquidity, paper_trend, regime, review,
                signals,
                sources, validate, venue, volume)
 
@@ -245,6 +245,14 @@ def run(now=None, state=None, cfg=None):
         daily.get("BTC"), state, now)
     market_ok = bool(result["market_filter"]
                      and result["market_filter"]["btc_above_sma200"])
+    ev_block = calendar.block(now)
+    block = (f"{ev_block['name']} dentro da janela de risco"
+             if ev_block else None)
+    disabled, ev = review.update(state, now)
+    events += ev
+    result.update(next_event=calendar.next_event(now), event_block=block,
+                  calendar_stale=calendar.stale(now),
+                  disabled_strategies=disabled)
     for r in eligible:
         c4 = r.pop("_c4", None)
         if ven is None:
@@ -254,14 +262,16 @@ def run(now=None, state=None, cfg=None):
         else:
             r["decision"] = signals.decide(r, c4, cfg, ven.get(r["asset"]),
                                            btc_reg, changed.get(r["asset"], False),
-                                           market_ok)
+                                           market_ok, block, set(disabled))
     events += signals.update_state(state, eligible, cfg, now, daily)
     result["halt"] = state.get("halt")
     result["paper_trend"], ev = paper_trend.update(
-        state, eligible, daily, cfg, now, market_ok, state.get("halt"))
+        state, eligible, daily, cfg, now, market_ok,
+        state.get("halt") or block
+        or ("desligada" if "TREND_DAILY" in disabled else None))
     events += ev
     led = ledger.apply(state, events)
-    result["journal"] = {"summary": ledger.summary(led), "rows": led[-150:]}
+    result["journal"] = ledger.view(led)
     result["active_signals"] = [s for s in state["signals"].values()
                                 if s["status"] in ("ACTIVE", "TRIGGERED")]
     result["track_record"] = state.get("track", {})

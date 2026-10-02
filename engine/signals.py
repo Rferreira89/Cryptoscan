@@ -18,7 +18,8 @@ def _fmt(x):
     return float(f"{x:.5g}")
 
 
-def decide(row, c4, cfg, v, btc_reg, regime_changed, market_ok=True):
+def decide(row, c4, cfg, v, btc_reg, regime_changed, market_ok=True,
+           block=None, disabled=()):
     """Devolve o bloco 'decision' de um ativo."""
     checks, out = [], {"decision": "NO TRADE", "validated": False}
 
@@ -56,6 +57,10 @@ def decide(row, c4, cfg, v, btc_reg, regime_changed, market_ok=True):
         return stop("filtro de mercado: BTC abaixo da média de 200 dias, "
                     "sem compras novas")
 
+    if cfg["min_score"] > 0 and block:
+        chk(3, "risco de evento", False, block)
+        return stop(f"NEWS RISK: {block}, sem compras novas")
+
     found = strategies.evaluate(c4, a4, a1, reg)
     out["rejected"] = [f"{s['strategy']}: {s['rejected']}" for s in found
                        if "rejected" in s]
@@ -66,6 +71,10 @@ def decide(row, c4, cfg, v, btc_reg, regime_changed, market_ok=True):
         # So estrategias validadas em backtest geram operacoes REAIS. As
         # restantes correm em PAPEL (ou nao correm, conforme a configuracao).
         # min_score = 0 e o proprio backtest: nunca e travado.
+        if cfg["min_score"] > 0 and s["strategy"] in disabled:
+            out["rejected"].append(f"{s['strategy']}: estratégia desligada "
+                                   "(registo ao vivo negativo)")
+            continue
         if cfg["min_score"] > 0:
             st = validation.status(s["strategy"])
             s["validated"] = bool(st.get("validated"))
@@ -203,11 +212,11 @@ def correlation(ca, cb, n=60):
 MAX_CORRELATED, CORR_LIMIT = 2, 0.8
 
 
-def update_state(state, rows, cfg, now, daily=None):
-    """Emite, mantem, expira e invalida sinais. Devolve eventos de auditoria."""
+def track(state, prices, cfg, now):
+    """Acompanha sinais e operacoes abertas com os precos dados.
+    prices: {ativo: preco}. Devolve eventos."""
     sigs = state.setdefault("signals", {})
     events = []
-    by_asset = {r["asset"]: r for r in rows}
 
     def close(key, status, why):
         s = sigs[key]
@@ -216,8 +225,7 @@ def update_state(state, rows, cfg, now, daily=None):
                        "asset": s["asset"], "reason": why})
 
     for key, s in list(sigs.items()):
-        r = by_asset.get(s["asset"])
-        px = r["price"] if r else None
+        px = prices.get(s["asset"])
         if s["status"] == "ACTIVE":
             if px is not None and px <= s["plan"]["stop"]:
                 close(key, "INVALIDATED", "preço atingiu o stop antes da entrada")
@@ -250,6 +258,13 @@ def update_state(state, rows, cfg, now, daily=None):
                 now - s.get("closed_at", now) > 30 * 86400:
             del sigs[key]
 
+    return events
+
+
+def update_state(state, rows, cfg, now, daily=None):
+    """Acompanha, expira, invalida e emite sinais. Devolve eventos."""
+    sigs = state.setdefault("signals", {})
+    events = track(state, {r["asset"]: r["price"] for r in rows}, cfg, now)
     live = {s["asset"] for s in sigs.values()
             if s["status"] in ("ACTIVE", "TRIGGERED")}
     halt = trading_halt(sigs, cfg, now)

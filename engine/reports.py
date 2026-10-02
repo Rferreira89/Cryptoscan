@@ -38,6 +38,15 @@ def daily(res, state):
          f"{(res.get('market_regime') or {}).get('btc')}.",
          f"Analisados {c.get('deep_checked')} ativos: {c.get('long')} com "
          f"sinal, {c.get('watchlist')} em vigilância."]
+    ne = res.get("next_event")
+    if res.get("event_block"):
+        L.append(f"⛔ Sem compras novas: {res['event_block']}.")
+    elif ne:
+        when = datetime.datetime.fromtimestamp(ne["t"], TZ)
+        L.append(f"Próximo evento: {ne['name']}, {when:%d/%m às %H:%M}.")
+    if res.get("calendar_stale"):
+        L.append("⚠️ Calendário de eventos desatualizado: pede-me para o "
+                 "atualizar.")
     if res.get("halt"):
         L.append(f"⛔ Operações suspensas: {res['halt']}.")
     op = _open_lines(state)

@@ -244,14 +244,25 @@ function renderJournal(){
   const rows=J.rows.slice().reverse().map(r=>{
     const res=r.status==="CLOSED"?`<b class="${r.result_r>0?"up":"dn"}">${r.result_r>0?"+":""}${num(r.result_r,2)}R</b>`:r.status==="OPEN"?`TP ${r.tp_hit}/3`:"–";
     const d=new Date(r.issued_at*1000).toLocaleString("pt-PT",{day:"2-digit",month:"2-digit"})+"<br><span style='color:var(--mut)'>"+new Date(r.issued_at*1000).toLocaleString("pt-PT",{hour:"2-digit",minute:"2-digit"})+"</span>";
-    return `<tr><td><b>${esc(r.asset)}</b><br><span style="color:var(--mut)">${esc(SN[r.strategy]||r.strategy)}</span></td><td>${d}</td><td>${r.entry?price(r.entry):price(r.entry_zone[1])}<br><span style="color:var(--mut)">stop ${price(r.stop)}</span></td><td>${r.status==="CLOSED"?res+"<br><span style='color:var(--mut)'>"+esc(RS[r.reason]||r.reason)+"</span>":ST[r.status]+(r.status==="OPEN"?"<br><span style='color:var(--mut)'>"+res+"</span>":"")}</td></tr>`}).join("");
+    return `<tr><td><b>${esc(r.asset)}</b>${r.executed===true?" ✅":r.executed===false?" ❌":""}<br><span style="color:var(--mut)">${esc(SN[r.strategy]||r.strategy)}</span></td><td>${d}</td><td>${r.exec_price?price(r.exec_price):r.entry?price(r.entry):price(r.entry_zone[1])}<br><span style="color:var(--mut)">stop ${price(r.stop)}</span></td><td>${r.status==="CLOSED"?res+"<br><span style='color:var(--mut)'>"+esc(RS[r.reason]||r.reason)+"</span>":ST[r.status]+(r.status==="OPEN"?"<br><span style='color:var(--mut)'>"+res+"</span>":"")}</td></tr>`}).join("");
+  const me=J.mine;
+  const mine=me?`<div class="banner"><b>As tuas execuções</b>${me.closed} fechadas${me.closed?` · acerto ${num(me.win_rate,0)}% · ${me.total_r>0?"+":""}${num(me.total_r,2)}R${c?" · "+(me.capital_pct>0?"+":"")+num(c*me.capital_pct/100,2)+" USDC":""}`:""} · ${me.open} em aberto. Conta só o que marcaste como executado no Telegram, com o teu preço de entrada quando o indicaste.</div>`:`<div class="banner"><b>As tuas execuções</b>Carrega em "Executei" ou "Não executei" nos alertas de compra do Telegram e o registo passa a mostrar a tua conta em separado.</div>`;
   const by=Object.entries(m.by_strategy).map(([k,v])=>`<span class="chip">${esc(SN[k]||k)}: ${v.n} op. · ${v.sum_r>0?"+":""}${num(v.sum_r,2)}R</span>`).join("");
-  $("journal").innerHTML=`<div class="stats">${kp.map(([l,v])=>`<div class="stat"><b>${v}</b><span>${l}</span></div>`).join("")}</div>${svg}${by?`<div class="chips" style="margin-bottom:10px">${by}</div>`:""}${rows?`<div class="tw"><table><tr><th>Operação</th><th>Sinal</th><th>Entrada</th><th>Resultado</th></tr>${rows}</table></div>`:`<div class="banner">Ainda sem operações registadas. Cada sinal fica aqui automaticamente, do alerta à venda.</div>`}<div class="note">Registo automático do que o sistema sinalizou, com preços de mercado no momento de cada scan. Em aberto: ${m.open} · à espera de entrada: ${m.waiting} · cancelados: ${m.cancelled}. Não é o extrato da tua conta.</div>`;
+  $("journal").innerHTML=`<div class="stats">${kp.map(([l,v])=>`<div class="stat"><b>${v}</b><span>${l}</span></div>`).join("")}</div>${mine}${svg}${by?`<div class="chips" style="margin-bottom:10px">${by}</div>`:""}${rows?`<div class="tw"><table><tr><th>Operação</th><th>Sinal</th><th>Entrada</th><th>Resultado</th></tr>${rows}</table></div>`:`<div class="banner">Ainda sem operações registadas. Cada sinal fica aqui automaticamente, do alerta à venda.</div>`}<div class="note">Registo automático do que o sistema sinalizou, com preços de mercado no momento de cada scan. Em aberto: ${m.open} · à espera de entrada: ${m.waiting} · cancelados: ${m.cancelled}. Não é o extrato da tua conta.</div>`;
+}
+function evLine(){
+  let h="";
+  if(D.event_block) h+=`<div class="warn" style="margin-top:6px">Sem compras novas: ${esc(D.event_block)}.</div>`;
+  else if(D.next_event) h+=`<div style="margin-top:6px;color:var(--mut)">Próximo evento: ${esc(D.next_event.name)}, ${hm(D.next_event.t)}. Sem sinais novos das 12 horas antes às 2 horas depois.</div>`;
+  if(D.calendar_stale) h+=`<div class="warn">Calendário de eventos desatualizado.</div>`;
+  const dis=Object.keys(D.disabled_strategies||{});
+  if(dis.length) h+=`<div class="warn">Estratégias desligadas por registo negativo: ${dis.map(k=>esc(STR[k]||k)).join(", ")}.</div>`;
+  return h;
 }
 function renderExtra(){
   renderJournal();
   const m=D.market_filter;
-  $("mf").innerHTML=m?`<b>Filtro de mercado: BTC ${m.btc_above_sma200?`<span class="up">acima</span>`:`<span class="dn">abaixo</span>`} da média de 200 dias</b>Preço ${price(m.close)} contra média ${price(m.sma200)} (${m.distance_pct>0?"+":""}${num(m.distance_pct,1)}%). Foi a única regra que resistiu fora da amostra: ${m.btc_above_sma200?"contexto historicamente favorável a compras.":"contexto em que comprar historicamente perde mais."}`:`<b>Filtro de mercado</b>Sem dados suficientes.`;
+  $("mf").innerHTML=m?`<b>Filtro de mercado: BTC ${m.btc_above_sma200?`<span class="up">acima</span>`:`<span class="dn">abaixo</span>`} da média de 200 dias</b>Preço ${price(m.close)} contra média ${price(m.sma200)} (${m.distance_pct>0?"+":""}${num(m.distance_pct,1)}%). Foi a única regra que resistiu fora da amostra: ${m.btc_above_sma200?"contexto historicamente favorável a compras.":"contexto em que comprar historicamente perde mais."}${evLine()}`:`<b>Filtro de mercado</b>Sem dados suficientes.${evLine()}`;
   const ps=(D.active_signals||[]).filter(s=>s.mode==="PAPER"),tr=D.track_record||{};
   const allTr=Object.entries(tr).map(([k,v])=>`<tr><td>${esc(STR[k.split(":")[1]]||k.split(":")[1])}${k.startsWith("PAPER:")?" (papel)":""}</td><td>${v.n}</td><td>${num(100*v.wins/v.n,0)}%</td><td class="${v.sum_r>0?"up":"dn"}">${v.sum_r>0?"+":""}${num(v.sum_r,2)}R</td></tr>`).join("");
   const sigHtml=(ps.length?`<div class="banner"><b>Setups em papel</b>Simulação, sem dinheiro.</div>${ps.map(paperCard).join("")}`:"")+(allTr?`<div class="tw"><table><tr><th>Registo ao vivo (4H)</th><th>N</th><th>Acerto</th><th>Total</th></tr>${allTr}</table></div>`:"");
@@ -311,7 +322,7 @@ async function load(){
     const r=await fetch(URL_DATA+"?t="+Date.now(),{cache:"no-store"});
     if(!r.ok) throw new Error("HTTP "+r.status);
     D=await r.json();
-    const age=Math.round((Date.now()/1000-D.generated_at)/60);
+    const age=Math.round((Date.now()/1000-Math.max(D.generated_at,D.monitored_at||0))/60);
     const src=Object.entries(D.sources).map(([n,s])=>n+(s.ok?" ✓":" ✗")).join(" · ")+" · Bybit UE"+(D.venue_source&&D.venue_source.ok?" ✓":" ✗");
     $("sub").innerHTML=`Atualizado há ${age} min · ${esc(src)}`+(age>45?` · <span class="warn">dados atrasados</span>`:"");
     const c=D.counts||{};

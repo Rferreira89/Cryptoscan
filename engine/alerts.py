@@ -19,15 +19,18 @@ def configured():
                 and os.environ.get("TELEGRAM_CHAT_ID"))
 
 
-def send(text):
+def send(text, markup=None):
     token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
     chat = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
     if not token:
         raise AlertError("falta o secret TELEGRAM_BOT_TOKEN")
     if not chat:
         raise AlertError("falta o secret TELEGRAM_CHAT_ID")
-    body = urllib.parse.urlencode({"chat_id": chat, "text": text[:4000],
-                                   "disable_web_page_preview": "true"}).encode()
+    params = {"chat_id": chat, "text": text[:4000],
+              "disable_web_page_preview": "true"}
+    if markup:
+        params["reply_markup"] = json.dumps(markup)
+    body = urllib.parse.urlencode(params).encode()
     req = urllib.request.Request(
         f"https://api.telegram.org/bot{token}/sendMessage", data=body)
     try:

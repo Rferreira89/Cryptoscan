@@ -1,5 +1,6 @@
 name: Market Scanner
-# Um job corre em ciclo (scan de 15 em 15 minutos) durante ~5h20 e no fim
+# Um job corre em ciclo (scan completo de 15 em 15 minutos e acompanhamento
+# das operacoes abertas de 5 em 5) durante ~5h20 e no fim
 # relanca-se a si proprio. O agendamento do GitHub e pouco fiavel, por isso
 # serve apenas de vigia: se a cadeia parar, volta a arranca-la.
 on:
@@ -29,34 +30,44 @@ jobs:
           PUSH_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
         run: |
           END=$(( $(date +%s) + 5*3600 + 20*60 ))
+          publish() {
+            ( cd out && git init -q -b data \
+              && git config user.name cryptoscan-bot \
+              && git config user.email bot@users.noreply.github.com \
+              && git add scan.json state.json \
+              && { [ -f resumo.txt ] && git add resumo.txt || true; } \
+              && { [ -f audit.jsonl ] && git add audit.jsonl || true; } \
+              && git commit -q -m "$1 $(date -u +%FT%TZ)" \
+              && git push -q -f "$PUSH_URL" data:data ) || echo "publicacao falhou"
+          }
           while [ "$(date +%s)" -lt "$END" ]; do
-            echo "::group::scan $(date -u +%FT%TZ)"
+            NOW=$(date +%s)
+            # scan completo de 15 em 15 minutos; nos outros 5 minutos, so
+            # acompanhamento das operacoes abertas
+            if [ $(( NOW % 900 )) -lt 300 ]; then MODE=scan; else MODE=monitor; fi
+            echo "::group::$MODE $(date -u +%FT%TZ)"
             # codigo mais recente em cada ciclo
             git fetch -q origin main && git reset -q --hard FETCH_HEAD || true
             # paragem de emergencia: um ficheiro STOP na raiz do repositorio
             if [ -f STOP ]; then echo "STOP encontrado: scanner parado"; echo "::endgroup::"; break; fi
             rm -rf out && mkdir out
             OK=1
-            # estado anterior (sinais ativos, registo de auditoria)
+            # estado anterior (sinais ativos, registo, ultimo scan)
             if git ls-remote --exit-code -q origin refs/heads/data >/dev/null 2>&1; then
               if git fetch -q origin data; then
-                for f in state.json audit.jsonl; do
+                for f in state.json audit.jsonl scan.json resumo.txt; do
                   git show "FETCH_HEAD:$f" > "out/$f" 2>/dev/null || rm -f "out/$f"
                 done
               else
                 echo "nao foi possivel ler o estado anterior: ciclo ignorado"; OK=0
               fi
             fi
-            if [ "$OK" = 1 ] && python -m unittest discover -q -s tests -t . ; then
+            if [ "$OK" = 1 ] && [ "$MODE" = monitor ]; then
+              python -m engine.monitor out && publish monitor || echo "monitor falhou"
+            elif [ "$OK" = 1 ] && python -m unittest discover -q -s tests -t . ; then
               if python -m engine.run out > /dev/null; then
                 head -12 out/resumo.txt
-                ( cd out && git init -q -b data \
-                  && git config user.name cryptoscan-bot \
-                  && git config user.email bot@users.noreply.github.com \
-                  && git add scan.json resumo.txt state.json \
-                  && { [ -f audit.jsonl ] && git add audit.jsonl || true; } \
-                  && git commit -q -m "scan $(date -u +%FT%TZ)" \
-                  && git push -q -f "$PUSH_URL" data:data ) || echo "publicacao falhou"
+                publish scan
               else
                 echo "scan falhou: nada publicado"
               fi
@@ -65,7 +76,7 @@ jobs:
             fi
             echo "::endgroup::"
             NOW=$(date +%s)
-            sleep $(( 900 - NOW % 900 + 20 ))
+            sleep $(( 300 - NOW % 300 + 20 ))
           done
       - name: Relancar
         if: always()
