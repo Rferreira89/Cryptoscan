@@ -201,7 +201,7 @@ function sigCard(s){
   const e=s.explain,trig=s.status==="TRIGGERED";
   return `<div class="op"><h3>${esc(s.asset)} · COMPRA <span class="tag">${trig?"operação aberta":"à espera de entrada"}</span></h3>
   <div class="meta">${esc(STR[s.strategy]||s.strategy)} · ${esc(s.timeframe)} · regime ${esc(s.regime)} · score ${s.score}/100 · emitido ${hm(s.issued_at)}${trig?"":" · válido até "+hm(s.expires_at)}</div>
-  <div class="bybit" data-pair="${esc(s.pair)}"></div>
+  <div class="bybit" data-pair="${esc(s.pair)}" data-pos="${s.plan.position_pct}" data-entry="${s.plan.entry_ref}" data-asset="${esc(s.asset)}"></div>
   ${planSteps(s.plan,s.pair)}
   <div class="why"><span>Porquê:</span> ${esc(e.why)}</div>
   <div class="why"><span>Porquê agora:</span> ${esc(e.why_now)}</div>
@@ -225,7 +225,7 @@ function watchCard(r){
   const d=r.decision;
   return `<div class="op wait"><h3>${esc(r.asset)} · A VIGIAR</h3>
   <div class="meta">${esc(STR[d.strategy]||d.strategy)} · regime ${esc(d.regime)} · score ${d.score}/100</div>
-  <div class="bybit" data-pair="${esc(d.venue.pair)}"></div>
+  <div class="bybit" data-pair="${esc(d.venue.pair)}" data-pos="${d.plan.position_pct}" data-entry="${d.plan.entry_ref}" data-asset="${esc(r.asset)}"></div>
   <div><b>Gatilho:</b> ${esc(d.reason)}</div>
   <div class="why"><span>Contexto:</span> ${esc(d.notes.join("; "))}</div>
   <div class="why"><span>Plano indicativo se o gatilho ocorrer:</span> entrada ${price(d.plan.entry_zone[0])}–${price(d.plan.entry_zone[1])}, stop ${price(d.plan.stop)}, TP1 ${price(d.plan.tp[0])}, R:R 1:${num(d.plan.rr,2)}, alavancagem ${d.plan.leverage&&d.plan.leverage.use>1?d.plan.leverage.use+"x":"1x"}${d.plan.leverage&&d.plan.leverage.reason?" ("+esc(d.plan.leverage.reason)+")":""}</div>
@@ -247,7 +247,17 @@ async function fillBybit(){
   for(const el of document.querySelectorAll(".bybit")){
     try{
       const b=await bybitInfo(el.dataset.pair);
-      el.innerHTML=`<div class="why" style="margin:0 0 6px"><span>Bybit UE agora:</span> ${price(b.last)} (compra ${price(b.bid)} · venda ${price(b.ask)}) · passo de preço ${esc(b.tick)} · ordem mínima ${esc(b.minAmt)} USDC · quantidade em múltiplos de ${esc(b.step)}</div>`;
+      const row=(D.universe||[]).find(x=>x.asset===el.dataset.asset),g=row?row.price:null;
+      const dif=g?(b.last/g-1)*100:null;
+      let extra="";
+      if(dif!=null) extra+=` · diferença para o preço global ${dif>0?"+":""}${num(dif,2)}%`+(Math.abs(dif)>0.5?` <span class="warn">(elevada: confirma os níveis antes de entrar)</span>`:"");
+      const c=capital(),pos=+el.dataset.pos,entry=+el.dataset.entry,step=+b.step;
+      if(c&&pos&&entry&&step>0){
+        const usdc=c*pos/100,dec=(String(b.step).split(".")[1]||"").length;
+        const qty=Math.floor(usdc/entry/step)*step;
+        extra+=`<br><span>Para o teu capital:</span> ${num(usdc,2)} USDC ≈ <b>${qty.toFixed(dec)}</b> ${esc(el.dataset.asset)}`+(usdc<+b.minAmt?` <span class="warn">— abaixo da ordem mínima de ${esc(b.minAmt)} USDC: esta operação não é executável com este capital.</span>`:"");
+      }
+      el.innerHTML=`<div class="why" style="margin:0 0 6px"><span>Bybit UE agora:</span> ${price(b.last)} (compra ${price(b.bid)} · venda ${price(b.ask)}) · passo de preço ${esc(b.tick)} · ordem mínima ${esc(b.minAmt)} USDC${extra}</div>`;
     }catch(e){byFail=true;el.innerHTML="";}
   }
   const n=$("bynote");if(n) n.textContent=byFail?"Leitura direta da Bybit UE indisponível neste browser; os níveis vêm dos mercados globais.":"";
@@ -367,7 +377,7 @@ async function load(){
 $("list").addEventListener("click",e=>{const row=e.target.closest(".row");if(!row||!e.target.closest(".head"))return;const a=row.dataset.a;open.has(a)?open.delete(a):open.add(a);row.classList.toggle("open")});
 ["q","sort","flt"].forEach(i=>$(i).addEventListener("input",render));
 try{$("cap").value=localStorage.getItem("capital")||""}catch(e){}
-$("cap").addEventListener("input",()=>{try{localStorage.setItem("capital",$("cap").value)}catch(e){}$("capnote").textContent=capital()?"guardado só neste telemóvel":"";if(D){renderOps();renderJournal()}});
+$("cap").addEventListener("input",()=>{try{localStorage.setItem("capital",$("cap").value)}catch(e){}$("capnote").textContent=capital()?"guardado só neste telemóvel":"";if(D){renderOps();renderJournal();fillBybit()}});
 load();setInterval(load,60000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)load()});
 </script>
