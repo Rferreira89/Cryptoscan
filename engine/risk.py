@@ -36,6 +36,63 @@ def leverage_for(stop_frac, cfg):
     return {"use": use, "max_safe": max_safe, "needed": 1.0}
 
 
+def sizing(stop_pct, stop_frac, entry, cfg, short=False):
+    """Dimensao, alavancagem, valores em USDC e esquema de saidas.
+    Devolve (dict, None) ou (None, motivo)."""
+    lev = leverage_for(stop_frac, cfg)
+    # com alavancagem L a posicao e o risco sao L vezes maiores; o capital
+    # proprio em jogo (colateral) fica dentro do teto por posicao
+    size_pct = min(cfg["risk_pct"] * lev["use"] / stop_pct * 100,
+                   cfg["max_position_pct"] * lev["use"])
+
+    def lev_fields():
+        if lev["use"] <= 1:
+            liq = None
+        elif short:                      # short liquida com a subida
+            liq = entry * (1 + 1 / lev["use"] - MMR)
+        else:
+            liq = entry * (1 - 1 / lev["use"] + MMR)
+        return dict(lev, collateral_pct=round(size_pct / lev["use"], 1),
+                    borrowed_pct=round(size_pct - size_pct / lev["use"], 1),
+                    liquidation_est=liq)
+
+    partials, usdc = [50, 30, 20], {}
+    cap = cfg.get("capital_usdc")
+    fixed = cfg.get("fixed_position_usdc")
+    if cap and fixed:
+        # posicao fixa: o risco e o que a distancia do stop ditar
+        size_pct = min(fixed, cap * lev["use"]) / cap * 100
+        risk_usdc = cap * size_pct / 100 * stop_pct / 100
+        if risk_usdc > cfg.get("max_risk_usdc", float("inf")) + 1e-9:
+            return None, (f"stop demasiado largo para uma posição de "
+                          f"{fixed:g} USDC: risco de {risk_usdc:.2f} USDC "
+                          f"acima do limite de {cfg['max_risk_usdc']:g}")
+    if cap:
+        pos_usdc = cap * size_pct / 100
+        mn = cfg.get("min_order_usdc", 5.0)
+        if 0.9 * mn <= pos_usdc < mn:
+            # a centimos do minimo: arredonda para a ordem minima (o risco
+            # sobe no maximo 10% do seu valor, p. ex. de 0.50% para 0.55%)
+            size_pct = mn / cap * 100
+            pos_usdc = mn
+        if pos_usdc < mn:
+            return None, (f"posição de {pos_usdc:.2f} USDC abaixo da ordem "
+                          f"mínima de {mn:g} USDC com o capital atual")
+        # saidas parciais so quando cada parte e executavel na corretora
+        if 0.2 * pos_usdc >= mn:
+            partials = [50, 30, 20]
+        elif 0.5 * pos_usdc >= mn:
+            partials = [50, 50, 0]
+        else:
+            partials = [0, 100, 0]
+        usdc = {"position_usdc": round(pos_usdc, 2),
+                "collateral_usdc": round(pos_usdc / lev["use"], 2),
+                "borrowed_usdc": round(pos_usdc - pos_usdc / lev["use"], 2),
+                "risk_usdc": round(pos_usdc * stop_pct / 100, 2)}
+    return {"leverage": lev_fields(), "usdc": usdc, "size_pct": size_pct,
+            "partials": partials}, None
+
+
 def plan(setup, a4, a1, cfg):
     """Devolve (plano, None) ou (None, motivo)."""
     fee = cfg["fee_pct"] / 100
@@ -73,54 +130,11 @@ def plan(setup, a4, a1, cfg):
     if rr < cfg["min_rr"] - 1e-9:
         return None, f"POOR R:R: {rr:.2f} abaixo do mínimo {cfg['min_rr']}"
     stop_pct = risk_unit / entry * 100
-    lev = leverage_for(dist / entry, cfg)
-    # com alavancagem L a posicao e o risco sao L vezes maiores; o capital
-    # proprio em jogo (colateral) fica dentro do teto por posicao
-    size_pct = min(cfg["risk_pct"] * lev["use"] / stop_pct * 100,
-                   cfg["max_position_pct"] * lev["use"])
-    leverage = dict(lev, collateral_pct=round(size_pct / lev["use"], 1),
-                    borrowed_pct=round(size_pct - size_pct / lev["use"], 1),
-                    liquidation_est=entry * (1 - 1 / lev["use"] + MMR)
-                    if lev["use"] > 1 else None)
-    partials, be_note, usdc = [50, 30, 20], None, {}
-    cap = cfg.get("capital_usdc")
-    fixed = cfg.get("fixed_position_usdc")
-    if cap and fixed:
-        # posicao fixa: o risco e o que a distancia do stop ditar
-        size_pct = min(fixed, cap * lev["use"]) / cap * 100
-        risk_usdc = cap * size_pct / 100 * stop_pct / 100
-        if risk_usdc > cfg.get("max_risk_usdc", float("inf")) + 1e-9:
-            return None, (f"stop demasiado largo para uma posição de "
-                          f"{fixed:g} USDC: risco de {risk_usdc:.2f} USDC "
-                          f"acima do limite de {cfg['max_risk_usdc']:g}")
-        leverage.update(
-            collateral_pct=round(size_pct / lev["use"], 1),
-            borrowed_pct=round(size_pct - size_pct / lev["use"], 1))
-    if cap:
-        pos_usdc = cap * size_pct / 100
-        mn = cfg.get("min_order_usdc", 5.0)
-        if 0.9 * mn <= pos_usdc < mn:
-            # a centimos do minimo: arredonda para a ordem minima (o risco
-            # sobe no maximo 10% do seu valor, p. ex. de 0.50% para 0.55%)
-            size_pct = mn / cap * 100
-            pos_usdc = mn
-            leverage.update(
-                collateral_pct=round(size_pct / lev["use"], 1),
-                borrowed_pct=round(size_pct - size_pct / lev["use"], 1))
-        if pos_usdc < mn:
-            return None, (f"posição de {pos_usdc:.2f} USDC abaixo da ordem "
-                          f"mínima de {mn:g} USDC com o capital atual")
-        # vendas parciais so quando cada parte e executavel na corretora
-        if 0.2 * pos_usdc >= mn:
-            partials = [50, 30, 20]
-        elif 0.5 * pos_usdc >= mn:
-            partials = [50, 50, 0]
-        else:
-            partials = [0, 100, 0]
-        usdc = {"position_usdc": round(pos_usdc, 2),
-                "collateral_usdc": round(pos_usdc / lev["use"], 2),
-                "borrowed_usdc": round(pos_usdc - pos_usdc / lev["use"], 2),
-                "risk_usdc": round(pos_usdc * stop_pct / 100, 2)}
+    sz, why = sizing(stop_pct, dist / entry, entry, cfg)
+    if sz is None:
+        return None, why
+    leverage, usdc, size_pct, partials = (sz["leverage"], sz["usdc"],
+                                          sz["size_pct"], sz["partials"])
     return {"leverage": leverage, **usdc,
             "entry_zone": [lo, hi], "entry_ref": entry, "stop": stop,
             "tp": tps, "tp_projected": projected,

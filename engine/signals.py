@@ -19,7 +19,7 @@ def _fmt(x):
 
 
 def decide(row, c4, cfg, v, btc_reg, regime_changed, market_ok=True,
-           block=None, disabled=()):
+           block=None, disabled=(), suffix=""):
     """Devolve o bloco 'decision' de um ativo."""
     checks, out = [], {"decision": "NO TRADE", "validated": False}
 
@@ -53,9 +53,11 @@ def decide(row, c4, cfg, v, btc_reg, regime_changed, market_ok=True,
 
     if cfg["min_score"] > 0 and cfg.get("require_btc_above_sma200") \
             and not market_ok:
-        chk(3, "filtro de mercado", False, "BTC abaixo da média de 200 dias")
-        return stop("filtro de mercado: BTC abaixo da média de 200 dias, "
-                    "sem compras novas")
+        side_txt = ("BTC acima da média de 200 dias, sem shorts novos"
+                    if suffix else
+                    "BTC abaixo da média de 200 dias, sem compras novas")
+        chk(3, "filtro de mercado", False, side_txt)
+        return stop("filtro de mercado: " + side_txt)
 
     if cfg["min_score"] > 0 and block:
         chk(3, "risco de evento", False, block)
@@ -71,12 +73,12 @@ def decide(row, c4, cfg, v, btc_reg, regime_changed, market_ok=True,
         # So estrategias validadas em backtest geram operacoes REAIS. As
         # restantes correm em PAPEL (ou nao correm, conforme a configuracao).
         # min_score = 0 e o proprio backtest: nunca e travado.
-        if cfg["min_score"] > 0 and s["strategy"] in disabled:
+        if cfg["min_score"] > 0 and s["strategy"] + suffix in disabled:
             out["rejected"].append(f"{s['strategy']}: estratégia desligada "
                                    "(registo ao vivo negativo)")
             continue
         if cfg["min_score"] > 0:
-            st = validation.status(s["strategy"])
+            st = validation.status(s["strategy"] + suffix)
             s["validated"] = bool(st.get("validated"))
             s["mode"] = "REAL" if s["validated"] or \
                 cfg.get("real_money_unvalidated") else "PAPER"
@@ -130,7 +132,8 @@ def decide(row, c4, cfg, v, btc_reg, regime_changed, market_ok=True,
         return stop(fails[0])
     _, _, s, p, sc = best
     ready = s["state"] == "READY"
-    out.update(strategy=s["strategy"], state=s["state"], trigger=s["trigger"],
+    out.update(strategy=s["strategy"] + suffix, state=s["state"],
+               trigger=s["trigger"],
                mode=s.get("mode", "REAL"),
                notes=s["notes"], score=sc["score"], score_label=sc["label"],
                families=sc["families"], conflicts=sc["conflicts"],
@@ -186,6 +189,54 @@ def operation_leverage(cfg, plan, sc, reg, a1, btc_reg, is_btc):
     return base, "condições normais: tendência a favor e sem conflitos"
 
 
+def decide_short(row, c1, c4, cfg, v, btc_reg_m, regime_changed, market_ok,
+                 block, disabled):
+    """Decisao de short: corre decide() sobre as velas invertidas e converte
+    o plano para precos reais. Devolve o bloco de decisao (ou None)."""
+    from . import analysis, liquidity, short, volume
+    if not c1 or not c4 or not v or not v.get("last"):
+        return None
+    m1, m4 = short.mirror(c1), short.mirror(c4)
+    am = analysis.multi({"1d": m1, "4h": m4})
+    for tf, cm in (("1d", m1), ("4h", m4)):
+        if am[tf]["ok"]:
+            am[tf]["volume"] = volume.analyse(cm)
+            am[tf]["liquidity"] = liquidity.analyse(cm)
+    rm = dict(row, price=1 / row["price"], analysis=am, derivatives=None)
+    vm = dict(v, last=1 / v["last"])
+    d = decide(rm, m4, cfg, vm, btc_reg_m, regime_changed, market_ok, block,
+               disabled, suffix=short.SUFFIX)
+    d["side"] = "SHORT"
+    d["venue"] = {"name": cfg["venue"], "pair": v["pair"], "last": v["last"],
+                  "spread_pct": v["spread_pct"], "url": v["url"]}
+    if d.get("regime"):
+        # BULL no espelho e descida no preco real: mostra-se o regime real
+        flip = {"STRONG BULL": "STRONG BEAR", "BULL": "BEAR", "BEAR": "BULL",
+                "STRONG BEAR": "STRONG BULL"}
+        d["regime_mirror"] = d["regime"]
+        d["regime"] = flip.get(d["regime"], d["regime"])
+    if not d.get("plan"):
+        return d
+    lev_use = d["plan"]["leverage"]["use"]
+    p, why = short.real_plan(d["plan"], cfg, lev_use)
+    if p is None:
+        d.pop("plan")
+        d.update(decision="NO TRADE", reason=why)
+        return d
+    base = d["strategy"][:-len(short.SUFFIX)]
+    trig, notes = short.texts(base, d["state"], p["entry_zone"],
+                              strategies.px_str)
+    d.update(plan={k: ([_fmt(x) for x in val] if k in ("entry_zone", "tp")
+                       else _fmt(val) if k in ("entry_ref", "stop") else val)
+                   for k, val in p.items()},
+             trigger=trig, notes=notes)
+    if d["decision"] == "LONG":
+        d.update(decision="SHORT", reason=trig)
+    elif d["decision"] == "WATCHLIST" and d.get("state") == "WAITING":
+        d["reason"] = trig
+    return d
+
+
 def explain(row):
     """Explicacao humana do sinal (WHY / WHY NOW / ...)."""
     d, an = row["decision"], row["analysis"]
@@ -196,7 +247,9 @@ def explain(row):
         "why": "; ".join(d["notes"]) + f". Regime diário {d['regime']}.",
         "why_now": d["trigger"],
         "confirms": [k for k, v in d["families"].items() if v >= 0.7],
-        "invalidates": f"fecho de 4H abaixo de {strategies.px_str(p['stop'])}",
+        "invalidates": ("fecho de 4H acima de " if d.get("decision") == "SHORT"
+                        or p.get("side") == "SHORT" else "fecho de 4H abaixo de ")
+        + strategies.px_str(p["stop"]),
         "main_risk": (d["conflicts"][0] if d["conflicts"] else
                       f"ponto mais fraco da confluência: {weakest}"),
         "would_change": ("perda da estrutura de 4H, mudança do regime diário "
@@ -258,17 +311,23 @@ def track(state, prices, cfg, now):
 
     for key, s in list(sigs.items()):
         px = prices.get(s["asset"])
+        side = s.get("direction", "LONG")
+        d = 1 if side == "LONG" else -1
         if s["status"] == "ACTIVE":
-            if px is not None and px <= s["plan"]["stop"]:
+            pl = s["plan"]
+            # compra entra quando o preco desce ate ao topo da zona; short
+            # entra quando o preco sobe ate a base da zona
+            edge = pl["entry_zone"][1] if d == 1 else pl["entry_zone"][0]
+            if px is not None and d * (px - pl["stop"]) <= 0:
                 close(key, "INVALIDATED", "preço atingiu o stop antes da entrada")
-            elif px is not None and px > s["plan"]["tp"][0]:
+            elif px is not None and d * (px - pl["tp"][0]) > 0:
                 close(key, "INVALIDATED", "preço chegou ao TP1 sem dar entrada")
             elif now >= s["expires_at"]:
                 close(key, "EXPIRED", "validade do sinal terminou")
-            elif px is not None and px <= s["plan"]["entry_zone"][1]:
+            elif px is not None and d * (px - edge) <= 0:
                 s.update(status="TRIGGERED", triggered_at=now,
                          position=trade.open_position(
-                             s["plan"], px, now, cfg["fee_pct"]))
+                             pl, px, now, cfg["fee_pct"], side=side))
                 events.append({"t": now, "event": "TRIGGERED", "id": key,
                                "asset": s["asset"], "price": px})
         elif s["status"] == "TRIGGERED" and px is not None:
@@ -303,7 +362,7 @@ def update_state(state, rows, cfg, now, daily=None):
     state["halt"] = halt
     if halt:
         for r in rows:
-            if r["decision"]["decision"] == "LONG":
+            if r["decision"]["decision"] in ("LONG", "SHORT"):
                 r["decision"].update(decision="NO TRADE",
                                      reason="TRADING HALTED: " + halt)
 
@@ -314,11 +373,16 @@ def update_state(state, rows, cfg, now, daily=None):
     trend_open = len(state.get("paper_trend", {}).get("positions", {}))
     slots = {m: cfg["max_open_positions"] - used(m)
              - (trend_open if m == "REAL" else 0) for m in ("REAL", "PAPER")}
-    cands = sorted((r for r in rows if r["decision"]["decision"] == "LONG"
+    cands = sorted((r for r in rows
+                    if r["decision"]["decision"] in ("LONG", "SHORT")
                     and r["asset"] not in live),
                    key=lambda r: -r["decision"]["score"])
     for r in cands:
         d = r["decision"]
+        if r["asset"] in live:               # uma operacao por ativo
+            d.update(decision="WATCHLIST",
+                     reason="já há uma operação em curso neste ativo")
+            continue
         # exposicao efetiva: posicoes muito correlacionadas sao o mesmo risco
         held = live | set(state.get("paper_trend", {}).get("positions", {}))
         corr = {}
@@ -339,7 +403,7 @@ def update_state(state, rows, cfg, now, daily=None):
         live.add(r["asset"])
         key = f"{r['asset']}-{d['strategy']}-{now}"
         sig = {"id": key, "asset": r["asset"], "pair": d["venue"]["pair"],
-               "venue": d["venue"]["name"], "direction": "LONG",
+               "venue": d["venue"]["name"], "direction": d["decision"],
                "strategy": d["strategy"], "timeframe": "4H / 1D",
                "plan": d["plan"], "score": d["score"],
                "score_label": d["score_label"], "regime": d["regime"],

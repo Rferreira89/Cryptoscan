@@ -44,6 +44,10 @@ DEFAULTS = {
     # pelo risco (risk_pct).
     "fixed_position_usdc": 25.0,
     "max_risk_usdc": 2.0,
+    # Decisao do utilizador (2026-10-02): sinais de short (venda a
+    # descoberto em margem spot). So com o BTC ABAIXO da media de 200 dias,
+    # o espelho exato da regra das compras.
+    "shorts": True,
     # Sem compras novas com o BTC abaixo da media de 200 dias
     "require_btc_above_sma200": True,
     # Travao de perdas (em R, soma das operacoes fechadas)

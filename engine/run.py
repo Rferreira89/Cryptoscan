@@ -32,6 +32,14 @@ def summary(res):
     L.append(f"REGIME BTC {res['market_regime']['btc']}")
     for r in res["universe"]:
         d = r["decision"]
+        ds = r.get("decision_short")
+        if ds and ds.get("plan"):
+            ps = ds["plan"]
+            L.append(f"  {r['asset']:8s} SHORT? {ds['decision']:9s} "
+                     f"{ds.get('strategy')} {ds.get('state')} score "
+                     f"{ds.get('score')} | zona {ps['entry_zone']} stop "
+                     f"{ps['stop']} tp {ps['tp']} rr {ps['rr']} risco "
+                     f"{ps.get('risk_usdc')} | {ds.get('reason')}")
         L.append(f"  {r['asset']:8s} {d['decision']:9s} {d.get('mode', '-'):5s} "
                  f"{d.get('regime', '-'):11s} {d.get('strategy', '-'):16s} "
                  f"{d.get('state', '-'):8s} score {d.get('score', '-')} | "
@@ -113,6 +121,63 @@ def paper_text(e, s, head, note):
     return None
 
 
+def short_text(e, s, head, note):
+    """Alertas de short: vender emprestado, recomprar mais baixo."""
+    p, k = s["plan"], e["event"]
+    lev = p.get("leverage") or {}
+    if k == "ISSUED":
+        parts = p.get("partials", [50, 30, 20])
+        buys = " · ".join(f"TP{i + 1} {_px(p['tp'][i])} (recomprar {parts[i]}%)"
+                          for i in range(3) if parts[i] > 0)
+        if parts[0] == 0:
+            buys += (f"\nAo chegar a {_px(p['tp'][0])}, desce o stop para o "
+                     "preço de entrada (sem recomprar)")
+        usdc = p.get("position_usdc")
+        amt = f"{usdc:.2f} USDC" if usdc else f"{p['position_pct']}% do capital"
+        why = f" — {lev['reason']}" if lev.get("reason") else ""
+        liq = (f"\nLiquidação estimada perto de {_px(lev['liquidation_est'])} "
+               "(confirma na Bybit)" if lev.get("liquidation_est") else "")
+        return (f"🔻 SHORT — {head}\n"
+                f"{s['strategy']} · {s['timeframe']} · score {s['score']}/100\n"
+                f"Margem spot: pedir {s['asset']} emprestado e VENDER, com "
+                f"ordem limite entre {_px(p['entry_zone'][0])} e "
+                f"{_px(p['entry_zone'][1])}\n"
+                f"Alavancagem: {lev.get('use', 1):g}x{why}\n"
+                f"Posição: vender o equivalente a {amt} (risco {p['risk_pct']}%)"
+                f"{liq}\n"
+                f"Stop (recompra): {_px(p['stop'])} (+{p['stop_pct']}%), ACIMA "
+                "da entrada\n"
+                f"{buys}\n"
+                f"R:R 1:{p['rr']} · válido 12h\n{note}")
+    if k == "TRIGGERED":
+        return (f"🔵 ENTRADA (short) — {head}\nPreço entrou na zona de venda "
+                f"({_px(e['price'])}). Coloca o stop de recompra em "
+                f"{_px(p['stop'])}.")
+    if k in ("TP1", "TP2", "TP3"):
+        if "r" in e:
+            return (f"🟢 RECOMPRA FINAL — {head}\n{k} atingido em "
+                    f"{_px(e['price'])}: recomprar o resto e devolver o "
+                    f"empréstimo. Resultado: {e['r']:+.2f}R.")
+        if not e["sold_pct"]:
+            return (f"🟠 STOP PARA A ENTRADA — {head}\n{k} atingido em "
+                    f"{_px(e['price'])}: não recompres, desce só o stop para "
+                    "o teu preço de entrada.")
+        extra = " Desce o stop para o preço de entrada." if k == "TP1" else ""
+        return (f"🟠 RECOMPRA PARCIAL — {head}\n{k} atingido em "
+                f"{_px(e['price'])}: recomprar {e['sold_pct']:.0f}% da "
+                f"posição.{extra}")
+    if k in ("STOP", "BREAKEVEN", "TIME"):
+        txt = {"STOP": "Stop atingido", "BREAKEVEN": "Stop na entrada atingido",
+               "TIME": "Tempo máximo (30 dias) atingido"}[k]
+        return (f"🔴 RECOMPRA — {head}\n{txt} em {_px(e['price'])}: recomprar "
+                "tudo e devolver o empréstimo. "
+                f"Resultado: {e['r']:+.2f}R.")
+    if k in ("EXPIRED", "INVALIDATED"):
+        return (f"⚪ CANCELAR — {head}\n{e['reason']}. Cancela a ordem de "
+                "venda se ainda estiver aberta.")
+    return None
+
+
 def alert_text(e, sigs, note):
     """Texto do Telegram para um evento. None = não notificar."""
     k = e["event"]
@@ -125,7 +190,8 @@ def alert_text(e, sigs, note):
                    if e["above"] else
                    "Historicamente é o contexto em que comprar perde mais."))
     if k == "WATCH":
-        return (f"👀 PREPARA — {e['asset']} ({e['pair']}) · {e['strategy']}\n"
+        tag = "PREPARA (short)" if e.get("side") == "SHORT" else "PREPARA"
+        return (f"👀 {tag} — {e['asset']} ({e['pair']}) · {e['strategy']}\n"
                 f"Ainda não é sinal. Gatilho: {e['trigger']}.\n"
                 f"Se acontecer: entrada {_px(e['entry'][0])} a "
                 f"{_px(e['entry'][1])}, stop {_px(e['stop'])}, "
@@ -172,6 +238,8 @@ def alert_text(e, sigs, note):
     head = f"{s['asset']} ({s['pair']}, {s['venue']})"
     if s.get("mode") == "PAPER":
         return paper_text(e, s, head, note)
+    if s.get("direction") == "SHORT":
+        return short_text(e, s, head, note)
     if k == "ISSUED":
         return (f"🟢 COMPRA — {head}\n"
                 f"{s['strategy']} · {s['timeframe']} · score {s['score']}/100\n"

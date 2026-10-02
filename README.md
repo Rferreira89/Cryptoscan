@@ -1,6 +1,6 @@
 # Cryptoscan — motor de análise e sinais
 
-Scanner de criptomoedas para operar em **spot na Bybit UE** (pares em USDC, só compras, sem alavancagem). Corre sozinho no GitHub Actions de 15 em 15 minutos.
+Scanner de criptomoedas para operar em **spot e margem spot na Bybit UE** (pares em USDC). Corre sozinho no GitHub Actions de 15 em 15 minutos.
 
 - Página: https://rferreira89.github.io/Cryptoscan/scanner/
 - Dados publicados: ramo `data` (`scan.json`, `state.json`, `audit.jsonl`, `resumo.txt`)
@@ -14,6 +14,7 @@ Por decisão do utilizador (2026-10-02, `real_money_unvalidated` em `engine/conf
 
 - posição fixa de 25 USDC por operação (decisão do utilizador), no máximo 2 operações em simultâneo incluindo a tendência diária; o risco depende do stop e uma operação com risco acima de 2 USDC não é emitida. `{"fixed_position_usdc": null}` volta à dimensão pelo risco
 - alavancagem de swing (`swing_leverage`, 2x por decisão do utilizador): multiplica a posição e o risco, limitada ao valor que mantém a liquidação estimada a pelo menos 2,5 vezes a distância do stop, com teto de 3x. `{"swing_leverage": 1}` desliga-a
+- shorts em margem spot (`shorts`, por decisão do utilizador): espelho das estratégias de compra (`engine/short.py`), só com o BTC abaixo da média de 200 dias. No backtest deram −0,22R por operação, igual às compras. `{"shorts": false}` desliga-os
 - sem compras novas com o BTC abaixo da média de 200 dias
 - travão de perdas: −3R num dia, −6R numa semana ou 3 perdas seguidas suspendem sinais novos
 - cada alerta traz o registo da estratégia no backtest

@@ -10,7 +10,7 @@ import statistics
 import time
 from concurrent.futures import ThreadPoolExecutor
 
-from . import (analysis, config, derivatives, events as calendar, ledger,
+from . import (analysis, config, derivatives, events as calendar, ledger, short,
                liquidity, paper_trend, regime, review,
                signals,
                sources, validate, venue, volume)
@@ -255,6 +255,14 @@ def run(now=None, state=None, cfg=None):
     result.update(next_event=calendar.next_event(now), event_block=block,
                   calendar_stale=calendar.stale(now),
                   disabled_strategies=disabled)
+    # regime do BTC no espelho (para os shorts de altcoins)
+    btc_reg_m, c4s = None, {r["asset"]: r.get("_c4") for r in eligible}
+    if cfg.get("shorts") and daily.get("BTC") and \
+            len(daily["BTC"]) >= analysis.MIN_BARS:
+        btc_reg_m = regime.classify(
+            analysis.timeframe(short.mirror(daily["BTC"])))["regime"]
+    short_ok = bool(result["market_filter"]
+                    and not result["market_filter"]["btc_above_sma200"])
     for r in eligible:
         c4 = r.pop("_c4", None)
         if ven is None:
@@ -269,7 +277,15 @@ def run(now=None, state=None, cfg=None):
             r["decision"] = signals.decide(r, c4, cfg, ven.get(r["asset"]),
                                            btc_reg, changed.get(r["asset"], False),
                                            market_ok, ab, set(disabled))
-    events += signals.update_state(state, eligible, cfg, now, daily)
+            if cfg.get("shorts") and r.get("analysis"):
+                r["decision_short"] = signals.decide_short(
+                    r, daily.get(r["asset"]), c4, cfg, ven.get(r["asset"]),
+                    btc_reg_m, changed.get(r["asset"], False), short_ok, ab,
+                    set(disabled))
+    # os shorts entram como linhas proprias no ciclo de vida dos sinais
+    both = eligible + [dict(r, decision=r["decision_short"])
+                       for r in eligible if r.get("decision_short")]
+    events += signals.update_state(state, both, cfg, now, daily)
     result["halt"] = state.get("halt")
     result["paper_trend"], ev = paper_trend.update(
         state, eligible, daily, cfg, now, market_ok,
@@ -280,7 +296,7 @@ def run(now=None, state=None, cfg=None):
     seen = state.setdefault("watch_alerted", {})
     for k in [k for k, t in seen.items() if now - t > 86400]:
         del seen[k]
-    for r in eligible:
+    for r in both:
         d = r["decision"]
         if d["decision"] == "WATCHLIST" and d.get("state") == "WAITING" \
                 and d.get("plan") and d.get("mode") == "REAL":
@@ -289,6 +305,7 @@ def run(now=None, state=None, cfg=None):
                 seen[key] = now
                 events.append({"t": now, "event": "WATCH", "id": f"watch-{key}",
                                "asset": r["asset"], "pair": d["venue"]["pair"],
+                               "side": d.get("side", "LONG"),
                                "strategy": d["strategy"], "trigger": d["trigger"],
                                "entry": d["plan"]["entry_zone"],
                                "stop": d["plan"]["stop"],
@@ -316,6 +333,10 @@ def run(now=None, state=None, cfg=None):
                 "long": sum(r["decision"]["decision"] == "LONG"
                             and r["decision"].get("mode") == "REAL"
                             for r in eligible),
+                "short": sum((r.get("decision_short") or {}).get("decision")
+                             == "SHORT" for r in eligible),
+                "watch_short": sum((r.get("decision_short") or {}).get(
+                    "decision") == "WATCHLIST" for r in eligible),
                 "paper": sum(r["decision"]["decision"] == "LONG"
                              and r["decision"].get("mode") == "PAPER"
                              for r in eligible),

@@ -18,6 +18,7 @@ def apply(state, events):
             rec = {"id": e["id"], "kind": "4H", "asset": s["asset"],
                    "pair": s["pair"], "strategy": s["strategy"],
                    "mode": s.get("mode", "REAL"), "score": s["score"],
+                   "side": s.get("direction", "LONG"),
                    "issued_at": e["t"], "entry_zone": p["entry_zone"],
                    "stop": p["stop"], "tp": p["tp"], "rr": p["rr"],
                    "risk_pct": p["risk_pct"], "position_pct": p["position_pct"],
@@ -66,11 +67,13 @@ def apply(state, events):
 def user_r(r):
     """Resultado ajustado ao preco de entrada real (estimativa)."""
     ep, entry = r.get("exec_price"), r.get("entry")
-    if not ep or not entry or entry <= r["stop"] or ep <= r["stop"]:
+    d = -1 if r.get("side") == "SHORT" else 1
+    if not ep or not entry or d * (entry - r["stop"]) <= 0 \
+            or d * (ep - r["stop"]) <= 0:
         return r["result_r"]
     # mesmo preco de saida, outro preco de entrada e outro risco inicial
-    pnl = r["result_r"] * (entry - r["stop"]) - (ep - entry)
-    return round(pnl / (ep - r["stop"]), 2)
+    pnl = r["result_r"] * d * (entry - r["stop"]) - d * (ep - entry)
+    return round(pnl / (d * (ep - r["stop"])), 2)
 
 
 def summary(led, since=None, executed_only=False):

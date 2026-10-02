@@ -60,7 +60,7 @@ h2{font-size:16px;margin:18px 0 8px}
 <main>
 <h1>Cryptoscan · Scanner</h1>
 <div class="sub" id="sub">A carregar…</div>
-<div class="banner" id="vbanner"><b>Como ler os sinais</b>Só compras em spot na Bybit UE. O score mede a qualidade do setup, não a probabilidade de ganhar. As estratégias ainda não estão validadas. No máximo 2 operações de cada vez, cada uma com posição fixa de 25 USDC. O risco de cada operação depende da distância do stop e nunca passa de 2 USDC.</div>
+<div class="banner" id="vbanner"><b>Como ler os sinais</b>Compras em spot e shorts em margem spot na Bybit UE. Compras só com o BTC acima da média de 200 dias; shorts só com o BTC abaixo. O score mede a qualidade do setup, não a probabilidade de ganhar. As estratégias ainda não estão validadas. No máximo 2 operações de cada vez, cada uma com posição fixa de 25 USDC. O risco de cada operação depende da distância do stop e nunca passa de 2 USDC.</div>
 <div class="banner" id="mf"></div>
 <div class="cap"><label for="cap">O teu capital (USDC):</label><input id="cap" inputmode="decimal" placeholder="ex.: 500"><span id="capnote" style="color:var(--mut)"></span></div>
 <h2>Operações</h2><div id="bynote" class="note" style="margin:0 0 8px"></div><div id="ops"></div>
@@ -174,8 +174,8 @@ function tfBlock(name,a){
   ${flowBlock(a)}
   </div>`;
 }
-const STR={PULLBACK:"Recuo em tendência",BREAKOUT:"Quebra com reteste",LIQUIDITY_SWEEP:"Sweep de liquidez",RANGE:"Fundo de range"};
-const DEC={LONG:"COMPRA",WATCHLIST:"A VIGIAR","NO TRADE":"NÃO OPERAR"};
+const STR={PULLBACK:"Recuo em tendência",BREAKOUT:"Quebra com reteste",LIQUIDITY_SWEEP:"Sweep de liquidez",RANGE:"Fundo de range",PULLBACK_SHORT:"Short: retoma da descida",BREAKOUT_SHORT:"Short: quebra em baixa",LIQUIDITY_SWEEP_SHORT:"Short: sweep de topos",RANGE_SHORT:"Short: topo de range"};
+const DEC={LONG:"COMPRA",SHORT:"SHORT",WATCHLIST:"A VIGIAR","NO TRADE":"NÃO OPERAR"};
 const hm=t=>new Date(t*1000).toLocaleString("pt-PT",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
 function capital(){const v=parseFloat(($("cap").value||"").replace(",","."));return v>0?v:null}
 function sizing(p){
@@ -184,6 +184,19 @@ function sizing(p){
   if(!c) return `Posição de <b>${num(p.position_pct,1)}%</b> do capital${mg}; risco ${num(p.risk_pct,2)}%. Escreve o teu capital em cima para veres os valores.`;
   const pos=c*p.position_pct/100,qty=pos/p.entry_ref,loss=c*p.risk_pct/100;
   return `Posição de <b>${num(pos,2)} USDC</b>${L?` com <b>margem ${L.use}x</b>: ${num(c*L.collateral_pct/100,2)} USDC teus e ${num(c*L.borrowed_pct/100,2)} emprestados`:` (${num(p.position_pct,1)}% do capital)`} ≈ ${Number(qty.toPrecision(4)).toLocaleString("pt-PT",{maximumSignificantDigits:4})} unidades. Perda máxima se o stop for atingido: <b>${num(loss,2)} USDC</b>.`+(pos<5?` <span class="warn">Valor abaixo do mínimo habitual por ordem; confirma na Bybit.</span>`:"");
+}
+function shortSteps(p,pair,asset){
+  const pr=i=>p.tp_projected&&p.tp_projected.includes(i)?" (projetado)":"",L=p.leverage||{},c=capital();
+  const pos=p.position_usdc!=null?p.position_usdc:(c?c*p.position_pct/100:null);
+  return `<ol class="steps">
+  <li>Na Bybit UE, par <b>${esc(pair)}</b>, em <b>Margem Spot</b>: lado <b>Vender</b> com empréstimo automático de ${esc(asset)}.</li>
+  <li>Ordem <b>limite de venda</b> entre <b>${price(p.entry_zone[0])}</b> e <b>${price(p.entry_zone[1])}</b>, no valor de <b>${pos!=null?num(pos,2)+" USDC":num(p.position_pct,1)+"% do capital"}</b>. Alavancagem <b>${L.use>1?L.use+"x":"1x"}</b>${L.reason?" — "+esc(L.reason):""}.</li>
+  <li>Stop de recompra em <b>${price(p.stop)}</b>, <b>acima</b> da entrada (+${num(p.stop_pct,2)}% com comissões). Perda máxima estimada: <b>${p.risk_usdc!=null?num(p.risk_usdc,2)+" USDC":num(p.risk_pct,2)+"% do capital"}</b>.</li>
+  ${L.liquidation_est?`<li>Liquidação estimada perto de <b>${price(L.liquidation_est)}</b>, acima do stop. Confirma na Bybit.</li>`:""}
+  ${p.partials[0]>0?`<li>Recomprar ${p.partials[0]}% em <b>${price(p.tp[0])}</b>${pr(1)} e descer o stop para o preço de entrada.</li>`:`<li>Quando o preço chegar a <b>${price(p.tp[0])}</b>${pr(1)}: não recomprar, só descer o stop para o preço de entrada.</li>`}
+  ${p.partials[2]>0?`<li>Recomprar ${p.partials[1]}% em <b>${price(p.tp[1])}</b>${pr(2)} e os restantes ${p.partials[2]}% em <b>${price(p.tp[2])}</b>${pr(3)}.</li>`:`<li>Recomprar ${p.partials[0]>0?"os restantes "+p.partials[1]+"%":"tudo"} em <b>${price(p.tp[1])}</b>${pr(2)}.</li>`}
+  <li>Cada recompra devolve o empréstimo. Enquanto o short está aberto pagas juros pela moeda emprestada.</li></ol>
+  <div class="chips"><span class="chip">R:R 1:${num(p.rr,2)}</span></div>`;
 }
 function planSteps(p,pair){
   const pr=i=>p.tp_projected.includes(i)?" (projetado)":"";
@@ -199,10 +212,11 @@ function planSteps(p,pair){
 }
 function sigCard(s){
   const e=s.explain,trig=s.status==="TRIGGERED";
-  return `<div class="op"><h3>${esc(s.asset)} · COMPRA <span class="tag">${trig?"operação aberta":"à espera de entrada"}</span></h3>
+  const sh=s.direction==="SHORT";
+  return `<div class="op"${sh?' style="border-left-color:var(--dn)"':""}><h3>${esc(s.asset)} · ${sh?"SHORT":"COMPRA"} <span class="tag">${trig?"operação aberta":"à espera de entrada"}</span></h3>
   <div class="meta">${esc(STR[s.strategy]||s.strategy)} · ${esc(s.timeframe)} · regime ${esc(s.regime)} · score ${s.score}/100 · emitido ${hm(s.issued_at)}${trig?"":" · válido até "+hm(s.expires_at)}</div>
   <div class="bybit" data-pair="${esc(s.pair)}" data-pos="${s.plan.position_pct}" data-entry="${s.plan.entry_ref}" data-asset="${esc(s.asset)}"></div>
-  ${planSteps(s.plan,s.pair)}
+  ${sh?shortSteps(s.plan,s.pair,s.asset):planSteps(s.plan,s.pair)}
   <div class="why"><span>Porquê:</span> ${esc(e.why)}</div>
   <div class="why"><span>Porquê agora:</span> ${esc(e.why_now)}</div>
   <div class="why"><span>Invalidação:</span> ${esc(e.invalidates)}</div>
@@ -221,9 +235,9 @@ function paperCard(s){
   <div class="why"><span>Porquê:</span> ${esc(s.explain.why)}</div>
   <div class="warn" style="margin-top:4px">Simulação. ${v.n?`Em backtest esta estratégia deu ${v.expectancy_r>0?"+":""}${num(v.expectancy_r,2)}R por operação, com ${num(v.win_rate,0)}% de acerto em ${v.n} operações.`:"Estratégia sem backtest."}</div></div>`;
 }
-function watchCard(r){
-  const d=r.decision;
-  return `<div class="op wait"><h3>${esc(r.asset)} · A VIGIAR</h3>
+function watchCard(r,d){
+  d=d||r.decision;const sh=d.side==="SHORT";
+  return `<div class="op wait"><h3>${esc(r.asset)} · A VIGIAR${sh?" (short)":""}</h3>
   <div class="meta">${esc(STR[d.strategy]||d.strategy)} · regime ${esc(d.regime)} · score ${d.score}/100</div>
   <div class="bybit" data-pair="${esc(d.venue.pair)}" data-pos="${d.plan.position_pct}" data-entry="${d.plan.entry_ref}" data-asset="${esc(r.asset)}"></div>
   <div><b>Gatilho:</b> ${esc(d.reason)}</div>
@@ -265,8 +279,10 @@ async function fillBybit(){
 function renderOps(){
   const act=(D.active_signals||[]).filter(s=>s.mode!=="PAPER");
   $("ops").innerHTML=act.map(sigCard).join("")||`<div class="banner">${D.halt?`<b class="dn">Operações suspensas</b>${esc(D.halt)}. Sem sinais novos até o travão de perdas libertar.`:(D.market_filter&&!D.market_filter.btc_above_sma200?"Sem compras novas: o BTC está abaixo da média de 200 dias.":"Nenhuma operação neste momento. O sistema só emite quando todas as condições se alinham.")}</div>`;
-  const w=D.universe.filter(r=>r.decision&&r.decision.decision==="WATCHLIST"&&r.decision.plan&&!r.decision.active_signal).sort((a,b)=>b.decision.score-a.decision.score);
-  $("watch").innerHTML=w.map(watchCard).join("")||`<div class="banner">Nada em vigilância.</div>`;
+  const w=[];
+  D.universe.forEach(r=>[r.decision,r.decision_short].forEach(d=>{if(d&&d.decision==="WATCHLIST"&&d.plan&&!d.active_signal)w.push([r,d])}));
+  w.sort((a,b)=>b[1].score-a[1].score);
+  $("watch").innerHTML=w.map(([r,d])=>watchCard(r,d)).join("")||`<div class="banner">Nada em vigilância.</div>`;
   const cl=D.closed_signals||[];
   const ST={EXPIRED:"expirado",INVALIDATED:"invalidado",CLOSED:"fechada"},RS={STOP:"stop atingido",BREAKEVEN:"stop na entrada",TP3:"todos os objetivos",TIME:"tempo máximo"};
   $("closed").innerHTML=cl.map(s=>`<div class="op closed"><b>${esc(s.asset)}</b> · ${esc(STR[s.strategy]||s.strategy)} · ${ST[s.status]} ${hm(s.closed_at)} — ${s.status==="CLOSED"?`${esc(RS[s.close_reason]||s.close_reason)}, resultado <b class="${s.result_r>0?"up":"dn"}">${s.result_r>0?"+":""}${num(s.result_r,2)}R</b>`:esc(s.close_reason)}</div>`).join("")||`<div class="banner">Ainda sem sinais fechados.</div>`;
@@ -287,7 +303,7 @@ function renderJournal(){
   const rows=J.rows.slice().reverse().map(r=>{
     const res=r.status==="CLOSED"?`<b class="${r.result_r>0?"up":"dn"}">${r.result_r>0?"+":""}${num(r.result_r,2)}R</b>`:r.status==="OPEN"?`TP ${r.tp_hit}/3`:"–";
     const d=new Date(r.issued_at*1000).toLocaleString("pt-PT",{day:"2-digit",month:"2-digit"})+"<br><span style='color:var(--mut)'>"+new Date(r.issued_at*1000).toLocaleString("pt-PT",{hour:"2-digit",minute:"2-digit"})+"</span>";
-    return `<tr><td><b>${esc(r.asset)}</b>${r.executed===true?" ✅":r.executed===false?" ❌":""}<br><span style="color:var(--mut)">${esc(SN[r.strategy]||r.strategy)}</span></td><td>${d}</td><td>${r.exec_price?price(r.exec_price):r.entry?price(r.entry):price(r.entry_zone[1])}<br><span style="color:var(--mut)">stop ${price(r.stop)}</span></td><td>${r.status==="CLOSED"?res+"<br><span style='color:var(--mut)'>"+esc(RS[r.reason]||r.reason)+"</span>":ST[r.status]+(r.status==="OPEN"?"<br><span style='color:var(--mut)'>"+res+"</span>":"")}</td></tr>`}).join("");
+    return `<tr><td><b>${esc(r.asset)}</b>${r.side==="SHORT"?" ▼":""}${r.executed===true?" ✅":r.executed===false?" ❌":""}<br><span style="color:var(--mut)">${esc(SN[r.strategy]||r.strategy)}</span></td><td>${d}</td><td>${r.exec_price?price(r.exec_price):r.entry?price(r.entry):price(r.entry_zone[1])}<br><span style="color:var(--mut)">stop ${price(r.stop)}</span></td><td>${r.status==="CLOSED"?res+"<br><span style='color:var(--mut)'>"+esc(RS[r.reason]||r.reason)+"</span>":ST[r.status]+(r.status==="OPEN"?"<br><span style='color:var(--mut)'>"+res+"</span>":"")}</td></tr>`}).join("");
   const me=J.mine;
   const mine=me?`<div class="banner"><b>As tuas execuções</b>${me.closed} fechadas${me.closed?` · acerto ${num(me.win_rate,0)}% · ${me.total_r>0?"+":""}${num(me.total_r,2)}R${c?" · "+(me.capital_pct>0?"+":"")+num(c*me.capital_pct/100,2)+" USDC":""}`:""} · ${me.open} em aberto. Conta só o que marcaste como executado no Telegram, com o teu preço de entrada quando o indicaste.</div>`:`<div class="banner"><b>As tuas execuções</b>Carrega em "Executei" ou "Não executei" nos alertas de compra do Telegram e o registo passa a mostrar a tua conta em separado.</div>`;
   const by=Object.entries(m.by_strategy).map(([k,v])=>`<span class="chip">${esc(SN[k]||k)}: ${v.n} op. · ${v.sum_r>0?"+":""}${num(v.sum_r,2)}R</span>`).join("");
@@ -315,10 +331,13 @@ function renderExtra(){
   $("paper").innerHTML=`<div class="banner"><b>Compra na quebra do máximo de 20 dias, grandes moedas</b>Stop inicial a 2 ATR e saída quando o fecho diário fica abaixo do mínimo de 20 dias. Não validada: ganhou fora da amostra até ago. 2025 e ficou em −1% desde então nas grandes moedas. Registo ao vivo: ${p.n} operações fechadas${p.n?`, acerto ${num(p.win_rate,0)}%, total ${p.total_r>0?"+":""}${num(p.total_r,2)}R`:""}.</div>${pos||`<div class="banner">Sem posições abertas.</div>`}${cl}`+sigHtml;
 }
 function decBlock(r){
-  const d=r.decision;if(!d) return "";
+  return decOne(r.decision,"Decisão (compra)")+(r.decision_short?decOne(r.decision_short,"Decisão (short)"):"");
+}
+function decOne(d,title){
+  if(!d) return "";
   const rej=(d.rejected||[]).map(x=>`<div class="warn">Rejeitado — ${esc(x)}</div>`).join("");
   const ch=(d.checks||[]).map(c=>`<div><span class="${c.ok?"up":"dn"}">${c.ok?"✓":"✗"}</span><span>${c.n}. ${esc(c.check)}${c.detail?" — "+esc(c.detail):""}</span></div>`).join("");
-  return `<div class="tf"><h3>Decisão</h3><div><b>${d.decision==="LONG"&&d.mode==="PAPER"?"SETUP EM PAPEL (estratégia não validada)":DEC[d.decision]}</b>${d.reason?" — "+esc(d.reason):""}</div>${rej}<div class="chk">${ch}</div></div>`;
+  return `<div class="tf"><h3>${title}</h3><div><b>${d.decision==="LONG"&&d.mode==="PAPER"?"SETUP EM PAPEL (estratégia não validada)":DEC[d.decision]}</b>${d.reason?" — "+esc(d.reason):""}</div>${rej}<div class="chk">${ch}</div></div>`;
 }
 function render(){
   if(!D) return;
@@ -370,7 +389,7 @@ async function load(){
     const src=Object.entries(D.sources).map(([n,s])=>n+(s.ok?" ✓":" ✗")).join(" · ")+" · Bybit UE"+(D.venue_source&&D.venue_source.ok?" ✓":" ✗");
     $("sub").innerHTML=`Atualizado há ${age} min · ${esc(src)}`+(age>20?` · <span class="warn">dados atrasados</span>`:"");
     const c=D.counts||{};
-    $("stats").innerHTML=[["Analisados",c.deep_checked],["Sinais de compra",c.long],["A vigiar",c.watchlist],["Não operar",c.no_trade]].map(([l,v])=>`<div class="stat"><b>${v??"–"}</b><span>${l}</span></div>`).join("");
+    $("stats").innerHTML=[["Analisados",c.deep_checked],["Compras",c.long],["Shorts",c.short||0],["A vigiar",(c.watchlist||0)+(c.watch_short||0)]].map(([l,v])=>`<div class="stat"><b>${v??"–"}</b><span>${l}</span></div>`).join("");
     $("note").textContent=`Regime do BTC: ${D.market_regime?D.market_regime.btc:"–"}. Só entram ativos listados na Bybit UE em USDC. As análises usam preços dos mercados globais em USDT; na Bybit UE os valores em USDC podem diferir alguns cêntimos. Filtro de liquidez: volume 24h ≥ ${num(D.thresholds.min_volume_usd/1e6,0)} M $ e spread ≤ ${D.thresholds.max_spread_bps} bps. Análise aprofundada só nos ${D.thresholds.deep_n} ativos mais líquidos. Toca num ativo para ver o detalhe.`;
     render();
   }catch(e){$("sub").innerHTML=`<span class="warn">Não foi possível carregar os dados (${esc(e.message)}).</span>`}
