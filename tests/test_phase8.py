@@ -5,7 +5,8 @@ from engine import config, events, inbox, ledger, monitor, review, signals
 from engine import validation
 from tests import test_phase4 as T4
 
-CFG = dict(config.DEFAULTS, swing_leverage=1.0)   # numeros base sem margem
+CFG = dict(config.DEFAULTS, swing_leverage=1.0, max_open_positions=4,
+           unvalidated_risk_pct=0.5)   # valores de base fixos para os testes
 NY = events.NY
 
 
@@ -326,3 +327,86 @@ class SmallCapital(unittest.TestCase):
         ev = P.update({}, rw, {"LINK": c}, dict(CFG, capital_usdc=500.0), 1)[1]
         self.assertEqual(ev[0]["event"], "PAPER_BUY")
         self.assertGreaterEqual(ev[0]["position_usdc"], 5.0)
+
+
+class ExtraEvents(unittest.TestCase):
+    def test_asset_specific_and_malformed(self):
+        import json, os, tempfile
+        t0 = ts(2026, 11, 20, 12)
+        good = [{"name": "Desbloqueio SUI", "t": t0, "assets": ["sui"],
+                 "before_h": 48},
+                {"name": "PCE", "t": t0 + 5 * 86400}]
+        f = os.path.join(tempfile.mkdtemp(), "e.json")
+        json.dump({"events": good + [{"name": "sem data"}, "lixo",
+                                     {"name": "x", "t": "abc"},
+                                     {"name": "y", "t": 5}]}, open(f, "w"))
+        ex = events.load_extra(f)
+        self.assertEqual([e["name"] for e in ex], ["Desbloqueio SUI", "PCE"])
+        self.assertEqual(ex[0]["assets"], ["SUI"])
+        self.assertIsNone(events.block(t0 - 40 * 3600, None, ex))
+        self.assertIsNone(events.block(t0 - 40 * 3600, "LINK", ex))
+        self.assertEqual(events.block(t0 - 40 * 3600, "SUI", ex)["name"],
+                         "Desbloqueio SUI")
+        self.assertIsNone(events.block(t0 - 50 * 3600, "SUI", ex))
+        self.assertEqual(events.block(t0 + 5 * 86400 - 3600, "LINK", ex)["name"], "PCE")
+        # ficheiro em falta ou corrompido nunca parte o sistema
+        self.assertEqual(events.load_extra("/nao/existe.json"), [])
+        open(f, "w").write("{isto nao e json")
+        self.assertEqual(events.load_extra(f), [])
+        json.dump({"events": {"a": 1}}, open(f, "w"))
+        self.assertEqual(events.load_extra(f), [])
+        self.assertEqual(events.load_extra(), [])            # ficheiro real: vazio
+
+    def test_before_window_is_capped(self):
+        ex = [{"name": "z", "t": 2_000_000_000, "assets": ["ALL"], "before_h": 72}]
+        import json, os, tempfile
+        f = os.path.join(tempfile.mkdtemp(), "e.json")
+        json.dump({"events": [{"name": "z", "t": 2_000_000_000, "before_h": 9999}]},
+                  open(f, "w"))
+        self.assertEqual(events.load_extra(f)[0]["before_h"], 72)
+
+
+class Concentrated(unittest.TestCase):
+    def test_defaults_of_mode_b(self):
+        c = config.load("nao-existe.json")
+        self.assertEqual((c["max_open_positions"], c["unvalidated_risk_pct"],
+                          c["capital_usdc"], c["swing_leverage"]), (2, 1.0, 50.0, 2.0))
+
+    def test_risk_and_position_caps_at_50_usdc(self):
+        orig = validation.load
+        validation.load = lambda: None
+        self.addCleanup(lambda: setattr(validation, "load", orig))
+        cfg = config.load("nao-existe.json")
+        d = signals.decide(T4.row(), T4.C4, cfg, T4.V, "BULL", False)
+        p = d["plan"]
+        self.assertLessEqual(p["position_usdc"], 25.0 + 1e-9)
+        self.assertLessEqual(p["risk_usdc"], 1.0 + 0.01)
+        self.assertLessEqual(p["risk_pct"], 2.0 + 0.01)
+        r = T4.row()
+        r["analysis"]["mtf_conflict"] = "1D: médias e estrutura discordam"
+        p1 = signals.decide(r, T4.C4, cfg, T4.V, "BULL", False)["plan"]
+        self.assertLessEqual(p1["position_usdc"], 12.5 + 1e-9)      # sem margem
+        self.assertLessEqual(p1["risk_usdc"], 0.5 + 0.01)
+
+    def test_two_operations_in_total_including_daily_trend(self):
+        orig = validation.load
+        validation.load = lambda: None
+        self.addCleanup(lambda: setattr(validation, "load", orig))
+        cfg = config.load("nao-existe.json")
+        rows = []
+        for k in range(4):
+            r = T4.row(asset=f"A{k}")
+            r["decision"] = signals.decide(r, T4.C4, cfg, T4.V, "BULL", False)
+            rows.append(r)
+        state = {"paper_trend": {"equity": 1.0, "closed": [], "last_day": {},
+                 "positions": {"BTC": {"entry": 1, "stop0": 0.9}}}}
+        ev = signals.update_state(state, rows, cfg, 1_800_000_000)
+        self.assertEqual(len([e for e in ev if e["event"] == "ISSUED"]), 1)
+        # e a tendencia diaria nao abre uma terceira
+        from engine import paper_trend as P
+        c = [{"t": k * 86400, "o": v, "h": v * 1.01, "l": v * 0.99, "c": v,
+              "v": 1.0} for k, v in enumerate([100.0] * 220 + [104.0])]
+        rw = [{"asset": "LINK", "price": 104.2, "venue": {"pair": "LINK/USDC"}}]
+        out = P.update(state, rw, {"LINK": c}, dict(cfg, capital_usdc=500.0),
+                       1_800_000_000)[1]
+        self.assertEqual(out, [])

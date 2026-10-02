@@ -33,5 +33,5 @@ def note(strategy):
         return "Estratégia validada."
     if st.get("n"):
         return (f"⚠️ Não validada (histórico {st['expectancy_r']:+.2f}R/op., "
-                f"acerto {st['win_rate']:.0f}%). Risco a metade.")
-    return "⚠️ Não validada. Risco a metade."
+                f"acerto {st['win_rate']:.0f}%).")
+    return "⚠️ Não validada."

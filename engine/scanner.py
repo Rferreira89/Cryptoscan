@@ -262,9 +262,13 @@ def run(now=None, state=None, cfg=None):
                              "reason": "DATA SOURCE ERROR: lista da Bybit UE "
                                        "indisponível", "checks": []}
         else:
+            ab = block
+            if not ab:                      # evento especifico deste ativo
+                e = calendar.block(now, r["asset"])
+                ab = f"{e['name']} dentro da janela de risco" if e else None
             r["decision"] = signals.decide(r, c4, cfg, ven.get(r["asset"]),
                                            btc_reg, changed.get(r["asset"], False),
-                                           market_ok, block, set(disabled))
+                                           market_ok, ab, set(disabled))
     events += signals.update_state(state, eligible, cfg, now, daily)
     result["halt"] = state.get("halt")
     result["paper_trend"], ev = paper_trend.update(

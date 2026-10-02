@@ -10,6 +10,8 @@ atualizado quando o BLS publicar as datas de 2027; ate la o sistema avisa
 que esta desatualizado em vez de assumir que nao ha eventos.
 """
 import datetime
+import json
+import os
 from zoneinfo import ZoneInfo
 
 NY = ZoneInfo("America/New_York")
@@ -29,15 +31,54 @@ ALL = sorted([("Decisão da Fed (FOMC)", _ts(d, 14, 0)) for d in FOMC]
              key=lambda e: e[1])
 
 
-def next_event(now):
-    return next(({"name": n, "t": t} for n, t in ALL if t >= now), None)
+EXTRA_PATH = os.path.join(os.path.dirname(__file__), "events_extra.json")
 
 
-def block(now):
-    """Evento em curso: de 12h antes ate 2h depois. None se nao houver."""
-    for n, t in ALL:
-        if t - BEFORE_H * 3600 <= now <= t + AFTER_H * 3600:
-            return {"name": n, "t": t}
+def load_extra(path=None):
+    """Eventos adicionais mantidos pelo agente de noticias (PCE, grandes
+    desbloqueios de tokens, incidentes). Formato:
+      {"updated": "AAAA-MM-DD", "events": [
+         {"name": "...", "t": 1790000000, "assets": ["ALL"] ou ["SUI"],
+          "before_h": 12, "source": "https://..."}]}
+    Entradas mal formadas sao ignoradas: so pode tornar o sistema mais
+    prudente, nunca o pode partir."""
+    try:
+        with open(path or EXTRA_PATH) as f:
+            raw = json.load(f).get("events", [])
+    except (OSError, ValueError, AttributeError):
+        return []
+    out = []
+    for e in raw if isinstance(raw, list) else []:
+        try:
+            name, t = str(e["name"])[:80], int(e["t"])
+            assets = [str(a).upper() for a in e.get("assets", ["ALL"])][:60]
+            before = min(72, max(1, int(e.get("before_h", BEFORE_H))))
+        except (KeyError, TypeError, ValueError):
+            continue
+        if name and t > 1_600_000_000 and assets:
+            out.append({"name": name, "t": t, "assets": assets,
+                        "before_h": before})
+    return out
+
+
+def _all(extra=None):
+    ev = [{"name": n, "t": t, "assets": ["ALL"], "before_h": BEFORE_H}
+          for n, t in ALL]
+    return sorted(ev + (load_extra() if extra is None else extra),
+                  key=lambda e: e["t"])
+
+
+def next_event(now, extra=None):
+    return next(({"name": e["name"], "t": e["t"]} for e in _all(extra)
+                 if e["t"] >= now and "ALL" in e["assets"]), None)
+
+
+def block(now, asset=None, extra=None):
+    """Evento em curso para o mercado todo ou para um ativo. None se nao."""
+    for e in _all(extra):
+        if e["t"] - e["before_h"] * 3600 <= now <= e["t"] + AFTER_H * 3600 and \
+                ("ALL" in e["assets"] or (asset and asset.upper() in e["assets"])):
+            return {"name": e["name"], "t": e["t"]}
     return None
 
 

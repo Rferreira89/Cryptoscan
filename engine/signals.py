@@ -311,7 +311,9 @@ def update_state(state, rows, cfg, now, daily=None):
         return sum(1 for s in sigs.values()
                    if s["status"] in ("ACTIVE", "TRIGGERED")
                    and s.get("mode", "REAL") == mode)
-    slots = {m: cfg["max_open_positions"] - used(m) for m in ("REAL", "PAPER")}
+    trend_open = len(state.get("paper_trend", {}).get("positions", {}))
+    slots = {m: cfg["max_open_positions"] - used(m)
+             - (trend_open if m == "REAL" else 0) for m in ("REAL", "PAPER")}
     cands = sorted((r for r in rows if r["decision"]["decision"] == "LONG"
                     and r["asset"] not in live),
                    key=lambda r: -r["decision"]["score"])

@@ -2,7 +2,8 @@ import unittest
 
 from engine import config, ledger, reports, risk, signals
 
-CFG = dict(config.DEFAULTS, swing_leverage=1.0)   # numeros base sem margem
+CFG = dict(config.DEFAULTS, swing_leverage=1.0, max_open_positions=4,
+           unvalidated_risk_pct=0.5)   # valores de base fixos para os testes
 PLAN = {"entry_zone": [99.7, 100.0], "stop": 98.0, "tp": [104.0, 108.0, 112.0],
         "rr": 2.4, "risk_pct": 0.5, "position_pct": 20.0}
 SIG = {"asset": "LINK", "pair": "LINK/USDC", "strategy": "PULLBACK",

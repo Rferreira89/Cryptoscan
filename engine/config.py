@@ -11,7 +11,11 @@ DEFAULTS = {
     "fee_pct": 0.1,             # comissao spot por lado (taxa base Bybit)
     "min_rr": 2.0,
     "min_score": 65,
-    "max_open_positions": 4,    # sinais ativos + operacoes abertas
+    # Modo concentrado (decisao do utilizador, 2026-10-02): com 50 USDC,
+    # no maximo 2 operacoes de cada vez, posicoes ate 25 USDC e risco ate
+    # 1 USDC (2%) por operacao. Conta sinais ativos, operacoes abertas e
+    # posicoes da tendencia diaria.
+    "max_open_positions": 2,
     "signal_expiry_hours": 12,  # 3 velas de 4H
     "max_venue_spread_pct": 0.30,
     "min_venue_volume_usd": 25_000,   # ordens pequenas: o spread pesa mais
@@ -21,8 +25,9 @@ DEFAULTS = {
     # com o registo do backtest. False = nao validadas ficam em PAPEL.
     "real_money_unvalidated": True,
     "paper_unvalidated": True,
-    # Estrategias nao validadas arriscam metade (nunca mais do que risk_pct)
-    "unvalidated_risk_pct": 0.5,
+    # Risco base das estrategias nao validadas (nunca mais do que risk_pct).
+    # Com alavancagem 2x o risco efetivo por operacao chega a 2%.
+    "unvalidated_risk_pct": 1.0,
     # Decisao do utilizador (2026-10-02): alavancagem nas estrategias de
     # swing (margem spot da Bybit UE). A posicao e o risco por operacao sao
     # multiplicados por este valor, ate ao maximo que mantem a liquidacao

@@ -45,7 +45,7 @@ def market_filter(c1_btc, state, now):
             "since": prev["since"]}, ev
 
 
-RECORD = "⚠️ Não validada (desde ago. 2025: -1% nas grandes moedas). Risco a metade."
+RECORD = "⚠️ Não validada (desde ago. 2025: -1% nas grandes moedas)."
 
 
 def check_stops(state, prices, cfg, now):
@@ -83,6 +83,12 @@ def update(state, rows, daily, cfg, now, market_ok=True, halted=None):
                                           "closed": [], "last_day": {}})
     fee = cfg["fee_pct"] / 100
     ev = []
+    # limite de operacoes partilhado com os sinais de 4H
+    live = [s for s in state.get("signals", {}).values()
+            if s["status"] in ("ACTIVE", "TRIGGERED")
+            and s.get("mode", "REAL") == "REAL"]
+    live_4h, live_assets = len(live), {s["asset"] for s in live}
+    max_pos = min(MAX_POS, cfg.get("max_open_positions", MAX_POS))
 
     def close(a, px, reason):
         _close(st, ev, a, px, reason, fee, now, cfg)
@@ -99,7 +105,8 @@ def update(state, rows, daily, cfg, now, market_ok=True, halted=None):
                 close(a, min(px, p["stop0"]), "STOP")
             elif new_day and last["c"] < min(x["l"] for x in c[-1 - M:-1]):
                 close(a, px, "TRAIL")
-        elif new_day and len(st["positions"]) < MAX_POS and not halted and \
+        elif new_day and len(st["positions"]) + live_4h < max_pos \
+                and a not in live_assets and not halted and \
                 (market_ok or not cfg.get("require_btc_above_sma200")):
             sma = sum(x["c"] for x in c[-200:]) / 200
             atr = _atr(c)

@@ -60,7 +60,7 @@ h2{font-size:16px;margin:18px 0 8px}
 <main>
 <h1>Cryptoscan · Scanner</h1>
 <div class="sub" id="sub">A carregar…</div>
-<div class="banner" id="vbanner"><b>Como ler os sinais</b>Só compras em spot na Bybit UE. O score mede a qualidade do setup, não a probabilidade de ganhar. As estratégias ainda não estão validadas, por isso cada operação arrisca metade do normal.</div>
+<div class="banner" id="vbanner"><b>Como ler os sinais</b>Só compras em spot na Bybit UE. O score mede a qualidade do setup, não a probabilidade de ganhar. As estratégias ainda não estão validadas. Modo concentrado: no máximo 2 operações de cada vez, com risco até 2% do capital por operação.</div>
 <div class="banner" id="mf"></div>
 <div class="cap"><label for="cap">O teu capital (USDC):</label><input id="cap" inputmode="decimal" placeholder="ex.: 500"><span id="capnote" style="color:var(--mut)"></span></div>
 <h2>Operações</h2><div id="bynote" class="note" style="margin:0 0 8px"></div><div id="ops"></div>
@@ -210,7 +210,7 @@ function sigCard(s){
   <div class="why"><span>O que mudaria o sinal:</span> ${esc(e.would_change)}</div>
   <div class="why"><span>Confiança:</span> dados ${s.confidence.data_quality}/100 · liquidez ${s.confidence.liquidity_quality}/100 · regime ${s.confidence.regime_compatibility}/100 · histórico da estratégia: sem backtest</div>
   ${s.status==="TRIGGERED"&&s.position?`<div class="why"><span>Posição:</span> entrada ${price(s.position.entry)} · stop atual ${price(s.position.stop)} · objetivos atingidos ${s.position.tp_hit} · por vender ${num(s.position.remaining,0)}%</div>`:""}
-  <div class="${s.validated?"up":"warn"}" style="margin-top:6px">${s.validated?"Estratégia validada em backtest.":"Estratégia não validada"+(s.validation&&s.validation.n?": em backtest deu "+num(s.validation.expectancy_r,2)+"R por operação, com "+num(s.validation.win_rate,0)+"% de acerto em "+s.validation.n+" operações":" (sem backtest)")+". Risco já reduzido a metade."}</div></div>`;
+  <div class="${s.validated?"up":"warn"}" style="margin-top:6px">${s.validated?"Estratégia validada em backtest.":"Estratégia não validada"+(s.validation&&s.validation.n?": em backtest deu "+num(s.validation.expectancy_r,2)+"R por operação, com "+num(s.validation.win_rate,0)+"% de acerto em "+s.validation.n+" operações":" (sem backtest)")+"."}</div></div>`;
 }
 function paperCard(s){
   const p=s.plan,trig=s.status==="TRIGGERED",v=s.validation||{};

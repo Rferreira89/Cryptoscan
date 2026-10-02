@@ -12,7 +12,7 @@ Nenhuma estratégia está validada. O backtest (2021 a 2026, custos incluídos) 
 
 Por decisão do utilizador (2026-10-02, `real_money_unvalidated` em `engine/config.py`), os sinais são mesmo assim emitidos como operações reais, com estas salvaguardas:
 
-- risco base por operação reduzido a metade (0,5%) enquanto a estratégia não estiver validada
+- modo concentrado (decisão do utilizador): capital de 50 USDC, no máximo 2 operações em simultâneo (incluindo a tendência diária), risco base de 1% por operação, até 2% com alavancagem 2x, posição até 50% do capital
 - alavancagem de swing (`swing_leverage`, 2x por decisão do utilizador): multiplica a posição e o risco, limitada ao valor que mantém a liquidação estimada a pelo menos 2,5 vezes a distância do stop, com teto de 3x. `{"swing_leverage": 1}` desliga-a
 - sem compras novas com o BTC abaixo da média de 200 dias
 - travão de perdas: −3R num dia, −6R numa semana ou 3 perdas seguidas suspendem sinais novos
@@ -48,6 +48,14 @@ Para voltar ao modo de simulação: `{"real_money_unvalidated": false}` em `conf
 - `/preco LINK 14.25` regista o preço real de entrada.
 - `/capital 80` atualiza o capital de trading usado nos cálculos.
 - Relatório diário às 8h (Lisboa) e semanal à segunda-feira.
+
+## Agentes agendados
+
+- Vigia (de 6 em 6 horas): relança o scanner se tiver parado.
+- Notícias e eventos (diário): mantém `engine/events_extra.json`.
+- Investigação (domingo): testa uma hipótese nova e regista em `backtest/investigacao.md`.
+- Auditoria (sábado): testes, coerência do registo e calendário.
+- Revisão de 30 dias (2026-11-01).
 
 ## Manutenção
 
