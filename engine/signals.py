@@ -113,8 +113,13 @@ def decide(row, c4, cfg, v, btc_reg, regime_changed, market_ok=True,
         lev, why = operation_leverage(cfg, p, sc, reg, a1, btc_reg,
                                       row["asset"] == "BTC")
         if lev < p["leverage"]["use"]:
-            p, _ = risk.plan(s, a4, a1, dict(cfg, risk_pct=rp,
-                                             swing_leverage=lev))
+            # com menos alavancagem a posicao encolhe e pode deixar de ser
+            # executavel (ordem minima): nesse caso nao ha operacao
+            p, why_not = risk.plan(s, a4, a1, dict(cfg, risk_pct=rp,
+                                                   swing_leverage=lev))
+            if p is None:
+                fails.append(f"{s['strategy']}: {why_not} ({why})")
+                continue
         p["leverage"]["reason"] = why
         cand = (s["state"] == "READY", sc["score"], s, p, sc)
         if best is None or cand[:2] > best[:2]:

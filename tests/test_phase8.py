@@ -285,6 +285,20 @@ class SmallCapital(unittest.TestCase):
         self.assertIn("10.00 USDC", t)
         self.assertIn("5.00 USDC teus e 5.00 emprestados", t)
 
+    def test_reduced_leverage_below_minimum_is_rejected_not_a_crash(self):
+        orig = validation.load
+        validation.load = lambda: None
+        self.addCleanup(lambda: setattr(validation, "load", orig))
+        cfg = dict(CFG, swing_leverage=2.0, capital_usdc=15.0)
+        ok = signals.decide(T4.row(), T4.C4, cfg, T4.V, "BULL", False)
+        self.assertEqual(ok["decision"], "LONG")            # 2x: executavel
+        r = T4.row()
+        r["analysis"]["mtf_conflict"] = "1D: médias e estrutura discordam"
+        d = signals.decide(r, T4.C4, cfg, T4.V, "BULL", False)   # conflito -> 1x
+        self.assertEqual(d["decision"], "NO TRADE")
+        self.assertIn("ordem mínima", d["reason"])
+        self.assertNotIn("plan", d)
+
     def test_capital_command(self):
         st = {"ledger": []}
         out = inbox.apply(st, [msg("/capital 62,5")], 7)
