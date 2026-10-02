@@ -9,6 +9,7 @@ from tests.test_analysis import walk
 from engine import validation
 
 CFG = dict(config.DEFAULTS)
+PAPER = dict(CFG, real_money_unvalidated=False)
 _ORIG_LOAD = validation.load
 
 
@@ -289,9 +290,9 @@ class Signals(unittest.TestCase):
                "label": "RETIRADA: expectativa negativa"}}}
         validation.load = lambda: res
         self.addCleanup(lambda: setattr(validation, "load", lambda: None))
-        d = signals.decide(row(), C4, CFG, V, "BULL", False)
+        d = signals.decide(row(), C4, PAPER, V, "BULL", False)
         self.assertEqual((d["decision"], d["mode"]), ("LONG", "PAPER"))
-        off = signals.decide(row(), C4, dict(CFG, paper_unvalidated=False), V,
+        off = signals.decide(row(), C4, dict(PAPER, paper_unvalidated=False), V,
                              "BULL", False)
         self.assertEqual(off["decision"], "NO TRADE")
         self.assertIn("não validada", off["reason"])
@@ -302,14 +303,52 @@ class Signals(unittest.TestCase):
     def test_paper_never_looks_like_an_order(self):
         from engine import run
         state = {}
-        rows = self._rows()                    # sem backtest: tudo em PAPEL
-        ev = signals.update_state(state, rows, CFG, 1_800_000_000)
+        r = row(asset="A0")
+        r["decision"] = signals.decide(r, C4, PAPER, V, "BULL", False)
+        rows = [r]
+        ev = signals.update_state(state, rows, PAPER, 1_800_000_000)
         sig = next(iter(state["signals"].values()))
         self.assertEqual(sig["mode"], "PAPER")
         t = run.alert_text(ev[0], state["signals"], "nota")
         self.assertIn("PAPEL (simulação)", t)
         self.assertNotIn("COMPRA", t)
         self.assertNotIn("Investir", t)
+
+    def test_real_mode_halves_risk_for_unvalidated(self):
+        d = signals.decide(row(), C4, CFG, V, "BULL", False)
+        self.assertEqual((d["decision"], d["mode"]), ("LONG", "REAL"))
+        self.assertLessEqual(d["plan"]["risk_pct"], 0.5 + 1e-9)
+        res = {"strategies": {"PULLBACK": {"validated": True, "label": "VALIDADA"}}}
+        validation.load = lambda: res
+        self.addCleanup(lambda: setattr(validation, "load", lambda: None))
+        full = signals.decide(row(), C4, CFG, V, "BULL", False)
+        self.assertGreaterEqual(full["plan"]["position_pct"], d["plan"]["position_pct"])
+
+    def test_market_filter_blocks_new_buys(self):
+        d = signals.decide(row(), C4, CFG, V, "BULL", False, market_ok=False)
+        self.assertEqual(d["decision"], "NO TRADE")
+        self.assertIn("filtro de mercado", d["reason"])
+
+    def test_trading_halt(self):
+        now = 1_800_000_000
+        mk_s = lambda r, ago: {"status": "CLOSED", "mode": "REAL",
+                               "result_r": r, "closed_at": now - ago}
+        h = signals.trading_halt
+        self.assertIsNone(h({}, CFG, now))
+        self.assertIn("diária", h({1: mk_s(-1.6, 100), 2: mk_s(-1.6, 200)}, CFG, now))
+        self.assertIn("semanal", h({k: mk_s(-1.01, 90000 + k * 90000)
+                                    for k in range(6)}, CFG, now))
+        three = {k: mk_s(-0.5, 100 + k) for k in range(3)}
+        self.assertIn("perdas seguidas", h(three, CFG, now))
+        self.assertIsNone(h({1: mk_s(-1, 100), 2: mk_s(2, 50), 3: mk_s(-1, 10)},
+                            CFG, now))
+        # com travao ativo, nenhum sinal novo e emitido
+        state = {"signals": {k: dict(mk_s(-1.6, 100 + k), asset=f"Z{k}",
+                                     strategy="PULLBACK") for k in range(2)}}
+        rows = self._rows()
+        ev = signals.update_state(state, rows, CFG, now)
+        self.assertEqual(ev, [])
+        self.assertIn("TRADING HALTED", rows[0]["decision"]["reason"])
 
     def test_track_record(self):
         state, now = {}, 1_800_000_000
@@ -319,7 +358,7 @@ class Signals(unittest.TestCase):
         rows = self._rows(); rows[0]["price"] = 90.0
         ev = signals.update_state(state, rows, CFG, now + 1800)  # stop
         self.assertEqual(ev[0]["event"], "STOP")
-        tk = state["track"]["PAPER:PULLBACK"]
+        tk = state["track"]["REAL:PULLBACK"]
         self.assertEqual((tk["n"], tk["wins"]), (1, 0))
         self.assertLess(tk["sum_r"], -0.9)
 

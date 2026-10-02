@@ -2,7 +2,7 @@ import json
 import os
 import sys
 
-from . import alerts, scanner, strategies, validation
+from . import alerts, paper_trend, scanner, strategies, validation
 
 OUT = sys.argv[1] if len(sys.argv) > 1 else "out"
 
@@ -48,7 +48,7 @@ def summary(res):
     pt = res.get("paper_trend") or {}
     L.append(f"PAPEL TENDENCIA capital {pt.get('equity_pct')}% n {pt.get('n')} "
              f"posicoes {list((pt.get('positions') or {}))}")
-    L.append(f"REGISTO {res.get('track_record')}")
+    L.append(f"REGISTO {res.get('track_record')} TRAVAO {res.get('halt')}")
     L.append(f"SINAIS ATIVOS {len(res['active_signals'])}")
     for s in res["active_signals"]:
         L.append(f"  {s['id']} {s['status']} {s['plan']}")
@@ -94,6 +94,22 @@ def alert_text(e, sigs, note):
                 + ("Historicamente é o contexto favorável a compras."
                    if e["above"] else
                    "Historicamente é o contexto em que comprar perde mais."))
+    if k == "PAPER_BUY" and e.get("real"):
+        return (f"🟢 COMPRA — {e['asset']} ({e['pair']}, Bybit EU)\n"
+                "TENDÊNCIA DIÁRIA · quebra do máximo de 20 dias\n"
+                f"Ordem a mercado, perto de {_px(e['price'])}\n"
+                f"Investir: {e['position_pct']}% do capital "
+                f"(risco {e['risk_pct']}%)\n"
+                f"Stop: {_px(e['stop'])} (-{e['stop_pct']}%)\n"
+                "Sem objetivo fixo: aviso de venda quando o fecho diário "
+                "ficar abaixo do mínimo de 20 dias.\n"
+                f"{paper_trend.RECORD}")
+    if k == "PAPER_SELL" and e.get("real"):
+        why = {"STOP": "stop atingido", "TRAIL": "fecho diário abaixo do "
+               "mínimo de 20 dias"}[e["reason"]]
+        return (f"🔴 VENDA — {e['asset']} ({e['pair']}, Bybit EU)\n"
+                f"TENDÊNCIA DIÁRIA: {why}. Vender toda a posição, perto de "
+                f"{_px(e['price'])}. Resultado: {e['r']:+.2f}R.")
     if k == "PAPER_BUY":
         return (f"📝 PAPEL (simulação, não validado) — compra {e['asset']} "
                 f"({e['pair']}) a {_px(e['price'])}, stop {_px(e['stop'])}, "

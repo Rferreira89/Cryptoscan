@@ -8,7 +8,16 @@ Scanner de criptomoedas para operar em **spot na Bybit UE** (pares em USDC, só 
 
 ## Estado de validação
 
-Nenhuma estratégia está validada. O backtest (2021 a 2026, custos incluídos) deu expectativa negativa para as estratégias de 4H, e as duas hipóteses em diário falharam a reserva. Por isso **todas correm em papel**: os setups são emitidos, acompanhados até ao fim e registados, mas marcados como simulação. Uma estratégia só gera operações reais quando `backtest/results.json` a marcar como validada.
+Nenhuma estratégia está validada. O backtest (2021 a 2026, custos incluídos) deu expectativa negativa para as estratégias de 4H, e as duas hipóteses em diário falharam a reserva.
+
+Por decisão do utilizador (2026-10-02, `real_money_unvalidated` em `engine/config.py`), os sinais são mesmo assim emitidos como operações reais, com estas salvaguardas:
+
+- risco por operação reduzido a metade (0,5%) enquanto a estratégia não estiver validada
+- sem compras novas com o BTC abaixo da média de 200 dias
+- travão de perdas: −3R num dia, −6R numa semana ou 3 perdas seguidas suspendem sinais novos
+- cada alerta traz o registo da estratégia no backtest
+
+Para voltar ao modo de simulação: `{"real_money_unvalidated": false}` em `config.json`.
 
 ## Como está organizado
 

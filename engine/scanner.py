@@ -239,6 +239,11 @@ def run(now=None, state=None, cfg=None):
     btc_reg = regs.get("BTC", {}).get("regime")
     result["market_regime"] = {"btc": btc_reg}
 
+    daily = {r["asset"]: r.pop("_c1", None) for r in eligible}
+    result["market_filter"], events = paper_trend.market_filter(
+        daily.get("BTC"), state, now)
+    market_ok = bool(result["market_filter"]
+                     and result["market_filter"]["btc_above_sma200"])
     for r in eligible:
         c4 = r.pop("_c4", None)
         if ven is None:
@@ -247,14 +252,12 @@ def run(now=None, state=None, cfg=None):
                                        "indisponível", "checks": []}
         else:
             r["decision"] = signals.decide(r, c4, cfg, ven.get(r["asset"]),
-                                           btc_reg, changed.get(r["asset"], False))
-    daily = {r["asset"]: r.pop("_c1", None) for r in eligible}
-    events = signals.update_state(state, eligible, cfg, now)
-    result["market_filter"], ev = paper_trend.market_filter(
-        daily.get("BTC"), state, now)
-    events += ev
-    result["paper_trend"], ev = paper_trend.update(state, eligible, daily,
-                                                   cfg, now)
+                                           btc_reg, changed.get(r["asset"], False),
+                                           market_ok)
+    events += signals.update_state(state, eligible, cfg, now)
+    result["halt"] = state.get("halt")
+    result["paper_trend"], ev = paper_trend.update(
+        state, eligible, daily, cfg, now, market_ok, state.get("halt"))
     events += ev
     result["active_signals"] = [s for s in state["signals"].values()
                                 if s["status"] in ("ACTIVE", "TRIGGERED")]

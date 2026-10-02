@@ -16,9 +16,19 @@ DEFAULTS = {
     "max_venue_spread_pct": 0.30,
     "min_venue_volume_usd": 25_000,   # ordens pequenas: o spread pesa mais
     "alerts": True,             # Telegram em cada compra e venda
-    # Estrategias nao validadas correm em PAPEL (simulacao acompanhada,
-    # com alertas marcados como tal). False = nao geram nada.
+    # Decisao do utilizador (2026-10-02): operar com dinheiro real mesmo sem
+    # estrategias validadas. Os sinais saem como operacoes reais, cada um
+    # com o registo do backtest. False = nao validadas ficam em PAPEL.
+    "real_money_unvalidated": True,
     "paper_unvalidated": True,
+    # Estrategias nao validadas arriscam metade (nunca mais do que risk_pct)
+    "unvalidated_risk_pct": 0.5,
+    # Sem compras novas com o BTC abaixo da media de 200 dias
+    "require_btc_above_sma200": True,
+    # Travao de perdas (em R, soma das operacoes fechadas)
+    "max_daily_loss_r": 3.0,
+    "max_weekly_loss_r": 6.0,
+    "cooldown_after_losses": 3,     # perdas seguidas -> pausa de 24h
 }
 
 

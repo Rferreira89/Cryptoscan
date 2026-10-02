@@ -146,7 +146,7 @@ class Alerts(unittest.TestCase):
         self.assertIn("CANCELAR", run.alert_text(
             {"event": "EXPIRED", "id": "k", "reason": "x"}, sigs, ""))
         self.assertIsNone(run.alert_text({"event": "?", "id": "k"}, sigs, ""))
-        self.assertIn("SEM BACKTEST", validation.note("NAO_EXISTE"))
+        self.assertIn("sem backtest", validation.note("NAO_EXISTE"))
 
 
 class Stats(unittest.TestCase):
@@ -254,6 +254,23 @@ class PaperTrend(unittest.TestCase):
         self.assertEqual(P.update({}, mk("LINK", 112.0), {"LINK": c}, CFG, 1)[1], [])  # tarde
         below = self.daily([200.0] * 180 + [100.0] * 40 + [104.0])   # abaixo da SMA200
         self.assertEqual(P.update({}, mk("LINK", 104.2), {"LINK": below}, CFG, 1)[1], [])
+
+    def test_real_alerts_and_gates(self):
+        from engine import paper_trend as P, run
+        c = self.daily([100.0] * 220 + [104.0])
+        rw = [{"asset": "LINK", "price": 104.2, "venue": {"pair": "LINK/USDC"}}]
+        self.assertEqual(P.update({}, rw, {"LINK": c}, CFG, 1, market_ok=False)[1], [])
+        self.assertEqual(P.update({}, rw, {"LINK": c}, CFG, 1, halted="x")[1], [])
+        st = {}
+        ev = P.update(st, rw, {"LINK": c}, CFG, 1)[1]
+        self.assertTrue(ev[0]["real"])
+        self.assertLessEqual(ev[0]["risk_pct"], 0.5 + 1e-9)
+        t = run.alert_text(ev[0], {}, "")
+        for part in ("COMPRA", "LINK/USDC", "Stop", "NÃO validada"):
+            self.assertIn(part, t)
+        ev = P.update(st, [dict(rw[0], price=50.0)], {"LINK": c}, CFG, 2,
+                      market_ok=False, halted="x")[1]       # stop funciona sempre
+        self.assertIn("VENDA", run.alert_text(ev[0], {}, ""))
 
     def test_alert_texts(self):
         from engine import run

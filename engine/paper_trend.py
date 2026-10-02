@@ -43,7 +43,12 @@ def market_filter(c1_btc, state, now):
             "since": prev["since"]}, ev
 
 
-def update(state, rows, daily, cfg, now):
+RECORD = ("⚠️ Estratégia NÃO validada: fora da amostra deu +109% "
+          "(2023 a ago. 2025), mas -1% nas grandes moedas e -21% em todas "
+          "desde então. Risco reduzido a metade.")
+
+
+def update(state, rows, daily, cfg, now, market_ok=True, halted=None):
     """rows: ativos analisados; daily: {ativo: velas diarias fechadas}."""
     st = state.setdefault("paper_trend", {"equity": 1.0, "positions": {},
                                           "closed": [], "last_day": {}})
@@ -61,7 +66,8 @@ def update(state, rows, daily, cfg, now):
         st["closed"] = (st["closed"] + [rec])[-200:]
         ev.append({"t": now, "event": "PAPER_SELL", "id": f"paper-{a}",
                    "asset": a, "price": exit_px, "r": rec["r"],
-                   "reason": reason, "pair": p["pair"]})
+                   "reason": reason, "pair": p["pair"],
+                   "real": bool(cfg.get("real_money_unvalidated"))})
 
     for r in rows:
         a, c = r["asset"], daily.get(r["asset"])
@@ -75,7 +81,8 @@ def update(state, rows, daily, cfg, now):
                 close(a, min(px, p["stop0"]), "STOP")
             elif new_day and last["c"] < min(x["l"] for x in c[-1 - M:-1]):
                 close(a, px, "TRAIL")
-        elif new_day and len(st["positions"]) < MAX_POS:
+        elif new_day and len(st["positions"]) < MAX_POS and not halted and \
+                (market_ok or not cfg.get("require_btc_above_sma200")):
             sma = sum(x["c"] for x in c[-200:]) / 200
             atr = _atr(c)
             brk = last["c"] > max(x["h"] for x in c[-1 - N:-1])
@@ -84,7 +91,9 @@ def update(state, rows, daily, cfg, now):
                 entry = px * (1 + SLIP)
                 stop = entry - K_ATR * atr
                 risk_unit = entry - stop + fee * (entry + stop)
-                frac = min(cfg["risk_pct"] / 100 / (risk_unit / entry), CAP)
+                rp = min(cfg["risk_pct"],
+                         cfg.get("unvalidated_risk_pct", cfg["risk_pct"]))
+                frac = min(rp / 100 / (risk_unit / entry), CAP)
                 st["positions"][a] = {
                     "entry": entry, "stop0": stop, "entry_t": now,
                     "pair": r["venue"]["pair"], "position_pct": round(frac * 100, 1),
@@ -92,7 +101,10 @@ def update(state, rows, daily, cfg, now):
                 ev.append({"t": now, "event": "PAPER_BUY", "id": f"paper-{a}",
                            "asset": a, "price": entry, "stop": stop,
                            "pair": r["venue"]["pair"],
-                           "position_pct": round(frac * 100, 1)})
+                           "position_pct": round(frac * 100, 1),
+                           "risk_pct": round(frac * risk_unit / entry * 100, 2),
+                           "stop_pct": round(risk_unit / entry * 100, 2),
+                           "real": bool(cfg.get("real_money_unvalidated"))})
         if new_day:
             st["last_day"][a] = last["t"]
     rs = [x["r"] for x in st["closed"]]

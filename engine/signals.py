@@ -18,7 +18,7 @@ def _fmt(x):
     return float(f"{x:.5g}")
 
 
-def decide(row, c4, cfg, v, btc_reg, regime_changed):
+def decide(row, c4, cfg, v, btc_reg, regime_changed, market_ok=True):
     """Devolve o bloco 'decision' de um ativo."""
     checks, out = [], {"decision": "NO TRADE", "validated": False}
 
@@ -50,6 +50,12 @@ def decide(row, c4, cfg, v, btc_reg, regime_changed):
     if not chk(3, "regime identificado", ok, reg["regime"]):
         return stop(f"regime {reg['regime']}: sem vantagem identificável")
 
+    if cfg["min_score"] > 0 and cfg.get("require_btc_above_sma200") \
+            and not market_ok:
+        chk(3, "filtro de mercado", False, "BTC abaixo da média de 200 dias")
+        return stop("filtro de mercado: BTC abaixo da média de 200 dias, "
+                    "sem compras novas")
+
     found = strategies.evaluate(c4, a4, a1, reg)
     out["rejected"] = [f"{s['strategy']}: {s['rejected']}" for s in found
                        if "rejected" in s]
@@ -62,7 +68,9 @@ def decide(row, c4, cfg, v, btc_reg, regime_changed):
         # min_score = 0 e o proprio backtest: nunca e travado.
         if cfg["min_score"] > 0:
             st = validation.status(s["strategy"])
-            s["mode"] = "REAL" if st.get("validated") else "PAPER"
+            s["validated"] = bool(st.get("validated"))
+            s["mode"] = "REAL" if s["validated"] or \
+                cfg.get("real_money_unvalidated") else "PAPER"
             if s["mode"] == "PAPER" and not cfg.get("paper_unvalidated", True):
                 out["rejected"].append(
                     f"{s['strategy']}: estratégia não validada em backtest "
@@ -80,7 +88,11 @@ def decide(row, c4, cfg, v, btc_reg, regime_changed):
 
     best, fails = None, []
     for s in setups:
-        p, why = risk.plan(s, a4, a1, cfg)
+        # nunca arriscar mais por o score ser alto; arriscar menos quando a
+        # estrategia nao esta validada
+        rp = cfg["risk_pct"] if s.get("validated", True) else \
+            min(cfg["risk_pct"], cfg.get("unvalidated_risk_pct", cfg["risk_pct"]))
+        p, why = risk.plan(s, a4, a1, dict(cfg, risk_pct=rp))
         if p is None:
             fails.append(f"{s['strategy']}: {why}")
             continue
@@ -150,6 +162,25 @@ def explain(row):
                          "ou o preço afastar-se da zona de entrada sem a tocar")}
 
 
+def trading_halt(sigs, cfg, now):
+    """Travao de perdas das operacoes reais. Devolve o motivo ou None."""
+    closed = sorted((s for s in sigs.values() if s["status"] == "CLOSED"
+                     and s.get("mode", "REAL") == "REAL"),
+                    key=lambda s: s["closed_at"])
+    day = sum(s["result_r"] for s in closed if now - s["closed_at"] < 86400)
+    week = sum(s["result_r"] for s in closed if now - s["closed_at"] < 7 * 86400)
+    if day <= -cfg["max_daily_loss_r"]:
+        return f"perda diária de {day:.1f}R atingiu o limite"
+    if week <= -cfg["max_weekly_loss_r"]:
+        return f"perda semanal de {week:.1f}R atingiu o limite"
+    n = cfg["cooldown_after_losses"]
+    last = closed[-n:]
+    if len(last) == n and all(s["result_r"] <= 0 for s in last) \
+            and now - last[-1]["closed_at"] < 86400:
+        return f"{n} perdas seguidas: pausa de 24 horas"
+    return None
+
+
 def update_state(state, rows, cfg, now):
     """Emite, mantem, expira e invalida sinais. Devolve eventos de auditoria."""
     sigs = state.setdefault("signals", {})
@@ -199,6 +230,14 @@ def update_state(state, rows, cfg, now):
 
     live = {s["asset"] for s in sigs.values()
             if s["status"] in ("ACTIVE", "TRIGGERED")}
+    halt = trading_halt(sigs, cfg, now)
+    state["halt"] = halt
+    if halt:
+        for r in rows:
+            if r["decision"]["decision"] == "LONG":
+                r["decision"].update(decision="NO TRADE",
+                                     reason="TRADING HALTED: " + halt)
+
     def used(mode):
         return sum(1 for s in sigs.values()
                    if s["status"] in ("ACTIVE", "TRIGGERED")
