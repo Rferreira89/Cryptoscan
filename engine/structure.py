@@ -110,11 +110,15 @@ def patterns(c):
     if up_w >= 2 * body and up_w / rng >= 0.6 and body / rng >= 0.1:
         out.append("PIN_BAR_BEAR")
     pa_body_lo, pa_body_hi = min(a["o"], a["c"]), max(a["o"], a["c"])
+    # engolfo so conta se a vela anterior tiver corpo relevante
+    a_rng = a["h"] - a["l"]
+    if a_rng <= 0 or (pa_body_hi - pa_body_lo) / a_rng < 0.3:
+        pa_body_lo, pa_body_hi = float("inf"), float("-inf")
     if b["c"] > b["o"] and a["c"] < a["o"] and b["o"] <= pa_body_lo \
-            and b["c"] >= pa_body_hi and body > pa_body_hi - pa_body_lo:
+            and b["c"] >= pa_body_hi > pa_body_lo:
         out.append("ENGULFING_BULL")
     if b["c"] < b["o"] and a["c"] > a["o"] and b["o"] >= pa_body_hi \
-            and b["c"] <= pa_body_lo and body > pa_body_hi - pa_body_lo:
+            and b["c"] <= pa_body_lo < pa_body_hi:
         out.append("ENGULFING_BEAR")
     if b["h"] < a["h"] and b["l"] > a["l"]:
         out.append("INSIDE_BAR")

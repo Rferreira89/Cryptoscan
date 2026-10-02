@@ -138,6 +138,9 @@ class Structure(unittest.TestCase):
         self.assertIn("INSIDE_BAR",
                       ST.patterns([mk(10, 11, 9, 10.5), mk(10.2, 10.6, 9.6, 10.3)]))
         self.assertEqual(ST.patterns([mk(10, 10, 10, 10), mk(10, 10, 10, 10)]), [])
+        # vela anterior quase sem corpo: nao e engolfo
+        self.assertNotIn("ENGULFING_BULL",
+                         ST.patterns([mk(10, 10.5, 9.5, 9.99), mk(9.9, 10.6, 9.8, 10.5)]))
 
 
 class Analysis(unittest.TestCase):
