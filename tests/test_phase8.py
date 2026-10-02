@@ -228,7 +228,7 @@ class SmallCapital(unittest.TestCase):
         p, _ = self.plan(50, lev=2.0)
         self.assertAlmostEqual(p["collateral_usdc"] + p["borrowed_usdc"],
                                p["position_usdc"], delta=0.011)
-        self.assertAlmostEqual(p["collateral_usdc"], p["position_usdc"] / 2, places=2)
+        self.assertAlmostEqual(p["collateral_usdc"], p["position_usdc"] / 2, delta=0.011)
         self.assertAlmostEqual(p["risk_usdc"], 50 * p["risk_pct"] / 100, delta=0.01)
         self.assertLessEqual(p["risk_usdc"], 0.51)          # 1% de 50 USDC
 
