@@ -126,6 +126,37 @@ class OKX:
         return [_candle(r[0], r[1], r[2], r[3], r[4], r[5]) for r in d["data"]]
 
 
-# Ordem = prioridade para velas. A primeira que responder e a primaria;
-# se nao for a Bybit, marca-se DATA SOURCE FALLBACK.
-ALL = [Bybit(), Binance(), OKX()]
+class KuCoin:
+    name = "kucoin"
+    base_url = "https://api.kucoin.com"
+    _tf = {"4h": "4hour", "1d": "1day"}
+
+    def tickers(self):
+        d = _get(self.base_url + "/api/v1/market/allTickers")
+        if d.get("code") != "200000":
+            raise SourceError(f"code {d.get('code')}: {d.get('msg')}")
+        out = {}
+        for x in d["data"]["ticker"]:
+            base, _, quote = x["symbol"].partition("-")
+            if quote == QUOTE:
+                p = _f(x.get("changeRate"))
+                out[base] = _ticker(base, x.get("last"), x.get("buy"),
+                                    x.get("sell"), x.get("volValue"),
+                                    None if p is None else p * 100)
+        return out
+
+    def candles(self, base, tf, limit=500):
+        d = _get(self.base_url + "/api/v1/market/candles",
+                 {"symbol": f"{base}-{QUOTE}", "type": self._tf[tf]})
+        if d.get("code") != "200000":
+            raise SourceError(f"code {d.get('code')}: {d.get('msg')}")
+        # [time(s), open, close, high, low, volume, turnover]
+        return [_candle(int(r[0]) * 1000, r[1], r[3], r[4], r[2], r[5])
+                for r in d["data"][:limit]]
+
+
+# Ordem = prioridade para velas. Se a primeira falhar usa-se a seguinte e
+# marca-se DATA SOURCE FALLBACK.
+# A Bybit fica de fora: recusa (HTTP 403) ligacoes vindas dos servidores do
+# GitHub. O adaptador mantem-se para quando o motor correr noutro servidor.
+ALL = [Binance(), OKX(), KuCoin()]

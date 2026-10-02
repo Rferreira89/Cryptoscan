@@ -10,7 +10,7 @@ import statistics
 import time
 from concurrent.futures import ThreadPoolExecutor
 
-from . import sources, validate
+from . import analysis, sources, validate
 
 MIN_VOLUME_USD = 5_000_000
 MAX_SPREAD_BPS = 20
@@ -23,6 +23,25 @@ STABLE_OR_PEGGED = {
     "TRY", "WBTC", "WETH", "STETH", "WBETH", "BETH", "PAXG", "XAUT", "XUSD",
     "USDR", "USTC", "BFUSD", "USDQ", "USD0", "SUSDE", "USDTB", "MNT_USD"}
 LEVERAGED = re.compile(r"(\d+[LS]|UP|DOWN|BULL|BEAR)$")
+# Acoes tokenizadas vistas sem par noutra exchange (as restantes sao
+# detetadas automaticamente em tokenized_stocks()).
+STOCK_TOKENS = {"NVDAB", "SPCXB", "GOOGLB", "TSLAB", "AVGOB", "SNXXB",
+                "KORUB", "SKHYB", "AAPLB", "AMZNB", "METAB", "MSFTB", "COINB",
+                "HOODB", "PLTRB", "AMDB", "QQQB", "SPYB"}
+
+
+def tokenized_stocks(data):
+    """Acoes tokenizadas: Binance usa sufixo B (MSTRB), OKX prefixo X
+    (XMSTR). Se os dois existem com o mesmo preco, e a mesma acao."""
+    out = set(STOCK_TOKENS)
+    bn, ok = data.get("binance", {}), data.get("okx", {})
+    for b, t in bn.items():
+        if len(b) > 2 and b.endswith("B"):
+            o = ok.get("X" + b[:-1])
+            if o and t["last"] and o["last"] and \
+                    abs(t["last"] / o["last"] - 1) < 0.02:
+                out.update((b, "X" + b[:-1]))
+    return out
 
 
 def liquidity_score(vol, spread_bps, n_sources):
@@ -44,9 +63,9 @@ def collect_tickers():
 
 def build_universe(data):
     bases = set().union(*[set(d) for d in data.values()]) if data else set()
-    uni = []
+    uni, stocks = [], tokenized_stocks(data)
     for b in bases:
-        if b in STABLE_OR_PEGGED or LEVERAGED.search(b):
+        if b in STABLE_OR_PEGGED or LEVERAGED.search(b) or b in stocks:
             continue
         per = {s: d[b] for s, d in data.items() if b in d}
         ok = {s: t for s, t in per.items()
@@ -60,6 +79,9 @@ def build_universe(data):
         prices = {s: t["last"] for s, t in ok.items()}
         div, div_status = validate.price_divergence(prices)
         chgs = [t["chg_pct"] for t in ok.values() if t["chg_pct"] is not None]
+        px = statistics.median(prices.values())
+        if abs(px - 1) < 0.004 and chgs and max(abs(x) for x in chgs) < 0.3:
+            continue                      # indexado ao dolar: nao e negociavel
         reasons = []
         if vol < MIN_VOLUME_USD:
             reasons.append("volume baixo")
@@ -82,6 +104,7 @@ def build_universe(data):
 def deep_check(row, src_order, now):
     """Velas + validacao para um ativo. Usa a 1a fonte que responder."""
     out = {"timeframes": {}, "flags": []}
+    clean = {}
     for tf in TIMEFRAMES:
         rep, used = None, None
         for i, src in enumerate(src_order):
@@ -93,10 +116,11 @@ def deep_check(row, src_order, now):
                 rep = {"status": "DATA SOURCE ERROR", "issues": [str(e)[:120]],
                        "n": 0}
                 continue
-            _, rep = validate.validate_candles(
-                raw, sources.TF_SECONDS[tf], now, validate.MIN_HISTORY[tf]
-                if src.name != "okx" else min(validate.MIN_HISTORY[tf], 200))
+            cs, rep = validate.validate_candles(
+                raw, sources.TF_SECONDS[tf], now, validate.MIN_HISTORY[tf])
             used = src.name
+            if rep["status"] != validate.INVALID:
+                clean[tf] = cs
             if i > 0 and "DATA SOURCE FALLBACK" not in out["flags"]:
                 out["flags"].append("DATA SOURCE FALLBACK")
             break
@@ -116,6 +140,10 @@ def deep_check(row, src_order, now):
     out["data_quality"] = (0 if out["data_status"] == validate.INVALID
                            else max(50, 100 - 10 * n_issues
                                     - (0 if len(row["sources"]) > 1 else 10)))
+    # Sem dados validos nao ha analise (hierarquia: 1. dados validos?)
+    out["analysis"] = (analysis.multi(clean)
+                       if out["data_status"] != validate.INVALID
+                       and len(clean) == len(TIMEFRAMES) else None)
     return out
 
 
@@ -123,11 +151,11 @@ def run(now=None):
     now = int(now or time.time())
     status, data = collect_tickers()
     live = [s for s in sources.ALL if status[s.name]["ok"]]
-    result = {"generated_at": now, "phase": 1, "sources": status,
+    result = {"generated_at": now, "phase": 2, "sources": status,
               "thresholds": {"min_volume_usd": MIN_VOLUME_USD,
                              "max_spread_bps": MAX_SPREAD_BPS,
                              "deep_n": DEEP_N},
-              "signals": "Fase 1: sem sinais. So universo, liquidez e dados."}
+              "signals": "Fase 2: analise descritiva. Ainda sem sinais."}
     if not live:
         result.update(status_global="DATA SOURCE ERROR", universe=[])
         return result

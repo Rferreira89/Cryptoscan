@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cryptoscan · Scanner</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#14181f;--mut:#667085;--line:#e3e6ec;--up:#0a7d4b;--dn:#c0392b;--warn:#a15c00;--chip:#eef1f5}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1116;--card:#171b22;--ink:#e8ebf0;--mut:#8b95a5;--line:#262c36;--up:#3ecf8e;--dn:#ff6b5e;--warn:#f0b24a;--chip:#222833}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+main{max-width:820px;margin:0 auto;padding:16px}
+h1{font-size:20px;margin:4px 0 2px}
+.sub{color:var(--mut);font-size:13px;margin-bottom:12px}
+.banner{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:13.5px}
+.banner b{display:block;margin-bottom:2px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+.stat b{display:block;font-size:19px;font-variant-numeric:tabular-nums}
+.stat span{font-size:11.5px;color:var(--mut)}
+.bar{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+select,input{font:inherit;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);min-width:0}
+input{flex:1}
+.row{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:8px;overflow:hidden}
+.head{display:grid;grid-template-columns:1fr auto;gap:8px;padding:12px 14px;cursor:pointer;align-items:center}
+.sym{font-weight:650;font-size:16px}
+.px{font-variant-numeric:tabular-nums;text-align:right}
+.up{color:var(--up)}.dn{color:var(--dn)}.warn{color:var(--warn)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.chip{background:var(--chip);border-radius:999px;padding:2px 9px;font-size:12px;white-space:nowrap}
+.det{display:none;border-top:1px solid var(--line);padding:10px 14px;font-size:13.5px}
+.row.open .det{display:block}
+.tf{margin-bottom:10px}
+.tf h3{font-size:13px;margin:0 0 4px;color:var(--mut);font-weight:600}
+.kv{display:grid;grid-template-columns:repeat(2,1fr);gap:2px 14px}
+.kv div{display:flex;justify-content:space-between;gap:8px;font-variant-numeric:tabular-nums}
+.kv span{color:var(--mut)}
+.note{color:var(--mut);font-size:12.5px;margin-top:14px}
+</style>
+</head>
+<body>
+<main>
+<h1>Cryptoscan · Scanner</h1>
+<div class="sub" id="sub">A carregar…</div>
+<div class="banner"><b>Fase 2 — análise descritiva, sem sinais</b>Esta página mostra liquidez, qualidade dos dados, tendência e estrutura. Ainda não indica compras nem vendas: isso só existe depois de as estratégias serem testadas com dados históricos.</div>
+<div class="stats" id="stats"></div>
+<div class="bar">
+<input id="q" placeholder="Procurar ativo" autocomplete="off">
+<select id="sort">
+<option value="liquidity_score">Ordenar: liquidez</option>
+<option value="volume_24h">Volume 24h</option>
+<option value="chg_24h">Variação 24h</option>
+<option value="adx">Força da tendência (ADX 1D)</option>
+<option value="rsi">RSI 1D</option>
+</select>
+<select id="flt">
+<option value="">Todos</option>
+<option value="UP">Tendência 1D: subida</option>
+<option value="DOWN">Tendência 1D: descida</option>
+<option value="event">Com BOS/CHOCH recente (4H)</option>
+<option value="conflict">Com conflito entre timeframes</option>
+</select>
+</div>
+<div id="list"></div>
+<div class="note" id="note"></div>
+</main>
+<script>
+const URL_DATA="https://raw.githubusercontent.com/Rferreira89/Cryptoscan/data/scan.json";
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const num=(v,d)=>v==null?"–":Number(v).toLocaleString("pt-PT",{maximumFractionDigits:d,minimumFractionDigits:0});
+const price=v=>v==null?"–":v>=100?num(v,2):v>=1?num(v,3):Number(v).toPrecision(4);
+const vol=v=>v>=1e9?num(v/1e9,2)+" mM $":num(v/1e6,1)+" M $";
+const T={UP:"subida",DOWN:"descida",MIXED:"misto",BULLISH:"bullish",BEARISH:"bearish",NEUTRAL:"neutra",UNCLEAR:"indefinida",STRONG:"forte",MODERATE:"moderada",WEAK:"fraca"};
+let D=null,open=new Set();
+function tfBlock(name,a){
+  if(!a) return "";
+  if(!a.ok) return `<div class="tf"><h3>${name}</h3><span class="warn">${esc(a.reason)}</span></div>`;
+  const ev=a.event?`${a.event.type} ${a.event.direction==="UP"?"↑":"↓"} em ${price(a.event.level)}, há ${a.event.bars_ago} velas`:"nenhum";
+  return `<div class="tf"><h3>${name}</h3><div class="kv">
+  <div><span>Tendência (médias)</span><b>${T[a.ema_trend]}</b></div>
+  <div><span>Estrutura</span><b>${T[a.structure]}</b></div>
+  <div><span>Força (ADX)</span><b>${num(a.adx,1)} · ${T[a.trend_strength]}</b></div>
+  <div><span>RSI</span><b>${num(a.rsi,1)}</b></div>
+  <div><span>Volatilidade (ATR)</span><b>${num(a.atr_pct,2)}%</b></div>
+  <div><span>Distância à EMA200</span><b>${a.dist_ema200_pct>0?"+":""}${num(a.dist_ema200_pct,1)}%</b></div>
+  <div><span>Último topo</span><b>${price(a.swing_high)}</b></div>
+  <div><span>Último fundo</span><b>${price(a.swing_low)}</b></div>
+  </div><div style="margin-top:4px"><span style="color:var(--mut)">Quebra de estrutura:</span> ${esc(ev)}</div>
+  ${a.sequence.length?`<div><span style="color:var(--mut)">Sequência:</span> ${a.sequence.map(esc).join(" → ")}</div>`:""}
+  ${a.patterns.length?`<div><span style="color:var(--mut)">Última vela:</span> ${a.patterns.map(esc).join(", ")}</div>`:""}
+  </div>`;
+}
+function render(){
+  if(!D) return;
+  const q=$("q").value.trim().toUpperCase(),s=$("sort").value,f=$("flt").value;
+  const key=r=>s==="adx"||s==="rsi"?(r.analysis&&r.analysis["1d"]&&r.analysis["1d"].ok?r.analysis["1d"][s]:-1):(r[s]??-1e18);
+  let rows=D.universe.filter(r=>r.eligible&&r.timeframes);
+  if(q) rows=rows.filter(r=>r.asset.toUpperCase().includes(q));
+  if(f) rows=rows.filter(r=>{const a=r.analysis;if(!a)return false;
+    if(f==="conflict")return !!a.mtf_conflict;
+    if(f==="event")return a["4h"]&&a["4h"].ok&&a["4h"].event&&a["4h"].event.bars_ago<=6;
+    return a["1d"]&&a["1d"].ok&&a["1d"].ema_trend===f;});
+  rows.sort((a,b)=>key(b)-key(a));
+  $("list").innerHTML=rows.map(r=>{
+    const a=r.analysis,d=a&&a["1d"]&&a["1d"].ok?a["1d"]:null,h=a&&a["4h"]&&a["4h"].ok?a["4h"]:null;
+    const chips=[`<span class="chip">Liquidez ${r.liquidity_score}</span>`,
+      `<span class="chip ${r.data_status==="VALID"?"":"warn"}">Dados ${r.data_status==="VALID"?"válidos":r.data_status==="DEGRADED"?"com avisos":"inválidos"}</span>`];
+    if(d) chips.push(`<span class="chip ${d.ema_trend==="UP"?"up":d.ema_trend==="DOWN"?"dn":""}">1D ${T[d.ema_trend]}</span>`);
+    if(h) chips.push(`<span class="chip ${h.structure==="BULLISH"?"up":h.structure==="BEARISH"?"dn":""}">4H ${T[h.structure]}</span>`);
+    if(a&&a.mtf_conflict) chips.push(`<span class="chip warn">Conflito</span>`);
+    const issues=Object.entries(r.timeframes).filter(([,v])=>v.issues.length).map(([tf,v])=>`${tf.toUpperCase()}: ${esc(v.issues.join("; "))}`);
+    return `<div class="row ${open.has(r.asset)?"open":""}" data-a="${esc(r.asset)}">
+    <div class="head"><div><div class="sym">${esc(r.asset)}</div><div class="chips">${chips.join("")}</div></div>
+    <div class="px"><div>${price(r.price)} $</div><div class="${r.chg_24h>=0?"up":"dn"}">${r.chg_24h==null?"–":(r.chg_24h>=0?"+":"")+num(r.chg_24h,2)+"%"}</div></div></div>
+    <div class="det">
+    <div class="kv" style="margin-bottom:10px"><div><span>Volume 24h</span><b>${vol(r.volume_24h)}</b></div><div><span>Spread</span><b>${num(r.spread_bps,2)} bps</b></div>
+    <div><span>Fontes</span><b>${r.sources.map(esc).join(", ")}</b></div><div><span>Qualidade dos dados</span><b>${r.data_quality}/100</b></div></div>
+    ${a?tfBlock("Diário (1D)",a["1d"])+tfBlock("4 horas (4H)",a["4h"]):`<div class="warn">Sem análise: dados inválidos.</div>`}
+    ${a&&a.mtf_conflict?`<div class="warn">Conflito: ${esc(a.mtf_conflict)}</div>`:""}
+    ${issues.length?`<div class="warn" style="margin-top:6px">Avisos de dados — ${issues.join(" · ")}</div>`:""}
+    </div></div>`}).join("")||`<div class="banner">Nenhum ativo corresponde ao filtro.</div>`;
+}
+async function load(){
+  try{
+    const r=await fetch(URL_DATA+"?t="+Date.now(),{cache:"no-store"});
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    D=await r.json();
+    const age=Math.round((Date.now()/1000-D.generated_at)/60);
+    const src=Object.entries(D.sources).map(([n,s])=>n+(s.ok?" ✓":" ✗")).join(" · ");
+    $("sub").innerHTML=`Atualizado há ${age} min · ${esc(src)}`+(age>45?` · <span class="warn">dados atrasados</span>`:"");
+    const c=D.counts||{};
+    $("stats").innerHTML=[["Pares vistos",c.pairs_seen],["Passam o filtro",c.eligible],["Analisados",c.deep_checked],["Dados válidos",c.data_valid]].map(([l,v])=>`<div class="stat"><b>${v??"–"}</b><span>${l}</span></div>`).join("");
+    $("note").textContent=`Filtro de liquidez: volume 24h ≥ ${num(D.thresholds.min_volume_usd/1e6,0)} M $ e spread ≤ ${D.thresholds.max_spread_bps} bps. Análise aprofundada só nos ${D.thresholds.deep_n} ativos mais líquidos. Toca num ativo para ver o detalhe.`;
+    render();
+  }catch(e){$("sub").innerHTML=`<span class="warn">Não foi possível carregar os dados (${esc(e.message)}).</span>`}
+}
+$("list").addEventListener("click",e=>{const row=e.target.closest(".row");if(!row||!e.target.closest(".head"))return;const a=row.dataset.a;open.has(a)?open.delete(a):open.add(a);row.classList.toggle("open")});
+["q","sort","flt"].forEach(i=>$(i).addEventListener("input",render));
+load();setInterval(load,300000);
+</script>
+</body>
+</html>

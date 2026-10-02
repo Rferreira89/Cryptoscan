@@ -31,6 +31,19 @@ def main():
             for tf, v in r.get("timeframes", {}).items():
                 if v["issues"]:
                     print(f"      {tf}: {'; '.join(v['issues'])}")
+            an = r.get("analysis")
+            for tf in ("1d", "4h"):
+                a = an and an.get(tf)
+                if a and a["ok"]:
+                    ev = a["event"]
+                    print(f"      {tf} ema:{a['ema_trend']} estr:{a['structure']} "
+                          f"adx {a['adx']} rsi {a['rsi']} atr {a['atr_pct']}% "
+                          f"ev:{ev['type']+' '+ev['direction']+' ha '+str(ev['bars_ago']) if ev else '-'} "
+                          f"{','.join(a['patterns'])}")
+                elif a:
+                    print(f"      {tf} {a['reason']}")
+            if an and an.get("mtf_conflict"):
+                print(f"      CONFLITO: {an['mtf_conflict']}")
     # falha o job se nenhuma fonte respondeu: nunca publicar dados vazios
     sys.exit(0 if res["universe"] else 1)
 

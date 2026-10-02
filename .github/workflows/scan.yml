@@ -4,7 +4,7 @@ on:
     - cron: "7,22,37,52 * * * *"
   workflow_dispatch:
   push:
-    branches: [fase-1-dados-scanner]
+    branches: [main]
     paths: ["engine/**", "tests/**", ".github/workflows/scan.yml"]
 permissions:
   contents: write
@@ -24,7 +24,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Testes
-        run: python -m unittest -q tests.test_validate
+        run: python -m unittest discover -q -s tests -t .
       - name: Scan
         run: |
           mkdir -p out
