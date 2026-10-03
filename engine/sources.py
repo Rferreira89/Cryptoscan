@@ -4,6 +4,7 @@ Cada fonte devolve dados normalizados. Uma fonte que falha e reportada
 como erro - nunca se inventam nem se preenchem valores.
 """
 import json
+import time
 import urllib.request
 import urllib.parse
 
@@ -17,15 +18,29 @@ class SourceError(Exception):
     pass
 
 
+RETRIES = 3
+RETRY_WAIT = 3  # segundos; cresce a cada tentativa
+
+
 def _get(url, params=None):
+    """GET com repeticao: uma falha passageira (limite de pedidos, rede)
+    nao deve deixar o scan inteiro sem uma fonte."""
     if params:
         url += "?" + urllib.parse.urlencode(params)
-    try:
-        req = urllib.request.Request(url, headers=UA)
-        with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
-            return json.loads(r.read().decode())
-    except Exception as e:  # rede, HTTP, JSON
-        raise SourceError(f"{type(e).__name__}: {e}") from e
+    err = None
+    for i in range(RETRIES):
+        try:
+            req = urllib.request.Request(url, headers=UA)
+            with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
+                return json.loads(r.read().decode())
+        except Exception as e:  # rede, HTTP, JSON
+            err = e
+            code = getattr(e, "code", None)
+            if code in (400, 401, 403, 404, 451):  # nao adianta repetir
+                break
+            if i < RETRIES - 1:
+                time.sleep(RETRY_WAIT * (i + 1))
+    raise SourceError(f"{type(err).__name__}: {err}") from err
 
 
 def _f(v):

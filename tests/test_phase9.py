@@ -275,5 +275,33 @@ class EndToEndShort(unittest.TestCase):
         self.assertLessEqual(len(res2["active_signals"]), CFG["max_open_positions"])
 
 
+
+class GetRetries(unittest.TestCase):
+    def test_transient_failure_is_retried(self):
+        from unittest import mock
+        import io
+        from engine import sources
+        calls = []
+
+        def fake(req, timeout=0):
+            calls.append(1)
+            if len(calls) < 3:
+                raise OSError("429")
+            return io.BytesIO(b'{"a": 1}')
+        with mock.patch.object(sources, "RETRY_WAIT", 0), \
+                mock.patch("urllib.request.urlopen", fake):
+            self.assertEqual(sources._get("https://x"), {"a": 1})
+        self.assertEqual(len(calls), 3)
+
+    def test_gives_up_after_retries(self):
+        from unittest import mock
+        from engine import sources
+
+        def fake(req, timeout=0):
+            raise OSError("down")
+        with mock.patch.object(sources, "RETRY_WAIT", 0), \
+                mock.patch("urllib.request.urlopen", fake):
+            self.assertRaises(sources.SourceError, sources._get, "https://x")
+
 if __name__ == "__main__":
     unittest.main()
