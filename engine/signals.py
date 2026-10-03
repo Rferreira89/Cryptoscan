@@ -8,7 +8,7 @@ Hierarquia (falha critica => NO TRADE):
 Um sinal emitido fica congelado: os niveis nao sao recalculados nem
 reutilizados. Expira ao fim de signal_expiry_hours ou e invalidado.
 """
-from . import (confluence, regime, risk, strategies, trade, validate,
+from . import (confluence, ledger, regime, risk, strategies, trade, validate,
                validation, venue)
 
 H4 = 14400
@@ -372,11 +372,15 @@ def update_state(state, rows, cfg, now, daily=None):
                 r["decision"].update(decision="NO TRADE",
                                      reason="TRADING HALTED: " + halt)
 
+    # operacoes marcadas "nao executei" nao ocupam vaga
+    no_ids, no_trend = ledger.declined(state)
+
     def used(mode):
-        return sum(1 for s in sigs.values()
+        return sum(1 for k, s in sigs.items()
                    if s["status"] in ("ACTIVE", "TRIGGERED")
-                   and s.get("mode", "REAL") == mode)
-    trend_open = len(state.get("paper_trend", {}).get("positions", {}))
+                   and s.get("mode", "REAL") == mode and k not in no_ids)
+    trend_open = sum(1 for a in state.get("paper_trend", {}).get(
+        "positions", {}) if a not in no_trend)
     slots = {m: cfg["max_open_positions"] - used(m)
              - (trend_open if m == "REAL" else 0) for m in ("REAL", "PAPER")}
     cands = sorted((r for r in rows

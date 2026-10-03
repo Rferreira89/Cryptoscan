@@ -11,7 +11,7 @@ dias anteriores com o preco acima da media de 200 dias; stop inicial a
 anteriores. Risco de 1% por operacao, maximo de 4 posicoes, so grandes
 moedas de 2021 listadas na Bybit UE.
 """
-from . import risk
+from . import ledger, risk
 
 MAJORS21 = ["BTC", "ETH", "BNB", "XRP", "ADA", "DOGE", "SOL", "DOT", "LTC",
             "LINK", "BCH", "XLM", "UNI", "AVAX", "TRX", "ATOM", "FIL", "ALGO",
@@ -84,10 +84,13 @@ def update(state, rows, daily, cfg, now, market_ok=True, halted=None):
     fee = cfg["fee_pct"] / 100
     ev = []
     # limite de operacoes partilhado com os sinais de 4H
-    live = [s for s in state.get("signals", {}).values()
+    # (operacoes marcadas "nao executei" nao ocupam vaga)
+    no_ids, no_trend = ledger.declined(state)
+    live = [(k, s) for k, s in state.get("signals", {}).items()
             if s["status"] in ("ACTIVE", "TRIGGERED")
             and s.get("mode", "REAL") == "REAL"]
-    live_4h, live_assets = len(live), {s["asset"] for s in live}
+    live_4h = sum(1 for k, _ in live if k not in no_ids)
+    live_assets = {s["asset"] for _, s in live}
     max_pos = min(MAX_POS, cfg.get("max_open_positions", MAX_POS))
 
     def close(a, px, reason):
@@ -105,7 +108,8 @@ def update(state, rows, daily, cfg, now, market_ok=True, halted=None):
                 close(a, min(px, p["stop0"]), "STOP")
             elif new_day and last["c"] < min(x["l"] for x in c[-1 - M:-1]):
                 close(a, px, "TRAIL")
-        elif new_day and len(st["positions"]) + live_4h < max_pos \
+        elif new_day and sum(1 for x in st["positions"]
+                             if x not in no_trend) + live_4h < max_pos \
                 and a not in live_assets and not halted and \
                 (market_ok or not cfg.get("require_btc_above_sma200")):
             sma = sum(x["c"] for x in c[-200:]) / 200

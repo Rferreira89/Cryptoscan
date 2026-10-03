@@ -8,6 +8,17 @@ MAX = 1000
 CLOSERS = ("STOP", "BREAKEVEN", "TIME", "TP1", "TP2", "TP3")
 
 
+def declined(state):
+    """Operacoes que o utilizador marcou como NAO executadas: continuam a
+    ser acompanhadas em papel, mas nao ocupam vaga no limite de operacoes
+    em simultaneo. Devolve (ids de sinais de 4H, ativos da tendencia)."""
+    led = state.get("ledger", [])
+    ids = {r["id"] for r in led if r.get("executed") is False}
+    trend = {r["asset"] for r in led if r.get("executed") is False
+             and r.get("kind") == "1D" and r.get("status") == "OPEN"}
+    return ids, trend
+
+
 def apply(state, events):
     led = state.setdefault("ledger", [])
     by_id = {r["id"]: r for r in led}
