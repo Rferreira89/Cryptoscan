@@ -5,7 +5,7 @@ import os
 DEFAULTS = {
     "venue": "Bybit EU",        # unica corretora onde se opera
     "quote": "USDC",            # a Bybit UE nao lista USDT (MiCA)
-    "direction": "LONG_ONLY",   # spot, sem alavancagem: nao ha shorts
+    "direction": "LONG_ONLY",   # nao usado: os shorts dependem de "shorts"
     "risk_pct": 1.0,            # risco por operacao, % do capital
     "max_position_pct": 25.0,   # teto por posicao, % do capital
     "fee_pct": 0.1,             # comissao spot por lado (taxa base Bybit)
@@ -13,7 +13,8 @@ DEFAULTS = {
     "min_score": 65,
     # Modo concentrado (decisao do utilizador, 2026-10-02): com 50 USDC,
     # no maximo 2 operacoes de cada vez, posicoes ate 25 USDC e risco ate
-    # 1 USDC (2%) por operacao. Conta sinais ativos, operacoes abertas e
+    # max_risk_usdc por operacao (1 USDC = 2% em config.json desde
+    # 2026-10-03; o valor por omissao abaixo e 2 USDC). Conta sinais ativos, operacoes abertas e
     # posicoes da tendencia diaria.
     "max_open_positions": 2,
     "signal_expiry_hours": 12,  # 3 velas de 4H

@@ -1,6 +1,6 @@
 # Cryptoscan — motor de análise e sinais
 
-Scanner de criptomoedas para operar em **spot e margem spot na Bybit UE** (pares em USDC). Corre sozinho no GitHub Actions de 15 em 15 minutos.
+Scanner de criptomoedas para operar em **spot e margem spot na Bybit UE** (pares em USDC). Corre sozinho no GitHub Actions: scan completo de 5 em 5 minutos e acompanhamento das operações abertas de minuto a minuto.
 
 - Página: https://rferreira89.github.io/Cryptoscan/scanner/
 - Dados publicados: ramo `data` (`scan.json`, `state.json`, `audit.jsonl`, `resumo.txt`)
@@ -12,7 +12,7 @@ Nenhuma estratégia está validada. O backtest (2021 a 2026, custos incluídos) 
 
 Por decisão do utilizador (2026-10-02, `real_money_unvalidated` em `engine/config.py`), os sinais são mesmo assim emitidos como operações reais, com estas salvaguardas:
 
-- posição fixa de 25 USDC por operação (decisão do utilizador), no máximo 2 operações em simultâneo incluindo a tendência diária; o risco depende do stop e uma operação com risco acima de 2 USDC não é emitida. `{"fixed_position_usdc": null}` volta à dimensão pelo risco
+- posição fixa de 25 USDC por operação (decisão do utilizador), no máximo 2 operações em simultâneo incluindo a tendência diária; o risco depende do stop e uma operação com risco acima de 1 USDC (2% do capital, `max_risk_usdc` em `config.json`, decisão de 2026-10-03) não é emitida. `{"fixed_position_usdc": null}` volta à dimensão pelo risco
 - alavancagem de swing (`swing_leverage`, 2x por decisão do utilizador): multiplica a posição e o risco, limitada ao valor que mantém a liquidação estimada a pelo menos 2,5 vezes a distância do stop, com teto de 3x. `{"swing_leverage": 1}` desliga-a
 - shorts em margem spot (`shorts`, por decisão do utilizador): espelho das estratégias de compra (`engine/short.py`), só com o BTC abaixo da média de 200 dias. No backtest deram −0,22R por operação, igual às compras. `{"shorts": false}` desliga-os
 - sem compras novas com o BTC abaixo da média de 200 dias
@@ -77,5 +77,5 @@ Valores por omissão em `engine/config.py`; podem ser alterados num `config.json
 
 - A API da Bybit recusa ligações do GitHub: preços e pares da Bybit UE vêm da CoinGecko; não há passo de preço nem quantidade mínima por ordem.
 - Derivados só da OKX.
-- O acompanhamento ao vivo usa o preço de cada scan (15 minutos): movimentos mais curtos podem não ser vistos.
+- O acompanhamento ao vivo usa o preço de cada passagem (1 minuto): movimentos mais curtos podem não ser vistos.
 - O backtest usa os ativos hoje listados (viés de sobrevivência) e velas de 4H.

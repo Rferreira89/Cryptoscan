@@ -1,6 +1,6 @@
 """Passagem leve de 1 minuto: so acompanha o que esta aberto.
 
-Nao analisa nem emite sinais novos (isso e o scan de 15 minutos). Le os
+Nao analisa nem emite sinais novos (isso e o scan de 5 minutos). Le os
 precos, verifica stops e objetivos, le as respostas do Telegram, atualiza
 o registo e envia os alertas de venda.
 """

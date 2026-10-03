@@ -329,6 +329,19 @@ def save(state, res, events):
                 f.write(json.dumps(e, separators=(",", ":")) + "\n")
 
 
+SCAN_HISTORY_SECONDS = 7 * 86400
+
+
+def record_scan(state, t):
+    """Guarda a hora de cada scan dos ultimos 7 dias em state["scan_times"],
+    para que paragens passadas fiquem visiveis (a auditoria procura
+    intervalos acima de 30 minutos)."""
+    times = [x for x in state.get("scan_times", [])
+             if isinstance(x, int) and t - SCAN_HISTORY_SECONDS <= x < t]
+    state["scan_times"] = times + [int(t)]
+    return state["scan_times"]
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
     state = _load("state.json", {})
@@ -336,6 +349,8 @@ def main():
     res, state, events = scanner.run(state=state)
     extra = reports.due(res, state, res["generated_at"]) if res["universe"] else []
     res["journal"] = ledger.view(state.get("ledger", []))
+    if res["universe"]:             # so conta scans com dados
+        record_scan(state, res["generated_at"])
     save(state, res, events)
     text = "\n".join(summary(res))
     with open(os.path.join(OUT, "resumo.txt"), "w") as f:
