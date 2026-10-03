@@ -125,10 +125,10 @@ def update(state, rows, daily, cfg, now, market_ok=True, halted=None):
                 fixed = cfg.get("fixed_position_usdc")
                 if cap and fixed:
                     frac = min(fixed, cap * lev["use"]) / cap
-                    if cap * frac * risk_unit / entry > \
-                            cfg.get("max_risk_usdc", float("inf")) + 1e-9:
-                        st["last_day"][a] = last["t"]
-                        continue             # stop demasiado largo
+                    r_usdc = cap * frac * risk_unit / entry
+                    max_risk = cfg.get("max_risk_usdc", float("inf"))
+                    if r_usdc > max_risk + 1e-9:
+                        frac *= max_risk / r_usdc    # stop largo: posicao menor
                 pos_usdc = cap * frac if cap else None
                 if cap and pos_usdc < cfg.get("min_order_usdc", 5.0):
                     st["last_day"][a] = last["t"]

@@ -432,17 +432,18 @@ class FixedStake(unittest.TestCase):
         self.assertAlmostEqual(p["risk_usdc"], 25 * 0.02198, places=2)   # 0.55
         self.assertAlmostEqual(p["risk_pct"], 1.1, places=1)
 
-    def test_wide_stop_is_rejected_by_risk_limit(self):
+    def test_wide_stop_shrinks_position_to_risk_limit(self):
         from engine import risk
-        # stop a 9% -> risco de 2.3 USDC, acima do limite de 2
+        # stop a 9% -> 25 USDC arriscariam 2.3; a posicao encolhe para 2
         a4 = T4.a4h(atr=4.0, liquidity=dict(T4.a4h()["liquidity"],
                                             pools_above=[130.0, 150.0]),
                     swing_high=130.0)
         cfg = config.load("nao-existe.json")
         p, why = risk.plan({"strategy": "X", "entry": [99.7, 100.0],
                             "stop": 91.0}, a4, T4.a1d(), cfg)
-        self.assertIsNone(p)
-        self.assertIn("acima do limite de 2", why)
+        self.assertIsNone(why)
+        self.assertLess(p["position_usdc"], 25.0)
+        self.assertAlmostEqual(p["risk_usdc"], 2.0, places=2)
         p, _ = risk.plan({"strategy": "X", "entry": [99.7, 100.0], "stop": 93.0},
                          a4, T4.a1d(), cfg)
         self.assertEqual(p["position_usdc"], 25.0)

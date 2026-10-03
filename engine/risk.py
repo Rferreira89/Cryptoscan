@@ -60,17 +60,20 @@ def sizing(stop_pct, stop_frac, entry, cfg, short=False):
     cap = cfg.get("capital_usdc")
     fixed = cfg.get("fixed_position_usdc")
     if cap and fixed:
-        # posicao fixa: o risco e o que a distancia do stop ditar
+        # posicao fixa: o risco e o que a distancia do stop ditar. Com um
+        # stop largo a posicao encolhe ate o risco caber em max_risk_usdc
+        # (decisao do utilizador, 2026-10-03), em vez de recusar o sinal.
         size_pct = min(fixed, cap * lev["use"]) / cap * 100
         risk_usdc = cap * size_pct / 100 * stop_pct / 100
-        if risk_usdc > cfg.get("max_risk_usdc", float("inf")) + 1e-9:
-            return None, (f"stop demasiado largo para uma posição de "
-                          f"{fixed:g} USDC: risco de {risk_usdc:.2f} USDC "
-                          f"acima do limite de {cfg['max_risk_usdc']:g}")
+        max_risk = cfg.get("max_risk_usdc", float("inf"))
+        if risk_usdc > max_risk + 1e-9:
+            size_pct *= max_risk / risk_usdc
     if cap:
         pos_usdc = cap * size_pct / 100
         mn = cfg.get("min_order_usdc", 5.0)
-        if 0.9 * mn <= pos_usdc < mn:
+        if 0.9 * mn <= pos_usdc < mn and not (
+                fixed and mn * stop_pct / 100
+                > cfg.get("max_risk_usdc", float("inf")) + 1e-9):
             # a centimos do minimo: arredonda para a ordem minima (o risco
             # sobe no maximo 10% do seu valor, p. ex. de 0.50% para 0.55%)
             size_pct = mn / cap * 100

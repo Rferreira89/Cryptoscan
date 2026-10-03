@@ -41,7 +41,7 @@ DEFAULTS = {
     "min_order_usdc": 5.0,
     # Decisao do utilizador (2026-10-02): todas as operacoes com posicao
     # fixa de 25 USDC. O risco passa a depender da distancia do stop; uma
-    # operacao cujo risco exceda max_risk_usdc nao e emitida. None = dimensao
+    # operacao cujo risco excederia max_risk_usdc fica com posicao menor. None = dimensao
     # pelo risco (risk_pct).
     "fixed_position_usdc": 25.0,
     "max_risk_usdc": 2.0,

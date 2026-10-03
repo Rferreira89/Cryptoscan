@@ -88,7 +88,10 @@ class Mirror(unittest.TestCase):
     def test_real_plan_rejections(self):
         wide = {"entry_zone": [1 / 100.3, 1 / 100.0], "stop": 1 / 112.0,
                 "tp": [1 / 80.0, 1 / 70.0, 1 / 60.0]}
-        self.assertIn("limite de 2", short.real_plan(wide, CFG)[1])
+        p, why = short.real_plan(wide, CFG)      # stop largo: posicao menor
+        self.assertIsNone(why)
+        self.assertLess(p["position_usdc"], 25.0)
+        self.assertAlmostEqual(p["risk_usdc"], CFG["max_risk_usdc"], places=2)
         poor = {"entry_zone": [1 / 100.3, 1 / 100.0], "stop": 1 / 102.0,
                 "tp": [1 / 99.0, 1 / 98.5, 1 / 98.0]}
         self.assertIn("POOR R:R", short.real_plan(poor, CFG)[1])
