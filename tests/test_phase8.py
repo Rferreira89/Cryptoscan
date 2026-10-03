@@ -371,14 +371,15 @@ class Concentrated(unittest.TestCase):
     def test_defaults_of_mode_b(self):
         c = config.load("nao-existe.json")
         self.assertEqual((c["max_open_positions"], c["unvalidated_risk_pct"],
-                          c["capital_usdc"], c["swing_leverage"]), (2, 1.0, 50.0, 2.0))
+                          c["capital_usdc"], c["swing_leverage"]), (2, 1.0, 50.0, 6.0))
         self.assertEqual((c["fixed_position_usdc"], c["max_risk_usdc"]), (25.0, 2.0))
 
     def test_risk_and_position_caps_at_50_usdc(self):
         orig = validation.load
         validation.load = lambda: None
         self.addCleanup(lambda: setattr(validation, "load", orig))
-        cfg = dict(config.load("nao-existe.json"), fixed_position_usdc=None)
+        cfg = dict(config.load("nao-existe.json"), fixed_position_usdc=None,
+                   swing_leverage=2.0)
         d = signals.decide(T4.row(), T4.C4, cfg, T4.V, "BULL", False)
         p = d["plan"]
         self.assertLessEqual(p["position_usdc"], 25.0 + 1e-9)
@@ -424,13 +425,13 @@ class FixedStake(unittest.TestCase):
     def test_always_25_usdc_with_or_without_margin(self):
         for lev in (1.0, 2.0):
             p, _ = self.plan(98.0, lev)
-            self.assertEqual(p["position_usdc"], 25.0)
-            self.assertEqual(p["position_pct"], 50.0)
-            self.assertEqual(p["partials"], [50, 30, 20])     # 12.5 / 7.5 / 5
-            self.assertAlmostEqual(p["collateral_usdc"], 25.0 / lev, places=2)
+            self.assertEqual(p["position_usdc"], 25.0 * lev)
+            self.assertEqual(p["position_pct"], 50.0 * lev)
+            self.assertEqual(p["partials"], [50, 30, 20])
+            self.assertAlmostEqual(p["collateral_usdc"], 25.0, places=2)
         p, _ = self.plan(98.0)
-        self.assertAlmostEqual(p["risk_usdc"], 25 * 0.02198, places=2)   # 0.55
-        self.assertAlmostEqual(p["risk_pct"], 1.1, places=1)
+        self.assertAlmostEqual(p["risk_usdc"], 50 * 0.02198, places=2)   # 1.10
+        self.assertAlmostEqual(p["risk_pct"], 2.2, places=1)
 
     def test_wide_stop_shrinks_position_to_risk_limit(self):
         from engine import risk
@@ -446,14 +447,14 @@ class FixedStake(unittest.TestCase):
         self.assertAlmostEqual(p["risk_usdc"], 2.0, places=2)
         p, _ = risk.plan({"strategy": "X", "entry": [99.7, 100.0], "stop": 93.0},
                          a4, T4.a1d(), cfg)
-        self.assertEqual(p["position_usdc"], 25.0)
-        self.assertLessEqual(p["risk_usdc"], 2.0)
+        self.assertGreater(p["position_usdc"], 25.0)     # com margem
+        self.assertLessEqual(p["risk_usdc"], 2.0 + 0.005)
 
     def test_live_decision_and_two_positions_use_whole_capital(self):
         orig = validation.load
         validation.load = lambda: None
         self.addCleanup(lambda: setattr(validation, "load", orig))
-        cfg = config.load("nao-existe.json")
+        cfg = dict(config.load("nao-existe.json"), swing_leverage=1.0)
         for conflict in (None, "1D: médias e estrutura discordam"):
             r = T4.row()
             r["analysis"]["mtf_conflict"] = conflict

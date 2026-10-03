@@ -100,8 +100,8 @@ class Leverage(unittest.TestCase):
 
     def test_liquidation_stays_far_from_stop(self):
         for sf in (0.01, 0.03, 0.05, 0.08, 0.12, 0.2, 0.35):
-            lv = risk.leverage_for(sf, dict(CFG, swing_leverage=3.0))
-            self.assertTrue(1.0 <= lv["use"] <= lv["max_safe"] <= 3.0)
+            lv = risk.leverage_for(sf, dict(CFG, swing_leverage=6.0))
+            self.assertTrue(1.0 <= lv["use"] <= lv["max_safe"] <= 6.0)
             if lv["use"] > 1:
                 liq_dist = 1 / lv["use"] - risk.MMR
                 self.assertGreaterEqual(liq_dist, 2.5 * sf - 1e-9)
@@ -112,10 +112,10 @@ class Leverage(unittest.TestCase):
         import json, os, tempfile
         d = tempfile.mkdtemp()
         f = os.path.join(d, "c.json")
-        json.dump({"swing_leverage": 5}, open(f, "w"))
+        json.dump({"swing_leverage": 7}, open(f, "w"))
         with self.assertRaises(ValueError):
             config.load(f)
-        self.assertEqual(config.load("nao-existe.json")["swing_leverage"], 2.0)
+        self.assertEqual(config.load("nao-existe.json")["swing_leverage"], 6.0)
 
     def test_alert_lines(self):
         from engine import run

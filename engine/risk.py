@@ -8,6 +8,7 @@ import math
 
 from .strategies import px_str
 
+MAX_LEVERAGE = 6.0              # teto absoluto (decisao do utilizador)
 MMR = 0.05                      # margem de manutencao assumida
 
 MIN_STOP_ATR, MAX_STOP_ATR = 0.8, 4.0
@@ -29,9 +30,9 @@ def leverage_for(stop_frac, cfg):
     """Alavancagem a usar e maximo seguro para uma distancia de stop.
 
     Maximo seguro: a liquidacao estimada (1/L menos margem de manutencao)
-    fica a pelo menos 2.5 vezes a distancia do stop. Teto absoluto de 3x.
+    fica a pelo menos 2.5 vezes a distancia do stop. Teto absoluto de 6x.
     """
-    max_safe = max(1.0, min(3.0, math.floor(2 / (2.5 * stop_frac + MMR)) / 2))
+    max_safe = max(1.0, min(MAX_LEVERAGE, math.floor(2 / (2.5 * stop_frac + MMR)) / 2))
     use = max(1.0, min(cfg.get("swing_leverage", 1.0), max_safe))
     return {"use": use, "max_safe": max_safe, "needed": 1.0}
 
@@ -63,11 +64,16 @@ def sizing(stop_pct, stop_frac, entry, cfg, short=False):
         # posicao fixa: o risco e o que a distancia do stop ditar. Com um
         # stop largo a posicao encolhe ate o risco caber em max_risk_usdc
         # (decisao do utilizador, 2026-10-03), em vez de recusar o sinal.
-        size_pct = min(fixed, cap * lev["use"]) / cap * 100
-        risk_usdc = cap * size_pct / 100 * stop_pct / 100
+        # margem propria fixa (fixed) vezes a alavancagem permitida pelo
+        # stop; a posicao encolhe ate o risco caber em max_risk_usdc. Assim
+        # a alavancagem real e tanto maior quanto mais apertado o stop, e
+        # a perda no stop nunca passa do limite.
         max_risk = cfg.get("max_risk_usdc", float("inf"))
-        if risk_usdc > max_risk + 1e-9:
-            size_pct *= max_risk / risk_usdc
+        pos = min(fixed * lev["use"], cap * lev["use"],
+                  max_risk / (stop_pct / 100))
+        eff = max(1.0, round(pos / fixed, 2))
+        lev = dict(lev, use=min(lev["use"], eff))
+        size_pct = pos / cap * 100
     if cap:
         pos_usdc = cap * size_pct / 100
         mn = cfg.get("min_order_usdc", 5.0)

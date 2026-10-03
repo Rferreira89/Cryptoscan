@@ -12,8 +12,8 @@ Nenhuma estratégia está validada. O backtest (2021 a 2026, custos incluídos) 
 
 Por decisão do utilizador (2026-10-02, `real_money_unvalidated` em `engine/config.py`), os sinais são mesmo assim emitidos como operações reais, com estas salvaguardas:
 
-- posição fixa de 25 USDC por operação (decisão do utilizador), no máximo 2 operações em simultâneo incluindo a tendência diária; o risco depende do stop e com um stop largo a posição encolhe até o risco caber em 1 USDC (2% do capital, `max_risk_usdc` em `config.json`, decisão de 2026-10-03). `{"fixed_position_usdc": null}` volta à dimensão pelo risco
-- alavancagem de swing (`swing_leverage`, 2x por decisão do utilizador): multiplica a posição e o risco, limitada ao valor que mantém a liquidação estimada a pelo menos 2,5 vezes a distância do stop, com teto de 3x. `{"swing_leverage": 1}` desliga-a
+- posição fixa de 25 USDC por operação (decisão do utilizador), no máximo 2 operações em simultâneo incluindo a tendência diária; a posição é 25 USDC de margem própria vezes a alavancagem e encolhe até a perda no stop caber em 2,5 USDC (5% do capital, `max_risk_usdc` em `config.json`, decisão de 2026-10-03). `{"fixed_position_usdc": null}` volta à dimensão pelo risco
+- alavancagem de swing (`swing_leverage`, teto de 6x por decisão do utilizador em 2026-10-03): multiplica a posição e o risco, limitada ao valor que mantém a liquidação estimada a pelo menos 2,5 vezes a distância do stop, com teto de 6x. `{"swing_leverage": 1}` desliga-a
 - shorts em margem spot (`shorts`, por decisão do utilizador): espelho das estratégias de compra (`engine/short.py`), só com o BTC abaixo da média de 200 dias. No backtest deram −0,22R por operação, igual às compras. `{"shorts": false}` desliga-os
 - sem compras novas com o BTC abaixo da média de 200 dias
 - travão de perdas: −3R num dia, −6R numa semana ou 3 perdas seguidas suspendem sinais novos

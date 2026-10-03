@@ -79,8 +79,8 @@ class Mirror(unittest.TestCase):
         self.assertTrue(p["stop"] > p["entry_zone"][1] > p["entry_zone"][0]
                         > p["tp"][0] > p["tp"][1] > p["tp"][2])
         self.assertAlmostEqual(p["rr"], (8 - 0.192) / 2.202, places=2)
-        self.assertEqual(p["position_usdc"], 25.0)
-        self.assertAlmostEqual(p["risk_usdc"], 25 * 0.02202, places=2)
+        self.assertEqual(p["position_usdc"], 50.0)       # 25 de margem x 2
+        self.assertAlmostEqual(p["risk_usdc"], 50 * 0.02202, places=2)
         self.assertGreater(p["leverage"]["liquidation_est"], p["stop"])   # acima do stop
         self.assertGreaterEqual(p["leverage"]["liquidation_est"] - 100.0,
                                 2.5 * 2.0 - 1e-6)

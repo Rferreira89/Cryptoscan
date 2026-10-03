@@ -13,7 +13,7 @@ DEFAULTS = {
     "min_score": 65,
     # Modo concentrado (decisao do utilizador, 2026-10-02): com 50 USDC,
     # no maximo 2 operacoes de cada vez, posicoes ate 25 USDC e risco ate
-    # max_risk_usdc por operacao (1 USDC = 2% em config.json desde
+    # max_risk_usdc por operacao (2.5 USDC = 5% em config.json desde
     # 2026-10-03; o valor por omissao abaixo e 2 USDC). Conta sinais ativos, operacoes abertas e
     # posicoes da tendencia diaria.
     "max_open_positions": 2,
@@ -33,7 +33,7 @@ DEFAULTS = {
     # swing (margem spot da Bybit UE). A posicao e o risco por operacao sao
     # multiplicados por este valor, ate ao maximo que mantem a liquidacao
     # estimada a mais do dobro da distancia do stop. 1 = sem alavancagem.
-    "swing_leverage": 2.0,
+    "swing_leverage": 6.0,
     # Capital de trading em USDC (2026-10-02: 50). Atualiza-se pelo Telegram
     # com /capital <valor>. Serve para dar valores em USDC e para adaptar
     # as operacoes a ordem minima da Bybit UE.
@@ -69,6 +69,6 @@ def load(path="config.json"):
         cfg.update(user)
     if not 0 < cfg["risk_pct"] <= 2:
         raise ValueError("risk_pct tem de estar entre 0 e 2")
-    if not 1 <= cfg["swing_leverage"] <= 3:
-        raise ValueError("swing_leverage tem de estar entre 1 e 3")
+    if not 1 <= cfg["swing_leverage"] <= 6:
+        raise ValueError("swing_leverage tem de estar entre 1 e 6")
     return cfg

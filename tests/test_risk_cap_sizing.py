@@ -3,7 +3,7 @@ import unittest
 from engine import config, risk
 
 CFG = dict(config.DEFAULTS, capital_usdc=50.0, fixed_position_usdc=25.0,
-           max_risk_usdc=1.0, swing_leverage=2.0, min_order_usdc=5.0)
+           max_risk_usdc=1.0, swing_leverage=1.0, min_order_usdc=5.0)
 
 
 def size(stop_pct, **over):
@@ -46,6 +46,36 @@ class RiskCapSizing(unittest.TestCase):
         u = sz["usdc"]
         self.assertAlmostEqual(u["collateral_usdc"] + u["borrowed_usdc"],
                                u["position_usdc"], places=2)
+
+
+class LeveragedSizing(unittest.TestCase):
+    """Margem propria de 25 USDC vezes a alavancagem, com o risco limitado."""
+    C = dict(swing_leverage=6.0, max_risk_usdc=2.5)
+
+    def test_tight_stop_uses_leverage_up_to_risk_cap(self):
+        sz, _ = size(2.0, **self.C)             # 2.5 / 2% = 125 USDC = 5x
+        u = sz["usdc"]
+        self.assertAlmostEqual(u["position_usdc"], 125.0, places=2)
+        self.assertEqual(sz["leverage"]["use"], 5.0)
+        self.assertAlmostEqual(u["collateral_usdc"], 25.0, places=2)
+        self.assertAlmostEqual(u["risk_usdc"], 2.5, places=2)
+
+    def test_ceiling_of_six(self):
+        sz, _ = size(0.5, **self.C)             # o risco deixaria 500 USDC
+        self.assertEqual(sz["leverage"]["use"], 6.0)
+        self.assertAlmostEqual(sz["usdc"]["position_usdc"], 150.0, places=2)
+
+    def test_risk_and_liquidation_hold_for_every_stop(self):
+        for sp in (0.5, 1, 2, 3, 4, 5, 6.67, 8, 12, 19):
+            sz, why = size(sp, **self.C)
+            self.assertIsNone(why, sp)
+            u, lv = sz["usdc"], sz["leverage"]
+            self.assertLessEqual(u["position_usdc"] * sp / 100, 2.5 + 0.001)
+            self.assertLessEqual(u["collateral_usdc"], 25.0 + 0.3, sp)
+            self.assertLessEqual(lv["use"], 6.0)
+            if lv["use"] > 1:                   # liquidacao longe do stop
+                self.assertGreaterEqual(1 / lv["use"] - risk.MMR,
+                                        2.5 * sp / 100 - 1e-9, sp)
 
 
 if __name__ == "__main__":

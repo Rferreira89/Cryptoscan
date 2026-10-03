@@ -190,8 +190,8 @@ def operation_leverage(cfg, plan, sc, reg, a1, btc_reg, is_btc):
     if not is_btc and btc_reg not in regime.BULLISH:
         return min(base, 1.5), f"reduzida: BTC em regime {btc_reg}"
     if base < cfg["swing_leverage"]:
-        return base, ("reduzida pelo stop largo, para manter a liquidação "
-                      "longe do stop")
+        return base, ("ajustada à distância do stop, para a perda caber no "
+                      "limite e a liquidação ficar longe do stop")
     return base, "condições normais: tendência a favor e sem conflitos"
 
 
