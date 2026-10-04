@@ -11,7 +11,7 @@ from .strategies import px_str
 MAX_LEVERAGE = 6.0              # teto absoluto (decisao do utilizador)
 MMR = 0.05                      # margem de manutencao assumida
 
-MIN_STOP_ATR, MAX_STOP_ATR = 0.8, 4.0
+MIN_STOP_ATR, MAX_STOP_ATR = 1.0, 4.0   # <1 ATR: -0.32R em 692 operacoes historicas
 
 
 def _levels_above(a4, a1):
