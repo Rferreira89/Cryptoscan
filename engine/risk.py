@@ -135,6 +135,9 @@ def plan(setup, a4, a1, cfg):
             cand = (need * risk_unit + entry * (1 + fee)) / (1 - fee)
             projected.append(len(tps) + 1)
         tps.append(cand)
+    if 1 in projected and cfg.get("require_real_tp1"):
+        return None, ("sem nível real para o 1.º objetivo: o alvo seria só "
+                      "uma projeção")
     rr = net_r(tps[1])
     if rr < cfg["min_rr"] - 1e-9:
         return None, f"POOR R:R: {rr:.2f} abaixo do mínimo {cfg['min_rr']}"

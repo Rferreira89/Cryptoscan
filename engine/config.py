@@ -10,6 +10,10 @@ DEFAULTS = {
     "max_position_pct": 25.0,   # teto por posicao, % do capital
     "fee_pct": 0.1,             # comissao spot por lado (taxa base Bybit)
     "min_rr": 2.0,
+    # 1.o objetivo tem de ser um nivel real do mercado (decisao de
+    # 2026-10-04: no historico, alvos so projetados deram -0.36R por
+    # operacao contra -0.20R com nivel real; ambos negativos).
+    "require_real_tp1": True,
     "min_score": 65,
     # Modo concentrado (decisao do utilizador, 2026-10-02): com 50 USDC,
     # no maximo 2 operacoes de cada vez, posicoes ate 25 USDC e risco ate

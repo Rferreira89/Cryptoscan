@@ -185,7 +185,8 @@ class Risk(unittest.TestCase):
     def test_projected_targets_are_flagged_and_ordered(self):
         empty = a4h(liquidity=dict(a4h()["liquidity"], pools_above=[]),
                     swing_high=None)
-        p, _ = risk.plan(self.setup_(), empty, a1d(swing_high=None), CFG)
+        p, _ = risk.plan(self.setup_(), empty, a1d(swing_high=None),
+                         dict(CFG, require_real_tp1=False))
         self.assertEqual(p["tp_projected"], [1, 2, 3])
         self.assertAlmostEqual(p["rr_tp1"], 1.0, places=2)
         self.assertAlmostEqual(p["rr"], 2.0, places=2)

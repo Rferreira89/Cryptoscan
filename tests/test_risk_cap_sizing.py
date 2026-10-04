@@ -78,5 +78,25 @@ class LeveragedSizing(unittest.TestCase):
                                         2.5 * sp / 100 - 1e-9, sp)
 
 
+class RealFirstTarget(unittest.TestCase):
+    def plan(self, **over):
+        a = {"atr": 2.0, "liquidity": {"pools_above": over.pop("pools", [])}}
+        return risk.plan({"strategy": "X", "entry": [99.7, 100.0], "stop": 97.0},
+                         a, {"liquidity": {}}, dict(CFG, **over))
+
+    def test_projected_first_target_is_refused(self):
+        p, why = self.plan()
+        self.assertIsNone(p)
+        self.assertIn("1.º objetivo", why)
+
+    def test_real_level_is_accepted_and_flag_can_be_off(self):
+        p, why = self.plan(pools=[106.0])
+        self.assertIsNone(why)
+        self.assertNotIn(1, p["tp_projected"])
+        p, why = self.plan(require_real_tp1=False)
+        self.assertIsNone(why)
+        self.assertIn(1, p["tp_projected"])
+
+
 if __name__ == "__main__":
     unittest.main()
