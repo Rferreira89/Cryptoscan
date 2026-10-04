@@ -10,120 +10,65 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Cryptoscan">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0C1B2A" media="(prefers-color-scheme: dark)">
-<meta name="theme-color" content="#E8EDF1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e1116" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f6f7f9" media="(prefers-color-scheme: light)">
 <style>
-@import url("https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap");
-:root{--bg:#E8EDF1;--card:#F7F9FA;--ink:#10283F;--mut:#5B6F82;--line:#C9D3DC;--up:#0B6E69;--dn:#B3261E;--now:#C2410C;--warn:#8A5A00;--chip:#DCE4EA;--bar:rgba(247,249,250,.94)}
-@media (prefers-color-scheme:dark){:root{--bg:#0C1B2A;--card:#132739;--ink:#E6EDF3;--mut:#8FA3B5;--line:#24405A;--up:#4FD1C5;--dn:#FF8A80;--now:#FF9F43;--warn:#F2C265;--chip:#1B3349;--bar:rgba(19,39,57,.94)}}
+:root{--bg:#f6f7f9;--card:#fff;--ink:#14181f;--mut:#667085;--line:#e3e6ec;--up:#0a7d4b;--dn:#c0392b;--warn:#a15c00;--chip:#eef1f5}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1116;--card:#171b22;--ink:#e8ebf0;--mut:#8b95a5;--line:#262c36;--up:#3ecf8e;--dn:#ff6b5e;--warn:#f0b24a;--chip:#222833}}
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Archivo,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-variant-numeric:tabular-nums}
-main{max-width:720px;margin:0 auto;padding:calc(12px + env(safe-area-inset-top)) 16px calc(92px + env(safe-area-inset-bottom))}
-header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px}
-h1{font-size:26px;font-weight:800;font-stretch:70%;letter-spacing:-.01em;margin:0}
-#sub{font-size:12.5px;color:var(--mut);text-align:right;background:none;border:0;padding:6px 0;font-family:inherit;cursor:pointer}
-#sub i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--up);margin-right:6px}
-#sub.late i{background:var(--dn)}
-#mf{border-left:3px solid var(--up);padding:2px 0 2px 12px;margin:0 0 16px;font-size:13.5px;color:var(--mut)}
-#mf.below{border-left-color:var(--dn)}
-#mf b{display:block;color:var(--ink);font-size:15px;font-stretch:85%}
-.tab{display:none}.tab.on{display:block}
-h2{font-size:19px;font-weight:750;font-stretch:80%;margin:22px 0 10px}
-.tab>h2:first-child{margin-top:4px}
-.banner{background:var(--card);border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:13.5px}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+main{max-width:820px;margin:0 auto;padding:calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom))}
+h1{font-size:20px;margin:4px 0 2px}
+.sub{color:var(--mut);font-size:13px;margin-bottom:12px}
+.banner{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:13.5px}
 .banner b{display:block;margin-bottom:2px}
-.up{color:var(--up)}.dn{color:var(--dn)}.warn{color:var(--warn)}
-.op{background:var(--card);border-radius:14px;padding:14px;margin-bottom:14px}
-.op.closed{opacity:.75;padding:10px 14px;border-radius:10px;margin-bottom:8px;font-size:13.5px}
-.op h3{margin:0;font-size:24px;font-weight:800;font-stretch:72%;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
-.side{font-size:13px;font-weight:700;font-stretch:100%;padding:2px 9px;border-radius:5px;background:var(--up);color:var(--card)}
-.side.sh{background:var(--dn)}.side.wt{background:var(--chip);color:var(--ink)}
-.state{font-size:13px;font-weight:500;font-stretch:100%;color:var(--mut)}
-.op .meta{color:var(--mut);font-size:12.5px;margin:2px 0 10px}
-.pl{font-size:15px;margin-bottom:10px}.pl b{font-size:20px;font-stretch:80%}
-/* escada de precos: o elemento central de cada operacao */
-.lad{border-left:3px solid var(--line);margin:4px 0 12px 4px}
-.lad button{display:grid;grid-template-columns:1fr auto 64px;gap:10px;align-items:baseline;width:100%;padding:7px 4px 7px 14px;border:0;background:none;color:inherit;font:inherit;text-align:left;position:relative;cursor:pointer;border-radius:0 8px 8px 0}
-.lad button::before{content:"";position:absolute;left:-7px;top:50%;width:11px;height:11px;margin-top:-5.5px;border-radius:50%;background:var(--bg);border:2px solid var(--mut)}
-.lad .tp::before{border-color:var(--up)}.lad .st::before{border-color:var(--dn)}
-.lad .hit::before{background:var(--up)}
-.lad .now{background:var(--chip);font-weight:700}
-.lad .now::before{background:var(--now);border-color:var(--now);width:13px;height:13px;left:-8px;margin-top:-6.5px}
-.lad .now .k{color:var(--now)}
-.lad .k{font-size:13.5px}.lad .k small{color:var(--mut);font-size:12px;font-weight:400}
-.lad .v{font-size:16px;font-weight:650;font-stretch:85%}
-.lad .d{font-size:12.5px;color:var(--mut);text-align:right}
-.lad button:active{background:var(--chip)}
-.hint{font-size:12px;color:var(--mut);margin:-6px 0 10px 4px}
-details{border-top:1px solid var(--line);padding:8px 0 0;margin-top:8px}
-summary{cursor:pointer;font-weight:650;font-size:14px;padding:6px 0;list-style:none;display:flex;justify-content:space-between}
-summary::-webkit-details-marker{display:none}
-summary::after{content:"+";color:var(--mut);font-size:18px;line-height:1}
-details[open] summary::after{content:"–"}
-.steps{margin:6px 0;padding:0;list-style:none;counter-reset:s}
-.steps li{counter-increment:s;position:relative;padding:8px 0 8px 36px;border-bottom:1px solid var(--line);cursor:pointer;font-size:14px}
-.steps li:last-child{border-bottom:0}
-.steps li::before{content:counter(s);position:absolute;left:0;top:8px;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--mut);font-size:12px;font-weight:700;display:grid;place-items:center;color:var(--mut)}
-.steps li.done{color:var(--mut);text-decoration:line-through;text-decoration-color:var(--line)}
-.steps li.done::before{content:"✓";background:var(--up);border-color:var(--up);color:var(--card)}
-.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
-.chip{background:var(--chip);border-radius:5px;padding:2px 8px;font-size:12px;white-space:nowrap}
-.tag{display:inline-block;background:var(--chip);border-radius:5px;padding:1px 7px;font-size:12px;font-weight:600}
-.why{font-size:13.5px;margin-top:6px}.why span{color:var(--mut)}
-.note{color:var(--mut);font-size:12.5px;margin-top:14px}
-.cap{display:flex;gap:8px;align-items:center;margin-bottom:10px;font-size:13.5px;flex-wrap:wrap}.cap input{flex:0 0 110px}
-select,input{font:inherit;padding:9px 10px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);min-width:0}
-.bar{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}.bar input{flex:1 1 100%}.bar select{flex:1 1 0}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-bottom:14px;background:var(--card);border-radius:10px}
-.stat{padding:10px 4px;text-align:center;border-left:1px solid var(--line)}.stat:first-child{border-left:0}
-.stat b{display:block;font-size:22px;font-weight:800;font-stretch:72%}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+.stat b{display:block;font-size:19px;font-variant-numeric:tabular-nums}
 .stat span{font-size:11.5px;color:var(--mut)}
-.row{background:var(--card);border-radius:10px;margin-bottom:6px;overflow:hidden}
-.head{display:grid;grid-template-columns:1fr auto;gap:8px;padding:11px 14px;cursor:pointer;align-items:center}
-.sym{font-weight:750;font-size:17px;font-stretch:80%}
-.px{text-align:right}
+.bar{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+select,input{font:inherit;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);min-width:0}
+input{flex:1 1 100%}
+.row{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:8px;overflow:hidden}
+.head{display:grid;grid-template-columns:1fr auto;gap:8px;padding:12px 14px;cursor:pointer;align-items:center}
+.sym{font-weight:650;font-size:16px}
+.px{font-variant-numeric:tabular-nums;text-align:right}
+.up{color:var(--up)}.dn{color:var(--dn)}.warn{color:var(--warn)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.chip{background:var(--chip);border-radius:999px;padding:2px 9px;font-size:12px;white-space:nowrap}
 .det{display:none;border-top:1px solid var(--line);padding:10px 14px;font-size:13.5px}
 .row.open .det{display:block}
 .tf{margin-bottom:10px}
 .tf h3{font-size:13px;margin:0 0 4px;color:var(--mut);font-weight:600}
 .kv{display:grid;grid-template-columns:repeat(2,1fr);gap:2px 14px}
-.kv div{display:flex;justify-content:space-between;gap:8px}
+.kv div{display:flex;justify-content:space-between;gap:8px;font-variant-numeric:tabular-nums}
 .kv span{color:var(--mut)}
-.tw{overflow-x:auto;margin-bottom:10px}table{border-collapse:collapse;width:100%;font-size:12.5px;background:var(--card);border-radius:10px}th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}th:first-child,td:first-child{text-align:left;white-space:normal}th{color:var(--mut);font-weight:600}
+.note{color:var(--mut);font-size:12.5px;margin-top:14px}
+h2{font-size:16px;margin:18px 0 8px}
+.op{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--up);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.op.wait{border-left-color:var(--warn)}.op.closed{border-left-color:var(--mut);opacity:.75}
+.op h3{margin:0 0 2px;font-size:16px}.op .meta{color:var(--mut);font-size:12.5px;margin-bottom:8px}
+.steps{margin:6px 0;padding-left:20px}.steps li{margin-bottom:4px}
+.tag{display:inline-block;background:var(--chip);border-radius:6px;padding:1px 7px;font-size:12px;font-weight:600}
+.cap{display:flex;gap:8px;align-items:center;margin-bottom:10px;font-size:13.5px}.cap input{flex:0 0 120px}
+.why{font-size:13px;margin-top:6px}.why span{color:var(--mut)}
+.tw{overflow-x:auto;margin-bottom:10px}table{border-collapse:collapse;width:100%;font-size:12.5px;background:var(--card);border-radius:10px}th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}th:first-child,td:first-child{text-align:left;white-space:normal}th{color:var(--mut);font-weight:600}h3.sm{font-size:13px;color:var(--mut);margin:12px 0 6px}
 .chk{font-size:12.5px;margin-top:6px}.chk div{display:flex;gap:6px}
-nav{position:fixed;left:0;right:0;bottom:0;background:var(--bar);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(4,1fr);max-width:720px;margin:0 auto}
-nav button{border:0;background:none;color:var(--mut);font:inherit;font-size:12.5px;padding:6px 2px;border-radius:8px;cursor:pointer}
-nav button b{display:block;font-size:20px;font-weight:800;font-stretch:72%;line-height:1.1;color:inherit}
-nav button.on{color:var(--ink);background:var(--chip)}
-nav button.hot b{color:var(--now)}
-button:focus-visible,summary:focus-visible,.steps li:focus-visible{outline:2px solid var(--now);outline-offset:2px}
-#toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:13.5px;opacity:0;pointer-events:none;transition:opacity .15s}
-#toast.on{opacity:1}
-@media (prefers-reduced-motion:reduce){#toast{transition:none}}
-a{color:inherit}
 </style>
 </head>
 <body>
 <main>
-<header><h1>Cryptoscan</h1><button id="sub" title="Atualizar agora">A carregar…</button></header>
-<div id="mf"></div>
-
-<section class="tab" id="t-agora">
-<h2>As tuas operações</h2><div id="bynote" class="note" style="margin:0 0 8px"></div><div id="ops"></div>
-</section>
-
-<section class="tab" id="t-vigiar">
-<h2>À espera do gatilho</h2><div id="watch"></div>
-</section>
-
-<section class="tab" id="t-registo">
+<h1>Cryptoscan · Scanner</h1>
+<div class="sub" id="sub">A carregar…</div>
+<div class="banner" id="vbanner"><b>Como ler os sinais</b>Compras em spot e shorts em margem spot na Bybit UE. Compras só com o BTC acima da média de 200 dias; shorts só com o BTC abaixo. O score mede a qualidade do setup, não a probabilidade de ganhar. As estratégias ainda não estão validadas. No máximo 2 operações de cada vez, cada uma com 25 USDC teus de margem e alavancagem até 6x: quanto mais apertado o stop, maior a alavancagem. A perda no stop de cada operação nunca passa de 2,5 USDC (5% do capital).</div>
+<div class="banner" id="mf"></div>
+<div class="cap"><label for="cap">O teu capital (USDC):</label><input id="cap" inputmode="decimal" placeholder="ex.: 500"><span id="capnote" style="color:var(--mut)"></span></div>
+<h2>Operações</h2><div id="bynote" class="note" style="margin:0 0 8px"></div><div id="ops"></div>
+<h2>A vigiar</h2><div id="watch"></div>
 <h2>Registo de operações</h2><div id="journal"></div>
 <div id="closed" hidden></div>
 <h2>Tendência diária</h2><div id="paper"></div>
-</section>
 
-<section class="tab" id="t-mercado">
 <h2>Todos os ativos</h2>
 <div class="stats" id="stats"></div>
 <div class="bar">
@@ -148,20 +93,8 @@ a{color:inherit}
 </select>
 </div>
 <div id="list"></div>
-<h2>Definições</h2>
-<div class="cap"><label for="cap">O teu capital (USDC)</label><input id="cap" inputmode="decimal" placeholder="ex.: 500"><span id="capnote" style="color:var(--mut)"></span></div>
-<div class="banner" id="vbanner"><b>Como ler os sinais</b>Compras em spot e shorts em margem spot na Bybit UE. Compras só com o BTC acima da média de 200 dias; shorts só com o BTC abaixo. O score mede a qualidade do setup, não a probabilidade de ganhar: no histórico, um score alto não ganhou mais vezes. As estratégias ainda não estão validadas. No máximo 2 operações de cada vez, cada uma com 25 USDC teus de margem e alavancagem até 6x: quanto mais apertado o stop, maior a alavancagem. A perda no stop de cada operação nunca passa de 2,5 USDC (5% do capital).</div>
 <div class="note" id="note"></div>
-<div class="note"><a href="classico.html">Abrir a página antiga</a></div>
-</section>
 </main>
-<nav id="nav">
-<button data-t="agora"><b id="n-agora">–</b>Agora</button>
-<button data-t="vigiar"><b id="n-vigiar">–</b>A vigiar</button>
-<button data-t="registo"><b id="n-registo">–</b>Registo</button>
-<button data-t="mercado"><b id="n-mercado">–</b>Mercado</button>
-</nav>
-<div id="toast" role="status" aria-live="polite"></div>
 <script>
 const URL_DATA="https://raw.githubusercontent.com/Rferreira89/Cryptoscan/data/scan.json";
 const $=id=>document.getElementById(id);
@@ -252,23 +185,6 @@ function sizing(p){
   const pos=c*p.position_pct/100,qty=pos/p.entry_ref,loss=c*p.risk_pct/100;
   return `Posição de <b>${num(pos,2)} USDC</b>${L?` com <b>margem ${L.use}x</b>: ${num(c*L.collateral_pct/100,2)} USDC teus e ${num(c*L.borrowed_pct/100,2)} emprestados`:` (${num(p.position_pct,1)}% do capital)`} ≈ ${Number(qty.toPrecision(4)).toLocaleString("pt-PT",{maximumSignificantDigits:4})} unidades. Perda máxima se o stop for atingido: <b>${num(loss,2)} USDC</b>.`+(pos<5?` <span class="warn">Valor abaixo do mínimo habitual por ordem; confirma na Bybit.</span>`:"");
 }
-function curPrice(asset){const r=(D.universe||[]).find(x=>x.asset===asset);return r?r.price:null}
-function ladder(p,asset,sh,pos){
-  const entry=pos&&pos.entry?pos.entry:p.entry_ref,cur=curPrice(asset),hit=pos?pos.tp_hit:0;
-  const rows=[];
-  p.tp.forEach((v,i)=>{if(i===2&&!p.partials[2])return;rows.push({k:"Objetivo "+(i+1),v,c:"tp"+(i<hit?" hit":""),n:i<hit?"atingido":p.tp_projected&&p.tp_projected.includes(i+1)?"projetado":""})});
-  rows.push({k:"Entrada",v:entry,c:"",n:pos&&pos.entry?"":"zona até "+price(p.entry_zone[0])});
-  rows.push({k:"Stop",v:pos&&pos.stop?pos.stop:p.stop,c:"st",n:pos&&pos.stop&&pos.stop!==p.stop?"subiu":""});
-  if(cur!=null) rows.push({k:"Preço agora",v:cur,c:"now",n:""});
-  rows.sort((a,b)=>b.v-a.v);
-  return `<div class="lad">${rows.map(r=>{const d=(r.v/entry-1)*100*(sh?-1:1);
-    return `<button class="${r.c}" data-copy="${r.v}"><span class="k">${r.k}${r.n?` <small>${esc(r.n)}</small>`:""}</span><span class="v">${price(r.v)}</span><span class="d">${r.k==="Entrada"?"":(d>0?"+":"")+num(d,1)+"%"}</span></button>`}).join("")}</div><div class="hint">Toca num preço para o copiar.</div>`;
-}
-function plNow(s){
-  const pos=s.position,cur=curPrice(s.asset);if(!pos||!pos.entry||cur==null) return "";
-  const sh=s.direction==="SHORT",pct=(cur/pos.entry-1)*100*(sh?-1:1),u=s.plan.position_usdc;
-  return `<div class="pl">Neste momento <b class="${pct>=0?"up":"dn"}">${pct>0?"+":""}${num(pct,2)}%</b>${u?` <span class="${pct>=0?"up":"dn"}">(${pct>0?"+":""}${num(u*pct/100,2)} USDC)</span>`:""} <span style="color:var(--mut);font-size:12.5px">antes de comissões</span></div>`;
-}
 function shortSteps(p,pair,asset){
   const pr=i=>p.tp_projected&&p.tp_projected.includes(i)?" (projetado)":"",L=p.leverage||{},c=capital();
   const pos=p.position_usdc!=null?p.position_usdc:(c?c*p.position_pct/100:null);
@@ -297,22 +213,18 @@ function planSteps(p,pair){
 function sigCard(s){
   const e=s.explain,trig=s.status==="TRIGGERED";
   const sh=s.direction==="SHORT";
-  return `<div class="op" data-id="${esc(s.id)}"><h3>${esc(s.asset)} <span class="side${sh?" sh":""}">${sh?"Short":"Compra"}</span><span class="state">${trig?"operação aberta":"à espera de entrada, válido até "+hm(s.expires_at)}</span></h3>
-  <div class="meta">${esc(STR[s.strategy]||s.strategy)}, ${esc(s.pair)}, emitido ${hm(s.issued_at)}</div>
-  ${trig?plNow(s):""}
-  ${ladder(s.plan,s.asset,sh,trig?s.position:null)}
+  return `<div class="op"${sh?' style="border-left-color:var(--dn)"':""}><h3>${esc(s.asset)} · ${sh?"SHORT":"COMPRA"} <span class="tag">${trig?"operação aberta":"à espera de entrada"}</span></h3>
+  <div class="meta">${esc(STR[s.strategy]||s.strategy)} · ${esc(s.timeframe)} · regime ${esc(s.regime)} · score ${s.score}/100 · emitido ${hm(s.issued_at)}${trig?"":" · válido até "+hm(s.expires_at)}</div>
   <div class="bybit" data-pair="${esc(s.pair)}" data-pos="${s.plan.position_pct}" data-entry="${s.plan.entry_ref}" data-asset="${esc(s.asset)}"></div>
-  <details${trig?"":" open"}><summary>Como executar na Bybit</summary>${sh?shortSteps(s.plan,s.pair,s.asset):planSteps(s.plan,s.pair)}</details>
-  <details><summary>Porquê este sinal</summary>
+  ${sh?shortSteps(s.plan,s.pair,s.asset):planSteps(s.plan,s.pair)}
   <div class="why"><span>Porquê:</span> ${esc(e.why)}</div>
   <div class="why"><span>Porquê agora:</span> ${esc(e.why_now)}</div>
   <div class="why"><span>Invalidação:</span> ${esc(e.invalidates)}</div>
   <div class="why"><span>Risco principal:</span> ${esc(e.main_risk)}</div>
   <div class="why"><span>O que mudaria o sinal:</span> ${esc(e.would_change)}</div>
-  <div class="why"><span>Regime:</span> ${esc(s.regime)}, score ${s.score}/100 (dados ${s.confidence.data_quality}, liquidez ${s.confidence.liquidity_quality})</div>
-  ${s.status==="TRIGGERED"&&s.position?`<div class="why"><span>Posição:</span> entrada ${price(s.position.entry)}, stop atual ${price(s.position.stop)}, objetivos atingidos ${s.position.tp_hit}, por vender ${num(s.position.remaining,0)}%</div>`:""}
-  </details>
-  <div class="${s.validated?"up":"warn"}" style="margin-top:10px;font-size:13px">${s.validated?"Estratégia validada em backtest.":"Estratégia não validada"+(s.validation&&s.validation.n?": em backtest deu "+num(s.validation.expectancy_r,2)+"R por operação, com "+num(s.validation.win_rate,0)+"% de acerto em "+s.validation.n+" operações":" (sem backtest)")+"."}</div></div>`;
+  <div class="why"><span>Confiança:</span> dados ${s.confidence.data_quality}/100 · liquidez ${s.confidence.liquidity_quality}/100 · regime ${s.confidence.regime_compatibility}/100 · histórico da estratégia: sem backtest</div>
+  ${s.status==="TRIGGERED"&&s.position?`<div class="why"><span>Posição:</span> entrada ${price(s.position.entry)} · stop atual ${price(s.position.stop)} · objetivos atingidos ${s.position.tp_hit} · por vender ${num(s.position.remaining,0)}%</div>`:""}
+  <div class="${s.validated?"up":"warn"}" style="margin-top:6px">${s.validated?"Estratégia validada em backtest.":"Estratégia não validada"+(s.validation&&s.validation.n?": em backtest deu "+num(s.validation.expectancy_r,2)+"R por operação, com "+num(s.validation.win_rate,0)+"% de acerto em "+s.validation.n+" operações":" (sem backtest)")+"."}</div></div>`;
 }
 function paperCard(s){
   const p=s.plan,trig=s.status==="TRIGGERED",v=s.validation||{};
@@ -325,17 +237,14 @@ function paperCard(s){
 }
 function watchCard(r,d){
   d=d||r.decision;const sh=d.side==="SHORT";
-  return `<div class="op"><h3>${esc(r.asset)} <span class="side wt">${sh?"Short":"Compra"} em preparação</span></h3>
-  <div class="meta">${esc(STR[d.strategy]||d.strategy)}, regime ${esc(d.regime)}, score ${d.score}/100</div>
-  <div class="pl"><span style="color:var(--mut)">Gatilho:</span> ${esc(d.reason)}</div>
-  ${ladder(d.plan,r.asset,sh,null)}
+  return `<div class="op wait"><h3>${esc(r.asset)} · A VIGIAR${sh?" (short)":""}</h3>
+  <div class="meta">${esc(STR[d.strategy]||d.strategy)} · regime ${esc(d.regime)} · score ${d.score}/100</div>
   <div class="bybit" data-pair="${esc(d.venue.pair)}" data-pos="${d.plan.position_pct}" data-entry="${d.plan.entry_ref}" data-asset="${esc(r.asset)}"></div>
-  <details><summary>Contexto e plano</summary>
+  <div><b>Gatilho:</b> ${esc(d.reason)}</div>
   <div class="why"><span>Contexto:</span> ${esc(d.notes.join("; "))}</div>
-  <div class="why"><span>Se o gatilho ocorrer:</span> R:R 1:${num(d.plan.rr,2)}, alavancagem ${d.plan.leverage&&d.plan.leverage.use>1?d.plan.leverage.use+"x":"1x"}${d.plan.leverage&&d.plan.leverage.reason?" ("+esc(d.plan.leverage.reason)+")":""}</div>
+  <div class="why"><span>Plano indicativo se o gatilho ocorrer:</span> entrada ${price(d.plan.entry_zone[0])}–${price(d.plan.entry_zone[1])}, stop ${price(d.plan.stop)}, TP1 ${price(d.plan.tp[0])}, R:R 1:${num(d.plan.rr,2)}, alavancagem ${d.plan.leverage&&d.plan.leverage.use>1?d.plan.leverage.use+"x":"1x"}${d.plan.leverage&&d.plan.leverage.reason?" ("+esc(d.plan.leverage.reason)+")":""}</div>
   ${d.conflicts.length?`<div class="warn">Conflito: ${d.conflicts.map(esc).join("; ")}</div>`:""}
-  </details>
-  <div class="why"><span>Ainda não é sinal. Só entras depois do aviso de compra no Telegram.</span></div></div>`;
+  <div class="why"><span>Sem entrada antecipada: só conta depois do gatilho.</span></div></div>`;
 }
 // Leitura direta da Bybit UE a partir deste telemovel (o servidor do
 // GitHub nao consegue). Se o browser nao deixar, a pagina funciona na mesma.
@@ -373,18 +282,14 @@ function renderOps(){
   const w=[];
   D.universe.forEach(r=>[r.decision,r.decision_short].forEach(d=>{if(d&&d.decision==="WATCHLIST"&&d.plan&&!d.active_signal)w.push([r,d])}));
   w.sort((a,b)=>b[1].score-a[1].score);
-  $("n-agora").textContent=act.length;$("n-vigiar").textContent=w.length;
-  document.querySelector('#nav [data-t="agora"]').classList.toggle("hot",act.length>0);
-  $("watch").innerHTML=w.map(([r,d])=>watchCard(r,d)).join("")||`<div class="banner">Nada em vigilância neste momento.</div>`;
-  restoreDetails();
-  restoreSteps();
+  $("watch").innerHTML=w.map(([r,d])=>watchCard(r,d)).join("")||`<div class="banner">Nada em vigilância.</div>`;
   const cl=D.closed_signals||[];
   const ST={EXPIRED:"expirado",INVALIDATED:"invalidado",CLOSED:"fechada"},RS={STOP:"stop atingido",BREAKEVEN:"stop na entrada",TP3:"todos os objetivos",TIME:"tempo máximo"};
   $("closed").innerHTML=cl.map(s=>`<div class="op closed"><b>${esc(s.asset)}</b> · ${esc(STR[s.strategy]||s.strategy)} · ${ST[s.status]} ${hm(s.closed_at)} — ${s.status==="CLOSED"?`${esc(RS[s.close_reason]||s.close_reason)}, resultado <b class="${s.result_r>0?"up":"dn"}">${s.result_r>0?"+":""}${num(s.result_r,2)}R</b>`:esc(s.close_reason)}</div>`).join("")||`<div class="banner">Ainda sem sinais fechados.</div>`;
 }
 function renderJournal(){
   const J=D.journal;if(!J){$("journal").innerHTML="";return}
-  const m=J.summary,c=capital();$("n-registo").textContent=J.rows.length;
+  const m=J.summary,c=capital();
   const kp=[["Fechadas",m.closed],["Acerto",m.win_rate==null?"–":num(m.win_rate,0)+"%"],["Resultado",(m.total_r>0?"+":"")+num(m.total_r,2)+"R"],[c?"Em USDC":"% do capital",c?(m.capital_pct>0?"+":"")+num(c*m.capital_pct/100,2):(m.capital_pct>0?"+":"")+num(m.capital_pct,2)+"%"]];
   let svg="";
   if(m.curve.length>1){
@@ -416,8 +321,7 @@ function evLine(){
 function renderExtra(){
   renderJournal();
   const m=D.market_filter;
-  $("mf").className=m&&!m.btc_above_sma200?"below":"";
-  $("mf").innerHTML=m?`<b>BTC ${m.distance_pct>0?"+":""}${num(m.distance_pct,1)}% ${m.btc_above_sma200?"acima":"abaixo"} da média de 200 dias</b>${m.btc_above_sma200?"Mercado em alta: o programa procura compras.":"Mercado em baixa: o programa procura shorts."}${evLine()}`:`<b>Filtro de mercado</b>Sem dados suficientes.${evLine()}`;
+  $("mf").innerHTML=m?`<b>Filtro de mercado: BTC ${m.btc_above_sma200?`<span class="up">acima</span>`:`<span class="dn">abaixo</span>`} da média de 200 dias</b>Preço ${price(m.close)} contra média ${price(m.sma200)} (${m.distance_pct>0?"+":""}${num(m.distance_pct,1)}%). Foi a única regra que resistiu fora da amostra: ${m.btc_above_sma200?"contexto historicamente favorável a compras.":"contexto em que comprar historicamente perde mais."}${evLine()}`:`<b>Filtro de mercado</b>Sem dados suficientes.${evLine()}`;
   const ps=(D.active_signals||[]).filter(s=>s.mode==="PAPER"),tr=D.track_record||{};
   const allTr=Object.entries(tr).map(([k,v])=>`<tr><td>${esc(STR[k.split(":")[1]]||k.split(":")[1])}${k.startsWith("PAPER:")?" (papel)":""}</td><td>${v.n}</td><td>${num(100*v.wins/v.n,0)}%</td><td class="${v.sum_r>0?"up":"dn"}">${v.sum_r>0?"+":""}${num(v.sum_r,2)}R</td></tr>`).join("");
   const sigHtml=(ps.length?`<div class="banner"><b>Setups em papel</b>Simulação, sem dinheiro.</div>${ps.map(paperCard).join("")}`:"")+(allTr?`<div class="tw"><table><tr><th>Registo ao vivo (4H)</th><th>N</th><th>Acerto</th><th>Total</th></tr>${allTr}</table></div>`:"");
@@ -483,37 +387,17 @@ async function load(){
     if(!capSet&&D.config&&D.config.capital_usdc&&!$("cap").value){$("cap").value=D.config.capital_usdc;$("capnote").textContent="definido no programa; muda com /capital no Telegram"}
     const age=Math.round((Date.now()/1000-Math.max(D.generated_at,D.monitored_at||0))/60);
     const src=Object.entries(D.sources).map(([n,s])=>n+(s.ok?" ✓":" ✗")).join(" · ")+" · Bybit UE"+(D.venue_source&&D.venue_source.ok?" ✓":" ✗");
-    const bad=Object.values(D.sources).some(x=>!x.ok)||!(D.venue_source&&D.venue_source.ok);
-    $("sub").className=age>20||bad?"late":"";$("sub").title=src;
-    $("sub").innerHTML=`<i></i>${age>20?"dados atrasados, ":""}há ${age} min${bad?", fonte em falha":""}`;
+    $("sub").innerHTML=`Atualizado há ${age} min · ${esc(src)}`+(age>20?` · <span class="warn">dados atrasados</span>`:"");
     const c=D.counts||{};
-    $("n-mercado").textContent=c.deep_checked??"–";
     $("stats").innerHTML=[["Analisados",c.deep_checked],["Compras",c.long],["Shorts",c.short||0],["A vigiar",(c.watchlist||0)+(c.watch_short||0)]].map(([l,v])=>`<div class="stat"><b>${v??"–"}</b><span>${l}</span></div>`).join("");
     $("note").textContent=`Regime do BTC: ${D.market_regime?D.market_regime.btc:"–"}. Só entram ativos listados na Bybit UE em USDC. As análises usam preços dos mercados globais em USDT; na Bybit UE os valores em USDC podem diferir alguns cêntimos. Filtro de liquidez: volume 24h ≥ ${num(D.thresholds.min_volume_usd/1e6,0)} M $ e spread ≤ ${D.thresholds.max_spread_bps} bps. Análise aprofundada só nos ${D.thresholds.deep_n} ativos mais líquidos. Toca num ativo para ver o detalhe.`;
     render();
-  }catch(e){$("sub").className="late";$("sub").innerHTML=`<i></i>sem ligação aos dados (${esc(e.message)}), toca para tentar`}
+  }catch(e){$("sub").innerHTML=`<span class="warn">Não foi possível carregar os dados (${esc(e.message)}).</span>`}
 }
 $("list").addEventListener("click",e=>{const row=e.target.closest(".row");if(!row||!e.target.closest(".head"))return;const a=row.dataset.a;open.has(a)?open.delete(a):open.add(a);row.classList.toggle("open")});
 ["q","sort","flt"].forEach(i=>$(i).addEventListener("input",render));
 let capSet=false;try{const v=localStorage.getItem("capital");if(v){$("cap").value=v;capSet=true}}catch(e){}
 $("cap").addEventListener("input",()=>{try{localStorage.setItem("capital",$("cap").value)}catch(e){}$("capnote").textContent=capital()?"guardado só neste telemóvel":"";if(D){renderOps();renderJournal();fillBybit()}});
-function toast(t){const el=$("toast");el.textContent=t;el.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove("on"),1400)}
-document.addEventListener("click",e=>{
-  const c=e.target.closest("[data-copy]");
-  if(c){const v=String(+(+c.dataset.copy).toPrecision(8));(navigator.clipboard?navigator.clipboard.writeText(v):Promise.reject()).then(()=>toast("Copiado: "+v),()=>toast(v));return}
-  const li=e.target.closest(".steps li");
-  if(li){const card=li.closest("[data-id]");li.classList.toggle("done");
-    if(card){try{const k="steps:"+card.dataset.id,all=[...li.parentNode.children].map(x=>x.classList.contains("done")?1:0);localStorage.setItem(k,JSON.stringify(all))}catch(_){}}}
-});
-function restoreSteps(){document.querySelectorAll(".op[data-id]").forEach(card=>{try{const v=JSON.parse(localStorage.getItem("steps:"+card.dataset.id)||"[]");card.querySelectorAll(".steps li").forEach((li,i)=>li.classList.toggle("done",!!v[i]))}catch(_){}})}
-let detState={},restoring=false;
-document.addEventListener("toggle",e=>{const d=e.target;if(restoring||d.tagName!=="DETAILS")return;const card=d.closest(".op");if(!card)return;detState[card.querySelector("h3").textContent+"|"+d.querySelector("summary").textContent]=d.open},true);
-function restoreDetails(){restoring=true;document.querySelectorAll(".op details").forEach(d=>{const k=d.closest(".op").querySelector("h3").textContent+"|"+d.querySelector("summary").textContent;if(k in detState)d.open=detState[k]});setTimeout(()=>restoring=false,0)}
-function setTab(t){document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x.id==="t-"+t));document.querySelectorAll("#nav button").forEach(b=>{const on=b.dataset.t===t;b.classList.toggle("on",on);b.setAttribute("aria-current",on?"page":"false")});try{localStorage.setItem("tab",t)}catch(_){}window.scrollTo(0,0)}
-$("nav").addEventListener("click",e=>{const b=e.target.closest("button");if(b)setTab(b.dataset.t)});
-$("sub").addEventListener("click",load);
-let t0="agora";try{t0=localStorage.getItem("tab")||"agora"}catch(_){}
-setTab(["agora","vigiar","registo","mercado"].includes(t0)?t0:"agora");
 load();setInterval(load,60000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)load()});
 </script>
