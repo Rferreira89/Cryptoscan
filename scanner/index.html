@@ -548,6 +548,11 @@ $("radar").addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){const
 $("sub").addEventListener("click",load);
 document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.getItem("sec:"+d.id);if(v!=null)d.open=v==="1"}catch(_){}
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
+// Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
+// uma versao mais recente publicada, recarrega sozinha.
+const PAGE_V="20261004c";
+async function checkVersion(){try{const t=await (await fetch("./index.html?nocache="+Date.now(),{cache:"no-store"})).text();const m=t.match(/PAGE_V="(\w+)"/);if(m&&m[1]!==PAGE_V)location.replace("./?v="+m[1])}catch(_){}}
+checkVersion();setInterval(checkVersion,600000);
 load();setInterval(load,60000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)load()});
 </script>
