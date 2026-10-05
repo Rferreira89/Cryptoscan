@@ -188,6 +188,20 @@ class Scanner(unittest.TestCase):
         self.assertEqual(d["timeframes"]["1d"]["source"], "b")
         self.assertTrue(d["analysis"]["1d"]["ok"])
 
+    def test_short_history_uses_longer_source(self):
+        # ativo listado ha pouco tempo na 1a fonte: usa a que tem historico
+        d = S.deep_check(dict(self.row), [FakeSrc("a", walk(400)[-30:]),
+                                          FakeSrc("b", walk(400))], NOW)
+        self.assertEqual(d["timeframes"]["1d"]["source"], "b")
+        self.assertIn("DATA SOURCE FALLBACK", d["flags"])
+        self.assertEqual(d["data_status"], V.VALID)
+        # se nenhuma tiver historico, fica a mais longa e continua sem analise valida
+        d = S.deep_check(dict(self.row), [FakeSrc("a", walk(400)[-30:]),
+                                          FakeSrc("b", walk(400)[-20:])], NOW)
+        self.assertEqual(d["timeframes"]["1d"]["source"], "a")
+        self.assertEqual(d["timeframes"]["1d"]["n"], 30)
+        self.assertNotEqual(d["data_status"], V.VALID)
+
     def test_invalid_data_blocks_analysis(self):
         c = walk(400); c[380]["h"] = c[380]["l"] / 2
         d = S.deep_check(dict(self.row), [FakeSrc("a", c)], NOW)

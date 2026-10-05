@@ -110,23 +110,31 @@ def deep_check(row, src_order, now):
     clean = {}
     for tf in TIMEFRAMES:
         rep, used = None, None
+        best = None          # (n, velas, relatorio, fonte, indice)
         for i, src in enumerate(src_order):
             if src.name not in row["sources"]:
                 continue
             try:
                 raw = src.candles(row["asset"], tf)
             except sources.SourceError as e:
-                rep = {"status": "DATA SOURCE ERROR", "issues": [str(e)[:120]],
-                       "n": 0}
+                if best is None:
+                    rep = {"status": "DATA SOURCE ERROR",
+                           "issues": [str(e)[:120]], "n": 0}
                 continue
-            cs, rep = validate.validate_candles(
+            cs, r = validate.validate_candles(
                 raw, sources.TF_SECONDS[tf], now, validate.MIN_HISTORY[tf])
-            used = src.name
+            if best is None or r["n"] > best[0]:
+                best = (r["n"], cs, r, src.name, i)
+            # historico curto nesta fonte (ativo listado ha pouco tempo):
+            # tenta a seguinte e fica com a que tiver mais velas
+            if r["n"] >= validate.MIN_HISTORY[tf]:
+                break
+        if best is not None:
+            _, cs, rep, used, i = best
             if rep["status"] != validate.INVALID:
                 clean[tf] = cs
             if i > 0 and "DATA SOURCE FALLBACK" not in out["flags"]:
                 out["flags"].append("DATA SOURCE FALLBACK")
-            break
         rep = rep or {"status": "DATA SOURCE ERROR", "issues": ["sem fonte"],
                       "n": 0}
         rep["source"] = used

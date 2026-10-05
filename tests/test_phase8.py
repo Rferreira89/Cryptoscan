@@ -356,7 +356,16 @@ class ExtraEvents(unittest.TestCase):
         self.assertEqual(events.load_extra(f), [])
         json.dump({"events": {"a": 1}}, open(f, "w"))
         self.assertEqual(events.load_extra(f), [])
-        self.assertEqual(events.load_extra(), [])            # ficheiro real: vazio
+        self.assertEqual(events.load_extra(), [])
+
+    def test_real_file_is_well_formed(self):
+        # o ficheiro real pode ter eventos; todos tem de ser aceites
+        import json
+        import tests
+        raw = json.load(open(tests.REAL_EXTRA_PATH))
+        self.assertIsInstance(raw["events"], list)
+        self.assertEqual(len(events.load_extra(tests.REAL_EXTRA_PATH)),
+                         len(raw["events"]))
 
     def test_before_window_is_capped(self):
         ex = [{"name": "z", "t": 2_000_000_000, "assets": ["ALL"], "before_h": 72}]
