@@ -138,6 +138,10 @@ def plan(setup, a4, a1, cfg):
     if 1 in projected and cfg.get("require_real_tp1"):
         return None, ("sem nível real para o 1.º objetivo: o alvo seria só "
                       "uma projeção")
+    far = cfg.get("max_rr_tp1")
+    if far and net_r(tps[0]) > far + 1e-9:
+        return None, (f"1.º objetivo demasiado longe ({net_r(tps[0]):.1f}R, "
+                      f"máximo {far:g}R)")
     rr = net_r(tps[1])
     if rr < cfg["min_rr"] - 1e-9:
         return None, f"POOR R:R: {rr:.2f} abaixo do mínimo {cfg['min_rr']}"

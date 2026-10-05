@@ -116,6 +116,28 @@ class StaleTrigger(unittest.TestCase):
         self.assertIn("abaixo da zona", d["reason"])
 
 
+class FirstTargetNotTooFar(unittest.TestCase):
+    def plan(self, pool, **over):
+        a = {"atr": 2.0, "liquidity": {"pools_above": [pool]}}
+        return risk.plan({"strategy": "X", "entry": [99.7, 100.0], "stop": 97.0},
+                         a, {"liquidity": {}}, dict(CFG, **over))
+
+    def test_far_first_target_is_refused(self):
+        p, why = self.plan(112.0, max_rr_tp1=2.5)  # cerca de 3.7R
+        self.assertIsNone(p)
+        self.assertIn("demasiado longe", why)
+
+    def test_near_first_target_passes_and_limit_can_be_off(self):
+        p, why = self.plan(106.0, max_rr_tp1=2.5)  # cerca de 1.8R
+        self.assertIsNone(why)
+        self.assertLessEqual(p["rr_tp1"], 2.5)
+        p, why = self.plan(112.0, max_rr_tp1=None)
+        self.assertIsNone(why)
+
+    def test_live_config_has_the_limit(self):
+        self.assertEqual(config.load("config.json")["max_rr_tp1"], 2.5)
+
+
 class RangeDisabled(unittest.TestCase):
     def test_range_is_off_by_default_both_sides(self):
         c = config.load("nao-existe.json")

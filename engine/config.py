@@ -14,6 +14,11 @@ DEFAULTS = {
     # 2026-10-04: no historico, alvos so projetados deram -0.36R por
     # operacao contra -0.20R com nivel real; ambos negativos).
     "require_real_tp1": True,
+    # 1.o objetivo a mais de 2.5R e recusado (decisao de 2026-10-05): no
+    # historico, 16% de acerto e -0.34R (502 operacoes) contra 41% e -0.14R
+    # quando fica entre 1R e 1.5R. Todos os grupos sao negativos. Ligado em
+    # config.json (2.5); None aqui = sem limite.
+    "max_rr_tp1": None,
     # Estrategias desligadas a mao. RANGE (compras e shorts): decisao do
     # utilizador em 2026-10-05; no historico, 12% e 17% de acerto, -0.80R e
     # -0.74R por operacao (83 operacoes, 71 no stop).
