@@ -18,6 +18,8 @@ def _fmt(x):
     return float(f"{x:.5g}")
 
 
+STALE_BELOW_ZONE = 0.005   # tolerancia de 0.5% abaixo da zona
+
 def decide(row, c4, cfg, v, btc_reg, regime_changed, market_ok=True,
            block=None, disabled=(), suffix=""):
     """Devolve o bloco 'decision' de um ativo."""
@@ -137,6 +139,17 @@ def decide(row, c4, cfg, v, btc_reg, regime_changed, market_ok=True,
         chk(8, "R:R e stop", False, fails[0])
         return stop(fails[0])
     _, _, s, p, sc = best
+    # O gatilho e avaliado na ultima vela fechada; o sinal pode sair horas
+    # depois (p. ex. quando liberta uma vaga). Se entretanto o preco ja
+    # caiu abaixo da zona de entrada, o nivel nao aguentou: nao ha sinal.
+    px_now = row.get("price")
+    if s["state"] == "READY" and px_now and \
+            px_now < p["entry_zone"][0] * (1 - STALE_BELOW_ZONE):
+        why = (f"{s['strategy']}: preço já abaixo da zona de entrada, o "
+               "nível não aguentou")
+        out["rejected"].append(why)
+        chk(9, "preço ainda na zona", False, why)
+        return stop(why)
     ready = s["state"] == "READY"
     out.update(strategy=s["strategy"] + suffix, state=s["state"],
                trigger=s["trigger"],

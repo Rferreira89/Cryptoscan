@@ -253,7 +253,7 @@ class Venue(unittest.TestCase):
 
 
 def row(a4=None, a1=None, **k):
-    r = {"asset": "X", "price": 100.0, "data_status": "VALID",
+    r = {"asset": "X", "price": 101.0, "data_status": "VALID",
          "data_quality": 100, "liquidity_score": 80, "derivatives": None,
          "analysis": {"1d": a1 or a1d(), "4h": a4 or a4h(close=101.0),
                       "mtf_conflict": None}}

@@ -98,5 +98,23 @@ class RealFirstTarget(unittest.TestCase):
         self.assertIn(1, p["tp_projected"])
 
 
+class StaleTrigger(unittest.TestCase):
+    """Sinal pronto mas com o preco ja abaixo da zona: nao pode sair."""
+    def test_price_below_zone_blocks_signal(self):
+        from engine import signals, validation
+        from tests import test_phase4 as T4
+        orig = validation.load
+        validation.load = lambda: None
+        self.addCleanup(lambda: setattr(validation, "load", orig))
+        cfg = dict(config.DEFAULTS, require_real_tp1=False)
+        ok = signals.decide(T4.row(), T4.C4, cfg, T4.V, "BULL", False)
+        self.assertIn("plan", ok)
+        lo = ok["plan"]["entry_zone"][0]
+        d = signals.decide(T4.row(price=lo * 0.97), T4.C4, cfg,
+                           dict(T4.V, last=lo * 0.97), "BULL", False)
+        self.assertEqual(d["decision"], "NO TRADE")
+        self.assertIn("abaixo da zona", d["reason"])
+
+
 if __name__ == "__main__":
     unittest.main()
