@@ -260,6 +260,11 @@ def run(now=None, state=None, cfg=None):
              if ev_block else None)
     disabled, ev = review.update(state, now)
     events += ev
+    # estrategias desligadas a mao na configuracao (nao mexe no estado,
+    # por isso voltam a ligar-se assim que saem da lista)
+    disabled = dict(disabled)
+    for name in cfg.get("disabled_strategies") or []:
+        disabled.setdefault(name, {"reason": "config"})
     result.update(next_event=calendar.next_event(now), event_block=block,
                   calendar_stale=calendar.stale(now),
                   disabled_strategies=disabled)

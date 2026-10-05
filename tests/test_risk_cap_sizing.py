@@ -116,5 +116,18 @@ class StaleTrigger(unittest.TestCase):
         self.assertIn("abaixo da zona", d["reason"])
 
 
+class RangeDisabled(unittest.TestCase):
+    def test_range_is_off_by_default_both_sides(self):
+        c = config.load("nao-existe.json")
+        self.assertEqual(set(c["disabled_strategies"]),
+                         {"RANGE", "RANGE_SHORT"})
+
+    def test_scanner_merges_config_list(self):
+        import inspect
+        from engine import scanner
+        self.assertIn('cfg.get("disabled_strategies")',
+                      inspect.getsource(scanner.run))
+
+
 if __name__ == "__main__":
     unittest.main()

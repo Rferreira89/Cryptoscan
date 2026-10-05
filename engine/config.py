@@ -14,6 +14,10 @@ DEFAULTS = {
     # 2026-10-04: no historico, alvos so projetados deram -0.36R por
     # operacao contra -0.20R com nivel real; ambos negativos).
     "require_real_tp1": True,
+    # Estrategias desligadas a mao. RANGE (compras e shorts): decisao do
+    # utilizador em 2026-10-05; no historico, 12% e 17% de acerto, -0.80R e
+    # -0.74R por operacao (83 operacoes, 71 no stop).
+    "disabled_strategies": ["RANGE", "RANGE_SHORT"],
     "min_score": 65,
     # Modo concentrado (decisao do utilizador, 2026-10-02): com 50 USDC,
     # no maximo 2 operacoes de cada vez, posicoes ate 25 USDC e risco ate

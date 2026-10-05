@@ -82,8 +82,7 @@ def decide(row, c4, cfg, v, btc_reg, regime_changed, market_ok=True,
         # restantes correm em PAPEL (ou nao correm, conforme a configuracao).
         # min_score = 0 e o proprio backtest: nunca e travado.
         if cfg["min_score"] > 0 and s["strategy"] + suffix in disabled:
-            out["rejected"].append(f"{s['strategy']}: estratégia desligada "
-                                   "(registo ao vivo negativo)")
+            out["rejected"].append(f"{s['strategy']}: estratégia desligada")
             continue
         if cfg["min_score"] > 0:
             st = validation.status(s["strategy"] + suffix)

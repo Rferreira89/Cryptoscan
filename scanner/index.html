@@ -450,7 +450,7 @@ function evLine(){
   else if(D.next_event) h+=`<div style="margin-top:6px;color:var(--mut)">Próximo evento: ${esc(D.next_event.name)}, ${hm(D.next_event.t)}. Sem sinais novos das 12 horas antes às 2 horas depois.</div>`;
   if(D.calendar_stale) h+=`<div class="warn">Calendário de eventos desatualizado.</div>`;
   const dis=Object.keys(D.disabled_strategies||{});
-  if(dis.length) h+=`<div class="warn">Estratégias desligadas por registo negativo: ${dis.map(k=>esc(STR[k]||k)).join(", ")}.</div>`;
+  if(dis.length) h+=`<div class="warn">Estratégias desligadas: ${dis.map(k=>esc(STR[k]||k)).join(", ")}.</div>`;
   return h;
 }
 function renderExtra(){
@@ -556,7 +556,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261005b";
+const PAGE_V="20261005c";
 async function checkVersion(){try{const t=await (await fetch("./index.html?nocache="+Date.now(),{cache:"no-store"})).text();const m=t.match(/PAGE_V="(\w+)"/);if(m&&m[1]!==PAGE_V)location.replace("./?v="+m[1])}catch(_){}}
 checkVersion();setInterval(checkVersion,600000);
 load();setInterval(load,60000);
