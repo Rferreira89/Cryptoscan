@@ -127,6 +127,7 @@ a{color:inherit}
 <p id="rnote"></p>
 <div id="mf"></div>
 
+<h2>O teu resultado</h2><div class="stats" id="score"></div><div class="note" id="scorenote" style="margin:-6px 0 4px"></div>
 <h2>As tuas operações</h2><div id="bynote" class="note" style="margin:0 0 8px"></div><div id="ops"></div>
 
 <details class="sec" id="s-vigiar"><summary>A vigiar<span id="n-vigiar"></span></summary><div id="watch"></div></details>
@@ -418,6 +419,11 @@ function renderOps(){
 }
 function renderJournal(){
   const J=D.journal;if(!J){$("journal").innerHTML="";return}
+  {const mine=J.rows.filter(r=>r.executed===true),cl=mine.filter(r=>r.status==="CLOSED"),R=r=>r.user_r!=null?r.user_r:r.result_r;
+   const w=cl.filter(r=>R(r)>0).length,l=cl.length-w,op=mine.filter(r=>r.status==="OPEN"||r.status==="WAITING").length;
+   const usd=cl.reduce((a,r)=>a+(R(r)||0)*(r.risk_usdc||0),0);
+   $("score").innerHTML=[["Ganhas",`<span class="up">${w}</span>`],["Perdidas",`<span class="dn">${l}</span>`],["Em curso",op],["USDC",`<span class="${usd>0?"up":usd<0?"dn":""}">${usd>0?"+":""}${num(usd,2)}</span>`]].map(([k,v])=>`<div class="stat"><b>${v}</b><span>${k}</span></div>`).join("");
+   $("scorenote").textContent=cl.length?`Só as operações que marcaste como executadas. Acerto: ${num(100*w/cl.length,0)}% em ${cl.length} fechada${cl.length>1?"s":""}. Valor estimado pelo plano, com comissões; o extrato da Bybit é que conta.`:"Só as operações que marcaste como executadas. Ainda nenhuma fechada.";}
   const m=J.summary,c=capital();$("n-registo").textContent=J.rows.length+(J.rows.length===1?" operação":" operações");
   const kp=[["Fechadas",m.closed],["Acerto",m.win_rate==null?"–":num(m.win_rate,0)+"%"],["Resultado",(m.total_r>0?"+":"")+num(m.total_r,2)+"R"],[c?"Em USDC":"% do capital",c?(m.capital_pct>0?"+":"")+num(c*m.capital_pct/100,2):(m.capital_pct>0?"+":"")+num(m.capital_pct,2)+"%"]];
   let svg="";
@@ -522,7 +528,7 @@ async function load(){
     $("sub").innerHTML=`<i></i>${age>20?"dados atrasados, ":""}há ${age} min${bad?", fonte em falha":""}`;
     const c=D.counts||{};
     $("n-mercado").textContent=(c.deep_checked??"–")+" analisados";
-    $("stats").innerHTML=[["Analisados",c.deep_checked],["Compras",c.long],["Shorts",c.short||0],["A vigiar",(c.watchlist||0)+(c.watch_short||0)]].map(([l,v])=>`<div class="stat"><b>${v??"–"}</b><span>${l}</span></div>`).join("");
+    $("stats").innerHTML=[["Analisados",c.deep_checked],["Sinais novos",(c.long||0)+(c.short||0)],["Em operação",(D.active_signals||[]).filter(x=>x.mode!=="PAPER"&&x.status==="TRIGGERED").length],["A vigiar",(c.watchlist||0)+(c.watch_short||0)]].map(([l,v])=>`<div class="stat"><b>${v??"–"}</b><span>${l}</span></div>`).join("");
     $("note").textContent=`Regime do BTC: ${D.market_regime?D.market_regime.btc:"–"}. Só entram ativos listados na Bybit UE em USDC. As análises usam preços dos mercados globais em USDT; na Bybit UE os valores em USDC podem diferir alguns cêntimos. Filtro de liquidez: volume 24h ≥ ${num(D.thresholds.min_volume_usd/1e6,0)} M $ e spread ≤ ${D.thresholds.max_spread_bps} bps. Análise aprofundada só nos ${D.thresholds.deep_n} ativos mais líquidos. Toca num ativo para ver o detalhe.`;
     render();
   }catch(e){$("sub").className="late";$("sub").innerHTML=`<i></i>sem ligação aos dados (${esc(e.message)}), toca para tentar`}
@@ -550,7 +556,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261004c";
+const PAGE_V="20261005a";
 async function checkVersion(){try{const t=await (await fetch("./index.html?nocache="+Date.now(),{cache:"no-store"})).text();const m=t.match(/PAGE_V="(\w+)"/);if(m&&m[1]!==PAGE_V)location.replace("./?v="+m[1])}catch(_){}}
 checkVersion();setInterval(checkVersion,600000);
 load();setInterval(load,60000);
