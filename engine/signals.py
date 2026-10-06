@@ -315,9 +315,12 @@ def correlation(ca, cb, n=60):
 MAX_CORRELATED, CORR_LIMIT = 2, 0.8
 
 
-def track(state, prices, cfg, now):
+def track(state, prices, cfg, now, ranges=None):
     """Acompanha sinais e operacoes abertas com os precos dados.
-    prices: {ativo: preco}. Devolve eventos."""
+    prices: {ativo: preco}. ranges: {ativo: (minimo, maximo)} desde a
+    ultima verificacao, para apanhar pavios entre duas leituras.
+    Devolve eventos."""
+    ranges = ranges or {}
     sigs = state.setdefault("signals", {})
     events = []
 
@@ -349,10 +352,11 @@ def track(state, prices, cfg, now):
                 events.append({"t": now, "event": "TRIGGERED", "id": key,
                                "asset": s["asset"], "price": px})
         elif s["status"] == "TRIGGERED" and px is not None:
-            # acompanhamento com o preço de cada scan (15 min): pavios mais
-            # curtos do que isso podem não ser vistos
+            # com o minimo e o maximo das velas de 1 minuto desde a ultima
+            # leitura, um pavio que toque no stop ou num objetivo conta
             pos = s["position"]
-            for e in trade.step(pos, px, px, px, px, now):
+            lo, hi = ranges.get(s["asset"], (px, px))
+            for e in trade.step(pos, px, max(hi, px), min(lo, px), px, now):
                 events.append(dict(e, t=now, id=key, asset=s["asset"]))
             if pos["closed"]:
                 s.update(status="CLOSED", closed_at=now, result_r=pos["r"],

@@ -124,7 +124,7 @@ class Binance:
 class OKX:
     name = "okx"
     base_url = "https://www.okx.com"
-    _tf = {"4h": "4H", "1d": "1Dutc"}
+    _tf = {"4h": "4H", "1d": "1Dutc", "1m": "1m"}
 
     def tickers(self):
         d = _get(self.base_url + "/api/v5/market/tickers", {"instType": "SPOT"})
@@ -160,7 +160,7 @@ class OKX:
 class KuCoin:
     name = "kucoin"
     base_url = "https://api.kucoin.com"
-    _tf = {"4h": "4hour", "1d": "1day"}
+    _tf = {"4h": "4hour", "1d": "1day", "1m": "1min"}
 
     def tickers(self):
         d = _get(self.base_url + "/api/v1/market/allTickers")

@@ -10,7 +10,7 @@ import statistics
 import sys
 import time
 
-from . import config, ledger, paper_trend, run, scanner, signals
+from . import config, ledger, paper_trend, run, scanner, signals, sources
 
 OUT = sys.argv[1] if len(sys.argv) > 1 else "out"
 
@@ -30,8 +30,31 @@ def prices_for(assets, data):
     return out
 
 
-def tick(state, prices, cfg, now):
-    events = signals.track(state, prices, cfg, now)
+def ranges_for(assets, since):
+    """Minimo e maximo de cada ativo nas velas de 1 minuto desde `since`.
+    Uma fonte que responda chega; se nenhuma responder, fica sem intervalo
+    e o acompanhamento usa so o preco atual."""
+    out = {}
+    for a in assets:
+        for src in sources.ALL:
+            try:
+                c = [x for x in src.candles(a, "1m", limit=15)
+                     if x["t"] >= since - 60]
+            except Exception:       # fonte sem 1m ou em falha: tenta a seguinte
+                continue
+            if c:
+                out[a] = (min(x["l"] for x in c), max(x["h"] for x in c))
+                break
+    return out
+
+
+def open_assets(state):
+    return {s["asset"] for s in state.get("signals", {}).values()
+            if s["status"] == "TRIGGERED"}
+
+
+def tick(state, prices, cfg, now, ranges=None):
+    events = signals.track(state, prices, cfg, now, ranges)
     events += paper_trend.check_stops(state, prices, cfg, now)
     ledger.apply(state, events)
     return events
@@ -50,7 +73,10 @@ def main():
     events, assets = [], needed_assets(state)
     if assets:
         _, data = scanner.collect_tickers()
-        events = tick(state, prices_for(assets, data), cfg, now)
+        since = state.get("monitor_t") or now - 120
+        rng = ranges_for(open_assets(state), max(since, now - 840))
+        events = tick(state, prices_for(assets, data), cfg, now, rng)
+    state["monitor_t"] = now
     res["monitored_at"] = now
     res["journal"] = ledger.view(state.get("ledger", []))
     res["active_signals"] = [s for s in state.get("signals", {}).values()

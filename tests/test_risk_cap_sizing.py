@@ -138,6 +138,50 @@ class FirstTargetNotTooFar(unittest.TestCase):
         self.assertEqual(config.load("config.json")["max_rr_tp1"], 2.5)
 
 
+class WickHitsStop(unittest.TestCase):
+    """Um pavio abaixo do stop entre duas leituras fecha a operacao."""
+    def state(self):
+        from engine import trade
+        plan = {"entry_zone": [99.7, 100.0], "entry_ref": 100.0, "stop": 97.0,
+                "tp": [104.0, 108.0, 112.0], "partials": [50, 30, 20]}
+        pos = trade.open_position(plan, 100.0, 0, 0.25)
+        return {"signals": {"k": {"asset": "X", "status": "TRIGGERED",
+                                  "direction": "LONG", "strategy": "PULLBACK",
+                                  "plan": plan, "position": pos,
+                                  "issued_at": 0, "expires_at": 9e9}}}
+
+    def test_without_range_last_price_keeps_it_open(self):
+        from engine import signals
+        st = self.state()
+        signals.track(st, {"X": 99.0}, CFG, 60)
+        self.assertEqual(st["signals"]["k"]["status"], "TRIGGERED")
+
+    def test_wick_below_stop_closes_it(self):
+        from engine import signals
+        st = self.state()
+        ev = signals.track(st, {"X": 99.0}, CFG, 60, {"X": (96.5, 99.5)})
+        self.assertEqual(st["signals"]["k"]["status"], "CLOSED")
+        self.assertEqual(st["signals"]["k"]["close_reason"], "STOP")
+        self.assertTrue(any(e["event"] == "STOP" for e in ev))
+
+    def test_ranges_for_survives_failing_sources(self):
+        from unittest import mock
+        from engine import monitor, sources
+
+        class Bad:
+            def candles(self, *a, **k):
+                raise sources.SourceError("x")
+
+        class Good:
+            def candles(self, *a, **k):
+                return [{"t": 1000, "l": 9.0, "h": 11.0},
+                        {"t": 1060, "l": 9.5, "h": 12.0}]
+        with mock.patch.object(sources, "ALL", [Bad(), Good()]):
+            self.assertEqual(monitor.ranges_for({"X"}, 1000), {"X": (9.0, 12.0)})
+        with mock.patch.object(sources, "ALL", [Bad()]):
+            self.assertEqual(monitor.ranges_for({"X"}, 1000), {})
+
+
 class RangeDisabled(unittest.TestCase):
     def test_range_is_off_by_default_both_sides(self):
         c = config.load("nao-existe.json")
