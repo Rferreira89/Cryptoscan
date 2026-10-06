@@ -164,7 +164,7 @@ a{color:inherit}
 
 <details class="sec" id="s-def"><summary>Definições e ajuda</summary>
 <div class="cap"><label for="cap">O teu capital (USDC)</label><input id="cap" inputmode="decimal" placeholder="ex.: 500"><span id="capnote" style="color:var(--mut)"></span></div>
-<div class="banner" id="vbanner"><b>Como ler os sinais</b>Compras em spot e shorts em margem spot na Bybit UE. Compras só com o BTC acima da média de 200 dias; shorts só com o BTC abaixo. O score mede a qualidade do setup, não a probabilidade de ganhar: no histórico, um score alto não ganhou mais vezes. As estratégias ainda não estão validadas. No máximo 2 operações de cada vez, cada uma com 25 USDC teus de margem e alavancagem até 6x: quanto mais apertado o stop, maior a alavancagem. A perda no stop de cada operação nunca passa de 2,5 USDC (5% do capital).</div>
+<div class="banner" id="vbanner"><b>Como ler os sinais</b>Compras em spot e shorts em margem spot na Bybit UE. Compras só com o BTC acima da média de 200 dias; shorts só com o BTC abaixo. O score mede a qualidade do setup, não a probabilidade de ganhar: no histórico, um score alto não ganhou mais vezes. As estratégias ainda não estão validadas. No máximo 2 operações de cada vez. Cada uma usa 30% do capital atual como margem tua, com alavancagem até 6x: quanto mais apertado o stop, maior a alavancagem. A perda no stop de cada operação nunca passa de 3% do capital atual. O capital atual é o de partida mais o resultado das operações fechadas que executaste: cresce com os ganhos e encolhe com as perdas.</div>
 <div class="note"><a href="classico.html">Abrir a página antiga</a></div></details>
 </main>
 <div id="toast" role="status" aria-live="polite"></div>
@@ -564,7 +564,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261006c";
+const PAGE_V="20261006d";
 async function checkVersion(){try{const t=await (await fetch("./index.html?nocache="+Date.now(),{cache:"no-store"})).text();const m=t.match(/PAGE_V="(\w+)"/);if(m&&m[1]!==PAGE_V)location.replace("./?v="+m[1])}catch(_){}}
 checkVersion();setInterval(checkVersion,600000);
 load();setInterval(load,60000);

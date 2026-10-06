@@ -190,6 +190,46 @@ class WickHitsStop(unittest.TestCase):
         self.assertEqual(monitor.open_since(st, 9000), {"X": 9000 - 360})
 
 
+class Compounding(unittest.TestCase):
+    C = dict(config.DEFAULTS, compound=True, capital_usdc=83.0, stake_pct=30,
+             risk_pct_of_capital=3)
+
+    def led(self, r, t=200, executed=True):
+        return [{"id": "a", "status": "CLOSED", "executed": executed,
+                 "closed_at": t, "result_r": r, "risk_usdc": 2.5}]
+
+    def test_start_is_the_base(self):
+        from engine import scanner
+        u = scanner.compounding(self.C, [], 100)
+        self.assertEqual((u["capital_usdc"], u["fixed_position_usdc"],
+                          u["max_risk_usdc"]), (83.0, 24.9, 2.49))
+
+    def test_grows_with_gains_and_shrinks_with_losses(self):
+        from engine import scanner
+        up = scanner.compounding(self.C, self.led(4.0), 100)       # +10 USDC
+        self.assertEqual(up["capital_usdc"], 93.0)
+        self.assertGreater(up["fixed_position_usdc"], 24.9)
+        dn = scanner.compounding(self.C, self.led(-4.0), 100)      # -10 USDC
+        self.assertEqual(dn["capital_usdc"], 73.0)
+        self.assertLess(dn["max_risk_usdc"], 2.49)
+
+    def test_ignores_old_and_not_executed(self):
+        from engine import scanner
+        self.assertEqual(scanner.compounding(self.C, self.led(4.0, t=50), 100)
+                         ["capital_usdc"], 83.0)
+        self.assertEqual(scanner.compounding(
+            self.C, self.led(4.0, executed=False), 100)["capital_usdc"], 83.0)
+
+    def test_off_by_default(self):
+        from engine import scanner
+        self.assertEqual(scanner.compounding(config.DEFAULTS, self.led(4), 0), {})
+
+    def test_live_config(self):
+        c = config.load("config.json")
+        self.assertTrue(c["compound"])
+        self.assertEqual(c["capital_usdc"], 83)
+
+
 class RangeDisabled(unittest.TestCase):
     def test_range_is_off_by_default_both_sides(self):
         c = config.load("nao-existe.json")

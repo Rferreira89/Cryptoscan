@@ -87,6 +87,18 @@ def user_r(r):
     return round(pnl / (d * (ep - r["stop"])), 2)
 
 
+def realized_usdc(led, since=0):
+    """Resultado em USDC das operacoes que o utilizador executou e que
+    fecharam depois de `since` (resultado em R vezes o risco em USDC do
+    plano; com o preco de entrada do utilizador quando o indicou)."""
+    tot = 0.0
+    for r in led:
+        if r.get("executed") is True and r.get("status") == "CLOSED" \
+                and (r.get("closed_at") or 0) >= since:
+            tot += (user_r(r) or 0.0) * (r.get("risk_usdc") or 0.0)
+    return round(tot, 2)
+
+
 def summary(led, since=None, executed_only=False):
     if executed_only:
         led = [dict(r, result_r=user_r(r)) if r["status"] == "CLOSED" else r

@@ -80,6 +80,9 @@ def apply(state, updates, chat_id):
                 val = float(c.group(1).replace(",", "."))
                 if 5 <= val <= 1_000_000:
                     state["capital"] = val
+                    # ponto de partida do capital composto: so contam os
+                    # resultados fechados a partir de agora
+                    state["capital_t"] = int(msg.get("date") or 0)
                     out.append((f"Capital de trading atualizado para {val:g} "
                                 "USDC. Aplica-se aos próximos sinais.", None))
                 else:

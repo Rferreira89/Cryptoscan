@@ -193,13 +193,30 @@ def add_derivatives(rows, now):
             "incomplete": sum(bool(d and d["missing"]) for d in res)}
 
 
+def compounding(cfg, led, since):
+    """Capital composto: o capital de trabalho e o capital de partida mais
+    o resultado realizado desde entao, e a margem e o limite de perda por
+    operacao sao percentagens fixas dele. Cresce com os ganhos e encolhe
+    com as perdas, na mesma proporcao. Devolve as chaves a atualizar."""
+    base = cfg.get("capital_usdc")
+    if not cfg.get("compound") or not base:
+        return {}
+    eq = max(base + ledger.realized_usdc(led, since), 0.0)
+    return {"capital_usdc": round(eq, 2), "capital_base": base,
+            "fixed_position_usdc": round(eq * cfg["stake_pct"] / 100, 2),
+            "max_risk_usdc": round(eq * cfg["risk_pct_of_capital"] / 100, 2)}
+
+
 def run(now=None, state=None, cfg=None):
     """Devolve (resultado, estado, eventos de auditoria)."""
     now = int(now or time.time())
     state = state if state is not None else {}
     cfg = dict(cfg or config.load())
+    since = cfg.get("capital_since") or 0
     if state.get("capital"):                 # definido pelo Telegram
         cfg["capital_usdc"] = state["capital"]
+        since = state.get("capital_t") or since
+    cfg.update(compounding(cfg, state.get("ledger", []), since))
     status, data = collect_tickers()
     live = [s for s in sources.ALL if status[s.name]["ok"]]
     result = {"generated_at": now, "phase": 4, "sources": status,

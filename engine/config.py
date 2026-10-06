@@ -14,6 +14,13 @@ DEFAULTS = {
     # 2026-10-04: no historico, alvos so projetados deram -0.36R por
     # operacao contra -0.20R com nivel real; ambos negativos).
     "require_real_tp1": True,
+    # Capital composto (ligado em config.json por decisao do utilizador,
+    # 2026-10-06): margem e limite de perda por operacao em % do capital
+    # atual (capital de partida + resultado realizado desde capital_since).
+    "compound": False,
+    "stake_pct": 30.0,
+    "risk_pct_of_capital": 3.0,
+    "capital_since": 0,
     # 1.o objetivo a mais de 2.5R e recusado (decisao de 2026-10-05): no
     # historico, 16% de acerto e -0.34R (502 operacoes) contra 41% e -0.14R
     # quando fica entre 1R e 1.5R. Todos os grupos sao negativos. Ligado em
