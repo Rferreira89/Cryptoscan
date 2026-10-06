@@ -177,9 +177,17 @@ class WickHitsStop(unittest.TestCase):
                 return [{"t": 1000, "l": 9.0, "h": 11.0},
                         {"t": 1060, "l": 9.5, "h": 12.0}]
         with mock.patch.object(sources, "ALL", [Bad(), Good()]):
-            self.assertEqual(monitor.ranges_for({"X"}, 1000), {"X": (9.0, 12.0)})
+            self.assertEqual(monitor.ranges_for({"X": 1000}), {"X": (9.0, 12.0)})
+            self.assertEqual(monitor.ranges_for({"X": 1060}), {"X": (9.5, 12.0)})
         with mock.patch.object(sources, "ALL", [Bad()]):
-            self.assertEqual(monitor.ranges_for({"X"}, 1000), {})
+            self.assertEqual(monitor.ranges_for({"X": 1000}), {})
+
+    def test_never_looks_before_the_entry(self):
+        from engine import monitor
+        st = self.state()
+        st["signals"]["k"]["position"]["opened_at"] = 5000
+        self.assertEqual(monitor.open_since(st, 5100), {"X": 5000})
+        self.assertEqual(monitor.open_since(st, 9000), {"X": 9000 - 360})
 
 
 class RangeDisabled(unittest.TestCase):

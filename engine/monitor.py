@@ -30,16 +30,16 @@ def prices_for(assets, data):
     return out
 
 
-def ranges_for(assets, since):
-    """Minimo e maximo de cada ativo nas velas de 1 minuto desde `since`.
-    Uma fonte que responda chega; se nenhuma responder, fica sem intervalo
-    e o acompanhamento usa so o preco atual."""
+def ranges_for(since_by_asset):
+    """Minimo e maximo de cada ativo nas velas de 1 minuto comecadas depois
+    do instante dado ({ativo: desde}). Uma fonte que responda chega; se
+    nenhuma responder, o acompanhamento usa so o preco atual."""
     out = {}
-    for a in assets:
+    for a, since in since_by_asset.items():
         for src in sources.ALL:
             try:
                 c = [x for x in src.candles(a, "1m", limit=15)
-                     if x["t"] >= since - 60]
+                     if x["t"] >= since]
             except Exception:       # fonte sem 1m ou em falha: tenta a seguinte
                 continue
             if c:
@@ -48,9 +48,15 @@ def ranges_for(assets, since):
     return out
 
 
-def open_assets(state):
-    return {s["asset"] for s in state.get("signals", {}).values()
-            if s["status"] == "TRIGGERED"}
+LOOKBACK = 360   # cada ciclo parte do estado publicado: olha 6 minutos atras
+
+
+def open_since(state, now):
+    """{ativo: desde quando olhar}. Nunca antes da abertura da posicao:
+    um minimo anterior a entrada nao pode contar como stop."""
+    return {s["asset"]: max(now - LOOKBACK, s["position"].get("opened_at", now))
+            for s in state.get("signals", {}).values()
+            if s["status"] == "TRIGGERED" and s.get("position")}
 
 
 def tick(state, prices, cfg, now, ranges=None):
@@ -73,10 +79,8 @@ def main():
     events, assets = [], needed_assets(state)
     if assets:
         _, data = scanner.collect_tickers()
-        since = state.get("monitor_t") or now - 120
-        rng = ranges_for(open_assets(state), max(since, now - 840))
+        rng = ranges_for(open_since(state, now))
         events = tick(state, prices_for(assets, data), cfg, now, rng)
-    state["monitor_t"] = now
     res["monitored_at"] = now
     res["journal"] = ledger.view(state.get("ledger", []))
     res["active_signals"] = [s for s in state.get("signals", {}).values()
