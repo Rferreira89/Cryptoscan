@@ -308,7 +308,7 @@ function sigCard(s){
   <div class="meta">${esc(STR[s.strategy]||s.strategy)}, ${esc(s.pair)}, emitido ${hm(s.issued_at)}</div>
   ${trig?plNow(s):""}
   ${ladder(s.plan,s.asset,sh,trig?s.position:null)}
-  <div class="bybit" data-pair="${esc(s.pair)}" data-pos="${s.plan.position_pct}" data-entry="${s.plan.entry_ref}" data-asset="${esc(s.asset)}"></div>
+  <div class="bybit" data-pair="${esc(s.pair)}" data-pos="${s.plan.position_pct}" data-entry="${s.plan.entry_ref}" data-asset="${esc(s.asset)}" data-lev="${s.plan.leverage?s.plan.leverage.use:1}" data-col="${s.plan.collateral_usdc||""}"></div>
   <details${trig?"":" open"}><summary>Como executar na Bybit</summary>${sh?shortSteps(s.plan,s.pair,s.asset):planSteps(s.plan,s.pair)}</details>
   <details><summary>Porquê este sinal</summary>
   <div class="why"><span>Porquê:</span> ${esc(e.why)}</div>
@@ -352,7 +352,7 @@ async function bybitInfo(pair){
   const sym=pair.replace("/","");
   const get=async p=>{const r=await fetch(BYURL+p+"?category=spot&symbol="+sym);const j=await r.json();if(j.retCode!==0||!j.result.list.length) throw new Error(j.retMsg||"vazio");return j.result.list[0]};
   const [t,i]=await Promise.all([get("tickers"),get("instruments-info")]);
-  return BY[pair]={at:Date.now(),last:+t.lastPrice,bid:+t.bid1Price,ask:+t.ask1Price,tick:i.priceFilter.tickSize,minAmt:i.lotSizeFilter.minOrderAmt,minQty:i.lotSizeFilter.minOrderQty,step:i.lotSizeFilter.basePrecision};
+  return BY[pair]={at:Date.now(),last:+t.lastPrice,bid:+t.bid1Price,ask:+t.ask1Price,margin:i.marginTrading,tick:i.priceFilter.tickSize,minAmt:i.lotSizeFilter.minOrderAmt,minQty:i.lotSizeFilter.minOrderQty,step:i.lotSizeFilter.basePrecision};
 }
 let byFail=false;
 async function fillBybit(){
@@ -368,6 +368,9 @@ async function fillBybit(){
         const usdc=c*pos/100,dec=(String(b.step).split(".")[1]||"").length;
         const qty=Math.floor(usdc/entry/step)*step;
         extra+=`<br><span>Para o teu capital:</span> ${num(usdc,2)} USDC ≈ <b>${qty.toFixed(dec)}</b> ${esc(el.dataset.asset)}`+(usdc<+b.minAmt?` <span class="warn">— abaixo da ordem mínima de ${esc(b.minAmt)} USDC: esta operação não é executável com este capital.</span>`:"");
+      }
+      if(+el.dataset.lev>1&&b.margin!==undefined){
+        extra+=(b.margin==="none"||!b.margin)?`<br><span class="warn">Este par não tem Margem na Bybit UE. Entra só com os teus ${el.dataset.col?num(+el.dataset.col,2)+" USDC":"fundos"}, sem empréstimo; a entrada, o stop e os objetivos são os mesmos.</span>`:`<br><span>Margem disponível neste par na Bybit UE.</span>`;
       }
       el.innerHTML=`<div class="why" style="margin:0 0 6px"><span>Bybit UE agora:</span> ${price(b.last)} (compra ${price(b.bid)} · venda ${price(b.ask)}) · passo de preço ${esc(b.tick)} · ordem mínima ${esc(b.minAmt)} USDC${extra}</div>`;
     }catch(e){byFail=true;el.innerHTML="";}
@@ -561,7 +564,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261006b";
+const PAGE_V="20261006c";
 async function checkVersion(){try{const t=await (await fetch("./index.html?nocache="+Date.now(),{cache:"no-store"})).text();const m=t.match(/PAGE_V="(\w+)"/);if(m&&m[1]!==PAGE_V)location.replace("./?v="+m[1])}catch(_){}}
 checkVersion();setInterval(checkVersion,600000);
 load();setInterval(load,60000);
