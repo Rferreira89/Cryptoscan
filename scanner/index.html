@@ -405,8 +405,12 @@ function goAsset(a){
   card.classList.add("flash");setTimeout(()=>card.classList.remove("flash"),1600);
 }
 function renderOps(){
-  const act=(D.active_signals||[]).filter(s=>s.mode!=="PAPER");
-  $("ops").innerHTML=act.map(sigCard).join("")||`<div class="banner">${D.halt?`<b class="dn">Operações suspensas</b>${esc(D.halt)}. Sem sinais novos até o travão de perdas libertar.`:(D.market_filter&&!D.market_filter.btc_above_sma200?"Sem compras novas: o BTC está abaixo da média de 200 dias.":"Nenhuma operação neste momento. O sistema só emite quando todas as condições se alinham.")}</div>`;
+  // sinais que marcaste como "Não executei" saem das tuas operações e do
+  // radar; o programa continua a segui-los em simulação (Registo, com ❌)
+  const dec=new Set(((D.journal||{}).rows||[]).filter(r=>r.executed===false).map(r=>r.id));
+  const all=(D.active_signals||[]).filter(s=>s.mode!=="PAPER"),act=all.filter(s=>!dec.has(s.id)),skip=all.filter(s=>dec.has(s.id));
+  const skipNote=skip.length?`<div class="note" style="margin:0 0 12px">Marcaste como não executado: ${skip.map(s=>esc(s.asset)).join(", ")}. Não conta para o teu resultado; o programa segue-o em simulação no Registo. Se afinal entraste, carrega em "Executei" na mensagem do Telegram.</div>`:"";
+  $("ops").innerHTML=(act.map(sigCard).join("")+skipNote)||`<div class="banner">${D.halt?`<b class="dn">Operações suspensas</b>${esc(D.halt)}. Sem sinais novos até o travão de perdas libertar.`:(D.market_filter&&!D.market_filter.btc_above_sma200?"Sem compras novas: o BTC está abaixo da média de 200 dias.":"Nenhuma operação neste momento. O sistema só emite quando todas as condições se alinham.")}</div>`;
   const w=[];
   D.universe.forEach(r=>[r.decision,r.decision_short].forEach(d=>{if(d&&d.decision==="WATCHLIST"&&d.plan&&!d.active_signal)w.push([r,d])}));
   w.sort((a,b)=>b[1].score-a[1].score);
@@ -529,7 +533,7 @@ async function load(){
     $("sub").innerHTML=`<i></i>${age>20?"dados atrasados, ":""}há ${age} min${bad?", fonte em falha":""}`;
     const c=D.counts||{};
     $("n-mercado").textContent=(c.deep_checked??"–")+" analisados";
-    $("stats").innerHTML=[["Analisados",c.deep_checked],["Sinais novos",(c.long||0)+(c.short||0)],["Em operação",(D.active_signals||[]).filter(x=>x.mode!=="PAPER"&&x.status==="TRIGGERED").length],["A vigiar",(c.watchlist||0)+(c.watch_short||0)]].map(([l,v])=>`<div class="stat"><b>${v??"–"}</b><span>${l}</span></div>`).join("");
+    $("stats").innerHTML=[["Analisados",c.deep_checked],["Sinais novos",(c.long||0)+(c.short||0)],["Em operação",(()=>{const dc=new Set(((D.journal||{}).rows||[]).filter(r=>r.executed===false).map(r=>r.id));return (D.active_signals||[]).filter(x=>x.mode!=="PAPER"&&x.status==="TRIGGERED"&&!dc.has(x.id)).length})()],["A vigiar",(c.watchlist||0)+(c.watch_short||0)]].map(([l,v])=>`<div class="stat"><b>${v??"–"}</b><span>${l}</span></div>`).join("");
     $("note").textContent=`Regime do BTC: ${D.market_regime?D.market_regime.btc:"–"}. Só entram ativos listados na Bybit UE em USDC. As análises usam preços dos mercados globais em USDT; na Bybit UE os valores em USDC podem diferir alguns cêntimos. Filtro de liquidez: volume 24h ≥ ${num(D.thresholds.min_volume_usd/1e6,0)} M $ e spread ≤ ${D.thresholds.max_spread_bps} bps. Análise aprofundada só nos ${D.thresholds.deep_n} ativos mais líquidos. Toca num ativo para ver o detalhe.`;
     render();
   }catch(e){$("sub").className="late";$("sub").innerHTML=`<i></i>sem ligação aos dados (${esc(e.message)}), toca para tentar`}
@@ -557,7 +561,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261006a";
+const PAGE_V="20261006b";
 async function checkVersion(){try{const t=await (await fetch("./index.html?nocache="+Date.now(),{cache:"no-store"})).text();const m=t.match(/PAGE_V="(\w+)"/);if(m&&m[1]!==PAGE_V)location.replace("./?v="+m[1])}catch(_){}}
 checkVersion();setInterval(checkVersion,600000);
 load();setInterval(load,60000);
