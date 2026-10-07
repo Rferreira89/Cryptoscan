@@ -37,6 +37,7 @@ jobs:
               && git add scan.json state.json \
               && { [ -f resumo.txt ] && git add resumo.txt || true; } \
               && { [ -f audit.jsonl ] && git add audit.jsonl || true; } \
+              && { [ -f erros.txt ] && git add erros.txt || true; } \
               && git commit -q -m "$1 $(date -u +%FT%TZ)" \
               && git push -q -f "$PUSH_URL" data:data ) || echo "publicacao falhou"
           }
@@ -55,7 +56,7 @@ jobs:
             # estado anterior (sinais ativos, registo, ultimo scan)
             if git ls-remote --exit-code -q origin refs/heads/data >/dev/null 2>&1; then
               if git fetch -q origin data; then
-                for f in state.json audit.jsonl scan.json resumo.txt; do
+                for f in state.json audit.jsonl scan.json resumo.txt erros.txt; do
                   git show "FETCH_HEAD:$f" > "out/$f" 2>/dev/null || rm -f "out/$f"
                 done
               else
@@ -68,15 +69,24 @@ jobs:
               else
                 echo "monitor falhou"
               fi
-            elif [ "$OK" = 1 ] && python -m unittest discover -q -s tests -t . ; then
-              if python -m engine.run out > /dev/null; then
+            elif [ "$OK" = 1 ] && python -m unittest discover -q -s tests -t . 2> /tmp/testes.log ; then
+              # um scan que falha e repetido uma vez; se voltar a falhar, o
+              # motivo fica registado em erros.txt no ramo data
+              if python -m engine.run out > /dev/null 2> /tmp/run.log \
+                 || { echo "scan falhou: nova tentativa"; sleep 20; python -m engine.run out > /dev/null 2> /tmp/run.log; }; then
                 head -12 out/resumo.txt
                 publish scan
               else
-                echo "scan falhou: nada publicado"
+                echo "scan falhou duas vezes"; tail -5 /tmp/run.log
+                { echo "$(date -u +%FT%TZ) scan falhou:"; tail -5 /tmp/run.log; } >> out/erros.txt
+                tail -200 out/erros.txt > /tmp/e.txt && cp /tmp/e.txt out/erros.txt
+                publish erro
               fi
             elif [ "$OK" = 1 ]; then
-              echo "testes falharam: nada publicado"
+              echo "testes falharam: scan nao corre"; tail -8 /tmp/testes.log
+              { echo "$(date -u +%FT%TZ) testes falharam:"; tail -8 /tmp/testes.log; } >> out/erros.txt
+              tail -200 out/erros.txt > /tmp/e.txt && cp /tmp/e.txt out/erros.txt
+              publish erro
             fi
             echo "::endgroup::"
             NOW=$(date +%s)
