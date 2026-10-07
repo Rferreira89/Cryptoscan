@@ -52,3 +52,52 @@ Além disso falha 2 dos 6 critérios: não seria validada mesmo com mais operaç
   Nada foi ligado ao vivo.
 - Código: `tools/research_dip.py`; teste sem look-ahead:
   `tests/test_research_dip.py`; números: `backtest/research_dip.json`.
+
+## 2026-10-07 — Compressão de volatilidade seguida de expansão (diário)
+
+**Veredicto: AMOSTRA INSUFICIENTE** (39 operações fora da amostra, mínimo 40).
+Na prática é uma rejeição: falha 3 dos 6 critérios e só 2 das 12
+configurações ganham no desenho. Uma operação a mais não mudaria nada.
+
+- **Hipótese** (escrita e guardada em commit antes dos testes, 425ffdf): a
+  volatilidade agrupa-se; com o BTC acima da SMA200, um fecho acima do máximo
+  de uma caixa de N dias invulgarmente estreita (largura entre os q mais
+  baixos dos últimos 120 dias) inicia um movimento para cima. Compra na
+  abertura seguinte; saída ao fim de H dias, ou com fecho abaixo do meio da
+  caixa, ou com o BTC abaixo da SMA200. Até 4 posições de 25%. Universo:
+  64 moedas com histórico.
+- **Grelha** (12): N ∈ {10, 20}; q ∈ {0,2; 0,4}; H ∈ {5, 10, 20}.
+- **Custos**: 0,25% de comissão + 0,1% de slippage por lado (taxa real da
+  Bybit UE), também na referência. A entrada de 2026-10-04 usou 0,1%.
+- **Janela**: desenho 2024-10-02 a 2026-04-01; reserva 2026-04-02 a
+  2026-10-01 (última vela do histórico: 2026-10-01). Walk-forward: treino
+  183 dias, teste 91, 4 dobras.
+- **Desenho**: 2 de 12 configurações positivas (17%). Com N=10 todas perdem
+  (-21% a -40%). Melhores: N=20/q=0,4/H=20 com +14,8% (Sharpe 0,44, queda
+  máxima 44,9%) e N=20/q=0,2/H=5 com +14,5%. Taxa de acerto entre 25% e 45%:
+  o contrário de "acerto alto". Quedas máximas de 38% a 63%. Referência
+  BTC>SMA200 no desenho: +12,2%, Sharpe 0,40, queda máxima 33,4%.
+- **Walk-forward fora da amostra** (364 dias): +4,8%, Sharpe 0,32, queda
+  máxima 37,4%, 39 operações (43,6% ganhadoras, +1,73% médio, melhor
+  +106,5%, pior -30,2%). Dobras: -1,0% / +25,3% / -15,6% / 0,0% (sem
+  operações) = 1 de 4 positivas. Grandes moedas: +33,1%, Sharpe 0,97, queda
+  máxima 17,8%. Referência nas mesmas datas: +2,6%, Sharpe 0,23.
+- **Configuração escolhida**: N=20, q=0,4, H=20. No desenho: 56 operações,
+  39,3% ganhadoras, +2,74% médio, pior -36,9%, melhor +106,5%.
+- **Reserva (uma avaliação)**: +25,4%, Sharpe 1,59, queda máxima 11,5%, mas
+  só 5 operações (4 ganhadoras). Referência no mesmo período: +22,0%, Sharpe
+  1,92. Cinco operações não provam nada.
+- **Critérios**: 1 NÃO (Sharpe 0,32, mínimo 0,5); 2 NÃO (25% das dobras,
+  mínimo 60%); 3 NÃO (17% da grelha, mínimo 75%); 4 sim; 5 sim (0,32 contra
+  0,23, margem mínima); 6 sim.
+- **Período antigo (informativo, não conta)**: 2021-11-27 a 2024-10-01 a
+  mesma configuração daria +24,8% (Sharpe 0,39, queda máxima 52,7%, 95
+  operações) contra +87,5% da referência (Sharpe 0,79).
+- **Leitura**: a quebra a sair de uma caixa apertada não é melhor entrada do
+  que a quebra simples já rejeitada. O pouco ganho vem de raras operações
+  muito grandes (+100%), com acerto baixo e quedas fundas; é o perfil de uma
+  aposta de cauda, não de uma vantagem. Única pista: nas grandes moedas o
+  resultado é sempre melhor do que no universo todo (9 de 12 configurações
+  positivas no desenho), como já tinha acontecido. Nada foi ligado ao vivo.
+- Código: `tools/research_squeeze.py`; teste sem look-ahead:
+  `tests/test_research_squeeze.py`; números: `backtest/research_squeeze.json`.
