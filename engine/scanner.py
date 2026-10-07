@@ -212,6 +212,7 @@ def run(now=None, state=None, cfg=None):
     now = int(now or time.time())
     state = state if state is not None else {}
     cfg = dict(cfg or config.load())
+    ledger.fix_stop_exits(state)
     since = cfg.get("capital_since") or 0
     if state.get("capital"):                 # definido pelo Telegram
         cfg["capital_usdc"] = state["capital"]

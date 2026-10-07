@@ -230,6 +230,36 @@ class Compounding(unittest.TestCase):
         self.assertEqual(c["capital_usdc"], 83)
 
 
+class StopCountsAtStopPrice(unittest.TestCase):
+    def test_live_stop_far_below_is_minus_one_r(self):
+        from engine import signals
+        st = WickHitsStop.state(self)
+        signals.track(st, {"X": 92.0}, CFG, 60)          # leitura muito abaixo
+        s = st["signals"]["k"]
+        self.assertEqual(s["status"], "CLOSED")
+        self.assertAlmostEqual(s["result_r"], -1.0, places=2)
+
+    def test_backtest_gap_still_counts_at_open(self):
+        from engine import trade
+        pos = WickHitsStop.state(self)["signals"]["k"]["position"]
+        trade.step(pos, 92.0, 92.5, 91.0, 92.0, 60)
+        self.assertLess(pos["r"], -1.5)
+
+    def test_old_records_are_corrected(self):
+        from engine import ledger
+        st = {"ledger": [{"id": "a", "status": "CLOSED", "reason": "STOP",
+                          "tp_hit": 0, "result_r": -1.544, "stop": 0.23,
+                          "exit": 0.22},
+                         {"id": "b", "status": "CLOSED", "reason": "TP3",
+                          "tp_hit": 3, "result_r": 2.1}],
+              "signals": {"a": {"status": "CLOSED", "close_reason": "STOP",
+                                "result_r": -1.544, "position": {"tp_hit": 0}}}}
+        self.assertEqual(ledger.fix_stop_exits(st), 1)
+        self.assertEqual(st["ledger"][0]["result_r"], -1.0)
+        self.assertEqual(st["ledger"][1]["result_r"], 2.1)
+        self.assertEqual(st["signals"]["a"]["result_r"], -1.0)
+
+
 class RangeDisabled(unittest.TestCase):
     def test_range_is_off_by_default_both_sides(self):
         c = config.load("nao-existe.json")

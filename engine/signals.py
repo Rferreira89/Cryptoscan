@@ -356,7 +356,8 @@ def track(state, prices, cfg, now, ranges=None):
             # leitura, um pavio que toque no stop ou num objetivo conta
             pos = s["position"]
             lo, hi = ranges.get(s["asset"], (px, px))
-            for e in trade.step(pos, px, max(hi, px), min(lo, px), px, now):
+            for e in trade.step(pos, px, max(hi, px), min(lo, px), px, now,
+                                gap=False):
                 events.append(dict(e, t=now, id=key, asset=s["asset"]))
             if pos["closed"]:
                 s.update(status="CLOSED", closed_at=now, result_r=pos["r"],

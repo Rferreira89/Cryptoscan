@@ -87,6 +87,25 @@ def user_r(r):
     return round(pnl / (d * (ep - r["stop"])), 2)
 
 
+def fix_stop_exits(state):
+    """Corrige registos antigos em que um stop foi contado ao preco lido
+    depois (pior do que -1R) e nao ao preco do stop. Devolve quantos."""
+    n = 0
+    for r in state.get("ledger", []):
+        if r.get("status") == "CLOSED" and r.get("reason") == "STOP" \
+                and not r.get("tp_hit") and (r.get("result_r") or 0) < -1.0:
+            r.update(result_r=-1.0, exit=r.get("stop"))
+            n += 1
+    for s in state.get("signals", {}).values():
+        if s.get("status") == "CLOSED" and s.get("close_reason") == "STOP" \
+                and (s.get("result_r") or 0) < -1.0 \
+                and not (s.get("position") or {}).get("tp_hit"):
+            s["result_r"] = -1.0
+            if s.get("position"):
+                s["position"]["r"] = -1.0
+    return n
+
+
 def realized_usdc(led, since=0):
     """Resultado em USDC das operacoes que o utilizador executou e que
     fecharam depois de `since` (resultado em R vezes o risco em USDC do

@@ -43,8 +43,11 @@ def _finish(pos, reason, t):
                r=round(pos["realized"] / pos["risk_unit"], 3))
 
 
-def step(pos, o, h, l, c, t):
-    """Avanca uma vela (ou um preco pontual: o=h=l=c). Devolve eventos."""
+def step(pos, o, h, l, c, t, gap=True):
+    """Avanca uma vela (ou um preco pontual: o=h=l=c). Devolve eventos.
+    gap=False (acompanhamento ao vivo): o preco lido nao e a abertura de
+    uma vela; a ordem de stop na corretora dispara ao passar no stop, por
+    isso a saida conta ao preco do stop e nao ao preco lido depois."""
     ev = []
     if pos["closed"]:
         return ev
@@ -54,12 +57,12 @@ def step(pos, o, h, l, c, t):
     beyond = lambda px, level: d * (px - level) <= 0    # px no stop ou pior
     reached = lambda px, level: d * (px - level) >= 0   # px no objetivo ou melhor
     reason = "STOP" if d * (pos["stop"] - pos["entry"]) < 0 else "BREAKEVEN"
-    if beyond(o, pos["stop"]):                          # gap para la do stop
+    if gap and beyond(o, pos["stop"]):                  # gap para la do stop
         px = o * (1 - d * pos["slip"])
         _sell(pos, pos["remaining"], px)
         _finish(pos, reason, t)
         return [{"event": reason, "price": px, "r": pos["r"]}]
-    if beyond(adverse, pos["stop"]):
+    if beyond(adverse, pos["stop"]) or beyond(o, pos["stop"]):
         px = pos["stop"] * (1 - d * pos["slip"])
         _sell(pos, pos["remaining"], px)
         _finish(pos, reason, t)
