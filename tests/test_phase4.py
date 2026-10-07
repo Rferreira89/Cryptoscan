@@ -367,8 +367,10 @@ class Signals(unittest.TestCase):
         self.assertLess(tk["sum_r"], -0.9)
 
     def test_waiting_is_watchlist_never_early_entry(self):
+        from unittest import mock
         c = C4[:-1] + [mk(99.8, 100.2, 99.5, 99.7)]
-        d = signals.decide(row(a4=a4h(close=99.7)), c, CFG, V, "BULL", False)
+        with mock.patch.object(risk, "MIN_STOP_ATR", 1.0):   # stop do cenario: 1.1 ATR
+            d = signals.decide(row(a4=a4h(close=99.7)), c, CFG, V, "BULL", False)
         self.assertEqual((d["decision"], d["state"]), ("WATCHLIST", "WAITING"))
 
     def test_two_conflicts_block(self):
