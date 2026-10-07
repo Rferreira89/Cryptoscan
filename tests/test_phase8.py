@@ -380,7 +380,7 @@ class Concentrated(unittest.TestCase):
     def test_defaults_of_mode_b(self):
         c = config.load("nao-existe.json")
         self.assertEqual((c["max_open_positions"], c["unvalidated_risk_pct"],
-                          c["capital_usdc"], c["swing_leverage"]), (2, 1.0, 50.0, 6.0))
+                          c["capital_usdc"], c["swing_leverage"]), (2, 1.0, 50.0, 10.0))
         self.assertEqual((c["fixed_position_usdc"], c["max_risk_usdc"]), (25.0, 2.0))
 
     def test_risk_and_position_caps_at_50_usdc(self):

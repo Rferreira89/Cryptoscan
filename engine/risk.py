@@ -8,7 +8,7 @@ import math
 
 from .strategies import px_str
 
-MAX_LEVERAGE = 6.0              # teto absoluto (decisao do utilizador)
+MAX_LEVERAGE = 10.0             # teto absoluto (decisao do utilizador)
 MMR = 0.05                      # margem de manutencao assumida
 
 MIN_STOP_ATR, MAX_STOP_ATR = 1.25, 4.0   # 1-1.25 ATR: -0.38R em 376 operacoes; <1 ATR: -0.32R em 692
@@ -30,7 +30,7 @@ def leverage_for(stop_frac, cfg):
     """Alavancagem a usar e maximo seguro para uma distancia de stop.
 
     Maximo seguro: a liquidacao estimada (1/L menos margem de manutencao)
-    fica a pelo menos 2.5 vezes a distancia do stop. Teto absoluto de 6x.
+    fica a pelo menos 2.5 vezes a distancia do stop. Teto absoluto de 10x.
     """
     max_safe = max(1.0, min(MAX_LEVERAGE, math.floor(2 / (2.5 * stop_frac + MMR)) / 2))
     use = max(1.0, min(cfg.get("swing_leverage", 1.0), max_safe))

@@ -53,7 +53,7 @@ DEFAULTS = {
     # swing (margem spot da Bybit UE). A posicao e o risco por operacao sao
     # multiplicados por este valor, ate ao maximo que mantem a liquidacao
     # estimada a mais do dobro da distancia do stop. 1 = sem alavancagem.
-    "swing_leverage": 6.0,
+    "swing_leverage": 10.0,
     # Capital de trading em USDC (2026-10-02: 50). Atualiza-se pelo Telegram
     # com /capital <valor>. Serve para dar valores em USDC e para adaptar
     # as operacoes a ordem minima da Bybit UE.
@@ -89,6 +89,6 @@ def load(path="config.json"):
         cfg.update(user)
     if not 0 < cfg["risk_pct"] <= 2:
         raise ValueError("risk_pct tem de estar entre 0 e 2")
-    if not 1 <= cfg["swing_leverage"] <= 6:
-        raise ValueError("swing_leverage tem de estar entre 1 e 6")
+    if not 1 <= cfg["swing_leverage"] <= 10:
+        raise ValueError("swing_leverage tem de estar entre 1 e 10")
     return cfg
