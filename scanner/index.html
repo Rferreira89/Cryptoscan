@@ -294,7 +294,7 @@ function planSteps(p,pair){
   <li>Na Bybit UE, par <b>${esc(pair)}</b>, spot: ordem <b>limite de compra</b> entre <b>${price(p.entry_zone[0])}</b> e <b>${price(p.entry_zone[1])}</b>.</li>
   <li>Alavancagem nesta operação: <b>${p.leverage&&p.leverage.use>1?p.leverage.use+"x":"1x (sem margem)"}</b>${p.leverage&&p.leverage.reason?" — "+esc(p.leverage.reason):""}.</li>
   <li>${sizing(p)}</li>
-  ${p.leverage&&p.leverage.use>1&&p.position_usdc?`<li>Na Bybit, liga a <b>Margem</b> em <b>${p.leverage.use}x</b> e escreve <b>${num(p.position_usdc,2)} USDC</b> no valor da ordem, não os ${num(p.collateral_usdc,2)} da tua parte. Depois confirma que o separador "Empréstimos" passou a mostrar 1.</li>`:""}
+  ${p.leverage&&p.leverage.use>1&&p.position_usdc?`<li>Na Bybit, liga a <b>Margem</b> em <b>${p.leverage.use}x</b> e escreve <b>${num(p.position_usdc,2)} USDC</b> no valor da ordem. É esse o valor certo, haja ou não empréstimo: a Bybit só empresta o que faltar no teu saldo livre. Não aumentes a ordem para forçar um empréstimo.</li>`:""}
   <li>Stop-loss em <b>${price(p.stop)}</b> (−${num(p.stop_pct,2)}% com comissões).</li>
   ${p.leverage&&p.leverage.use>1?`<li>Com margem ${p.leverage.use}x a liquidação estimada fica perto de <b>${price(p.leverage.liquidation_est)}</b>, bem abaixo do stop. Confirma o valor no ecrã da Bybit e coloca o stop logo a seguir à entrada.</li>`:""}
   ${p.partials[0]>0?`<li>Vender ${p.partials[0]}% em <b>${price(p.tp[0])}</b>${pr(1)} e subir o stop para o preço de entrada.</li>`:`<li>Quando o preço chegar a <b>${price(p.tp[0])}</b>${pr(1)}: não vender, só subir o stop para o preço de entrada.</li>`}
@@ -564,7 +564,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261006d";
+const PAGE_V="20261007a";
 async function checkVersion(){try{const t=await (await fetch("./index.html?nocache="+Date.now(),{cache:"no-store"})).text();const m=t.match(/PAGE_V="(\w+)"/);if(m&&m[1]!==PAGE_V)location.replace("./?v="+m[1])}catch(_){}}
 checkVersion();setInterval(checkVersion,600000);
 load();setInterval(load,60000);

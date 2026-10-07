@@ -78,11 +78,13 @@ def invest_line(position_pct, risk_pct, lev, usdc=None):
     mine = (f"{usdc / lev['use']:.2f} USDC teus e {usdc - usdc / lev['use']:.2f} "
             "emprestados" if usdc else
             f"{lev['collateral_pct']}% teus e o resto emprestado")
-    order = (f"NA BYBIT: liga a Margem em {lev['use']:g}x e escreve "
-             f"{usdc:.2f} USDC no valor da ordem (não os "
-             f"{usdc / lev['use']:.2f} da tua parte). Se o par não tiver "
-             f"Margem, entra só com os {usdc / lev['use']:.2f} USDC teus, "
-             "com o mesmo stop e objetivos\n" if usdc else "")
+    order = (f"NA BYBIT: liga a Margem e escreve {usdc:.2f} USDC no valor "
+             "da ordem. É esse o valor certo, haja ou não empréstimo: a "
+             "Bybit só empresta o que faltar no teu saldo livre. Não "
+             "aumentes a ordem para forçar um empréstimo. Se o par não "
+             f"tiver Margem e o saldo não chegar, entra com "
+             f"{usdc / lev['use']:.2f} USDC, com o mesmo stop e objetivos\n"
+             if usdc else "")
     return (f"Alavancagem: {lev['use']:g}x{why}\n"
             f"Posição: {amt}{position_pct}% do capital, {mine} "
             f"(risco {risk_pct}%)\n{order}"
