@@ -29,12 +29,9 @@ class OrderReady(unittest.TestCase):
     def test_markup(self):
         s = sig()
         m = run.markup_for({"event": "ISSUED", "id": s["id"]}, s, True)
-        rows = m["inline_keyboard"]
-        self.assertEqual(len(rows), 2)
-        self.assertEqual(rows[1][0]["url"], run.bybit_url("ENA/USDC"))
-        m = run.markup_for({"event": "STOP", "id": s["id"]}, s, True)
-        self.assertEqual(len(m["inline_keyboard"]), 1)   # so o link
-        self.assertIsNone(run.markup_for({"event": "EXPIRED"}, s, True))
+        self.assertEqual(len(m["inline_keyboard"]), 1)
+        self.assertNotIn("url", m["inline_keyboard"][0][0])
+        self.assertIsNone(run.markup_for({"event": "STOP", "id": s["id"]}, s, True))
         self.assertIsNone(run.markup_for({"event": "ISSUED", "id": "x"}, s, False))
 
     def test_deliver_uses_html_and_escapes(self):

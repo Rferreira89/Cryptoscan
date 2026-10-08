@@ -311,16 +311,10 @@ def order_block(s):
 
 
 def markup_for(e, s, real):
-    """Botoes do alerta: executei / nao executei e abrir o par na Bybit."""
-    rows = []
+    """Botoes do alerta: executei / nao executei. (O link para a Bybit foi
+    retirado: no iPhone o Telegram abre o site e nao a app.)"""
     oid = op_id(e)
-    if oid and real:
-        rows += inbox.buttons(oid)["inline_keyboard"]
-    pair = s.get("pair") or e.get("pair")
-    if real and pair and e["event"] not in ("EXPIRED", "INVALIDATED"):
-        rows.append([{"text": f"📲 Abrir {pair} na Bybit",
-                      "url": bybit_url(pair)}])
-    return {"inline_keyboard": rows} if rows else None
+    return inbox.buttons(oid) if oid and real else None
 
 
 def op_id(e):

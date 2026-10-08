@@ -319,8 +319,7 @@ function readyBox(s){
   it.push(["Preço limite de "+(sh?"venda":"compra"),ref,price(ref)]);
   it.push(["Stop-loss",p.stop,price(p.stop)]);
   p.tp.forEach((v,i)=>{if(i===0||p.partials[i]>0)it.push(["TP"+(i+1),v,price(v)])});
-  return `<div class="ready"><b>ORDEM PRONTA · toca para copiar</b><div class="g">${it.map(([k,v,t])=>`<button data-copy="${v}"><span>${esc(k)}</span><em>${t}</em></button>`).join("")}</div>
-  <a class="gobb" href="${bybitUrl(s.pair)}" target="_blank" rel="noopener">📲 Abrir ${esc(s.pair)} na Bybit</a></div>`;
+  return `<div class="ready"><b>ORDEM PRONTA · toca para copiar</b><div class="g">${it.map(([k,v,t])=>`<button data-copy="${v}"><span>${esc(k)}</span><em>${t}</em></button>`).join("")}</div></div>`;
 }
 function sigCard(s){
   const e=s.explain,trig=s.status==="TRIGGERED";
@@ -330,7 +329,6 @@ function sigCard(s){
   ${trig?plNow(s):""}
   ${trig?"":readyBox(s)}
   ${ladder(s.plan,s.asset,sh,trig?s.position:null)}
-  ${trig?`<a class="gobb" style="margin:0 0 12px" href="${bybitUrl(s.pair)}" target="_blank" rel="noopener">📲 Abrir ${esc(s.pair)} na Bybit</a>`:""}
   <div class="bybit" data-pair="${esc(s.pair)}" data-pos="${s.plan.position_pct}" data-entry="${s.plan.entry_ref}" data-asset="${esc(s.asset)}" data-lev="${s.plan.leverage?s.plan.leverage.use:1}" data-col="${s.plan.collateral_usdc||""}"></div>
   <details${trig?"":" open"}><summary>Como executar na Bybit</summary>${sh?shortSteps(s.plan,s.pair,s.asset):planSteps(s.plan,s.pair)}</details>
   <details><summary>Porquê este sinal</summary>
@@ -600,7 +598,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261008a";
+const PAGE_V="20261008b";
 async function checkVersion(){try{const t=await (await fetch("./index.html?nocache="+Date.now(),{cache:"no-store"})).text();const m=t.match(/PAGE_V="(\w+)"/);if(m&&m[1]!==PAGE_V)location.replace("./?v="+m[1])}catch(_){}}
 checkVersion();setInterval(checkVersion,600000);
 load();setInterval(load,60000);

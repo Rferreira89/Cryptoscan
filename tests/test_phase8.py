@@ -193,9 +193,7 @@ class Delivery(unittest.TestCase):
         self.assertIn("Alavancagem: 2x", sent[1][0])
         self.assertIn("Liquidação estimada", sent[1][0])
         self.assertEqual(sent[1][1]["inline_keyboard"][0][0]["callback_data"], "x|1|k")
-        # avisos seguintes: sem botoes de execucao, so o link da Bybit
-        self.assertEqual(len(sent[2][1]["inline_keyboard"]), 1)
-        self.assertIn("url", sent[2][1]["inline_keyboard"][0][0])
+        self.assertIsNone(sent[2][1])
         state["ledger"][0]["executed"] = False
         sent.clear()
         run.deliver(CFG, state, [{"event": "TP2", "id": "k", "price": 108.0,
