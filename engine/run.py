@@ -1,3 +1,4 @@
+import html
 import json
 import os
 import sys
@@ -281,6 +282,47 @@ def alert_text(e, sigs, note):
     return None
 
 
+def bybit_url(pair):
+    """Pagina do par na Bybit UE (no iPhone pode abrir a app)."""
+    base, _, quote = (pair or "").partition("/")
+    return f"https://www.bybit.eu/en-EU/trade/spot/{base}/{quote or 'USDC'}"
+
+
+def order_block(s):
+    """Valores da ordem prontos a copiar (HTML do Telegram: <code> copia
+    com um toque). Pontos decimais, como a Bybit aceita."""
+    p = s["plan"]
+    sh = s.get("direction") == "SHORT"
+    usdc = p.get("position_usdc")
+    ref = p.get("entry_ref") or p["entry_zone"][1]
+    c = lambda x: f"<code>{_px(x)}</code>"
+    L = ["📋 ORDEM PRONTA — toca num valor para o copiar"]
+    if usdc:
+        L.append(f"Valor da ordem: <code>{usdc:.2f}</code> USDC")
+        L.append(f"(ou quantidade: <code>{float(f'{usdc / ref:.4g}'):g}</code> "
+                 f"{html.escape(s['asset'])})")
+    L.append(f"Preço limite de {'venda' if sh else 'compra'}: {c(ref)}")
+    L.append(f"Stop-loss: {c(p['stop'])}")
+    parts = p.get("partials", [50, 30, 20])
+    for i in range(3):
+        if i == 0 or parts[i] > 0:
+            L.append(f"TP{i + 1}: {c(p['tp'][i])}")
+    return "\n".join(L)
+
+
+def markup_for(e, s, real):
+    """Botoes do alerta: executei / nao executei e abrir o par na Bybit."""
+    rows = []
+    oid = op_id(e)
+    if oid and real:
+        rows += inbox.buttons(oid)["inline_keyboard"]
+    pair = s.get("pair") or e.get("pair")
+    if real and pair and e["event"] not in ("EXPIRED", "INVALIDATED"):
+        rows.append([{"text": f"📲 Abrir {pair} na Bybit",
+                      "url": bybit_url(pair)}])
+    return {"inline_keyboard": rows} if rows else None
+
+
 def op_id(e):
     """Id da operacao no registo, para os botoes de confirmacao."""
     if e["event"] == "ISSUED":
@@ -317,10 +359,13 @@ def deliver(cfg, state, events, extra=()):
         txt = alert_text(e, sigs, validation.note(s.get("strategy")))
         if not txt:
             continue
-        oid = op_id(e)
         real = s.get("mode") != "PAPER" and e.get("real", True)
+        html_mode = False
+        if real and e["event"] == "ISSUED" and s.get("plan"):
+            txt = html.escape(txt) + "\n\n" + order_block(s)
+            html_mode = True
         try:
-            alerts.send(txt, inbox.buttons(oid) if oid and real else None)
+            alerts.send(txt, markup_for(e, s, real), html=html_mode)
         except alerts.AlertError as err:
             print("ALERTA FALHOU", err)
 

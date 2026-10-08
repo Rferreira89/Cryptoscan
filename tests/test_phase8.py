@@ -173,7 +173,7 @@ class Delivery(unittest.TestCase):
         from engine import alerts, run
         sent = []
         orig = (alerts.send, alerts.configured)
-        alerts.send = lambda text, markup=None: sent.append((text, markup))
+        alerts.send = lambda text, markup=None, html=False: sent.append((text, markup))
         alerts.configured = lambda: True
         self.addCleanup(lambda: (setattr(alerts, "send", orig[0]),
                                  setattr(alerts, "configured", orig[1])))
@@ -193,7 +193,9 @@ class Delivery(unittest.TestCase):
         self.assertIn("Alavancagem: 2x", sent[1][0])
         self.assertIn("Liquidação estimada", sent[1][0])
         self.assertEqual(sent[1][1]["inline_keyboard"][0][0]["callback_data"], "x|1|k")
-        self.assertIsNone(sent[2][1])
+        # avisos seguintes: sem botoes de execucao, so o link da Bybit
+        self.assertEqual(len(sent[2][1]["inline_keyboard"]), 1)
+        self.assertIn("url", sent[2][1]["inline_keyboard"][0][0])
         state["ledger"][0]["executed"] = False
         sent.clear()
         run.deliver(CFG, state, [{"event": "TP2", "id": "k", "price": 108.0,

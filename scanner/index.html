@@ -76,6 +76,15 @@ h2{font-size:19px;font-weight:750;font-stretch:80%;margin:22px 0 10px}
 .lad .v{font-size:16px;font-weight:650;font-stretch:85%}
 .lad .d{font-size:12.5px;color:var(--mut);text-align:right}
 .lad button:active{background:var(--chip)}
+.ready{background:var(--bg);border:1px solid var(--grid);border-radius:10px;padding:10px 12px;margin:4px 0 12px}
+.ready>b{display:block;font-size:12.5px;color:var(--up);letter-spacing:.04em;margin-bottom:6px}
+.ready .g{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.ready button{background:var(--chip);border:0;border-radius:8px;padding:8px 10px;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.ready button span{display:block;font-size:11.5px;color:var(--mut)}
+.ready button em{font-style:normal;font-size:16px;font-weight:700;font-stretch:85%}
+.ready button:active{outline:2px solid var(--up)}
+.gobb{display:block;margin-top:8px;text-align:center;background:var(--up);color:var(--card);font-weight:700;border-radius:8px;padding:10px;text-decoration:none}
+.diary{width:100%;border-collapse:collapse;font-size:13.5px}.diary td{padding:7px 4px;border-top:1px solid var(--line)}.diary td:last-child{text-align:right}
 .hint{font-size:12px;color:var(--mut);margin:-6px 0 10px 4px}
 details{border-top:1px solid var(--line);padding:8px 0 0;margin-top:8px}
 summary{cursor:pointer;font-weight:650;font-size:14px;padding:6px 0;list-style:none;display:flex;justify-content:space-between}
@@ -128,6 +137,7 @@ a{color:inherit}
 <div id="mf"></div>
 
 <h2>Resultado</h2><div class="stats" id="score"></div><div class="note" id="scorenote" style="margin:-6px 0 4px"></div>
+<details class="sec" id="s-diario"><summary>O teu diário<span id="n-diario"></span></summary><div id="diary"></div></details>
 <h2>As tuas operações</h2><div id="bynote" class="note" style="margin:0 0 8px"></div><div id="ops"></div>
 
 <details class="sec" id="s-vigiar"><summary>A vigiar<span id="n-vigiar"></span></summary><div id="watch"></div></details>
@@ -301,13 +311,26 @@ function planSteps(p,pair){
   ${p.partials[2]>0?`<li>Vender ${p.partials[1]}% em <b>${price(p.tp[1])}</b>${pr(2)} e os restantes ${p.partials[2]}% em <b>${price(p.tp[2])}</b>${pr(3)}.</li>`:`<li>Vender ${p.partials[0]>0?"os restantes "+p.partials[1]+"%":"tudo"} em <b>${price(p.tp[1])}</b>${pr(2)}. Com este capital não há terceira venda: ficaria abaixo da ordem mínima.</li>`}</ol>
   <div class="chips"><span class="chip">R:R 1:${num(p.rr,2)}</span><span class="chip">Stop ${num(p.stop_atr,1)} ATR</span></div>`;
 }
+function bybitUrl(pair){const [b,q]=String(pair).split("/");return `https://www.bybit.eu/en-EU/trade/spot/${encodeURIComponent(b)}/${encodeURIComponent(q||"USDC")}`}
+function readyBox(s){
+  const p=s.plan,sh=s.direction==="SHORT",u=p.position_usdc,ref=p.entry_ref||p.entry_zone[1];
+  const it=[];
+  if(u!=null){it.push(["Valor da ordem (USDC)",u,num(u,2)]);it.push(["ou quantidade "+s.asset,+(u/ref).toPrecision(4),num(+(u/ref).toPrecision(4),4)])}
+  it.push(["Preço limite de "+(sh?"venda":"compra"),ref,price(ref)]);
+  it.push(["Stop-loss",p.stop,price(p.stop)]);
+  p.tp.forEach((v,i)=>{if(i===0||p.partials[i]>0)it.push(["TP"+(i+1),v,price(v)])});
+  return `<div class="ready"><b>ORDEM PRONTA · toca para copiar</b><div class="g">${it.map(([k,v,t])=>`<button data-copy="${v}"><span>${esc(k)}</span><em>${t}</em></button>`).join("")}</div>
+  <a class="gobb" href="${bybitUrl(s.pair)}" target="_blank" rel="noopener">📲 Abrir ${esc(s.pair)} na Bybit</a></div>`;
+}
 function sigCard(s){
   const e=s.explain,trig=s.status==="TRIGGERED";
   const sh=s.direction==="SHORT";
   return `<div class="op" data-id="${esc(s.id)}" data-asset="${esc(s.asset)}"><h3>${esc(s.asset)} <span class="side${sh?" sh":""}">${sh?"Short":"Compra"}</span><span class="state">${trig?"operação aberta":"à espera de entrada, válido até "+hm(s.expires_at)}</span></h3>
   <div class="meta">${esc(STR[s.strategy]||s.strategy)}, ${esc(s.pair)}, emitido ${hm(s.issued_at)}</div>
   ${trig?plNow(s):""}
+  ${trig?"":readyBox(s)}
   ${ladder(s.plan,s.asset,sh,trig?s.position:null)}
+  ${trig?`<a class="gobb" style="margin:0 0 12px" href="${bybitUrl(s.pair)}" target="_blank" rel="noopener">📲 Abrir ${esc(s.pair)} na Bybit</a>`:""}
   <div class="bybit" data-pair="${esc(s.pair)}" data-pos="${s.plan.position_pct}" data-entry="${s.plan.entry_ref}" data-asset="${esc(s.asset)}" data-lev="${s.plan.leverage?s.plan.leverage.use:1}" data-col="${s.plan.collateral_usdc||""}"></div>
   <details${trig?"":" open"}><summary>Como executar na Bybit</summary>${sh?shortSteps(s.plan,s.pair,s.asset):planSteps(s.plan,s.pair)}</details>
   <details><summary>Porquê este sinal</summary>
@@ -425,12 +448,25 @@ function renderOps(){
   const ST={EXPIRED:"expirado",INVALIDATED:"invalidado",CLOSED:"fechada"},RS={STOP:"stop atingido",BREAKEVEN:"stop na entrada",TP3:"todos os objetivos",TIME:"tempo máximo"};
   $("closed").innerHTML=cl.map(s=>`<div class="op closed"><b>${esc(s.asset)}</b> · ${esc(STR[s.strategy]||s.strategy)} · ${ST[s.status]} ${hm(s.closed_at)} — ${s.status==="CLOSED"?`${esc(RS[s.close_reason]||s.close_reason)}, resultado <b class="${s.result_r>0?"up":"dn"}">${s.result_r>0?"+":""}${num(s.result_r,2)}R</b>`:esc(s.close_reason)}</div>`).join("")||`<div class="banner">Ainda sem sinais fechados.</div>`;
 }
+function renderDiary(mine,R){
+  const C=(D.config||{}),now=C.capital_usdc,base=C.capital_base;
+  $("n-diario").textContent=mine.length?mine.length+(mine.length===1?" operação":" operações"):"";
+  const dd=t=>new Date(t*1000).toLocaleString("pt-PT",{day:"2-digit",month:"2-digit"});
+  const rows=mine.slice().sort((a,b)=>(b.closed_at||b.issued_at)-(a.closed_at||a.issued_at)).map(r=>{
+    const open=r.status!=="CLOSED",rr=R(r),u=rr!=null&&r.risk_usdc!=null?rr*r.risk_usdc:null;
+    const res=open?`<span style="color:var(--mut)">${r.status==="OPEN"?"aberta":"à espera"}</span>`:`<b class="${rr>0?"up":"dn"}">${u!=null?(u>0?"+":"")+num(u,2)+" USDC":"–"}</b><br><span style="color:var(--mut);font-size:12px">${rr>0?"+":""}${num(rr,2)}R</span>`;
+    const ent=r.exec_price||r.entry||r.entry_zone[1];
+    return `<tr><td><b>${esc(r.asset)}</b>${r.side==="SHORT"?" ▼":""}<br><span style="color:var(--mut);font-size:12px">${dd(r.issued_at)}${r.closed_at?" → "+dd(r.closed_at):""}</span></td><td>${price(ent)}${r.exit?"<br><span style='color:var(--mut);font-size:12px'>saída "+price(r.exit)+"</span>":""}</td><td>${res}</td></tr>`}).join("");
+  const cap=now!=null?`<div class="stats" style="grid-template-columns:repeat(3,1fr)"><div class="stat"><b>${num(now,2)}</b><span>Capital agora</span></div><div class="stat"><b>${base!=null?num(base,0):"–"}</b><span>Capital de partida</span></div><div class="stat"><b class="${base!=null&&now>=base?"up":"dn"}">${base!=null?(now>=base?"+":"")+num((now/base-1)*100,1)+"%":"–"}</b><span>Variação</span></div></div>`:"";
+  $("diary").innerHTML=cap+(rows?`<table class="diary">${rows}</table>`:`<div class="banner">Ainda sem operações executadas. Carrega em "Executei" no Telegram quando entrares.</div>`)+`<div class="note">Só as operações que marcaste como executadas. Valores em USDC estimados pelo plano, com comissões; o extrato da Bybit é que conta. Se o teu preço de entrada foi diferente, envia /preco MOEDA preço no Telegram.</div>`;
+}
 function renderJournal(){
   const J=D.journal;if(!J){$("journal").innerHTML="";return}
   {const mine=J.rows.filter(r=>r.executed===true),cl=mine.filter(r=>r.status==="CLOSED"),R=r=>r.user_r!=null?r.user_r:r.result_r;
    const w=cl.filter(r=>R(r)>0).length,l=cl.length-w,op=mine.filter(r=>r.status==="OPEN"||r.status==="WAITING").length;
    const usd=cl.reduce((a,r)=>a+(R(r)||0)*(r.risk_usdc||0),0);
    $("score").innerHTML=[["Ganhas",`<span class="up">${w}</span>`],["Perdidas",`<span class="dn">${l}</span>`],["Acerto",cl.length?num(100*w/cl.length,0)+"%":"–"],["USDC",`<span class="${usd>0?"up":usd<0?"dn":""}">${usd>0?"+":""}${num(usd,2)}</span>`]].map(([k,v])=>`<div class="stat"><b>${v}</b><span>${k}</span></div>`).join("");
+   renderDiary(mine,R);
    $("scorenote").textContent=`${cl.length} fechada${cl.length===1?"":"s"}, ${op} em curso. Conta só o que marcaste como executado no Telegram. Valor estimado pelo plano, com comissões; o extrato da Bybit é que conta.`;}
   const m=J.summary,c=capital();$("n-registo").textContent=J.rows.length+(J.rows.length===1?" operação":" operações");
   const kp=[["Fechadas",m.closed],["Acerto",m.win_rate==null?"–":num(m.win_rate,0)+"%"],["Resultado",(m.total_r>0?"+":"")+num(m.total_r,2)+"R"],[c?"Em USDC":"% do capital",c?(m.capital_pct>0?"+":"")+num(c*m.capital_pct/100,2):(m.capital_pct>0?"+":"")+num(m.capital_pct,2)+"%"]];
@@ -564,7 +600,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261007b";
+const PAGE_V="20261008a";
 async function checkVersion(){try{const t=await (await fetch("./index.html?nocache="+Date.now(),{cache:"no-store"})).text();const m=t.match(/PAGE_V="(\w+)"/);if(m&&m[1]!==PAGE_V)location.replace("./?v="+m[1])}catch(_){}}
 checkVersion();setInterval(checkVersion,600000);
 load();setInterval(load,60000);

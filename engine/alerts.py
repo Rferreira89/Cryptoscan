@@ -19,7 +19,7 @@ def configured():
                 and os.environ.get("TELEGRAM_CHAT_ID"))
 
 
-def send(text, markup=None):
+def send(text, markup=None, html=False):
     token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
     chat = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
     if not token:
@@ -28,6 +28,8 @@ def send(text, markup=None):
         raise AlertError("falta o secret TELEGRAM_CHAT_ID")
     params = {"chat_id": chat, "text": text[:4000],
               "disable_web_page_preview": "true"}
+    if html:
+        params["parse_mode"] = "HTML"
     if markup:
         params["reply_markup"] = json.dumps(markup)
     body = urllib.parse.urlencode(params).encode()
