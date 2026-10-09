@@ -317,6 +317,7 @@ def run(now=None, state=None, cfg=None):
     both = eligible + [dict(r, decision=r["decision_short"])
                        for r in eligible if r.get("decision_short")]
     events += signals.update_state(state, both, cfg, now, daily)
+    events += calendar.open_warnings(state, now)
     result["halt"] = state.get("halt")
     result["paper_trend"], ev = paper_trend.update(
         state, eligible, daily, cfg, now, market_ok,

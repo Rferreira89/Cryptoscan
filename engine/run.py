@@ -1,7 +1,9 @@
+import datetime
 import html
 import json
 import os
 import sys
+from zoneinfo import ZoneInfo
 
 from . import (alerts, config, inbox, ledger, paper_trend, reports, scanner,
                strategies, validation)
@@ -212,6 +214,15 @@ def alert_text(e, sigs, note):
                 f"Se acontecer: entrada {_px(e['entry'][0])} a "
                 f"{_px(e['entry'][1])}, stop {_px(e['stop'])}, "
                 f"1.º objetivo {_px(e['tp1'])}.")
+    if k == "EVENT_OPEN":
+        quando = datetime.datetime.fromtimestamp(
+            e["event_t"], ZoneInfo("Europe/Lisbon")).strftime("%d/%m às %H:%M")
+        stop = f" O teu stop está em {_px(e['stop'])}: confirma que está colocado na Bybit." if e.get("stop") else ""
+        return (f"⚠️ EVENTO NUMA OPERAÇÃO ABERTA — {e['asset']}\n"
+                f"{e['name']}, {quando} (hora de Lisboa).\n"
+                "Desbloqueios trazem muitas vezes pressão de venda e saltos de "
+                f"preço.{stop} Decisão tua: manter, reduzir ou sair; o sistema "
+                "não mexe no plano.")
     if k == "STRATEGY_DISABLED":
         return (f"⛔ ESTRATÉGIA DESLIGADA — {e['strategy']}: {e['n']} operações "
                 f"ao vivo com resultado {e['sum_r']:+.2f}R. Deixa de gerar "

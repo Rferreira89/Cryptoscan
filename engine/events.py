@@ -87,3 +87,29 @@ def stale(now):
     last_cpi = _ts(CPI[-1], 8, 30)
     return now > last_cpi - 5 * 86400 and not any(
         "CPI" in n and now <= t <= now + 45 * 86400 for n, t in ALL)
+
+
+def open_warnings(state, now, extra=None):
+    """Aviso unico quando comeca a janela de risco de um evento especifico de
+    um ativo (desbloqueio de tokens, incidente) e ha uma operacao ABERTA e
+    executada nesse ativo. So informa: nao mexe no stop nem na posicao."""
+    seen = state.setdefault("event_warned", {})
+    for k in [k for k, t in seen.items() if now - t > 14 * 86400]:
+        del seen[k]
+    out = []
+    evs = [e for e in _all(extra) if "ALL" not in e["assets"]
+           and e["t"] - e["before_h"] * 3600 <= now <= e["t"]]
+    for r in state.get("ledger", []):
+        if r.get("status") != "OPEN" or r.get("executed") is not True:
+            continue
+        for e in evs:
+            if r.get("asset", "").upper() not in e["assets"]:
+                continue
+            key = f"{r['id']}|{e['t']}"
+            if key in seen:
+                continue
+            seen[key] = now
+            out.append({"t": now, "event": "EVENT_OPEN", "id": r["id"],
+                        "asset": r["asset"], "name": e["name"],
+                        "event_t": e["t"], "stop": r.get("stop")})
+    return out
