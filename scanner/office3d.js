@@ -559,7 +559,16 @@ function init(container) {
   scene = new THREE.Scene(); scene.fog = new THREE.Fog(0x0a0820, 38, 70);
   cam = new THREE.PerspectiveCamera(42, 1.3, .1, 200); cam.position.set(9, 17, 19);
   ctl = new OrbitControls(cam, R.domElement); ctl.target.set(0, 0, 0); ctl.enableDamping = true; ctl.minDistance = 10; ctl.maxDistance = 70;
-  ctl.maxPolarAngle = 1.25; ctl.minPolarAngle = .35; ctl.enablePan = false;
+  ctl.maxPolarAngle = 1.25; ctl.minPolarAngle = .35;
+  // andar pelo escritorio: um dedo arrasta e desloca sobre o chao (para cima =
+  // para a frente); dois dedos rodam e aproximam. No rato: esquerdo roda,
+  // direito anda, roda do rato aproxima.
+  ctl.enablePan = true; ctl.screenSpacePanning = false; ctl.panSpeed = 1.6; ctl.minDistance = 4;
+  ctl.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_ROTATE };
+  ctl.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
+  // nao sair do escritorio: o ponto para onde se olha fica dentro das paredes
+  ctl.addEventListener("change", () => { const t = ctl.target, cx = Math.max(-18.5, Math.min(18.5, t.x)), cz = Math.max(-8.5, Math.min(11.5, t.z));
+    if (cx !== t.x || cz !== t.z || t.y !== 0) { const dx = cx - t.x, dz = cz - t.z, dy = -t.y; t.set(cx, 0, cz); cam.position.x += dx; cam.position.z += dz; cam.position.y += dy; } });
   scene.add(new THREE.HemisphereLight(0xd6ccff, 0x2a1f6e, 1.55));
   const dl = new THREE.DirectionalLight(0xfff4e8, 1.35); dl.position.set(8, 20, 10); scene.add(dl);
   // sombras suaves (desligadas em telemoveis fracos, ver qualidade abaixo)
@@ -602,4 +611,6 @@ function init(container) {
   clock = new THREE.Clock(); running = true; frame();
   return true;
 }
-window.Office3D = { init, supported, refresh: () => { tvT = 0; } };
+// voltar a vista inicial (botao no ecra)
+function resetView() { resize.done = false; ctl.target.set(0, 0, 0); resize(); ctl.update(); }
+window.Office3D = { init, supported, refresh: () => { tvT = 0; }, resetView };

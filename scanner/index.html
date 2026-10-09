@@ -128,6 +128,10 @@ button:focus-visible,summary:focus-visible,.steps li:focus-visible{outline:2px s
 @media (prefers-reduced-motion:reduce){#toast{transition:none}}
 a{color:inherit}
 
+/* navegacao */
+#homeview[hidden]{display:none}
+#homeview{position:absolute;right:12px;bottom:calc(76px + env(safe-area-inset-bottom));width:46px;height:46px;border-radius:50%;background:#0c0a24e6;border:1px solid #4FD1C5;color:#4FD1C5;font-size:22px;cursor:pointer;box-shadow:0 0 14px #4FD1C544;z-index:4}
+#navhint{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(132px + env(safe-area-inset-bottom));background:#0c0a24f0;border:1px solid #2b2470;border-radius:99px;padding:8px 14px;font-size:12.5px;white-space:nowrap;pointer-events:none;z-index:4;transition:opacity .4s}
 /* instalar como app */
 #install{position:absolute;left:10px;right:10px;bottom:calc(70px + env(safe-area-inset-bottom));background:#0c0a24f5;border:1px solid #4FD1C5;border-radius:14px;padding:12px 40px 12px 12px;font-size:13px;line-height:1.4;box-shadow:0 0 24px #4FD1C544;z-index:5}
 #install b{display:block;font-size:14px;margin-bottom:3px}
@@ -233,7 +237,7 @@ body.sheet-open #sheet{transform:none}
 @media (prefers-reduced-motion:reduce){.typing i,.bot .eye{animation:none}.bub{transition:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module" src="office3d.js?v=20261009j"></script>
+<script type="module" src="office3d.js?v=20261009k"></script>
 </head>
 <body class="w3d">
 <div id="world">
@@ -248,6 +252,8 @@ body.sheet-open #sheet{transform:none}
 <nav id="zonebar" aria-label="Centro de comando">
 <button data-p="ops" class="cmd"><i style="background:#4FD1C5"></i>Centro de comando<span id="zb-ops"></span></button>
 </nav>
+<button id="homeview" aria-label="Voltar à vista inicial" title="Vista inicial">⌂</button>
+<div id="navhint" hidden>☝️ Arrasta com um dedo para andar · ✌️ dois dedos para rodar e aproximar</div>
 <span id="n-esc" hidden></span>
 </div>
 <div id="sheet" aria-hidden="true">
@@ -758,7 +764,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261009j";
+const PAGE_V="20261009k";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -1073,8 +1079,14 @@ document.addEventListener("click",e=>{const tr=e.target.closest("tr.rp");if(tr)o
 // ===== Instalar como app (so no Safari do iPhone, fora do modo app) =====
 (()=>{const ios=/iPhone|iPad|iPod/.test(navigator.userAgent),standalone=navigator.standalone||matchMedia("(display-mode: standalone)").matches;
   let seen=null;try{seen=localStorage.getItem("installHint")}catch(_){}
-  if(ios&&!standalone&&!seen){const el=$("install");setTimeout(()=>{el.hidden=false},4000);
-    el.querySelector("button").addEventListener("click",()=>{el.hidden=true;try{localStorage.setItem("installHint","1")}catch(_){}})}})();
+  if(ios&&!standalone&&!seen){const el=$("install");setTimeout(()=>{el.hidden=false;$("homeview").hidden=true},4000);
+    el.querySelector("button").addEventListener("click",()=>{el.hidden=true;$("homeview").hidden=false;try{localStorage.setItem("installHint","1")}catch(_){}})}})();
+
+// ===== Navegacao no escritorio: botao de vista inicial e dica (uma vez) =====
+$("homeview").addEventListener("click",()=>{if(window.Office3D&&window.Office3D.resetView)window.Office3D.resetView()});
+(()=>{let seen=null;try{seen=localStorage.getItem("navHint")}catch(_){}if(seen)return;const h=$("navhint");
+  setTimeout(()=>{h.hidden=false;setTimeout(()=>{h.style.opacity=0;setTimeout(()=>{h.hidden=true},500)},7000)},2500);
+  try{localStorage.setItem("navHint","1")}catch(_){}})();
 loadAcaso();
 async function checkVersion(){try{const t=await (await fetch("./index.html?nocache="+Date.now(),{cache:"no-store"})).text();const m=t.match(/PAGE_V="(\w+)"/);if(m&&m[1]!==PAGE_V)location.replace("./?v="+m[1])}catch(_){}}
 checkVersion();setInterval(checkVersion,600000);
