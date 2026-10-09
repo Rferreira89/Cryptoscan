@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Cryptoscan</title>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="apple-touch-icon" href="icon-180.png?v=2">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=2">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Cryptoscan">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#081521" media="(prefers-color-scheme: dark)">
-<meta name="theme-color" content="#081521" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0820">
 <style>
 @import url("https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap");
 :root{color-scheme:dark;--bg:#081521;--card:#0F2233;--ink:#E6EDF3;--mut:#8AA0B4;--line:#1E3A52;--up:#4FD1C5;--dn:#FF8A80;--now:#FFA94D;--warn:#F2C265;--chip:#17324A;--grid:#1C4A5A}
@@ -128,6 +128,31 @@ button:focus-visible,summary:focus-visible,.steps li:focus-visible{outline:2px s
 @media (prefers-reduced-motion:reduce){#toast{transition:none}}
 a{color:inherit}
 
+/* instalar como app */
+#install{position:absolute;left:10px;right:10px;bottom:calc(70px + env(safe-area-inset-bottom));background:#0c0a24f5;border:1px solid #4FD1C5;border-radius:14px;padding:12px 40px 12px 12px;font-size:13px;line-height:1.4;box-shadow:0 0 24px #4FD1C544;z-index:5}
+#install b{display:block;font-size:14px;margin-bottom:3px}
+#install img{float:left;width:44px;height:44px;border-radius:10px;margin:0 10px 0 0}
+#install button{position:absolute;top:8px;right:8px;background:none;border:0;color:var(--mut);font-size:18px;cursor:pointer}
+#install .shr{display:inline-block;border:1px solid var(--mut);border-radius:4px;padding:0 4px;font-size:11px}
+/* lista de verificacao antes de entrar */
+.chk{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:0 0 12px}
+.chk>b{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
+.chk>b span{color:var(--mut);font-weight:600}
+.chk.ok{border-color:var(--up);box-shadow:0 0 14px #4FD1C533}
+.chk.ok>b span{color:var(--up)}
+.chk label{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--line);font-size:13.5px;line-height:1.35;cursor:pointer}
+.chk label:first-of-type{border-top:0}
+.chk input{appearance:none;-webkit-appearance:none;flex:none;width:22px;height:22px;border-radius:6px;border:2px solid var(--mut);margin:0;display:grid;place-items:center;cursor:pointer}
+.chk input:checked{border-color:var(--up);background:var(--up) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3.2 3L13 4.5' fill='none' stroke='%230F2233' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/15px no-repeat}
+.chk label.done{color:var(--mut)}
+/* repeticao das operacoes fechadas */
+.diary tr.rp{cursor:pointer}.diary tr.rp:active{background:var(--chip)}
+.diary tr.rp td:first-child b::after{content:" ▸";color:var(--mut);font-weight:400}
+.diary tr.rp.open td:first-child b::after{content:" ▾"}
+.diary tr.rpx td{padding:0 0 10px;text-align:left!important}
+.rpbox canvas{width:100%;height:220px;display:block;border-radius:10px}
+.rpbox .rpn{font-size:12px;color:var(--mut);margin-top:6px;line-height:1.4}
+
 /* ===== Mundo 3D: o programa inteiro dentro do escritorio ===== */
 body.w3d{background:#0a0820;overflow:hidden;height:100dvh}
 #world{position:fixed;inset:0;background:#0a0820}
@@ -208,7 +233,7 @@ body.sheet-open #sheet{transform:none}
 @media (prefers-reduced-motion:reduce){.typing i,.bot .eye{animation:none}.bub{transition:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module" src="office3d.js?v=20261009h"></script>
+<script type="module" src="office3d.js?v=20261009i"></script>
 </head>
 <body class="w3d">
 <div id="world">
@@ -219,6 +244,7 @@ body.sheet-open #sheet{transform:none}
 <div id="alerts"></div>
 </div>
 <div id="odetail" class="agentcard" hidden></div>
+<div id="install" hidden><button aria-label="Fechar">✕</button><img src="icon-180.png?v=2" alt=""><b>Instala o Cryptoscan como app</b>No Safari, toca em <span class="shr">Partilhar ⬆︎</span> e depois em <b style="display:inline;font-size:13px">Adicionar ao ecrã principal</b>. Abre em ecrã inteiro, com ícone próprio.</div>
 <nav id="zonebar" aria-label="Centro de comando">
 <button data-p="ops" class="cmd"><i style="background:#4FD1C5"></i>Centro de comando<span id="zb-ops"></span></button>
 </nav>
@@ -433,6 +459,7 @@ function sigCard(s){
   ${trig?plNow(s):""}
   ${(s.warnings||[]).length?`<div class="warn" style="margin:2px 0 10px;font-size:13.5px">⚠️ Atenção: ${s.warnings.map(esc).join("; ")}. Não muda o sinal, mas aumenta o risco de falhar.</div>`:""}
   <canvas class="cchart" data-id="${esc(s.id)}" style="width:100%;height:200px;display:block;border-radius:10px;margin:2px 0 10px"></canvas>
+  ${trig?"":checklist(s)}
   ${trig?"":readyBox(s)}
   ${ladder(s.plan,s.asset,sh,trig?s.position:null)}
   <div class="bybit" data-pair="${esc(s.pair)}" data-pos="${s.plan.position_pct}" data-entry="${s.plan.entry_ref}" data-asset="${esc(s.asset)}" data-lev="${s.plan.leverage?s.plan.leverage.use:1}" data-col="${s.plan.collateral_usdc||""}"></div>
@@ -561,7 +588,7 @@ function renderDiary(mine,R){
     const open=r.status!=="CLOSED",rr=R(r),u=rr!=null&&r.risk_usdc!=null?rr*r.risk_usdc:null;
     const res=open?`<span style="color:var(--mut)">${r.status==="OPEN"?"aberta":"à espera"}</span>`:`<b class="${rr>0?"up":"dn"}">${u!=null?(u>0?"+":"")+num(u,2)+" USDC":"–"}</b><br><span style="color:var(--mut);font-size:12px">${rr>0?"+":""}${num(rr,2)}R</span>`;
     const ent=r.exec_price||r.entry||r.entry_zone[1];
-    return `<tr><td><b>${esc(r.asset)}</b>${r.side==="SHORT"?" ▼":""}<br><span style="color:var(--mut);font-size:12px">${dd(r.issued_at)}${r.closed_at?" → "+dd(r.closed_at):""}</span></td><td>${price(ent)}${r.exit?"<br><span style='color:var(--mut);font-size:12px'>saída "+price(r.exit)+"</span>":""}</td><td>${res}</td></tr>`}).join("");
+    return `<tr${open?"":` class="rp" data-rp="${esc(r.id)}"`}><td><b>${esc(r.asset)}</b>${r.side==="SHORT"?" ▼":""}<br><span style="color:var(--mut);font-size:12px">${dd(r.issued_at)}${r.closed_at?" → "+dd(r.closed_at):""}</span></td><td>${price(ent)}${r.exit?"<br><span style='color:var(--mut);font-size:12px'>saída "+price(r.exit)+"</span>":""}</td><td>${res}</td></tr>`}).join("");
   const cap=now!=null?`<div class="stats" style="grid-template-columns:repeat(3,1fr)"><div class="stat"><b>${num(now,2)}</b><span>Capital agora</span></div><div class="stat"><b>${base!=null?num(base,0):"–"}</b><span>Capital de partida</span></div><div class="stat"><b class="${base!=null&&now>=base?"up":"dn"}">${base!=null?(now>=base?"+":"")+num((now/base-1)*100,1)+"%":"–"}</b><span>Variação</span></div></div>`:"";
   // curva do capital: partida + resultado acumulado das operacoes fechadas (desde o arranque do capital composto)
   let eq="";const since=C.capital_since||0,cl=mine.filter(r=>r.status==="CLOSED"&&r.closed_at>=since&&R(r)!=null&&r.risk_usdc!=null).sort((a,b)=>a.closed_at-b.closed_at);
@@ -570,7 +597,7 @@ function renderDiary(mine,R){
     const X=t=>8+(t-t0)/((t1-t0)||1)*(W-16),Y=v=>8+(hi-v)/(hi-lo)*(H-26);
     const path=pts.map((p,i)=>(i?"L":"M")+X(p[0]).toFixed(1)+","+Y(p[1]).toFixed(1)).join(""),col=(now!=null?now:v)>=base?"#3ee0c4":"#ff6f8a";
     eq=`<div class="banner" style="padding:10px 10px 6px"><b>Capital ao longo do tempo</b><svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Evolução do capital"><defs><linearGradient id="eqg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".35"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs><line x1="8" x2="${W-8}" y1="${Y(base)}" y2="${Y(base)}" stroke="#8AA0B4" stroke-dasharray="3 4"/><text x="${W-8}" y="${Y(base)-4}" fill="#8AA0B4" font-size="10" text-anchor="end">partida ${num(base,0)}</text><path d="${path}L${X(t1)},${H-18}L${X(t0)},${H-18}Z" fill="url(#eqg)"/><path d="${path}" fill="none" stroke="${col}" stroke-width="2.5" stroke-linejoin="round"/>${pts.slice(1,-1).map(p=>`<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="3" fill="${col}"/>`).join("")}<text x="8" y="${H-4}" fill="#8AA0B4" font-size="10">${new Date(t0*1000).toLocaleDateString("pt-PT",{day:"2-digit",month:"2-digit"})}</text><text x="${W-8}" y="${H-4}" fill="#8AA0B4" font-size="10" text-anchor="end">agora</text></svg></div>`}
-  $("diary").innerHTML=cap+eq+(rows?`<table class="diary">${rows}</table>`:`<div class="banner">Ainda sem operações executadas. Carrega em "Executei" no Telegram quando entrares.</div>`)+`<div class="note">Só as operações que marcaste como executadas. Valores em USDC estimados pelo plano, com comissões; o extrato da Bybit é que conta. Se o teu preço de entrada foi diferente, envia /preco MOEDA preço no Telegram.</div>`;
+  $("diary").innerHTML=cap+eq+(rows?`<table class="diary">${rows}</table>`:`<div class="banner">Ainda sem operações executadas. Carrega em "Executei" no Telegram quando entrares.</div>`)+`<div class="note">Toca numa operação fechada para a rever no gráfico. Só as operações que marcaste como executadas. Valores em USDC estimados pelo plano, com comissões; o extrato da Bybit é que conta. Se o teu preço de entrada foi diferente, envia /preco MOEDA preço no Telegram.</div>`;
 }
 // Teste contra entradas ao acaso: backtest (tools/random_baseline.py) e
 // sinais ao vivo (tools/liga.py). Ficheiros do ramo main, atualizados pelos
@@ -731,7 +758,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261009h";
+const PAGE_V="20261009i";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -988,6 +1015,66 @@ async function fillCharts(){document.querySelectorAll("canvas.cchart").forEach(a
   const dpr=Math.min(2,devicePixelRatio||1),W=cv.clientWidth||320,H=cv.clientHeight||190;cv.width=W*dpr;cv.height=H*dpr;
   const g=cv.getContext("2d");g.scale(dpr,dpr);drawCandles(g,W,H,CND[s.asset]&&CND[s.asset].cs,sigLevels(s),{});
   const cs=await getCandles(s.asset,s.pair);g.setTransform(dpr,0,0,dpr,0,0);drawCandles(g,W,H,cs,sigLevels(s),{})})}
+
+// ===== Lista de verificacao antes de entrar =====
+// Os erros que custaram dinheiro foram de execucao: ordem a mercado em vez de
+// limite, valor errado, stop do lado errado. Cada ponto usa os numeros do sinal.
+function chkItems(s){const p=s.plan,sh=s.direction==="SHORT",L=p.leverage||{},u=p.position_usdc,ref=p.entry_ref||p.entry_zone[1];
+  const it=[`Par <b>${esc(s.pair)}</b> aberto na Bybit UE, em <b>${L.use>1||sh?"Margem Spot":"Spot"}</b>`,
+    `Ordem <b>LIMITE</b> de ${sh?"venda":"compra"} a <b>${price(ref)}</b> (nunca a mercado)`];
+  if(u!=null)it.push(`Valor da ordem: <b>${num(u,2)} USDC</b>${L.use>1?` · margem <b>${L.use}x</b>`:""}`);
+  it.push(`Stop-loss a <b>${price(p.stop)}</b>, <b>${sh?"ACIMA":"ABAIXO"}</b> da entrada`);
+  it.push(`TP1 a <b>${price(p.tp[0])}</b>${p.partials[0]>0?` (vender ${p.partials[0]}%)`:""}`);
+  it.push(`Depois de executada: carregar em <b>Executei</b> no Telegram${u!=null?" e, se o preço foi outro, enviar /preco":""}`);
+  return it}
+function chkGet(id){try{return JSON.parse(localStorage.getItem("chk:"+id)||"[]")}catch(_){return[]}}
+function checklist(s){const it=chkItems(s),v=chkGet(s.id),n=it.filter((_,i)=>v[i]).length,ok=n===it.length;
+  return `<div class="chk${ok?" ok":""}" data-chk="${esc(s.id)}"><b>Antes de entrar <span>${ok?"✓ tudo confirmado":n+"/"+it.length}</span></b>${it.map((t,i)=>`<label class="${v[i]?"done":""}"><input type="checkbox" data-i="${i}"${v[i]?" checked":""}><span>${t}</span></label>`).join("")}</div>`}
+document.addEventListener("change",e=>{const c=e.target.closest(".chk input");if(!c)return;const box=c.closest(".chk"),id=box.dataset.chk;
+  const all=[...box.querySelectorAll("input")].map(x=>x.checked?1:0);try{localStorage.setItem("chk:"+id,JSON.stringify(all))}catch(_){}
+  c.closest("label").classList.toggle("done",c.checked);const n=all.filter(Boolean).length,ok=n===all.length;box.classList.toggle("ok",ok);
+  box.querySelector("b span").textContent=ok?"✓ tudo confirmado":n+"/"+all.length;if(ok)toast("Tudo confirmado. Boa operação.")});
+
+// ===== Repeticao das operacoes fechadas (diario) =====
+async function candlesRange(asset,pair,t0,t1){const sym=(pair||asset+"/USDC").replace("/","");let cs=null;
+  try{const r=await fetch(BYURL+`kline?category=spot&interval=240&limit=200&start=${t0*1000}&end=${t1*1000}&symbol=${sym}`);const j=await r.json();
+    if(j.retCode===0&&j.result.list.length)cs=j.result.list.map(x=>({t:+x[0]/1000,o:+x[1],h:+x[2],l:+x[3],c:+x[4]})).reverse()}catch(_){}
+  if(!cs){try{const r=await fetch(`https://data-api.binance.vision/api/v3/klines?interval=4h&limit=200&startTime=${t0*1000}&endTime=${t1*1000}&symbol=${asset}USDT`);const j=await r.json();
+    if(Array.isArray(j)&&j.length)cs=j.map(x=>({t:x[0]/1000,o:+x[1],h:+x[2],l:+x[3],c:+x[4]}))}catch(_){}}
+  return cs}
+function drawReplay(g,W,H,cs,r){const pad={l:8,r:62,t:10,b:18};g.fillStyle="#07142a";g.fillRect(0,0,W,H);
+  if(!cs||!cs.length){g.fillStyle="#8AA0B4";g.font="13px system-ui";g.fillText("sem velas para este período",10,H/2);return}
+  const ent=r.exec_price||r.entry||r.entry_zone[1],lv=[{v:r.stop,c:"#ff6f8a",l:"Stop"},{v:ent,c:"#B794F4",l:"Entrada"}].concat((r.tp||[]).slice(0,2).map((v,i)=>({v,c:"#3ee0c4",l:"TP"+(i+1)})));
+  let lo=Math.min(...cs.map(x=>x.l),...lv.map(x=>x.v)),hi=Math.max(...cs.map(x=>x.h),...lv.map(x=>x.v));const sp=hi-lo||hi*.01;lo-=sp*.04;hi+=sp*.04;
+  const n=cs.length,t0=cs[0].t,t1=cs[n-1].t+14400,X=t=>pad.l+(t-t0)/(t1-t0)*(W-pad.l-pad.r),Y=v=>pad.t+(hi-v)/(hi-lo)*(H-pad.t-pad.b),bw=Math.max(1.5,(W-pad.l-pad.r)/n*.6);
+  // zona da operacao
+  if(r.opened_at&&r.closed_at){g.fillStyle="#B794F41a";g.fillRect(X(r.opened_at),pad.t,Math.max(2,X(r.closed_at)-X(r.opened_at)),H-pad.t-pad.b)}
+  cs.forEach(x=>{const up=x.c>=x.o,xc=X(x.t+7200);g.strokeStyle=g.fillStyle=up?"#3ee0c4":"#ff6f8a";g.lineWidth=1;g.beginPath();g.moveTo(xc,Y(x.h));g.lineTo(xc,Y(x.l));g.stroke();
+    const y1=Y(Math.max(x.o,x.c)),y2=Y(Math.min(x.o,x.c));g.fillRect(xc-bw/2,y1,bw,Math.max(1,y2-y1))});
+  g.font="600 11px system-ui";lv.forEach(x=>{const y=Y(x.v);g.strokeStyle=x.c;g.setLineDash([5,4]);g.beginPath();g.moveTo(pad.l,y);g.lineTo(W-pad.r,y);g.stroke();g.setLineDash([]);
+    g.fillStyle=x.c;g.fillRect(W-pad.r+2,y-8,pad.r-4,16);g.fillStyle="#07142a";g.fillText(x.l,W-pad.r+5,y+4)});
+  const mk=(t,v,c,txt,below)=>{if(!t||!v)return;const x=X(t),y=Y(v);g.fillStyle=c;g.beginPath();g.arc(x,y,6,0,7);g.fill();g.strokeStyle="#07142a";g.lineWidth=2;g.stroke();
+    g.fillStyle="#E6EDF3";g.font="700 11px system-ui";g.textAlign=x>W/2?"right":"left";g.fillText(txt,x+(x>W/2?-9:9),below?y+16:y-9);g.textAlign="left"};
+  // a saida fica por baixo do ponto quando esta abaixo da entrada (e vice-versa), para nao se sobreporem
+  mk(r.opened_at,ent,"#B794F4","entrada",r.exit>ent);mk(r.closed_at,r.exit,r.result_r>0?"#3ee0c4":"#ff6f8a","saída",!(r.exit>ent));
+  g.fillStyle="#8AA0B4";g.font="10px system-ui";g.fillText(new Date(t0*1000).toLocaleDateString("pt-PT",{day:"2-digit",month:"2-digit"}),pad.l,H-4);
+  g.textAlign="right";g.fillText(new Date((t1-14400)*1000).toLocaleDateString("pt-PT",{day:"2-digit",month:"2-digit"}),W-pad.r,H-4);g.textAlign="left"}
+async function openReplay(tr){const id=tr.dataset.rp,r=(((D||{}).journal||{}).rows||[]).find(x=>x.id===id);if(!r)return;
+  const nx=tr.nextElementSibling;if(nx&&nx.classList.contains("rpx")){nx.remove();tr.classList.remove("open");return}
+  tr.classList.add("open");const row=document.createElement("tr");row.className="rpx";
+  const dur=r.closed_at&&r.opened_at?Math.max(1,Math.round((r.closed_at-r.opened_at)/3600)):null,RS={STOP:"stop atingido",BREAKEVEN:"stop na entrada",TP3:"todos os objetivos",TIME:"tempo máximo"};
+  row.innerHTML=`<td colspan="3"><div class="rpbox"><canvas></canvas><div class="rpn">${esc(STR[r.strategy]||r.strategy)} · ${dur?`durou ${dur<48?dur+" h":Math.round(dur/24)+" dias"}`:""} · ${esc(RS[r.reason]||r.reason||"")}. A zona lilás é o tempo em operação; as linhas são a entrada, o stop e os objetivos do sinal.</div></div></td>`;
+  tr.after(row);const cv=row.querySelector("canvas"),dpr=Math.min(2,devicePixelRatio||1),W=cv.clientWidth||320,H=cv.clientHeight||220;cv.width=W*dpr;cv.height=H*dpr;
+  const g=cv.getContext("2d");g.scale(dpr,dpr);drawReplay(g,W,H,null,r);g.fillStyle="#07142a";g.fillRect(0,0,W,H);g.fillStyle="#8AA0B4";g.font="13px system-ui";g.fillText("a carregar…",10,H/2);
+  const t0=(r.opened_at||r.issued_at)-3*86400,t1=Math.min(Date.now()/1000,(r.closed_at||Date.now()/1000)+2*86400);
+  const cs=await candlesRange(r.asset,r.pair,Math.floor(t0),Math.floor(t1));g.setTransform(dpr,0,0,dpr,0,0);drawReplay(g,W,H,cs,r)}
+document.addEventListener("click",e=>{const tr=e.target.closest("tr.rp");if(tr)openReplay(tr)});
+
+// ===== Instalar como app (so no Safari do iPhone, fora do modo app) =====
+(()=>{const ios=/iPhone|iPad|iPod/.test(navigator.userAgent),standalone=navigator.standalone||matchMedia("(display-mode: standalone)").matches;
+  let seen=null;try{seen=localStorage.getItem("installHint")}catch(_){}
+  if(ios&&!standalone&&!seen){const el=$("install");setTimeout(()=>{el.hidden=false},4000);
+    el.querySelector("button").addEventListener("click",()=>{el.hidden=true;try{localStorage.setItem("installHint","1")}catch(_){}})}})();
 loadAcaso();
 async function checkVersion(){try{const t=await (await fetch("./index.html?nocache="+Date.now(),{cache:"no-store"})).text();const m=t.match(/PAGE_V="(\w+)"/);if(m&&m[1]!==PAGE_V)location.replace("./?v="+m[1])}catch(_){}}
 checkVersion();setInterval(checkVersion,600000);
