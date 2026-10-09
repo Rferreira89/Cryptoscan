@@ -1,7 +1,7 @@
 # Diário de afinação dos sinais
 
 Hipóteses testadas sobre as estratégias que já estão ao vivo, uma por
-entrada, com o veredicto. Hipóteses testadas até agora: 2.
+entrada, com o veredicto. Hipóteses testadas até agora: 3.
 
 ## Decisões do Rui (valem para todas as execuções)
 
@@ -246,3 +246,145 @@ Notas para as próximas execuções:
 - Hipóteses testadas até agora: 2. Com duas tentativas nos mesmos 18
   meses, a probabilidade de uma passar por acaso ainda é baixa, mas sobe
   a cada execução.
+
+### 2026-10-09 — H3: desligar o BREAKOUT de compra
+
+**Escrito antes de correr qualquer teste.**
+
+- Hipótese: nas altcoins, a compra do rompimento em 4H entra tarde, com o
+  movimento já feito, e apanha o recuo; desligar a estratégia BREAKOUT
+  (compra) tira ao sistema as suas piores operações e melhora o R médio.
+  Origem: no desenho deu −0,76R em 15 operações (H2) e −0,32R em 18 (H1),
+  e ao vivo 3 stops em 3. Esses números foram vistos no desenho, por isso
+  não provam nada: o teste é o walk-forward e a reserva.
+- Grelha (3 configurações): atual; sem BREAKOUT; sem BREAKOUT e sem
+  BREAKOUT_SHORT (o espelho, para ver se o problema é do rompimento em
+  si ou só do lado da compra).
+- Atenção ao efeito de carteira: com o limite de 2 operações em
+  simultâneo, desligar uma estratégia liberta vagas e entram outras
+  operações. A simulação refaz a carteira para cada configuração, por
+  isso o resultado já inclui essa troca.
+- Diagnóstico (só no desenho, informativo): R médio de todos os
+  candidatos BREAKOUT e BREAKOUT_SHORT sem regras de carteira (amostra
+  maior, mas com candidatos repetidos em velas seguidas).
+- Sistema simulado: o que está ao vivo hoje, igual ao da H2 (o motor não
+  mudou no que toca ao backtest desde 2026-10-07: as alterações foram ao
+  acompanhamento ao vivo e à página). Comissão de 0,25% por lado,
+  slippage de 0,05%, juros nos shorts. Código:
+  `tools/afinacao_h03_breakout.py`.
+- Janela: a mesma da H1 e da H2. O histórico tem velas até 2026-10-02
+  (6,9 dias de atraso, abaixo do limite de 7 que obriga a atualizar):
+  desenho de 2025-04-02 a 2026-04-02, reserva de 2026-04-02 a 2026-10-02.
+  Walk-forward ancorado, 4 janelas de teste de 61 dias; em cada uma
+  aplica-se a configuração com melhor R médio no treino (mínimo de 20
+  operações no treino, senão fica a atual).
+- Configuração final: a de melhor R médio em todo o desenho com pelo
+  menos 30 operações. Só essa é avaliada na reserva, uma única vez. Se a
+  escolhida for a atual, a hipótese fica rejeitada.
+- Critérios para aprovar (todos): R médio > 0 fora da amostra no
+  walk-forward; pelo menos 60 operações fora da amostra e 30 na reserva
+  (senão AMOSTRA INSUFICIENTE); melhor do que a atual em pelo menos 3 das
+  4 janelas; R médio > 0 na reserva; R médio > 0 sem a melhor moeda.
+  Passar de negativo para menos negativo é "REDUZ A PERDA", não aprovação.
+- Risco conhecido à partida: a reserva atual tem 50 operações; é a
+  terceira vez que esta reserva é usada (H1, H2, H3), por isso já não é
+  totalmente virgem.
+
+**Resultados** (velas até 2026-10-02; 64 moedas, as mesmas 8 recentes de
+fora por histórico curto).
+
+- Janela: desenho de 2025-04-02 a 2026-04-02, reserva de 2026-04-02 a
+  2026-10-02.
+- Correção de fidelidade feita antes de ver a reserva: o backtest não
+  aplicava `disabled_strategies`, e uma operação RANGE_SHORT (desligada
+  ao vivo) entrava na carteira. As três configurações passaram a excluir
+  as estratégias desligadas ao vivo. O total não mudou (a vaga foi ocupada
+  por outra operação).
+- Versão atual no desenho: 122 operações, 36,9% de acerto, −0,207R.
+  Compras: 64, −0,221R. Shorts: 58, −0,191R. Por estratégia: PULLBACK 22
+  (+0,02R), LIQUIDITY_SWEEP 27 (−0,12R), BREAKOUT 15 (−0,76R, 13% de
+  acerto), PULLBACK_SHORT 29 (−0,29R), BREAKOUT_SHORT 17 (−0,04R),
+  LIQUIDITY_SWEEP_SHORT 12 (−0,16R). Na H2 a mesma janela deu 119
+  operações e −0,201R; a diferença de 3 operações vem de os candidatos
+  terem sido gerados de novo e não a consegui atribuir a uma alteração
+  concreta. Está dentro do ruído, mas fica registada.
+- Diagnóstico, todos os candidatos de rompimento no desenho (sem regras
+  de carteira, com repetições): BREAKOUT 93 candidatos, 28,0% de acerto,
+  −0,301R; BREAKOUT_SHORT 86, 45,3%, +0,047R. O BREAKOUT de compra é
+  mau, mas menos do que as 15 operações sugeriam (−0,30R e não −0,76R).
+- Grelha no desenho: atual → 122 operações, −0,207R; sem BREAKOUT → 113,
+  −0,162R; sem BREAKOUT e sem BREAKOUT_SHORT → 104, −0,160R. Nenhuma
+  positiva. Sem os dois rompimentos saíram 32 operações e entraram 14
+  de outras estratégias nas vagas libertadas, e essas também perderam: o
+  PULLBACK passou de +0,02R (22) para −0,02R (26) e o LIQUIDITY_SWEEP de
+  −0,12R (27) para −0,23R (29).
+- Walk-forward (4 janelas de teste de 61 dias, 2025-08-01 a 2026-04-02):
+  71 operações fora da amostra, 35,2% de acerto, −0,162R. A versão atual
+  nas mesmas janelas: 78 operações, −0,216R. Janelas em que melhorou: 3
+  de 4 (escolhas do treino: sem BREAKOUT, sem BREAKOUT, sem os dois, sem
+  os dois; testes −0,11R, −0,44R, −0,16R, +0,08R contra −0,20R, −0,47R,
+  −0,36R, +0,19R da atual).
+- Configurações fixas nas mesmas janelas de teste (informativo): sem
+  BREAKOUT → 75 operações, −0,183R; sem os dois → 69, −0,177R.
+- Configuração escolhida no desenho: sem BREAKOUT e sem BREAKOUT_SHORT
+  (104 operações, −0,160R; a diferença para "sem BREAKOUT" é de 0,002R,
+  ou seja, nenhuma). Sem a melhor moeda (UNI): 100 operações, −0,230R.
+- Reserva (avaliada uma vez): escolhida → 45 operações, 35,6% de acerto,
+  **−0,232R**; atual → 52 operações, 42,3%, −0,119R. **Na reserva
+  desligar os rompimentos ficou pior do que a versão atual.** Sem a
+  melhor moeda (ICP): 44 operações, −0,286R. Porquê: na reserva o
+  BREAKOUT de compra quase não operou (2 operações, as duas no stop) e o
+  BREAKOUT_SHORT foi a melhor estratégia (11 operações, 64% de acerto,
+  +0,28R); ao desligá-lo, as vagas foram para o PULLBACK_SHORT (de 15
+  para 20 operações, −0,49R). A escolha do espelho no desenho assentava
+  numa diferença de 0,002R e a reserva castigou-a. Não avaliei "sem
+  BREAKOUT" sozinho na reserva: a regra é uma configuração, uma vez.
+- Linha informativa do período antigo (2021-01-01 a 2025-04-02, não conta
+  para o veredicto): atual → 339 operações, −0,208R; sem BREAKOUT → 289,
+  −0,222R; sem os dois → 260, −0,266R. No período antigo desligar os
+  rompimentos também não ajudava.
+- Ao vivo (state.json de 2026-10-09): sem operações fechadas novas desde
+  a H2. 5 fechadas, todas no stop, −1,00R de média (os stops passaram a
+  contar ao preço do stop; antes a média era −1,17R). BREAKOUT 3 (0
+  ganhas), PULLBACK 2 (0 ganhas). Executadas pelo Rui: 3 fechadas
+  (BREAKOUT 2, PULLBACK 1), −1,00R de média, e 1 aberta (PUMP
+  LIQUIDITY_SWEEP). Aberta em papel: ENA LIQUIDITY_SWEEP. Preço real
+  contra o do sistema: ENA BREAKOUT 0,2470 contra 0,24565 (0,55% pior);
+  ENA PULLBACK 0,2401 contra 0,2400 (0,04% pior). Na ENA BREAKOUT o stop
+  estava a 1,03% da entrada do sistema; com a entrada real a distância
+  foi 1,59%, ou seja, com a mesma quantidade a perda em USDC foi cerca de
+  1,5 vezes a planeada. Um caso não faz regra, mas com stops tão curtos
+  meio por cento de atraso na entrada pesa muito. **A amostra (5, no
+  máximo 3 por estratégia) não chega para concluir nada; o mínimo são 30
+  por estratégia.**
+
+**Veredicto: REJEITADA.** No desenho reduz a perda (−0,16R contra −0,21R
+no walk-forward, melhor em 3 de 4 janelas, 71 operações), mas continua
+negativa, e na reserva fica pior do que a versão atual (−0,23R contra
+−0,12R). Falha três critérios: R médio negativo no walk-forward, reserva
+negativa, negativo sem a melhor moeda. O BREAKOUT de compra é a pior
+estratégia no desenho, mas tirá-lo não torna o sistema positivo: as vagas
+passam para operações que também perdem.
+
+Notas para as próximas execuções:
+
+- Três hipóteses de filtro de entrada falharam (score, vela de gatilho,
+  desligar rompimentos). O resultado por estratégia muda de sinal entre o
+  desenho e a reserva (BREAKOUT_SHORT −0,04R → +0,28R; PULLBACK_SHORT
+  −0,29R → −0,30R a −0,49R; PULLBACK +0,02R → +0,42R), com 10 a 30
+  operações cada: escolher estratégias com esta amostra é escolher ruído.
+- A reserva de 2026-04-02 a 2026-10-02 já foi vista três vezes. Na
+  próxima execução o histórico terá mais de 7 dias: correr o workflow
+  "Historico para backtest" primeiro; a janela avança e a reserva ganha
+  dados novos.
+- Próxima hipótese proposta (H4), do lado da saída e não da entrada: não
+  passar o stop para a entrada depois do 1.º objetivo. Lógica: com 37% de
+  acerto e stops de 1,25 ATR, o recuo normal depois do 1.º objetivo tira
+  a operação a zeros antes de chegar ao 2.º, e a comissão de 0,5% (ida e
+  volta) transforma esses zeros em perdas pequenas. Grelha: atual; sem
+  passagem para a entrada nas compras e nos shorts. `afinacao_lib.py` já
+  guarda a simulação sem essa passagem para as compras (`nb`); falta
+  fazer o mesmo para os shorts.
+- Hipóteses testadas até agora: 3. Com três tentativas nos mesmos 18
+  meses, a probabilidade de uma passar por acaso continua baixa, mas sobe
+  a cada execução; nenhuma chegou perto de passar.
