@@ -160,6 +160,13 @@ body.sheet-open #sheet{transform:none}
 #sh-close{background:var(--chip);border:0;color:var(--ink);width:32px;height:32px;border-radius:50%;font-size:15px;cursor:pointer}
 .sh-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-top:12px!important}
 .panel{display:none}.panel.on{display:block}
+
+#zonebar .cmd{flex:1;justify-content:center;font-size:14px;padding:12px;background:linear-gradient(90deg,#1b1450,#2a1d74);border-color:#4FD1C5;box-shadow:0 0 18px #4FD1C544}
+.sh-idx{display:flex;gap:6px;overflow-x:auto;padding:8px 16px;border-bottom:1px solid var(--line);scrollbar-width:none}
+.sh-idx button{flex:none;background:var(--chip);border:1px solid transparent;color:var(--mut);font:600 12.5px inherit;padding:6px 12px;border-radius:99px;cursor:pointer}
+.sh-idx button.on{color:var(--bg);background:var(--up)}
+.panel{display:block!important;scroll-margin-top:8px;padding-bottom:18px;margin-bottom:6px;border-bottom:1px dashed var(--line)}
+.panel::before{content:attr(data-h);display:block;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--up);font-weight:700;margin:6px 0 10px}
 @media (prefers-reduced-motion:reduce){#sheet{transition:none}.al.buy{animation:none}}
 
 /* Escritorio: cada agente numa secretaria, com o que esta mesmo a fazer */
@@ -201,7 +208,7 @@ body.sheet-open #sheet{transform:none}
 @media (prefers-reduced-motion:reduce){.typing i,.bot .eye{animation:none}.bub{transition:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module" src="office3d.js?v=20261009e"></script>
+<script type="module" src="office3d.js?v=20261009h"></script>
 </head>
 <body class="w3d">
 <div id="world">
@@ -212,36 +219,33 @@ body.sheet-open #sheet{transform:none}
 <div id="alerts"></div>
 </div>
 <div id="odetail" class="agentcard" hidden></div>
-<nav id="zonebar" aria-label="Zonas do escritório">
-<button data-p="ops"><i style="background:#4FD1C5"></i>Operações<span id="zb-ops"></span></button>
-<button data-p="meet"><i style="background:#68D391"></i>Reunião</button>
-<button data-p="lab"><i style="background:#B794F4"></i>Pesquisa</button>
-<button data-p="srv"><i style="background:#63B3ED"></i>Ativos</button>
-<button data-p="ctrl"><i style="background:#FF6FB5"></i>Controlo</button>
+<nav id="zonebar" aria-label="Centro de comando">
+<button data-p="ops" class="cmd"><i style="background:#4FD1C5"></i>Centro de comando<span id="zb-ops"></span></button>
 </nav>
 <span id="n-esc" hidden></span>
 </div>
 <div id="sheet" aria-hidden="true">
-<div class="sh-head"><span class="grip"></span><b id="sh-title"></b><button id="sh-close" aria-label="Fechar">✕</button></div>
+<div class="sh-head"><span class="grip"></span><b id="sh-title">Centro de comando</b><button id="sh-close" aria-label="Fechar">✕</button></div>
+<nav class="sh-idx" id="shidx" aria-label="Secções"><button data-p="ops">Operações</button><button data-p="meet">Resultado</button><button data-p="lab">Pesquisa</button><button data-p="srv">Ativos</button><button data-p="ctrl">Sistema</button></nav>
 <main class="sh-body">
-<section class="panel" data-p="ops" data-t="Mesa de operações">
+<section class="panel on" id="pn-ops" data-p="ops" data-h="Mesa de operações" data-t="Mesa de operações">
 <div id="radar" aria-label="Radar de oportunidades"></div>
 <p id="rnote"></p>
 <h2>As tuas operações</h2><div id="bynote" class="note" style="margin:0 0 8px"></div><div id="ops"></div>
 <details class="sec" id="s-vigiar"><summary>A vigiar<span id="n-vigiar"></span></summary><div id="watch"></div></details>
 </section>
-<section class="panel" data-p="meet" data-t="Sala de reunião">
+<section class="panel on" id="pn-meet" data-p="meet" data-h="Resultado e mercado" data-t="Sala de reunião">
 <div id="mf"></div>
 <h2>Resultado</h2><div class="stats" id="score"></div><div class="note" id="scorenote" style="margin:-6px 0 4px"></div>
 <details class="sec" id="s-diario"><summary>O teu diário<span id="n-diario"></span></summary><div id="diary"></div></details>
 </section>
-<section class="panel" data-p="lab" data-t="Pesquisa">
+<section class="panel on" id="pn-lab" data-p="lab" data-h="Pesquisa" data-t="Pesquisa">
 <details class="sec" id="s-acaso"><summary>Contra o acaso<span id="n-acaso"></span></summary><div id="acaso"><div class="banner">A carregar…</div></div></details>
 <details class="sec" id="s-registo"><summary>Registo<span id="n-registo"></span></summary><div id="journal"></div>
 <div id="closed" hidden></div>
 <h2>Tendência diária</h2><div id="paper"></div></details>
 </section>
-<section class="panel" data-p="srv" data-t="Servidores · todos os ativos">
+<section class="panel on" id="pn-srv" data-p="srv" data-h="Todos os ativos" data-t="Servidores · todos os ativos">
 <details class="sec" id="s-mercado"><summary>Todos os ativos<span id="n-mercado"></span></summary>
 <div class="stats" id="stats"></div>
 <div class="bar">
@@ -268,7 +272,7 @@ body.sheet-open #sheet{transform:none}
 <div id="list"></div>
 <div class="note" id="note"></div></details>
 </section>
-<section class="panel" data-p="ctrl" data-t="Controlo">
+<section class="panel on" id="pn-ctrl" data-p="ctrl" data-h="Sistema e definições" data-t="Controlo">
 <div id="sysstate"></div>
 <details class="sec" id="s-def"><summary>Definições e ajuda</summary>
 <div class="cap"><label for="cap">O teu capital (USDC)</label><input id="cap" inputmode="decimal" placeholder="ex.: 500"><span id="capnote" style="color:var(--mut)"></span></div>
@@ -428,6 +432,7 @@ function sigCard(s){
   <div class="meta">${esc(STR[s.strategy]||s.strategy)}, ${esc(s.pair)}, emitido ${hm(s.issued_at)}</div>
   ${trig?plNow(s):""}
   ${(s.warnings||[]).length?`<div class="warn" style="margin:2px 0 10px;font-size:13.5px">⚠️ Atenção: ${s.warnings.map(esc).join("; ")}. Não muda o sinal, mas aumenta o risco de falhar.</div>`:""}
+  <canvas class="cchart" data-id="${esc(s.id)}" style="width:100%;height:200px;display:block;border-radius:10px;margin:2px 0 10px"></canvas>
   ${trig?"":readyBox(s)}
   ${ladder(s.plan,s.asset,sh,trig?s.position:null)}
   <div class="bybit" data-pair="${esc(s.pair)}" data-pos="${s.plan.position_pct}" data-entry="${s.plan.entry_ref}" data-asset="${esc(s.asset)}" data-lev="${s.plan.leverage?s.plan.leverage.use:1}" data-col="${s.plan.collateral_usdc||""}"></div>
@@ -558,7 +563,14 @@ function renderDiary(mine,R){
     const ent=r.exec_price||r.entry||r.entry_zone[1];
     return `<tr><td><b>${esc(r.asset)}</b>${r.side==="SHORT"?" ▼":""}<br><span style="color:var(--mut);font-size:12px">${dd(r.issued_at)}${r.closed_at?" → "+dd(r.closed_at):""}</span></td><td>${price(ent)}${r.exit?"<br><span style='color:var(--mut);font-size:12px'>saída "+price(r.exit)+"</span>":""}</td><td>${res}</td></tr>`}).join("");
   const cap=now!=null?`<div class="stats" style="grid-template-columns:repeat(3,1fr)"><div class="stat"><b>${num(now,2)}</b><span>Capital agora</span></div><div class="stat"><b>${base!=null?num(base,0):"–"}</b><span>Capital de partida</span></div><div class="stat"><b class="${base!=null&&now>=base?"up":"dn"}">${base!=null?(now>=base?"+":"")+num((now/base-1)*100,1)+"%":"–"}</b><span>Variação</span></div></div>`:"";
-  $("diary").innerHTML=cap+(rows?`<table class="diary">${rows}</table>`:`<div class="banner">Ainda sem operações executadas. Carrega em "Executei" no Telegram quando entrares.</div>`)+`<div class="note">Só as operações que marcaste como executadas. Valores em USDC estimados pelo plano, com comissões; o extrato da Bybit é que conta. Se o teu preço de entrada foi diferente, envia /preco MOEDA preço no Telegram.</div>`;
+  // curva do capital: partida + resultado acumulado das operacoes fechadas (desde o arranque do capital composto)
+  let eq="";const since=C.capital_since||0,cl=mine.filter(r=>r.status==="CLOSED"&&r.closed_at>=since&&R(r)!=null&&r.risk_usdc!=null).sort((a,b)=>a.closed_at-b.closed_at);
+  if(base!=null&&cl.length){const pts=[[since||cl[0].issued_at,base]];let v=base;cl.forEach(r=>{v+=R(r)*r.risk_usdc;pts.push([r.closed_at,v])});pts.push([Date.now()/1000,now!=null?now:v]);
+    const W=340,H=120,lo=Math.min(...pts.map(x=>x[1]),base)-1,hi=Math.max(...pts.map(x=>x[1]),base)+1,t0=pts[0][0],t1=pts[pts.length-1][0]||t0+1;
+    const X=t=>8+(t-t0)/((t1-t0)||1)*(W-16),Y=v=>8+(hi-v)/(hi-lo)*(H-26);
+    const path=pts.map((p,i)=>(i?"L":"M")+X(p[0]).toFixed(1)+","+Y(p[1]).toFixed(1)).join(""),col=(now!=null?now:v)>=base?"#3ee0c4":"#ff6f8a";
+    eq=`<div class="banner" style="padding:10px 10px 6px"><b>Capital ao longo do tempo</b><svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Evolução do capital"><defs><linearGradient id="eqg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".35"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs><line x1="8" x2="${W-8}" y1="${Y(base)}" y2="${Y(base)}" stroke="#8AA0B4" stroke-dasharray="3 4"/><text x="${W-8}" y="${Y(base)-4}" fill="#8AA0B4" font-size="10" text-anchor="end">partida ${num(base,0)}</text><path d="${path}L${X(t1)},${H-18}L${X(t0)},${H-18}Z" fill="url(#eqg)"/><path d="${path}" fill="none" stroke="${col}" stroke-width="2.5" stroke-linejoin="round"/>${pts.slice(1,-1).map(p=>`<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="3" fill="${col}"/>`).join("")}<text x="8" y="${H-4}" fill="#8AA0B4" font-size="10">${new Date(t0*1000).toLocaleDateString("pt-PT",{day:"2-digit",month:"2-digit"})}</text><text x="${W-8}" y="${H-4}" fill="#8AA0B4" font-size="10" text-anchor="end">agora</text></svg></div>`}
+  $("diary").innerHTML=cap+eq+(rows?`<table class="diary">${rows}</table>`:`<div class="banner">Ainda sem operações executadas. Carrega em "Executei" no Telegram quando entrares.</div>`)+`<div class="note">Só as operações que marcaste como executadas. Valores em USDC estimados pelo plano, com comissões; o extrato da Bybit é que conta. Se o teu preço de entrada foi diferente, envia /preco MOEDA preço no Telegram.</div>`;
 }
 // Teste contra entradas ao acaso: backtest (tools/random_baseline.py) e
 // sinais ao vivo (tools/liga.py). Ficheiros do ramo main, atualizados pelos
@@ -642,7 +654,7 @@ function render(){
   if(!D) return;
   const q=$("q").value.trim().toUpperCase(),s=$("sort").value,f=$("flt").value;
   const key=r=>s==="adx"||s==="rsi"?(r.analysis&&r.analysis["1d"]&&r.analysis["1d"].ok?r.analysis["1d"][s]:-1):(r[s]??-1e18);
-  renderOps();renderExtra();fillBybit();renderOffice();loadOfficeFiles();renderHud();
+  renderOps();renderExtra();fillBybit();renderOffice();loadOfficeFiles();renderHud();fillCharts();
   let rows=D.universe.filter(r=>r.eligible&&r.timeframes);
   if(q) rows=rows.filter(r=>r.asset.toUpperCase().includes(q));
   if(f) rows=rows.filter(r=>{const a=r.analysis;
@@ -719,7 +731,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261009e";
+const PAGE_V="20261009h";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -889,10 +901,14 @@ setInterval(()=>{renderOffice();loadOfficeFiles()},60000);
 // ===== Mundo: abrir zonas, painel de cima, alertas =====
 const PANEL_T={};document.querySelectorAll(".panel").forEach(p=>PANEL_T[p.dataset.p]=p.dataset.t);
 const ZONE2P={ops:"ops",meet:"meet",cafe:"meet",lab:"lab",srv:"srv",ctrl:"ctrl"};
-function openPanel(k,focus){k=ZONE2P[k]||k;document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("on",p.dataset.p===k));
-  $("sh-title").textContent=PANEL_T[k]||"";document.body.classList.add("sheet-open");$("sheet").setAttribute("aria-hidden","false");
-  const b=document.querySelector(".sh-body");b.scrollTop=0;if(focus){const el=document.querySelector(focus);if(el)setTimeout(()=>el.scrollIntoView({block:"start",behavior:"smooth"}),300)}
-  try{history.replaceState(null,"","#"+k)}catch(_){}}
+function openPanel(k,focus){k=ZONE2P[k]||k;document.body.classList.add("sheet-open");$("sheet").setAttribute("aria-hidden","false");
+  const b=document.querySelector(".sh-body"),sec=$("pn-"+k);
+  setTimeout(()=>{const el=focus&&document.querySelector(focus)||sec;if(el)b.scrollTo({top:el.offsetTop-b.offsetTop-6,behavior:"smooth"})},focus?320:60);
+  markIdx(k);try{history.replaceState(null,"","#"+k)}catch(_){}}
+function markIdx(k){document.querySelectorAll("#shidx button").forEach(x=>x.classList.toggle("on",x.dataset.p===k))}
+$("shidx").addEventListener("click",e=>{const x=e.target.closest("button");if(x)openPanel(x.dataset.p)});
+document.querySelector(".sh-body").addEventListener("scroll",()=>{const b=document.querySelector(".sh-body");let cur="ops";
+  document.querySelectorAll(".panel").forEach(p=>{if(p.offsetTop-b.offsetTop-40<=b.scrollTop)cur=p.dataset.p});markIdx(cur)},{passive:true});
 function closeSheet(){document.body.classList.remove("sheet-open");$("sheet").setAttribute("aria-hidden","true");try{history.replaceState(null,"",location.pathname+location.search)}catch(_){}}
 $("sh-close").addEventListener("click",closeSheet);
 $("zonebar").addEventListener("click",e=>{const b=e.target.closest("button");if(b)openPanel(b.dataset.p)});
@@ -918,6 +934,60 @@ function renderHud(){if(!D)return;const C=D.config||{},J=(D.journal||{}).rows||[
 $("alerts").addEventListener("click",e=>{const b=e.target.closest(".al");if(!b)return;openPanel(b.dataset.go,b.dataset.id?`.op[data-id="${b.dataset.id}"]`:null)});
 window.OFAPI_openZone=k=>openPanel(k);
 if(/^#(ops|meet|lab|srv|ctrl)$/.test(location.hash))openPanel(location.hash.slice(1));
+
+// ===== Graficos: velas reais de 4H (Bybit UE; reserva: Binance) =====
+const CND={};
+// um pedido de cada vez por moeda: quem pede enquanto ha um pedido em curso
+// espera por ele (o escritorio 3D e os cartoes pedem as mesmas velas)
+function getCandles(asset,pair){
+  const k=asset,c=CND[k];if(c&&c.cs&&Date.now()-c.at<300000)return Promise.resolve(c.cs);
+  if(c&&c.p)return c.p;
+  const sym=(pair||asset+"/USDC").replace("/","");
+  const p=(async()=>{let cs=null;
+    try{const r=await fetch(BYURL+"kline?category=spot&interval=240&limit=90&symbol="+sym);const j=await r.json();
+      if(j.retCode===0&&j.result.list.length)cs=j.result.list.map(x=>({t:+x[0]/1000,o:+x[1],h:+x[2],l:+x[3],c:+x[4]})).reverse()}catch(_){}
+    if(!cs){try{const r=await fetch("https://data-api.binance.vision/api/v3/klines?interval=4h&limit=90&symbol="+asset+"USDT");const j=await r.json();
+      if(Array.isArray(j)&&j.length)cs=j.map(x=>({t:x[0]/1000,o:+x[1],h:+x[2],l:+x[3],c:+x[4]}))}catch(_){}}
+    CND[k]={at:cs?Date.now():0,cs:cs||(c&&c.cs)||null,p:null};return CND[k].cs})();
+  CND[k]=Object.assign(CND[k]||{},{p});return p;
+}
+// desenha velas num canvas 2D; lv = [{v,label,c}] linhas horizontais (entrada, stop, objetivos)
+function drawCandles(g,W,H,cs,lv,o){o=o||{};lv=lv||[];
+  const pad={l:8,r:o.axis===false?8:58,t:o.title?30:10,b:16};
+  g.fillStyle=o.bg||"#07142a";g.fillRect(0,0,W,H);
+  if(o.title){g.fillStyle=o.tc||"#E6EDF3";g.font=`700 ${Math.round(H*.07)}px system-ui,sans-serif`;g.fillText(o.title,pad.l,pad.t-10)}
+  if(!cs||!cs.length){g.fillStyle="#8AA0B4";g.font=`${Math.round(H*.06)}px system-ui`;g.fillText("a carregar o gráfico…",pad.l,H/2);return}
+  const n=o.n||Math.min(cs.length,60),d=cs.slice(-n);
+  let lo=Math.min(...d.map(x=>x.l)),hi=Math.max(...d.map(x=>x.h));
+  lv.forEach(x=>{if(x.v>0&&x.v<hi*1.6&&x.v>lo*.6){lo=Math.min(lo,x.v);hi=Math.max(hi,x.v)}});
+  const sp=(hi-lo)||hi*.01;lo-=sp*.05;hi+=sp*.05;
+  const X=i=>pad.l+(i+.5)*(W-pad.l-pad.r)/n,Y=v=>pad.t+(hi-v)/(hi-lo)*(H-pad.t-pad.b),bw=Math.max(1.5,(W-pad.l-pad.r)/n*.62);
+  g.strokeStyle="#ffffff10";g.lineWidth=1;for(let k=0;k<=4;k++){const y=pad.t+k*(H-pad.t-pad.b)/4;g.beginPath();g.moveTo(pad.l,y);g.lineTo(W-pad.r,y);g.stroke()}
+  d.forEach((x,i)=>{const up=x.c>=x.o;g.strokeStyle=g.fillStyle=up?"#3ee0c4":"#ff6f8a";g.lineWidth=Math.max(1,bw/5);
+    g.beginPath();g.moveTo(X(i),Y(x.h));g.lineTo(X(i),Y(x.l));g.stroke();const y1=Y(Math.max(x.o,x.c)),y2=Y(Math.min(x.o,x.c));g.fillRect(X(i)-bw/2,y1,bw,Math.max(1,y2-y1))});
+  const fs=Math.max(10,Math.round(H*.045));g.font=`600 ${fs}px system-ui,sans-serif`;
+  lv.forEach(x=>{if(!(x.v>lo&&x.v<hi))return;const y=Y(x.v);g.strokeStyle=x.c;g.setLineDash([6,4]);g.lineWidth=1.5;g.beginPath();g.moveTo(pad.l,y);g.lineTo(W-pad.r,y);g.stroke();g.setLineDash([]);
+    if(o.axis!==false){g.fillStyle=x.c;g.fillRect(W-pad.r+2,y-fs*.7,pad.r-4,fs*1.4);g.fillStyle="#07142a";g.fillText(x.label,W-pad.r+5,y+fs*.35)}});
+  const last=d[d.length-1].c,y=Y(last);g.fillStyle="#FFA94D";g.beginPath();g.arc(X(n-1),y,Math.max(2.5,bw*.45),0,7);g.fill();
+  if(o.axis!==false){if(!lv.length){g.fillStyle="#8AA0B4";g.font=`${fs}px system-ui`;g.fillText(price(hi),W-pad.r+4,pad.t+fs);g.fillText(price(lo),W-pad.r+4,H-pad.b)}
+    g.font=`700 ${fs}px system-ui`;g.fillStyle="#FFA94D";g.fillRect(W-pad.r+2,y-fs*.7,pad.r-4,fs*1.4);g.fillStyle="#07142a";g.fillText(price(last),W-pad.r+5,y+fs*.35)}
+}
+window.drawCandles=drawCandles;
+function sigLevels(s){const p=s.plan,pos=s.position||{},lv=[];
+  p.tp.forEach((v,i)=>{if(i<2||p.partials[i]>0)lv.push({v,label:"TP"+(i+1),c:"#3ee0c4"})});
+  lv.push({v:pos.entry||p.entry_ref,label:"Entrada",c:"#B794F4"});lv.push({v:pos.stop||p.stop,label:"Stop",c:"#ff6f8a"});return lv}
+// lista de graficos para o escritorio 3D: operacoes abertas, sinais a espera e o BTC
+window.chartFeed=()=>{if(!D)return[];const J=(D.journal||{}).rows||[],dec=new Set(J.filter(r=>r.executed===false).map(r=>r.id));
+  const act=(D.active_signals||[]).filter(s=>s.mode!=="PAPER"&&!dec.has(s.id));
+  const out=act.map(s=>({asset:s.asset,pair:s.pair,lv:sigLevels(s),title:`${s.asset} · ${s.status==="TRIGGERED"?"aberta":"à espera"} · 4H`}));
+  out.push({asset:"BTC",pair:"BTC/USDC",lv:[],title:"BTC · 4H"});
+  out.forEach(x=>{x.cs=CND[x.asset]&&CND[x.asset].cs;getCandles(x.asset,x.pair)});return out};
+// graficos nos cartoes de sinal
+async function fillCharts(){document.querySelectorAll("canvas.cchart").forEach(async cv=>{
+  const s=(D.active_signals||[]).find(x=>x.id===cv.dataset.id);if(!s)return;
+  const dpr=Math.min(2,devicePixelRatio||1),W=cv.clientWidth||320,H=cv.clientHeight||190;cv.width=W*dpr;cv.height=H*dpr;
+  const g=cv.getContext("2d");g.scale(dpr,dpr);drawCandles(g,W,H,CND[s.asset]&&CND[s.asset].cs,sigLevels(s),{});
+  const cs=await getCandles(s.asset,s.pair);g.setTransform(dpr,0,0,dpr,0,0);drawCandles(g,W,H,cs,sigLevels(s),{})})}
 loadAcaso();
 async function checkVersion(){try{const t=await (await fetch("./index.html?nocache="+Date.now(),{cache:"no-store"})).text();const m=t.match(/PAGE_V="(\w+)"/);if(m&&m[1]!==PAGE_V)location.replace("./?v="+m[1])}catch(_){}}
 checkVersion();setInterval(checkVersion,600000);
