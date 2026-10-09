@@ -34,9 +34,10 @@ def load(path):
     return out
 
 
-def clean(c):
+def clean(c, tf=None):
     """Aplica o validador; se o historico for invalido devolve None."""
-    cs, rep = validate.validate_candles(c, H4, c[-1]["t"] + 2 * H4, 0)
+    tf = tf or H4
+    cs, rep = validate.validate_candles(c, tf, c[-1]["t"] + 2 * tf, 0)
     return cs, rep
 
 
@@ -154,13 +155,14 @@ def simulate(cand, c4, cfg, slip_pct=SLIP_PCT, breakeven=True,
             "bars": k - j + 1}
 
 
-def load_all(folder, min_bars=2500):
+def load_all(folder, min_bars=2500, tf=None):
+    """tf: duracao da vela em segundos (4H por omissao; 3600 para a pasta 1h/)."""
     data, skipped = {}, {}
     for fn in sorted(os.listdir(folder)):
         if not fn.endswith(".csv.gz"):
             continue
         a = fn[:-7]
-        cs, rep = clean(load(os.path.join(folder, fn)))
+        cs, rep = clean(load(os.path.join(folder, fn)), tf)
         if rep["status"] == validate.INVALID:
             skipped[a] = "; ".join(rep["issues"])
         elif len(cs) < min_bars:

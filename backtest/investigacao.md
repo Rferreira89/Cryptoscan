@@ -27,6 +27,39 @@ dá "AMOSTRA INSUFICIENTE".
    de 0,25% por lado. Veredicto máximo: CANDIDATA (papel durante 30
    operações ou 8 semanas antes de dinheiro real).
 
+2. (PEDIDA em 2026-10-09, testar na mesma execução que a 1, depois dela.)
+   **Day trade em 1H: recuo à EMA20 de 1H a favor da tendência de 4H.**
+   O Rui quer day trade, NÃO scalp: nada abaixo de velas de 1H e nenhuma
+   operação pensada para durar minutos. Lógica: dentro de uma tendência de
+   4H, os recuos de 1H até à média curta são realização de lucros e não
+   inversão; a vela que recupera a média retoma a tendência. O risco
+   principal está declarado à partida: com stops curtos, a comissão real
+   (0,25% + 0,1% de slippage por lado, cerca de 0,7% ida e volta) come uma
+   parte grande de cada R, por isso a regra exige uma distância mínima de
+   stop. Regra (só compras):
+   - contexto: BTC acima da SMA200 diária; na moeda, EMA20 > EMA50 no 4H e
+     fecho da última vela de 4H fechada acima da EMA50 de 4H (sem
+     look-ahead: só velas de 4H já fechadas na hora da decisão);
+   - gatilho em 1H: a vela fechada tem mínimo igual ou abaixo da EMA20 de
+     1H e fecha acima dela, com RSI14 de 1H entre 40 e 60;
+   - entrada na abertura da vela de 1H seguinte;
+   - stop abaixo do mínimo das últimas 3 velas de 1H menos 0,2 ATR14 de
+     1H; se ficar a menos de D% da entrada, a operação NÃO se faz (não se
+     alarga o stop);
+   - um único objetivo a k R; saída obrigatória ao fim de H horas;
+   - no máximo 1 operação por moeda e 2 ao mesmo tempo (opção B do Rui).
+   Grelha (6, escrita antes de testar): k ∈ {1,5; 2} × D ∈ {1,5%; 2,5%} com
+   H = 24, mais H = 12 com k = 1,5 para D = 1,5% e D = 2,5%.
+   Dados: ramo `history`, pasta `1h/` (cerca de 25 meses), carregados com
+   `backtest.load_all(pasta + "/1h", min_bars=2000, tf=3600)`; o 4H vem da
+   raiz do mesmo ramo. O teste contra o acaso tem de usar velas de 1H (o
+   `tools/random_baseline.py` assume 4H: adaptar o passo para 3600 s e a
+   janela para ±360 velas, ou seja os mesmos ±15 dias).
+   Critérios: os seis de sempre MAIS o teste contra o acaso acima do
+   percentil 95 MAIS reportar o custo médio por operação em R. Veredicto
+   máximo: CANDIDATA (papel durante 30 operações ou 8 semanas antes de
+   dinheiro real). Nada é ligado ao vivo.
+
 ## Hipóteses anteriores a este diário (até 2026-10-02, período 2021-2026)
 
 Nenhuma validada. 4H: recuo, quebra com reteste, sweep de liquidez, fundo de
