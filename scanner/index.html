@@ -233,7 +233,7 @@ body.sheet-open #sheet{transform:none}
 @media (prefers-reduced-motion:reduce){.typing i,.bot .eye{animation:none}.bub{transition:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module" src="office3d.js?v=20261009i"></script>
+<script type="module" src="office3d.js?v=20261009j"></script>
 </head>
 <body class="w3d">
 <div id="world">
@@ -758,7 +758,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261009i";
+const PAGE_V="20261009j";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -972,9 +972,9 @@ function getCandles(asset,pair){
   const sym=(pair||asset+"/USDC").replace("/","");
   const p=(async()=>{let cs=null;
     try{const r=await fetch(BYURL+"kline?category=spot&interval=240&limit=90&symbol="+sym);const j=await r.json();
-      if(j.retCode===0&&j.result.list.length)cs=j.result.list.map(x=>({t:+x[0]/1000,o:+x[1],h:+x[2],l:+x[3],c:+x[4]})).reverse()}catch(_){}
+      if(j.retCode===0&&j.result.list.length)cs=j.result.list.map(x=>({t:+x[0]/1000,o:+x[1],h:+x[2],l:+x[3],c:+x[4],v:+x[5]})).reverse()}catch(_){}
     if(!cs){try{const r=await fetch("https://data-api.binance.vision/api/v3/klines?interval=4h&limit=90&symbol="+asset+"USDT");const j=await r.json();
-      if(Array.isArray(j)&&j.length)cs=j.map(x=>({t:x[0]/1000,o:+x[1],h:+x[2],l:+x[3],c:+x[4]}))}catch(_){}}
+      if(Array.isArray(j)&&j.length)cs=j.map(x=>({t:x[0]/1000,o:+x[1],h:+x[2],l:+x[3],c:+x[4],v:+x[5]}))}catch(_){}}
     CND[k]={at:cs?Date.now():0,cs:cs||(c&&c.cs)||null,p:null};return CND[k].cs})();
   CND[k]=Object.assign(CND[k]||{},{p});return p;
 }
@@ -1038,9 +1038,9 @@ document.addEventListener("change",e=>{const c=e.target.closest(".chk input");if
 // ===== Repeticao das operacoes fechadas (diario) =====
 async function candlesRange(asset,pair,t0,t1){const sym=(pair||asset+"/USDC").replace("/","");let cs=null;
   try{const r=await fetch(BYURL+`kline?category=spot&interval=240&limit=200&start=${t0*1000}&end=${t1*1000}&symbol=${sym}`);const j=await r.json();
-    if(j.retCode===0&&j.result.list.length)cs=j.result.list.map(x=>({t:+x[0]/1000,o:+x[1],h:+x[2],l:+x[3],c:+x[4]})).reverse()}catch(_){}
+    if(j.retCode===0&&j.result.list.length)cs=j.result.list.map(x=>({t:+x[0]/1000,o:+x[1],h:+x[2],l:+x[3],c:+x[4],v:+x[5]})).reverse()}catch(_){}
   if(!cs){try{const r=await fetch(`https://data-api.binance.vision/api/v3/klines?interval=4h&limit=200&startTime=${t0*1000}&endTime=${t1*1000}&symbol=${asset}USDT`);const j=await r.json();
-    if(Array.isArray(j)&&j.length)cs=j.map(x=>({t:x[0]/1000,o:+x[1],h:+x[2],l:+x[3],c:+x[4]}))}catch(_){}}
+    if(Array.isArray(j)&&j.length)cs=j.map(x=>({t:x[0]/1000,o:+x[1],h:+x[2],l:+x[3],c:+x[4],v:+x[5]}))}catch(_){}}
   return cs}
 function drawReplay(g,W,H,cs,r){const pad={l:8,r:62,t:10,b:18};g.fillStyle="#07142a";g.fillRect(0,0,W,H);
   if(!cs||!cs.length){g.fillStyle="#8AA0B4";g.font="13px system-ui";g.fillText("sem velas para este período",10,H/2);return}

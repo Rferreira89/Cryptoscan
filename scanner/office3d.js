@@ -185,27 +185,98 @@ function drawClock(g) {
   hand(((n.getHours() % 12) + n.getMinutes() / 60) / 12 * 6.283, 55, 9, "#222"); hand(n.getMinutes() / 60 * 6.283, 82, 6, "#222"); hand(n.getSeconds() / 60 * 6.283, 88, 2, "#FF6FB5");
   g.fillStyle = "#3b2a8f"; g.font = "bold 22px system-ui"; g.textAlign = "center"; g.fillText("Lisboa", 128, 180); g.textAlign = "left";
 }
-function drawSkyline(g) {
-  const W = 1024, H = 256, h = new Date().getHours(), night = h < 7 || h >= 20;
-  const sky = g.createLinearGradient(0, 0, 0, H); sky.addColorStop(0, night ? "#05031a" : "#3a6bd1"); sky.addColorStop(1, night ? "#2a1052" : "#f2a65a");
-  g.fillStyle = sky; g.fillRect(0, 0, W, H);
-  if (night) { g.fillStyle = "#fff"; for (let i = 0; i < 70; i++) g.fillRect((i * 151) % W, (i * 37) % 110, 2, 2); }
-  let x = 0, k = 7; while (x < W) { k = (k * 9301 + 49297) % 233280; const w = 40 + k % 70, bh = 60 + (k >> 3) % 150;
-    g.fillStyle = night ? "#120a2e" : "#2b2350"; g.fillRect(x, H - bh, w, bh);
-    for (let yy = H - bh + 8; yy < H - 6; yy += 12) for (let xx = x + 6; xx < x + w - 6; xx += 10) { if (((xx * 7 + yy * 13 + k) % 5) < (night ? 2 : 1)) { g.fillStyle = night ? "#F6C453" : "#9fc4ff"; g.fillRect(xx, yy, 5, 6); } }
-    x += w + 4; }
+// ---------- painel de dados da parede ----------
+// 5 paineis lado a lado, com dados reais do scan e velas da Bybit:
+// BTC 4H com volume e liquidez | livro de ordens e derivados do BTC |
+// volume relativo por moeda | operacao aberta com volume | mapa do mercado 24h
+let dataTex = null, dataI = 0;
+const fmtUsd = v => v == null ? "–" : v >= 1e9 ? (v / 1e9).toFixed(1).replace(".", ",") + " mil M" : v >= 1e6 ? (v / 1e6).toFixed(1).replace(".", ",") + " M" : v >= 1e3 ? Math.round(v / 1e3) + " mil" : Math.round(v) + "";
+const pxs = v => v == null ? "–" : v >= 100 ? Math.round(v).toLocaleString("pt-PT") : v >= 1 ? v.toFixed(3).replace(".", ",") : Number(v.toPrecision(4)).toString().replace(".", ",");
+function panelFrame(g, x, w, H, title, c) {
+  g.fillStyle = "#0a1226"; g.fillRect(x + 6, 6, w - 12, H - 12);
+  g.strokeStyle = c; g.lineWidth = 3; g.strokeRect(x + 6, 6, w - 12, H - 12);
+  g.fillStyle = c; g.font = "700 26px system-ui,sans-serif"; g.fillText(title, x + 22, 40);
+}
+function candlesVol(g, x0, y0, w, h, cs, o) {
+  o = o || {}; if (!cs || !cs.length) { g.fillStyle = "#8AA0B4"; g.font = "22px system-ui"; g.fillText("a carregar…", x0 + 10, y0 + h / 2); return; }
+  const n = Math.min(cs.length, o.n || 60), d = cs.slice(-n), vh = h * .22, ph = h - vh - 6;
+  let lo = Math.min(...d.map(c => c.l)), hi = Math.max(...d.map(c => c.h));
+  (o.zones || []).forEach(z => { if (z[0] > lo * .9 && z[1] < hi * 1.1) { lo = Math.min(lo, z[0]); hi = Math.max(hi, z[1]); } });
+  (o.lines || []).forEach(l => { if (l.v > lo * .92 && l.v < hi * 1.08) { lo = Math.min(lo, l.v); hi = Math.max(hi, l.v); } });
+  const sp = (hi - lo) || hi * .01; lo -= sp * .03; hi += sp * .03;
+  const X = i => x0 + (i + .5) * w / n, Y = v => y0 + (hi - v) / (hi - lo) * ph, bw = Math.max(2, w / n * .6);
+  (o.zones || []).forEach(z => { const a = Math.max(lo, z[0]), b = Math.min(hi, z[1]); if (b <= a) return; g.fillStyle = z[2]; g.fillRect(x0, Y(b), w, Y(a) - Y(b)); });
+  const vmax = Math.max(...d.map(c => c.v || 0)) || 1;
+  d.forEach((c, i) => { const up = c.c >= c.o; g.fillStyle = up ? "#3ee0c455" : "#ff6f8a55"; const vv = (c.v || 0) / vmax * vh; g.fillRect(X(i) - bw / 2, y0 + h - vv, bw, vv);
+    g.strokeStyle = g.fillStyle = up ? "#3ee0c4" : "#ff6f8a"; g.lineWidth = 2; g.beginPath(); g.moveTo(X(i), Y(c.h)); g.lineTo(X(i), Y(c.l)); g.stroke();
+    const y1 = Y(Math.max(c.o, c.c)), y2 = Y(Math.min(c.o, c.c)); g.fillRect(X(i) - bw / 2, y1, bw, Math.max(2, y2 - y1)); });
+  g.font = "600 18px system-ui";
+  (o.lines || []).forEach(l => { if (l.v < lo || l.v > hi) return; const y = Y(l.v); g.strokeStyle = l.c; g.setLineDash([10, 7]); g.lineWidth = 2; g.beginPath(); g.moveTo(x0, y); g.lineTo(x0 + w, y); g.stroke(); g.setLineDash([]);
+    g.fillStyle = l.c; const tw = g.measureText(l.t).width + 10; g.fillRect(x0 + w - tw, y - 12, tw, 22); g.fillStyle = "#07142a"; g.fillText(l.t, x0 + w - tw + 5, y + 5); });
+  const last = d[d.length - 1].c; g.fillStyle = "#FFA94D"; g.beginPath(); g.arc(X(n - 1), Y(last), 6, 0, 7); g.fill();
+  g.fillStyle = "#8AA0B4"; g.font = "16px system-ui"; g.fillText("volume", x0 + 4, y0 + h - vh + 14);
+}
+function drawDataWall(g) {
+  const W = 3072, H = 384, D = API() && API().D ? API().D() || {} : {}, U = D.universe || [], feed = (window.chartFeed && window.chartFeed()) || [];
+  g.fillStyle = "#060b1c"; g.fillRect(0, 0, W, H);
+  const P = [[0, 760], [760, 560], [1320, 560], [1880, 640], [2520, 552]];
+  // 1. BTC 4H com volume e liquidez
+  const btc = U.find(r => r.asset === "BTC") || {}, a4 = ((btc.analysis || {})["4h"]) || {}, lq = a4.liquidity || {};
+  panelFrame(g, P[0][0], P[0][1], H, `BTC · 4H · ${pxs(btc.price)}  ${(btc.chg_24h || 0) >= 0 ? "+" : ""}${(btc.chg_24h || 0).toFixed(1).replace(".", ",")}%`, "#4FD1C5");
+  const bf = feed.find(f => f.asset === "BTC");
+  const lines = [].concat((lq.pools_above || []).slice(0, 1).map(v => ({ v, c: "#FF6FB5", t: "liquidez " + pxs(v) })), (lq.pools_below || []).slice(0, 1).map(v => ({ v, c: "#63B3ED", t: "liquidez " + pxs(v) })));
+  const zones = [].concat(lq.fvg_above ? [[lq.fvg_above[0], lq.fvg_above[1], "#FF6FB522"]] : [], lq.fvg_below ? [[lq.fvg_below[0], lq.fvg_below[1], "#63B3ED22"]] : []);
+  candlesVol(g, P[0][0] + 22, 56, P[0][1] - 44, H - 76, bf && bf.cs, { lines, zones, n: 54 });
+  // 2. Liquidez e derivados do BTC
+  let x = P[1][0], w = P[1][1]; panelFrame(g, x, w, H, "Liquidez · BTC", "#FF6FB5");
+  const bk = btc.book || {}, dv = btc.derivatives || {}, lqd = dv.liquidations || {};
+  const buy = bk.imbalance != null ? (1 + bk.imbalance) / 2 : null;
+  g.fillStyle = "#8AA0B4"; g.font = "20px system-ui"; g.fillText("Livro de ordens (±1%)", x + 22, 82);
+  if (buy != null) { const bwid = w - 44; g.fillStyle = "#3ee0c4"; g.fillRect(x + 22, 92, bwid * buy, 26); g.fillStyle = "#ff6f8a"; g.fillRect(x + 22 + bwid * buy, 92, bwid * (1 - buy), 26);
+    g.fillStyle = "#07142a"; g.font = "700 18px system-ui"; g.fillText(`compra ${Math.round(buy * 100)}%`, x + 30, 112); g.textAlign = "right"; g.fillText(`venda ${Math.round((1 - buy) * 100)}%`, x + w - 30, 112); g.textAlign = "left"; }
+  const row = (k, v, y, c) => { g.fillStyle = "#8AA0B4"; g.font = "20px system-ui"; g.fillText(k, x + 22, y); g.fillStyle = c || "#E6EDF3"; g.font = "700 22px system-ui"; g.textAlign = "right"; g.fillText(v, x + w - 22, y); g.textAlign = "left"; };
+  row("Profundidade a 1%", "$" + fmtUsd(bk.depth_1pct_usd), 150);
+  row("Liquidez acima", (lq.pools_above || []).slice(0, 2).map(pxs).join(" · ") || "–", 182, "#FF6FB5");
+  row("Liquidez abaixo", (lq.pools_below || []).slice(0, 2).map(pxs).join(" · ") || "–", 214, "#63B3ED");
+  row("Open interest 24h", dv.oi_chg_24h_pct != null ? (dv.oi_chg_24h_pct > 0 ? "+" : "") + dv.oi_chg_24h_pct.toFixed(1).replace(".", ",") + "%" : "–", 246);
+  row("Funding (anual)", dv.funding_apr != null ? dv.funding_apr.toFixed(1).replace(".", ",") + "%" : "–", 278);
+  const L = lqd.long_usd || 0, S = lqd.short_usd || 0, tot = (L + S) || 1;
+  g.fillStyle = "#8AA0B4"; g.font = "20px system-ui"; g.fillText("Liquidações 24h", x + 22, 312);
+  g.fillStyle = "#ff6f8a"; g.fillRect(x + 22, 322, (w - 44) * L / tot, 22); g.fillStyle = "#3ee0c4"; g.fillRect(x + 22 + (w - 44) * L / tot, 322, (w - 44) * S / tot, 22);
+  g.fillStyle = "#E6EDF3"; g.font = "600 17px system-ui"; g.fillText(`longs $${fmtUsd(L)}`, x + 26, 360); g.textAlign = "right"; g.fillText(`shorts $${fmtUsd(S)}`, x + w - 26, 360); g.textAlign = "left";
+  // 3. Volume relativo (4H) e fluxo comprador
+  x = P[2][0]; w = P[2][1]; panelFrame(g, x, w, H, "Volume relativo · 4H", "#F6C453");
+  const vr = U.filter(r => r.analysis && r.analysis["4h"] && r.analysis["4h"].volume && r.analysis["4h"].volume.rvol != null)
+    .map(r => ({ a: r.asset, rv: r.analysis["4h"].volume.rvol, bs: r.analysis["4h"].volume.buy_share })).sort((p, q) => q.rv - p.rv).slice(0, 8);
+  const rmax = Math.max(2, ...vr.map(r => r.rv));
+  vr.forEach((r, i) => { const y = 64 + i * 37, bw2 = (w - 190) * Math.min(1, r.rv / rmax);
+    g.fillStyle = "#E6EDF3"; g.font = "700 20px system-ui"; g.fillText(r.a, x + 22, y + 21);
+    g.fillStyle = r.rv >= 1.5 ? "#F6C453" : "#F6C45377"; g.fillRect(x + 110, y + 4, bw2, 22);
+    g.fillStyle = "#E6EDF3"; g.font = "600 18px system-ui"; g.fillText(r.rv.toFixed(1).replace(".", ",") + "x", x + 116 + bw2, y + 21);
+    if (r.bs != null) { g.fillStyle = r.bs >= .5 ? "#3ee0c4" : "#ff6f8a"; g.textAlign = "right"; g.fillText(Math.round(r.bs * 100) + "% compra", x + w - 22, y + 21); g.textAlign = "left"; } });
+  g.fillStyle = "#8AA0B4"; g.font = "16px system-ui"; g.fillText("1x = volume normal · % compra = fluxo comprador (CVD)", x + 22, H - 22);
+  // 4. Operacao aberta (alterna) com volume
+  const ops = feed.filter(f => f.asset !== "BTC"); x = P[3][0]; w = P[3][1];
+  if (ops.length) { const it = ops[dataI % ops.length]; panelFrame(g, x, w, H, it.title || it.asset, "#FFA94D");
+    candlesVol(g, x + 22, 56, w - 44, H - 76, it.cs, { lines: (it.lv || []).map(l => ({ v: l.v, c: l.c, t: l.label })), n: 50 }); }
+  else { panelFrame(g, x, w, H, "Operações", "#FFA94D"); g.fillStyle = "#8AA0B4"; g.font = "24px system-ui"; g.fillText("Sem operações abertas.", x + 22, H / 2); }
+  // 5. Mapa do mercado 24h (as 16 moedas com mais volume)
+  x = P[4][0]; w = P[4][1]; panelFrame(g, x, w, H, "Mercado · 24h", "#68D391");
+  const top = U.filter(r => r.volume_24h).sort((p, q) => q.volume_24h - p.volume_24h).slice(0, 16), cw = (w - 44) / 4, chh = (H - 76) / 4;
+  top.forEach((r, i) => { const cx = x + 22 + (i % 4) * cw, cy = 56 + Math.floor(i / 4) * chh, ch = r.chg_24h || 0, k = Math.min(1, Math.abs(ch) / 8);
+    g.fillStyle = ch >= 0 ? `rgba(62,224,196,${.15 + k * .7})` : `rgba(255,111,138,${.15 + k * .7})`; g.fillRect(cx + 3, cy + 3, cw - 6, chh - 6);
+    g.fillStyle = "#fff"; g.font = "700 20px system-ui"; g.fillText(r.asset, cx + 12, cy + 30); g.font = "600 18px system-ui"; g.fillText((ch >= 0 ? "+" : "") + ch.toFixed(1).replace(".", ",") + "%", cx + 12, cy + 56); });
 }
 function buildAccessories() {
-  // parede do fundo com janela panoramica para a cidade e letreiro de neon
+  // parede do fundo: painel de dados gigante (graficos, volume, liquidez)
   boxM(42, 6, .3, mat("#130e33"), 0, 3, -13.2);
-  const sky = canvasTex(1024, 256, drawSkyline);
-  const win = new THREE.Mesh(new THREE.PlaneGeometry(26, 3.6), new THREE.MeshBasicMaterial({ map: sky, toneMapped: false })); win.position.set(4, 3.3, -13.03); scene.add(win);
-  for (let x = -9; x <= 17; x += 3.25) boxM(.12, 3.7, .12, mat("#1d1550"), x, 3.3, -13); boxM(26.3, .12, .14, mat("#B794F4", 1.6), 4, 5.15, -13); boxM(26.3, .12, .14, mat("#B794F4", 1.6), 4, 1.45, -13);
-  const sign = canvasTex(1024, 160, g => { g.clearRect(0, 0, 1024, 160); g.font = "900 120px system-ui"; g.textAlign = "center"; g.shadowColor = "#FF6FB5"; g.shadowBlur = 30; g.fillStyle = "#ffd6ec"; g.fillText("CRYPTOSCAN", 512, 125); });
-  const sg = new THREE.Mesh(new THREE.PlaneGeometry(9, 1.4), new THREE.MeshBasicMaterial({ map: sign, transparent: true, toneMapped: false })); sg.position.set(-11, 4.4, -13.02); scene.add(sg);
-  // relogio de parede
+  dataTex = canvasTex(3072, 384, drawDataWall);
+  dataTex.anisotropy = 4;
+  const dw = new THREE.Mesh(new THREE.PlaneGeometry(35.2, 4.4), new THREE.MeshBasicMaterial({ map: dataTex, toneMapped: false })); dw.position.set(-.6, 3.2, -13.03); scene.add(dw);
+  boxM(35.6, .1, .14, mat("#B794F4", 1.2), -.6, 5.45, -13); boxM(35.6, .1, .14, mat("#4FD1C5", 1.2), -.6, .95, -13);
+  // relogio de parede, no canto do servidor
   clock3d = canvasTex(256, 256, drawClock);
-  const ck = new THREE.Mesh(new THREE.CircleGeometry(.9, 40), new THREE.MeshBasicMaterial({ map: clock3d, transparent: true, toneMapped: false })); ck.position.set(-4.3, 4.2, -13.02); scene.add(ck);
+  const ck = new THREE.Mesh(new THREE.CircleGeometry(.75, 40), new THREE.MeshBasicMaterial({ map: clock3d, transparent: true, toneMapped: false })); ck.position.set(18.4, 4.3, -13.02); scene.add(ck);
   // estante com livros e trofeu na Pesquisa
   const sh = new THREE.Group(); sh.position.set(-18.4, 0, 3.6); sh.rotation.y = Math.PI / 2; scene.add(sh);
   boxM(3.2, 2.6, .5, mat("#3a2b20"), 0, 1.3, 0, sh);
@@ -450,14 +521,19 @@ function frame() {
   monTex.userData.draw(monTex.userData.c.getContext("2d"), t); monTex.needsUpdate = true;
   people.forEach(p => { const on = p.mode === "work" && p.sit && !p.path.length, m = monOn[p.a.id].material, tx = deskTex[p.a.id] || monTex;
     if (on && m.map !== tx) { m.map = tx; m.color.set(0xffffff); m.needsUpdate = true; } else if (!on && m.map) { m.map = null; m.color.set(0x0b1424); m.needsUpdate = true; } });
-  ledT -= dt; if (ledT <= 0) { ledT = .35; drawLeds(ledTex.userData.c.getContext("2d")); ledTex.needsUpdate = true; }
-  wallT -= dt; if (wallT <= 0) { wallT = 7; wallI++; drawWall(wallTex.userData.c.getContext("2d")); wallTex.needsUpdate = true;
+  const nowMs = performance.now();
+  if (nowMs - (frame.ledAt || 0) > 350) { frame.ledAt = nowMs; drawLeds(ledTex.userData.c.getContext("2d")); ledTex.needsUpdate = true; }
+  // ecras com relogio real (nao depende da taxa de imagens) e redesenho quando
+  // chegam velas novas
+  const feedN = ((window.chartFeed && window.chartFeed()) || []).filter(f => f.cs).length;
+  if (nowMs - (frame.wallAt || 0) > 7000 || feedN !== frame.feedN) { frame.wallAt = nowMs; frame.feedN = feedN; wallI++; if (wallTex) { drawWall(wallTex.userData.c.getContext("2d")); wallTex.needsUpdate = true; }
     const feed = (window.chartFeed && window.chartFeed()) || [];
     for (const [id, tx] of Object.entries(deskTex)) { const list = id === "mon" ? feed.filter(f => f.asset !== "BTC") : feed.filter(f => f.asset === "BTC").concat(feed);
       const it = list.length ? list[(wallI + (id === "mon" ? 1 : 0)) % list.length] : null; const g = tx.userData.c.getContext("2d");
       if (it) window.drawCandles(g, 512, 256, it.cs, it.lv, { title: it.asset, axis: false, n: 40 }); tx.needsUpdate = true; }
-    if (clock3d) { drawClock(clock3d.userData.c.getContext("2d")); clock3d.needsUpdate = true; } }
-  tvT -= dt; if (tvT <= 0) { tvT = 30; drawTV(tvTex.userData.c.getContext("2d")); tvTex.needsUpdate = true; updateRadar(); drawBoard(board.userData.c.getContext("2d")); board.needsUpdate = true; }
+    if (clock3d) { drawClock(clock3d.userData.c.getContext("2d")); clock3d.needsUpdate = true; }
+    if (dataTex) { dataI++; drawDataWall(dataTex.userData.c.getContext("2d")); dataTex.needsUpdate = true; } }
+  if (nowMs - (frame.tvAt || -1e9) > 30000 || tvT <= 0) { frame.tvAt = nowMs; tvT = 30; drawTV(tvTex.userData.c.getContext("2d")); tvTex.needsUpdate = true; updateRadar(); drawBoard(board.userData.c.getContext("2d")); board.needsUpdate = true; }
   if (radar) { radar.sweep.rotation.z -= dt * 1.4; radar.blips.children.forEach((b, i) => { if (b.geometry.type === "SphereGeometry") b.scale.setScalar(1 + Math.sin(t * 4 + i) * .15); }); }
   ctl.update(); if (composer) composer.render(); else R.render(scene, cam); placeOverlays(dt);
 }
@@ -498,7 +574,7 @@ function init(container) {
     bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), .55, .45, .9); composer.addPass(bloom); composer.addPass(new OutputPass());
   } catch (e) { composer = null; }
   monTex = canvasTex(256, 160, drawMon);
-  buildRoom(); buildAccessories(); Object.keys(DESK).forEach(buildDesk); buildRadar(); buildBoard(); buildWall(); updateRadar();
+  buildRoom(); buildAccessories(); Object.keys(DESK).forEach(buildDesk); buildRadar(); buildBoard(); updateRadar();
   people = API().agents.map(makePerson);
   // ao abrir: quem esta em pausa ja esta num sitio de descanso (sem marcha em
   // grupo pelo corredor), cada um com a sua faixa e o seu ritmo
