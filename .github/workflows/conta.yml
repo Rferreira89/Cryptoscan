@@ -1,0 +1,31 @@
+name: Conta Bybit (verificacao)
+# Verifica a chave so de leitura da Bybit UE e publica um resumo minimo
+# (sem a carteira inteira) no ramo "conta". Corre quando o modulo muda.
+on:
+  push:
+    branches: [main]
+    paths: ["engine/account.py", ".github/workflows/conta.yml"]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  conta:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Ler a conta
+        env:
+          BYBIT_API_KEY: ${{ secrets.BYBIT_API_KEY }}
+          BYBIT_API_SECRET: ${{ secrets.BYBIT_API_SECRET }}
+          PUSH_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
+        run: |
+          git fetch -q origin data && git show FETCH_HEAD:state.json > /tmp/state.json || echo '{}' > /tmp/state.json
+          mkdir -p /tmp/c && python -m engine.account /tmp/c/conta.json /tmp/state.json > /dev/null
+          cd /tmp/c && git init -q -b conta && git config user.name cryptoscan-bot \
+            && git config user.email bot@users.noreply.github.com \
+            && git add conta.json && git commit -q -m "conta $(date -u +%FT%TZ)" \
+            && git push -q -f "$PUSH_URL" conta:conta
