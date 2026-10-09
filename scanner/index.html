@@ -127,6 +127,37 @@ button:focus-visible,summary:focus-visible,.steps li:focus-visible{outline:2px s
 #toast.on{opacity:1}
 @media (prefers-reduced-motion:reduce){#toast{transition:none}}
 a{color:inherit}
+
+/* Escritorio: cada agente numa secretaria, com o que esta mesmo a fazer */
+#office{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px;margin:0 0 6px;border-radius:14px;
+  background:linear-gradient(rgba(79,209,197,.05) 1px,transparent 1px) 0 0/26px 26px,linear-gradient(90deg,rgba(79,209,197,.05) 1px,transparent 1px) 0 0/26px 26px,var(--bg);
+  box-shadow:inset 0 0 0 1px var(--line)}
+.desk{position:relative;line-height:1.3;background:var(--card);border-radius:12px;padding:10px 10px 9px;border:1px solid var(--line);cursor:pointer;min-height:132px;display:flex;flex-direction:column;gap:6px;text-align:left;color:inherit;font:inherit}
+.desk.on{border-color:var(--up);box-shadow:0 0 0 1px var(--up) inset,0 0 18px -6px var(--up)}
+.desk.idle{opacity:.82}
+.desk .top{display:flex;align-items:center;gap:8px}
+.desk svg.bot{flex:none;width:34px;height:34px}
+.desk .nm{font-weight:750;font-size:13.5px;line-height:1.15}
+.desk .rl{font-size:11px;color:var(--mut);line-height:1.25;display:inline-block;margin-top:2px}
+.desk .st{font-size:10.5px;padding:1px 7px;border-radius:99px;background:var(--chip);color:var(--mut);margin-right:6px;white-space:nowrap}
+.desk.on .st{background:var(--up);color:var(--card);font-weight:700}
+.bub{position:relative;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:6px 8px;font-size:12px;line-height:1.35;min-height:46px;transition:opacity .25s}
+.bub.fade{opacity:0}
+.bub::before{content:"";position:absolute;top:-6px;left:14px;width:10px;height:10px;background:var(--bg);border-left:1px solid var(--line);border-top:1px solid var(--line);transform:rotate(45deg)}
+.desk .nx{font-size:11px;color:var(--mut);margin-top:auto;display:flex;flex-wrap:wrap;align-items:center;row-gap:3px}
+.desk .more{display:none;font-size:12px;line-height:1.4;border-top:1px solid var(--line);padding-top:6px}
+.desk.open{grid-column:1/-1}
+.desk.open .more{display:block}
+.desk .more li{margin:0 0 3px 16px}
+.typing i{display:inline-block;width:4px;height:4px;margin-left:2px;border-radius:50%;background:var(--up);animation:tp 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+@keyframes tp{0%,60%,100%{opacity:.25}30%{opacity:1}}
+.bot .eye{animation:blink 4s infinite}
+.idle .bot .eye{animation:none}
+@keyframes blink{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
+.bot .eye{transform-origin:center;transform-box:fill-box}
+.desk.idle .zz{display:inline}.zz{display:none;color:var(--mut);font-size:11px;margin-left:4px}
+@media (prefers-reduced-motion:reduce){.typing i,.bot .eye{animation:none}.bub{transition:none}}
 </style>
 </head>
 <body>
@@ -135,6 +166,7 @@ a{color:inherit}
 <div id="radar" aria-label="Radar de oportunidades"></div>
 <p id="rnote"></p>
 <div id="mf"></div>
+<details class="sec" id="s-escritorio" open><summary>Escritório<span id="n-esc"></span></summary><div id="office" role="list"></div><div class="note" style="margin:2px 0 8px">Toca numa secretária para ver o detalhe. Tudo o que aparece vem do trabalho real de cada agente; quem está a dormir acorda à hora marcada.</div></details>
 
 <h2>Resultado</h2><div class="stats" id="score"></div><div class="note" id="scorenote" style="margin:-6px 0 4px"></div>
 <details class="sec" id="s-diario"><summary>O teu diário<span id="n-diario"></span></summary><div id="diary"></div></details>
@@ -544,7 +576,7 @@ function render(){
   if(!D) return;
   const q=$("q").value.trim().toUpperCase(),s=$("sort").value,f=$("flt").value;
   const key=r=>s==="adx"||s==="rsi"?(r.analysis&&r.analysis["1d"]&&r.analysis["1d"].ok?r.analysis["1d"][s]:-1):(r[s]??-1e18);
-  renderOps();renderExtra();fillBybit();
+  renderOps();renderExtra();fillBybit();renderOffice();loadOfficeFiles();
   let rows=D.universe.filter(r=>r.eligible&&r.timeframes);
   if(q) rows=rows.filter(r=>r.asset.toUpperCase().includes(q));
   if(f) rows=rows.filter(r=>{const a=r.analysis;
@@ -621,7 +653,75 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261009a";
+const PAGE_V="20261009b";
+
+// ---------- Escritorio ----------
+// Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
+// as frases vem do ultimo scan, dos diarios dos agentes e dos ficheiros que
+// eles escrevem no repositorio.
+const RAW_MAIN="https://raw.githubusercontent.com/Rferreira89/Cryptoscan/main/";
+let OF={files:{},i:0,open:null,loadedAt:0};
+const AGENTS=[
+ {id:"scan",nm:"Analista",rl:"scan completo a cada 5 min",c:"#4FD1C5"},
+ {id:"mon",nm:"Guarda das posições",rl:"vigia stops e objetivos ao minuto",c:"#FFA94D"},
+ {id:"vig",nm:"Vigia",rl:"confirma que tudo corre, de 6 em 6 h",c:"#8AA0B4",cron:{h:[1,7,13,19],m:53}},
+ {id:"news",nm:"Repórter",rl:"notícias e eventos, todos os dias",c:"#F2C265",cron:{d:[0,1,2,3,4,5,6],h:[7],m:22}},
+ {id:"afin",nm:"Afinador",rl:"testa melhorias às estratégias",c:"#9F7AEA",cron:{d:[1,3,5],h:[9],m:43}},
+ {id:"inv",nm:"Investigador",rl:"procura estratégias novas",c:"#63B3ED",cron:{d:[0,3],h:[9],m:52}},
+ {id:"juiz",nm:"Juiz",rl:"compara tudo com o acaso",c:"#FF8A80",cron:{d:[1,3,5],h:[9],m:43}},
+ {id:"aud",nm:"Auditor",rl:"procura erros, ao sábado",c:"#68D391",cron:{d:[6],h:[9],m:47}}];
+function nextRun(cr){if(!cr)return null;const n=new Date();for(let k=0;k<8*24*60;k+=1){const d=new Date(n.getTime()+k*60000);if((!cr.d||cr.d.includes(d.getDay()))&&cr.h.includes(d.getHours())&&d.getMinutes()===cr.m)return d}return null}
+function inTxt(d){if(!d)return"";const m=Math.round((d-new Date())/60000);if(m<60)return`daqui a ${m} min`;const h=Math.floor(m/60);if(h<24)return`daqui a ${h} h ${m%60} min`;return d.toLocaleString("pt-PT",{weekday:"long",hour:"2-digit",minute:"2-digit"})}
+function bot(c){return`<svg class="bot" viewBox="0 0 34 34" aria-hidden="true"><line x1="17" y1="3" x2="17" y2="8" stroke="${c}" stroke-width="2"/><circle cx="17" cy="3" r="2" fill="${c}"/><rect x="5" y="8" width="24" height="19" rx="6" fill="var(--bg)" stroke="${c}" stroke-width="2"/><rect class="eye" x="11" y="15" width="4" height="5" rx="1.5" fill="${c}"/><rect class="eye" x="19" y="15" width="4" height="5" rx="1.5" fill="${c}"/><rect x="12" y="29" width="10" height="3" rx="1.5" fill="${c}" opacity=".6"/></svg>`}
+async function loadOfficeFiles(){
+  if(Date.now()-OF.loadedAt<600000)return;OF.loadedAt=Date.now();
+  const txt=async f=>{try{const r=await fetch(RAW_MAIN+f+"?t="+Date.now(),{cache:"no-store"});return r.ok?await r.text():null}catch(_){return null}};
+  const [af,inv,ev,rb,lg]=await Promise.all(["backtest/afinacao.md","backtest/investigacao.md","engine/events_extra.json","backtest/random_baseline.json","backtest/liga.json"].map(txt));
+  OF.files={af,inv,ev:ev&&JSON.parse(ev),rb:rb&&JSON.parse(rb),lg:lg&&JSON.parse(lg)};renderOffice();
+}
+function lastEntry(md,mark){if(!md)return null;const ls=md.split("\n");let t=null,v=null;for(let i=0;i<ls.length;i++){if(ls[i].startsWith(mark+" ")&&/^\#+ \d{4}-\d\d-\d\d/.test(ls[i])){t=ls[i].replace(/^#+ /,"");v=null}const m=ls[i].match(/\*\*Veredicto:\s*([^*]+)\*\*/);if(m&&t)v=m[1].replace(/\.$/,"")}return t?{t,v}:null}
+function queueNext(md){if(!md)return null;const q=md.split("## Fila")[1];if(!q)return null;const items=q.split(/\n\d+\. /).slice(1);const it=items.find(x=>!/^\(TESTADA/.test(x.trim()));if(!it)return null;const m=it.match(/\*\*([^*]+)\*\*/);return m?m[1].replace(/\.$/,""):null}
+function officeData(){
+  const out={},now=Date.now()/1000,age=D?Math.round((now-D.generated_at)/60):999;
+  const U=(D&&D.universe)||[];
+  // Analista: percorre as moedas do ultimo scan com a decisao real
+  const lines=U.filter(r=>r.decision).map(r=>{const d=r.decision;const tag=d.decision==="LONG"?"sinal de COMPRA":d.decision==="SHORT"?"sinal de SHORT":d.decision==="WATCHLIST"?"em vigilância":"sem operação";return`<b>${esc(r.asset)}</b>: ${tag}${d.reason&&d.decision!=="LONG"?" — "+esc(d.reason.slice(0,70)):""}`});
+  const c=(D&&D.counts)||{};
+  out.scan={on:age<10,msgs:lines.length?lines:["À espera do primeiro scan."],more:[`Último scan: ${D?hm(D.generated_at):"–"} (há ${age} min)`,`${c.pairs_seen||"–"} pares vistos, ${c.deep_checked||"–"} analisados a fundo`,`Sinais novos: ${(c.long||0)+(c.short||0)} · em vigilância: ${(c.watchlist||0)+(c.watch_short||0)}`],nx:"próximo scan "+(age<10?`dentro de ${Math.max(0,5-age%5)} min`:"em atraso")};
+  // Guarda: posicoes abertas com distancia ao stop e ao objetivo
+  const dec=new Set(((D&&D.journal||{}).rows||[]).filter(r=>r.executed===false).map(r=>r.id));
+  const op=((D&&D.active_signals)||[]).filter(s=>s.status==="TRIGGERED"&&s.mode!=="PAPER"&&!dec.has(s.id));
+  const pm=op.map(s=>{const cur=curPrice(s.asset),p=s.position||{},sh=s.direction==="SHORT";if(cur==null||!p.entry)return`<b>${esc(s.asset)}</b>: a acompanhar`;const pl=(cur/p.entry-1)*100*(sh?-1:1),ds=Math.abs(cur/p.stop-1)*100,dt=Math.abs(s.plan.tp[p.tp_hit||0]/cur-1)*100;return`<b>${esc(s.asset)}</b>: ${pl>0?"+":""}${num(pl,1)}% · stop a ${num(ds,1)}% · objetivo a ${num(dt,1)}%`});
+  out.mon={on:age<10&&op.length>0,msgs:pm.length?pm:["Sem operações abertas. A vigiar as que entrarem."],more:op.length?op.map(s=>`${esc(s.asset)}: entrada ${price(s.position.entry)}, stop ${price(s.position.stop)}, 1.º objetivo ${price(s.plan.tp[0])}`):["Nada aberto neste momento."],nx:"verifica ao minuto"};
+  // Vigia
+  const ok=age<30;
+  out.vig={on:false,msgs:[ok?`Tudo a correr: último scan há ${age} min, fontes ${Object.values((D&&D.sources)||{}).filter(x=>x.ok).length}/3 OK.`:`Atenção: último scan há ${age} min.`],more:[`Estado global: ${D?esc(D.status_global):"–"}`,D&&D.halt?`Travão ativo: ${esc(D.halt)}`:"Sem travões ativos"],nx:"acorda "+inTxt(nextRun(AGENTS[2].cron))};
+  // Reporter
+  const ev=(OF.files.ev&&OF.files.ev.events)||[],ne=D&&D.next_event;
+  const em=ev.map(e=>`${esc(e.name)} · ${hm(e.t)}`);if(ne)em.push(`${esc(ne.name)} · ${hm(ne.t)} (sem sinais novos à volta)`);
+  out.news={on:false,msgs:em.length?em:["Sem eventos de risco nos próximos 7 dias."],more:[OF.files.ev?`Lista atualizada a ${esc(OF.files.ev.updated)}`:"A carregar…"].concat(em),nx:"acorda "+inTxt(nextRun(AGENTS[3].cron))};
+  // Afinador
+  const af=lastEntry(OF.files.af,"###"),qn=queueNext(OF.files.af),cnt=(OF.files.af||"").match(/testadas até agora:\s*(\d+)/);
+  out.afin={on:false,msgs:[af?`Último teste: ${esc(af.t.replace(/^\d{4}-(\d\d)-(\d\d) — /,"$2/$1 · "))} → <b>${esc(af.v||"sem veredicto")}</b>`:"A carregar o diário…"].concat(qn?[`A seguir: <b>${esc(qn)}</b>`]:[]),more:[cnt?`Hipóteses testadas: ${cnt[1]}`:"",qn?`Próximo teste: ${esc(qn)}`:"","Só passa para os sinais se der lucro fora da amostra e bater o acaso."].filter(Boolean),nx:"acorda "+inTxt(nextRun(AGENTS[4].cron))};
+  // Investigador
+  const iv=lastEntry(OF.files.inv,"##");
+  out.inv={on:false,msgs:[iv?`Último estudo: ${esc(iv.t.replace(/^\d{4}-(\d\d)-(\d\d) — /,"$2/$1 · "))} → <b>${esc(iv.v||"sem veredicto")}</b>`:"A carregar o diário…"],more:["Procura estratégias de entrada novas, testadas em 24 meses com comissões.","Uma candidata vai primeiro para papel durante 30 operações."],nx:"acorda "+inTxt(nextRun(AGENTS[5].cron))};
+  // Juiz
+  const rb=OF.files.rb&&OF.files.rb.TODAS,lg=OF.files.lg&&OF.files.lg.estrategias&&OF.files.lg.estrategias.TODAS;
+  out.juiz={on:false,msgs:[rb?`Histórico: ${num(rb.r_real,2)}R contra ${num(rb.r_acaso_mediana,2)}R ao acaso → <b>${rb.vantagem?"bate o acaso":"não bate o acaso"}</b>`:"A carregar…"].concat(lg?[`Ao vivo: ${lg.n} sinais fechados → <b>${lg.n<30?"amostra curta":(lg.vantagem?"bate o acaso":"não bate")}</b>`]:[]),more:["Cada operação é comparada com 1000 séries de entradas ao acaso, com o mesmo stop e objetivos.","Detalhe completo na secção “Contra o acaso”."],nx:"atualiza "+inTxt(nextRun(AGENTS[6].cron))};
+  // Auditor
+  out.aud={on:false,msgs:["Revê registos, preços, calendário e testes à procura de erros silenciosos."],more:["Só corrige o calendário; tudo o resto é relatado para decidires."],nx:"acorda "+inTxt(nextRun(AGENTS[7].cron))};
+  return out;
+}
+function renderOffice(){
+  if(!D)return;const od=officeData();OF.data=od;
+  const busy=AGENTS.filter(a=>od[a.id].on).length;$("n-esc").textContent=`${busy} a trabalhar agora`;
+  $("office").innerHTML=AGENTS.map(a=>{const o=od[a.id];const m=o.msgs[OF.i%o.msgs.length];
+    return`<button class="desk ${o.on?"on":"idle"}${OF.open===a.id?" open":""}" data-ag="${a.id}" role="listitem" aria-expanded="${OF.open===a.id}"><span class="top">${bot(a.c)}<span><span class="nm">${a.nm}${o.on?` <span class="typing"><i></i><i></i><i></i></span>`:`<span class="zz">zZ</span>`}</span><br><span class="rl">${a.rl}</span></span></span><span class="bub" id="bub-${a.id}">${m}</span><span class="more"><ul>${o.more.map(x=>`<li>${x}</li>`).join("")}</ul></span><span class="nx"><span class="st">${o.on?"a trabalhar":"em pausa"}</span>${esc(o.nx)}</span></button>`}).join("");
+}
+function tickOffice(){if(!OF.data)return;OF.i++;AGENTS.forEach(a=>{const o=OF.data[a.id];if(o.msgs.length<2)return;const el=$("bub-"+a.id);if(!el)return;el.classList.add("fade");setTimeout(()=>{el.innerHTML=o.msgs[OF.i%o.msgs.length];el.classList.remove("fade")},250)})}
+$("office").addEventListener("click",e=>{const d=e.target.closest(".desk");if(!d)return;OF.open=OF.open===d.dataset.ag?null:d.dataset.ag;renderOffice()});
+setInterval(tickOffice,3500);setInterval(()=>{renderOffice();loadOfficeFiles()},60000);
 loadAcaso();
 async function checkVersion(){try{const t=await (await fetch("./index.html?nocache="+Date.now(),{cache:"no-store"})).text();const m=t.match(/PAGE_V="(\w+)"/);if(m&&m[1]!==PAGE_V)location.replace("./?v="+m[1])}catch(_){}}
 checkVersion();setInterval(checkVersion,600000);
