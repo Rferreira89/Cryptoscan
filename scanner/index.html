@@ -129,7 +129,12 @@ button:focus-visible,summary:focus-visible,.steps li:focus-visible{outline:2px s
 a{color:inherit}
 
 /* Escritorio: cada agente numa secretaria, com o que esta mesmo a fazer */
-#office{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px;margin:0 0 6px;border-radius:14px;
+.obub{position:absolute;max-width:56%;background:var(--ink);color:var(--bg);font-size:11.5px;line-height:1.3;padding:5px 8px;border-radius:9px;pointer-events:none;box-shadow:0 4px 14px #0008}
+.obub b{color:var(--bg)}
+#office{margin:0 0 6px;}
+#odetail li b{display:inline}
+#odetail .banner>b{display:block}
+#office-old{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px;margin:0 0 6px;border-radius:14px;
   background:linear-gradient(rgba(79,209,197,.05) 1px,transparent 1px) 0 0/26px 26px,linear-gradient(90deg,rgba(79,209,197,.05) 1px,transparent 1px) 0 0/26px 26px,var(--bg);
   box-shadow:inset 0 0 0 1px var(--line)}
 .desk{position:relative;line-height:1.3;background:var(--card);border-radius:12px;padding:10px 10px 9px;border:1px solid var(--line);cursor:pointer;min-height:132px;display:flex;flex-direction:column;gap:6px;text-align:left;color:inherit;font:inherit}
@@ -166,7 +171,7 @@ a{color:inherit}
 <div id="radar" aria-label="Radar de oportunidades"></div>
 <p id="rnote"></p>
 <div id="mf"></div>
-<details class="sec" id="s-escritorio" open><summary>Escritório<span id="n-esc"></span></summary><div id="office" role="list"></div><div class="note" style="margin:2px 0 8px">Toca numa secretária para ver o detalhe. Tudo o que aparece vem do trabalho real de cada agente; quem está a dormir acorda à hora marcada.</div></details>
+<details class="sec" id="s-escritorio" open><summary>Escritório<span id="n-esc"></span></summary><div id="office"></div><div class="note" style="margin:2px 0 8px">Toca num agente para ver o que está a fazer. O estado é real: quem está sentado está a trabalhar (o Analista e o Guarda nunca param; os outros só à hora da sua tarefa). Em pausa vão ao café, ao sofá ou à mesa; de noite dormem. Os balões mostram o trabalho verdadeiro de cada um.</div></details>
 
 <h2>Resultado</h2><div class="stats" id="score"></div><div class="note" id="scorenote" style="margin:-6px 0 4px"></div>
 <details class="sec" id="s-diario"><summary>O teu diário<span id="n-diario"></span></summary><div id="diary"></div></details>
@@ -653,7 +658,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261009b";
+const PAGE_V="20261009c";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -713,15 +718,103 @@ function officeData(){
   out.aud={on:false,msgs:["Revê registos, preços, calendário e testes à procura de erros silenciosos."],more:["Só corrige o calendário; tudo o resto é relatado para decidires."],nx:"acorda "+inTxt(nextRun(AGENTS[7].cron))};
   return out;
 }
-function renderOffice(){
-  if(!D)return;const od=officeData();OF.data=od;
-  const busy=AGENTS.filter(a=>od[a.id].on).length;$("n-esc").textContent=`${busy} a trabalhar agora`;
-  $("office").innerHTML=AGENTS.map(a=>{const o=od[a.id];const m=o.msgs[OF.i%o.msgs.length];
-    return`<button class="desk ${o.on?"on":"idle"}${OF.open===a.id?" open":""}" data-ag="${a.id}" role="listitem" aria-expanded="${OF.open===a.id}"><span class="top">${bot(a.c)}<span><span class="nm">${a.nm}${o.on?` <span class="typing"><i></i><i></i><i></i></span>`:`<span class="zz">zZ</span>`}</span><br><span class="rl">${a.rl}</span></span></span><span class="bub" id="bub-${a.id}">${m}</span><span class="more"><ul>${o.more.map(x=>`<li>${x}</li>`).join("")}</ul></span><span class="nx"><span class="st">${o.on?"a trabalhar":"em pausa"}</span>${esc(o.nx)}</span></button>`}).join("");
+
+// ---- Cena do escritorio (pixel art, estilo Sims) ----
+// O estado de cada agente (a trabalhar / em pausa / a dormir) e real: o
+// Analista e o Guarda trabalham sempre; os outros so durante a sua corrida
+// agendada. Em pausa passeiam pela zona de descanso (cafe, sofa, mesa) e
+// de noite dormem no sofa. Os baloes mostram o trabalho real (officeData).
+const W=320,H=232,K=4;
+const DESKS=[[12,62],[88,62],[164,62],[240,62],[12,112],[88,112],[164,112],[240,112]];
+const LOOK={scan:{hair:"#2b1b12",skin:"#f1c27d"},mon:{hair:"#d9a441",skin:"#e0ac69"},vig:{hair:"#555",skin:"#c68642"},news:{hair:"#7a2e1a",skin:"#f1c27d"},afin:{hair:"#111",skin:"#8d5524"},inv:{hair:"#e6c07b",skin:"#ffdbac"},juiz:{hair:"#9a9a9a",skin:"#e0ac69"},aud:{hair:"#3b2a1a",skin:"#c68642"}};
+const SPOTS=[{x:44,y:196,sit:1,k:"sofa"},{x:60,y:196,sit:1,k:"sofa"},{x:76,y:196,sit:1,k:"sofa"},{x:126,y:186,k:"cafe"},{x:142,y:188,k:"cafe"},{x:176,y:186,k:"agua"},{x:236,y:198,sit:1,k:"mesa"},{x:276,y:198,sit:1,k:"mesa"},{x:256,y:178,sit:1,k:"mesa"}];
+const SC={pp:[],sel:null,last:0,bubI:0,bubT:0,ok:false};
+function runningNow(cr,mins){if(!cr)return false;const n=new Date();for(let k=0;k<=mins;k++){const d=new Date(n.getTime()-k*60000);if((!cr.d||cr.d.includes(d.getDay()))&&cr.h.includes(d.getHours())&&d.getMinutes()===cr.m)return true}return false}
+function agState(a,od){const o=od[a.id];if(a.cron)o.on=runningNow(a.cron,a.id==="vig"?10:40);if(o.on)return"work";const h=new Date().getHours(),nx=nextRun(a.cron);return(h<7||h>=23)&&(!nx||nx-new Date()>3*3600e3)?"sleep":"pause"}
+function seatOf(i){const[d,y]=DESKS[i];return{x:d+16,y:y+13}}
+function routeTo(p,t){const pts=[];const ais=x=>{const i=DESKS.findIndex(d=>Math.abs(d[0]+16-x)<2);return i<0?x:Math.max(4,DESKS[i][0]-9)};
+  const cy=152;if(p.y<cy-4){pts.push({x:ais(p.x),y:p.y},{x:ais(p.x),y:cy})}
+  if(t.y<cy-4){pts.push({x:ais(t.x),y:cy},{x:ais(t.x),y:t.y})}else pts.push({x:t.x,y:cy});pts.push({x:t.x,y:t.y});return pts}
+function initScene(){
+  const box=$("office");box.innerHTML=`<div id="oscene" style="position:relative"><canvas id="ocv" width="${W*K}" height="${H*K}" style="width:100%;display:block;image-rendering:pixelated;border-radius:12px" aria-label="Escritório dos agentes"></canvas><div id="obub" class="obub" hidden></div><div id="onames"></div></div><div id="odetail"></div>`;
+  SC.cv=$("ocv");SC.cx=SC.cv.getContext("2d");SC.cx.imageSmoothingEnabled=false;
+  SC.pp=AGENTS.map((a,i)=>{const s=seatOf(i);return{a,i,x:s.x,y:s.y,path:[],mode:"work",spot:null,wait:0,sit:true}});
+  SC.cv.addEventListener("click",e=>{const r=SC.cv.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*W,y=(e.clientY-r.top)/r.height*H;let best=null,bd=18;SC.pp.forEach(p=>{const d=Math.hypot(p.x-x,p.y-8-y);if(d<bd){bd=d;best=p}});if(best){SC.sel=best.a.id;showDetail();SC.bubT=0}});
+  SC.ok=true;requestAnimationFrame(loopScene);
 }
-function tickOffice(){if(!OF.data)return;OF.i++;AGENTS.forEach(a=>{const o=OF.data[a.id];if(o.msgs.length<2)return;const el=$("bub-"+a.id);if(!el)return;el.classList.add("fade");setTimeout(()=>{el.innerHTML=o.msgs[OF.i%o.msgs.length];el.classList.remove("fade")},250)})}
-$("office").addEventListener("click",e=>{const d=e.target.closest(".desk");if(!d)return;OF.open=OF.open===d.dataset.ag?null:d.dataset.ag;renderOffice()});
-setInterval(tickOffice,3500);setInterval(()=>{renderOffice();loadOfficeFiles()},60000);
+function busySpots(){return new Set(SC.pp.filter(p=>p.spot!=null).map(p=>p.spot))}
+function decide(p,od){const st=agState(p.a,od);p.state=st;
+  if(st==="work"){if(p.mode!=="work"){p.mode="work";p.spot=null;p.path=routeTo(p,seatOf(p.i));p.sit=false}return}
+  const want=st==="sleep"?"sofa":null;
+  if(p.mode==="work"||p.wait<=0&&!p.path.length){const used=busySpots();let opts=SPOTS.map((s,k)=>k).filter(k=>!used.has(k)&&(!want||SPOTS[k].k===want));if(!opts.length)opts=SPOTS.map((s,k)=>k).filter(k=>!used.has(k));const k=opts[Math.floor(Math.random()*opts.length)];
+    if(k!=null){p.spot=k;p.path=routeTo(p,SPOTS[k]);p.sit=false;p.mode=st;p.wait=st==="sleep"?1e9:12+Math.random()*20}}}
+function stepScene(dt){const od=OF.data;if(!od)return;const rm=matchMedia("(prefers-reduced-motion:reduce)").matches;
+  SC.pp.forEach(p=>{if(!p.path.length)decide(p,od);else if(agState(p.a,od)==="work"&&p.mode!=="work")decide(p,od);
+    if(p.path.length){const t=p.path[0],dx=t.x-p.x,dy=t.y-p.y,d=Math.hypot(dx,dy),v=rm?999:34*dt;if(d<=v){p.x=t.x;p.y=t.y;p.path.shift();if(!p.path.length){p.sit=p.mode==="work"||(p.spot!=null&&SPOTS[p.spot].sit)}}else{p.x+=dx/d*v;p.y+=dy/d*v;p.dir=dx<0?-1:1}}
+    else if(p.mode!=="work"&&p.mode!=="sleep"){p.wait-=dt}})}
+// --- desenho ---
+function R(c,x,y,w,h){SC.cx.fillStyle=c;SC.cx.fillRect(Math.round(x),Math.round(y),w,h)}
+function sky(){const h=new Date().getHours()+new Date().getMinutes()/60;return h<6.5||h>=20.5?["#0b1a33","#13284d"]:h<8||h>=19?["#f6a96b","#7a6aa8"]:["#7cc3f0","#bfe6ff"]}
+function drawRoom(t){const D_=D||{};
+  R("#2a2238",0,0,W,46);R("#3a3050",0,40,W,6);
+  for(let y=46;y<H;y+=8)for(let x=0;x<W;x+=16)R(((x/16+y/8)%2)?"#6b4f3a":"#735641",x+((y/8)%2?8:0)-8,y,16,8);
+  const [s1,s2]=sky();[[14,66],[236,66]].forEach(([x,w])=>{R("#1d1828",x-2,6,w+4,30);R(s1,x,8,w,13);R(s2,x,21,w,13);R("#1d1828",x+w/2-1,8,2,26);R("#1d1828",x,20,w,2);
+    const night=s1==="#0b1a33";if(night){R("#fff",x+8,12,1,1);R("#fff",x+40,15,1,1);R("#f4f1c9",x+52,10,5,5)}else{R("#fff8",x+10,12,14,3);R("#fff8",x+44,16,10,3)}});
+  // TV com o mercado
+  R("#111",108,8,104,28);R("#0c2a33",110,10,100,24);const mf=D_.market_filter||{},btc=((D_.universe||[]).find(r=>r.asset==="BTC")||{});
+  SC.cx.fillStyle="#4FD1C5";SC.cx.font="bold 6px monospace";SC.cx.fillText("BTC "+(btc.price?Math.round(btc.price).toLocaleString("pt-PT"):"–"),113,18);
+  SC.cx.fillStyle=(btc.chg_24h||0)>=0?"#4FD1C5":"#FF8A80";SC.cx.fillText(((btc.chg_24h||0)>=0?"+":"")+(btc.chg_24h||0).toFixed(1)+"%",172,18);
+  SC.cx.fillStyle="#8AA0B4";SC.cx.font="5px monospace";SC.cx.fillText((mf.btc_above_sma200?"acima":"abaixo")+" da MM200 · "+((D_.counts||{}).deep_checked||0)+" analisadas",113,27);
+  for(let i=0;i<12;i++){const hgt=3+((i*37+Math.floor(t/900))%7);R(i%3?"#4FD1C5":"#FF8A80",113+i*8,32-hgt/2,3,1)}
+  // relogio
+  const n=new Date(),c_=SC.cx;c_.fillStyle="#f2f2f2";c_.beginPath();c_.arc(224,21,7,0,7);c_.fill();c_.strokeStyle="#222";c_.lineWidth=1;c_.beginPath();
+  const hA=((n.getHours()%12)+n.getMinutes()/60)/12*6.283-1.571,mA=n.getMinutes()/60*6.283-1.571;c_.moveTo(224,21);c_.lineTo(224+Math.cos(hA)*3.5,21+Math.sin(hA)*3.5);c_.moveTo(224,21);c_.lineTo(224+Math.cos(mA)*5.5,21+Math.sin(mA)*5.5);c_.stroke();
+  // planta, quadro
+  R("#2f6d3a",300,30,10,12);R("#3e8e4c",302,26,6,8);R("#8a5a3b",301,42,8,6);
+  // zona de descanso
+  R("#5a3d6e",30,192,58,10);R("#6e4c86",30,184,58,9);R("#5a3d6e",28,184,4,18);R("#5a3d6e",86,184,4,18);
+  R("#888",118,170,16,18);R("#444",120,172,12,6);R("#d33",130,180,2,2);R("#3fa9f5",168,166,10,10);R("#ddd",168,176,10,12);
+  R("#8a5a3b",238,184,36,12);R("#6b4430",240,196,4,8);R("#6b4430",268,196,4,8);R("#e8e8e8",250,186,4,3);R("#c94",258,186,6,3);
+  R("#2f6d3a",298,200,12,14);R("#3e8e4c",300,192,8,10);R("#8a5a3b",299,214,10,8);
+}
+function drawChair(i){const[x,y]=DESKS[i];R("#3b3b4f",x+10,y-1,12,11);R("#2e2e40",x+11,y,10,9)}
+function drawDesk(i,t){const[x,y]=DESKS[i],a=AGENTS[i],o=OF.data[a.id],on=o&&o.on;
+  R("#8a5a3b",x,y+10,56,12);R("#6b4430",x,y+22,56,5);R("#5a3a28",x+2,y+27,4,6);R("#5a3a28",x+50,y+27,4,6);
+  R("#222",x+30,y+1,18,11);R(on?"#163c3a":"#1a2430",x+31,y+2,16,9);
+  if(on){for(let k=0;k<4;k++){const w=3+((k*5+Math.floor(t/300)+i)%9);R(k%2?a.c:"#9fb",x+32,y+3+k*2,Math.min(w,14),1)}}
+  R("#333",x+37,y+12,4,2);R("#ddd",x+6,y+12,5,4);R("#bbb",x+12,y+13,8,3);
+}
+function drawPerson(p,t){const L=LOOK[p.a.id],x=Math.round(p.x),y=Math.round(p.y),sel=SC.sel===p.a.id;
+  const walking=p.path.length>0,ph=Math.floor(t/160)%2,sleep=p.mode==="sleep"&&!walking;
+  if(sel){SC.cx.fillStyle="#FFA94D55";SC.cx.beginPath();SC.cx.ellipse(x,y+8,9,3,0,0,7);SC.cx.fill()}
+  if(!p.sit||walking){R("#2b2b3a",x-3,y+1,2,7-(walking&&ph?2:0));R("#2b2b3a",x+1,y+1,2,7-(walking&&!ph?2:0))}
+  R(p.a.c,x-4,y-7,8,8);// tronco
+  const typing=p.mode==="work"&&p.sit&&!walking;const hy=typing?(Math.floor(t/120+p.i)%2):0;
+  R(p.a.c,x-6,y-6,2,5);R(p.a.c,x+4,y-6,2,5);R(L.skin,x-6,y-1+hy,2,2);R(L.skin,x+4,y-1+(typing?1-hy:0),2,2);
+  if(p.mode!=="work"&&!walking&&p.spot!=null&&SPOTS[p.spot].k==="cafe"){R("#fff",x+5,y-3,3,3);if(Math.floor(t/400)%2)R("#fff6",x+6,y-6,1,2)}
+  R(L.skin,x-3,y-13,6,6);R(L.hair,x-3,y-14,6,2);R(L.hair,x-3,y-13,1,3);R(L.hair,x+2,y-13,1,3);
+  if(sleep){R("#333",x-2,y-10,2,1);R("#333",x+1,y-10,2,1);const zz=Math.floor(t/600)%3;SC.cx.fillStyle="#cfe";SC.cx.font="bold 6px monospace";SC.cx.fillText("z".repeat(zz+1),x+4,y-15-zz*2)}
+  else{const bl=Math.floor((t+p.i*700)/2600)%14===0;R("#222",x-2,y-10,1,bl?1:2);R("#222",x+1,y-10,1,bl?1:2)}
+}
+function drawScene(t){if(!OF.data)return;const cx=SC.cx;cx.setTransform(K,0,0,K,0,0);drawRoom(t);DESKS.forEach((d,i)=>drawChair(i));
+  // ordem de profundidade: secretarias e pessoas por y
+  const items=[];DESKS.forEach((d,i)=>items.push({y:d[1]+10,f:()=>drawDesk(i,t)}));SC.pp.forEach(p=>items.push({y:p.y+(p.sit&&p.mode==="work"&&!p.path.length?-0.5:0.5)+(p.mode==="work"&&!p.path.length?-4:0),f:()=>drawPerson(p,t)}));
+  items.sort((a,b)=>a.y-b.y).forEach(it=>it.f());
+}
+function placeBubble(){const b=$("obub");if(!OF.data){b.hidden=true;return}
+  const cand=SC.sel?SC.pp.filter(p=>p.a.id===SC.sel):SC.pp.filter(p=>OF.data[p.a.id].on||Math.random()<.35);
+  if(!SC.bubP||SC.bubT<=0){SC.bubP=cand[(SC.bubI++)%Math.max(1,cand.length)]||SC.pp[0];SC.bubT=4.2;const o=OF.data[SC.bubP.a.id];b.innerHTML=`<b>${SC.bubP.a.nm}</b><br>${o.msgs[SC.bubI%o.msgs.length]}`}
+  const p=SC.bubP,r=SC.cv.getBoundingClientRect(),sx=r.width/W;b.hidden=false;
+  const left=Math.max(4,Math.min(r.width-b.offsetWidth-4,p.x*sx-b.offsetWidth/2));b.style.left=left+"px";b.style.top=Math.max(2,(p.y-18)*sx-b.offsetHeight)+"px";
+}
+function showDetail(){const id=SC.sel||"scan",a=AGENTS.find(x=>x.id===id),o=OF.data[id],st=SC.pp.find(p=>p.a.id===id).state;
+  $("odetail").innerHTML=`<div class="banner" style="margin-top:8px"><b>${a.nm} <span style="margin-left:6px;font-size:11px;padding:1px 7px;border-radius:99px;background:${st==="work"?"var(--up)":"var(--chip)"};color:${st==="work"?"var(--card)":"var(--mut)"}">${st==="work"?"a trabalhar":st==="sleep"?"a dormir":"em pausa"}</span></b><span style="color:var(--mut);font-size:12.5px">${esc(a.rl)} · ${esc(o.nx)}</span><ul style="margin:8px 0 0 18px;padding:0">${o.msgs.slice(0,4).map(m=>`<li>${m}</li>`).join("")}${o.more.map(m=>`<li style="color:var(--mut)">${m}</li>`).join("")}</ul></div>`}
+function loopScene(ts){if(!SC.ok)return;const dt=Math.min(.1,(ts-(SC.last||ts))/1000);SC.last=ts;
+  const open=$("s-escritorio").open&&!document.hidden;if(open&&OF.data){stepScene(dt);drawScene(ts);SC.bubT-=dt;placeBubble()}requestAnimationFrame(loopScene)}
+function renderOffice(){if(!D)return;OF.data=officeData();if(!SC.ok)initScene();
+  const st=AGENTS.map(a=>agState(a,OF.data));$("n-esc").textContent=`${st.filter(x=>x==="work").length} a trabalhar · ${st.filter(x=>x==="pause").length} em pausa${st.includes("sleep")?" · "+st.filter(x=>x==="sleep").length+" a dormir":""}`;showDetail()}
+setInterval(()=>{renderOffice();loadOfficeFiles()},60000);
+
 loadAcaso();
 async function checkVersion(){try{const t=await (await fetch("./index.html?nocache="+Date.now(),{cache:"no-store"})).text();const m=t.match(/PAGE_V="(\w+)"/);if(m&&m[1]!==PAGE_V)location.replace("./?v="+m[1])}catch(_){}}
 checkVersion();setInterval(checkVersion,600000);
