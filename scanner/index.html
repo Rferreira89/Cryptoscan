@@ -128,6 +128,40 @@ button:focus-visible,summary:focus-visible,.steps li:focus-visible{outline:2px s
 @media (prefers-reduced-motion:reduce){#toast{transition:none}}
 a{color:inherit}
 
+/* ===== Mundo 3D: o programa inteiro dentro do escritorio ===== */
+body.w3d{background:#0a0820;overflow:hidden;height:100dvh}
+#world{position:fixed;inset:0;background:#0a0820}
+#world #office{position:absolute;inset:0}
+#world #office>canvas{width:100%!important;height:100%!important;border-radius:0!important}
+#hud{position:absolute;left:0;right:0;top:0;padding:calc(10px + env(safe-area-inset-top)) 14px 0;pointer-events:none;background:linear-gradient(#0a0820ee,#0a082000)}
+#hud>*{pointer-events:auto}
+.hud-top{display:flex;align-items:baseline;justify-content:space-between}
+.hud-top h1{font-size:24px;text-shadow:0 0 12px #B794F4aa}
+#hudstats{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:6px}
+.hs{background:#0c0a24f5;border:1px solid #2b2470;border-radius:9px;padding:4px 7px;font-size:10px;color:var(--mut);line-height:1.2;white-space:nowrap;overflow:hidden}
+.hs b{display:block;color:var(--ink);font-size:13px}
+#alerts{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.al{border:0;font:600 12px/1.2 inherit;color:#0a0820;padding:6px 10px;border-radius:99px;cursor:pointer;box-shadow:0 0 14px currentColor}
+.al.buy{background:#4FD1C5}.al.open{background:#FFA94D}.al.stop{background:#FF8A80}.al.watch{background:#2b2470;color:#cfc8ff;box-shadow:none}
+.al.buy{animation:pulse 1.6s infinite}
+@keyframes pulse{50%{transform:scale(1.05);box-shadow:0 0 22px #4FD1C5}}
+#zonebar{position:absolute;left:8px;right:8px;bottom:calc(10px + env(safe-area-inset-bottom));display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+#zonebar button{flex:1 0 auto;display:flex;align-items:center;justify-content:center;gap:5px;background:#0c0a24e6;border:1px solid #2b2470;color:var(--ink);font:600 12px inherit;padding:9px 8px;border-radius:11px;cursor:pointer}
+#zonebar i{width:8px;height:8px;border-radius:50%;box-shadow:0 0 8px currentColor}
+#zonebar span{background:#FFA94D;color:#0a0820;border-radius:99px;font-size:10.5px;padding:0 6px}
+#zonebar span:empty{display:none}
+.agentcard{position:absolute;left:10px;right:10px;bottom:calc(64px + env(safe-area-inset-bottom));max-height:40dvh;overflow:auto;background:#0c0a24f2;border:1px solid #2b2470;border-radius:12px;padding:10px 12px;font-size:13px}
+.agentcard .banner{margin:0!important;background:none;padding:0}
+#sheet{position:fixed;left:0;right:0;bottom:0;height:86dvh;background:var(--bg);border-radius:18px 18px 0 0;box-shadow:0 -10px 40px #000a;transform:translateY(105%);transition:transform .28s ease;display:flex;flex-direction:column;z-index:20}
+body.sheet-open #sheet{transform:none}
+.sh-head{display:flex;align-items:center;gap:10px;padding:12px 16px 8px;border-bottom:1px solid var(--line);position:relative}
+.sh-head .grip{position:absolute;left:50%;top:5px;width:40px;height:4px;margin-left:-20px;border-radius:2px;background:var(--line)}
+.sh-head b{flex:1;font-size:18px;font-stretch:80%}
+#sh-close{background:var(--chip);border:0;color:var(--ink);width:32px;height:32px;border-radius:50%;font-size:15px;cursor:pointer}
+.sh-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-top:12px!important}
+.panel{display:none}.panel.on{display:block}
+@media (prefers-reduced-motion:reduce){#sheet{transition:none}.al.buy{animation:none}}
+
 /* Escritorio: cada agente numa secretaria, com o que esta mesmo a fazer */
 .obub{position:absolute;max-width:56%;background:var(--ink);color:var(--bg);font-size:11.5px;line-height:1.3;padding:5px 8px;border-radius:9px;pointer-events:none;box-shadow:0 4px 14px #0008}
 .obub b{color:var(--bg)}
@@ -167,28 +201,47 @@ a{color:inherit}
 @media (prefers-reduced-motion:reduce){.typing i,.bot .eye{animation:none}.bub{transition:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module" src="office3d.js?v=20261009d"></script>
+<script type="module" src="office3d.js?v=20261009e"></script>
 </head>
-<body>
-<main>
-<header><h1>Cryptoscan</h1><button id="sub" title="Atualizar agora">A carregar…</button></header>
+<body class="w3d">
+<div id="world">
+<div id="office"></div>
+<div id="hud">
+<div class="hud-top"><h1>Cryptoscan</h1><button id="sub" title="Atualizar agora">A carregar…</button></div>
+<div id="hudstats"></div>
+<div id="alerts"></div>
+</div>
+<div id="odetail" class="agentcard" hidden></div>
+<nav id="zonebar" aria-label="Zonas do escritório">
+<button data-p="ops"><i style="background:#4FD1C5"></i>Operações<span id="zb-ops"></span></button>
+<button data-p="meet"><i style="background:#68D391"></i>Reunião</button>
+<button data-p="lab"><i style="background:#B794F4"></i>Pesquisa</button>
+<button data-p="srv"><i style="background:#63B3ED"></i>Ativos</button>
+<button data-p="ctrl"><i style="background:#FF6FB5"></i>Controlo</button>
+</nav>
+<span id="n-esc" hidden></span>
+</div>
+<div id="sheet" aria-hidden="true">
+<div class="sh-head"><span class="grip"></span><b id="sh-title"></b><button id="sh-close" aria-label="Fechar">✕</button></div>
+<main class="sh-body">
+<section class="panel" data-p="ops" data-t="Mesa de operações">
 <div id="radar" aria-label="Radar de oportunidades"></div>
 <p id="rnote"></p>
+<h2>As tuas operações</h2><div id="bynote" class="note" style="margin:0 0 8px"></div><div id="ops"></div>
+<details class="sec" id="s-vigiar"><summary>A vigiar<span id="n-vigiar"></span></summary><div id="watch"></div></details>
+</section>
+<section class="panel" data-p="meet" data-t="Sala de reunião">
 <div id="mf"></div>
-<details class="sec" id="s-escritorio" open><summary>Escritório<span id="n-esc"></span></summary><div id="office"></div><div class="note" style="margin:2px 0 8px">Arrasta para rodar, junta dois dedos para aproximar, toca num agente para ver o que está a fazer. O estado é real: quem está sentado está a trabalhar (o Analista e o Guarda nunca param; os outros só à hora da sua tarefa). Em pausa vão ao café, à sala de reunião ou aos servidores; de noite dormem no sofá. Os balões mostram o trabalho verdadeiro de cada um.</div></details>
-
 <h2>Resultado</h2><div class="stats" id="score"></div><div class="note" id="scorenote" style="margin:-6px 0 4px"></div>
 <details class="sec" id="s-diario"><summary>O teu diário<span id="n-diario"></span></summary><div id="diary"></div></details>
-<h2>As tuas operações</h2><div id="bynote" class="note" style="margin:0 0 8px"></div><div id="ops"></div>
-
-<details class="sec" id="s-vigiar"><summary>A vigiar<span id="n-vigiar"></span></summary><div id="watch"></div></details>
-
+</section>
+<section class="panel" data-p="lab" data-t="Pesquisa">
+<details class="sec" id="s-acaso"><summary>Contra o acaso<span id="n-acaso"></span></summary><div id="acaso"><div class="banner">A carregar…</div></div></details>
 <details class="sec" id="s-registo"><summary>Registo<span id="n-registo"></span></summary><div id="journal"></div>
 <div id="closed" hidden></div>
 <h2>Tendência diária</h2><div id="paper"></div></details>
-
-<details class="sec" id="s-acaso"><summary>Contra o acaso<span id="n-acaso"></span></summary><div id="acaso"><div class="banner">A carregar…</div></div></details>
-
+</section>
+<section class="panel" data-p="srv" data-t="Servidores · todos os ativos">
 <details class="sec" id="s-mercado"><summary>Todos os ativos<span id="n-mercado"></span></summary>
 <div class="stats" id="stats"></div>
 <div class="bar">
@@ -214,12 +267,16 @@ a{color:inherit}
 </div>
 <div id="list"></div>
 <div class="note" id="note"></div></details>
-
+</section>
+<section class="panel" data-p="ctrl" data-t="Controlo">
+<div id="sysstate"></div>
 <details class="sec" id="s-def"><summary>Definições e ajuda</summary>
 <div class="cap"><label for="cap">O teu capital (USDC)</label><input id="cap" inputmode="decimal" placeholder="ex.: 500"><span id="capnote" style="color:var(--mut)"></span></div>
 <div class="banner" id="vbanner"><b>Como ler os sinais</b>Compras em spot e shorts em margem spot na Bybit UE. Compras só com o BTC acima da média de 200 dias; shorts só com o BTC abaixo. O score mede a qualidade do setup, não a probabilidade de ganhar: no histórico, um score alto não ganhou mais vezes. As estratégias ainda não estão validadas. No máximo 2 operações de cada vez. Cada uma usa 30% do capital atual como margem tua, com alavancagem até 10x: quanto mais apertado o stop, maior a alavancagem. A perda no stop de cada operação nunca passa de 3% do capital atual. O capital atual é o de partida mais o resultado das operações fechadas que executaste: cresce com os ganhos e encolhe com as perdas.</div>
 <div class="note"><a href="classico.html">Abrir a página antiga</a></div></details>
+</section>
 </main>
+</div>
 <div id="toast" role="status" aria-live="polite"></div>
 <script>
 const URL_DATA="https://raw.githubusercontent.com/Rferreira89/Cryptoscan/data/scan.json";
@@ -585,7 +642,7 @@ function render(){
   if(!D) return;
   const q=$("q").value.trim().toUpperCase(),s=$("sort").value,f=$("flt").value;
   const key=r=>s==="adx"||s==="rsi"?(r.analysis&&r.analysis["1d"]&&r.analysis["1d"].ok?r.analysis["1d"][s]:-1):(r[s]??-1e18);
-  renderOps();renderExtra();fillBybit();renderOffice();loadOfficeFiles();
+  renderOps();renderExtra();fillBybit();renderOffice();loadOfficeFiles();renderHud();
   let rows=D.universe.filter(r=>r.eligible&&r.timeframes);
   if(q) rows=rows.filter(r=>r.asset.toUpperCase().includes(q));
   if(f) rows=rows.filter(r=>{const a=r.analysis;
@@ -662,7 +719,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261009d";
+const PAGE_V="20261009e";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -686,7 +743,7 @@ async function loadOfficeFiles(){
   if(Date.now()-OF.loadedAt<600000)return;OF.loadedAt=Date.now();
   const txt=async f=>{try{const r=await fetch(RAW_MAIN+f+"?t="+Date.now(),{cache:"no-store"});return r.ok?await r.text():null}catch(_){return null}};
   const [af,inv,ev,rb,lg]=await Promise.all(["backtest/afinacao.md","backtest/investigacao.md","engine/events_extra.json","backtest/random_baseline.json","backtest/liga.json"].map(txt));
-  OF.files={af,inv,ev:ev&&JSON.parse(ev),rb:rb&&JSON.parse(rb),lg:lg&&JSON.parse(lg)};renderOffice();
+  OF.files={af,inv,ev:ev&&JSON.parse(ev),rb:rb&&JSON.parse(rb),lg:lg&&JSON.parse(lg)};renderOffice();if(window.Office3D&&window.Office3D.refresh)window.Office3D.refresh();
 }
 function lastEntry(md,mark){if(!md)return null;const ls=md.split("\n");let t=null,v=null;for(let i=0;i<ls.length;i++){if(ls[i].startsWith(mark+" ")&&/^\#+ \d{4}-\d\d-\d\d/.test(ls[i])){t=ls[i].replace(/^#+ /,"");v=null}const m=ls[i].match(/\*\*Veredicto:\s*([^*]+)\*\*/);if(m&&t)v=m[1].replace(/\.$/,"")}return t?{t,v}:null}
 function queueNext(md){if(!md)return null;const q=md.split("## Fila")[1];if(!q)return null;const items=q.split(/\n\d+\. /).slice(1);const it=items.find(x=>!/^\(TESTADA/.test(x.trim()));if(!it)return null;const m=it.match(/\*\*([^*]+)\*\*/);return m?m[1].replace(/\.$/,""):null}
@@ -811,11 +868,11 @@ function placeBubble(){const b=$("obub");if(!OF.data){b.hidden=true;return}
   const p=SC.bubP,r=SC.cv.getBoundingClientRect(),sx=r.width/W;b.hidden=false;
   const left=Math.max(4,Math.min(r.width-b.offsetWidth-4,p.x*sx-b.offsetWidth/2));b.style.left=left+"px";b.style.top=Math.max(2,(p.y-18)*sx-b.offsetHeight)+"px";
 }
-function showDetail(){if(!$("odetail")||!OF.data)return;const id=OF.sel||"scan",a=AGENTS.find(x=>x.id===id),o=OF.data[id],st=(OF.states||{})[id]||"pause";
+function showDetail(){if(!$("odetail")||!OF.data)return;$("odetail").hidden=!OF.sel;if(!OF.sel)return;const id=OF.sel||"scan",a=AGENTS.find(x=>x.id===id),o=OF.data[id],st=(OF.states||{})[id]||"pause";
   $("odetail").innerHTML=`<div class="banner" style="margin-top:8px"><b>${a.nm} <span style="margin-left:6px;font-size:11px;padding:1px 7px;border-radius:99px;background:${st==="work"?"var(--up)":"var(--chip)"};color:${st==="work"?"var(--card)":"var(--mut)"}">${st==="work"?"a trabalhar":st==="sleep"?"a dormir":"em pausa"}</span></b><span style="color:var(--mut);font-size:12.5px">${esc(a.rl)} · ${esc(o.nx)}</span><ul style="margin:8px 0 0 18px;padding:0">${o.msgs.slice(0,4).map(m=>`<li>${m}</li>`).join("")}${o.more.map(m=>`<li style="color:var(--mut)">${m}</li>`).join("")}</ul></div>`}
 function loopScene(ts){if(!SC.ok)return;const dt=Math.min(.1,(ts-(SC.last||ts))/1000);SC.last=ts;
-  const open=$("s-escritorio").open&&!document.hidden;if(open&&OF.data){stepScene(dt);drawScene(ts);SC.bubT-=dt;placeBubble()}requestAnimationFrame(loopScene)}
-window.OFAPI={agents:AGENTS,data:()=>OF.data,states:()=>OF.states,sel:()=>OF.sel,select:id=>{OF.sel=id;showDetail()},D:()=>D};
+  const open=!document.hidden&&!document.body.classList.contains("sheet-open");if(open&&OF.data){stepScene(dt);drawScene(ts);SC.bubT-=dt;placeBubble()}requestAnimationFrame(loopScene)}
+window.OFAPI={agents:AGENTS,data:()=>OF.data,states:()=>OF.states,sel:()=>OF.sel,select:id=>{OF.sel=OF.sel===id?null:id;showDetail()},D:()=>D,openZone:k=>openPanel(k),files:()=>OF.files};
 let waited3d=0;
 function startScene(){
   if(SC.ok)return;
@@ -828,6 +885,39 @@ function renderOffice(){if(!D)return;OF.data=officeData();
   if(!SC.ok)startScene();$("n-esc").textContent=`${st.filter(x=>x==="work").length} a trabalhar · ${st.filter(x=>x==="pause").length} em pausa${st.includes("sleep")?" · "+st.filter(x=>x==="sleep").length+" a dormir":""}`;showDetail()}
 setInterval(()=>{renderOffice();loadOfficeFiles()},60000);
 
+
+// ===== Mundo: abrir zonas, painel de cima, alertas =====
+const PANEL_T={};document.querySelectorAll(".panel").forEach(p=>PANEL_T[p.dataset.p]=p.dataset.t);
+const ZONE2P={ops:"ops",meet:"meet",cafe:"meet",lab:"lab",srv:"srv",ctrl:"ctrl"};
+function openPanel(k,focus){k=ZONE2P[k]||k;document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("on",p.dataset.p===k));
+  $("sh-title").textContent=PANEL_T[k]||"";document.body.classList.add("sheet-open");$("sheet").setAttribute("aria-hidden","false");
+  const b=document.querySelector(".sh-body");b.scrollTop=0;if(focus){const el=document.querySelector(focus);if(el)setTimeout(()=>el.scrollIntoView({block:"start",behavior:"smooth"}),300)}
+  try{history.replaceState(null,"","#"+k)}catch(_){}}
+function closeSheet(){document.body.classList.remove("sheet-open");$("sheet").setAttribute("aria-hidden","true");try{history.replaceState(null,"",location.pathname+location.search)}catch(_){}}
+$("sh-close").addEventListener("click",closeSheet);
+$("zonebar").addEventListener("click",e=>{const b=e.target.closest("button");if(b)openPanel(b.dataset.p)});
+// arrastar a pega para baixo fecha
+(()=>{let y0=null;const h=document.querySelector(".sh-head");h.addEventListener("touchstart",e=>{y0=e.touches[0].clientY},{passive:true});h.addEventListener("touchend",e=>{if(y0!=null&&e.changedTouches[0].clientY-y0>60)closeSheet();y0=null})})();
+function renderHud(){if(!D)return;const C=D.config||{},J=(D.journal||{}).rows||[];
+  const dec=new Set(J.filter(r=>r.executed===false).map(r=>r.id));
+  const act=(D.active_signals||[]).filter(s=>s.mode!=="PAPER"&&!dec.has(s.id));
+  const open=act.filter(s=>s.status==="TRIGGERED"),wait=act.filter(s=>s.status!=="TRIGGERED");
+  const mine=J.filter(r=>r.executed===true&&r.status==="CLOSED"),R=r=>r.user_r!=null?r.user_r:r.result_r,w=mine.filter(r=>R(r)>0).length;
+  const btc=(D.universe||[]).find(r=>r.asset==="BTC")||{};
+  $("hudstats").innerHTML=[["Capital USDC",C.capital_usdc!=null?num(C.capital_usdc,2):"–"],["Abertas",open.length+"/"+(C.max_open_positions||2)],["Ganhas/perdidas",`<span class="up">${w}</span> / <span class="dn">${mine.length-w}</span>`],[`BTC <span class="${btc.chg_24h>=0?"up":"dn"}">${btc.chg_24h>=0?"+":""}${num(btc.chg_24h,1)}%</span>`,btc.price?Math.round(btc.price).toLocaleString("pt-PT"):"–"]].map(([k,v])=>`<div class="hs">${k}<b>${v}</b></div>`).join("");
+  const chips=[];
+  if(D.halt)chips.push(`<button class="al stop" data-go="ctrl">⛔ Travão ativo</button>`);
+  wait.forEach(s=>chips.push(`<button class="al buy" data-go="ops" data-id="${esc(s.id)}">${s.direction==="SHORT"?"🔻 SHORT":"🟢 COMPRA"} ${esc(s.asset)} · à espera de entrada</button>`));
+  open.forEach(s=>{const cur=curPrice(s.asset),p=s.position||{},pl=cur&&p.entry?(cur/p.entry-1)*100*(s.direction==="SHORT"?-1:1):null;chips.push(`<button class="al open" data-go="ops" data-id="${esc(s.id)}">● ${esc(s.asset)} ${pl==null?"aberta":(pl>0?"+":"")+num(pl,1)+"%"}</button>`)});
+  if(!chips.length)chips.push(`<button class="al watch" data-go="ops">Sem sinais agora · ${(D.counts||{}).deep_checked||0} moedas analisadas</button>`);
+  $("alerts").innerHTML=chips.join("");$("zb-ops").textContent=act.length||"";
+  // estado do sistema (zona de Controlo)
+  const age=Math.round((Date.now()/1000-D.generated_at)/60),src=D.sources||{};
+  $("sysstate").innerHTML=`<div class="banner"><b>Estado do sistema</b>Último scan: ${hm(D.generated_at)} (há ${age} min) · ${(D.counts||{}).pairs_seen||"–"} pares vistos, ${(D.counts||{}).deep_checked||"–"} analisados a fundo.<br>Fontes de preços: ${Object.entries(src).map(([k,v])=>`${esc(k)} ${v.ok?"✅":"❌"}`).join(" · ")}<br>${D.halt?`<span class="dn">Travão ativo: ${esc(D.halt)}</span>`:"Sem travões ativos."} ${D.next_event?`<br>Próximo evento: ${esc(D.next_event.name)}, ${hm(D.next_event.t)}.`:""}</div>`;
+}
+$("alerts").addEventListener("click",e=>{const b=e.target.closest(".al");if(!b)return;openPanel(b.dataset.go,b.dataset.id?`.op[data-id="${b.dataset.id}"]`:null)});
+window.OFAPI_openZone=k=>openPanel(k);
+if(/^#(ops|meet|lab|srv|ctrl)$/.test(location.hash))openPanel(location.hash.slice(1));
 loadAcaso();
 async function checkVersion(){try{const t=await (await fetch("./index.html?nocache="+Date.now(),{cache:"no-store"})).text();const m=t.match(/PAGE_V="(\w+)"/);if(m&&m[1]!==PAGE_V)location.replace("./?v="+m[1])}catch(_){}}
 checkVersion();setInterval(checkVersion,600000);
