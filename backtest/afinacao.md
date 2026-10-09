@@ -23,6 +23,21 @@ entrada, com o veredicto. Hipóteses testadas até agora: 3.
    derivatives, rr) têm relação com o resultado e quais não têm: essa
    análise é a base da hipótese seguinte.
 
+2. (PEDIDA em 2026-10-09, testar na próxima execução, antes da H4 "sem
+   stop na entrada".) **Stop de tempo.** Lógica: operações que não chegam
+   ao 1.º objetivo em poucos dias prendem capital e uma das 2 vagas, e
+   com 0,5% de comissão ida e volta o tempo parado só custa; o Rui
+   reparou nisto com a PUMP (aberta há 5,5 dias sem chegar a lado
+   nenhum). Regra: se ao fim de N dias depois da entrada o 1.º objetivo
+   ainda não foi atingido, fechar o resto da posição ao fecho da vela de
+   4H seguinte. Grelha: N = 2, 3, 5, 7 dias e a versão atual (30 dias).
+   Medir também o efeito nas vagas: com o stop de tempo libertam-se vagas
+   mais cedo, por isso corre a seleção de carteira (afinacao_lib.trades)
+   com cada N e não só a simulação isolada. Critérios: os de sempre,
+   incluindo ficar acima do percentil 95 das entradas ao acaso (os
+   controlos com o mesmo stop de tempo). Se reduzir a perda mas continuar
+   negativa, regista "reduz a perda, continua negativa".
+
 ## Entradas
 
 ### 2026-10-05 — H1: o score prevê o resultado? (score mínimo mais alto)
