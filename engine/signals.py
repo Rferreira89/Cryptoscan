@@ -117,6 +117,7 @@ def decide(row, c4, cfg, v, btc_reg, regime_changed, market_ok=True,
         sc = confluence.score(s, p, a4, an.get("mtf_conflict"), reg, btc_reg,
                               row.get("derivatives"), row["asset"] == "BTC",
                               regime_changed)
+        sc["warnings"] = confluence.structure_warnings(a4, a1)
         # Alavancagem desta operacao: parte do valor configurado e so pode
         # descer, nunca subir por o score ser alto.
         lev, why = operation_leverage(cfg, p, sc, reg, a1, btc_reg,
@@ -155,6 +156,7 @@ def decide(row, c4, cfg, v, btc_reg, regime_changed, market_ok=True,
                mode=s.get("mode", "REAL"),
                notes=s["notes"], score=sc["score"], score_label=sc["label"],
                families=sc["families"], conflicts=sc["conflicts"],
+               warnings=sc.get("warnings", []),
                plan={k: ([_fmt(x) for x in val] if k in ("entry_zone", "tp")
                          else _fmt(val) if k in ("entry_ref", "stop") else val)
                      for k, val in p.items()},
@@ -435,6 +437,7 @@ def update_state(state, rows, cfg, now, daily=None):
                "plan": d["plan"], "score": d["score"],
                "score_label": d["score_label"], "regime": d["regime"],
                "confidence": d["confidence"], "conflicts": d["conflicts"],
+               "warnings": d.get("warnings", []),
                "explain": explain(r), "issued_at": now,
                "expires_at": now + cfg["signal_expiry_hours"] * 3600,
                "status": "ACTIVE", "mode": d["mode"], "correlation": corr,

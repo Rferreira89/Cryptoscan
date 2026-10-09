@@ -146,6 +146,8 @@ a{color:inherit}
 <div id="closed" hidden></div>
 <h2>Tendência diária</h2><div id="paper"></div></details>
 
+<details class="sec" id="s-acaso"><summary>Contra o acaso<span id="n-acaso"></span></summary><div id="acaso"><div class="banner">A carregar…</div></div></details>
+
 <details class="sec" id="s-mercado"><summary>Todos os ativos<span id="n-mercado"></span></summary>
 <div class="stats" id="stats"></div>
 <div class="bar">
@@ -327,6 +329,7 @@ function sigCard(s){
   return `<div class="op" data-id="${esc(s.id)}" data-asset="${esc(s.asset)}"><h3>${esc(s.asset)} <span class="side${sh?" sh":""}">${sh?"Short":"Compra"}</span><span class="state">${trig?"operação aberta":"à espera de entrada, válido até "+hm(s.expires_at)}</span></h3>
   <div class="meta">${esc(STR[s.strategy]||s.strategy)}, ${esc(s.pair)}, emitido ${hm(s.issued_at)}</div>
   ${trig?plNow(s):""}
+  ${(s.warnings||[]).length?`<div class="warn" style="margin:2px 0 10px;font-size:13.5px">⚠️ Atenção: ${s.warnings.map(esc).join("; ")}. Não muda o sinal, mas aumenta o risco de falhar.</div>`:""}
   ${trig?"":readyBox(s)}
   ${ladder(s.plan,s.asset,sh,trig?s.position:null)}
   <div class="bybit" data-pair="${esc(s.pair)}" data-pos="${s.plan.position_pct}" data-entry="${s.plan.entry_ref}" data-asset="${esc(s.asset)}" data-lev="${s.plan.leverage?s.plan.leverage.use:1}" data-col="${s.plan.collateral_usdc||""}"></div>
@@ -362,6 +365,7 @@ function watchCard(r,d){
   <div class="why"><span>Contexto:</span> ${esc(d.notes.join("; "))}</div>
   <div class="why"><span>Se o gatilho ocorrer:</span> R:R 1:${num(d.plan.rr,2)}, alavancagem ${d.plan.leverage&&d.plan.leverage.use>1?d.plan.leverage.use+"x":"1x"}${d.plan.leverage&&d.plan.leverage.reason?" ("+esc(d.plan.leverage.reason)+")":""}</div>
   ${d.conflicts.length?`<div class="warn">Conflito: ${d.conflicts.map(esc).join("; ")}</div>`:""}
+  ${(d.warnings||[]).length?`<div class="warn">Atenção: ${d.warnings.map(esc).join("; ")}</div>`:""}
   </details>
   <div class="why"><span>Ainda não é sinal. Só entras depois do aviso de compra no Telegram.</span></div></div>`;
 }
@@ -457,6 +461,25 @@ function renderDiary(mine,R){
     return `<tr><td><b>${esc(r.asset)}</b>${r.side==="SHORT"?" ▼":""}<br><span style="color:var(--mut);font-size:12px">${dd(r.issued_at)}${r.closed_at?" → "+dd(r.closed_at):""}</span></td><td>${price(ent)}${r.exit?"<br><span style='color:var(--mut);font-size:12px'>saída "+price(r.exit)+"</span>":""}</td><td>${res}</td></tr>`}).join("");
   const cap=now!=null?`<div class="stats" style="grid-template-columns:repeat(3,1fr)"><div class="stat"><b>${num(now,2)}</b><span>Capital agora</span></div><div class="stat"><b>${base!=null?num(base,0):"–"}</b><span>Capital de partida</span></div><div class="stat"><b class="${base!=null&&now>=base?"up":"dn"}">${base!=null?(now>=base?"+":"")+num((now/base-1)*100,1)+"%":"–"}</b><span>Variação</span></div></div>`:"";
   $("diary").innerHTML=cap+(rows?`<table class="diary">${rows}</table>`:`<div class="banner">Ainda sem operações executadas. Carrega em "Executei" no Telegram quando entrares.</div>`)+`<div class="note">Só as operações que marcaste como executadas. Valores em USDC estimados pelo plano, com comissões; o extrato da Bybit é que conta. Se o teu preço de entrada foi diferente, envia /preco MOEDA preço no Telegram.</div>`;
+}
+// Teste contra entradas ao acaso: backtest (tools/random_baseline.py) e
+// sinais ao vivo (tools/liga.py). Ficheiros do ramo main, atualizados pelos
+// agentes; falta de ficheiro = ainda sem resultado.
+const SNAME=k=>(STR[k.replace(" (papel)","").replace("_SHORT","")]||k)+(k.includes("_SHORT")?" (short)":"")+(k.includes("(papel)")?" · papel":"");
+async function loadAcaso(){
+  const get=async f=>{try{const r=await fetch("../backtest/"+f+"?t="+Date.now(),{cache:"no-store"});return r.ok?await r.json():null}catch(_){return null}};
+  const [bt,lg]=await Promise.all([get("random_baseline.json"),get("liga.json")]);
+  const row=(k,v,live)=>{const ok=v.vantagem&&(!live||v.n>=30);const tag=live&&v.n<30?`<span style="color:var(--mut)">amostra curta</span>`:ok?`<b class="up">bate</b>`:`<b class="dn">não bate</b>`;
+    return `<tr><td><b>${esc(k==="TODAS"?"Todas":SNAME(k))}</b><br><span style="color:var(--mut)">${v.n} operações</span></td><td>${v.r_real>0?"+":""}${num(v.r_real,2)}R</td><td>${num(v.r_acaso_mediana,2)}R<br><span style="color:var(--mut)">top 5%: ${num(v.r_acaso_p95,2)}R</span></td><td>${tag}<br><span style="color:var(--mut)">melhor que ${num(v.percentil,0)}%</span></td></tr>`};
+  const tbl=(o,live)=>{const ks=Object.keys(o).sort((a,b)=>a==="TODAS"?-1:b==="TODAS"?1:o[b].n-o[a].n);return `<div class="tw"><table><tr><th>Estratégia</th><th>Real</th><th>Ao acaso</th><th>Vantagem</th></tr>${ks.map(k=>row(k,o[k],live)).join("")}</table></div>`};
+  let h="";
+  if(bt){const b=Object.fromEntries(Object.entries(bt).filter(([k])=>!k.startsWith("_")));const t=b.TODAS;
+    $("n-acaso").textContent=t?(t.vantagem?"bate o acaso":"não bate o acaso"):"";
+    h+=`<div class="banner"><b>Histórico (backtest)</b>Cada operação do sistema comparada com ${bt._reps} séries de entradas ao acaso na mesma moeda, até 15 dias antes ou depois, com o mesmo stop, objetivos e custos. Só há vantagem acima dos 95%.</div>${tbl(b,false)}`}
+  else h+=`<div class="banner">Teste do histórico ainda sem resultado.</div>`;
+  const es=lg&&lg.estrategias||{};
+  h+=Object.keys(es).length?`<div class="banner" style="margin-top:12px"><b>Ao vivo (liga)</b>Os sinais emitidos desde o arranque, contra o mesmo acaso. São precisas 30 operações fechadas por estratégia para concluir. Atualizado ${hm(lg.atualizado)}.</div>${tbl(es,true)}`:`<div class="banner" style="margin-top:12px"><b>Ao vivo (liga)</b>Ainda sem sinais fechados com histórico de velas suficiente. Os agentes atualizam esta tabela três vezes por semana.</div>`;
+  $("acaso").innerHTML=h;
 }
 function renderJournal(){
   const J=D.journal;if(!J){$("journal").innerHTML="";return}
@@ -598,7 +621,8 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261008b";
+const PAGE_V="20261009a";
+loadAcaso();
 async function checkVersion(){try{const t=await (await fetch("./index.html?nocache="+Date.now(),{cache:"no-store"})).text();const m=t.match(/PAGE_V="(\w+)"/);if(m&&m[1]!==PAGE_V)location.replace("./?v="+m[1])}catch(_){}}
 checkVersion();setInterval(checkVersion,600000);
 load();setInterval(load,60000);

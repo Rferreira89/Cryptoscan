@@ -93,6 +93,14 @@ def invest_line(position_pct, risk_pct, lev, usdc=None):
             "(confirma na Bybit)")
 
 
+def warn_line(s):
+    """Avisos so informativos (nao mudam a decisao): quebras de estrutura
+    recentes contra a operacao."""
+    w = s.get("warnings") or []
+    return ("⚠️ Atenção: " + "; ".join(w) + ". Não muda o sinal, mas aumenta "
+            "o risco de falhar.\n") if w else ""
+
+
 def targets_line(p):
     """Objetivos e vendas, conforme o esquema de parciais da operacao."""
     parts = p.get("partials", [50, 30, 20])
@@ -156,7 +164,7 @@ def short_text(e, s, head, note):
                 f"Stop (recompra): {_px(p['stop'])} (+{p['stop_pct']}%), ACIMA "
                 "da entrada\n"
                 f"{buys}\n"
-                f"R:R 1:{p['rr']} · válido 12h\n{note}")
+                f"R:R 1:{p['rr']} · válido 12h\n{warn_line(s)}{note}")
     if k == "TRIGGERED":
         return (f"🔵 ENTRADA (short) — {head}\nPreço entrou na zona de venda "
                 f"({_px(e['price'])}). Coloca o stop de recompra em "
@@ -255,7 +263,7 @@ def alert_text(e, sigs, note):
                 f"{invest_line(p['position_pct'], p['risk_pct'], p.get('leverage'), p.get('position_usdc'))}\n"
                 f"Stop: {_px(p['stop'])} (-{p['stop_pct']}%)\n"
                 f"{targets_line(p)}\n"
-                f"R:R 1:{p['rr']} · válido 12h\n{note}")
+                f"R:R 1:{p['rr']} · válido 12h\n{warn_line(s)}{note}")
     if k == "TRIGGERED":
         return (f"🔵 ENTRADA — {head}\nPreço entrou na zona de compra "
                 f"({_px(e['price'])}). Coloca o stop em {_px(p['stop'])}.")

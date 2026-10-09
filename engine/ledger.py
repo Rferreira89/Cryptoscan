@@ -35,6 +35,7 @@ def apply(state, events):
                    "risk_pct": p["risk_pct"], "position_pct": p["position_pct"],
                    "position_usdc": p.get("position_usdc"),
                    "risk_usdc": p.get("risk_usdc"),
+                   "partials": p.get("partials"),
                    "status": "WAITING", "tp_hit": 0}
             led.append(rec)
             by_id[rec["id"]] = rec

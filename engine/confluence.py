@@ -96,3 +96,28 @@ def score(setup, plan, a4, mtf_conflict, reg, btc_reg, deriv, is_btc,
     return {"score": total, "label": classify(total),
             "families": {k: round(v, 2) for k, v in f.items()},
             "conflicts": conflicts}
+
+
+# Quebras de estrutura recentes contra a operacao. So informacao: nao entram
+# no score, nos conflitos, na alavancagem nem na decisao (nao ha backtest que
+# prove que melhoram o resultado). Nos shorts a analise corre sobre as velas
+# invertidas, por isso "DOWN" no espelho e uma subida real: a regra e a mesma.
+RECENT_BARS = {"4h": 6, "1d": 3}          # ultimas 24 horas / ultimos 3 dias
+TF_NAME = {"4h": "4H", "1d": "diário"}
+
+
+def structure_warnings(a4, a1):
+    out = []
+    for tf, a in (("1d", a1), ("4h", a4)):
+        ev = (a or {}).get("event")
+        if not ev or ev.get("direction") != "DOWN":
+            continue
+        if ev.get("bars_ago", 99) > RECENT_BARS[tf]:
+            continue
+        what = ("mudança de estrutura" if ev["type"] == "CHOCH"
+                else "quebra de estrutura")
+        n = ev["bars_ago"]
+        when = "na última vela" if n == 0 else \
+            f"há {n} vela{'s' if n > 1 else ''}"
+        out.append(f"{what} contra a operação no {TF_NAME[tf]} ({when})")
+    return out

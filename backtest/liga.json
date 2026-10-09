@@ -1,0 +1,35 @@
+{
+ "atualizado": 1791548081,
+ "reps": 1000,
+ "min_n": 30,
+ "sem_historico": 0,
+ "estrategias": {
+  "BREAKOUT": {
+   "n": 3,
+   "r_real": -1.0,
+   "r_acaso_mediana": -0.413,
+   "r_acaso_p95": 1.227,
+   "percentil": 47.2,
+   "vantagem": false,
+   "veredicto": "amostra insuficiente"
+  },
+  "PULLBACK": {
+   "n": 2,
+   "r_real": -1.0,
+   "r_acaso_mediana": -1.022,
+   "r_acaso_p95": 1.163,
+   "percentil": 52.5,
+   "vantagem": false,
+   "veredicto": "amostra insuficiente"
+  },
+  "TODAS": {
+   "n": 5,
+   "r_real": -1.0,
+   "r_acaso_mediana": -0.51,
+   "r_acaso_p95": 0.732,
+   "percentil": 24.0,
+   "vantagem": false,
+   "veredicto": "amostra insuficiente"
+  }
+ }
+}
