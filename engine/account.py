@@ -20,6 +20,7 @@ import json
 import os
 import sys
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 
@@ -56,7 +57,13 @@ def get(path, params=None):
     try:
         with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
             body = json.loads(r.read().decode())
-    except Exception as e:  # rede, HTTP, JSON
+    except urllib.error.HTTPError as e:
+        try:
+            msg = e.read().decode()[:120]
+        except Exception:
+            msg = ""
+        raise AccountError(f"{path}: HTTP {e.code} {msg}") from None
+    except Exception as e:  # rede, JSON
         raise AccountError(f"{path}: {type(e).__name__}") from None
     if body.get("retCode") != 0:
         raise AccountError(f"{path}: {body.get('retCode')} "
