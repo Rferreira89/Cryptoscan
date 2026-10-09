@@ -7,6 +7,26 @@ avaliada uma única vez). Janela desde 2026-10-03 (decisão do Rui): últimos 24
 meses, 18 de desenho e 6 de reserva; menos de 40 operações fora da amostra
 dá "AMOSTRA INSUFICIENTE".
 
+## Fila de hipóteses pedidas pelo Rui (testar por esta ordem, antes de escolher outras)
+
+1. (PEDIDA em 2026-10-09, testar na próxima execução.) **Oversold Bounce
+   no 4H.** Lógica: em mercado de alta, quedas rápidas levam o RSI de 4H a
+   sobrevenda por venda forçada; a primeira vela de recuperação marca o fim
+   da pressão vendedora. Difere da "compra de quedas" de 2026-10-04
+   (diário, sem gatilho) e do sweep de liquidez ao vivo (exige furar um
+   fundo): aqui o gatilho é RSI + vela de recuperação no 4H. Regra (só
+   compras, com o BTC acima da SMA200): RSI14 de 4H abaixo de X numa das
+   últimas 3 velas; entrada na abertura seguinte a uma vela de 4H que fecha
+   acima do máximo da vela anterior com RSI a subir; stop abaixo do mínimo
+   da queda (mínimo de 1,25 ATR); objetivos na média de 20 velas de 4H e no
+   último máximo relevante; saída ao fim de H dias se nada for atingido.
+   Grelha (escrever antes de testar, no máximo 6): X ∈ {25, 30}; H ∈ {3, 7};
+   exigir a moeda acima da sua EMA200 diária ∈ {sim, não} (com X=30, H=3).
+   Critérios: os seis de sempre MAIS o teste contra o acaso
+   (tools/random_baseline, mesma geometria) acima do percentil 95. Comissão
+   de 0,25% por lado. Veredicto máximo: CANDIDATA (papel durante 30
+   operações ou 8 semanas antes de dinheiro real).
+
 ## Hipóteses anteriores a este diário (até 2026-10-02, período 2021-2026)
 
 Nenhuma validada. 4H: recuo, quebra com reteste, sweep de liquidez, fundo de
