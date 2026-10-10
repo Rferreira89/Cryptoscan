@@ -227,7 +227,9 @@ class Compounding(unittest.TestCase):
     def test_live_config(self):
         c = config.load("config.json")
         self.assertTrue(c["compound"])
-        self.assertEqual(c["capital_usdc"], 83)
+        self.assertEqual(c["capital_usdc"], 155)
+        # todas as vagas cheias nunca passam do capital (sem margem emprestada)
+        self.assertLessEqual(c["stake_pct"] * c["max_open_positions"], 100)
 
 
 class StopCountsAtStopPrice(unittest.TestCase):
