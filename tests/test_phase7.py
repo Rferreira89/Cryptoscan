@@ -239,7 +239,7 @@ class Reports(unittest.TestCase):
         self.assertEqual(reports.due(RES, st, self.ts(2026, 10, 3, 12)), [])
         out = reports.due(RES, st, self.ts(2026, 10, 5, 9))        # segunda
         self.assertEqual([k for k, _ in out], ["daily", "weekly"])
-        self.assertIn("Nenhuma operação fechada", out[1][1])
+        self.assertIn("nenhum fechado esta semana", out[1][1])
 
     def test_health_alert_only_on_change(self):
         st = {"reports": {"daily": "x"}}

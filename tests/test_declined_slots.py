@@ -76,3 +76,23 @@ class DeclinedSlots(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class DailyReportDeclined(unittest.TestCase):
+    def test_nao_executada_nao_aparece_como_em_curso(self):
+        from engine import reports
+        st = {"signals": {
+                "ENA-X-1": {"id": "ENA-X-1", "asset": "ENA", "strategy": "LIQUIDITY_SWEEP",
+                            "status": "TRIGGERED",
+                            "position": {"stop": 0.19, "tp_hit": 0}},
+                "ICP-X-2": {"id": "ICP-X-2", "asset": "ICP", "strategy": "LIQUIDITY_SWEEP",
+                            "status": "TRIGGERED",
+                            "position": {"stop": 2.83, "tp_hit": 0}}},
+              "ledger": [{"id": "ENA-X-1", "asset": "ENA", "kind": "4H",
+                          "status": "OPEN", "executed": False},
+                         {"id": "ICP-X-2", "asset": "ICP", "kind": "4H",
+                          "status": "OPEN", "executed": True}]}
+        op, skip = reports._open_lines(st)
+        self.assertEqual(len(op), 1)
+        self.assertIn("ICP", op[0])
+        self.assertEqual(skip, ["ENA"])

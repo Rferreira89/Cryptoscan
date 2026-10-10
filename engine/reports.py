@@ -11,8 +11,15 @@ STR = {"PULLBACK": "recuo", "BREAKOUT": "quebra", "LIQUIDITY_SWEEP": "sweep",
 
 
 def _open_lines(state):
-    out = []
-    for s in state.get("signals", {}).values():
+    """Operacoes em curso. As marcadas "nao executei" ficam de fora: o Rui
+    nao as tem; continuam so a ser seguidas para as estatisticas."""
+    out, skip = [], []
+    no_ids, no_trend = ledger.declined(state)
+    for k, s in state.get("signals", {}).items():
+        if k in no_ids or s.get("id") in no_ids:
+            if s["status"] in ("ACTIVE", "TRIGGERED"):
+                skip.append(s["asset"])
+            continue
         if s["status"] == "TRIGGERED":
             out.append(f"• {s['asset']} ({STR.get(s['strategy'], s['strategy'])})"
                        f": stop {px_str(s['position']['stop'])}, TPs "
@@ -21,8 +28,11 @@ def _open_lines(state):
             out.append(f"• {s['asset']}: à espera de entrada até "
                        f"{px_str(s['plan']['entry_zone'][1])}")
     for a, p in state.get("paper_trend", {}).get("positions", {}).items():
+        if a in no_trend:
+            skip.append(a)
+            continue
         out.append(f"• {a} (tendência diária): stop {px_str(p['stop0'])}")
-    return out
+    return out, skip
 
 
 def daily(res, state):
@@ -49,9 +59,12 @@ def daily(res, state):
                  "atualizar.")
     if res.get("halt"):
         L.append(f"⛔ Operações suspensas: {res['halt']}.")
-    op = _open_lines(state)
+    op, skip = _open_lines(state)
     L.append("Operações em curso:\n" + "\n".join(op) if op
              else "Sem operações em curso.")
+    if skip:
+        L.append("Não executadas (só seguidas para as estatísticas, sem "
+                 "avisos): " + ", ".join(sorted(set(skip))) + ".")
     if watch:
         L.append("A vigiar:\n" + "\n".join(
             f"• {r['asset']} ({STR.get(r['decision']['strategy'])}): "
@@ -63,19 +76,33 @@ def daily(res, state):
 
 
 def weekly(state, now):
-    s = ledger.summary(state.get("ledger", []), since=now - 7 * 86400)
-    a = ledger.summary(state.get("ledger", []))
+    """Separa os sinais (todos, para medir as estrategias) das operacoes que
+    o Rui executou (o dinheiro dele): so estas falam em % do capital."""
+    led = state.get("ledger", [])
+    s = ledger.summary(led, since=now - 7 * 86400)
+    a = ledger.summary(led)
     L = ["📈 RELATÓRIO SEMANAL"]
+    if any(r.get("executed") is not None for r in led):
+        m = ledger.summary(led, since=now - 7 * 86400, executed_only=True)
+        mt = ledger.summary(led, executed_only=True)
+        if m["closed"]:
+            L.append(f"As tuas operações esta semana: {m['closed']} fechadas, "
+                     f"acerto {m['win_rate']:.0f}%, {m['total_r']:+.2f}R "
+                     f"({m['capital_pct']:+.2f}% do capital).")
+        else:
+            L.append("As tuas operações: nenhuma fechada esta semana.")
+        L.append(f"Desde o início: {mt['closed']} fechadas, "
+                 f"{mt['total_r']:+.2f}R; {mt['open']} em curso.")
     if not s["closed"]:
-        L.append("Nenhuma operação fechada esta semana.")
+        L.append("Sinais: nenhum fechado esta semana.")
     else:
-        L.append(f"Fechadas: {s['closed']} · acerto {s['win_rate']:.0f}% · "
-                 f"resultado {s['total_r']:+.2f}R ({s['capital_pct']:+.2f}% "
-                 "do capital).")
+        L.append(f"Sinais fechados esta semana (contam também os que não "
+                 f"executaste): {s['closed']}, acerto {s['win_rate']:.0f}%, "
+                 f"{s['total_r']:+.2f}R.")
         for k, v in s["by_strategy"].items():
-            L.append(f"• {STR.get(k, k)}: {v['n']} op., {v['sum_r']:+.2f}R")
-    L.append(f"Desde o início: {a['closed']} fechadas, {a['total_r']:+.2f}R, "
-             f"queda máxima {a['max_drawdown_r']:.1f}R.")
+            L.append(f"• {STR.get(k, k)}: {v['n']} sinais, {v['sum_r']:+.2f}R")
+    L.append(f"Sinais desde o início: {a['closed']} fechados, "
+             f"{a['total_r']:+.2f}R, queda máxima {a['max_drawdown_r']:.1f}R.")
     return "\n".join(L)
 
 
