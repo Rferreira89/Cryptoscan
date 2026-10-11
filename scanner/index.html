@@ -129,7 +129,8 @@ button:focus-visible,summary:focus-visible,.steps li:focus-visible{outline:2px s
 a{color:inherit}
 
 /* navegacao */
-#homeview[hidden],#arenaview[hidden],#rewview[hidden]{display:none}
+#homeview[hidden],#arenaview[hidden],#rewview[hidden],#secview[hidden]{display:none}
+#secview{position:absolute;right:12px;bottom:calc(244px + env(safe-area-inset-bottom));width:46px;height:46px;border-radius:50%;background:#0c0a24e6;border:1px solid #63B3ED;color:#63B3ED;font-size:20px;cursor:pointer;box-shadow:0 0 14px #63B3ED44;z-index:4}
 #rewview{position:absolute;right:12px;bottom:calc(188px + env(safe-area-inset-bottom));width:46px;height:46px;border-radius:50%;background:#0c0a24e6;border:1px solid #F6C453;color:#F6C453;font-size:20px;cursor:pointer;box-shadow:0 0 14px #F6C45344;z-index:4}
 #arenaview{position:absolute;right:12px;bottom:calc(132px + env(safe-area-inset-bottom));width:46px;height:46px;border-radius:50%;background:#0c0a24e6;border:1px solid #FF6FB5;color:#FF6FB5;font-size:20px;cursor:pointer;box-shadow:0 0 14px #FF6FB544;z-index:4}
 #homeview{position:absolute;right:12px;bottom:calc(76px + env(safe-area-inset-bottom));width:46px;height:46px;border-radius:50%;background:#0c0a24e6;border:1px solid #4FD1C5;color:#4FD1C5;font-size:22px;cursor:pointer;box-shadow:0 0 14px #4FD1C544;z-index:4}
@@ -239,7 +240,7 @@ body.sheet-open #sheet{transform:none}
 @media (prefers-reduced-motion:reduce){.typing i,.bot .eye{animation:none}.bub{transition:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module" src="office3d.js?v=20261011d"></script>
+<script type="module" src="office3d.js?v=20261011e"></script>
 </head>
 <body class="w3d">
 <div id="world">
@@ -257,6 +258,7 @@ body.sheet-open #sheet{transform:none}
 <button id="homeview" aria-label="Voltar à vista inicial" title="Vista inicial">⌂</button>
 <button id="arenaview" aria-label="Ir para a arena" title="Arena">⚔️</button>
 <button id="rewview" aria-label="Ver as recompensas" title="Recompensas">🏆</button>
+<button id="secview" aria-label="Ver a equipa por setor" title="Setores">📊</button>
 <div id="navhint" hidden>☝️ Arrasta com um dedo para andar · ✌️ dois dedos para rodar e aproximar</div>
 <span id="n-esc" hidden></span>
 </div>
@@ -283,6 +285,7 @@ body.sheet-open #sheet{transform:none}
 <h2>Tendência diária</h2><div id="paper"></div></details>
 </section>
 <section class="panel on" id="pn-srv" data-p="srv" data-h="Todos os ativos" data-t="Servidores · todos os ativos">
+<details class="sec" id="s-setores" open><summary>Equipa por setor<span id="n-setores"></span></summary><div id="setores"></div></details>
 <details class="sec" id="s-mercado"><summary>Todos os ativos<span id="n-mercado"></span></summary>
 <div class="stats" id="stats"></div>
 <div class="bar">
@@ -324,6 +327,26 @@ const URL_DATA="https://raw.githubusercontent.com/Rferreira89/Cryptoscan/data/sc
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const num=(v,d)=>v==null?"–":Number(v).toLocaleString("pt-PT",{maximumFractionDigits:d,minimumFractionDigits:0});
+// equipa por setor: cada analista acompanha um grupo de moedas (a analise e
+// a mesma para todas; aqui ve-se por setor onde o mercado mexe)
+window.SECTORS=[
+ {id:"sec_maj",nm:"Beatriz",t:"Grandes moedas",c:"#F6C453",a:["BTC","ETH","SOL","BNB","XRP","LTC","BCH","TRX","XLM","HBAR"]},
+ {id:"sec_l1",nm:"Rafael",t:"Layer 1 e Layer 2",c:"#63B3ED",a:["ADA","AVAX","NEAR","SUI","APT","DOT","ATOM","ALGO","ICP","SEI","KAIA","S","TIA","OP","ARB","POL","STRK","ZK","INJ","XPL","TON","MNT"]},
+ {id:"sec_defi",nm:"Carla",t:"DeFi",c:"#68D391",a:["AAVE","UNI","ENA","ONDO","LINK","HYPE","ASTER","EIGEN","PENDLE","CRV","JUP","W","LDO","MKR","GMX","DYDX"]},
+ {id:"sec_ai",nm:"Leandro",t:"IA e dados",c:"#B794F4",a:["WLD","FIL","RENDER","VIRTUAL","FET","TAO","AIXBT","GRASS","AR","AVNT","HUMA"]},
+ {id:"sec_meme",nm:"Patrícia",t:"Memes",c:"#FF6FB5",a:["DOGE","SHIB","PEPE","PENGU","TRUMP","PUMP","WIF","BONK","FLOKI","POPCAT","ANIME","PLUME"]}];
+window.sectorOf=a=>{const s=SECTORS.find(x=>x.a.includes(a));return s?s.id:"sec_l1"};
+// estado de cada moeda para a equipa (dados reais do scan)
+window.coinStatus=(D,r)=>{const act=(D.active_signals||[]).find(s=>s.asset===r.asset),J=((D.journal||{}).rows||[]),no=new Set(J.filter(x=>x.executed===false).map(x=>x.id));
+  if(act&&act.status==="TRIGGERED"&&!no.has(act.id))return{k:0,ic:"🔵",tx:"em operação"};
+  const d=r.decision||{};if(d.decision==="LONG"||d.decision==="SHORT")return{k:1,ic:"🟢",tx:"sinal "+d.decision};
+  if(d.decision==="WATCHLIST")return{k:2,ic:"👀",tx:(d.reason||"a vigiar").slice(0,60)};
+  return{k:3,ic:"⚪",tx:(d.reason||"sem setup").slice(0,60)}};
+function renderSectors(D){const U=D.universe||[];let html="";
+  SECTORS.forEach(S=>{const rows=U.filter(r=>sectorOf(r.asset)===S.id).map(r=>({r,st:coinStatus(D,r)})).sort((a,b)=>a.st.k-b.st.k||Math.abs(b.r.chg_24h||0)-Math.abs(a.r.chg_24h||0));
+    const hot=rows.filter(x=>x.st.k<3).length;
+    html+=`<div class="banner" style="border-left:4px solid ${S.c}"><b>${esc(S.nm)} · ${esc(S.t)}</b>${rows.length} moedas · ${hot?hot+" com algo a acontecer":"nada a acontecer agora"}</div><div class="tw"><table><tr><th>Moeda</th><th>24h</th><th>Estado</th></tr>${rows.map(({r,st})=>`<tr><td>${esc(r.asset)}</td><td class="${(r.chg_24h||0)>=0?"up":"dn"}">${(r.chg_24h||0)>0?"+":""}${num(r.chg_24h,1)}%</td><td>${st.ic} ${esc(st.tx)}</td></tr>`).join("")}</table></div>`});
+  $("setores").innerHTML=html;$("n-setores").textContent=`${SECTORS.length} analistas · ${U.length} moedas`}
 function renderArena(D){
   const A=D.arena;if(!A||!A.classificacao){$("arena").innerHTML=`<div class="banner">A arena começa no próximo scan.</div>`;return}
   const tag={"SOBE":["🏆 Sobe","up"],"A COMPETIR":["⚔️ A competir",""],"MORTA":["💀 Morta","dn"]};
@@ -680,7 +703,7 @@ function renderExtra(){
   const m=D.market_filter;
   $("mf").className=m&&!m.btc_above_sma200?"below":"";
   $("mf").innerHTML=m?`<b>BTC ${m.distance_pct>0?"+":""}${num(m.distance_pct,1)}% ${m.btc_above_sma200?"acima":"abaixo"} da média de 200 dias</b>${m.btc_above_sma200?"Mercado em alta: o programa procura compras.":"Mercado em baixa: o programa procura shorts."}${evLine()}`:`<b>Filtro de mercado</b>Sem dados suficientes.${evLine()}`;
-  renderArena(D);
+  renderArena(D); renderSectors(D);
   const ps=(D.active_signals||[]).filter(s=>s.mode==="PAPER"),tr=D.track_record||{};
   const allTr=Object.entries(tr).map(([k,v])=>`<tr><td>${esc(STR[k.split(":")[1]]||k.split(":")[1])}${k.startsWith("PAPER:")?" (papel)":""}</td><td>${v.n}</td><td>${num(100*v.wins/v.n,0)}%</td><td class="${v.sum_r>0?"up":"dn"}">${v.sum_r>0?"+":""}${num(v.sum_r,2)}R</td></tr>`).join("");
   const sigHtml=(ps.length?`<div class="banner"><b>Setups em papel</b>Simulação, sem dinheiro.</div>${ps.map(paperCard).join("")}`:"")+(allTr?`<div class="tw"><table><tr><th>Registo ao vivo (4H)</th><th>N</th><th>Acerto</th><th>Total</th></tr>${allTr}</table></div>`:"");
@@ -779,7 +802,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261011d";
+const PAGE_V="20261011e";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -932,7 +955,7 @@ function showDetail(){if(!$("odetail")||!OF.data)return;$("odetail").hidden=!OF.
   $("odetail").innerHTML=`<div class="banner" style="margin-top:8px"><b>${a.nm} <span style="margin-left:6px;font-size:11px;padding:1px 7px;border-radius:99px;background:${st==="work"?"var(--up)":"var(--chip)"};color:${st==="work"?"var(--card)":"var(--mut)"}">${st==="work"?"a trabalhar":st==="sleep"?"a dormir":"em pausa"}</span></b><span style="color:var(--mut);font-size:12.5px">${esc(a.rl)} · ${esc(o.nx)}</span><ul style="margin:8px 0 0 18px;padding:0">${o.msgs.slice(0,4).map(m=>`<li>${m}</li>`).join("")}${o.more.map(m=>`<li style="color:var(--mut)">${m}</li>`).join("")}</ul></div>`}
 function loopScene(ts){if(!SC.ok)return;const dt=Math.min(.1,(ts-(SC.last||ts))/1000);SC.last=ts;
   const open=!document.hidden&&!document.body.classList.contains("sheet-open");if(open&&OF.data){stepScene(dt);drawScene(ts);SC.bubT-=dt;placeBubble()}requestAnimationFrame(loopScene)}
-window.OFAPI={agents:AGENTS,data:()=>OF.data,states:()=>OF.states,sel:()=>OF.sel,select:id=>{OF.sel=OF.sel===id?null:id;showDetail()},D:()=>D,openZone:k=>k==="arena"?openPanel("lab","#s-arena"):openPanel(k),files:()=>OF.files};
+window.OFAPI={agents:AGENTS,data:()=>OF.data,states:()=>OF.states,sel:()=>OF.sel,select:id=>{OF.sel=OF.sel===id?null:id;showDetail()},D:()=>D,openZone:k=>k==="arena"?openPanel("lab","#s-arena"):k==="sectors"?openPanel("srv","#s-setores"):openPanel(k),files:()=>OF.files};
 let waited3d=0;
 function startScene(){
   if(SC.ok)return;
@@ -1094,13 +1117,14 @@ document.addEventListener("click",e=>{const tr=e.target.closest("tr.rp");if(tr)o
 // ===== Instalar como app (so no Safari do iPhone, fora do modo app) =====
 (()=>{const ios=/iPhone|iPad|iPod/.test(navigator.userAgent),standalone=navigator.standalone||matchMedia("(display-mode: standalone)").matches;
   let seen=null;try{seen=localStorage.getItem("installHint")}catch(_){}
-  if(ios&&!standalone&&!seen){const el=$("install");setTimeout(()=>{el.hidden=false;$("homeview").hidden=true;$("arenaview").hidden=true;$("rewview").hidden=true},4000);
-    el.querySelector("button").addEventListener("click",()=>{el.hidden=true;$("homeview").hidden=false;$("arenaview").hidden=false;$("rewview").hidden=false;try{localStorage.setItem("installHint","1")}catch(_){}})}})();
+  if(ios&&!standalone&&!seen){const el=$("install");setTimeout(()=>{el.hidden=false;$("homeview").hidden=true;$("arenaview").hidden=true;$("rewview").hidden=true;$("secview").hidden=true},4000);
+    el.querySelector("button").addEventListener("click",()=>{el.hidden=true;$("homeview").hidden=false;$("arenaview").hidden=false;$("rewview").hidden=false;$("secview").hidden=false;try{localStorage.setItem("installHint","1")}catch(_){}})}})();
 
 // ===== Navegacao no escritorio: botao de vista inicial e dica (uma vez) =====
 $("homeview").addEventListener("click",()=>{if(window.Office3D&&window.Office3D.resetView)window.Office3D.resetView()});
 $("arenaview").addEventListener("click",()=>{if(window.Office3D&&window.Office3D.goArena)window.Office3D.goArena()});
 $("rewview").addEventListener("click",()=>{if(window.Office3D&&window.Office3D.goRewards)window.Office3D.goRewards()});
+$("secview").addEventListener("click",()=>{if(window.Office3D&&window.Office3D.goSectors)window.Office3D.goSectors()});
 (()=>{let seen=null;try{seen=localStorage.getItem("navHint")}catch(_){}if(seen)return;const h=$("navhint");
   setTimeout(()=>{h.hidden=false;setTimeout(()=>{h.style.opacity=0;setTimeout(()=>{h.hidden=true},500)},7000)},2500);
   try{localStorage.setItem("navHint","1")}catch(_){}})();
