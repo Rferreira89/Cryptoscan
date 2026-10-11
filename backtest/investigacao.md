@@ -97,6 +97,49 @@ dá "AMOSTRA INSUFICIENTE".
    2026-10-11 com G0, V1, V2 e V3 em paralelo, X=25). Veredicto máximo:
    CANDIDATA. Nada é ligado ao vivo.
 
+4. (PEDIDA em 2026-10-11.) **Funding muito negativo com o preço a
+   aguentar (4H, só compras).** Lógica: funding muito negativo nos
+   perpétuos quer dizer que há muita gente vendida a pagar para manter a
+   posição; se o preço não cai, essas posições acabam por ser fechadas à
+   força e empurram o preço para cima. É informação de derivados, diferente
+   das velas onde já se procurou muito. Dados: ramo `history`, pasta
+   `funding/` (funding de 8h dos perpétuos USDT da Binance, ficheiros
+   mensais públicos; só até ao último mês completo, por isso a janela acaba
+   aí). Universo: TODAS as moedas com funding (decisão do Rui: não
+   restringir às grandes; a divisão grandes/pequenas é só informativa).
+   Regra: média do funding das últimas 3 liquidações (24h) negativa E
+   abaixo do percentil P do funding da própria moeda nos 90 dias
+   anteriores (só dados já publicados na hora da decisão); gatilho: fecho
+   de 4H acima do máximo da vela anterior; entrada na abertura seguinte;
+   stop no fecho menos 1,5 ATR14 de 4H; um objetivo a 2R; sem stop na
+   entrada; saída ao fim de 3 dias. Grelha (4): P ∈ {10, 5} × exigir BTC
+   acima da SMA200 ∈ {sim, não}. Mesma carteira, custos, janela e critérios
+   (seis de sempre + contra o acaso acima do percentil 95).
+
+5. (PEDIDA em 2026-10-11.) **Quebra com compradores agressivos (4H, só
+   compras).** Lógica: uma quebra de máximo em que a maior parte do volume
+   é de compras a mercado (taker) mostra procura real; a mesma quebra sem
+   compradores agressivos é muitas vezes falsa. O programa hoje só olha
+   para o volume total. Dados: coluna 7 do histórico de 4H (volume
+   comprador). Universo: TODAS as moedas. Regra: BTC acima da SMA200
+   diária; fecho de 4H acima do máximo das 20 velas anteriores; volume da
+   vela pelo menos 1,5 vezes a média de 20; parte compradora (volume
+   comprador / volume) pelo menos q; entrada na abertura seguinte; stop no
+   mínimo da vela da quebra menos 0,1 ATR14 (no mínimo 1 ATR, no máximo
+   3 ATR, senão não há operação); um objetivo a 2R; sem stop na entrada;
+   saída ao fim de H dias. Grelha (4): q ∈ {0,55; 0,60} × H ∈ {3, 7}.
+   Mesma carteira, custos, janela e critérios.
+
+### Regra do papel (decisão do Rui, 2026-10-11)
+Qualquer hipótese que fique acima do percentil 95 contra o acaso fora da
+amostra vai logo para papel ao vivo, mesmo que falhe outros critérios,
+seguindo o padrão de `engine/paper_bounce.py`: só mensagens marcadas
+PAPEL, sem botões, sem ocupar vagas reais, protegida por try/except no
+scan, com testes, e com todos os testes a passar antes do push. O papel
+junta dados que nenhum teste viu, e é aí que se decide. Dinheiro real só
+com o veredicto CANDIDATA, 30 operações ou 8 semanas de papel, e o sim do
+Rui.
+
 ## Hipóteses anteriores a este diário (até 2026-10-02, período 2021-2026)
 
 Nenhuma validada. 4H: recuo, quebra com reteste, sweep de liquidez, fundo de

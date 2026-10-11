@@ -1,11 +1,16 @@
 """Descarrega o historico de velas (Binance spot, USDT) dos ativos listados
 na Bybit UE: 4H desde 2021 na raiz da pasta e 1H dos ultimos 25 meses na
-subpasta 1h/ (para a investigacao de day trade). As velas diarias sao
+subpasta 1h/ (para a investigacao de day trade), e o historico de funding
+dos perpetuos USDT da Binance (ficheiros mensais publicos de
+data.binance.vision) na subpasta funding/: t(s), taxa. As velas diarias sao
 derivadas das de 4H no backtest.
 Uso: python -m tools.fetch_history <pasta>
 """
 import csv
 import gzip
+import io
+import urllib.request
+import zipfile
 import os
 import sys
 import time
@@ -33,6 +38,37 @@ def history(base, interval="4h", start_ms=START_MS):
     return out
 
 
+FUNDING_URL = ("https://data.binance.vision/data/futures/um/monthly/fundingRate/"
+               "{s}/{s}-fundingRate-{y:04d}-{m:02d}.zip")
+
+
+def funding(base, months=26):
+    """[(t_s, taxa)] dos ultimos meses completos. [] se nao houver perpetuo."""
+    t = time.gmtime()
+    y, m = t.tm_year, t.tm_mon
+    out = []
+    for k in range(months):
+        m -= 1
+        if m == 0:
+            y, m = y - 1, 12
+        url = FUNDING_URL.format(s=base + "USDT", y=y, m=m)
+        try:
+            with urllib.request.urlopen(url, timeout=30) as r:
+                z = zipfile.ZipFile(io.BytesIO(r.read()))
+        except Exception:
+            if k == 0:
+                return []                 # sem o mes passado: sem perpetuo
+            continue
+        for name in z.namelist():
+            for row in csv.reader(io.TextIOWrapper(z.open(name))):
+                try:
+                    out.append((int(row[0]) // 1000, float(row[2])))
+                except (ValueError, IndexError):
+                    continue          # cabecalho
+        time.sleep(0.05)
+    return sorted(set(out))
+
+
 def write(path, rows):
     with gzip.open(path, "wt", newline="") as f:
         w = csv.writer(f)
@@ -42,6 +78,7 @@ def write(path, rows):
 
 def main(out):
     os.makedirs(os.path.join(out, "1h"), exist_ok=True)
+    os.makedirs(os.path.join(out, "funding"), exist_ok=True)
     listed = sorted(venue.fetch("USDC"))
     report = []
     start_1h = (int(time.time()) - START_1H_DAYS * 86400) * 1000
@@ -61,7 +98,13 @@ def main(out):
             h1 = []
         if len(h1) >= 2000:
             write(os.path.join(out, "1h", base + ".csv.gz"), h1)
-        report.append(f"{base}: {len(rows)} velas de 4H, {len(h1)} de 1H")
+        fr = funding(base)
+        if fr:
+            with gzip.open(os.path.join(out, "funding", base + ".csv.gz"), "wt",
+                           newline="") as f:
+                csv.writer(f).writerows(fr)
+        report.append(f"{base}: {len(rows)} velas de 4H, {len(h1)} de 1H, "
+                      f"{len(fr)} registos de funding")
     with open(os.path.join(out, "relatorio.txt"), "w") as f:
         f.write("\n".join(report) + "\n")
     print("\n".join(report))
