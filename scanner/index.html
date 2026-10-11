@@ -120,6 +120,7 @@ select,input{font:inherit;padding:9px 10px;border-radius:8px;border:1px solid va
 .kv{display:grid;grid-template-columns:repeat(2,1fr);gap:2px 14px}
 .kv div{display:flex;justify-content:space-between;gap:8px}
 .kv span{color:var(--mut)}
+.seclist{background:var(--card);border-radius:10px;margin-bottom:12px}.seclist .si{padding:9px 12px;border-bottom:1px solid var(--line)}.seclist .si:last-child{border-bottom:0}.seclist .si.hot{background:#4FD1C512}.seclist .sh{display:flex;justify-content:space-between;align-items:baseline;font-size:14px}.seclist .sr{font-size:12.5px;color:var(--mut);margin-top:3px;line-height:1.4;overflow-wrap:anywhere}
 .tw{overflow-x:auto;margin-bottom:10px}table{border-collapse:collapse;width:100%;font-size:12.5px;background:var(--card);border-radius:10px}th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}th:first-child,td:first-child{text-align:left;white-space:normal}th{color:var(--mut);font-weight:600}
 .chk{font-size:12.5px;margin-top:6px}.chk div{display:flex;gap:6px}
 button:focus-visible,summary:focus-visible,.steps li:focus-visible{outline:2px solid var(--now);outline-offset:2px}
@@ -340,12 +341,12 @@ window.sectorOf=a=>{const s=SECTORS.find(x=>x.a.includes(a));return s?s.id:"sec_
 window.coinStatus=(D,r)=>{const act=(D.active_signals||[]).find(s=>s.asset===r.asset),J=((D.journal||{}).rows||[]),no=new Set(J.filter(x=>x.executed===false).map(x=>x.id));
   if(act&&act.status==="TRIGGERED"&&!no.has(act.id))return{k:0,ic:"🔵",tx:"em operação"};
   const d=r.decision||{};if(d.decision==="LONG"||d.decision==="SHORT")return{k:1,ic:"🟢",tx:"sinal "+d.decision};
-  if(d.decision==="WATCHLIST")return{k:2,ic:"👀",tx:(d.reason||"a vigiar").slice(0,60)};
-  return{k:3,ic:"⚪",tx:(d.reason||"sem setup").slice(0,60)}};
+  if(d.decision==="WATCHLIST")return{k:2,ic:"👀",tx:(d.reason||"a vigiar").slice(0,60),full:d.reason||"a vigiar"};
+  return{k:3,ic:"⚪",tx:(d.reason||"sem setup").slice(0,60),full:d.reason||"sem setup"}};
 function renderSectors(D){const U=D.universe||[];let html="";
   SECTORS.forEach(S=>{const rows=U.filter(r=>sectorOf(r.asset)===S.id).map(r=>({r,st:coinStatus(D,r)})).sort((a,b)=>a.st.k-b.st.k||Math.abs(b.r.chg_24h||0)-Math.abs(a.r.chg_24h||0));
     const hot=rows.filter(x=>x.st.k<3).length;
-    html+=`<div class="banner" style="border-left:4px solid ${S.c}"><b>${esc(S.nm)} · ${esc(S.t)}</b>${rows.length} moedas · ${hot?hot+" com algo a acontecer":"nada a acontecer agora"}</div><div class="tw"><table><tr><th>Moeda</th><th>24h</th><th>Estado</th></tr>${rows.map(({r,st})=>`<tr><td>${esc(r.asset)}</td><td class="${(r.chg_24h||0)>=0?"up":"dn"}">${(r.chg_24h||0)>0?"+":""}${num(r.chg_24h,1)}%</td><td>${st.ic} ${esc(st.tx)}</td></tr>`).join("")}</table></div>`});
+    html+=`<div class="banner" style="border-left:4px solid ${S.c}"><b>${esc(S.nm)} · ${esc(S.t)}</b>${rows.length} moedas · ${hot?hot+" com algo a acontecer":"nada a acontecer agora"}</div><div class="seclist">${rows.map(({r,st})=>`<div class="si${st.k<3?" hot":""}"><div class="sh"><b>${esc(r.asset)}</b><span class="${(r.chg_24h||0)>=0?"up":"dn"}">${(r.chg_24h||0)>0?"+":""}${num(r.chg_24h,1)}%</span></div><div class="sr">${st.ic} ${esc(st.full||st.tx)}</div></div>`).join("")}</div>`});
   $("setores").innerHTML=html;$("n-setores").textContent=`${SECTORS.length} analistas · ${U.length} moedas`}
 function renderArena(D){
   const A=D.arena;if(!A||!A.classificacao){$("arena").innerHTML=`<div class="banner">A arena começa no próximo scan.</div>`;return}
@@ -802,7 +803,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261011e";
+const PAGE_V="20261011f";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
