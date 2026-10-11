@@ -371,7 +371,7 @@ function buildBoard() {
 const ARENA_C = V(27, 0);
 let arenaG = null, arenaTex = null, arenaSig = "", fighters = [], arenaLabels = [];
 const SHORT = { BREAKOUT: "Quebra", PULLBACK: "Recuo", LIQUIDITY_SWEEP: "Sweep", RANGE: "Range",
-  TREND_DAILY: "Tendência", BOUNCE_G0: "Bounce G0", BOUNCE_V1: "Bounce V1", BOUNCE_V2: "Bounce V2", BOUNCE_V3: "Bounce V3" };
+  TREND_DAILY: "Tendência", BOUNCE_G0: "Bounce G0", BOUNCE_V1: "Bounce V1", BOUNCE_V2: "Bounce V2", BOUNCE_V3: "Bounce V3", REJEITADOS: "Rejeitados" };
 const FCOL = ["#4FD1C5", "#FF6FB5", "#F6C453", "#B794F4", "#63B3ED", "#68D391", "#FFA94D", "#FC8181", "#90CDF4", "#FBD38D", "#9AE6B4", "#D6BCFA"];
 function arenaRows() { const A = (API().D() || {}).arena; return (A && A.classificacao) || []; }
 function drawArenaBoard(g) {
@@ -393,7 +393,7 @@ function drawArenaBoard(g) {
     g.fillText(dead ? "💀 morta" : up ? "🏆 sobe" : "⚔ a lutar", 580, y);
   });
 }
-function fighter(col, dead) {
+function robotFighter(col, dead) {
   const g = new THREE.Group(), body = new THREE.Group(); g.add(body);
   const c = new THREE.Color(dead ? "#6b6585" : col);
   const m = new THREE.MeshStandardMaterial({ color: c, emissive: c, emissiveIntensity: dead ? .05 : .35, roughness: .4, metalness: .3, transparent: dead, opacity: dead ? .55 : 1 });
@@ -412,6 +412,26 @@ function fighter(col, dead) {
   const visor = new THREE.Mesh(new THREE.BoxGeometry(.22, .06, .05), new THREE.MeshBasicMaterial({ color: dead ? 0x333333 : 0xffffff, toneMapped: false })); visor.position.set(0, .02, .13); head.add(visor);
   g.scale.setScalar(1.25);
   return { g, body, rig: { hips, spine, head, L, R: Rr, AL, AR } };
+}
+
+// lutadores com aspeto de pessoas reais (o mesmo corpo articulado do
+// escritorio), com luvas de boxe; o aspeto e estavel para cada analista
+const FEM = new Set(["Rita", "Vera", "Violeta", "Raquel", "Leonor", "Matilde", "Carolina", "Beatriz", "Mariana", "Francisca", "Clara", "Joana", "Catarina", "Lara", "Sofia", "Marta", "Inês", "Carla", "Patrícia"]);
+const SKINS = ["#ffdbac", "#f1c27d", "#e0ac69", "#c68642", "#8d5524"], HAIRS = ["#1a1a1a", "#3b2a1a", "#6b3b1f", "#b5803a", "#d9b26a", "#7a2e1a"];
+function hsh(t) { let h = 7; for (const c of String(t)) h = (h * 31 + c.charCodeAt(0)) % 9973; return h; }
+function fighter(col, dead, id, persona) {
+  const nm = (persona || "").replace(" Jr.", ""), h = hsh(id || nm), fem = FEM.has(nm);
+  const key = "fx_" + (id || nm || h);
+  STYLE[key] = { skin: SKINS[h % SKINS.length], hair: HAIRS[(h >> 2) % HAIRS.length], hs: fem ? (h % 2 ? "long" : "bun") : ["short", "buzz", "curly"][h % 3],
+    top: col, legs: "#1d1b2e", beard: !fem && h % 4 === 0 ? 1 : 0, glasses: h % 5 === 0 ? 1 : 0 };
+  DESK[key] = { z: "srv", p: V(0, 0), f: 1 };
+  const p = makePerson({ id: key, nm: nm || "?", c: col });
+  scene.remove(p.g); p.name.remove();
+  const glove = new THREE.MeshStandardMaterial({ color: dead ? "#555" : "#d62f2f", roughness: .35 });
+  [p.rig.AL, p.rig.AR].forEach(a => { const gl = new THREE.Mesh(new THREE.SphereGeometry(.075, 12, 10), glove); gl.position.y = -.29; a.el.add(gl); });
+  if (dead) p.g.traverse(o => { if (o.isMesh) o.material = new THREE.MeshStandardMaterial({ color: "#6b6585", transparent: true, opacity: .5, roughness: .8 }); });
+  p.g.scale.setScalar(1.05);
+  return { g: p.g, rig: p.rig };
 }
 function buildArena() {
   arenaG = new THREE.Group(); scene.add(arenaG);
@@ -445,7 +465,7 @@ function buildArena() {
 }
 function updateArena() {
   if (!arenaG) return;
-  const rows = arenaRows(), sig = JSON.stringify(rows.map(b => [b.id, b.estado, b.n, b.avg_r]));
+  const rows = arenaRows(), sig = JSON.stringify(rows.map(b => [b.id, b.estado, b.n, b.avg_r, b.wins]));
   drawArenaBoard(arenaTex.userData.c.getContext("2d")); arenaTex.needsUpdate = true;
   if (sig === arenaSig) return; arenaSig = sig;
   fighters.forEach(f => arenaG.remove(f.g)); fighters = [];
@@ -453,7 +473,7 @@ function updateArena() {
   const alive = rows.filter(b => b.estado !== "MORTA"), dead = rows.filter(b => b.estado === "MORTA");
   const hasLeader = alive.length && alive[0].n > 0 && alive[0].avg_r > 0;   // coroa so com resultado positivo
   alive.forEach((b, i) => {
-    const f = fighter(FCOL[rows.indexOf(b) % FCOL.length], false); f.b = b; f.rank = i; f.ph = i * 1.7;
+    const f = fighter(FCOL[rows.indexOf(b) % FCOL.length], false, b.id, b.persona); f.b = b; f.rank = i; f.ph = i * 1.7;
     if (i === 0 && hasLeader) {           // lider: pedestal no centro com coroa
       const ped = new THREE.Mesh(new THREE.CylinderGeometry(.8, .95, .9, 24), mat("#F6C453", .5)); ped.position.set(ARENA_C.x, .8, ARENA_C.z); arenaG.add(ped);
       f.home = new THREE.Vector3(ARENA_C.x, 1.25, ARENA_C.z); f.leader = true;
@@ -462,22 +482,26 @@ function updateArena() {
       crown.position.y = .2; f.rig.head.add(crown);
     } else {                               // os outros treinam em pares a volta
       const k = i - (hasLeader ? 1 : 0), pair = Math.floor(k / 2), side = k % 2 ? 1 : -1, n = Math.ceil((alive.length - (hasLeader ? 1 : 0)) / 2);
-      const a = pair / Math.max(1, n) * Math.PI * 2 + .4;
-      const cx = ARENA_C.x + Math.cos(a) * 3.3, cz = ARENA_C.z + Math.sin(a) * 3.3, tx = -Math.sin(a), tz = Math.cos(a);
+      // a arena cresce com os concorrentes: com mais de 5 pares abre um 2.º anel
+      const a = pair / Math.max(1, n) * Math.PI * 2 + .4, rad = n > 5 ? (pair % 2 ? 4.3 : 2.6) : 3.3;
+      const cx = ARENA_C.x + Math.cos(a) * rad, cz = ARENA_C.z + Math.sin(a) * rad, tx = -Math.sin(a), tz = Math.cos(a);
       f.home = new THREE.Vector3(cx + tx * side * .65, .36, cz + tz * side * .65);
       f.faceTo = Math.atan2(-tx * side, -tz * side);
     }
+    const wins = Math.min(5, b.wins || 0);        // medalhas por operacoes ganhas
+    for (let m = 0; m < wins; m++) { const md = new THREE.Mesh(new THREE.CylinderGeometry(.07, .07, .02, 16), mat("#F6C453", 1.1)); md.rotation.x = Math.PI / 2;
+      md.position.set(-.16 + m * .08, 1.45, .2); f.g.add(md); }
     if (b.estado === "SOBE") { const beam = new THREE.Mesh(new THREE.CylinderGeometry(.55, .55, 9, 24, 1, true), new THREE.MeshBasicMaterial({ color: 0xF6C453, transparent: true, opacity: .18, side: THREE.DoubleSide, toneMapped: false })); beam.position.y = 4.5; f.g.add(beam); }
     f.g.position.copy(f.home); arenaG.add(f.g); fighters.push(f);
   });
   dead.forEach((b, i) => {                 // cemiterio: lapide e o lutador deitado
-    const f = fighter("#666", true); f.b = b; f.dead = true;
+    const f = fighter("#666", true, b.id, b.persona); f.b = b; f.dead = true;
     const x = ARENA_C.x + 3.6 + (i % 2) * 2, z = 4.6 + Math.floor(i / 2) * 2.2;
     const st = boxM(.7, .9, .18, mat("#4a4560"), x, .45, z - .6, arenaG);
     f.g.rotation.z = Math.PI / 2; f.g.position.set(x - .9, .15, z + .1); f.home = f.g.position.clone(); arenaG.add(f.g); fighters.push(f);
   });
   fighters.forEach(f => { const r = f.b.avg_r, nm = (f.b.persona ? f.b.persona + " · " : "") + (SHORT[f.b.id] || f.b.id) + (f.b.n ? ` ${r > 0 ? "+" : ""}${(r || 0).toFixed(2).replace(".", ",")}R` : " · à espera");
-    const el = label((f.dead ? "💀 " : f.leader ? "👑 " : f.b.estado === "SOBE" ? "🏆 " : "") + nm, f.dead ? "#9a94b8" : f.b.estado === "SOBE" ? "#F6C453" : "#ffffff", true);
+    const el = label((f.dead ? "💀 " : f.leader ? "👑 " : f.b.estado === "SOBE" ? "🏆 " : "") + nm + (f.b.wins ? ` 🏅${f.b.wins}` : ""), f.dead ? "#9a94b8" : f.b.estado === "SOBE" ? "#F6C453" : "#ffffff", true);
     const l = { el, p: f.home.clone().setY(f.home.y + (f.dead ? 1.3 : 2.9)) }; labels.push(l); arenaLabels.push(l); });
 }
 function animateArena(dt, t) {
@@ -531,7 +555,7 @@ function rewardObj(id) {
     boxM(.82, .2, .72, mat("#FF6FB5", 1.2), 0, 1.92, 0, g);
   } else {                             // hall da fama: estatua dourada
     boxM(1, .6, 1, mat("#2b1d74"), 0, .3, 0, g);
-    const f = fighter("#F6C453", false); f.g.scale.setScalar(1.1); f.g.position.y = .6;
+    const f = robotFighter("#F6C453", false); f.g.scale.setScalar(1.1); f.g.position.y = .6;
     f.rig.AL.sh.rotation.set(Math.PI * .85, 0, .3); f.rig.AR.sh.rotation.set(Math.PI * .85, 0, -.3);
     f.g.traverse(o => { if (o.material) o.material = mat("#F6C453", .7); }); g.add(f.g);
   }

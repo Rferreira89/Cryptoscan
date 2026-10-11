@@ -45,11 +45,13 @@ NAMES = {"PULLBACK": "Recuo (ao vivo)", "BREAKOUT": "Quebra (ao vivo)",
          "BOUNCE_G0": "Oversold Bounce original (papel)",
          "BOUNCE_V1": "Oversold Bounce + saída ao vivo (papel)",
          "BOUNCE_V2": "Oversold Bounce stop curto 2R (papel)",
-         "BOUNCE_V3": "Oversold Bounce stop original 2R (papel)"}
+         "BOUNCE_V3": "Oversold Bounce stop original 2R (papel)",
+         "REJEITADOS": "Setups rejeitados pelos filtros (papel)"}
 # cada concorrente e um analista com nome proprio (decisao do Rui)
 PERSONA = {"BREAKOUT": "Bruno", "PULLBACK": "Rita", "LIQUIDITY_SWEEP": "Simão",
            "RANGE": "Raquel", "TREND_DAILY": "Teodoro", "BOUNCE_G0": "Gaspar",
-           "BOUNCE_V1": "Vasco", "BOUNCE_V2": "Vera", "BOUNCE_V3": "Violeta"}
+           "BOUNCE_V1": "Vasco", "BOUNCE_V2": "Vera", "BOUNCE_V3": "Violeta",
+           "REJEITADOS": "Óscar"}
 POOL = ["Leonor", "Duarte", "Matilde", "Afonso", "Carolina", "Martim", "Beatriz",
         "Lourenço", "Mariana", "Salvador", "Francisca", "Henrique", "Clara",
         "Tomás", "Joana", "Miguel", "Catarina", "Diogo", "Lara", "Gonçalo"]
@@ -92,6 +94,9 @@ def trades(state):
             k = "BOUNCE_" + g
             out.append((k, f"{k}-{c['asset']}-{c['opened_at']}", dict(
                 c, side="LONG")))
+    for c in state.get("paper_shadow", {}).get("closed", []):
+        out.append(("REJEITADOS", f"SHADOW-{c['asset']}-{c['opened_at']}",
+                    dict(c, side="LONG")))
     for c in state.get("paper_trend", {}).get("closed", []):
         out.append(("TREND_DAILY", f"TREND-{c.get('asset')}-{c.get('exit_t')}",
                     {"asset": c.get("asset"), "r": c.get("r"),
@@ -199,11 +204,12 @@ def update(state, bars, now, seed=None):
                       "acaso_mediana": None if med is None else round(med, 3),
                       "acaso_p95": None if p95 is None else round(p95, 3),
                       "estado": v, "mudou": (prev or "A COMPETIR") != v,
-                      "live": not (k.startswith("BOUNCE_") or k == "TREND_DAILY")})
-    for g in ("G0", "V1", "V2", "V3"):           # papel ainda sem operacoes
-        if not any(b["id"] == "BOUNCE_" + g for b in board):
-            board.append({"id": "BOUNCE_" + g, "name": _name("BOUNCE_" + g),
-                          "persona": persona("BOUNCE_" + g),
+                      "live": not (k.startswith("BOUNCE_") or k in ("TREND_DAILY", "REJEITADOS"))})
+    for k0 in ("BOUNCE_G0", "BOUNCE_V1", "BOUNCE_V2", "BOUNCE_V3",
+               "REJEITADOS"):                    # papel ainda sem operacoes
+        if not any(b["id"] == k0 for b in board):
+            board.append({"id": k0, "name": _name(k0),
+                          "persona": persona(k0),
                           "n": 0, "wins": 0, "avg_r": None, "total_r": 0,
                           "acaso_mediana": None, "acaso_p95": None,
                           "estado": "A COMPETIR", "mudou": False,
@@ -212,7 +218,9 @@ def update(state, bars, now, seed=None):
     board.sort(key=lambda b: (order[b["estado"]],
                               -(b["avg_r"] if b["avg_r"] is not None else -9),
                               -b["n"]))
-    alive = sum(1 for b in board if b["estado"] != "MORTA")
+    # o Oscar (rejeitados) e um medidor, nao conta para o minimo de lutadores
+    alive = sum(1 for b in board if b["estado"] != "MORTA"
+                and b["id"] != "REJEITADOS")
     return {"atualizado": int(now), "vivos": alive, "minimo_vivos": MIN_ALIVE,
             "recrutar": alive < MIN_ALIVE, "regras": {
         "morre": f"≥{FAST_N} operações com R médio ≤ {str(FAST_R).replace('.', ',')}R (morte rápida), ou "
