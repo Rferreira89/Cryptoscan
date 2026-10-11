@@ -132,8 +132,10 @@ dá "AMOSTRA INSUFICIENTE".
 
 ### Regra do papel (decisão do Rui, 2026-10-11)
 Qualquer hipótese que fique acima do percentil 95 contra o acaso fora da
-amostra vai logo para papel ao vivo, mesmo que falhe outros critérios,
-seguindo o padrão de `engine/paper_bounce.py`: só mensagens marcadas
+amostra vai logo para papel ao vivo, mesmo que falhe outros critérios. O
+agente de investigação não mexe em engine/: escreve no veredicto "PARA
+PAPEL" e a ligação ao papel é feita numa sessão com o Rui, seguindo o
+padrão de `engine/paper_bounce.py`: só mensagens marcadas
 PAPEL, sem botões, sem ocupar vagas reais, protegida por try/except no
 scan, com testes, e com todos os testes a passar antes do push. O papel
 junta dados que nenhum teste viu, e é aí que se decide. Dinheiro real só
