@@ -215,6 +215,16 @@ def alert_text(e, sigs, note):
                 f"Se acontecer: entrada {_px(e['entry'][0])} a "
                 f"{_px(e['entry'][1])}, stop {_px(e['stop'])}, "
                 f"1.º objetivo {_px(e['tp1'])}.")
+    if k == "ARENA":
+        if e["estado"] == "MORTA":
+            extra = (" Continua a dar sinais reais (opção B), mas perdeu na "
+                     "arena." if e["live"] else " Deixa de abrir operações.")
+            return (f"💀 ARENA — {e['name']} morreu: {e['n']} operações, "
+                    f"{e['avg_r']:+.2f}R em média, sem vantagem sobre o "
+                    f"acaso.{extra}")
+        return (f"🏆 ARENA — {e['name']} ganhou o direito a ser proposta para "
+                f"dinheiro real: {e['n']} operações, {e['avg_r']:+.2f}R em "
+                "média, acima de 95% das entradas ao acaso. A decisão é tua.")
     if k == "BOUNCE_PAPER_BUY":
         tps = " / ".join(_px(x) for x in e["tp"])
         return (f"📝 PAPEL — Oversold Bounce · {e['asset']} ({e['pair']})\n"

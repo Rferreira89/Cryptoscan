@@ -272,6 +272,7 @@ body.sheet-open #sheet{transform:none}
 <details class="sec" id="s-diario"><summary>O teu diário<span id="n-diario"></span></summary><div id="diary"></div></details>
 </section>
 <section class="panel on" id="pn-lab" data-p="lab" data-h="Pesquisa" data-t="Pesquisa">
+<details class="sec" id="s-arena" open><summary>Arena<span id="n-arena"></span></summary><div id="arena"><div class="banner">A carregar…</div></div></details>
 <details class="sec" id="s-acaso"><summary>Contra o acaso<span id="n-acaso"></span></summary><div id="acaso"><div class="banner">A carregar…</div></div></details>
 <details class="sec" id="s-registo"><summary>Registo<span id="n-registo"></span></summary><div id="journal"></div>
 <div id="closed" hidden></div>
@@ -319,6 +320,15 @@ const URL_DATA="https://raw.githubusercontent.com/Rferreira89/Cryptoscan/data/sc
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const num=(v,d)=>v==null?"–":Number(v).toLocaleString("pt-PT",{maximumFractionDigits:d,minimumFractionDigits:0});
+function renderArena(D){
+  const A=D.arena;if(!A||!A.classificacao){$("arena").innerHTML=`<div class="banner">A arena começa no próximo scan.</div>`;return}
+  const tag={"SOBE":["🏆 Sobe","up"],"A COMPETIR":["⚔️ A competir",""],"MORTA":["💀 Morta","dn"]};
+  const rows=A.classificacao.map((b,i)=>{const t=tag[b.estado]||[b.estado,""];const ac=b.acaso_mediana==null?"–":`${b.acaso_mediana>0?"+":""}${num(b.acaso_mediana,2)}R`;
+    return `<tr><td>${i+1}. ${esc(b.name)}</td><td>${b.n}</td><td class="${b.avg_r>0?"up":b.avg_r<0?"dn":""}">${b.avg_r==null?"–":(b.avg_r>0?"+":"")+num(b.avg_r,2)+"R"}</td><td>${ac}</td><td class="${t[1]}">${t[0]}</td></tr>`}).join("");
+  const alive=A.classificacao.filter(b=>b.estado!=="MORTA").length;
+  $("n-arena").textContent=`${alive} vivas de ${A.classificacao.length}`;
+  $("arena").innerHTML=`<div class="banner"><b>Todas as estratégias a competir com as mesmas regras</b>Morre: ${esc(A.regras.morre)}. Sobe para dinheiro real (só com o teu sim): ${esc(A.regras.sobe)}. As estratégias ao vivo continuam a dar sinais mesmo mortas (opção B).</div><div class="tw"><table><tr><th>Concorrente</th><th>N</th><th>R médio</th><th>Acaso</th><th>Estado</th></tr>${rows}</table></div><div class="note">Contam todos os sinais emitidos, executados ou não: mede-se a estratégia, não a execução.</div>`;
+}
 const price=v=>v==null?"–":v>=100?num(v,2):v>=1?num(v,3):Number(v).toLocaleString("pt-PT",{maximumSignificantDigits:4});
 const vol=v=>v>=1e9?num(v/1e9,2)+" mM $":num(v/1e6,1)+" M $";
 const LBL={VOLUME_EXPANSION:"volume em expansão",VOLUME_CONTRACTION:"volume em contração",POSSIBLE_ABSORPTION:"possível absorção",
@@ -666,6 +676,7 @@ function renderExtra(){
   const m=D.market_filter;
   $("mf").className=m&&!m.btc_above_sma200?"below":"";
   $("mf").innerHTML=m?`<b>BTC ${m.distance_pct>0?"+":""}${num(m.distance_pct,1)}% ${m.btc_above_sma200?"acima":"abaixo"} da média de 200 dias</b>${m.btc_above_sma200?"Mercado em alta: o programa procura compras.":"Mercado em baixa: o programa procura shorts."}${evLine()}`:`<b>Filtro de mercado</b>Sem dados suficientes.${evLine()}`;
+  renderArena(D);
   const ps=(D.active_signals||[]).filter(s=>s.mode==="PAPER"),tr=D.track_record||{};
   const allTr=Object.entries(tr).map(([k,v])=>`<tr><td>${esc(STR[k.split(":")[1]]||k.split(":")[1])}${k.startsWith("PAPER:")?" (papel)":""}</td><td>${v.n}</td><td>${num(100*v.wins/v.n,0)}%</td><td class="${v.sum_r>0?"up":"dn"}">${v.sum_r>0?"+":""}${num(v.sum_r,2)}R</td></tr>`).join("");
   const sigHtml=(ps.length?`<div class="banner"><b>Setups em papel</b>Simulação, sem dinheiro.</div>${ps.map(paperCard).join("")}`:"")+(allTr?`<div class="tw"><table><tr><th>Registo ao vivo (4H)</th><th>N</th><th>Acerto</th><th>Total</th></tr>${allTr}</table></div>`:"");
@@ -764,7 +775,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261009k";
+const PAGE_V="20261011a";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:

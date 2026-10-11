@@ -81,7 +81,7 @@ def daily(res, state):
     return "\n".join(L)
 
 
-def weekly(state, now):
+def weekly(state, now, arena_summary=None):
     """Separa os sinais (todos, para medir as estrategias) das operacoes que
     o Rui executou (o dinheiro dele): so estas falam em % do capital."""
     led = state.get("ledger", [])
@@ -109,6 +109,14 @@ def weekly(state, now):
             L.append(f"• {STR.get(k, k)}: {v['n']} sinais, {v['sum_r']:+.2f}R")
     L.append(f"Sinais desde o início: {a['closed']} fechados, "
              f"{a['total_r']:+.2f}R, queda máxima {a['max_drawdown_r']:.1f}R.")
+    board = (arena_summary or {}).get("classificacao") or []
+    if board:
+        ico = {"SOBE": "🏆", "A COMPETIR": "⚔️", "MORTA": "💀"}
+        L.append("Arena (todas as estratégias contra o acaso):")
+        for b in board[:8]:
+            avg = "sem operações" if b["avg_r"] is None else \
+                f"{b['n']} op., {b['avg_r']:+.2f}R"
+            L.append(f"{ico.get(b['estado'], '•')} {b['name']}: {avg}")
     return "\n".join(L)
 
 
@@ -123,7 +131,7 @@ def due(res, state, now):
         out.append(("daily", daily(res, state)))
         if loc.weekday() == 0 and rep.get("weekly") != day:
             rep["weekly"] = day
-            out.append(("weekly", weekly(state, now)))
+            out.append(("weekly", weekly(state, now, res.get("arena"))))
     health = res["status_global"]
     if rep.get("health", "OK") != health:
         if health != "OK":

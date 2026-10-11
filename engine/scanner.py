@@ -11,7 +11,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 
 from . import (analysis, config, derivatives, events as calendar, ledger, short,
-               paper_bounce,
+               arena, paper_bounce,
                liquidity, paper_trend, regime, review,
                signals,
                sources, validate, venue, volume)
@@ -322,10 +322,17 @@ def run(now=None, state=None, cfg=None):
     # papel do Oversold Bounce (nao validada): nunca gera ordens reais
     try:
         result["paper_bounce"], ev = paper_bounce.update(
-            state, eligible, c4s, market_ok, now, cfg)
+            state, eligible, c4s, market_ok, now, cfg,
+            dead=arena.dead_paper(state))
         events += ev
     except Exception as e:  # o papel nunca pode parar o scan
         result["paper_bounce"] = {"erro": str(e)[:120]}
+    # arena: classificacao de todas as estrategias contra o acaso
+    try:
+        result["arena"] = arena.update(state, c4s, now)
+        events += arena.events(result["arena"], now)
+    except Exception as e:  # a arena nunca pode parar o scan
+        result["arena"] = {"erro": str(e)[:120]}
     result["halt"] = state.get("halt")
     result["paper_trend"], ev = paper_trend.update(
         state, eligible, daily, cfg, now, market_ok,

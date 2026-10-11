@@ -146,7 +146,10 @@ def _close(st, g, a, pos, ev, now):
                                else 0)
     rec = {"asset": a, "opened_at": pos["opened_at"],
            "closed_at": pos.get("closed_at") or now, "r": round(pos["r"], 3),
-           "reason": pos["exit_reason"]}
+           "reason": pos["exit_reason"], "entry": pos["entry"],
+           "stop": pos["stop0"], "tp": list(pos["tps"]),
+           "partials": list(pos["partials"]),
+           "breakeven": pos.get("breakeven", True)}
     b["closed"] = (b["closed"] + [rec])[-300:]
     del b["open"][a]
     if g == "G0":
@@ -176,7 +179,7 @@ def _step_open(st, bars, ev, now):
                 _close(st, g, a, pos, ev, now)
 
 
-def update(state, rows, bars, market_ok, now, cfg=None):
+def update(state, rows, bars, market_ok, now, cfg=None, dead=()):
     """rows: linhas elegiveis do scan (com 'price' e 'analysis').
     bars: {ativo: velas de 4H fechadas}. Devolve (resumo, eventos)."""
     st = state.setdefault("paper_bounce", {"geo": {}, "last": {}})
@@ -203,6 +206,8 @@ def update(state, rows, bars, market_ok, now, cfg=None):
         for g, p in plans(sig, r["price"], an.get("4h"), an.get("1d"),
                           cfg).items():
             b = _book(st, g)
+            if "BOUNCE_" + g in dead:             # morta na arena: nao abre
+                continue
             if a in b["open"] or len(b["open"]) >= MAX_POS:
                 continue
             pos = trade.open_position(p, r["price"], sig["t"], FEE_PCT,
