@@ -241,7 +241,7 @@ body.sheet-open #sheet{transform:none}
 @media (prefers-reduced-motion:reduce){.typing i,.bot .eye{animation:none}.bub{transition:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module" src="office3d.js?v=20261011e"></script>
+<script type="module" src="office3d.js?v=20261011h"></script>
 </head>
 <body class="w3d">
 <div id="world">
@@ -328,6 +328,8 @@ const URL_DATA="https://raw.githubusercontent.com/Rferreira89/Cryptoscan/data/sc
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const num=(v,d)=>v==null?"–":Number(v).toLocaleString("pt-PT",{maximumFractionDigits:d,minimumFractionDigits:0});
+// operacoes que o Rui fechou a mao (/fechei): contam como fechadas para ele
+function normUserClosed(D){((D&&D.journal&&D.journal.rows)||[]).forEach(r=>{if(r.user_result_r!=null){r.status="CLOSED";r.user_r=r.user_result_r;r.closed_at=r.user_closed_at||r.closed_at;r.user_closed_flag=true}})}
 // equipa por setor: cada analista acompanha um grupo de moedas (a analise e
 // a mesma para todas; aqui ve-se por setor onde o mercado mexe)
 window.SECTORS=[
@@ -338,7 +340,7 @@ window.SECTORS=[
  {id:"sec_meme",nm:"Patrícia",t:"Memes",c:"#FF6FB5",a:["DOGE","SHIB","PEPE","PENGU","TRUMP","PUMP","WIF","BONK","FLOKI","POPCAT","ANIME","PLUME"]}];
 window.sectorOf=a=>{const s=SECTORS.find(x=>x.a.includes(a));return s?s.id:"sec_l1"};
 // estado de cada moeda para a equipa (dados reais do scan)
-window.coinStatus=(D,r)=>{const act=(D.active_signals||[]).find(s=>s.asset===r.asset),J=((D.journal||{}).rows||[]),no=new Set(J.filter(x=>x.executed===false).map(x=>x.id));
+window.coinStatus=(D,r)=>{const act=(D.active_signals||[]).find(s=>s.asset===r.asset),J=((D.journal||{}).rows||[]),no=new Set(J.filter(x=>x.executed===false||x.user_closed_flag).map(x=>x.id));
   if(act&&act.status==="TRIGGERED"&&!no.has(act.id))return{k:0,ic:"🔵",tx:"em operação"};
   const d=r.decision||{};if(d.decision==="LONG"||d.decision==="SHORT")return{k:1,ic:"🟢",tx:"sinal "+d.decision};
   if(d.decision==="WATCHLIST")return{k:2,ic:"👀",tx:(d.reason||"a vigiar").slice(0,60),full:d.reason||"a vigiar"};
@@ -609,7 +611,7 @@ function goAsset(a){
 function renderOps(){
   // sinais que marcaste como "Não executei" saem das tuas operações e do
   // radar; o programa continua a segui-los em simulação (Registo, com ❌)
-  const dec=new Set(((D.journal||{}).rows||[]).filter(r=>r.executed===false).map(r=>r.id));
+  const dec=new Set(((D.journal||{}).rows||[]).filter(r=>r.executed===false||r.user_closed_flag).map(r=>r.id));
   const all=(D.active_signals||[]).filter(s=>s.mode!=="PAPER"),act=all.filter(s=>!dec.has(s.id)),skip=all.filter(s=>dec.has(s.id));
   const skipNote=skip.length?`<div class="note" style="margin:0 0 12px">Marcaste como não executado: ${skip.map(s=>esc(s.asset)).join(", ")}. Não conta para o teu resultado; o programa segue-o em simulação no Registo. Se afinal entraste, carrega em "Executei" na mensagem do Telegram.</div>`:"";
   $("ops").innerHTML=(act.map(sigCard).join("")+skipNote)||`<div class="banner">${D.halt?`<b class="dn">Operações suspensas</b>${esc(D.halt)}. Sem sinais novos até o travão de perdas libertar.`:(D.market_filter&&!D.market_filter.btc_above_sma200?"Sem compras novas: o BTC está abaixo da média de 200 dias.":"Nenhuma operação neste momento. O sistema só emite quando todas as condições se alinham.")}</div>`;
@@ -766,7 +768,7 @@ async function load(){
   try{
     const r=await fetch(URL_DATA+"?t="+Date.now(),{cache:"no-store"});
     if(!r.ok) throw new Error("HTTP "+r.status);
-    D=await r.json();
+    D=await r.json();normUserClosed(D);
     if(!capSet&&D.config&&D.config.capital_usdc&&!$("cap").value){$("cap").value=D.config.capital_usdc;$("capnote").textContent="definido no programa; muda com /capital no Telegram"}
     const age=Math.round((Date.now()/1000-Math.max(D.generated_at,D.monitored_at||0))/60);
     const src=Object.entries(D.sources).map(([n,s])=>n+(s.ok?" ✓":" ✗")).join(" · ")+" · Bybit UE"+(D.venue_source&&D.venue_source.ok?" ✓":" ✗");
@@ -775,7 +777,7 @@ async function load(){
     $("sub").innerHTML=`<i></i>${age>20?"dados atrasados, ":""}há ${age} min${bad?", fonte em falha":""}`;
     const c=D.counts||{};
     $("n-mercado").textContent=(c.deep_checked??"–")+" analisados";
-    $("stats").innerHTML=[["Analisados",c.deep_checked],["Sinais novos",(c.long||0)+(c.short||0)],["Em operação",(()=>{const dc=new Set(((D.journal||{}).rows||[]).filter(r=>r.executed===false).map(r=>r.id));return (D.active_signals||[]).filter(x=>x.mode!=="PAPER"&&x.status==="TRIGGERED"&&!dc.has(x.id)).length})()],["A vigiar",(c.watchlist||0)+(c.watch_short||0)]].map(([l,v])=>`<div class="stat"><b>${v??"–"}</b><span>${l}</span></div>`).join("");
+    $("stats").innerHTML=[["Analisados",c.deep_checked],["Sinais novos",(c.long||0)+(c.short||0)],["Em operação",(()=>{const dc=new Set(((D.journal||{}).rows||[]).filter(r=>r.executed===false||r.user_closed_flag).map(r=>r.id));return (D.active_signals||[]).filter(x=>x.mode!=="PAPER"&&x.status==="TRIGGERED"&&!dc.has(x.id)).length})()],["A vigiar",(c.watchlist||0)+(c.watch_short||0)]].map(([l,v])=>`<div class="stat"><b>${v??"–"}</b><span>${l}</span></div>`).join("");
     $("note").textContent=`Regime do BTC: ${D.market_regime?D.market_regime.btc:"–"}. Só entram ativos listados na Bybit UE em USDC. As análises usam preços dos mercados globais em USDT; na Bybit UE os valores em USDC podem diferir alguns cêntimos. Filtro de liquidez: volume 24h ≥ ${num(D.thresholds.min_volume_usd/1e6,0)} M $ e spread ≤ ${D.thresholds.max_spread_bps} bps. Análise aprofundada só nos ${D.thresholds.deep_n} ativos mais líquidos. Toca num ativo para ver o detalhe.`;
     render();
   }catch(e){$("sub").className="late";$("sub").innerHTML=`<i></i>sem ligação aos dados (${esc(e.message)}), toca para tentar`}
@@ -803,7 +805,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261011g";
+const PAGE_V="20261011h";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -839,7 +841,7 @@ function officeData(){
   const c=(D&&D.counts)||{};
   out.scan={on:age<10,msgs:lines.length?lines:["À espera do primeiro scan."],more:[`Último scan: ${D?hm(D.generated_at):"–"} (há ${age} min)`,`${c.pairs_seen||"–"} pares vistos, ${c.deep_checked||"–"} analisados a fundo`,`Sinais novos: ${(c.long||0)+(c.short||0)} · em vigilância: ${(c.watchlist||0)+(c.watch_short||0)}`],nx:"próximo scan "+(age<10?`dentro de ${Math.max(0,5-age%5)} min`:"em atraso")};
   // Guarda: posicoes abertas com distancia ao stop e ao objetivo
-  const dec=new Set(((D&&D.journal||{}).rows||[]).filter(r=>r.executed===false).map(r=>r.id));
+  const dec=new Set(((D&&D.journal||{}).rows||[]).filter(r=>r.executed===false||r.user_closed_flag).map(r=>r.id));
   const op=((D&&D.active_signals)||[]).filter(s=>s.status==="TRIGGERED"&&s.mode!=="PAPER"&&!dec.has(s.id));
   const pm=op.map(s=>{const cur=curPrice(s.asset),p=s.position||{},sh=s.direction==="SHORT";if(cur==null||!p.entry)return`<b>${esc(s.asset)}</b>: a acompanhar`;const pl=(cur/p.entry-1)*100*(sh?-1:1),ds=Math.abs(cur/p.stop-1)*100,dt=Math.abs(s.plan.tp[p.tp_hit||0]/cur-1)*100;return`<b>${esc(s.asset)}</b>: ${pl>0?"+":""}${num(pl,1)}% · stop a ${num(ds,1)}% · objetivo a ${num(dt,1)}%`});
   out.mon={on:age<10&&op.length>0,msgs:pm.length?pm:["Sem operações abertas. A vigiar as que entrarem."],more:op.length?op.map(s=>`${esc(s.asset)}: entrada ${price(s.position.entry)}, stop ${price(s.position.stop)}, 1.º objetivo ${price(s.plan.tp[0])}`):["Nada aberto neste momento."],nx:"verifica ao minuto"};
@@ -987,7 +989,7 @@ $("zonebar").addEventListener("click",e=>{const b=e.target.closest("button");if(
 // arrastar a pega para baixo fecha
 (()=>{let y0=null;const h=document.querySelector(".sh-head");h.addEventListener("touchstart",e=>{y0=e.touches[0].clientY},{passive:true});h.addEventListener("touchend",e=>{if(y0!=null&&e.changedTouches[0].clientY-y0>60)closeSheet();y0=null})})();
 function renderHud(){if(!D)return;const C=D.config||{},J=(D.journal||{}).rows||[];
-  const dec=new Set(J.filter(r=>r.executed===false).map(r=>r.id));
+  const dec=new Set(J.filter(r=>r.executed===false||r.user_closed_flag).map(r=>r.id));
   const act=(D.active_signals||[]).filter(s=>s.mode!=="PAPER"&&!dec.has(s.id));
   const open=act.filter(s=>s.status==="TRIGGERED"),wait=act.filter(s=>s.status!=="TRIGGERED");
   const mine=J.filter(r=>r.executed===true&&r.status==="CLOSED"),R=r=>r.user_r!=null?r.user_r:r.result_r,w=mine.filter(r=>R(r)>0).length;
@@ -1049,7 +1051,7 @@ function sigLevels(s){const p=s.plan,pos=s.position||{},lv=[];
   p.tp.forEach((v,i)=>{if(i<2||p.partials[i]>0)lv.push({v,label:"TP"+(i+1),c:"#3ee0c4"})});
   lv.push({v:pos.entry||p.entry_ref,label:"Entrada",c:"#B794F4"});lv.push({v:pos.stop||p.stop,label:"Stop",c:"#ff6f8a"});return lv}
 // lista de graficos para o escritorio 3D: operacoes abertas, sinais a espera e o BTC
-window.chartFeed=()=>{if(!D)return[];const J=(D.journal||{}).rows||[],dec=new Set(J.filter(r=>r.executed===false).map(r=>r.id));
+window.chartFeed=()=>{if(!D)return[];const J=(D.journal||{}).rows||[],dec=new Set(J.filter(r=>r.executed===false||r.user_closed_flag).map(r=>r.id));
   const act=(D.active_signals||[]).filter(s=>s.mode!=="PAPER"&&!dec.has(s.id));
   const out=act.map(s=>({asset:s.asset,pair:s.pair,lv:sigLevels(s),title:`${s.asset} · ${s.status==="TRIGGERED"?"aberta":"à espera"} · 4H`}));
   out.push({asset:"BTC",pair:"BTC/USDC",lv:[],title:"BTC · 4H"});

@@ -45,3 +45,28 @@ class Rewards(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class FecheiManual(unittest.TestCase):
+    def test_fechei_registra_resultado_e_silencia(self):
+        from engine import inbox, ledger
+        st = {"ledger": [{"id": "ICP-1", "kind": "4H", "asset": "ICP", "status": "OPEN",
+                          "executed": True, "exec_price": 3.01, "entry": 3.004,
+                          "stop": 2.8316, "tp": [3.245, 3.609, 3.8005], "tp_hit": 1,
+                          "risk_usdc": 1.53, "side": "LONG", "strategy": "LIQUIDITY_SWEEP"}],
+              "signals": {"ICP-1": {"plan": {"partials": [50, 50, 0]}}}}
+        upd = [{"message": {"chat": {"id": 7}, "date": 1_900_000_000,
+                            "text": "/fechei ICP 3.20"}}]
+        out = inbox.apply(st, upd, "7")
+        rec = st["ledger"][0]
+        self.assertAlmostEqual(rec["user_exit"], 3.20)
+        # 50% a 3.245 e 50% a 3.20 com entrada a 3.01 e stop a 2.8316
+        self.assertTrue(0.9 < rec["user_result_r"] < 1.3)
+        self.assertIn("Registado", out[0][0])
+        self.assertTrue(inbox.muted(st, {"event": "BREAKEVEN", "id": "ICP-1"}))
+        self.assertEqual(rec["status"], "OPEN")          # o sinal continua
+        m = ledger.summary(st["ledger"], executed_only=True)
+        self.assertEqual(m["closed"], 1)
+        self.assertGreater(ledger.realized_usdc(st["ledger"], 0), 0)
+        out2, ev = rewards.update(st, {}, 1_900_000_100)
+        self.assertIn("Mesa de bilhar", [e["name"] for e in ev])

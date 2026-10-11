@@ -1,7 +1,8 @@
 """Respostas do utilizador no Telegram: confirmacao de execucoes.
 
 Botoes em cada alerta de compra:  executei / nao executei.
-Comando de texto:  /preco LINK 14.25   (preco real de entrada)
+Comandos de texto:  /preco LINK 14.25   (preco real de entrada)
+                    /fechei LINK 15.10  (fechaste tudo a mao a esse preco)
 So sao aceites mensagens do chat configurado em TELEGRAM_CHAT_ID.
 """
 import json
@@ -10,8 +11,14 @@ import re
 import urllib.parse
 import urllib.request
 
+from . import ledger
+
 CMD = re.compile(r"^/?pre[cç]o\s+([A-Za-z0-9]+)\s+([0-9]+(?:[.,][0-9]+)?)\s*$",
                  re.I)
+
+
+CLOSE = re.compile(r"^/?fechei\s+([A-Za-z0-9]+)\s+([0-9]+(?:[.,][0-9]+)?)\s*$",
+                   re.I)
 
 
 CAP = re.compile(r"^/?capital\s+([0-9]+(?:[.,][0-9]+)?)\s*$", re.I)
@@ -133,6 +140,30 @@ def apply(state, updates, chat_id):
                 else:
                     out.append(("Valor de capital fora dos limites.", None))
                 continue
+            cl = CLOSE.match(text)
+            if cl:
+                asset = cl.group(1).upper()
+                px = float(cl.group(2).replace(",", "."))
+                rec = next((r for r in reversed(led) if r["asset"] == asset
+                            and r["status"] == "OPEN" and r.get("executed")
+                            and not ledger.user_closed(r)), None)
+                if not rec or px <= 0:
+                    out.append((f"Não encontrei operação tua aberta em {asset}.",
+                                None))
+                    continue
+                sig = state.get("signals", {}).get(rec["id"]) or {}
+                parts = rec.get("partials") or (sig.get("plan") or {}).get(
+                    "partials")
+                r_ = ledger.user_close_r(rec, px, parts, _fee_pct())
+                rec.update(user_exit=px, user_result_r=r_,
+                           user_closed_at=int(msg.get("date") or 0))
+                usd = (r_ or 0) * (rec.get("risk_usdc") or 0)
+                out.append((f"Registado: fechaste {asset} a {px:g}. Resultado "
+                            f"estimado {r_:+.2f}R ({usd:+.2f} USDC). Deixas de "
+                            "receber avisos desta operação; o sinal continua a "
+                            "ser seguido só para as estatísticas da estratégia.",
+                            None))
+                continue
             m = CMD.match(text)
             if not m:
                 continue
@@ -167,5 +198,6 @@ def muted(state, event):
                     and r["asset"] == event.get("asset")), None)
     else:
         rec = next((r for r in led if r["id"] == event.get("id")), None)
-    return bool(rec) and rec.get("executed") is False and \
-        k not in ("ISSUED", "PAPER_BUY")
+    if not rec or k in ("ISSUED", "PAPER_BUY"):
+        return False
+    return rec.get("executed") is False or rec.get("user_result_r") is not None

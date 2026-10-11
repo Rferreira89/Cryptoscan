@@ -15,6 +15,8 @@ def _open_lines(state):
     nao as tem; continuam so a ser seguidas para as estatisticas."""
     out, skip = [], []
     no_ids, no_trend = ledger.declined(state)
+    no_ids = set(no_ids) | {r["id"] for r in state.get("ledger", [])
+                            if ledger.user_closed(r)}
     for k, s in state.get("signals", {}).items():
         if k in no_ids or s.get("id") in no_ids:
             if s["status"] in ("ACTIVE", "TRIGGERED"):

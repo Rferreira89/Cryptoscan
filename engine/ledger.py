@@ -76,8 +76,38 @@ def apply(state, events):
     return led
 
 
+def user_close_r(r, px, partials, fee_pct=0.25):
+    """R do Rui quando fecha a operacao a mao ao preco px: as vendas parciais
+    ja feitas nos objetivos atingidos e o resto a px, com o preco de entrada
+    dele e as comissoes."""
+    d = -1 if r.get("side") == "SHORT" else 1
+    e = r.get("exec_price") or r.get("entry")
+    stop, f = r["stop"], fee_pct / 100
+    if not e or d * (e - stop) <= 0:
+        return None
+    hit = int(r.get("tp_hit") or 0)
+    parts = list(partials or [50, 30, 20])[:hit]
+    tps = (r.get("tp") or [])[:hit]
+    pnl, sold = 0.0, 0.0
+    for pct, tp in zip(parts, tps):
+        w = pct / 100
+        pnl += w * (d * (tp - e) - f * (tp + e))
+        sold += w
+    rest = max(0.0, 1 - sold)
+    pnl += rest * (d * (px - e) - f * (px + e))
+    return round(pnl / (d * (e - stop) + f * (e + stop)), 2)
+
+
+def user_closed(r):
+    """True se o Rui fechou a operacao a mao (o sinal continua a ser seguido
+    para as estatisticas da estrategia, mas o dinheiro dele ja saiu)."""
+    return r.get("user_result_r") is not None
+
+
 def user_r(r):
     """Resultado ajustado ao preco de entrada real (estimativa)."""
+    if r.get("user_result_r") is not None:
+        return r["user_result_r"]
     ep, entry = r.get("exec_price"), r.get("entry")
     d = -1 if r.get("side") == "SHORT" else 1
     if not ep or not entry or d * (entry - r["stop"]) <= 0 \
@@ -113,16 +143,19 @@ def realized_usdc(led, since=0):
     plano; com o preco de entrada do utilizador quando o indicou)."""
     tot = 0.0
     for r in led:
-        if r.get("executed") is True and r.get("status") == "CLOSED" \
-                and (r.get("closed_at") or 0) >= since:
+        done = r.get("status") == "CLOSED" or user_closed(r)
+        when = r.get("user_closed_at") or r.get("closed_at") or 0
+        if r.get("executed") is True and done and when >= since:
             tot += (user_r(r) or 0.0) * (r.get("risk_usdc") or 0.0)
     return round(tot, 2)
 
 
 def summary(led, since=None, executed_only=False):
     if executed_only:
-        led = [dict(r, result_r=user_r(r)) if r["status"] == "CLOSED" else r
-               for r in led if r.get("executed")]
+        led = [dict(r, status="CLOSED", result_r=user_r(r),
+                    closed_at=r["user_closed_at"]) if user_closed(r)
+               else dict(r, result_r=user_r(r)) if r["status"] == "CLOSED"
+               else r for r in led if r.get("executed")]
     closed = sorted((r for r in led if r["status"] == "CLOSED"
                      and r.get("mode", "REAL") == "REAL"
                      and (since is None or r["closed_at"] >= since)),

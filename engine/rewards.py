@@ -21,8 +21,9 @@ ITEMS = [
 
 
 def _mine(led):
-    return [r for r in led if r.get("executed") is True
-            and r.get("status") == "CLOSED"]
+    return [dict(r, closed_at=r.get("user_closed_at") or r.get("closed_at"))
+            for r in led if r.get("executed") is True
+            and (r.get("status") == "CLOSED" or ledger.user_closed(r))]
 
 
 def check(state, result, now):

@@ -331,7 +331,7 @@ function buildRadar() {
 function updateRadar() {
   const D = API().D(); if (!radar || !D) return;
   radar.blips.clear();
-  const J = (D.journal || {}).rows || [], dec = new Set(J.filter(r => r.executed === false).map(r => r.id));
+  const J = (D.journal || {}).rows || [], dec = new Set(J.filter(r => r.executed === false || r.user_closed_flag).map(r => r.id));
   const act = (D.active_signals || []).filter(s => s.mode !== "PAPER" && !dec.has(s.id));
   const cur = a => ((D.universe || []).find(r => r.asset === a) || {}).price;
   const add = (r, ang, c, h) => { const m = new THREE.Mesh(new THREE.SphereGeometry(.13, 12, 10), mat(c, 2)); m.position.set(Math.cos(ang) * r, 0, Math.sin(ang) * r); radar.blips.add(m);
