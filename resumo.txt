@@ -1,0 +1,83 @@
+STATUS OK
+  binance  OK 761 pares
+  okx      OK 411 pares
+  kucoin   OK 813 pares
+  bybit-eu {'ok': True, 'pairs': 79}
+COUNTS {'pairs_seen': 938, 'eligible': 48, 'deep_checked': 48, 'data_valid': 44, 'data_invalid': 0, 'long': 0, 'short': 0, 'watch_short': 0, 'paper': 0, 'watchlist': 0, 'no_trade': 48}
+DERIVADOS {'ok': True, 'with_perp': 47, 'incomplete': 0}
+REGIME BTC BULL
+  BTC      NO TRADE  -     BULL        -                -        score - | nenhuma estratégia aplicável em regime BULL
+  ETH      NO TRADE  -     BULL        -                -        score - | nenhuma estratégia aplicável em regime BULL
+  NEAR     NO TRADE  -     BULL        -                -        score - | nenhuma estratégia aplicável em regime BULL
+  STRK     NO TRADE  -     STRONG BULL -                -        score - | nenhuma estratégia aplicável em regime STRONG BULL
+  SOL      NO TRADE  -     BULL        -                -        score - | nenhuma estratégia aplicável em regime BULL
+  SUI      NO TRADE  -     NEUTRAL     -                -        score - | BREAKOUT: LOW VOLUME BREAKOUT: volume da quebra 0.56x a média
+      rejeitado BREAKOUT: LOW VOLUME BREAKOUT: volume da quebra 0.56x a média
+  UNI      NO TRADE  -     BULL        -                -        score - | PULLBACK: POOR R:R: resistência em 8.008 a menos de 1R da entrada
+      rejeitado BREAKOUT: LOW VOLUME BREAKOUT: volume da quebra 0.5x a média
+      rejeitado PULLBACK: POOR R:R: resistência em 8.008 a menos de 1R da entrada
+  XRP      NO TRADE  -     STRONG BULL -                -        score - | PULLBACK: stop demasiado curto (0.7 ATR): ruído
+      rejeitado PULLBACK: stop demasiado curto (0.7 ATR): ruído
+  WLD      NO TRADE  -     STRONG BULL -                -        score - | nenhuma estratégia aplicável em regime STRONG BULL
+  BNB      NO TRADE  -     STRONG BULL -                -        score - | PULLBACK: stop demasiado curto (1.2 ATR): ruído
+      rejeitado BREAKOUT: LOW VOLUME BREAKOUT: volume da quebra 0.64x a média
+      rejeitado PULLBACK: stop demasiado curto (1.2 ATR): ruído
+  ADA      NO TRADE  -     BULL        -                -        score - | PULLBACK: stop demasiado curto (1.1 ATR): ruído
+      rejeitado PULLBACK: stop demasiado curto (1.1 ATR): ruído
+  AAVE     NO TRADE  -     BULL        -                -        score - | nenhuma estratégia aplicável em regime BULL
+  DOGE     NO TRADE  -     NEUTRAL     -                -        score - | nenhuma estratégia aplicável em regime NEUTRAL
+  TIA      NO TRADE  -     NEUTRAL     -                -        score - | BREAKOUT: sem nível real para o 1.º objetivo: o alvo seria só uma projeção
+      rejeitado BREAKOUT: sem nível real para o 1.º objetivo: o alvo seria só uma projeção
+  ENA      NO TRADE  -     BULL        -                -        score - | nenhuma estratégia aplicável em regime BULL
+  FIL      NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+  HYPE     NO TRADE  -     BULL        -                -        score - | PULLBACK: POOR R:R: resistência em 86.615 a menos de 1R da entrada
+      rejeitado PULLBACK: POOR R:R: resistência em 86.615 a menos de 1R da entrada
+  DOT      NO TRADE  -     NEUTRAL     -                -        score - | nenhuma estratégia aplicável em regime NEUTRAL
+  LINK     NO TRADE  -     STRONG BULL -                -        score - | PULLBACK: POOR R:R: resistência em 13.374 a menos de 1R da entrada
+      rejeitado BREAKOUT: LOW VOLUME BREAKOUT: volume da quebra 1.11x a média
+      rejeitado PULLBACK: POOR R:R: resistência em 13.374 a menos de 1R da entrada
+  ONDO     NO TRADE  -     BULL        -                -        score - | nenhuma estratégia aplicável em regime BULL
+  AVAX     NO TRADE  -     STRONG BULL -                -        score - | nenhuma estratégia aplicável em regime STRONG BULL
+  PUMP     NO TRADE  -     -           -                -        score - | spread elevado na Bybit UE
+  TRX      NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+  INJ      NO TRADE  -     BULL        -                -        score - | BREAKOUT: LOW VOLUME BREAKOUT: volume da quebra 0.77x a média
+      rejeitado BREAKOUT: LOW VOLUME BREAKOUT: volume da quebra 0.77x a média
+  APT      NO TRADE  -     NEUTRAL     -                -        score - | BREAKOUT: POOR R:R: resistência em 0.8595 a menos de 1R da entrada
+      rejeitado BREAKOUT: POOR R:R: resistência em 0.8595 a menos de 1R da entrada
+  SEI      NO TRADE  -     NEUTRAL     -                -        score - | BREAKOUT: POOR R:R: resistência em 0.06969 a menos de 1R da entrada
+      rejeitado BREAKOUT: POOR R:R: resistência em 0.06969 a menos de 1R da entrada
+  ATOM     NO TRADE  -     HIGH VOLATILITY -                -        score - | regime HIGH VOLATILITY: sem vantagem identificável
+  LTC      NO TRADE  -     BULL        -                -        score - | nenhuma estratégia aplicável em regime BULL
+  OP       NO TRADE  -     NEUTRAL     -                -        score - | nenhuma estratégia aplicável em regime NEUTRAL
+  ZK       NO TRADE  -     -           -                -        score - | preço da Bybit UE desatualizado
+  KAIA     NO TRADE  -     -           -                -        score - | preço da Bybit UE desatualizado
+  ARB      NO TRADE  -     BULL        -                -        score - | BREAKOUT: LOW VOLUME BREAKOUT: volume da quebra 0.62x a média
+      rejeitado BREAKOUT: LOW VOLUME BREAKOUT: volume da quebra 0.62x a média
+  PEPE     NO TRADE  -     BULL        -                -        score - | nenhuma estratégia aplicável em regime BULL
+  BCH      NO TRADE  -     -           -                -        score - | preço da Bybit UE desatualizado
+  TRUMP    NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  ICP      NO TRADE  -     STRONG BULL -                -        score - | BREAKOUT: LOW VOLUME BREAKOUT: volume da quebra 0.63x a média
+      rejeitado BREAKOUT: LOW VOLUME BREAKOUT: volume da quebra 0.63x a média
+  HBAR     NO TRADE  -     BULL        -                -        score - | PULLBACK: stop demasiado curto (0.9 ATR): ruído
+      rejeitado PULLBACK: stop demasiado curto (0.9 ATR): ruído
+  WAL      NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+  ASTER    NO TRADE  -     BULL        -                -        score - | nenhuma estratégia aplicável em regime BULL
+  XLM      NO TRADE  -     NEUTRAL     -                -        score - | BREAKOUT: LOW VOLUME BREAKOUT: volume da quebra 0.43x a média
+      rejeitado BREAKOUT: LOW VOLUME BREAKOUT: volume da quebra 0.43x a média
+  S        NO TRADE  -     BULL        -                -        score - | BREAKOUT: POOR R:R: resistência em 0.04812 a menos de 1R da entrada
+      rejeitado BREAKOUT: POOR R:R: resistência em 0.04812 a menos de 1R da entrada
+  W        NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+  PENGU    NO TRADE  -     HIGH VOLATILITY -                -        score - | regime HIGH VOLATILITY: sem vantagem identificável
+  POL      NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+  SHIB     NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+  ALGO     NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+  XPL      NO TRADE  -     NEUTRAL     -                -        score - | BREAKOUT: LOW VOLUME BREAKOUT: volume da quebra 0.67x a média
+      rejeitado BREAKOUT: LOW VOLUME BREAKOUT: volume da quebra 0.67x a média
+  PYTH     NO TRADE  -     -           -                -        score - | preço da Bybit UE desatualizado
+FILTRO DE MERCADO {'btc_above_sma200': True, 'close': 82988.36, 'sma200': 71955.51, 'distance_pct': 15.3, 'since': 1790942427}
+PAPEL TENDENCIA capital 0.0% n 0 posicoes []
+REGISTO {'REAL:BREAKOUT': {'n': 3, 'wins': 0, 'sum_r': -3.243}, 'REAL:PULLBACK': {'n': 2, 'wins': 0, 'sum_r': -2.605}} TRAVAO None
+SINAIS ATIVOS 3
+  PUMP-LIQUIDITY_SWEEP-1791065409 TRIGGERED {'leverage': {'use': 1.0, 'max_safe': 1.5, 'needed': 1.0, 'collateral_pct': 24.2, 'borrowed_pct': 0.0, 'liquidation_est': None, 'reason': 'sem margem: volatilidade diária muito alta'}, 'position_usdc': 12.09, 'collateral_usdc': 12.09, 'borrowed_usdc': 0.0, 'risk_usdc': 2.5, 'entry_zone': [0.0061575, 0.00627], 'entry_ref': 0.00627, 'stop': 0.0049845, 'tp': [0.0075806, 0.0088786, 0.010177], 'tp_projected': [1, 2, 3], 'rr': 2.0, 'rr_tp1': 1.0, 'rr_tp3': 3.0, 'stop_pct': 20.68, 'stop_atr': 3.43, 'position_pct': 24.2, 'risk_pct': 5.0, 'partials': [50, 50, 0]}
+  ENA-LIQUIDITY_SWEEP-1791518412 TRIGGERED {'leverage': {'use': 1.0, 'max_safe': 3.0, 'needed': 1.0, 'collateral_pct': 29.5, 'borrowed_pct': 0.0, 'liquidation_est': None, 'reason': 'sem margem: volatilidade diária muito alta'}, 'position_usdc': 23.75, 'collateral_usdc': 23.75, 'borrowed_usdc': 0.0, 'risk_usdc': 2.42, 'entry_zone': [0.2093, 0.212], 'entry_ref': 0.212, 'stop': 0.1914, 'tp': [0.2627, 0.2811, 0.2946], 'tp_projected': [], 'rr': 3.14, 'rr_tp1': 2.29, 'rr_tp3': 3.76, 'stop_pct': 10.19, 'stop_atr': 2.29, 'position_pct': 29.5, 'risk_pct': 3.01, 'partials': [50, 50, 0]}
+  ICP-LIQUIDITY_SWEEP-1791547213 TRIGGERED {'leverage': {'use': 1.0, 'max_safe': 5.0, 'needed': 1.0, 'collateral_pct': 30.0, 'borrowed_pct': 0.0, 'liquidation_est': None, 'reason': 'sem margem: há um conflito (4H bearish contra 1D bullish)'}, 'position_usdc': 24.15, 'collateral_usdc': 24.15, 'borrowed_usdc': 0.0, 'risk_usdc': 1.53, 'entry_zone': [2.9786, 3.008], 'entry_ref': 3.008, 'stop': 2.8316, 'tp': [3.245, 3.609, 3.8005], 'tp_projected': [3], 'rr': 3.06, 'rr_tp1': 1.16, 'rr_tp3': 4.06, 'stop_pct': 6.35, 'stop_atr': 1.8, 'position_pct': 30.0, 'risk_pct': 1.9, 'partials': [50, 50, 0]}
