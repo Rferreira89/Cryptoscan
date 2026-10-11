@@ -129,7 +129,8 @@ button:focus-visible,summary:focus-visible,.steps li:focus-visible{outline:2px s
 a{color:inherit}
 
 /* navegacao */
-#homeview[hidden],#arenaview[hidden]{display:none}
+#homeview[hidden],#arenaview[hidden],#rewview[hidden]{display:none}
+#rewview{position:absolute;right:12px;bottom:calc(188px + env(safe-area-inset-bottom));width:46px;height:46px;border-radius:50%;background:#0c0a24e6;border:1px solid #F6C453;color:#F6C453;font-size:20px;cursor:pointer;box-shadow:0 0 14px #F6C45344;z-index:4}
 #arenaview{position:absolute;right:12px;bottom:calc(132px + env(safe-area-inset-bottom));width:46px;height:46px;border-radius:50%;background:#0c0a24e6;border:1px solid #FF6FB5;color:#FF6FB5;font-size:20px;cursor:pointer;box-shadow:0 0 14px #FF6FB544;z-index:4}
 #homeview{position:absolute;right:12px;bottom:calc(76px + env(safe-area-inset-bottom));width:46px;height:46px;border-radius:50%;background:#0c0a24e6;border:1px solid #4FD1C5;color:#4FD1C5;font-size:22px;cursor:pointer;box-shadow:0 0 14px #4FD1C544;z-index:4}
 #navhint{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(132px + env(safe-area-inset-bottom));background:#0c0a24f0;border:1px solid #2b2470;border-radius:99px;padding:8px 14px;font-size:12.5px;white-space:nowrap;pointer-events:none;z-index:4;transition:opacity .4s}
@@ -238,7 +239,7 @@ body.sheet-open #sheet{transform:none}
 @media (prefers-reduced-motion:reduce){.typing i,.bot .eye{animation:none}.bub{transition:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module" src="office3d.js?v=20261011b"></script>
+<script type="module" src="office3d.js?v=20261011d"></script>
 </head>
 <body class="w3d">
 <div id="world">
@@ -255,6 +256,7 @@ body.sheet-open #sheet{transform:none}
 </nav>
 <button id="homeview" aria-label="Voltar à vista inicial" title="Vista inicial">⌂</button>
 <button id="arenaview" aria-label="Ir para a arena" title="Arena">⚔️</button>
+<button id="rewview" aria-label="Ver as recompensas" title="Recompensas">🏆</button>
 <div id="navhint" hidden>☝️ Arrasta com um dedo para andar · ✌️ dois dedos para rodar e aproximar</div>
 <span id="n-esc" hidden></span>
 </div>
@@ -326,7 +328,7 @@ function renderArena(D){
   const A=D.arena;if(!A||!A.classificacao){$("arena").innerHTML=`<div class="banner">A arena começa no próximo scan.</div>`;return}
   const tag={"SOBE":["🏆 Sobe","up"],"A COMPETIR":["⚔️ A competir",""],"MORTA":["💀 Morta","dn"]};
   const rows=A.classificacao.map((b,i)=>{const t=tag[b.estado]||[b.estado,""];const ac=b.acaso_mediana==null?"–":`${b.acaso_mediana>0?"+":""}${num(b.acaso_mediana,2)}R`;
-    return `<tr><td>${i+1}. ${esc(b.name)}</td><td>${b.n}</td><td class="${b.avg_r>0?"up":b.avg_r<0?"dn":""}">${b.avg_r==null?"–":(b.avg_r>0?"+":"")+num(b.avg_r,2)+"R"}</td><td>${ac}</td><td class="${t[1]}">${t[0]}</td></tr>`}).join("");
+    return `<tr><td>${i+1}. <b>${esc(b.persona||"")}</b> ${esc(b.name)}</td><td>${b.n}</td><td class="${b.avg_r>0?"up":b.avg_r<0?"dn":""}">${b.avg_r==null?"–":(b.avg_r>0?"+":"")+num(b.avg_r,2)+"R"}</td><td>${ac}</td><td class="${t[1]}">${t[0]}</td></tr>`}).join("");
   const alive=A.classificacao.filter(b=>b.estado!=="MORTA").length;
   $("n-arena").textContent=`${alive} vivas de ${A.classificacao.length}`;
   $("arena").innerHTML=`<div class="banner"><b>Todas as estratégias a competir com as mesmas regras</b>Morre: ${esc(A.regras.morre)}. Sobe para dinheiro real (só com o teu sim): ${esc(A.regras.sobe)}. As estratégias ao vivo continuam a dar sinais mesmo mortas (opção B).</div>${A.recrutar?`<div class="banner"><b>⚠️ Poucos lutadores vivos (${A.vivos} de um mínimo de ${A.minimo_vivos})</b>A investigação está obrigada a trazer concorrentes novos em cada corrida até a arena voltar a ter lutadores suficientes.</div>`:""}<div class="tw"><table><tr><th>Concorrente</th><th>N</th><th>R médio</th><th>Acaso</th><th>Estado</th></tr>${rows}</table></div><div class="note">Contam todos os sinais emitidos, executados ou não: mede-se a estratégia, não a execução.</div>`;
@@ -777,7 +779,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261011c";
+const PAGE_V="20261011d";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -786,14 +788,14 @@ const PAGE_V="20261011c";
 const RAW_MAIN="https://raw.githubusercontent.com/Rferreira89/Cryptoscan/main/";
 let OF={files:{},i:0,open:null,loadedAt:0};
 const AGENTS=[
- {id:"scan",nm:"Analista",rl:"scan completo a cada 5 min",c:"#4FD1C5"},
- {id:"mon",nm:"Guarda das posições",rl:"vigia stops e objetivos ao minuto",c:"#FFA94D"},
- {id:"vig",nm:"Vigia",rl:"confirma que tudo corre, de 6 em 6 h",c:"#8AA0B4",cron:{h:[1,7,13,19],m:53}},
- {id:"news",nm:"Repórter",rl:"notícias e eventos, todos os dias",c:"#F2C265",cron:{d:[0,1,2,3,4,5,6],h:[7],m:22}},
- {id:"afin",nm:"Afinador",rl:"testa melhorias às estratégias",c:"#9F7AEA",cron:{d:[1,3,5],h:[9],m:43}},
- {id:"inv",nm:"Investigador",rl:"procura estratégias novas",c:"#63B3ED",cron:{d:[0,3],h:[9],m:52}},
- {id:"juiz",nm:"Juiz",rl:"compara tudo com o acaso",c:"#FF8A80",cron:{d:[1,3,5],h:[9],m:43}},
- {id:"aud",nm:"Auditor",rl:"procura erros, ao sábado",c:"#68D391",cron:{d:[6],h:[9],m:47}}];
+ {id:"scan",nm:"Tiago · Analista",rl:"scan completo a cada 5 min",c:"#4FD1C5"},
+ {id:"mon",nm:"Marta · Guarda",rl:"vigia stops e objetivos ao minuto",c:"#FFA94D"},
+ {id:"vig",nm:"Jorge · Vigia",rl:"confirma que tudo corre, de 6 em 6 h",c:"#8AA0B4",cron:{h:[1,7,13,19],m:53}},
+ {id:"news",nm:"Inês · Repórter",rl:"notícias e eventos, todos os dias",c:"#F2C265",cron:{d:[0,1,2,3,4,5,6],h:[7],m:22}},
+ {id:"afin",nm:"Nuno · Afinador",rl:"testa melhorias às estratégias",c:"#9F7AEA",cron:{d:[1,3,5],h:[9],m:43}},
+ {id:"inv",nm:"Sofia · Investigadora",rl:"procura estratégias novas",c:"#63B3ED",cron:{d:[0,3],h:[9],m:52}},
+ {id:"juiz",nm:"Henrique · Juiz",rl:"compara tudo com o acaso",c:"#FF8A80",cron:{d:[1,3,5],h:[9],m:43}},
+ {id:"aud",nm:"André · Auditor",rl:"procura erros, ao sábado",c:"#68D391",cron:{d:[6],h:[9],m:47}}];
 function nextRun(cr){if(!cr)return null;const n=new Date();for(let k=0;k<8*24*60;k+=1){const d=new Date(n.getTime()+k*60000);if((!cr.d||cr.d.includes(d.getDay()))&&cr.h.includes(d.getHours())&&d.getMinutes()===cr.m)return d}return null}
 function inTxt(d){if(!d)return"";const m=Math.round((d-new Date())/60000);if(m<60)return`daqui a ${m} min`;const h=Math.floor(m/60);if(h<24)return`daqui a ${h} h ${m%60} min`;return d.toLocaleString("pt-PT",{weekday:"long",hour:"2-digit",minute:"2-digit"})}
 function bot(c){return`<svg class="bot" viewBox="0 0 34 34" aria-hidden="true"><line x1="17" y1="3" x2="17" y2="8" stroke="${c}" stroke-width="2"/><circle cx="17" cy="3" r="2" fill="${c}"/><rect x="5" y="8" width="24" height="19" rx="6" fill="var(--bg)" stroke="${c}" stroke-width="2"/><rect class="eye" x="11" y="15" width="4" height="5" rx="1.5" fill="${c}"/><rect class="eye" x="19" y="15" width="4" height="5" rx="1.5" fill="${c}"/><rect x="12" y="29" width="10" height="3" rx="1.5" fill="${c}" opacity=".6"/></svg>`}
@@ -1092,12 +1094,13 @@ document.addEventListener("click",e=>{const tr=e.target.closest("tr.rp");if(tr)o
 // ===== Instalar como app (so no Safari do iPhone, fora do modo app) =====
 (()=>{const ios=/iPhone|iPad|iPod/.test(navigator.userAgent),standalone=navigator.standalone||matchMedia("(display-mode: standalone)").matches;
   let seen=null;try{seen=localStorage.getItem("installHint")}catch(_){}
-  if(ios&&!standalone&&!seen){const el=$("install");setTimeout(()=>{el.hidden=false;$("homeview").hidden=true;$("arenaview").hidden=true},4000);
-    el.querySelector("button").addEventListener("click",()=>{el.hidden=true;$("homeview").hidden=false;$("arenaview").hidden=false;try{localStorage.setItem("installHint","1")}catch(_){}})}})();
+  if(ios&&!standalone&&!seen){const el=$("install");setTimeout(()=>{el.hidden=false;$("homeview").hidden=true;$("arenaview").hidden=true;$("rewview").hidden=true},4000);
+    el.querySelector("button").addEventListener("click",()=>{el.hidden=true;$("homeview").hidden=false;$("arenaview").hidden=false;$("rewview").hidden=false;try{localStorage.setItem("installHint","1")}catch(_){}})}})();
 
 // ===== Navegacao no escritorio: botao de vista inicial e dica (uma vez) =====
 $("homeview").addEventListener("click",()=>{if(window.Office3D&&window.Office3D.resetView)window.Office3D.resetView()});
 $("arenaview").addEventListener("click",()=>{if(window.Office3D&&window.Office3D.goArena)window.Office3D.goArena()});
+$("rewview").addEventListener("click",()=>{if(window.Office3D&&window.Office3D.goRewards)window.Office3D.goRewards()});
 (()=>{let seen=null;try{seen=localStorage.getItem("navHint")}catch(_){}if(seen)return;const h=$("navhint");
   setTimeout(()=>{h.hidden=false;setTimeout(()=>{h.style.opacity=0;setTimeout(()=>{h.hidden=true},500)},7000)},2500);
   try{localStorage.setItem("navHint","1")}catch(_){}})();

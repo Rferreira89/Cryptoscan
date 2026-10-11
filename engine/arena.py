@@ -46,6 +46,24 @@ NAMES = {"PULLBACK": "Recuo (ao vivo)", "BREAKOUT": "Quebra (ao vivo)",
          "BOUNCE_V1": "Oversold Bounce + saída ao vivo (papel)",
          "BOUNCE_V2": "Oversold Bounce stop curto 2R (papel)",
          "BOUNCE_V3": "Oversold Bounce stop original 2R (papel)"}
+# cada concorrente e um analista com nome proprio (decisao do Rui)
+PERSONA = {"BREAKOUT": "Bruno", "PULLBACK": "Rita", "LIQUIDITY_SWEEP": "Simão",
+           "RANGE": "Raquel", "TREND_DAILY": "Teodoro", "BOUNCE_G0": "Gaspar",
+           "BOUNCE_V1": "Vasco", "BOUNCE_V2": "Vera", "BOUNCE_V3": "Violeta"}
+POOL = ["Leonor", "Duarte", "Matilde", "Afonso", "Carolina", "Martim", "Beatriz",
+        "Lourenço", "Mariana", "Salvador", "Francisca", "Henrique", "Clara",
+        "Tomás", "Joana", "Miguel", "Catarina", "Diogo", "Lara", "Gonçalo"]
+
+
+def persona(k):
+    """Nome do analista que representa o concorrente k (estavel: o mesmo
+    concorrente tem sempre o mesmo nome; os novos recebem um da lista)."""
+    base = k.replace("_SHORT", "")
+    if base in PERSONA:
+        return PERSONA[base] + (" Jr." if k.endswith("_SHORT") else "")
+    h = sum(ord(c) * (i + 1) for i, c in enumerate(base))
+    return POOL[h % len(POOL)]
+
 CTRL_PER_SCAN = 6            # operacoes de controlo novas por scan (tempo)
 
 
@@ -175,7 +193,7 @@ def update(state, bars, now, seed=None):
         v = verdict(len(rs), mean, med, p95, has_ctrl)
         prev = ar["status"].get(k)
         ar["status"][k] = v
-        board.append({"id": k, "name": _name(k), "n": len(rs),
+        board.append({"id": k, "name": _name(k), "persona": persona(k), "n": len(rs),
                       "wins": sum(1 for x in rs if x > 0),
                       "avg_r": round(mean, 3), "total_r": round(sum(rs), 2),
                       "acaso_mediana": None if med is None else round(med, 3),
@@ -185,6 +203,7 @@ def update(state, bars, now, seed=None):
     for g in ("G0", "V1", "V2", "V3"):           # papel ainda sem operacoes
         if not any(b["id"] == "BOUNCE_" + g for b in board):
             board.append({"id": "BOUNCE_" + g, "name": _name("BOUNCE_" + g),
+                          "persona": persona("BOUNCE_" + g),
                           "n": 0, "wins": 0, "avg_r": None, "total_r": 0,
                           "acaso_mediana": None, "acaso_p95": None,
                           "estado": "A COMPETIR", "mudou": False,
@@ -215,7 +234,7 @@ def events(summary, now):
     for b in summary.get("classificacao", []):
         if b["mudou"] and b["estado"] in ("MORTA", "SOBE"):
             out.append({"t": now, "event": "ARENA", "id": f"arena-{b['id']}",
-                        "name": b["name"], "estado": b["estado"], "n": b["n"],
+                        "name": f"{b['persona']} ({b['name']})", "estado": b["estado"], "n": b["n"],
                         "avg_r": b["avg_r"], "live": b["live"],
                         "real": False})
     return out

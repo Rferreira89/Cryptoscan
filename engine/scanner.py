@@ -11,7 +11,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 
 from . import (analysis, config, derivatives, events as calendar, ledger, short,
-               arena, paper_bounce,
+               arena, paper_bounce, rewards,
                liquidity, paper_trend, regime, review,
                signals,
                sources, validate, venue, volume)
@@ -333,6 +333,12 @@ def run(now=None, state=None, cfg=None):
         events += arena.events(result["arena"], now)
     except Exception as e:  # a arena nunca pode parar o scan
         result["arena"] = {"erro": str(e)[:120]}
+    # recompensas do escritorio: conquistas reais desbloqueiam espacos
+    try:
+        result["rewards"], ev = rewards.update(state, result, now)
+        events += ev
+    except Exception as e:  # nunca pode parar o scan
+        result["rewards"] = []
     result["halt"] = state.get("halt")
     result["paper_trend"], ev = paper_trend.update(
         state, eligible, daily, cfg, now, market_ok,

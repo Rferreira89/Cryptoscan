@@ -490,6 +490,7 @@ class EndToEnd(unittest.TestCase):
         self.assertIn("G0", res["paper_bounce"])
         self.assertNotIn("erro", res.get("arena", {}))
         self.assertIn("classificacao", res["arena"])
+        self.assertEqual(len(res["rewards"]), 5)
         res2, state, _ = S.run(now=now + 900, state=state, cfg=dict(CFG))
         self.assertLessEqual(len(res2["active_signals"]), CFG["max_open_positions"])
 

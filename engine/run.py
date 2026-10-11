@@ -215,6 +215,9 @@ def alert_text(e, sigs, note):
                 f"Se acontecer: entrada {_px(e['entry'][0])} a "
                 f"{_px(e['entry'][1])}, stop {_px(e['stop'])}, "
                 f"1.º objetivo {_px(e['tp1'])}.")
+    if k == "REWARD":
+        return (f"🎉 ESCRITÓRIO — desbloqueaste: {e['name']}! "
+                f"Conquista real: {e['cond']}. Vai ver ao escritório 3D.")
     if k == "ARENA":
         if e["estado"] == "MORTA":
             extra = (" Continua a dar sinais reais (opção B), mas perdeu na "

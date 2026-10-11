@@ -385,10 +385,10 @@ function drawArenaBoard(g) {
     const y = 108 + i * 44, dead = b.estado === "MORTA", up = b.estado === "SOBE";
     g.fillStyle = i % 2 ? "#ffffff08" : "#ffffff12"; g.fillRect(20, y - 30, W - 40, 40);
     g.fillStyle = dead ? "#6b6585" : up ? "#F6C453" : "#ffffff"; g.font = "700 26px system-ui";
-    g.fillText(`${i + 1}. ${SHORT[b.id] || b.id}`, 32, y);
-    g.font = "600 24px system-ui"; g.fillStyle = "#c9c2ee"; g.fillText(`${b.n} op.`, 300, y);
+    g.fillText(`${i + 1}. ${b.persona ? b.persona + " · " : ""}${SHORT[b.id] || b.id}`, 32, y);
+    g.font = "600 24px system-ui"; g.fillStyle = "#c9c2ee"; g.fillText(`${b.n} op.`, 330, y);
     const r = b.avg_r; g.fillStyle = r == null ? "#8a83ad" : r > 0 ? "#68D391" : "#FC8181";
-    g.fillText(r == null ? "–" : (r > 0 ? "+" : "") + r.toFixed(2).replace(".", ",") + "R", 420, y);
+    g.fillText(r == null ? "–" : (r > 0 ? "+" : "") + r.toFixed(2).replace(".", ",") + "R", 440, y);
     g.fillStyle = dead ? "#8a83ad" : up ? "#F6C453" : "#4FD1C5";
     g.fillText(dead ? "💀 morta" : up ? "🏆 sobe" : "⚔ a lutar", 580, y);
   });
@@ -476,7 +476,7 @@ function updateArena() {
     const st = boxM(.7, .9, .18, mat("#4a4560"), x, .45, z - .6, arenaG);
     f.g.rotation.z = Math.PI / 2; f.g.position.set(x - .9, .15, z + .1); f.home = f.g.position.clone(); arenaG.add(f.g); fighters.push(f);
   });
-  fighters.forEach(f => { const r = f.b.avg_r, nm = (SHORT[f.b.id] || f.b.id) + (f.b.n ? ` ${r > 0 ? "+" : ""}${(r || 0).toFixed(2).replace(".", ",")}R` : " · à espera");
+  fighters.forEach(f => { const r = f.b.avg_r, nm = (f.b.persona ? f.b.persona + " · " : "") + (SHORT[f.b.id] || f.b.id) + (f.b.n ? ` ${r > 0 ? "+" : ""}${(r || 0).toFixed(2).replace(".", ",")}R` : " · à espera");
     const el = label((f.dead ? "💀 " : f.leader ? "👑 " : f.b.estado === "SOBE" ? "🏆 " : "") + nm, f.dead ? "#9a94b8" : f.b.estado === "SOBE" ? "#F6C453" : "#ffffff", true);
     const l = { el, p: f.home.clone().setY(f.home.y + (f.dead ? 1.3 : 2.9)) }; labels.push(l); arenaLabels.push(l); });
 }
@@ -496,6 +496,90 @@ function animateArena(dt, t) {
     k.AR.sh.rotation.set(-1.1 - pR * .5, 0, -.25); k.AR.el.rotation.x = -1.6 + pR * 1.5;
     k.spine.rotation.y = (pL - pR) * .25; k.head.rotation.x = .08;
   });
+}
+
+
+// ---------- recompensas: conquistas reais desbloqueiam espacos (D.rewards) ----------
+let rewG = null, rewSig = "", rewLabels = [], rewSeen = null, confetti = [];
+const REW_SHORT = { WIN1: "1.ª operação ganha", WIN3: "3 operações ganhas", PEAK: "capital acima do início", WEEK: "semana positiva", ARENA: "analista sobe na arena" };
+const REW_POS = { WIN1: V(22.2, -11.6), PEAK: V(22.2, -8.0), WEEK: V(24.6, -9.9), WIN3: V(27.1, -11.9), ARENA: V(27.3, -7.9) };
+function rewardRows() { return (API().D() || {}).rewards || []; }
+function rewardObj(id) {
+  const g = new THREE.Group();
+  if (id === "WIN1") {                 // mesa de bilhar
+    boxM(2.2, .18, 1.2, mat("#1f7a4a"), 0, .82, 0, g); boxM(2.4, .14, 1.4, mat("#6b3b1f"), 0, .78, 0, g);
+    [[-1, -.55], [1, -.55], [-1, .55], [1, .55]].forEach(([x, z]) => boxM(.14, .75, .14, mat("#4a2a14"), x, .37, z, g));
+    ["#ffffff", "#F6C453", "#FC8181", "#63B3ED", "#111111"].forEach((c, i) => { const b = new THREE.Mesh(new THREE.SphereGeometry(.05, 10, 8), mat(c)); b.position.set(-.5 + i * .25, .96, (i % 2) * .2 - .1); g.add(b); });
+    const cue = boxM(1.4, .03, .03, mat("#c08a5a"), .3, .96, .35, g); cue.rotation.y = .3;
+  } else if (id === "WIN3") {          // bar no terraco
+    boxM(2.6, 1, .6, mat("#3a2b20"), 0, .5, 0, g); boxM(2.7, .06, .7, mat("#c08a5a"), 0, 1.02, 0, g);
+    boxM(2.6, 1.6, .1, mat("#1b1430"), 0, 1.9, -.6, g);
+    ["#4FD1C5", "#FF6FB5", "#F6C453", "#B794F4"].forEach((c, i) => { const b = new THREE.Mesh(new THREE.CylinderGeometry(.06, .06, .3, 10), mat(c, .8)); b.position.set(-.9 + i * .6, 1.55, -.5); g.add(b); });
+    [-.8, 0, .8].forEach(x => { const st = new THREE.Mesh(new THREE.CylinderGeometry(.2, .2, .06, 14), mat("#FF6FB5", .4)); st.position.set(x, .75, .7); g.add(st); boxM(.06, .72, .06, mat("#222"), x, .36, .7, g); });
+    const sign = boxM(1.2, .3, .05, mat("#FF6FB5", 1.6), 0, 2.85, -.55, g);
+  } else if (id === "PEAK") {          // trofeu dourado
+    boxM(.8, .9, .8, mat("#2b1d74"), 0, .45, 0, g);
+    const pts = [[0, 0], [.22, 0], [.08, .1], [.06, .35], [.3, .55], [.32, .85], [0, .85]].map(([x, y]) => new THREE.Vector2(x, y));
+    const cup = new THREE.Mesh(new THREE.LatheGeometry(pts, 24), mat("#F6C453", .9)); cup.position.y = .9; g.add(cup);
+    [-1, 1].forEach(sd => { const h = new THREE.Mesh(new THREE.TorusGeometry(.12, .025, 8, 16, Math.PI), mat("#F6C453", .9)); h.position.set(sd * .33, 1.6, 0); h.rotation.z = sd * Math.PI / 2; g.add(h); });
+    g.userData.spin = cup;
+  } else if (id === "WEEK") {          // maquina de arcade
+    boxM(.8, 1.8, .7, mat("#2a1f6e"), 0, .9, 0, g);
+    const scr = new THREE.Mesh(new THREE.PlaneGeometry(.6, .45), new THREE.MeshBasicMaterial({ color: 0x4FD1C5, toneMapped: false })); scr.position.set(0, 1.35, .36); g.add(scr); g.userData.blink = scr;
+    boxM(.7, .12, .3, mat("#111"), 0, .98, .42, g);
+    [["#FC8181", -.15], ["#F6C453", .05], ["#68D391", .2]].forEach(([c, x]) => { const b = new THREE.Mesh(new THREE.SphereGeometry(.035, 8, 6), mat(c, 1)); b.position.set(x, 1.06, .48); g.add(b); });
+    boxM(.82, .2, .72, mat("#FF6FB5", 1.2), 0, 1.92, 0, g);
+  } else {                             // hall da fama: estatua dourada
+    boxM(1, .6, 1, mat("#2b1d74"), 0, .3, 0, g);
+    const f = fighter("#F6C453", false); f.g.scale.setScalar(1.1); f.g.position.y = .6;
+    f.rig.AL.sh.rotation.set(Math.PI * .85, 0, .3); f.rig.AR.sh.rotation.set(Math.PI * .85, 0, -.3);
+    f.g.traverse(o => { if (o.material) o.material = mat("#F6C453", .7); }); g.add(f.g);
+  }
+  return g;
+}
+function ghostify(g) {                 // por desbloquear: holograma em arame
+  const gm = new THREE.MeshBasicMaterial({ color: 0x8a83ad, wireframe: true, transparent: true, opacity: .22 });
+  g.traverse(o => { if (o.isMesh) { o.material = gm; o.castShadow = false; } });
+}
+function buildRewards() {
+  rewG = new THREE.Group(); scene.add(rewG);
+  const rug = new THREE.Mesh(new THREE.PlaneGeometry(7.6, 6.6), mat("#1d1550")); rug.rotation.x = -Math.PI / 2; rug.position.set(24.6, .02, -9.9); scene.add(rug);
+  line([V(20.8, -13.2), V(28.4, -13.2), V(28.4, -6.6), V(20.8, -6.6), V(20.8, -13.2)].map(p => p.setY(.04)), 0xF6C453);
+  const zl = label("Recompensas", "#F6C453", true); zl.style.padding = "3px 8px"; zl.style.borderRadius = "99px"; zl.style.background = "#0c0a24b3"; zl.style.border = "1px solid #F6C45366";
+  labels.push({ el: zl, p: new THREE.Vector3(24.6, 2.6, -13) });
+  updateRewards();
+}
+function updateRewards() {
+  if (!rewG) return;
+  const rows = rewardRows(), sig = JSON.stringify(rows.map(r => [r.id, r.unlocked]));
+  if (sig === rewSig) return; rewSig = sig;
+  const newly = rewSeen ? rows.filter(r => r.unlocked && !rewSeen.has(r.id)) : [];
+  rewSeen = new Set(rows.filter(r => r.unlocked).map(r => r.id));
+  rewG.clear(); rewLabels.forEach(l => { l.el.remove(); const i = labels.indexOf(l); if (i >= 0) labels.splice(i, 1); }); rewLabels = [];
+  rows.forEach(r => {
+    const pos = REW_POS[r.id]; if (!pos) return;
+    const g = rewardObj(r.id); g.position.copy(pos); if (!r.unlocked) ghostify(g); rewG.add(g);
+    const el = label((r.unlocked ? "🏆 " : "🔒 ") + r.name + (r.unlocked ? "" : " · " + (REW_SHORT[r.id] || r.cond)), r.unlocked ? "#F6C453" : "#9a94b8", true);
+    el.style.fontWeight = r.unlocked ? "800" : "600"; if (!r.unlocked) el.style.fontSize = "10px";
+    const l = { el, p: pos.clone().setY(r.id === "WIN3" ? 3.3 : 2.5) }; labels.push(l); rewLabels.push(l);
+  });
+  newly.forEach(r => burst(REW_POS[r.id]));
+}
+function burst(p) {                    // confetes quando se desbloqueia
+  if (!p) return; const n = 120, geo = new THREE.BufferGeometry(), pos = new Float32Array(n * 3), col = new Float32Array(n * 3), vel = [];
+  const cs = ["#F6C453", "#FF6FB5", "#4FD1C5", "#B794F4", "#68D391"].map(c => new THREE.Color(c));
+  for (let i = 0; i < n; i++) { pos.set([p.x, 1.5, p.z], i * 3); const c = cs[i % cs.length]; col.set([c.r, c.g, c.b], i * 3);
+    vel.push(new THREE.Vector3((Math.random() - .5) * 4, 3 + Math.random() * 4, (Math.random() - .5) * 4)); }
+  geo.setAttribute("position", new THREE.BufferAttribute(pos, 3)); geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
+  const pts = new THREE.Points(geo, new THREE.PointsMaterial({ size: .14, vertexColors: true, toneMapped: false })); scene.add(pts);
+  confetti.push({ pts, vel, life: 4 });
+}
+function animateRewards(dt, t) {
+  if (rewG) rewG.children.forEach(g => { if (g.userData.spin) g.userData.spin.rotation.y += dt * .8;
+    if (g.userData.blink) g.userData.blink.material.color.setHSL((t * .15) % 1, .7, .55); });
+  confetti = confetti.filter(c => { c.life -= dt; const a = c.pts.geometry.attributes.position;
+    for (let i = 0; i < c.vel.length; i++) { c.vel[i].y -= 6 * dt; a.setXYZ(i, a.getX(i) + c.vel[i].x * dt, Math.max(.05, a.getY(i) + c.vel[i].y * dt), a.getZ(i) + c.vel[i].z * dt); }
+    a.needsUpdate = true; if (c.life <= 0) { scene.remove(c.pts); return false; } return true; });
 }
 
 // ---------- pessoas ----------
@@ -669,9 +753,9 @@ function frame() {
       if (it) window.drawCandles(g, 512, 256, it.cs, it.lv, { title: it.asset, axis: false, n: 40 }); tx.needsUpdate = true; }
     if (clock3d) { drawClock(clock3d.userData.c.getContext("2d")); clock3d.needsUpdate = true; }
     if (dataTex) { dataI++; drawDataWall(dataTex.userData.c.getContext("2d")); dataTex.needsUpdate = true; } }
-  if (nowMs - (frame.tvAt || -1e9) > 30000 || tvT <= 0) { frame.tvAt = nowMs; tvT = 30; drawTV(tvTex.userData.c.getContext("2d")); tvTex.needsUpdate = true; updateRadar(); updateArena(); drawBoard(board.userData.c.getContext("2d")); board.needsUpdate = true; }
+  if (nowMs - (frame.tvAt || -1e9) > 30000 || tvT <= 0) { frame.tvAt = nowMs; tvT = 30; drawTV(tvTex.userData.c.getContext("2d")); tvTex.needsUpdate = true; updateRadar(); updateArena(); updateRewards(); drawBoard(board.userData.c.getContext("2d")); board.needsUpdate = true; }
   if (radar) { radar.sweep.rotation.z -= dt * 1.4; radar.blips.children.forEach((b, i) => { if (b.geometry.type === "SphereGeometry") b.scale.setScalar(1 + Math.sin(t * 4 + i) * .15); }); }
-  animateArena(dt, t);
+  animateArena(dt, t); animateRewards(dt, t);
   ctl.update(); if (composer) composer.render(); else R.render(scene, cam); placeOverlays(dt);
 }
 function resize() {
@@ -704,7 +788,7 @@ function init(container) {
   ctl.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_ROTATE };
   ctl.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
   // nao sair do escritorio: o ponto para onde se olha fica dentro das paredes
-  ctl.addEventListener("change", () => { const t = ctl.target, cx = Math.max(-18.5, Math.min(31, t.x)), cz = Math.max(-8.5, Math.min(11.5, t.z));
+  ctl.addEventListener("change", () => { const t = ctl.target, cx = Math.max(-18.5, Math.min(31, t.x)), cz = Math.max(t.x > 19 ? -11 : -8.5, Math.min(11.5, t.z));
     if (cx !== t.x || cz !== t.z || t.y !== 0) { const dx = cx - t.x, dz = cz - t.z, dy = -t.y; t.set(cx, 0, cz); cam.position.x += dx; cam.position.z += dz; cam.position.y += dy; } });
   scene.add(new THREE.HemisphereLight(0xd6ccff, 0x2a1f6e, 1.55));
   const dl = new THREE.DirectionalLight(0xfff4e8, 1.35); dl.position.set(8, 20, 10); scene.add(dl);
@@ -720,7 +804,7 @@ function init(container) {
     bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), .55, .45, .9); composer.addPass(bloom); composer.addPass(new OutputPass());
   } catch (e) { composer = null; }
   monTex = canvasTex(256, 160, drawMon);
-  buildRoom(); buildAccessories(); Object.keys(DESK).forEach(buildDesk); buildRadar(); buildBoard(); updateRadar(); buildArena();
+  buildRoom(); buildAccessories(); Object.keys(DESK).forEach(buildDesk); buildRadar(); buildBoard(); updateRadar(); buildArena(); buildRewards();
   people = API().agents.map(makePerson);
   // ao abrir: quem esta em pausa ja esta num sitio de descanso (sem marcha em
   // grupo pelo corredor), cada um com a sua faixa e o seu ritmo
@@ -752,4 +836,6 @@ function init(container) {
 function resetView() { resize.done = false; ctl.target.set(0, 0, 0); resize(); ctl.update(); }
 function goArena() { const tx = ARENA_C.x + 2, dx = tx - ctl.target.x, dz = ARENA_C.z - ctl.target.z; ctl.target.set(tx, 0, ARENA_C.z); cam.position.x += dx; cam.position.z += dz;
   const d = cam.position.clone().sub(ctl.target), want = 30; if (d.length() > want) cam.position.copy(ctl.target.clone().add(d.setLength(want))); ctl.update(); }
-window.Office3D = { init, supported, refresh: () => { tvT = 0; }, resetView, goArena };
+function goRewards() { const T = V(24.6, -9.9), dx = T.x - ctl.target.x, dz = T.z - ctl.target.z; ctl.target.copy(T); cam.position.x += dx; cam.position.z += dz;
+  const d = cam.position.clone().sub(ctl.target), want = 20; if (d.length() > want) cam.position.copy(ctl.target.clone().add(d.setLength(want))); ctl.update(); }
+window.Office3D = { init, supported, refresh: () => { tvT = 0; }, resetView, goArena, goRewards };
