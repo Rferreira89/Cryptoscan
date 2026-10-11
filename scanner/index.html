@@ -803,7 +803,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261011f";
+const PAGE_V="20261011g";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -817,7 +817,7 @@ const AGENTS=[
  {id:"vig",nm:"Jorge · Vigia",rl:"confirma que tudo corre, de 6 em 6 h",c:"#8AA0B4",cron:{h:[1,7,13,19],m:53}},
  {id:"news",nm:"Inês · Repórter",rl:"notícias e eventos, todos os dias",c:"#F2C265",cron:{d:[0,1,2,3,4,5,6],h:[7],m:22}},
  {id:"afin",nm:"Nuno · Afinador",rl:"testa melhorias às estratégias",c:"#9F7AEA",cron:{d:[1,3,5],h:[9],m:43}},
- {id:"inv",nm:"Sofia · Investigadora",rl:"procura estratégias novas",c:"#63B3ED",cron:{d:[0,3],h:[9],m:52}},
+ {id:"inv",nm:"Sofia · Investigadora",rl:"procura estratégias novas, todos os dias",c:"#63B3ED",cron:{d:[0,1,2,3,4,5,6],h:[11],m:52}},
  {id:"juiz",nm:"Henrique · Juiz",rl:"compara tudo com o acaso",c:"#FF8A80",cron:{d:[1,3,5],h:[9],m:43}},
  {id:"aud",nm:"André · Auditor",rl:"procura erros, ao sábado",c:"#68D391",cron:{d:[6],h:[9],m:47}}];
 function nextRun(cr){if(!cr)return null;const n=new Date();for(let k=0;k<8*24*60;k+=1){const d=new Date(n.getTime()+k*60000);if((!cr.d||cr.d.includes(d.getDay()))&&cr.h.includes(d.getHours())&&d.getMinutes()===cr.m)return d}return null}
