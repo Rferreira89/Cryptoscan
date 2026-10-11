@@ -89,16 +89,16 @@ function drawTV(g) {
 
 // ---------- cenario ----------
 function buildRoom() {
-  const floor = new THREE.Mesh(new THREE.PlaneGeometry(42, 28), mat("#1a1150"));
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(42, 28), mat("#4f545c"));
   floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
-  const grid = new THREE.GridHelper(42, 42, 0x3b2a8f, 0x2a1f6e); grid.position.y = .01; scene.add(grid);
+  const grid = new THREE.GridHelper(42, 42, 0x5d626a, 0x575b63); grid.position.y = .01; scene.add(grid);
   // corredor com linhas de neon
-  [-1.6, 1.6].forEach(x => boxM(.06, .02, 26, mat("#FF6FB5", 1.4), x, .02, 0));
-  [-0.5, 0.5].forEach(x => boxM(.03, .02, 26, mat("#B794F4", .9), x, .02, 0));
+  [-1.6, 1.6].forEach(x => boxM(.06, .02, 26, mat("#d9d4c7", .15), x, .02, 0));
+  [-0.5, 0.5].forEach(x => boxM(.03, .02, 26, mat("#bfb8a8", .1), x, .02, 0));
   // zonas: tapete, paredes de vidro, arestas de neon
   for (const [k, Z] of Object.entries(ZONES)) {
     const w = Z.x[1] - Z.x[0], d = Z.z[1] - Z.z[0], cx = (Z.x[0] + Z.x[1]) / 2, cz = (Z.z[0] + Z.z[1]) / 2;
-    if (k !== "srv") { const rug = new THREE.Mesh(new THREE.PlaneGeometry(w - .4, d - .4), mat(k === "cafe" ? "#2a1a5e" : "#2b1d74")); rug.rotation.x = -Math.PI / 2; rug.position.set(cx, .015, cz); scene.add(rug); }
+    if (k !== "srv") { const rug = new THREE.Mesh(new THREE.PlaneGeometry(w - .4, d - .4), mat(k === "cafe" ? "#6b5139" : "#3d4450")); rug.rotation.x = -Math.PI / 2; rug.position.set(cx, .015, cz); scene.add(rug); }
     const col = new THREE.Color(Z.c), h = k === "meet" ? 2.6 : 1.2;
     const glass = mat(Z.c, .15, .07);
     const walls = [[cx, Z.z[0], w, .05], [cx, Z.z[1], w, .05], [Z.x[0], cz, .05, d], [Z.x[1], cz, .05, d]];
@@ -109,7 +109,7 @@ function buildRoom() {
     });
     const c = [V(Z.x[0], Z.z[0]), V(Z.x[1], Z.z[0]), V(Z.x[1], Z.z[1]), V(Z.x[0], Z.z[1]), V(Z.x[0], Z.z[0])];
     line(c.map(p => p.clone().setY(.03)), col); if (k !== "srv") line(c.map(p => p.clone().setY(h)), col);
-    [[Z.x[0], Z.z[0]], [Z.x[1], Z.z[0]], [Z.x[1], Z.z[1]], [Z.x[0], Z.z[1]]].forEach(([x, z]) => k !== "srv" && boxM(.07, h, .07, mat(Z.c, .45), x, h / 2, z));
+    [[Z.x[0], Z.z[0]], [Z.x[1], Z.z[0]], [Z.x[1], Z.z[1]], [Z.x[0], Z.z[1]]].forEach(([x, z]) => k !== "srv" && boxM(.07, h, .07, mat("#c9ccd2", .05), x, h / 2, z));
     const zl = label(Z.name, Z.c, true); zl.style.pointerEvents = "auto"; zl.style.cursor = "pointer"; zl.style.padding = "3px 8px"; zl.style.borderRadius = "99px"; zl.style.background = "#0c0a24b3"; zl.style.border = `1px solid ${Z.c}66`;
     zl.addEventListener("click", () => API().openZone(k));
     labels.push({ el: zl, p: new THREE.Vector3(cx, (k === "meet" ? 3.3 : 2.1), Z.z[0] + .2) });
@@ -436,11 +436,11 @@ function fighter(col, dead, id, persona) {
 function buildArena() {
   arenaG = new THREE.Group(); scene.add(arenaG);
   // chao da ala da arena (o escritorio acaba nos servidores)
-  const fl = new THREE.Mesh(new THREE.PlaneGeometry(14, 28), mat("#140c3d")); fl.rotation.x = -Math.PI / 2; fl.position.set(26.5, 0, 0); fl.receiveShadow = true; scene.add(fl);
-  const gr = new THREE.GridHelper(14, 14, 0x5a2a8f, 0x2a1f6e); gr.position.set(26.5, .012, 0); scene.add(gr);
+  const fl = new THREE.Mesh(new THREE.PlaneGeometry(14, 28), mat("#3a3e46")); fl.rotation.x = -Math.PI / 2; fl.position.set(26.5, 0, 0); fl.receiveShadow = true; scene.add(fl);
+  const gr = new THREE.GridHelper(14, 14, 0x4c5159, 0x464a52); gr.position.set(26.5, .012, 0); scene.add(gr);
   // ringue: plataforma, cordas de neon e postes
-  const plat = new THREE.Mesh(new THREE.CylinderGeometry(5.6, 5.9, .35, 8), mat("#1f1450")); plat.position.set(ARENA_C.x, .175, ARENA_C.z); plat.receiveShadow = true; plat.castShadow = true; scene.add(plat);
-  const top = new THREE.Mesh(new THREE.CircleGeometry(5.4, 8), mat("#2b1b6e")); top.rotation.x = -Math.PI / 2; top.position.set(ARENA_C.x, .36, ARENA_C.z); scene.add(top);
+  const plat = new THREE.Mesh(new THREE.CylinderGeometry(5.6, 5.9, .35, 8), mat("#2c2f38")); plat.position.set(ARENA_C.x, .175, ARENA_C.z); plat.receiveShadow = true; plat.castShadow = true; scene.add(plat);
+  const top = new THREE.Mesh(new THREE.CircleGeometry(5.4, 8), mat("#34445f")); top.rotation.x = -Math.PI / 2; top.position.set(ARENA_C.x, .36, ARENA_C.z); scene.add(top);
   const logo = new THREE.Mesh(new THREE.RingGeometry(1.6, 1.75, 48), new THREE.MeshBasicMaterial({ color: 0xFF6FB5, toneMapped: false })); logo.rotation.x = -Math.PI / 2; logo.position.set(ARENA_C.x, .37, ARENA_C.z); scene.add(logo);
   const posts = [];
   for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2 + Math.PI / 8; const x = ARENA_C.x + Math.cos(a) * 5.3, z = ARENA_C.z + Math.sin(a) * 5.3;
@@ -567,7 +567,7 @@ function ghostify(g) {                 // por desbloquear: holograma em arame
 }
 function buildRewards() {
   rewG = new THREE.Group(); scene.add(rewG);
-  const rug = new THREE.Mesh(new THREE.PlaneGeometry(7.6, 6.6), mat("#1d1550")); rug.rotation.x = -Math.PI / 2; rug.position.set(24.6, .02, -9.9); scene.add(rug);
+  const rug = new THREE.Mesh(new THREE.PlaneGeometry(7.6, 6.6), mat("#5a4636")); rug.rotation.x = -Math.PI / 2; rug.position.set(24.6, .02, -9.9); scene.add(rug);
   line([V(20.8, -13.2), V(28.4, -13.2), V(28.4, -6.6), V(20.8, -6.6), V(20.8, -13.2)].map(p => p.setY(.04)), 0xF6C453);
   const zl = label("Recompensas", "#F6C453", true); zl.style.padding = "3px 8px"; zl.style.borderRadius = "99px"; zl.style.background = "#0c0a24b3"; zl.style.border = "1px solid #F6C45366";
   labels.push({ el: zl, p: new THREE.Vector3(24.6, 2.6, -13) });
@@ -633,7 +633,7 @@ function drawSector(g, S) {
 }
 function buildSectors() {
   const S0 = window.SECTORS || []; if (!S0.length) return;
-  const rug = new THREE.Mesh(new THREE.PlaneGeometry(9, 6.2), mat("#151a48")); rug.rotation.x = -Math.PI / 2; rug.position.set(24.2, .02, 10.9); scene.add(rug);
+  const rug = new THREE.Mesh(new THREE.PlaneGeometry(9, 6.2), mat("#36404e")); rug.rotation.x = -Math.PI / 2; rug.position.set(24.2, .02, 10.9); scene.add(rug);
   line([V(19.8, 7.7), V(28.7, 7.7), V(28.7, 13.95), V(19.8, 13.95), V(19.8, 7.7)].map(p => p.setY(.04)), 0x63B3ED);
   const zl = label("Setores", "#63B3ED", true); zl.style.pointerEvents = "auto"; zl.style.cursor = "pointer"; zl.style.padding = "3px 8px"; zl.style.borderRadius = "99px"; zl.style.background = "#0c0a24b3"; zl.style.border = "1px solid #63B3ED66";
   zl.addEventListener("click", () => API().openZone("sectors")); labels.push({ el: zl, p: new THREE.Vector3(19.9, 1.0, 7.9) });
@@ -650,6 +650,71 @@ function buildSectors() {
   });
 }
 function updateSectors() { (window.SECTORS || []).forEach(S => { const t = secTex[S.id]; if (t) { drawSector(t.userData.c.getContext("2d"), S); t.needsUpdate = true; } }); }
+
+
+// ---------- sala de estrategia: cada analista da arena tambem trabalha a
+// secretaria, com o seu desempenho real no ecra. A sala cresce sozinha:
+// uma secretaria por analista vivo (os mortos saem, nao ficam mesas vazias)
+const ST_X0 = 38.6, ST_DX = 3.4, ST_ZS = [-2.4, 2.4], ST_WALL = 36.6;
+let stLen = 8;                         // comprimento atual da sala (cresce)
+let stG = null, stSig = "", stPeople = [], stTex = {}, stFloor = null;
+function drawStrat(g, b) {
+  const W = 512, H = 320, r = b.avg_r;
+  g.fillStyle = "#0b1220"; g.fillRect(0, 0, W, H);
+  g.fillStyle = "#e9eef7"; g.font = "800 30px system-ui"; g.fillText(`${b.persona || ""} · ${SHORT[b.id] || b.id}`, 18, 44);
+  g.font = "500 18px system-ui"; g.fillStyle = "#93a4c3"; g.fillText(b.name || "", 18, 70);
+  g.font = "700 46px system-ui"; g.fillStyle = r == null ? "#93a4c3" : r > 0 ? "#68D391" : "#FC8181";
+  g.fillText(r == null ? "sem operações" : (r > 0 ? "+" : "") + r.toFixed(2).replace(".", ",") + "R", 18, 130);
+  g.font = "600 20px system-ui"; g.fillStyle = "#c9d3e6"; g.fillText(`${b.n} operações · ${b.wins || 0} ganhas · ${b.estado === "SOBE" ? "🏆 sobe" : "⚔ a competir"}`, 18, 168);
+  const u = b.ultimas || []; g.fillStyle = "#93a4c3"; g.font = "16px system-ui"; g.fillText("últimas operações", 18, 206);
+  u.forEach((x, i) => { g.fillStyle = x > 0 ? "#68D391" : "#FC8181"; const h = Math.min(70, Math.abs(x) * 35 + 6); g.fillRect(18 + i * 46, x > 0 ? 290 - h : 290, 34, h > 0 ? (x > 0 ? h : Math.min(h, 28)) : 4); });
+  if (!u.length) { g.fillStyle = "#5d6b85"; g.fillText("à espera do primeiro sinal", 18, 260); }
+  g.strokeStyle = "#2b3a55"; g.beginPath(); g.moveTo(14, 290); g.lineTo(W - 14, 290); g.stroke();
+}
+function buildStrategyRoom() {
+  stG = new THREE.Group(); scene.add(stG);
+  const zl = label("Sala de estratégia", "#9fd3ff", true); zl.style.pointerEvents = "auto"; zl.style.cursor = "pointer"; zl.style.padding = "3px 8px"; zl.style.borderRadius = "99px"; zl.style.background = "#0c1220b3"; zl.style.border = "1px solid #9fd3ff66";
+  zl.addEventListener("click", () => API().openZone("arena")); labels.push({ el: zl, p: new THREE.Vector3(37.4, 2.6, 0) });
+  updateStrategyRoom();
+}
+function updateStrategyRoom() {
+  if (!stG) return;
+  const rows = arenaRows().filter(b => b.estado !== "MORTA");
+  const sig = JSON.stringify(rows.map(b => [b.id, b.n, b.avg_r, b.wins, b.estado]));
+  rows.forEach(b => { const t = stTex[b.id]; if (t) { drawStrat(t.userData.c.getContext("2d"), b); t.needsUpdate = true; } });
+  if (sig === stSig) return;
+  const ids = rows.map(b => b.id).join(","), same = stSig && JSON.parse(stSig).map(x => x[0]).join(",") === ids; stSig = sig;
+  if (same) return;                    // so os ecras mudaram
+  stG.clear(); stPeople.forEach(p => { scene.remove(p.g); p.name.remove(); }); stPeople = []; stTex = {};
+  const nRows = Math.max(1, Math.ceil(rows.length / ST_ZS.length)), len = 2 + nRows * ST_DX; stLen = len;
+  // chao e paredes de vidro: a sala cresce com o numero de analistas
+  const cx = ST_WALL + len / 2;
+  const fl = new THREE.Mesh(new THREE.PlaneGeometry(len, 10), mat("#454a53")); fl.rotation.x = -Math.PI / 2; fl.position.set(cx, .005, 0); fl.receiveShadow = true; stG.add(fl);
+  const rug = new THREE.Mesh(new THREE.PlaneGeometry(len - .8, 8.6), mat("#3d4656")); rug.rotation.x = -Math.PI / 2; rug.position.set(cx, .015, 0); stG.add(rug);
+  const glass = mat("#9fd3ff", .05, .08); boxM(len, 1.2, .05, glass, cx, .6, -5, stG); boxM(len, 1.2, .05, glass, cx, .6, 5, stG);
+  boxM(.05, 1.2, 10, glass, ST_WALL + len, .6, 0, stG);
+  // candeeiros de teto por fila
+  for (let k = 0; k < nRows; k++) ST_ZS.forEach(z => { const lx = ST_X0 + k * ST_DX; boxM(.012, .5, .012, mat("#222"), lx - .75, 3.05, z, stG); const l = new THREE.Mesh(new THREE.ConeGeometry(.2, .18, 16, 1, true), mat("#f4f1e8", .3)); l.position.set(lx - .75, 2.75, z); stG.add(l); });
+  rows.forEach((b, i) => {
+    const x = ST_X0 + Math.floor(i / ST_ZS.length) * ST_DX, z = ST_ZS[i % ST_ZS.length];
+    const col = FCOL[arenaRows().indexOf(b) % FCOL.length];
+    // secretaria virada para a vista do telemovel (ecra para -x)
+    const g = new THREE.Group(); g.position.set(x, 0, z); stG.add(g);
+    boxM(1.1, .06, 2.2, mat("#8b6a4c"), 0, .75, 0, g); [[-.45, -.95], [.45, -.95], [-.45, .95], [.45, .95]].forEach(([a, c]) => boxM(.06, .72, .06, mat("#2a2a2a"), a, .36, c, g));
+    const tx = canvasTex(512, 320, gg => drawStrat(gg, b)); stTex[b.id] = tx;
+    const scr = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 1.06), new THREE.MeshBasicMaterial({ map: tx, toneMapped: false })); scr.position.set(.42, 1.42, 0); scr.rotation.y = -Math.PI / 2; g.add(scr);
+    boxM(.05, 1.12, 1.76, mat("#111"), .45, 1.42, 0, g); boxM(.08, .4, .08, mat("#111"), .45, .95, 0, g);
+    boxM(.18, .02, .55, mat("#1d1d2e"), -.1, .79, 0, g);
+    const mug = new THREE.Mesh(new THREE.CylinderGeometry(.055, .05, .12, 12), mat(col)); mug.position.set(-.2, .84, -.75); g.add(mug);
+    const ch = new THREE.Group(); ch.position.set(-.95, 0, 0); g.add(ch); boxM(.55, .08, .55, mat("#2b2b40"), 0, .48, 0, ch); boxM(.08, .6, .55, mat("#2b2b40"), -.27, .8, 0, ch);
+    // o analista, com o mesmo aspeto que tem na arena
+    const key = "st_" + b.id, nm = (b.persona || "").replace(" Jr.", ""), h = hsh(b.id || nm), fem = FEM.has(nm);
+    STYLE[key] = { skin: SKINS[h % SKINS.length], hair: HAIRS[(h >> 2) % HAIRS.length], hs: fem ? (h % 2 ? "long" : "bun") : ["short", "buzz", "curly"][h % 3], top: col, legs: "#1d1b2e", beard: !fem && h % 4 === 0 ? 1 : 0, glasses: h % 5 === 0 ? 1 : 0 };
+    DESK[key] = { z: "srv", p: V(x, z), f: 1 };
+    const p = makePerson({ id: key, nm, c: col }); p.mode = "work"; p.sit = true; p.path = []; p.name.style.display = "none"; stPeople.push(p);
+    if ((b.wins || 0) > 0) { const tr = new THREE.Mesh(new THREE.CylinderGeometry(.06, .04, .16, 12), mat("#F6C453", .9)); tr.position.set(-.25, .86, .75); g.add(tr); }   // premio na mesa
+  });
+}
 
 // ---------- pessoas ----------
 function label(text, color, zone) {
@@ -827,9 +892,9 @@ function frame() {
       if (it) window.drawCandles(g, 512, 256, it.cs, it.lv, { title: it.asset, axis: false, n: 40 }); tx.needsUpdate = true; }
     if (clock3d) { drawClock(clock3d.userData.c.getContext("2d")); clock3d.needsUpdate = true; }
     if (dataTex) { dataI++; drawDataWall(dataTex.userData.c.getContext("2d")); dataTex.needsUpdate = true; } }
-  if (nowMs - (frame.tvAt || -1e9) > 30000 || tvT <= 0) { frame.tvAt = nowMs; tvT = 30; drawTV(tvTex.userData.c.getContext("2d")); tvTex.needsUpdate = true; updateRadar(); updateArena(); updateRewards(); updateSectors(); drawBoard(board.userData.c.getContext("2d")); board.needsUpdate = true; }
+  if (nowMs - (frame.tvAt || -1e9) > 30000 || tvT <= 0) { frame.tvAt = nowMs; tvT = 30; drawTV(tvTex.userData.c.getContext("2d")); tvTex.needsUpdate = true; updateRadar(); updateArena(); updateRewards(); updateSectors(); updateStrategyRoom(); drawBoard(board.userData.c.getContext("2d")); board.needsUpdate = true; }
   if (radar) { radar.sweep.rotation.z -= dt * 1.4; radar.blips.children.forEach((b, i) => { if (b.geometry.type === "SphereGeometry") b.scale.setScalar(1 + Math.sin(t * 4 + i) * .15); }); }
-  animateArena(dt, t); animateRewards(dt, t); secPeople.forEach(p => animate(p, dt, t));
+  animateArena(dt, t); animateRewards(dt, t); secPeople.forEach(p => animate(p, dt, t)); stPeople.forEach(p => animate(p, dt, t));
   ctl.update(); if (composer) composer.render(); else R.render(scene, cam); placeOverlays(dt);
 }
 function resize() {
@@ -846,12 +911,12 @@ function init(container) {
   if (!supported()) return false;
   box = container; box.innerHTML = ""; if (getComputedStyle(box).position === "static") box.style.position = "relative";
   R = new THREE.WebGLRenderer({ antialias: true, alpha: false }); R.setPixelRatio(Math.min(2, devicePixelRatio || 1));
-  R.setClearColor(0x0a0820); R.domElement.style.borderRadius = "0"; R.domElement.style.display = "block"; R.domElement.style.touchAction = "none";
+  R.setClearColor(0x1b1f27); R.domElement.style.borderRadius = "0"; R.domElement.style.display = "block"; R.domElement.style.touchAction = "none";
   box.appendChild(R.domElement);
   overlay = document.createElement("div"); overlay.style.cssText = "position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:12px"; box.appendChild(overlay);
   bubble = document.createElement("div"); bubble.className = "obub3"; overlay.appendChild(bubble);
   if (!document.getElementById("odetail")) { const det = document.createElement("div"); det.id = "odetail"; box.parentNode.insertBefore(det, box.nextSibling); }
-  scene = new THREE.Scene(); scene.fog = new THREE.Fog(0x0a0820, 45, 85);
+  scene = new THREE.Scene(); scene.fog = new THREE.Fog(0x1b1f27, 50, 95);
   cam = new THREE.PerspectiveCamera(42, 1.3, .1, 200); cam.position.set(9, 17, 19);
   ctl = new OrbitControls(cam, R.domElement); ctl.target.set(0, 0, 0); ctl.enableDamping = true; ctl.minDistance = 10; ctl.maxDistance = 70;
   ctl.maxPolarAngle = 1.25; ctl.minPolarAngle = .35;
@@ -862,9 +927,9 @@ function init(container) {
   ctl.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_ROTATE };
   ctl.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
   // nao sair do escritorio: o ponto para onde se olha fica dentro das paredes
-  ctl.addEventListener("change", () => { const t = ctl.target, cx = Math.max(-18.5, Math.min(31, t.x)), cz = Math.max(t.x > 19 ? -11 : -8.5, Math.min(t.x > 19 ? 13 : 11.5, t.z));
+  ctl.addEventListener("change", () => { const t = ctl.target, cx = Math.max(-18.5, Math.min(Math.max(48, ST_WALL + stLen + 2), t.x)), cz = Math.max(t.x > 19 ? -11 : -8.5, Math.min(t.x > 19 ? 13 : 11.5, t.z));
     if (cx !== t.x || cz !== t.z || t.y !== 0) { const dx = cx - t.x, dz = cz - t.z, dy = -t.y; t.set(cx, 0, cz); cam.position.x += dx; cam.position.z += dz; cam.position.y += dy; } });
-  scene.add(new THREE.HemisphereLight(0xd6ccff, 0x2a1f6e, 1.55));
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x6b6f78, 1.75));
   const dl = new THREE.DirectionalLight(0xfff4e8, 1.35); dl.position.set(8, 20, 10); scene.add(dl);
   // sombras suaves (desligadas em telemoveis fracos, ver qualidade abaixo)
   const lowEnd = (navigator.hardwareConcurrency || 4) <= 4 && /iPhone|Android/.test(navigator.userAgent) && Math.min(screen.width, screen.height) < 380;
@@ -872,13 +937,13 @@ function init(container) {
     Object.assign(dl.shadow.camera, { left: -24, right: 24, top: 16, bottom: -16, near: 1, far: 60 }); dl.shadow.bias = -.0008; }
   const pl1 = new THREE.PointLight(0xff6fb5, 30, 26); pl1.position.set(0, 4, 0); scene.add(pl1);
   const pl2 = new THREE.PointLight(0x4fd1c5, 25, 24); pl2.position.set(-10, 4, -6); scene.add(pl2);
-  R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = 1.2; R.outputColorSpace = THREE.SRGBColorSpace;
+  R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = 1.15; R.outputColorSpace = THREE.SRGBColorSpace;
   try {
     composer = new EffectComposer(R); composer.addPass(new RenderPass(scene, cam));
-    bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), .55, .45, .9); composer.addPass(bloom); composer.addPass(new OutputPass());
+    bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), .28, .4, .92); composer.addPass(bloom); composer.addPass(new OutputPass());
   } catch (e) { composer = null; }
   monTex = canvasTex(256, 160, drawMon);
-  buildRoom(); buildAccessories(); Object.keys(DESK).forEach(buildDesk); buildRadar(); buildBoard(); updateRadar(); buildArena(); buildRewards(); buildSectors();
+  buildRoom(); buildAccessories(); Object.keys(DESK).forEach(buildDesk); buildRadar(); buildBoard(); updateRadar(); buildArena(); buildRewards(); buildSectors(); buildStrategyRoom();
   people = API().agents.map(makePerson);
   // ao abrir: quem esta em pausa ja esta num sitio de descanso (sem marcha em
   // grupo pelo corredor), cada um com a sua faixa e o seu ritmo
@@ -900,6 +965,7 @@ function init(container) {
     ray.setFromCamera(m, cam); const hit = ray.intersectObjects(people.map(p => p.g), true)[0];
     if (hit) { API().select(hit.object.userData.agent); bubAt = 0; return; }
     const sh = ray.intersectObjects(secPeople.map(p => p.g), true)[0]; if (sh) { API().openZone("sectors"); return; }
+    const sp = ray.intersectObjects(stPeople.map(p => p.g), true)[0]; if (sp) { API().openZone("arena"); return; }
     const zh = ray.intersectObjects(zoneHits, false)[0]; if (zh) API().openZone(zh.object.userData.zone);
   });
   new IntersectionObserver(es => { visible = es[0].isIntersecting; }).observe(box);
@@ -915,4 +981,6 @@ function goRewards() { const T = V(24.6, -9.9), dx = T.x - ctl.target.x, dz = T.
   const d = cam.position.clone().sub(ctl.target), want = 20; if (d.length() > want) cam.position.copy(ctl.target.clone().add(d.setLength(want))); ctl.update(); }
 function goSectors() { const T = V(23.8, 10.9), dx = T.x - ctl.target.x, dz = T.z - ctl.target.z; ctl.target.copy(T); cam.position.x += dx; cam.position.z += dz;
   const d = cam.position.clone().sub(ctl.target), want = 18; if (d.length() > want) cam.position.copy(ctl.target.clone().add(d.setLength(want))); ctl.update(); }
-window.Office3D = { init, supported, refresh: () => { tvT = 0; }, resetView, goArena, goRewards, goSectors };
+function goStrategy() { const T = V(ST_WALL + stLen / 2 + .6, 0), dx = T.x - ctl.target.x, dz = T.z - ctl.target.z; ctl.target.copy(T); cam.position.x += dx; cam.position.z += dz;
+  const d = cam.position.clone().sub(ctl.target), want = 17 + stLen * .35; cam.position.copy(ctl.target.clone().add(d.setLength(want))); ctl.update(); }
+window.Office3D = { init, supported, refresh: () => { tvT = 0; }, resetView, goArena, goRewards, goSectors, goStrategy };

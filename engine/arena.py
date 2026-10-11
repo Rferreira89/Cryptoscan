@@ -201,6 +201,7 @@ def update(state, bars, now, seed=None):
         board.append({"id": k, "name": _name(k), "persona": persona(k), "n": len(rs),
                       "wins": sum(1 for x in rs if x > 0),
                       "avg_r": round(mean, 3), "total_r": round(sum(rs), 2),
+                      "ultimas": [round(x, 2) for x in rs[-10:]],
                       "acaso_mediana": None if med is None else round(med, 3),
                       "acaso_p95": None if p95 is None else round(p95, 3),
                       "estado": v, "mudou": (prev or "A COMPETIR") != v,

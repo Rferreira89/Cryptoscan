@@ -130,7 +130,8 @@ button:focus-visible,summary:focus-visible,.steps li:focus-visible{outline:2px s
 a{color:inherit}
 
 /* navegacao */
-#homeview[hidden],#arenaview[hidden],#rewview[hidden],#secview[hidden]{display:none}
+#homeview[hidden],#arenaview[hidden],#rewview[hidden],#secview[hidden],#stview[hidden]{display:none}
+#stview{position:absolute;right:12px;bottom:calc(300px + env(safe-area-inset-bottom));width:46px;height:46px;border-radius:50%;background:#0c0a24e6;border:1px solid #9fd3ff;color:#9fd3ff;font-size:20px;cursor:pointer;box-shadow:0 0 14px #9fd3ff44;z-index:4}
 #secview{position:absolute;right:12px;bottom:calc(244px + env(safe-area-inset-bottom));width:46px;height:46px;border-radius:50%;background:#0c0a24e6;border:1px solid #63B3ED;color:#63B3ED;font-size:20px;cursor:pointer;box-shadow:0 0 14px #63B3ED44;z-index:4}
 #rewview{position:absolute;right:12px;bottom:calc(188px + env(safe-area-inset-bottom));width:46px;height:46px;border-radius:50%;background:#0c0a24e6;border:1px solid #F6C453;color:#F6C453;font-size:20px;cursor:pointer;box-shadow:0 0 14px #F6C45344;z-index:4}
 #arenaview{position:absolute;right:12px;bottom:calc(132px + env(safe-area-inset-bottom));width:46px;height:46px;border-radius:50%;background:#0c0a24e6;border:1px solid #FF6FB5;color:#FF6FB5;font-size:20px;cursor:pointer;box-shadow:0 0 14px #FF6FB544;z-index:4}
@@ -241,7 +242,7 @@ body.sheet-open #sheet{transform:none}
 @media (prefers-reduced-motion:reduce){.typing i,.bot .eye{animation:none}.bub{transition:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module" src="office3d.js?v=20261011j"></script>
+<script type="module" src="office3d.js?v=20261011k"></script>
 </head>
 <body class="w3d">
 <div id="world">
@@ -260,6 +261,7 @@ body.sheet-open #sheet{transform:none}
 <button id="arenaview" aria-label="Ir para a arena" title="Arena">⚔️</button>
 <button id="rewview" aria-label="Ver as recompensas" title="Recompensas">🏆</button>
 <button id="secview" aria-label="Ver a equipa por setor" title="Setores">📊</button>
+<button id="stview" aria-label="Ver a sala de estratégia" title="Sala de estratégia">💼</button>
 <div id="navhint" hidden>☝️ Arrasta com um dedo para andar · ✌️ dois dedos para rodar e aproximar</div>
 <span id="n-esc" hidden></span>
 </div>
@@ -805,7 +807,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261011j";
+const PAGE_V="20261011k";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -1120,14 +1122,15 @@ document.addEventListener("click",e=>{const tr=e.target.closest("tr.rp");if(tr)o
 // ===== Instalar como app (so no Safari do iPhone, fora do modo app) =====
 (()=>{const ios=/iPhone|iPad|iPod/.test(navigator.userAgent),standalone=navigator.standalone||matchMedia("(display-mode: standalone)").matches;
   let seen=null;try{seen=localStorage.getItem("installHint")}catch(_){}
-  if(ios&&!standalone&&!seen){const el=$("install");setTimeout(()=>{el.hidden=false;$("homeview").hidden=true;$("arenaview").hidden=true;$("rewview").hidden=true;$("secview").hidden=true},4000);
-    el.querySelector("button").addEventListener("click",()=>{el.hidden=true;$("homeview").hidden=false;$("arenaview").hidden=false;$("rewview").hidden=false;$("secview").hidden=false;try{localStorage.setItem("installHint","1")}catch(_){}})}})();
+  if(ios&&!standalone&&!seen){const el=$("install");setTimeout(()=>{el.hidden=false;$("homeview").hidden=true;$("arenaview").hidden=true;$("rewview").hidden=true;$("secview").hidden=true;$("stview").hidden=true},4000);
+    el.querySelector("button").addEventListener("click",()=>{el.hidden=true;$("homeview").hidden=false;$("arenaview").hidden=false;$("rewview").hidden=false;$("secview").hidden=false;$("stview").hidden=false;try{localStorage.setItem("installHint","1")}catch(_){}})}})();
 
 // ===== Navegacao no escritorio: botao de vista inicial e dica (uma vez) =====
 $("homeview").addEventListener("click",()=>{if(window.Office3D&&window.Office3D.resetView)window.Office3D.resetView()});
 $("arenaview").addEventListener("click",()=>{if(window.Office3D&&window.Office3D.goArena)window.Office3D.goArena()});
 $("rewview").addEventListener("click",()=>{if(window.Office3D&&window.Office3D.goRewards)window.Office3D.goRewards()});
 $("secview").addEventListener("click",()=>{if(window.Office3D&&window.Office3D.goSectors)window.Office3D.goSectors()});
+$("stview").addEventListener("click",()=>{if(window.Office3D&&window.Office3D.goStrategy)window.Office3D.goStrategy()});
 (()=>{let seen=null;try{seen=localStorage.getItem("navHint")}catch(_){}if(seen)return;const h=$("navhint");
   setTimeout(()=>{h.hidden=false;setTimeout(()=>{h.style.opacity=0;setTimeout(()=>{h.hidden=true},500)},7000)},2500);
   try{localStorage.setItem("navHint","1")}catch(_){}})();
