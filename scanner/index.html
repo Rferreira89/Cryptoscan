@@ -329,7 +329,7 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const num=(v,d)=>v==null?"–":Number(v).toLocaleString("pt-PT",{maximumFractionDigits:d,minimumFractionDigits:0});
 // operacoes que o Rui fechou a mao (/fechei): contam como fechadas para ele
-function normUserClosed(D){((D&&D.journal&&D.journal.rows)||[]).forEach(r=>{if(r.user_result_r!=null){r.status="CLOSED";r.user_r=r.user_result_r;r.closed_at=r.user_closed_at||r.closed_at;r.user_closed_flag=true}})}
+function normUserClosed(D){((D&&D.journal&&D.journal.rows)||[]).forEach(r=>{if(r.user_result_r!=null){r.status="CLOSED";r.user_r=r.user_result_r;r.closed_at=r.user_closed_at||r.closed_at;r.user_closed_flag=true;if(r.user_exit)r.exit=r.user_exit}})}
 // equipa por setor: cada analista acompanha um grupo de moedas (a analise e
 // a mesma para todas; aqui ve-se por setor onde o mercado mexe)
 window.SECTORS=[
@@ -634,7 +634,7 @@ function renderDiary(mine,R){
     const open=r.status!=="CLOSED",rr=R(r),u=rr!=null&&r.risk_usdc!=null?rr*r.risk_usdc:null;
     const res=open?`<span style="color:var(--mut)">${r.status==="OPEN"?"aberta":"à espera"}</span>`:`<b class="${rr>0?"up":"dn"}">${u!=null?(u>0?"+":"")+num(u,2)+" USDC":"–"}</b><br><span style="color:var(--mut);font-size:12px">${rr>0?"+":""}${num(rr,2)}R</span>`;
     const ent=r.exec_price||r.entry||r.entry_zone[1];
-    return `<tr${open?"":` class="rp" data-rp="${esc(r.id)}"`}><td><b>${esc(r.asset)}</b>${r.side==="SHORT"?" ▼":""}<br><span style="color:var(--mut);font-size:12px">${dd(r.issued_at)}${r.closed_at?" → "+dd(r.closed_at):""}</span></td><td>${price(ent)}${r.exit?"<br><span style='color:var(--mut);font-size:12px'>saída "+price(r.exit)+"</span>":""}</td><td>${res}</td></tr>`}).join("");
+    return `<tr${open?"":` class="rp" data-rp="${esc(r.id)}"`}><td><b>${esc(r.asset)}</b>${r.side==="SHORT"?" ▼":""}<br><span style="color:var(--mut);font-size:12px">${dd(r.issued_at)}${r.closed_at?" → "+dd(r.closed_at):""}</span></td><td>${price(ent)}${(r.user_exit||r.exit)?"<br><span style='color:var(--mut);font-size:12px'>saída "+price(r.user_exit||r.exit)+(r.user_exit?" (à mão)":"")+"</span>":""}</td><td>${res}</td></tr>`}).join("");
   const cap=now!=null?`<div class="stats" style="grid-template-columns:repeat(3,1fr)"><div class="stat"><b>${num(now,2)}</b><span>Capital agora</span></div><div class="stat"><b>${base!=null?num(base,0):"–"}</b><span>Capital de partida</span></div><div class="stat"><b class="${base!=null&&now>=base?"up":"dn"}">${base!=null?(now>=base?"+":"")+num((now/base-1)*100,1)+"%":"–"}</b><span>Variação</span></div></div>`:"";
   // curva do capital: partida + resultado acumulado das operacoes fechadas (desde o arranque do capital composto)
   let eq="";const since=C.capital_since||0,cl=mine.filter(r=>r.status==="CLOSED"&&r.closed_at>=since&&R(r)!=null&&r.risk_usdc!=null).sort((a,b)=>a.closed_at-b.closed_at);
@@ -805,7 +805,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261011h";
+const PAGE_V="20261011i";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
