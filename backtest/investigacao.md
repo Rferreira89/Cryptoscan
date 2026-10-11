@@ -67,6 +67,36 @@ dá "AMOSTRA INSUFICIENTE".
    máximo: CANDIDATA (papel durante 30 operações ou 8 semanas antes de
    dinheiro real). Nada é ligado ao vivo.
 
+3. (PEDIDA em 2026-10-11, testar na próxima execução.) **Oversold Bounce
+   no 4H com uma saída melhor.** Origem: em 2026-10-11 o gatilho do
+   Oversold Bounce foi o primeiro a bater o acaso nos momentos de entrada
+   (percentil 99,5 fora da amostra), mas a saída original (stop largo,
+   7,8% em média; 1.º objetivo perto; stop na entrada depois do 1.º) só
+   chegava ao empate. Do lado contrário, as estratégias ao vivo têm entradas
+   piores do que o acaso, mas a sua forma de sair dá +0,06R mesmo com
+   entradas ao acaso (backtest/random_baseline.json). Hipótese: o gatilho do
+   Oversold Bounce com uma destas saídas tem vantagem. O GATILHO NÃO MUDA
+   (exatamente o de `tools/research_bounce.signals`, sem filtro da EMA200
+   da moeda). Saídas (escritas antes de qualquer teste, iguais às do papel
+   ao vivo em `engine/paper_bounce.py`):
+   - V1 saída do sistema ao vivo: `engine/risk.plan` com o stop do gatilho
+     e a entrada ao preço de abertura (objetivos em níveis reais com mínimo
+     de 1R, vendas parciais do plano, stop na entrada depois do 1.º);
+     tempo máximo de 30 dias; sem operação se o plano for recusado;
+   - V2 stop curto: fecho da vela do gatilho menos 1,5 ATR14; um único
+     objetivo a 2R; sem passar o stop para a entrada; saída ao fim de 3 dias;
+   - V3 stop original do gatilho; um único objetivo a 2R; sem passar o stop
+     para a entrada; saída ao fim de 3 dias.
+   Grelha (6): {V1, V2, V3} × X ∈ {25, 30}. Mesma carteira (4 de 25%, uma
+   por moeda, primeiro o RSI mais baixo), mesmos custos (0,25% + 0,1% por
+   lado), mesma janela e walk-forward. Critérios: os seis de sempre MAIS o
+   teste contra o acaso (mesma geometria de cada saída) acima do percentil
+   95. AVISO a escrever no veredicto: a reserva já foi usada por 8
+   hipóteses, por isso um bom resultado aqui só conta como indício; a prova
+   tem de vir do papel ao vivo (`engine/paper_bounce.py`, a correr desde
+   2026-10-11 com G0, V1, V2 e V3 em paralelo, X=25). Veredicto máximo:
+   CANDIDATA. Nada é ligado ao vivo.
+
 ## Hipóteses anteriores a este diário (até 2026-10-02, período 2021-2026)
 
 Nenhuma validada. 4H: recuo, quebra com reteste, sweep de liquidez, fundo de

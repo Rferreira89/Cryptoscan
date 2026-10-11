@@ -11,6 +11,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 
 from . import (analysis, config, derivatives, events as calendar, ledger, short,
+               paper_bounce,
                liquidity, paper_trend, regime, review,
                signals,
                sources, validate, venue, volume)
@@ -318,6 +319,13 @@ def run(now=None, state=None, cfg=None):
                        for r in eligible if r.get("decision_short")]
     events += signals.update_state(state, both, cfg, now, daily)
     events += calendar.open_warnings(state, now)
+    # papel do Oversold Bounce (nao validada): nunca gera ordens reais
+    try:
+        result["paper_bounce"], ev = paper_bounce.update(
+            state, eligible, c4s, market_ok, now, cfg)
+        events += ev
+    except Exception as e:  # o papel nunca pode parar o scan
+        result["paper_bounce"] = {"erro": str(e)[:120]}
     result["halt"] = state.get("halt")
     result["paper_trend"], ev = paper_trend.update(
         state, eligible, daily, cfg, now, market_ok,

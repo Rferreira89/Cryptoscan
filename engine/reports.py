@@ -65,6 +65,12 @@ def daily(res, state):
     if skip:
         L.append("Não executadas (só seguidas para as estatísticas, sem "
                  "avisos): " + ", ".join(sorted(set(skip))) + ".")
+    pb = (res.get("paper_bounce") or {}).get("G0")
+    if pb and (pb["n"] or pb["open"]):
+        L.append(f"📝 Papel Oversold Bounce (não validada): {pb['n']} fechadas, "
+                 f"{pb['total_r']:+.2f}R"
+                 + (f"; abertas: {', '.join(pb['open'])}" if pb["open"] else "")
+                 + ".")
     if watch:
         L.append("A vigiar:\n" + "\n".join(
             f"• {r['asset']} ({STR.get(r['decision']['strategy'])}): "

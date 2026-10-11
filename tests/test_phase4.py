@@ -485,6 +485,9 @@ class EndToEnd(unittest.TestCase):
         json.dumps(res); json.dumps(state); json.dumps(events)
         self.assertIn("BTC", state["regimes"])
         # segunda passagem com o mesmo estado nao rebenta nem duplica
+        # o papel do Oversold Bounce corre sem erros dentro do scan
+        self.assertNotIn("erro", res.get("paper_bounce", {}))
+        self.assertIn("G0", res["paper_bounce"])
         res2, state, _ = S.run(now=now + 900, state=state, cfg=dict(CFG))
         self.assertLessEqual(len(res2["active_signals"]), CFG["max_open_positions"])
 

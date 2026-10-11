@@ -5,7 +5,8 @@ import os
 import sys
 from zoneinfo import ZoneInfo
 
-from . import (alerts, config, inbox, ledger, paper_trend, reports, scanner,
+from . import (alerts, config, inbox, ledger, paper_bounce, paper_trend,
+               reports, scanner,
                strategies, validation)
 
 OUT = sys.argv[1] if len(sys.argv) > 1 else "out"
@@ -214,6 +215,17 @@ def alert_text(e, sigs, note):
                 f"Se acontecer: entrada {_px(e['entry'][0])} a "
                 f"{_px(e['entry'][1])}, stop {_px(e['stop'])}, "
                 f"1.º objetivo {_px(e['tp1'])}.")
+    if k == "BOUNCE_PAPER_BUY":
+        tps = " / ".join(_px(x) for x in e["tp"])
+        return (f"📝 PAPEL — Oversold Bounce · {e['asset']} ({e['pair']})\n"
+                f"Compra simulada a {_px(e['price'])} (RSI 4H {e['rsi']}). "
+                f"Stop {_px(e['stop'])}, objetivos {tps}, saída em 3 dias.\n"
+                f"{paper_bounce.RECORD}")
+    if k == "BOUNCE_PAPER_SELL":
+        why = {"STOP": "stop", "BREAKEVEN": "stop na entrada", "TIME":
+               "fim dos 3 dias"}.get(e["reason"], "objetivo")
+        return (f"📝 PAPEL — Oversold Bounce · {e['asset']} fechada ({why}): "
+                f"{e['r']:+.2f}R. {paper_bounce.RECORD}")
     if k == "EVENT_OPEN":
         quando = datetime.datetime.fromtimestamp(
             e["event_t"], ZoneInfo("Europe/Lisbon")).strftime("%d/%m às %H:%M")
