@@ -329,7 +329,7 @@ function renderArena(D){
     return `<tr><td>${i+1}. ${esc(b.name)}</td><td>${b.n}</td><td class="${b.avg_r>0?"up":b.avg_r<0?"dn":""}">${b.avg_r==null?"–":(b.avg_r>0?"+":"")+num(b.avg_r,2)+"R"}</td><td>${ac}</td><td class="${t[1]}">${t[0]}</td></tr>`}).join("");
   const alive=A.classificacao.filter(b=>b.estado!=="MORTA").length;
   $("n-arena").textContent=`${alive} vivas de ${A.classificacao.length}`;
-  $("arena").innerHTML=`<div class="banner"><b>Todas as estratégias a competir com as mesmas regras</b>Morre: ${esc(A.regras.morre)}. Sobe para dinheiro real (só com o teu sim): ${esc(A.regras.sobe)}. As estratégias ao vivo continuam a dar sinais mesmo mortas (opção B).</div><div class="tw"><table><tr><th>Concorrente</th><th>N</th><th>R médio</th><th>Acaso</th><th>Estado</th></tr>${rows}</table></div><div class="note">Contam todos os sinais emitidos, executados ou não: mede-se a estratégia, não a execução.</div>`;
+  $("arena").innerHTML=`<div class="banner"><b>Todas as estratégias a competir com as mesmas regras</b>Morre: ${esc(A.regras.morre)}. Sobe para dinheiro real (só com o teu sim): ${esc(A.regras.sobe)}. As estratégias ao vivo continuam a dar sinais mesmo mortas (opção B).</div>${A.recrutar?`<div class="banner"><b>⚠️ Poucos lutadores vivos (${A.vivos} de um mínimo de ${A.minimo_vivos})</b>A investigação está obrigada a trazer concorrentes novos em cada corrida até a arena voltar a ter lutadores suficientes.</div>`:""}<div class="tw"><table><tr><th>Concorrente</th><th>N</th><th>R médio</th><th>Acaso</th><th>Estado</th></tr>${rows}</table></div><div class="note">Contam todos os sinais emitidos, executados ou não: mede-se a estratégia, não a execução.</div>`;
 }
 const price=v=>v==null?"–":v>=100?num(v,2):v>=1?num(v,3):Number(v).toLocaleString("pt-PT",{maximumSignificantDigits:4});
 const vol=v=>v>=1e9?num(v/1e9,2)+" mM $":num(v/1e6,1)+" M $";
@@ -777,7 +777,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261011b";
+const PAGE_V="20261011c";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:

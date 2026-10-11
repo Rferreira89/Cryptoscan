@@ -24,7 +24,9 @@ def led(n, r, strategy="PULLBACK", t0=1_800_000_000 + 200 * TF):
 
 class Arena(unittest.TestCase):
     def test_regras(self):
-        self.assertEqual(arena.verdict(10, -1.0, 0.0, 0.5, True), "A COMPETIR")
+        self.assertEqual(arena.verdict(9, -1.0, 0.0, 0.5, True), "A COMPETIR")
+        self.assertEqual(arena.verdict(10, -0.6, 0.0, 0.5, True), "MORTA")   # morte rapida
+        self.assertEqual(arena.verdict(15, -0.3, 0.0, 0.5, True), "A COMPETIR")
         self.assertEqual(arena.verdict(20, -0.3, 0.0, 0.5, True), "MORTA")
         self.assertEqual(arena.verdict(20, 0.1, 0.2, 0.5, True), "MORTA")
         self.assertEqual(arena.verdict(25, 0.6, 0.0, 0.5, True), "A COMPETIR")
@@ -42,6 +44,7 @@ class Arena(unittest.TestCase):
         self.assertTrue(row["live"])
         # estrategia ao vivo morta nao entra na lista de papel a desligar
         self.assertNotIn("PULLBACK", arena.dead_paper(st))
+        self.assertTrue(res["recrutar"])          # menos de 5 lutadores vivos
 
     def test_aviso_so_na_mudanca(self):
         st = {"ledger": led(22, -1.0)}

@@ -17,7 +17,9 @@ tools/random_baseline.py. A tendencia diaria sai por um minimo movel e nao
 tem geometria fixa: e julgada so pelo R medio.
 
 Regras (declaradas antes de haver resultados)
-  MORRE   com pelo menos 20 operacoes, se o R medio for <= -0,2R ou nao
+  MORRE   com pelo menos 10 operacoes e R medio <= -0,5R (morte rapida,
+          decisao do Rui: luta ate a morte), ou
+          com pelo menos 20 operacoes, se o R medio for <= -0,2R ou nao
           passar a mediana das entradas ao acaso. Uma estrategia de papel
           morta deixa de abrir operacoes. As estrategias ao vivo NUNCA sao
           desligadas pela arena (opcao B do Rui): ficam marcadas e
@@ -34,6 +36,8 @@ from . import trade
 TF = 14400
 WINDOW, REPS, MAX_BARS = 90, 200, 6 * 90
 MIN_DEATH, MIN_PROMO, DEATH_R = 20, 30, -0.2
+FAST_N, FAST_R = 10, -0.5        # morte rapida: claramente mau ao fim de 10
+MIN_ALIVE = 5                    # abaixo disto a investigacao tem de criar lutadores
 FEE_PCT, SLIP_PCT = 0.25, 0.1
 NAMES = {"PULLBACK": "Recuo (ao vivo)", "BREAKOUT": "Quebra (ao vivo)",
          "LIQUIDITY_SWEEP": "Sweep (ao vivo)", "RANGE": "Range (ao vivo)",
@@ -117,6 +121,8 @@ def verdict(n, mean, med, p95, has_ctrl):
     if n >= MIN_PROMO and mean > 0 and has_ctrl and p95 is not None \
             and mean > p95:
         return "SOBE"
+    if n >= FAST_N and mean <= FAST_R:             # morte rapida
+        return "MORTA"
     if n >= MIN_DEATH and (mean <= DEATH_R or (has_ctrl and med is not None
                                                and mean <= med)):
         return "MORTA"
@@ -187,8 +193,11 @@ def update(state, bars, now, seed=None):
     board.sort(key=lambda b: (order[b["estado"]],
                               -(b["avg_r"] if b["avg_r"] is not None else -9),
                               -b["n"]))
-    return {"atualizado": int(now), "regras": {
-        "morre": f"≥{MIN_DEATH} operações e R médio ≤ {str(DEATH_R).replace('.', ',')}R ou abaixo "
+    alive = sum(1 for b in board if b["estado"] != "MORTA")
+    return {"atualizado": int(now), "vivos": alive, "minimo_vivos": MIN_ALIVE,
+            "recrutar": alive < MIN_ALIVE, "regras": {
+        "morre": f"≥{FAST_N} operações com R médio ≤ {str(FAST_R).replace('.', ',')}R (morte rápida), ou "
+                 f"≥{MIN_DEATH} operações e R médio ≤ {str(DEATH_R).replace('.', ',')}R ou abaixo "
                  "da mediana ao acaso",
         "sobe": f"≥{MIN_PROMO} operações, R médio positivo e acima do "
                 "percentil 95 ao acaso"}, "classificacao": board}
