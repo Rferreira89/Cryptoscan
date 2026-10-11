@@ -142,6 +142,19 @@ junta dados que nenhum teste viu, e é aí que se decide. Dinheiro real só
 com o veredicto CANDIDATA, 30 operações ou 8 semanas de papel, e o sim do
 Rui.
 
+### Sucessores da arena (decisão do Rui, 2026-10-11)
+Quando um concorrente morre na arena (`engine/arena.py`: 20 ou mais
+operações e R médio <= -0,2R ou abaixo da mediana ao acaso), a investigação
+faz a autópsia das operações dele, escreve ANTES de testar um sucessor com
+uma correção principal que ataque a causa encontrada, testa-o com o método
+completo e regista aqui o par. Um sucessor nunca substitui o morto em
+silêncio: entra na arena como concorrente novo (via papel, numa sessão com
+o Rui), e o morto fica registado. Um por corrida, na segunda vaga.
+
+| Morto | Data da morte | Causa encontrada | Sucessor | Veredicto |
+|---|---|---|---|---|
+| (nenhum ainda) | | | | |
+
 ## Hipóteses anteriores a este diário (até 2026-10-02, período 2021-2026)
 
 Nenhuma validada. 4H: recuo, quebra com reteste, sweep de liquidez, fundo de
