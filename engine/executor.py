@@ -812,7 +812,30 @@ def do_test_lev(state, req, ex, now, send):
     return "ok"
 
 
-ACTIONS = {"teste_alav": do_test_lev, "teste_margem": do_test_margin, "teste2": do_test2, "limpar": do_clean, "diag": do_diag, "comprar": do_buy, "breakeven": do_breakeven, "fechar": do_close,
+def do_orders(state, req, ex, now, send):
+    """Diagnostico sem custo: como a Bybit devolve as ordens abertas das
+    operacoes em curso (para a leitura da conta encontrar os stops)."""
+    out = []
+    for sym in ("SOLUSDC", "XRPUSDC", None):
+        for flt in (None, "Order", "tpslOrder", "StopOrder"):
+            prm = {"category": "spot", "limit": 50}
+            if sym:
+                prm["symbol"] = sym
+            if flt:
+                prm["orderFilter"] = flt
+            try:
+                L = get("/v5/order/realtime", prm).get("list") or []
+                out.append(f"{sym or 'todos'}/{flt or '-'}: {len(L)} " + "; ".join(
+                    f"{o.get('symbol')} {o.get('side')} f={o.get('orderFilter')} t={o.get('stopOrderType')} "
+                    f"trig={o.get('triggerPrice')} tp={o.get('takeProfit')} sl={o.get('stopLoss')} qty={o.get('qty')} "
+                    f"lev={o.get('isLeverage')}" for o in L[:4]))
+            except ExecError as e:
+                out.append(f"{sym or 'todos'}/{flt or '-'}: ERRO {e}")
+    ex["ordens"] = {"t": now, "res": out}
+    return "ok"
+
+
+ACTIONS = {"ordens": do_orders, "teste_alav": do_test_lev, "teste_margem": do_test_margin, "teste2": do_test2, "limpar": do_clean, "diag": do_diag, "comprar": do_buy, "breakeven": do_breakeven, "fechar": do_close,
            "parar": do_stop_all, "teste": do_test}
 
 
