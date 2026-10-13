@@ -16,11 +16,12 @@ apt-get update -q && apt-get install -yq curl git python3 python3-venv jq unatte
 dpkg-reconfigure -f noninteractive unattended-upgrades || true
 if command -v ufw >/dev/null; then ufw allow OpenSSH && yes | ufw enable || true; fi
 id runner >/dev/null 2>&1 || useradd -m -s /bin/bash runner
+case "$(uname -m)" in aarch64|arm64) ARCH=arm64;; *) ARCH=x64;; esac
 VER=$(curl -s https://api.github.com/repos/actions/runner/releases/latest | jq -r .tag_name | sed 's/^v//')
 cd /home/runner
 sudo -u runner mkdir -p actions-runner
 cd actions-runner
-sudo -u runner curl -sL -o runner.tgz "https://github.com/actions/runner/releases/download/v${VER}/actions-runner-linux-x64-${VER}.tar.gz"
+sudo -u runner curl -sL -o runner.tgz "https://github.com/actions/runner/releases/download/v${VER}/actions-runner-linux-${ARCH}-${VER}.tar.gz"
 sudo -u runner tar xzf runner.tgz && rm -f runner.tgz
 ./bin/installdependencies.sh
 sudo -u runner ./config.sh --url "$REPO" --token "$TOKEN" --labels eu --name cryptoscan-eu --unattended --replace
