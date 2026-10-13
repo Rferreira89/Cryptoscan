@@ -360,7 +360,11 @@ def run(now=None, state=None, cfg=None, forma=None):
         result["paper_bounce"] = {"erro": str(e)[:120]}
     # papel dos setups prontos que nao viraram sinal ("estamos a perder trades?")
     try:
-        result["paper_shadow"] = paper_shadow.update(state, eligible, c4s, now)
+        if "REJEITADOS" in (state.get("arena", {}).get("mortos") or {}):
+            # morto na arena: deixa de abrir; as abertas acabam
+            result["paper_shadow"] = paper_shadow.update(state, [], c4s, now)
+        else:
+            result["paper_shadow"] = paper_shadow.update(state, eligible, c4s, now)
     except Exception as e:  # nunca pode parar o scan
         result["paper_shadow"] = {"erro": str(e)[:120]}
     # papel automatico dos qualificados no combate (sem papel proprio)

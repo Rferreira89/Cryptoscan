@@ -28,6 +28,7 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           PUSH_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           END=$(( $(date +%s) + 5*3600 + 20*60 ))
           publish() {
@@ -89,6 +90,11 @@ jobs:
               publish erro
             fi
             echo "::endgroup::"
+            # combate da arena de hora a hora (o agendamento do GitHub falha
+            # muitas vezes; o ciclo do scanner garante-o)
+            if [ $(( $(date +%s) % 3600 )) -ge 1380 ] && [ $(( $(date +%s) % 3600 )) -lt 1440 ]; then
+              gh workflow run arena.yml --repo "${{ github.repository }}" --ref main || echo "arena nao lancada"
+            fi
             NOW=$(date +%s)
             sleep $(( 60 - NOW % 60 + 5 ))
           done
