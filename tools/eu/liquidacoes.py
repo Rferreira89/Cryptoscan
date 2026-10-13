@@ -19,9 +19,11 @@ import time
 DIR = os.path.expanduser("~/liq")
 PID = os.path.join(DIR, "escuta.pid")
 VENV = os.path.expanduser("~/liq-venv")
-URL = "wss://fstream.binance.com/ws/!forceOrder@arr"
+# a Binance passou os canais de mercado para /market/ws (provado a 2026-10-14:
+# /ws e /stream ligam mas ja nao enviam dados)
+URL = "wss://fstream.binance.com/market/ws/!forceOrder@arr"
 KEEP_DAYS = 10
-VERSION = "5"                    # muda quando o codigo da escuta muda (relanca)
+VERSION = "6"                    # muda quando o codigo da escuta muda (relanca)
 H4 = 14400
 
 
@@ -39,29 +41,7 @@ def correr():
     with open(PID, "w") as f:
         f.write(f"{os.getpid()} {VERSION}")
 
-    async def probe():
-        """Prova da ligacao: que enderecos de canais em tempo real respondem."""
-        tests = {"fstream/ws": ("wss://fstream.binance.com/ws/btcusdt@aggTrade", None),
-                 "fstream/stream": ("wss://fstream.binance.com/stream?streams=btcusdt@aggTrade", None),
-                 "fstream/market": ("wss://fstream.binance.com/market/ws/btcusdt@aggTrade", None),
-                 "fstream/public": ("wss://fstream.binance.com/public/ws/btcusdt@aggTrade", None),
-                 "bybit/liq": ("wss://stream.bybit.com/v5/public/linear",
-                               json.dumps({"op": "subscribe", "args": ["publicTrade.BTCUSDT"]}))}
-        for nome, (u, sub) in tests.items():
-            try:
-                async with websockets.connect(u, open_timeout=15) as ws:
-                    if sub:
-                        await ws.send(sub)
-                    n = 0
-                    for _ in range(3):
-                        await asyncio.wait_for(ws.recv(), timeout=15)
-                        n += 1
-                    print(time.strftime("%H:%M:%S"), f"prova {nome}: {n} mensagens", flush=True)
-            except Exception as e:
-                print(time.strftime("%H:%M:%S"), f"prova {nome} falhou:", type(e).__name__, str(e)[:60], flush=True)
-
     async def loop():
-        await probe()
         while True:
             try:
                 async with websockets.connect(URL, ping_interval=60, close_timeout=5,
