@@ -85,7 +85,8 @@ class CompraSimulada(unittest.TestCase):
             posts.append(params)
             return {"orderId": f"o{len(posts)}"}
         ex = {"ops": {}, "feitos": []}
-        with mock.patch.object(X, "get", fake_get), mock.patch.object(X, "post", fake_post):
+        with mock.patch.object(X, "get", fake_get), mock.patch.object(X, "post", fake_post), \
+                mock.patch.object(X.time, "sleep", lambda s: None):
             r = X.do_buy(state(), {"op": "SOL-BOUNCE_X30-1"}, ex, NOW,
                          lambda t, html=False: msgs.append(t))
         self.assertEqual(r, "ok")

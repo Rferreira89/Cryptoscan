@@ -240,17 +240,19 @@ def tpsl_orders(symbol):
     a uma compra limite como UMA ordem de venda 'BidirectionalTpslOrder'
     (filtro Order, campos takeProfit/stopLoss), que prende as moedas."""
     seen = {}
-    for flt in ("Order", "tpslOrder", "StopOrder"):
+    for flt in (None, "Order", "tpslOrder", "StopOrder"):
+        prm = {"category": "spot", "symbol": symbol, "limit": 50}
+        if flt:
+            prm["orderFilter"] = flt
         try:
-            r = get("/v5/order/realtime", {"category": "spot", "symbol": symbol,
-                                           "orderFilter": flt, "limit": 50})
+            r = get("/v5/order/realtime", prm)
         except ExecError:
             continue
         for o in r.get("list") or []:
             prot = o.get("stopOrderType") or float(o.get("triggerPrice") or 0) > 0 or \
                 float(o.get("stopLoss") or 0) > 0
             if o.get("side") == "Sell" and prot:
-                seen[o["orderId"]] = dict(o, _flt=o.get("orderFilter") or flt)
+                seen[o["orderId"]] = dict(o, _flt=o.get("orderFilter") or flt or "Order")
     return list(seen.values())
 
 
@@ -393,11 +395,14 @@ def do_buy(state, req, ex, now, send):
         send(f"⚠️ A compra de {rec['asset']} falhou na Bybit: {o.get('erro')}. Nada foi comprado.")
         ex["ops"][op] = o
         return o.get("erro")
-    time.sleep(1.5)
-    try:
-        _match_children(symbol, o["partes"], now, inst["base_step"])
-    except ExecError:
-        pass
+    for _ in range(6):                       # a protecao aparece segundos depois
+        time.sleep(2)
+        try:
+            _match_children(symbol, [p for p in o["partes"] if not p.get("filho")], now, inst["base_step"])
+        except ExecError:
+            pass
+        if all(p.get("filho") or not p.get("anexo") for p in o["partes"]):
+            break
     q_tot = sum(p["qty"] for p in o["partes"])
     o["entrada"] = sum(p["preco"] * p["qty"] for p in o["partes"]) / q_tot
     o["qty"] = q_tot
@@ -511,8 +516,12 @@ def do_test(state, req, ex, now, send):
         steps.append(f"compra {q:.2f} USDC: ok (TP/SL anexados: {'sim' if attached else 'não — ' + str(LAST_ATTACH_ERR)})")
         avg, qty = fills(oid, sym, "BTC")
         steps.append(f"executada a {avg:.2f}, {qty:.8f} BTC líquidos")
-        time.sleep(2)
-        od = [o for o in tpsl_orders(sym) if float(o.get("createdTime") or 0) >= (now - 5) * 1000]
+        od = []
+        for _ in range(8):                   # a protecao aparece segundos depois
+            time.sleep(2)
+            od = [o for o in tpsl_orders(sym) if float(o.get("createdTime") or 0) >= (now - 5) * 1000]
+            if od:
+                break
         steps.append(f"ordens TP/SL encontradas: {len(od)} "
                      + "; ".join(f"{o.get('_flt')} trig={o.get('triggerPrice')} "
                                  f"tp={o.get('takeProfit')} sl={o.get('stopLoss')} qty={o.get('qty')}"
