@@ -1,0 +1,6 @@
+#cloud-config
+# Cola isto no campo "Cloud config" ao criar o servidor (Hetzner).
+# Troca COLA_AQUI_O_TOKEN pelo token do GitHub (vale 1 hora).
+runcmd:
+  - curl -sL https://raw.githubusercontent.com/Rferreira89/Cryptoscan/main/tools/eu/instalar.sh -o /root/instalar.sh
+  - bash /root/instalar.sh COLA_AQUI_O_TOKEN > /root/instalar.log 2>&1
