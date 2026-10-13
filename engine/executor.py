@@ -236,15 +236,34 @@ def fills(order_id, symbol, base, side="Buy"):
 
 
 def tpsl_orders(symbol):
-    out = []
-    for flt in ("tpslOrder", "StopOrder"):
+    """Ordens de protecao abertas no par. A Bybit UE guarda o TP/SL anexado
+    a uma compra limite como UMA ordem de venda 'BidirectionalTpslOrder'
+    (filtro Order, campos takeProfit/stopLoss), que prende as moedas."""
+    seen = {}
+    for flt in ("Order", "tpslOrder", "StopOrder"):
         try:
             r = get("/v5/order/realtime", {"category": "spot", "symbol": symbol,
                                            "orderFilter": flt, "limit": 50})
-            out += [dict(o, _flt=flt) for o in r.get("list") or []]
         except ExecError:
-            pass
-    return out
+            continue
+        for o in r.get("list") or []:
+            prot = o.get("stopOrderType") or float(o.get("triggerPrice") or 0) > 0 or \
+                float(o.get("stopLoss") or 0) > 0
+            if o.get("side") == "Sell" and prot:
+                seen[o["orderId"]] = dict(o, _flt=o.get("orderFilter") or flt)
+    return list(seen.values())
+
+
+def _match_children(symbol, parts, t0, step):
+    """Liga cada parte a sua ordem de protecao (quantidade igual, criada
+    depois da compra)."""
+    free = [o for o in tpsl_orders(symbol) if float(o.get("createdTime") or 0) >= t0 * 1000 - 5000]
+    for p in parts:
+        q = floor_to(p["qty"], step)
+        best = min(free, key=lambda o: abs(float(o.get("qty") or 0) - q), default=None)
+        if best is not None and abs(float(best.get("qty") or 0) - q) <= max(float(step) * 2, q * 0.03):
+            p["filho"] = best["orderId"]
+            free.remove(best)
 
 
 def place_part(symbol, quote, tp, stop, inst, tag, px=None):
@@ -304,19 +323,19 @@ def cancel(symbol, o):
 
 
 def ours(orders, op):
-    """Ordens TP/SL que pertencem a operacao (criadas depois da compra,
-    com quantidades das partes)."""
+    """Ordens de protecao desta operacao: as guardadas na compra; se
+    faltarem, as de venda criadas depois da compra com a quantidade de uma
+    parte (nunca ordens anteriores do Rui)."""
+    ids = {p.get("filho") for p in op.get("partes") or []} | \
+        {p.get("stopId") for p in op.get("partes") or []}
+    ids.discard(None)
+    out = [o for o in orders if o["orderId"] in ids]
+    if out:
+        return out
     t0 = (op.get("criado") or 0) * 1000 - 5000
-    qs = {round(p.get("qty") or 0, 8) for p in op.get("partes") or []}
-    out = []
-    for o in orders:
-        if float(o.get("createdTime") or 0) < t0 or o.get("side") != "Sell":
-            continue
-        q = float(o.get("qty") or 0)
-        if any(abs(q - x) <= max(1e-9, x * 0.02) for x in qs) or \
-                (o.get("orderLinkId") or "").startswith(LINK):
-            out.append(o)
-    return out
+    qs = [p.get("qty") or 0 for p in op.get("partes") or []]
+    return [o for o in orders if float(o.get("createdTime") or 0) >= t0 and
+            any(abs(float(o.get("qty") or 0) - x) <= max(1e-9, x * 0.03) for x in qs)]
 
 
 # ---------- acoes ----------
@@ -374,6 +393,11 @@ def do_buy(state, req, ex, now, send):
         send(f"⚠️ A compra de {rec['asset']} falhou na Bybit: {o.get('erro')}. Nada foi comprado.")
         ex["ops"][op] = o
         return o.get("erro")
+    time.sleep(1.5)
+    try:
+        _match_children(symbol, o["partes"], now, inst["base_step"])
+    except ExecError:
+        pass
     q_tot = sum(p["qty"] for p in o["partes"])
     o["entrada"] = sum(p["preco"] * p["qty"] for p in o["partes"]) / q_tot
     o["qty"] = q_tot
