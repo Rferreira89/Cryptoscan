@@ -527,7 +527,11 @@ def main(state_path, ex_in, out):
         ex.update(pronto=False, chave="sem chave de negociação (BYBIT_TRADE_KEY)")
     else:
         try:
-            ok, why = key_ok(get("/v5/user/query-api"))
+            info = get("/v5/user/query-api")
+            ok, why = key_ok(info)
+            # so nomes de permissoes e se ha IP (nada secreto)
+            ex["permissoes"] = info.get("permissions")
+            ex["ips_definidos"] = len([x for x in info.get("ips") or [] if x and x != "*"])
         except ExecError as e:
             ok, why = False, str(e)[:120]
         ex.update(pronto=ok, chave=why)
