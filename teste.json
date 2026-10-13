@@ -1,0 +1,47 @@
+{
+ "t": 1791917313,
+ "testes": {
+  "bybit_eu_SOL": {
+   "http": 200,
+   "ms": 200,
+   "velas": 121,
+   "cors": "https://rferreira89.github.io"
+  },
+  "binance_SOL": {
+   "http": 200,
+   "ms": 1164,
+   "velas": 120,
+   "cors": "*"
+  },
+  "bybit_eu_ETH": {
+   "http": 200,
+   "ms": 185,
+   "velas": 121,
+   "cors": "https://rferreira89.github.io"
+  },
+  "binance_ETH": {
+   "http": 200,
+   "ms": 1253,
+   "velas": 120,
+   "cors": "*"
+  },
+  "bybit_eu_PENGU": {
+   "http": 200,
+   "ms": 183,
+   "velas": 121,
+   "cors": "https://rferreira89.github.io"
+  },
+  "binance_PENGU": {
+   "http": 200,
+   "ms": 1258,
+   "velas": 120,
+   "cors": "*"
+  }
+ },
+ "pagina": {
+  "http": 200,
+  "versao": "20261013i",
+  "explorador": true,
+  "cartao": true
+ }
+}
