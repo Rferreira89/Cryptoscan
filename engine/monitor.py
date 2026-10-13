@@ -75,6 +75,7 @@ def main():
         return
     cfg = config.load()
     now = int(time.time())
+    run.execucao.apply(state, run.execucao.load())
     replied = run.process_inbox(state, res)
     events, assets = [], needed_assets(state)
     if assets:
@@ -89,9 +90,10 @@ def main():
     if pt and res.get("paper_trend"):
         res["paper_trend"]["positions"] = pt["positions"]
         res["paper_trend"]["closed"] = pt["closed"][-15:]
+    sent = run.exec_after(state, events, now)
     run.save(state, res, events)
     # so publica quando ha algo novo (o scan de 5 minutos e o sinal de vida)
-    if events or replied:
+    if events or replied or sent:
         open(os.path.join(OUT, ".publish"), "w").close()
     print(f"monitor: {len(assets)} ativos, {len(events)} eventos")
     run.deliver(cfg, state, events)

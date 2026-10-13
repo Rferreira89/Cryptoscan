@@ -25,6 +25,9 @@ CLOSE = re.compile(r"^/?fechei\s+([A-Za-z0-9]+)\s+([0-9]+(?:[.,][0-9]+)?)\s*$",
                    re.I)
 
 
+PARAR = re.compile(r"^/?parar\s*$", re.I)
+
+
 CAP = re.compile(r"^/?capital\s+([0-9]+(?:[.,][0-9]+)?)\s*$", re.I)
 
 
@@ -165,6 +168,20 @@ def apply(state, updates, chat_id, res=None):
             if len(parts) == 3 and parts[0] == "q":      # botao "Porque"
                 out.append((consultas.why(res, parts[2].upper()), cq["id"], True))
                 continue
+            if len(parts) == 2 and parts[0] == "e":      # botao "Executar"
+                from . import execucao
+                rec = by_id.get(parts[1])
+                if not rec:
+                    out.append(("Operação não encontrada no registo.", cq["id"]))
+                elif not execucao.READY:
+                    out.append(("A execução ainda não está ligada (falta a chave de "
+                                "negociação validada).", cq["id"]))
+                elif execucao.request(state, "comprar", parts[1], __import__("time").time()):
+                    out.append((f"⏳ Pedido recebido: a executar {rec['asset']} no servidor "
+                                "europeu. Confirmação em 1 a 2 minutos.", cq["id"]))
+                else:
+                    out.append((f"Já há um pedido em curso para {rec['asset']}.", cq["id"]))
+                continue
             rec = by_id.get(parts[2]) if len(parts) == 3 and parts[0] == "x" else None
             if not rec:
                 out.append(("Operação não encontrada no registo.", cq["id"]))
@@ -181,6 +198,12 @@ def apply(state, updates, chat_id, res=None):
             if str(msg.get("chat", {}).get("id")) != str(chat_id):
                 continue
             text = (msg.get("text") or "").strip()
+            if PARAR.match(text):
+                from . import execucao
+                execucao.request(state, "parar", "", int(msg.get("date") or 0))
+                out.append(("⛔ Pedido de paragem recebido: o servidor europeu vai cancelar as "
+                            "ordens e vender o que o programa abriu (1 a 2 minutos).", None))
+                continue
             ans = consultas.answer(text, res, state)
             if ans:
                 out.append((ans, None, True))

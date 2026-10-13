@@ -5,7 +5,7 @@ import os
 import sys
 from zoneinfo import ZoneInfo
 
-from . import (alerts, config, consultas, europa, inbox, ledger, paper_bounce, paper_trend,
+from . import (alerts, config, consultas, europa, execucao, inbox, ledger, paper_bounce, paper_trend,
                reports, scanner,
                strategies, validation)
 
@@ -420,6 +420,8 @@ def markup_for(e, s, real):
     if not (oid and real):
         return None
     m = inbox.buttons(oid)
+    if execucao.READY and e.get("event") == "ISSUED":        # fase 2: um toque
+        m["inline_keyboard"].insert(0, [execucao.button(oid)])
     if e.get("asset"):
         m["inline_keyboard"].append(consultas.why_buttons(e["asset"]))
     return m
@@ -544,13 +546,29 @@ def load_forma():
         return None
 
 
+def exec_after(state, events, now):
+    """Ganchos da execucao: TP1 / tempo / sem reacao em operacoes executadas
+    pelo programa, e aviso ao ciclo para lancar o servidor europeu."""
+    try:
+        execucao.hooks(state, events, now)
+        if execucao.due(state, now):
+            open(os.path.join(OUT, ".exec"), "w").close()
+            return True
+    except Exception as e:                    # nunca para o scanner
+        print("execucao:", e)
+    return False
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
     state = _load("state.json", {})
+    execucao.apply(state, execucao.load())
     process_inbox(state, _load("scan.json", None))
     apply_admin(state, send=alerts.send if alerts.configured() else None)
     res, state, events = scanner.run(state=state, forma=load_forma(),
                                      eu=europa.load())
+    exec_after(state, events, res["generated_at"])
+    res["execucao"] = {"pronto": execucao.READY, "pedidos": len(state.get("exec_req") or [])}
     extra = reports.due(res, state, res["generated_at"]) if res["universe"] else []
     res["journal"] = ledger.view(state.get("ledger", []))
     if res["universe"]:             # so conta scans com dados

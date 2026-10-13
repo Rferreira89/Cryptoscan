@@ -319,6 +319,7 @@ HELP = "\n".join([
     "/conta — saldo na Bybit",
     "/hoje — resumo do dia", "",
     "Registo: /preco MOEDA preço · /fechei MOEDA preço · /capital valor",
+    "Execução: botão ⚡ Executar nos alertas · /parar fecha o que o programa abriu",
     "As respostas chegam em cerca de 1 minuto."])
 
 

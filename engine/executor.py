@@ -1,0 +1,561 @@
+"""Execucao com um toque (fase 2, decisao do Rui em 2026-10-13).
+
+Corre SO no servidor europeu (workflow executar.yml). Nunca compra sozinho:
+cada compra nasce de um toque do Rui no botao "Executar" de um alerta real.
+
+Chave propria (segredos BYBIT_TRADE_KEY / BYBIT_TRADE_SECRET), separada da
+chave de leitura. Antes de qualquer ordem confirma na Bybit que a chave:
+  - pode negociar spot e NADA mais (sem levantamentos, transferencias ou
+    derivados);
+  - esta presa a uma lista de IPs (nunca aberta a qualquer IP).
+Se nao estiver assim, recusa-se a usa-la.
+
+Pedidos (state["exec_req"], vindos do Telegram ou do acompanhamento):
+  comprar    compra o valor do plano em partes, cada parte com o seu objetivo
+             e o stop do plano (ordens TP/SL da propria Bybit)
+  breakeven  depois do TP1: stop das partes restantes para a entrada
+  fechar     saida por tempo / sem reacao: cancela as ordens e vende o resto
+  parar      fecha tudo o que o programa abriu
+  teste      prova de 5 USDC em BTC: compra, TP/SL, ajuste, cancela, vende
+
+Resultado em exec.json (ramo "execucoes"); o scanner le-o para marcar o
+registo. Mensagens de confirmacao vao direto para o Telegram.
+"""
+import hashlib
+import hmac
+import json
+import math
+import os
+import socket
+import sys
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+
+BASE = "https://api.bybit.eu"
+RECV = "10000"
+TIMEOUT = 15
+MAX_AGE_BUY = 6 * 3600          # um toque num alerta com mais de 6h e recusado
+ZONE_SLIP = 0.005               # aceita ate 0,5% acima da zona de entrada
+TEST_USDC = 5.0
+LINK = "cs-"                    # prefixo das ordens do programa
+
+
+class ExecError(Exception):
+    pass
+
+
+# ---------- rede (IPv4: a chave esta presa ao IPv4 do servidor) ----------
+
+_orig_gai = socket.getaddrinfo
+
+
+def _ipv4_only(host, *a, **k):
+    return [r for r in _orig_gai(host, *a, **k) if r[0] == socket.AF_INET] or \
+        _orig_gai(host, *a, **k)
+
+
+def configured():
+    return bool(os.environ.get("BYBIT_TRADE_KEY", "").strip()
+                and os.environ.get("BYBIT_TRADE_SECRET", "").strip())
+
+
+def _call(method, path, params=None):
+    key = os.environ["BYBIT_TRADE_KEY"].strip()
+    secret = os.environ["BYBIT_TRADE_SECRET"].strip()
+    ts = str(int(time.time() * 1000))
+    if method == "GET":
+        payload = urllib.parse.urlencode(sorted((params or {}).items()))
+        url, body = f"{BASE}{path}" + (f"?{payload}" if payload else ""), None
+    else:
+        payload = json.dumps(params or {}, separators=(",", ":"))
+        url, body = f"{BASE}{path}", payload.encode()
+    sig = hmac.new(secret.encode(), f"{ts}{key}{RECV}{payload}".encode(),
+                   hashlib.sha256).hexdigest()
+    req = urllib.request.Request(url, data=body, method=method, headers={
+        "X-BAPI-API-KEY": key, "X-BAPI-TIMESTAMP": ts, "X-BAPI-RECV-WINDOW": RECV,
+        "X-BAPI-SIGN": sig, "Content-Type": "application/json",
+        "User-Agent": "cryptoscan-exec"})
+    socket.getaddrinfo = _ipv4_only
+    try:
+        with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
+            d = json.loads(r.read().decode())
+    except urllib.error.HTTPError as e:
+        raise ExecError(f"{path}: HTTP {e.code}") from None
+    except Exception as e:
+        raise ExecError(f"{path}: {type(e).__name__}") from None
+    finally:
+        socket.getaddrinfo = _orig_gai
+    if d.get("retCode") != 0:
+        raise ExecError(f"{path}: {d.get('retCode')} {str(d.get('retMsg'))[:100]}")
+    return d.get("result") or {}
+
+
+def get(path, params=None):
+    return _call("GET", path, params)
+
+
+def post(path, params):
+    return _call("POST", path, params)
+
+
+# ---------- regras puras (testadas) ----------
+
+def key_ok(info):
+    """(ok, motivo). So spot, sem carteira/levantamentos, IPs restritos."""
+    try:
+        if int(info.get("readOnly")) == 1:
+            return False, "a chave é só de leitura: não pode comprar"
+    except (TypeError, ValueError):
+        return False, "não consegui ler as permissões da chave"
+    perms = info.get("permissions") or {}
+    bad = [k for k, v in perms.items() if v and k not in ("Spot",)]
+    if bad:
+        return False, f"a chave tem permissões a mais ({', '.join(sorted(bad))}): só pode ter Spot"
+    if not perms.get("Spot"):
+        return False, "a chave não tem permissão de negociar spot"
+    ips = [x for x in info.get("ips") or [] if x and x != "*"]
+    if not ips:
+        return False, "a chave não está presa ao IP do servidor"
+    return True, "ok"
+
+
+def dec(step):
+    s = f"{float(step):.10f}".rstrip("0")
+    return len(s.split(".")[1]) if "." in s else 0
+
+
+def floor_to(x, step):
+    st = float(step)
+    return math.floor(x / st + 1e-9) * st
+
+
+def fmt(x, step):
+    return f"{floor_to(x, step):.{dec(step)}f}"
+
+
+def parts_for(size, tps, partials, min_amt):
+    """[(valor_usdc, tp)] por parte. Partes abaixo do minimo da Bybit
+    juntam-se a anterior (fica com o objetivo mais perto, conservador)."""
+    raw = [(size * p / 100, tp) for p, tp in zip(partials, tps) if p and p > 0]
+    if not raw:
+        raw = [(size, tps[0])]
+    tot = sum(q for q, _ in raw)
+    raw = [(q * size / tot, tp) for q, tp in raw]        # soma exata = size
+    out = []
+    for q, tp in raw:
+        if out and (q < min_amt * 1.1 or out[-1][0] < min_amt * 1.1):
+            out[-1] = (out[-1][0] + q, out[-1][1])
+        else:
+            out.append((q, tp))
+    return out if out and all(q >= min_amt for q, _ in out) else []
+
+
+def buy_check(state, op, price, now):
+    """(plano, motivo_de_recusa). Valida o pedido contra o sinal ao vivo."""
+    sig = (state.get("signals") or {}).get(op) or {}
+    rec = next((r for r in state.get("ledger") or [] if r.get("id") == op), None)
+    plan = sig.get("plan")
+    if not sig or not rec or not plan:
+        return None, "operação não encontrada"
+    if sig.get("mode") == "PAPER":
+        return None, "é um sinal em papel, não real"
+    if sig.get("status") not in ("ACTIVE", "TRIGGERED"):
+        return None, f"o sinal já não está ativo ({str(sig.get('status')).lower()})"
+    if rec.get("executed") is True and not rec.get("auto_exec"):
+        return None, "já marcaste esta operação como executada à mão"
+    if now - (rec.get("issued_at") or now) > MAX_AGE_BUY:
+        return None, "o alerta tem mais de 6 horas"
+    lo, hi = plan["entry_zone"]
+    if price > hi * (1 + ZONE_SLIP):
+        return None, f"o preço ({price:g}) já saiu da zona de entrada (até {hi:g})"
+    if price <= plan["stop"] * 1.002:
+        return None, f"o preço ({price:g}) está colado ao stop ({plan['stop']:g})"
+    if price >= plan["tp"][0] * 0.995:
+        return None, f"o preço ({price:g}) já está no primeiro objetivo"
+    return plan, None
+
+
+# ---------- Bybit ----------
+
+def instrument(symbol):
+    r = get("/v5/market/instruments-info", {"category": "spot", "symbol": symbol})
+    it = (r.get("list") or [None])[0]
+    if not it:
+        raise ExecError(f"{symbol} não existe na Bybit UE")
+    ls, pf = it.get("lotSizeFilter") or {}, it.get("priceFilter") or {}
+    return {"base_step": ls.get("basePrecision") or "0.000001",
+            "quote_step": ls.get("quotePrecision") or "0.01",
+            "min_amt": float(ls.get("minOrderAmt") or 5),
+            "tick": pf.get("tickSize") or "0.0001"}
+
+
+def last_price(symbol):
+    r = get("/v5/market/tickers", {"category": "spot", "symbol": symbol})
+    return float(r["list"][0]["lastPrice"])
+
+
+def wallet():
+    try:
+        return get("/v5/account/wallet-balance", {"accountType": "UNIFIED"})
+    except ExecError:
+        return get("/v5/account/wallet-balance", {"accountType": "SPOT"})
+
+
+def held(w, coin):
+    from . import account
+    return account.coins(w).get(coin.upper(), 0.0)
+
+
+def usdc_free(w):
+    from . import account
+    return account.usdc_free(w) or 0.0
+
+
+def fills(order_id, symbol, base):
+    """(preco medio, quantidade liquida recebida) de uma ordem."""
+    for _ in range(5):
+        r = get("/v5/execution/list", {"category": "spot", "symbol": symbol,
+                                       "orderId": order_id})
+        ex = r.get("list") or []
+        if ex:
+            q = sum(float(e["execQty"]) for e in ex)
+            v = sum(float(e["execQty"]) * float(e["execPrice"]) for e in ex)
+            fee = sum(float(e.get("execFee") or 0) for e in ex
+                      if (e.get("feeCurrency") or base).upper() == base.upper())
+            return v / q, q - fee
+        time.sleep(1)
+    raise ExecError("a ordem não mostrou execução")
+
+
+def tpsl_orders(symbol):
+    out = []
+    for flt in ("tpslOrder", "StopOrder"):
+        try:
+            r = get("/v5/order/realtime", {"category": "spot", "symbol": symbol,
+                                           "orderFilter": flt, "limit": 50})
+            out += [dict(o, _flt=flt) for o in r.get("list") or []]
+        except ExecError:
+            pass
+    return out
+
+
+def place_part(symbol, quote, tp, stop, inst, tag):
+    """Compra a mercado 'quote' USDC com TP e stop da Bybit anexados.
+    Se a Bybit recusar o anexo, compra sem ele e poe um stop condicional."""
+    base = {"category": "spot", "symbol": symbol, "side": "Buy", "orderType": "Market",
+            "qty": fmt(quote, inst["quote_step"]), "marketUnit": "quoteCoin",
+            "orderLinkId": f"{LINK}{tag}"[:36]}
+    try:
+        r = post("/v5/order/create", dict(base, takeProfit=fmt(tp, inst["tick"]),
+                                          stopLoss=fmt(stop, inst["tick"]),
+                                          tpOrderType="Market", slOrderType="Market"))
+        return r["orderId"], True
+    except ExecError as e:
+        if "insufficient" in str(e).lower() or "balance" in str(e).lower():
+            raise
+        r = post("/v5/order/create", base)
+        return r["orderId"], False
+
+
+def stop_order(symbol, qty, stop, inst, tag):
+    r = post("/v5/order/create", {"category": "spot", "symbol": symbol, "side": "Sell",
+                                  "orderType": "Market", "qty": fmt(qty, inst["base_step"]),
+                                  "triggerPrice": fmt(stop, inst["tick"]),
+                                  "orderFilter": "tpslOrder",
+                                  "orderLinkId": f"{LINK}{tag}"[:36]})
+    return r["orderId"]
+
+
+def sell_all(symbol, qty, inst, tag):
+    q = floor_to(qty, inst["base_step"])
+    if q <= 0:
+        return None
+    r = post("/v5/order/create", {"category": "spot", "symbol": symbol, "side": "Sell",
+                                  "orderType": "Market", "qty": fmt(q, inst["base_step"]),
+                                  "marketUnit": "baseCoin", "orderLinkId": f"{LINK}{tag}"[:36]})
+    return r["orderId"]
+
+
+def cancel(symbol, o):
+    post("/v5/order/cancel", {"category": "spot", "symbol": symbol,
+                              "orderId": o["orderId"], "orderFilter": o.get("_flt", "tpslOrder")})
+
+
+def ours(orders, op):
+    """Ordens TP/SL que pertencem a operacao (criadas depois da compra,
+    com quantidades das partes)."""
+    t0 = (op.get("criado") or 0) * 1000 - 5000
+    qs = {round(p.get("qty") or 0, 8) for p in op.get("partes") or []}
+    out = []
+    for o in orders:
+        if float(o.get("createdTime") or 0) < t0 or o.get("side") != "Sell":
+            continue
+        q = float(o.get("qty") or 0)
+        if any(abs(q - x) <= max(1e-9, x * 0.02) for x in qs) or \
+                (o.get("orderLinkId") or "").startswith(LINK):
+            out.append(o)
+    return out
+
+
+# ---------- acoes ----------
+
+def do_buy(state, req, ex, now, send):
+    from . import account
+    op = req["op"]
+    rec = next((r for r in state.get("ledger") or [] if r.get("id") == op), {})
+    if (ex["ops"].get(op) or {}).get("status") == "aberta":
+        return "já executada antes"
+    symbol = account.symbol_of(rec) if rec else None
+    if not symbol:
+        return "operação não encontrada"
+    px = last_price(symbol)
+    plan, why = buy_check(state, op, px, now)
+    if why:
+        send(f"⚠️ Não executei {rec.get('asset')}: {why}. Nada foi comprado.")
+        ex["ops"][op] = {"asset": rec.get("asset"), "status": "recusada", "motivo": why, "t": now}
+        return why
+    inst = instrument(symbol)
+    w = wallet()
+    size = float(plan.get("position_usdc") or rec.get("position_usdc") or 0)
+    free = usdc_free(w)
+    if size <= 0:
+        return "plano sem valor"
+    reduced = False
+    if free < size:
+        size, reduced = math.floor(free * 0.98 * 100) / 100, True
+    parts = parts_for(size, plan["tp"], plan.get("partials") or [100], inst["min_amt"])
+    if not parts:
+        why = (f"USDC livre insuficiente ({free:.2f}; mínimo da Bybit "
+               f"{inst['min_amt']:g} por ordem)")
+        send(f"⚠️ Não executei {rec['asset']}: {why}. Nada foi comprado.")
+        ex["ops"][op] = {"asset": rec["asset"], "status": "recusada", "motivo": why, "t": now}
+        return why
+    o = {"asset": rec["asset"], "symbol": symbol, "status": "aberta", "criado": now,
+         "stop": plan["stop"], "partes": [], "t": now}
+    for i, (q, tp) in enumerate(parts):
+        try:
+            oid, attached = place_part(symbol, q, tp, plan["stop"], inst, f"{op[-20:]}-{i}")
+        except ExecError as e:
+            o["erro"] = str(e)[:120]
+            break
+        avg, qty = fills(oid, symbol, rec["asset"])
+        part = {"orderId": oid, "usdc": round(q, 2), "tp": tp, "preco": avg,
+                "qty": qty, "anexo": attached}
+        if not attached:                     # sem anexo: pelo menos o stop
+            try:
+                part["stopId"] = stop_order(symbol, qty, plan["stop"], inst, f"{op[-18:]}-s{i}")
+            except ExecError as e:
+                part["stop_erro"] = str(e)[:100]
+        o["partes"].append(part)
+    if not o["partes"]:
+        o["status"] = "recusada"
+        send(f"⚠️ A compra de {rec['asset']} falhou na Bybit: {o.get('erro')}. Nada foi comprado.")
+        ex["ops"][op] = o
+        return o.get("erro")
+    q_tot = sum(p["qty"] for p in o["partes"])
+    o["entrada"] = sum(p["preco"] * p["qty"] for p in o["partes"]) / q_tot
+    o["qty"] = q_tot
+    o["usdc"] = round(sum(p["usdc"] for p in o["partes"]), 2)
+    ex["ops"][op] = o
+    miss = [p for p in o["partes"] if not p["anexo"]]
+    L = [f"⚡ <b>Executado: {rec['asset']}</b>",
+         f"Compra de {o['usdc']:.2f} USDC a {o['entrada']:.6g} ({q_tot:.6g} {rec['asset']}), "
+         f"em {len(o['partes'])} parte{'s' if len(o['partes']) > 1 else ''}.",
+         f"Stop em {plan['stop']:g} em todas as partes."]
+    L += [f"• Parte {i + 1}: {p['usdc']:.2f} USDC → objetivo {p['tp']:g}"
+          for i, p in enumerate(o["partes"])]
+    if reduced:
+        L.append(f"Valor reduzido ao USDC livre ({free:.2f}).")
+    if o.get("erro"):
+        L.append(f"⚠️ Uma parte falhou: {o['erro']}")
+    if miss:
+        L.append("⚠️ A Bybit não aceitou o objetivo anexado em "
+                 f"{len(miss)} parte(s): coloquei só o stop. Confirma na app.")
+    L.append("Confirma na app da Bybit as ordens abertas.")
+    send("\n".join(L), html=True)
+    return "ok"
+
+
+def do_breakeven(state, req, ex, now, send):
+    op = ex["ops"].get(req["op"]) or {}
+    if op.get("status") != "aberta":
+        return "sem operação aberta do programa"
+    inst = instrument(op["symbol"])
+    new = op["entrada"]
+    done = 0
+    for o in ours(tpsl_orders(op["symbol"]), op):
+        trig = float(o.get("triggerPrice") or 0)
+        sl = float(o.get("stopLoss") or 0)
+        try:
+            if sl and sl < new:
+                post("/v5/order/amend", {"category": "spot", "symbol": op["symbol"],
+                                         "orderId": o["orderId"], "stopLoss": fmt(new, inst["tick"])})
+                done += 1
+            elif trig and trig < new:
+                post("/v5/order/amend", {"category": "spot", "symbol": op["symbol"],
+                                         "orderId": o["orderId"], "triggerPrice": fmt(new, inst["tick"])})
+                done += 1
+        except ExecError as e:
+            op.setdefault("avisos", []).append(f"breakeven: {str(e)[:80]}")
+    op["stop"] = new
+    send(f"🔒 {op['asset']}: TP1 atingido. Stop das partes restantes subiu para a "
+         f"entrada ({new:.6g}) em {done} ordem(ns).")
+    return "ok"
+
+
+def do_close(state, req, ex, now, send, why="saída do plano"):
+    op = ex["ops"].get(req["op"]) or {}
+    if op.get("status") != "aberta":
+        return "sem operação aberta do programa"
+    inst = instrument(op["symbol"])
+    for o in ours(tpsl_orders(op["symbol"]), op):
+        try:
+            cancel(op["symbol"], o)
+        except ExecError as e:
+            op.setdefault("avisos", []).append(f"cancelar: {str(e)[:80]}")
+    time.sleep(1)
+    # moedas ja vendidas desde a compra (objetivos atingidos pela Bybit)
+    try:
+        r = get("/v5/execution/list", {"category": "spot", "symbol": op["symbol"],
+                                       "startTime": int(op["criado"] * 1000), "limit": 100})
+        sold_tp = sum(float(e["execQty"]) for e in r.get("list") or [] if e.get("side") == "Sell")
+    except ExecError:
+        sold_tp = 0.0
+    have = held(wallet(), op["asset"])
+    qty = max(0.0, min(have, op["qty"] - sold_tp))
+    oid = sell_all(op["symbol"], qty, inst, f"{req['op'][-20:]}-f")
+    op.update(status="fechada", fechado=now, motivo=why)
+    if oid:
+        avg, q = fills(oid, op["symbol"], "USDC")
+        op["saida"] = avg
+        send(f"🏁 {op['asset']}: {why}. Vendi {q:.6g} a {avg:.6g} e cancelei as ordens abertas.")
+    else:
+        send(f"🏁 {op['asset']}: {why}. Já não havia moedas do programa para vender; "
+             "cancelei as ordens abertas.")
+    return "ok"
+
+
+def do_stop_all(state, req, ex, now, send):
+    n = 0
+    for k, op in list(ex["ops"].items()):
+        if op.get("status") == "aberta":
+            do_close(state, {"op": k}, ex, now, send, why="paragem pedida (/parar)")
+            n += 1
+    if not n:
+        send("⛔ /parar: não há operações abertas pelo programa.")
+    return "ok"
+
+
+def do_test(state, req, ex, now, send):
+    """Prova real e pequena: compra ~5 USDC de BTC com TP/SL anexados, le as
+    ordens, ajusta o stop, cancela e vende tudo. Regista cada passo."""
+    sym, steps = "BTCUSDC", []
+    inst = instrument(sym)
+    px = last_price(sym)
+    q = max(TEST_USDC, inst["min_amt"] * 1.05)
+    try:
+        oid, attached = place_part(sym, q, px * 1.05, px * 0.95, inst, f"teste-{now}")
+        steps.append(f"compra {q:.2f} USDC: ok (TP/SL anexados: {'sim' if attached else 'não'})")
+        avg, qty = fills(oid, sym, "BTC")
+        steps.append(f"executada a {avg:.2f}, {qty:.8f} BTC líquidos")
+        time.sleep(2)
+        od = [o for o in tpsl_orders(sym) if float(o.get("createdTime") or 0) >= (now - 5) * 1000]
+        steps.append(f"ordens TP/SL encontradas: {len(od)} "
+                     + "; ".join(f"{o.get('_flt')} trig={o.get('triggerPrice')} "
+                                 f"tp={o.get('takeProfit')} sl={o.get('stopLoss')} qty={o.get('qty')}"
+                                 for o in od))
+        if not attached:
+            sid = stop_order(sym, qty, px * 0.95, inst, f"teste-s{now}")
+            steps.append(f"stop separado: {sid}")
+            od = [o for o in tpsl_orders(sym) if float(o.get("createdTime") or 0) >= (now - 5) * 1000]
+        for o in od:
+            try:
+                if float(o.get("stopLoss") or 0):
+                    post("/v5/order/amend", {"category": "spot", "symbol": sym, "orderId": o["orderId"],
+                                             "stopLoss": fmt(px * 0.96, inst["tick"])})
+                elif float(o.get("triggerPrice") or 0) < px:
+                    post("/v5/order/amend", {"category": "spot", "symbol": sym, "orderId": o["orderId"],
+                                             "triggerPrice": fmt(px * 0.96, inst["tick"])})
+                else:
+                    continue
+                steps.append(f"ajuste do stop ({o['orderId'][-6:]}): ok")
+            except ExecError as e:
+                steps.append(f"ajuste do stop: ERRO {e}")
+        for o in od:
+            try:
+                cancel(sym, o)
+                steps.append(f"cancelar {o['orderId'][-6:]}: ok")
+            except ExecError as e:
+                steps.append(f"cancelar: ERRO {e}")
+        time.sleep(1)
+        sid = sell_all(sym, min(qty, held(wallet(), "BTC")), inst, f"teste-v{now}")
+        if sid:
+            a2, q2 = fills(sid, sym, "USDC")
+            steps.append(f"venda: {q2:.8f} BTC a {a2:.2f} (custo do teste ≈ {(avg - a2) * q2 + q * 0.002:.3f} USDC)")
+    except ExecError as e:
+        steps.append(f"ERRO: {e}")
+    ex["teste"] = {"t": now, "passos": steps}
+    send("🧪 <b>Teste de execução (BTC, 5 USDC)</b>\n" + "\n".join(f"• {s}" for s in steps), html=True)
+    return "ok"
+
+
+ACTIONS = {"comprar": do_buy, "breakeven": do_breakeven, "fechar": do_close,
+           "parar": do_stop_all, "teste": do_test}
+
+
+def main(state_path, ex_in, out):
+    from . import alerts
+    now = int(time.time())
+    state = json.load(open(state_path)) if os.path.exists(state_path) else {}
+    try:
+        ex = json.load(open(ex_in))
+    except Exception:
+        ex = {}
+    ex.setdefault("ops", {})
+    ex.setdefault("feitos", [])
+
+    def send(text, html=False):
+        try:
+            alerts.send(text, html=html)
+        except Exception as e:
+            print("TELEGRAM FALHOU", e)
+
+    ex["t"] = now
+    if not configured():
+        ex.update(pronto=False, chave="sem chave de negociação (BYBIT_TRADE_KEY)")
+    else:
+        try:
+            ok, why = key_ok(get("/v5/user/query-api"))
+        except ExecError as e:
+            ok, why = False, str(e)[:120]
+        ex.update(pronto=ok, chave=why)
+    reqs = [r for r in state.get("exec_req") or [] if r.get("id") not in ex["feitos"]]
+    forced = os.environ.get("EXEC_ACAO", "").strip()
+    if forced:                                   # pedido manual (teste)
+        reqs.append({"id": f"manual-{forced}-{now}", "acao": forced, "op": "", "t": now})
+    for r in reqs:
+        res = "ignorado"
+        if not ex["pronto"]:
+            if r.get("acao") in ("comprar", "teste", "parar"):
+                send(f"⚠️ Execução desligada: {ex['chave']}. Nada foi feito.")
+            res = "chave não pronta"
+        elif r.get("acao") == "comprar" and now - (r.get("t") or now) > 3600:
+            res = "pedido demasiado antigo"
+        elif r.get("acao") in ACTIONS:
+            try:
+                res = ACTIONS[r["acao"]](state, r, ex, now, send)
+            except ExecError as e:
+                res = f"erro: {e}"
+                send(f"⚠️ Erro na Bybit ao {r['acao']} {r.get('op', '')[:30]}: {str(e)[:120]}")
+        ex["feitos"] = (ex["feitos"] + [r["id"]])[-300:]
+        ex.setdefault("log", []).append({"t": now, "id": r["id"], "acao": r.get("acao"), "res": str(res)[:160]})
+        ex["log"] = ex["log"][-100:]
+    with open(out, "w") as f:
+        json.dump(ex, f, indent=1, ensure_ascii=False)
+    print(f"pronto={ex['pronto']} ({ex['chave']}) pedidos={len(reqs)}")
+
+
+if __name__ == "__main__":
+    main(*sys.argv[1:4])

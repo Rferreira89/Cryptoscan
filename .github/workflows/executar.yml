@@ -1,0 +1,43 @@
+name: Executar (servidor europeu)
+# Execucao com um toque (engine/executor.py). Lancado pelo ciclo do scanner
+# quando o Rui toca em "Executar" (ou /parar) e quando um TP1 ou uma saida
+# por tempo pede ajuste. Nunca compra sem um pedido do Rui.
+on:
+  workflow_dispatch:
+    inputs:
+      acao:
+        description: "Acao manual (so 'teste' com autorizacao do Rui); vazio = processar pedidos"
+        required: false
+        default: ""
+permissions:
+  contents: write
+concurrency:
+  group: executar
+  cancel-in-progress: false
+jobs:
+  executar:
+    runs-on: [self-hosted, eu]
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Processar pedidos
+        env:
+          BYBIT_TRADE_KEY: ${{ secrets.BYBIT_TRADE_KEY }}
+          BYBIT_TRADE_SECRET: ${{ secrets.BYBIT_TRADE_SECRET }}
+          BYBIT_API_KEY: ${{ secrets.BYBIT_API_KEY }}
+          BYBIT_API_SECRET: ${{ secrets.BYBIT_API_SECRET }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          EXEC_ACAO: ${{ github.event.inputs.acao }}
+          PUSH_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
+        run: |
+          rm -rf /tmp/ex && mkdir -p /tmp/ex/out
+          git fetch -q origin data && git show FETCH_HEAD:state.json > /tmp/ex/state.json || echo '{}' > /tmp/ex/state.json
+          if git ls-remote --exit-code -q origin refs/heads/execucoes >/dev/null 2>&1 && git fetch -q origin execucoes; then
+            git show FETCH_HEAD:exec.json > /tmp/ex/in.json || echo '{}' > /tmp/ex/in.json
+          else echo '{}' > /tmp/ex/in.json; fi
+          python3 -m engine.executor /tmp/ex/state.json /tmp/ex/in.json /tmp/ex/out/exec.json
+          cd /tmp/ex/out && git init -q -b execucoes && git config user.name cryptoscan-bot \
+            && git config user.email bot@users.noreply.github.com \
+            && git add exec.json && git commit -q -m "exec $(date -u +%FT%TZ)" \
+            && git push -q -f "$PUSH_URL" execucoes:execucoes

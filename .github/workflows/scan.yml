@@ -67,6 +67,8 @@ jobs:
             if [ "$OK" = 1 ] && [ "$MODE" = monitor ]; then
               if python -m engine.monitor out; then
                 if [ -f out/.publish ]; then rm -f out/.publish; publish monitor; fi
+                # execucao com um toque: o servidor europeu le o estado ja publicado
+                if [ -f out/.exec ]; then rm -f out/.exec; gh workflow run executar.yml --repo "${{ github.repository }}" --ref main || echo "executar nao lancado"; fi
               else
                 echo "monitor falhou"
               fi
@@ -77,6 +79,7 @@ jobs:
                  || { echo "scan falhou: nova tentativa"; sleep 20; python -m engine.run out > /dev/null 2> /tmp/run.log; }; then
                 head -12 out/resumo.txt
                 publish scan
+                if [ -f out/.exec ]; then rm -f out/.exec; gh workflow run executar.yml --repo "${{ github.repository }}" --ref main || echo "executar nao lancado"; fi
               else
                 echo "scan falhou duas vezes"; tail -5 /tmp/run.log
                 { echo "$(date -u +%FT%TZ) scan falhou:"; tail -5 /tmp/run.log; } >> out/erros.txt
