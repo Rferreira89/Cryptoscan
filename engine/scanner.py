@@ -10,7 +10,7 @@ import statistics
 import time
 from concurrent.futures import ThreadPoolExecutor
 
-from . import (analysis, config, consultas, derivatives, europa, events as calendar, ledger, short,
+from . import (analysis, config, consultas, debate, derivatives, europa, liga, events as calendar, ledger, short,
                arena, paper_bounce, paper_ring, paper_shadow, promo, rewards,
                liquidity, paper_trend, regime, review,
                signals,
@@ -389,6 +389,10 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
             promo_rows[a] = row
     except Exception as e:  # a promocao nunca pode parar o scan
         result["promo_erro"] = str(e)[:120]
+    try:                                      # mesa redonda (so mostra)
+        result["mesa"] = debate.table(eligible, c4s, state)
+    except Exception as e:
+        result["mesa"], result["mesa_erro"] = [], str(e)[:120]
     try:
         result["macro"] = promo.macro_summary(now)
     except Exception:                       # informativo: nunca para o scan
@@ -443,6 +447,11 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
     # arena: classificacao de todas as estrategias contra o acaso
     try:
         result["arena"] = arena.update(state, c4s, now, forma=forma)
+        try:
+            result["liga"] = liga.update(state, result["arena"].get("classificacao"),
+                                         champs, now)
+        except Exception as e:                # informativo: nunca para o scan
+            result["liga_erro"] = str(e)[:120]
         off = arena.auto_disable(state, result["arena"], now)   # morte automatica
         for e in arena.events(result["arena"], now):
             e["desligada"] = e.get("strategy") in off or \

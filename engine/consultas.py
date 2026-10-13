@@ -19,7 +19,7 @@ from . import arena
 PAGE = "https://rferreira89.github.io/Cryptoscan/scanner/"
 G, Y, R = "verde", "amarelo", "vermelho"
 DOT = {G: "🟢", Y: "🟡", R: "🔴"}
-CMD = re.compile(r"^/?(porque|porquê|ringue|macro|conta|hoje|ajuda|help|start)"
+CMD = re.compile(r"^/?(porque|porquê|debate|liga|ringue|macro|conta|hoje|ajuda|help|start)"
                  r"(?:@\w+)?(?:\s+([A-Za-z0-9]+))?\s*$", re.I)
 
 
@@ -311,10 +311,36 @@ def today(res, state):
     return "\n".join(L)
 
 
+def debate_text(res, asset):
+    row = _row(res, asset)
+    if not row or not row.get("debate"):
+        return f"Sem mesa redonda para {asset} neste momento (só as moedas analisadas, no scan seguinte)."
+    v = row["debate"]
+    yes = [x for x in v if x["voto"] == "entra"]
+    L = [f"🗣️ <b>Mesa redonda: {asset}</b> a {row.get('price'):g} USD", "",
+         f"{len(yes)} de {len(v)} lutadores entravam agora.", ""]
+    for x in v:
+        L.append(f"{'✅' if x['voto'] == 'entra' else '❌'} <b>{_esc(x['persona'])}</b>: {_esc(x['razao'])}")
+    return "\n".join(L)
+
+
+def mesa_text(res):
+    m = (res or {}).get("mesa") or []
+    if not m:
+        return "A mesa redonda ainda não tem moedas em discussão."
+    L = ["🗣️ <b>Mesa redonda</b>: as moedas mais discutidas agora", ""]
+    for x in m:
+        L.append(f"• {x['asset']}: {x['a_favor']} de {x['votantes']} entravam (RSI 4H {x['rsi']:g})")
+    L += ["", "Pormenor de uma moeda: /debate MOEDA"]
+    return "\n".join(L)
+
+
 HELP = "\n".join([
     "🤖 <b>Perguntas ao Cryptoscan</b>", "",
     "/porque SOL — o que cada departamento vê numa moeda",
     "/ringue — classificação dos lutadores",
+    "/debate MOEDA — o que cada lutador faria nessa moeda (/debate sozinho: as mais quentes)",
+    "/liga — liga semanal dos lutadores",
     "/macro — macroeconomia agora",
     "/conta — saldo na Bybit",
     "/hoje — resumo do dia", "",
@@ -331,6 +357,11 @@ def answer(text, res, state):
     c, arg = m.group(1).lower(), (m.group(2) or "").upper()
     if c in ("porque", "porquê"):
         return why(res, arg) if arg else "Diz-me a moeda, por exemplo: /porque SOL"
+    if c == "debate":
+        return debate_text(res, arg) if arg else mesa_text(res)
+    if c == "liga":
+        from . import liga
+        return _esc(liga.text((res or {}).get("liga")) or "A liga ainda não tem dados.")
     if c == "ringue":
         return ring(res)
     if c == "macro":

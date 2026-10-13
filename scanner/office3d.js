@@ -120,6 +120,11 @@ function buildRoom() {
   boxM(.2, .72, .2, mat("#222"), 7.5, .36, -8);
   tvTex = canvasTex(512, 288, drawTV);
   const tv = new THREE.Mesh(new THREE.PlaneGeometry(4.2, 2.36), new THREE.MeshBasicMaterial({ map: tvTex, toneMapped: false })); tv.position.set(8, 1.75, -11.9); scene.add(tv);
+  // mesa redonda: ecra na parede esquerda da sala de reuniao (votos reais dos lutadores)
+  mesaTex = canvasTex(512, 384, drawMesa);
+  const ms = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 2.55), new THREE.MeshBasicMaterial({ map: mesaTex, toneMapped: false }));
+  ms.position.set(3.12, 1.8, -8); ms.rotation.y = Math.PI / 2; scene.add(ms);
+  const mh = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 2.55), new THREE.MeshBasicMaterial({ visible: false })); mh.position.copy(ms.position); mh.rotation.y = ms.rotation.y; mh.userData.zone = "mesa"; scene.add(mh); zoneHits.push(mh);
   // cafe: balcao, maquina, mesas, sofa
   boxM(1, 1, 4.6, mat("#3a2b20"), 12.3, .5, .9); boxM(1.05, .06, 4.7, mat("#c08a5a"), 12.3, 1.02, .9);
   boxM(.5, .6, .45, mat("#888"), 12.3, 1.35, -.1); boxM(.12, .12, .05, mat("#ff4d4d", 2), 12.06, 1.45, -.1);
@@ -314,7 +319,23 @@ function deskProps(g, f, id) {
 }
 
 // ---------- radar holografico (Mesa de operacoes) e quadro (Pesquisa) ----------
-let radar = null, board = null;
+let radar = null, board = null, mesaTex = null, mesaI = 0;
+// mesa redonda: uma moeda de cada vez, com o voto de cada lutador vivo
+function drawMesa(g) {
+  const D = (API() && API().D && API().D()) || {}, M = D.mesa || [];
+  g.fillStyle = "#101a2e"; g.fillRect(0, 0, 512, 384); g.strokeStyle = "#68D391"; g.lineWidth = 6; g.strokeRect(3, 3, 506, 378);
+  g.fillStyle = "#9AE6B4"; g.font = "bold 26px sans-serif"; g.fillText("🗣️ Mesa redonda", 18, 40);
+  if (!M.length) { g.fillStyle = "#cbd5e0"; g.font = "20px sans-serif"; g.fillText("à espera do próximo scan", 18, 90); return; }
+  const m = M[mesaI % M.length], r = (D.universe || []).find(x => x.asset === m.asset) || {}, v = r.debate || [];
+  g.fillStyle = "#fff"; g.font = "bold 30px sans-serif"; g.fillText(m.asset, 18, 82);
+  g.fillStyle = m.a_favor ? "#68D391" : "#a0aec0"; g.font = "22px sans-serif"; g.fillText(`${m.a_favor} de ${m.votantes} entravam`, 150, 80);
+  g.font = "19px sans-serif";
+  v.slice(0, 10).forEach((x, i) => { const col = i % 2, row = Math.floor(i / 2), X = 18 + col * 248, Y = 122 + row * 50;
+    g.fillStyle = x.voto === "entra" ? "#1f4d3a" : "#2a2f45"; g.fillRect(X, Y - 26, 236, 40);
+    g.fillStyle = x.voto === "entra" ? "#9AE6B4" : "#cbd5e0"; g.fillText(`${x.voto === "entra" ? "✅" : "❌"} ${x.persona}`, X + 8, Y);
+  });
+  g.fillStyle = "#718096"; g.font = "15px sans-serif"; g.fillText(`${(mesaI % M.length) + 1}/${M.length} · toca para ver as razões`, 18, 372);
+}
 function buildRadar() {
   const g = new THREE.Group(); g.position.set(-15.5, 0, -4.2); scene.add(g);
   const base = new THREE.Mesh(new THREE.CylinderGeometry(2.3, 2.5, .8, 40), mat("#151033")); base.position.y = .4; g.add(base);
@@ -371,7 +392,7 @@ function buildBoard() {
 const ARENA_C = V(27, 0);
 let arenaG = null, arenaTex = null, arenaSig = "", fighters = [], arenaLabels = [];
 const SHORT = { BREAKOUT: "Quebra", PULLBACK: "Recuo", LIQUIDITY_SWEEP: "Sweep", RANGE: "Range",
-  TREND_DAILY: "Tendência", BOUNCE_G0: "Bounce G0", BOUNCE_V1: "Bounce V1", BOUNCE_V2: "Bounce V2", BOUNCE_V3: "Bounce V3", BOUNCE_1H: "Bounce 1H", BOUNCE_X30: "Bounce RSI30", DIP_TREND: "Recuo forte", CAPITULACAO: "Capitulação", BOUNCE_FLUXO: "Bounce fluxo", BOUNCE_FORTE: "Bounce forte", BOUNCE_SQUEEZE: "Bounce squeeze", BOUNCE_ISOLADA: "Bounce isolada", BOUNCE_DESALAV: "Desalavancagem", BOUNCE_MACRO: "Macro favorável", BOUNCE_MEDO: "Medo macro", REJEITADOS: "Rejeitados" };
+  TREND_DAILY: "Tendência", BOUNCE_G0: "Bounce G0", BOUNCE_V1: "Bounce V1", BOUNCE_V2: "Bounce V2", BOUNCE_V3: "Bounce V3", BOUNCE_1H: "Bounce 1H", BOUNCE_X30: "Bounce RSI30", DIP_TREND: "Recuo forte", CAPITULACAO: "Capitulação", BOUNCE_FLUXO: "Bounce fluxo", BOUNCE_FORTE: "Bounce forte", BOUNCE_SQUEEZE: "Bounce squeeze", BOUNCE_ISOLADA: "Bounce isolada", BOUNCE_DESALAV: "Desalavancagem", BOUNCE_MACRO: "Macro favorável", BOUNCE_MEDO: "Medo macro", BOUNCE_ABSORCAO: "Absorção", BOUNCE_LSR: "Long/short", REJEITADOS: "Rejeitados" };
 const FCOL = ["#4FD1C5", "#FF6FB5", "#F6C453", "#B794F4", "#63B3ED", "#68D391", "#FFA94D", "#FC8181", "#90CDF4", "#FBD38D", "#9AE6B4", "#D6BCFA"];
 // no 3D mostra-se a amostra maior: o combate de 90 dias (forma recente) quando
 // existe, senao os sinais ao vivo
@@ -1162,7 +1183,7 @@ function frame() {
       if (it) window.drawCandles(g, 512, 256, it.cs, it.lv, { title: it.asset, axis: false, n: 40 }); tx.needsUpdate = true; }
     if (clock3d) { drawClock(clock3d.userData.c.getContext("2d")); clock3d.needsUpdate = true; }
     if (dataTex) { dataI++; drawDataWall(dataTex.userData.c.getContext("2d")); dataTex.needsUpdate = true; } }
-  if (nowMs - (frame.tvAt || -1e9) > 30000 || tvT <= 0) { frame.tvAt = nowMs; tvT = 30; drawTV(tvTex.userData.c.getContext("2d")); tvTex.needsUpdate = true; updateRadar(); updateArena(); updateRewards(); updateSectors(); updateStrategyRoom(); updateStaff(); updateAcademy(); updateMoney(); drawBoard(board.userData.c.getContext("2d")); board.needsUpdate = true; }
+  if (nowMs - (frame.tvAt || -1e9) > 30000 || tvT <= 0) { frame.tvAt = nowMs; tvT = 30; drawTV(tvTex.userData.c.getContext("2d")); tvTex.needsUpdate = true; if (mesaTex) { mesaI++; drawMesa(mesaTex.userData.c.getContext("2d")); mesaTex.needsUpdate = true; } updateRadar(); updateArena(); updateRewards(); updateSectors(); updateStrategyRoom(); updateStaff(); updateAcademy(); updateMoney(); drawBoard(board.userData.c.getContext("2d")); board.needsUpdate = true; }
   if (radar) { radar.sweep.rotation.z -= dt * 1.4; radar.blips.children.forEach((b, i) => { if (b.geometry.type === "SphereGeometry") b.scale.setScalar(1 + Math.sin(t * 4 + i) * .15); }); }
   animateArena(dt, t); animateRewards(dt, t); secPeople.forEach(p => animate(p, dt, t)); stPeople.forEach(p => animate(p, dt, t)); staffPeople.forEach(p => animate(p, dt, t)); acPeople.forEach(p => animate(p, dt, t));
   ctl.update(); if (composer) composer.render(); else R.render(scene, cam); placeOverlays(dt);

@@ -313,7 +313,7 @@ def sig_capitulacao(c4):
 
 # contexto partilhado pelos filtros: velas do BTC e funding (o combate e o
 # motor ao vivo preenchem-no antes de chamar as funcoes de sinal)
-CTX = {"btc": None, "funding": {}, "asset": None, "oi": {}, "macro": {}}
+CTX = {"btc": None, "funding": {}, "asset": None, "oi": {}, "macro": {}, "ls": {}}
 
 
 def _btc_ret(t_end, n):
@@ -467,7 +467,61 @@ def sig_medo(c4):
     return dict(s0, gatilho=s0["gatilho"] + "; depois de medo na macroeconomia")
 
 
-NEW_SIGS = {"BOUNCE_MACRO": sig_macro, "BOUNCE_MEDO": sig_medo,
+def absorcao(c4):
+    """(ok, texto): o preco fez um minimo mais baixo nas ultimas 3 velas mas a
+    parte de compradores agressivos subiu (vendas a ser absorvidas)."""
+    if len(c4) < 12:
+        return False, "sem velas suficientes"
+    sh = [x["tb"] / x["v"] if x.get("tb") and x.get("v") else None for x in c4[-4:]]
+    if None in sh:
+        return False, "sem dados de compradores agressivos"
+    lower = min(x["l"] for x in c4[-3:]) < min(x["l"] for x in c4[-9:-3])
+    rising = sh[-1] >= 0.5 and sh[-1] - sum(sh[:3]) / 3 >= 0.05
+    txt = (f"compradores agressivos {sh[-1]:.0%} (antes {sum(sh[:3]) / 3:.0%})"
+           + (" com mínimo mais baixo" if lower else " sem mínimo mais baixo"))
+    return lower and rising, txt
+
+
+def sig_absorcao(c4):
+    """X30 com absorcao: novo minimo feito com compradores agressivos a
+    crescer. Fluxo ao longo de varias velas (o Flavio so ve a ultima)."""
+    s0 = sig_x30(c4)
+    if not s0:
+        return None
+    ok, txt = absorcao(c4)
+    return dict(s0, gatilho=f"sobrevenda a virar com absorção: {txt}") if ok else None
+
+
+LSR_PCT = 25
+
+
+def lsr_ok(asset, t):
+    """(ok, texto): racio long/short das contas na Binance no quartil mais
+    baixo do seu historico (mais gente a apostar na descida do que o normal)."""
+    import bisect
+    ls = (CTX.get("ls") or {}).get(asset) or []
+    # o valor de cada periodo de 4H so se conhece no fim dele (sem look-ahead)
+    k = bisect.bisect_right([x[0] + H4 for x in ls], t) - 1
+    if k < 20 or t - (ls[k][0] + H4) > 2 * H4:
+        return False, "sem rácio long/short da Binance"
+    hist = [x[1] for x in ls[:k + 1]][-100:]
+    v = ls[k][1]
+    pct = 100 * sum(1 for h in hist if h < v) / len(hist)
+    return pct <= LSR_PCT, f"rácio long/short {v:.2f} (percentil {pct:.0f}; preciso ≤ {LSR_PCT})"
+
+
+def sig_lsr(c4):
+    """X30 quando o rácio long/short da Binance esta no quartil baixo:
+    vendedores a descoberto em excesso, combustivel para a subida."""
+    s0 = sig_x30(c4)
+    if not s0:
+        return None
+    ok, txt = lsr_ok(CTX.get("asset"), c4[-1]["t"] + H4)
+    return dict(s0, gatilho=f"sobrevenda a virar com {txt}") if ok else None
+
+
+NEW_SIGS = {"BOUNCE_ABSORCAO": sig_absorcao, "BOUNCE_LSR": sig_lsr,
+            "BOUNCE_MACRO": sig_macro, "BOUNCE_MEDO": sig_medo,
             "BOUNCE_DESALAV": sig_desalav, "BOUNCE_NOREACT": sig_noreact, "BOUNCE_TRAIL": sig_trail, "BOUNCE_HORAS": sig_horas,
             "BOUNCE_X30": sig_x30, "DIP_TREND": sig_dip_trend, "CAPITULACAO": sig_capitulacao,
             "BOUNCE_FLUXO": sig_fluxo, "BOUNCE_FORTE": sig_forte,
@@ -625,10 +679,10 @@ def judge(trs, bars, rng, bars1h=None):
 
 
 def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None, funding=None, oi=None,
-        macro=None):
+        macro=None, ls=None):
     t0 = now - days * DAY
     btc = bars.get("BTC")
-    CTX.update(btc=btc, funding=funding or {}, oi=oi or {}, macro=macro or {})
+    CTX.update(btc=btc, funding=funding or {}, oi=oi or {}, macro=macro or {}, ls=ls or {})
     reg, above = B.regimes(btc), btc_above(btc)
     groups = {k: [] for k in LIVE + ("REJEITADOS", "BOUNCE_G0", "BOUNCE_V1",
                                      "BOUNCE_V2", "BOUNCE_V3", "TREND_DAILY",
@@ -687,7 +741,7 @@ def main(dest, days=DAYS):
     # Binance (servidor europeu) quando ha dados recentes; senao OKX
     from engine import europa
     eu = europa.load(europa.MAX_AGE_RING, now)
-    funding, oi, fonte = {}, {}, {"binance": 0, "okx": 0}
+    funding, oi, ls, fonte = {}, {}, {}, {"binance": 0, "okx": 0}
     for base in bars:
         c = europa.coin(eu, base) or {}
         fr = [tuple(x) for x in c.get("funding") or []]
@@ -701,8 +755,10 @@ def main(dest, days=DAYS):
                 fonte["okx"] += 1
         if c.get("oi"):
             oi[base] = [tuple(x) for x in c["oi"]]
+        if c.get("ls"):
+            ls[base] = [tuple(x) for x in c["ls"]]
     macro = {k: [tuple(x) for x in v] for k, v in ((eu or {}).get("macro") or {}).items()}
-    res = run(bars, cfg, now, days, bars1h=bars1h, funding=funding, oi=oi, macro=macro)
+    res = run(bars, cfg, now, days, bars1h=bars1h, funding=funding, oi=oi, macro=macro, ls=ls)
     res["macro_series"] = sorted(macro)
     res["funding_moedas"] = len(funding)
     res["funding_fonte"] = fonte

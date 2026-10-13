@@ -53,6 +53,8 @@ def set_context(rows, bars):
     # open interest da Binance de 4 em 4 horas (servidor europeu)
     CTX["oi"] = {b: [tuple(x) for x in c.get("oi") or []]
                  for b, c in ((EU or {}).get("moedas") or {}).items()}
+    CTX["ls"] = {b: [tuple(x) for x in c.get("ls") or []]
+                 for b, c in ((EU or {}).get("moedas") or {}).items()}
     CTX["macro"] = {k: [tuple(x) for x in v]
                     for k, v in ((EU or {}).get("macro") or {}).items()}
 

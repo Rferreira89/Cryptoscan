@@ -52,6 +52,10 @@ h1{font-size:26px;font-weight:800;font-stretch:70%;letter-spacing:-.01em;margin:
 .sec[open]{padding-bottom:10px}
 .op.flash{box-shadow:0 0 0 2px var(--now)}
 h2{font-size:19px;font-weight:750;font-stretch:80%;margin:22px 0 10px}
+.vote{display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--line);font-size:13px}.vote:last-child{border:0}
+.mesa-tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:8px}.mesa-tabs button{flex:none;border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:99px;padding:5px 11px;font-size:12.5px}
+.mesa-tabs button.on{background:var(--up);color:var(--card);border-color:var(--up)}
+.lg{display:grid;grid-template-columns:28px 1fr auto auto;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px}.lg:last-child{border:0}
 #fcard{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);width:min(440px,calc(100vw - 24px));max-height:72vh;overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;z-index:60;box-shadow:0 12px 40px #0009;font-size:13.5px}
 #fcard h3{margin:0 0 2px;font-size:17px}#fcard .fx{position:absolute;top:8px;right:10px;background:none;border:0;color:var(--mut);font-size:20px}
 #fcard .bd{display:inline-block;font-size:11px;padding:2px 8px;border-radius:99px;margin-left:6px;vertical-align:2px}
@@ -251,7 +255,7 @@ body.sheet-open #sheet{transform:none}
 @media (prefers-reduced-motion:reduce){.typing i,.bot .eye{animation:none}.bub{transition:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module" src="office3d.js?v=20261013i"></script>
+<script type="module" src="office3d.js?v=20261014a"></script>
 </head>
 <body class="w3d">
 <div id="world">
@@ -293,6 +297,8 @@ body.sheet-open #sheet{transform:none}
 <details class="sec" id="s-diario"><summary>O teu diário<span id="n-diario"></span></summary><div id="diary"></div></details>
 </section>
 <section class="panel on" id="pn-lab" data-p="lab" data-h="Pesquisa" data-t="Pesquisa">
+<details class="sec" id="s-mesa" open><summary>🗣️ Mesa redonda<span id="n-mesa"></span></summary><div id="mesa"><div class="banner">A carregar…</div></div></details>
+<details class="sec" id="s-liga" open><summary>🏆 Liga semanal<span id="n-liga"></span></summary><div id="liga"><div class="banner">A carregar…</div></div></details>
 <details class="sec" id="s-arena" open><summary>Arena<span id="n-arena"></span></summary><div id="arena"><div class="banner">A carregar…</div></div></details>
 <details class="sec" id="s-acaso"><summary>Contra o acaso<span id="n-acaso"></span></summary><div id="acaso"><div class="banner">A carregar…</div></div></details>
 <details class="sec" id="s-registo"><summary>Registo<span id="n-registo"></span></summary><div id="journal"></div>
@@ -763,6 +769,7 @@ function decOne(d,title){
 }
 function render(){
   try{xAfterRender()}catch(_){}
+  try{renderMesa();renderLiga()}catch(_){}
   if(!D) return;
   const q=$("q").value.trim().toUpperCase(),s=$("sort").value,f=$("flt").value;
   const key=r=>s==="adx"||s==="rsi"?(r.analysis&&r.analysis["1d"]&&r.analysis["1d"].ok?r.analysis["1d"][s]:-1):(r[s]??-1e18);
@@ -845,7 +852,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261013i";
+const PAGE_V="20261014a";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -998,7 +1005,7 @@ function showDetail(){if(!$("odetail")||!OF.data)return;$("odetail").hidden=!OF.
   $("odetail").innerHTML=`<div class="banner" style="margin-top:8px"><b>${a.nm} <span style="margin-left:6px;font-size:11px;padding:1px 7px;border-radius:99px;background:${st==="work"?"var(--up)":"var(--chip)"};color:${st==="work"?"var(--card)":"var(--mut)"}">${st==="work"?"em corrida agora":"à secretária, entre corridas"}</span></b><span style="color:var(--mut);font-size:12.5px">${esc(a.rl)} · ${esc(o.nx)}</span><ul style="margin:8px 0 0 18px;padding:0">${o.msgs.slice(0,4).map(m=>`<li>${m}</li>`).join("")}${o.more.map(m=>`<li style="color:var(--mut)">${m}</li>`).join("")}</ul></div>`}
 function loopScene(ts){if(!SC.ok)return;const dt=Math.min(.1,(ts-(SC.last||ts))/1000);SC.last=ts;
   const open=!document.hidden&&!document.body.classList.contains("sheet-open");if(open&&OF.data){stepScene(dt);drawScene(ts);SC.bubT-=dt;placeBubble()}requestAnimationFrame(loopScene)}
-window.OFAPI={agents:AGENTS,data:()=>OF.data,states:()=>OF.states,sel:()=>OF.sel,select:id=>{OF.sel=OF.sel===id?null:id;showDetail()},D:()=>D,openZone:k=>k==="arena"?openPanel("lab","#s-arena"):k==="sectors"?openPanel("srv","#s-setores"):openPanel(k),files:()=>OF.files};
+window.OFAPI={agents:AGENTS,data:()=>OF.data,states:()=>OF.states,sel:()=>OF.sel,select:id=>{OF.sel=OF.sel===id?null:id;showDetail()},D:()=>D,openZone:k=>k==="mesa"?openPanel("lab","#s-mesa"):k==="arena"?openPanel("lab","#s-arena"):k==="sectors"?openPanel("srv","#s-setores"):openPanel(k),files:()=>OF.files};
 let waited3d=0;
 function startScene(){
   if(SC.ok)return;
@@ -1221,13 +1228,14 @@ async function renderExplorer(a,quiet){const r=(D.universe||[]).find(x=>x.asset=
   const html=`<div class="banner"><b style="font-size:16px">${esc(a)} <span style="font-weight:600">${price(r.price)} $</span> <span class="${r.chg_24h>=0?"up":"dn"}" style="font-size:13px">${r.chg_24h>=0?"+":""}${num(r.chg_24h,2)}%</span></b>
   <canvas id="xchart"></canvas><div class="xleg"><span><i style="background:#3ee0c4"></i>suporte</span><span><i style="background:#ff6f8a"></i>resistência</span><span><i style="background:#B794F4"></i>FVG / entrada</span><span><i style="background:#FFA94D"></i>varrimento</span><span><i style="background:#3ee0c455"></i>order block</span></div>
   ${deps.length?deps.map(x=>`<div class="dep"><span>${DOTC[x.cor]}</span><div><div style="font-weight:700">${esc(x.dep)}</div><div style="color:var(--mut)">${esc(x.texto)}</div></div></div>`).join(""):`<div style="color:var(--mut)">A leitura por departamentos aparece no próximo scan.</div>`}
+  ${(r.debate||[]).length?`<div class="sec2" style="margin-top:12px;color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.04em">Mesa redonda: ${(r.debate||[]).filter(x=>x.voto==="entra").length} de ${r.debate.length} entravam</div>${votesHtml(r.debate)}`:""}
   ${deps.length?`<div style="margin-top:8px"><b>Balanço:</b> ${n.verde} 🟢 · ${n.amarelo} 🟡 · ${n.vermelho} 🔴</div>`:""}<div style="margin-top:6px">${dec}</div>
   <button class="gobb" id="xfull" style="border:0;width:100%">Ver análise completa</button></div>`;
   if(!quiet||!$("xchart")||$("xbox").dataset.a!==a){$("xbox").innerHTML=html;$("xbox").dataset.a=a;
     $("xfull").onclick=()=>{open.add(a);$("q").value=a;render();const el=document.querySelector(`.row[data-a="${a}"]`);if(el){$("s-mercado").open=true;const b=document.querySelector(".sh-body");setTimeout(()=>b.scrollTo({top:el.offsetTop-b.offsetTop-6,behavior:"smooth"}),80)}}}
   const now=Date.now()/1000;let c=XC[a];if(!c||now-c.t>300){const cs=await candlesRange(a,(r.venue||{}).pair,Math.floor(now-120*14400),Math.floor(now));c=XC[a]={t:now,cs}}
   if($("xbox").dataset.a===a&&$("xchart"))drawX($("xchart"),(c.cs||[]).slice(-120),r)}
-const FDESC={BOUNCE_G0:"Compra quando o RSI de 4H sai da sobrevenda e a vela fecha acima da anterior. Saída original do Oversold Bounce.",BOUNCE_V2:"Mesma entrada do Gaspar com stop mais curto e objetivo de 2R.",BOUNCE_V3:"Mesma entrada do Gaspar com o stop original e objetivo de 2R.",BOUNCE_V1:"Mesma entrada com a saída das estratégias ao vivo.",
+const FDESC={BOUNCE_ABSORCAO:"Sobrevenda a virar com absorção: o preço fez um mínimo mais baixo mas os compradores agressivos aumentaram.",BOUNCE_LSR:"Sobrevenda a virar quando o rácio long/short da Binance está no quartil mais baixo (vendedores a descoberto em excesso).",BOUNCE_G0:"Compra quando o RSI de 4H sai da sobrevenda e a vela fecha acima da anterior. Saída original do Oversold Bounce.",BOUNCE_V2:"Mesma entrada do Gaspar com stop mais curto e objetivo de 2R.",BOUNCE_V3:"Mesma entrada do Gaspar com o stop original e objetivo de 2R.",BOUNCE_V1:"Mesma entrada com a saída das estratégias ao vivo.",
  BOUNCE_X30:"Compra quando o RSI de 4H esteve abaixo de 30 e vira para cima, com fecho acima da vela anterior.",DIP_TREND:"Compra recuos (RSI abaixo de 35 a virar) só em moedas em tendência forte no diário.",CAPITULACAO:"Compra velas de capitulação: volume 3× o normal e pavio longo por baixo.",
  BOUNCE_FLUXO:"Sobrevenda a virar com pelo menos 55% de compradores agressivos na vela.",BOUNCE_FORTE:"Sobrevenda a virar só em moedas mais fortes do que o BTC a 30 dias.",BOUNCE_SQUEEZE:"Sobrevenda a virar com funding negativo: os vendedores estão a pagar e podem ser apertados.",
  BOUNCE_ISOLADA:"Sobrevenda a virar só quando a queda é da própria moeda e o BTC está estável.",BOUNCE_NOREACT:"Sobrevenda a virar; sai ao fim de 12h se o preço não reagir.",BOUNCE_TRAIL:"Sobrevenda a virar; o stop sobe atrás do lucro.",BOUNCE_HORAS:"Sobrevenda a virar só em horas de mercado líquido (sem fins de semana nem madrugada UTC).",
@@ -1240,6 +1248,7 @@ function showFighter(id){if(!D)return;const b=((D.arena||{}).classificacao||[]).
   const now=sig.length?sig.map(s=>`● ${esc(s.asset)} — ${s.status==="TRIGGERED"?"operação aberta":"à espera de entrada"}${s.mode==="PAPER"?" (papel)":""}`).join("<br>"):dead?"Fora do ringue. Os conhecimentos dele continuam a ser usados como contexto nas análises.":`À procura de entradas nas ${(D.counts||{}).deep_checked||"–"} moedas analisadas, a cada 5 minutos.`;
   $("fcard").innerHTML=`<button class="fx" aria-label="Fechar">✕</button><h3>${esc(b.persona)}<span class="bd" style="background:${bd[1]};color:${bd[2]}">${bd[0]}</span></h3><div style="color:var(--mut)">${esc(b.name)}</div>
   <div style="margin-top:8px">${esc(FDESC[id]||"")}</div>
+  ${(()=>{const t=((D.liga||{}).tabela||[]).find(x=>x.id===id);return t?`<div style="margin-top:6px">🏆 Liga: <b>${t.pos}.º</b>${t.mov?(t.mov>0?` <span class="up">▲${t.mov}</span>`:` <span class="dn">▼${-t.mov}</span>`):""}${t.perigo?' <span class="chip warn">zona de morte</span>':""}</div>`:""})()}
   <div class="sec2">Combate dos últimos 90 dias</div><div class="kv"><div><span>Operações</span><b>${f.n||0}</b></div><div><span>Acerto</span><b>${f.n?num(100*(f.wins||0)/f.n,0)+"%":"–"}</b></div>
   <div><span>R médio</span><b class="${f.avg_r>0?"up":f.avg_r<0?"dn":""}">${f.avg_r==null?"–":(f.avg_r>0?"+":"")+num(f.avg_r,2)+"R"}</b></div><div><span>Acaso (p95)</span><b>${f.acaso_p95==null?"–":num(f.acaso_p95,2)+"R"}</b></div></div>
   ${spark?`<div class="sec2">Últimas operações do combate</div>${spark}`:""}
@@ -1249,6 +1258,24 @@ function showFighter(id){if(!D)return;const b=((D.arena||{}).classificacao||[]).
   <button class="gobb" id="fgo" style="border:0;width:100%">Ver o ringue completo</button>`;
   $("fcard").hidden=false;$("fcard").querySelector(".fx").onclick=()=>{$("fcard").hidden=true};$("fgo").onclick=()=>{$("fcard").hidden=true;openPanel("lab","#s-arena")}}
 window.OFAPI.fighter=showFighter;
+
+// ===== Mesa redonda e liga semanal =====
+let MESA_A=null;
+function votesHtml(v){return v.map(x=>`<div class="vote"><span>${x.voto==="entra"?"✅":"❌"}</span><div><b>${esc(x.persona)}</b> <span style="color:var(--mut)">${esc(x.razao)}</span></div></div>`).join("")}
+function renderMesa(){if(!D)return;const M=D.mesa||[];$("n-mesa").textContent=M.length?M.length+" moedas":"";
+  if(!M.length){$("mesa").innerHTML=`<div class="banner">A mesa redonda aparece no próximo scan.</div>`;return}
+  if(!MESA_A||!M.some(x=>x.asset===MESA_A))MESA_A=M[0].asset;const r=(D.universe||[]).find(x=>x.asset===MESA_A)||{},v=r.debate||[],yes=v.filter(x=>x.voto==="entra").length;
+  $("mesa").innerHTML=`<div class="mesa-tabs">${M.map(x=>`<button data-m="${esc(x.asset)}" class="${x.asset===MESA_A?"on":""}">${esc(x.asset)} · ${x.a_favor}/${x.votantes}</button>`).join("")}</div>
+  <div class="banner"><b>${esc(MESA_A)} — ${yes} de ${v.length} lutadores entravam agora</b><span style="color:var(--mut);font-size:12.5px">Cada lutador vivo diz se a sua regra entrava nesta moeda neste momento e porquê. As moedas aparecem pela ordem dos votos a favor e da sobrevenda.</span></div>${votesHtml(v)}
+  <div class="note">No Telegram: /debate ${esc(MESA_A)}</div>`;
+  $("mesa").querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{MESA_A=b.dataset.m;renderMesa()})}
+function renderLiga(){if(!D)return;const L=D.liga;if(!L||!L.tabela){$("liga").innerHTML=`<div class="banner">A liga aparece no próximo scan.</div>`;return}
+  $("n-liga").textContent=L.semana;const d=L.destaque;
+  $("liga").innerHTML=(d?`<div class="banner"><b>⭐ Lutador da semana: ${esc(d.persona)}</b><span style="color:var(--mut)">${esc(d.motivo)}</span></div>`:"")+
+  L.tabela.map(t=>`<div class="lg" data-f="${esc(t.id)}" style="cursor:pointer"><b>${t.pos}.</b><div>${t.campeao?"🏆":"⚔️"} <b>${esc(t.persona)}</b>${t.perigo?' <span class="chip warn">zona de morte</span>':""}<br><span style="color:var(--mut);font-size:12px">${esc(t.nome||"")}</span></div>
+  <b class="${t.avg_r>0?"up":t.avg_r<0?"dn":""}">${t.avg_r==null?"–":(t.avg_r>0?"+":"")+num(t.avg_r,2)+"R"}</b><span style="min-width:34px;text-align:right;color:${t.mov>0?"var(--up)":t.mov<0?"var(--dn)":"var(--mut)"}">${t.mov==null?"novo":t.mov>0?"▲"+t.mov:t.mov<0?"▼"+(-t.mov):"="}</span></div>`).join("")+
+  `<div class="note">Posição pelo R médio no combate dos últimos 90 dias (de hora a hora). Setas: subidas e descidas desde o início da semana. Zona de morte: perto das regras que matam. Resumo no Telegram ao domingo à noite; /liga a qualquer hora. Toca num lutador para ver o cartão.</div>`;
+  $("liga").querySelectorAll("[data-f]").forEach(x=>x.onclick=()=>showFighter(x.dataset.f))}
 </script>
 </body>
 </html>

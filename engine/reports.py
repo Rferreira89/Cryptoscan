@@ -134,6 +134,14 @@ def due(res, state, now):
         if loc.weekday() == 0 and rep.get("weekly") != day:
             rep["weekly"] = day
             out.append(("weekly", weekly(state, now, res.get("arena"))))
+    # liga semanal: resumo ao domingo a partir das 20h (uma vez por semana)
+    if loc.weekday() == 6 and loc.hour >= 20 and res.get("liga") and \
+            rep.get("liga") != res["liga"].get("semana"):
+        from . import liga
+        txt = liga.text(res["liga"])
+        rep["liga"] = res["liga"].get("semana")
+        if txt:
+            out.append(("liga", txt))
     health = res["status_global"]
     if rep.get("health", "OK") != health:
         if health != "OK":
