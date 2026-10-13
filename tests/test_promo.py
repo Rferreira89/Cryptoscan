@@ -187,3 +187,21 @@ class VariosCampeoes(unittest.TestCase):
         part = AR.generic_trades("AAA", [x for x in c4 if x["t"] < cut], above, t0,
                                  "BOUNCE_X30", AR.sig_x30)
         self.assertEqual(round(part[0][1]["r"], 6), round(full[0][1]["r"], 6))
+
+
+class Admin(unittest.TestCase):
+    def test_comandos_da_sessao_aplicados_uma_vez(self):
+        import json, os, tempfile
+        st = {"ledger": [{"id": "N", "kind": "1D", "asset": "NEAR", "status": "OPEN",
+                          "executed": True, "exec_price": 5.92, "entry": 5.9, "stop": 4.69}]}
+        d = tempfile.mkdtemp()
+        p = os.path.join(d, "admin.json")
+        with open(p, "w") as fh:
+            json.dump({"comandos": [{"id": "a", "texto": "/fechei NEAR 5.143"},
+                                    {"id": "b", "texto": "/capital 83.66"}]}, fh)
+        out = run.apply_admin(st, p, now=100)
+        self.assertEqual(len(out), 2)
+        self.assertEqual(st["capital"], 83.66)
+        self.assertEqual(st["ledger"][0]["user_exit"], 5.143)
+        self.assertEqual(run.apply_admin(st, p, now=200), [])
+        self.assertEqual(run.apply_admin(st, os.path.join(d, "nada.json")), [])

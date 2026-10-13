@@ -428,6 +428,38 @@ def process_inbox(state):
     return bool(ups)
 
 
+ADMIN = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "admin.json")
+
+
+def apply_admin(state, path=ADMIN, now=None, send=None):
+    """Comandos pedidos pelo Rui numa sessao (admin.json na raiz do main),
+    com o mesmo texto e efeito dos comandos do Telegram (/capital,
+    /fechei, /preco, /desliga, /liga). Cada id so e aplicado uma vez."""
+    try:
+        with open(path) as f:
+            cmds = json.load(f).get("comandos", [])
+    except (OSError, ValueError):
+        return []
+    done = state.setdefault("admin_done", [])
+    t = int(now or __import__("time").time())
+    out = []
+    for c in cmds:
+        if c.get("id") in done or not c.get("texto"):
+            continue
+        ups = [{"message": {"chat": {"id": "admin"}, "date": t, "text": c["texto"]}}]
+        res = inbox.apply(state, ups, "admin")
+        done.append(c["id"])
+        out += [txt for txt, _ in res]
+    del done[:-200]
+    if send:
+        for txt in out:
+            try:
+                send("✍️ " + txt)
+            except Exception:
+                pass
+    return out
+
+
 def deliver(cfg, state, events, extra=()):
     """Envia os alertas dos eventos (e relatorios) pelo Telegram."""
     if not (cfg.get("alerts") and alerts.configured()):
@@ -499,6 +531,7 @@ def main():
     os.makedirs(OUT, exist_ok=True)
     state = _load("state.json", {})
     process_inbox(state)
+    apply_admin(state, send=alerts.send if alerts.configured() else None)
     res, state, events = scanner.run(state=state, forma=load_forma())
     extra = reports.due(res, state, res["generated_at"]) if res["universe"] else []
     res["journal"] = ledger.view(state.get("ledger", []))
