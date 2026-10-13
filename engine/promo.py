@@ -53,6 +53,28 @@ def set_context(rows, bars):
     # open interest da Binance de 4 em 4 horas (servidor europeu)
     CTX["oi"] = {b: [tuple(x) for x in c.get("oi") or []]
                  for b, c in ((EU or {}).get("moedas") or {}).items()}
+    CTX["macro"] = {k: [tuple(x) for x in v]
+                    for k, v in ((EU or {}).get("macro") or {}).items()}
+
+
+def macro_summary(now):
+    """Leitura macro atual para a pagina (None sem dados do servidor europeu)."""
+    try:
+        from tools import arena_ringue as AR
+    except Exception:
+        return None
+    m = {k: [tuple(x) for x in v] for k, v in ((EU or {}).get("macro") or {}).items()}
+    if not m:
+        return None
+    old, AR.CTX["macro"] = AR.CTX.get("macro"), m
+    try:
+        r = lambda x, n=2: None if x is None else round(x * 100, n)
+        return {"estado": AR.macro_state(now), "vix": AR.macro_at("VIX", now),
+                "sp_24h_pct": r(AR.macro_chg("SP", now, 86400)),
+                "dxy_5d_pct": r(AR.macro_chg("DXY", now, 5 * 86400)),
+                "us10y": AR.macro_at("US10Y", now)}
+    finally:
+        AR.CTX["macro"] = old
 
 
 def registry():

@@ -389,6 +389,10 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
             promo_rows[a] = row
     except Exception as e:  # a promocao nunca pode parar o scan
         result["promo_erro"] = str(e)[:120]
+    try:
+        result["macro"] = promo.macro_summary(now)
+    except Exception:                       # informativo: nunca para o scan
+        result["macro"] = None
     result["promo"] = {"campeao": champ, "campeoes": champs, "qualificados": [
         {"id": k, "avg_r": r} for k, r in promo.qualified(state)]}
     # os shorts entram como linhas proprias no ciclo de vida dos sinais

@@ -87,6 +87,29 @@ def collect(now):
     return out, falhas
 
 
+# macroeconomia (Yahoo Finance, velas de 1 hora, 120 dias): futuros do
+# S&P 500, indice do dolar, VIX (medo) e juro a 10 anos dos EUA
+MACRO = {"SP": "ES=F", "DXY": "DX-Y.NYB", "VIX": "%5EVIX", "US10Y": "%5ETNX"}
+YAHOO = "https://query1.finance.yahoo.com/v8/finance/chart/"
+
+
+def macro():
+    out, falhas = {}, []
+    for k, sym in MACRO.items():
+        try:
+            import urllib.request
+            req = urllib.request.Request(YAHOO + sym + "?interval=1h&range=120d",
+                                         headers={"User-Agent": "Mozilla/5.0 cryptoscan"})
+            with urllib.request.urlopen(req, timeout=20) as r:
+                res = json.loads(r.read().decode())["chart"]["result"][0]
+            ts, cl = res["timestamp"], res["indicators"]["quote"][0]["close"]
+            # (fecho da vela, preco); velas sem preco ficam de fora
+            out[k] = [(int(t) + 3600, round(c, 4)) for t, c in zip(ts, cl) if c is not None]
+        except Exception as e:
+            falhas.append(f"macro {k}: {type(e).__name__}"[:60])
+    return out, falhas
+
+
 def main(dest, state_path=None):
     now = int(time.time())
     res = {"t": now, "fonte": "binance-futures", "moedas": {}, "falhas": []}
@@ -94,6 +117,8 @@ def main(dest, state_path=None):
         res["moedas"], res["falhas"] = collect(now)
     except Exception as e:
         res["falhas"].append(f"binance: {type(e).__name__}: {str(e)[:80]}")
+    res["macro"], fm = macro()
+    res["falhas"] += fm
     try:
         from engine import account
         state = {}

@@ -137,5 +137,58 @@ class Desalavancagem(unittest.TestCase):
             promo.EU = None
 
 
+class Macro(unittest.TestCase):
+    DAY = 86400
+
+    def serie(self, start, end, n=200):
+        return [(NOW - (n - 1 - i) * 3600, start + (end - start) * i / (n - 1)) for i in range(n)]
+
+    def tearDown(self):
+        AR.CTX["macro"] = {}
+
+    def test_estados(self):
+        AR.CTX["macro"] = {"VIX": self.serie(15, 15), "SP": self.serie(100, 100.5),
+                           "DXY": self.serie(100, 100)}
+        self.assertEqual(AR.macro_state(NOW), "favoravel")
+        AR.CTX["macro"]["VIX"] = self.serie(15, 30)
+        self.assertEqual(AR.macro_state(NOW), "medo")
+        AR.CTX["macro"]["VIX"] = self.serie(22, 22)
+        self.assertEqual(AR.macro_state(NOW), "neutro")
+        AR.CTX["macro"]["SP"] = self.serie(100, 80)
+        self.assertEqual(AR.macro_state(NOW), "medo")
+        self.assertIsNone(AR.macro_state(NOW + 10 * self.DAY))    # dados velhos
+        AR.CTX["macro"] = {}
+        self.assertIsNone(AR.macro_state(NOW))
+
+    def test_lutadores(self):
+        for k, p in (("BOUNCE_MACRO", "Mário"), ("BOUNCE_MEDO", "Vicente")):
+            self.assertIn(k, AR.SINAIS)
+            self.assertNotIn(k, promo.REAL_OK)
+            self.assertEqual(arena.persona(k), p)
+        c4 = [{"t": NOW - (300 - i) * H4, "o": 1, "h": 1, "l": 1, "c": 1, "v": 1}
+              for i in range(300)]
+        base = {"stop": 0.9, "tp": [1.1], "partials": [100], "breakeven": True,
+                "hold_s": 1, "gatilho": "x"}
+        with mock.patch.object(AR, "sig_x30", return_value=dict(base)), \
+                mock.patch.object(AR, "macro_state", return_value="favoravel"):
+            self.assertIsNotNone(AR.sig_macro(c4))
+            self.assertIsNone(AR.sig_medo(c4))
+        with mock.patch.object(AR, "sig_x30", return_value=dict(base)), \
+                mock.patch.object(AR, "macro_state", return_value="medo"):
+            self.assertIsNone(AR.sig_macro(c4))
+            self.assertIsNotNone(AR.sig_medo(c4))
+
+    def test_resumo_pagina(self):
+        promo.EU = {"macro": {"VIX": self.serie(15, 15), "SP": self.serie(100, 100.5),
+                              "DXY": self.serie(100, 100), "US10Y": self.serie(4, 4.1)}}
+        try:
+            m = promo.macro_summary(NOW)
+            self.assertEqual(m["estado"], "favoravel")
+            self.assertEqual(m["us10y"], 4.1)
+        finally:
+            promo.EU = None
+        self.assertIsNone(promo.macro_summary(NOW))
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -313,7 +313,7 @@ def sig_capitulacao(c4):
 
 # contexto partilhado pelos filtros: velas do BTC e funding (o combate e o
 # motor ao vivo preenchem-no antes de chamar as funcoes de sinal)
-CTX = {"btc": None, "funding": {}, "asset": None, "oi": {}}
+CTX = {"btc": None, "funding": {}, "asset": None, "oi": {}, "macro": {}}
 
 
 def _btc_ret(t_end, n):
@@ -414,7 +414,61 @@ def sig_desalav(c4):
     return dict(s0, gatilho=f"sobrevenda a virar depois de o open interest cair {chg:.0%} em 24h (alavancagem limpa)")
 
 
-NEW_SIGS = {"BOUNCE_DESALAV": sig_desalav, "BOUNCE_NOREACT": sig_noreact, "BOUNCE_TRAIL": sig_trail, "BOUNCE_HORAS": sig_horas,
+# ---------- macroeconomia (servidor europeu, Yahoo Finance 1H) ----------
+MACRO_MAX_GAP = 4 * DAY        # fim de semana / feriado: ultimo valor conhecido
+
+
+def macro_at(name, t):
+    """Ultimo valor de name conhecido ate t (ou None se nao houver ou for velho)."""
+    import bisect
+    s = (CTX.get("macro") or {}).get(name) or []
+    k = bisect.bisect_right([x[0] for x in s], t) - 1
+    if k < 0 or t - s[k][0] > MACRO_MAX_GAP:
+        return None
+    return s[k][1]
+
+
+def macro_chg(name, t, secs):
+    a, b = macro_at(name, t), macro_at(name, t - secs)
+    return None if a is None or not b else a / b - 1
+
+
+def macro_state(t):
+    """'favoravel', 'medo' ou 'neutro' no momento t (None sem dados).
+    medo: VIX >= 25, ou S&P 500 a cair >= 2% em 24h, ou dolar a subir
+    >= 1.5% em 5 dias. favoravel: VIX < 20, S&P 500 >= -0.5% em 24h e dolar
+    <= +0.5% em 5 dias."""
+    vix, sp = macro_at("VIX", t), macro_chg("SP", t, DAY)
+    dxy = macro_chg("DXY", t, 5 * DAY)
+    if vix is None or sp is None or dxy is None:
+        return None
+    if vix >= 25 or sp <= -0.02 or dxy >= 0.015:
+        return "medo"
+    if vix < 20 and sp >= -0.005 and dxy <= 0.005:
+        return "favoravel"
+    return "neutro"
+
+
+def sig_macro(c4):
+    """X30 so com a macroeconomia favoravel (bolsa americana estavel, dolar
+    calmo, VIX baixo)."""
+    s0 = sig_x30(c4)
+    if not s0 or macro_state(c4[-1]["t"] + H4) != "favoravel":
+        return None
+    return dict(s0, gatilho=s0["gatilho"] + "; macroeconomia favorável (bolsa estável, dólar calmo, VIX baixo)")
+
+
+def sig_medo(c4):
+    """X30 depois de medo macro (VIX alto, bolsa a cair ou dolar a disparar):
+    compra o exagero. Hipotese contraria a da sig_macro; o ringue decide."""
+    s0 = sig_x30(c4)
+    if not s0 or macro_state(c4[-1]["t"] + H4) != "medo":
+        return None
+    return dict(s0, gatilho=s0["gatilho"] + "; depois de medo na macroeconomia")
+
+
+NEW_SIGS = {"BOUNCE_MACRO": sig_macro, "BOUNCE_MEDO": sig_medo,
+            "BOUNCE_DESALAV": sig_desalav, "BOUNCE_NOREACT": sig_noreact, "BOUNCE_TRAIL": sig_trail, "BOUNCE_HORAS": sig_horas,
             "BOUNCE_X30": sig_x30, "DIP_TREND": sig_dip_trend, "CAPITULACAO": sig_capitulacao,
             "BOUNCE_FLUXO": sig_fluxo, "BOUNCE_FORTE": sig_forte,
             "BOUNCE_SQUEEZE": sig_squeeze, "BOUNCE_ISOLADA": sig_isolada}
@@ -570,10 +624,11 @@ def judge(trs, bars, rng, bars1h=None):
             "veredicto": arena.verdict(len(rs), mean, med, p95, has_ctrl)}
 
 
-def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None, funding=None, oi=None):
+def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None, funding=None, oi=None,
+        macro=None):
     t0 = now - days * DAY
     btc = bars.get("BTC")
-    CTX.update(btc=btc, funding=funding or {}, oi=oi or {})
+    CTX.update(btc=btc, funding=funding or {}, oi=oi or {}, macro=macro or {})
     reg, above = B.regimes(btc), btc_above(btc)
     groups = {k: [] for k in LIVE + ("REJEITADOS", "BOUNCE_G0", "BOUNCE_V1",
                                      "BOUNCE_V2", "BOUNCE_V3", "TREND_DAILY",
@@ -646,7 +701,9 @@ def main(dest, days=DAYS):
                 fonte["okx"] += 1
         if c.get("oi"):
             oi[base] = [tuple(x) for x in c["oi"]]
-    res = run(bars, cfg, now, days, bars1h=bars1h, funding=funding, oi=oi)
+    macro = {k: [tuple(x) for x in v] for k, v in ((eu or {}).get("macro") or {}).items()}
+    res = run(bars, cfg, now, days, bars1h=bars1h, funding=funding, oi=oi, macro=macro)
+    res["macro_series"] = sorted(macro)
     res["funding_moedas"] = len(funding)
     res["funding_fonte"] = fonte
     res["oi_moedas"] = len(oi)
