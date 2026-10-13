@@ -1,0 +1,330 @@
+{
+ "generated_at": 1791890253,
+ "hypothesis": "SWEEP_MERCADO",
+ "assets": 62,
+ "window": {
+  "design": [
+   "2024-10-11",
+   "2026-04-10"
+  ],
+  "holdout": [
+   "2026-04-11",
+   "2026-10-10"
+  ]
+ },
+ "costs": {
+  "fee_pct": 0.25,
+  "slippage_pct": 0.1
+ },
+ "grid": {
+  "{\"V\": \"A\"}": {
+   "all": {
+    "return_pct": -30.2,
+    "cagr_pct": -21.4,
+    "max_drawdown_pct": 30.9,
+    "sharpe": -1.25,
+    "calmar": -0.69,
+    "invested_pct": 34
+   },
+   "majors21": {
+    "return_pct": -21.7,
+    "cagr_pct": -15.1,
+    "max_drawdown_pct": 25.8,
+    "sharpe": -1.86,
+    "calmar": -0.59,
+    "invested_pct": 19
+   },
+   "trades": {
+    "n": 79,
+    "win_rate": 35.4,
+    "r_medio": -0.316,
+    "ret_medio_pct": -1.74,
+    "risco_medio_pct": 5.74,
+    "custo_medio_r": 0.151,
+    "saidas": {
+     "STOP": 51,
+     "BREAKEVEN": 23,
+     "TP3": 5
+    }
+   }
+  },
+  "{\"V\": \"B\"}": {
+   "all": {
+    "return_pct": -20.1,
+    "cagr_pct": -13.9,
+    "max_drawdown_pct": 20.9,
+    "sharpe": -0.87,
+    "calmar": -0.66,
+    "invested_pct": 29
+   },
+   "majors21": {
+    "return_pct": -13.4,
+    "cagr_pct": -9.2,
+    "max_drawdown_pct": 19.4,
+    "sharpe": -1.23,
+    "calmar": -0.47,
+    "invested_pct": 18
+   },
+   "trades": {
+    "n": 59,
+    "win_rate": 37.3,
+    "r_medio": -0.251,
+    "ret_medio_pct": -1.43,
+    "risco_medio_pct": 5.95,
+    "custo_medio_r": 0.146,
+    "saidas": {
+     "STOP": 37,
+     "BREAKEVEN": 17,
+     "TP3": 5
+    }
+   }
+  }
+ },
+ "grid_positive_share": 0.0,
+ "baseline_btc_sma200_design": {
+  "return_pct": 12.2,
+  "cagr_pct": 8.0,
+  "max_drawdown_pct": 33.4,
+  "sharpe": 0.4,
+  "calmar": 0.24,
+  "invested_pct": 65
+ },
+ "walk_forward": {
+  "folds": [
+   {
+    "train": [
+     20007,
+     20190
+    ],
+    "test_days": [
+     20190,
+     20281
+    ],
+    "chosen": "{\"V\": \"B\"}",
+    "test": {
+     "return_pct": -2.0,
+     "cagr_pct": -7.9,
+     "max_drawdown_pct": 7.1,
+     "sharpe": -0.46,
+     "calmar": -1.12,
+     "invested_pct": 41
+    },
+    "trades": 15
+   },
+   {
+    "train": [
+     20098,
+     20281
+    ],
+    "test_days": [
+     20281,
+     20372
+    ],
+    "chosen": "{\"V\": \"A\"}",
+    "test": {
+     "return_pct": -11.1,
+     "cagr_pct": -38.0,
+     "max_drawdown_pct": 15.6,
+     "sharpe": -1.52,
+     "calmar": -2.44,
+     "invested_pct": 79
+    },
+    "trades": 32
+   },
+   {
+    "train": [
+     20189,
+     20372
+    ],
+    "test_days": [
+     20372,
+     20463
+    ],
+    "chosen": "{\"V\": \"A\"}",
+    "test": {
+     "return_pct": -5.6,
+     "cagr_pct": -21.0,
+     "max_drawdown_pct": 5.6,
+     "sharpe": -3.75,
+     "calmar": -3.72,
+     "invested_pct": 7
+    },
+    "trades": 4
+   },
+   {
+    "train": [
+     20280,
+     20463
+    ],
+    "test_days": [
+     20463,
+     20554
+    ],
+    "chosen": "{\"V\": \"B\"}",
+    "test": {
+     "return_pct": 0.0,
+     "cagr_pct": 0.0,
+     "max_drawdown_pct": 0.0,
+     "sharpe": 0.0,
+     "calmar": null,
+     "invested_pct": 0
+    },
+    "trades": 0
+   }
+  ],
+  "oos": {
+   "return_pct": -17.8,
+   "cagr_pct": -18.0,
+   "max_drawdown_pct": 20.1,
+   "sharpe": -1.11,
+   "calmar": -0.9,
+   "invested_pct": 32
+  },
+  "folds_positive": 0,
+  "oos_trades": 51,
+  "oos_trade_stats": {
+   "n": 51,
+   "win_rate": 35.3,
+   "r_medio": -0.336,
+   "ret_medio_pct": -1.49,
+   "risco_medio_pct": 4.83,
+   "custo_medio_r": 0.175,
+   "saidas": {
+    "STOP": 33,
+    "BREAKEVEN": 15,
+    "TP3": 3
+   }
+  },
+  "majors21": {
+   "return_pct": -16.5,
+   "cagr_pct": -16.7,
+   "max_drawdown_pct": 17.4,
+   "sharpe": -2.23,
+   "calmar": -0.96,
+   "invested_pct": 22
+  },
+  "baseline": {
+   "return_pct": 7.0,
+   "cagr_pct": 7.1,
+   "max_drawdown_pct": 19.6,
+   "sharpe": 0.41,
+   "calmar": 0.37,
+   "invested_pct": 54
+  }
+ },
+ "deploy_config": {
+  "V": "B"
+ },
+ "holdout": {
+  "all": {
+   "return_pct": 8.6,
+   "cagr_pct": 17.9,
+   "max_drawdown_pct": 6.8,
+   "sharpe": 1.02,
+   "calmar": 2.62,
+   "invested_pct": 25
+  },
+  "majors21": {
+   "return_pct": 7.6,
+   "cagr_pct": 15.8,
+   "max_drawdown_pct": 2.4,
+   "sharpe": 1.76,
+   "calmar": 6.57,
+   "invested_pct": 16
+  },
+  "baseline_btc_sma200": {
+   "return_pct": 19.3,
+   "cagr_pct": 42.4,
+   "max_drawdown_pct": 6.9,
+   "sharpe": 1.66,
+   "calmar": 6.12,
+   "invested_pct": 29
+  },
+  "trades": {
+   "n": 14,
+   "win_rate": 50.0,
+   "r_medio": 0.201,
+   "ret_medio_pct": 1.49,
+   "risco_medio_pct": 5.38,
+   "custo_medio_r": 0.139,
+   "saidas": {
+    "STOP": 7,
+    "BREAKEVEN": 3,
+    "TP3": 3,
+    "TIME": 1
+   }
+  }
+ },
+ "random": {
+  "walk_forward": {
+   "n": 51,
+   "r_real": -0.336,
+   "r_acaso_mediana": -0.022,
+   "r_acaso_p95": 0.246,
+   "percentil": 1.3,
+   "vantagem": false
+  },
+  "reserva": {
+   "n": 14,
+   "r_real": 0.201,
+   "r_acaso_mediana": 0.202,
+   "r_acaso_p95": 0.901,
+   "percentil": 49.9,
+   "vantagem": false
+  },
+  "fora_da_amostra": {
+   "n": 65,
+   "r_real": -0.22,
+   "r_acaso_mediana": 0.025,
+   "r_acaso_p95": 0.288,
+   "percentil": 4.8,
+   "vantagem": false
+  }
+ },
+ "criteria": {
+  "1_oos_retorno_e_sharpe": false,
+  "2_janelas_positivas": false,
+  "3_grelha_estavel": false,
+  "4_grandes_moedas_2021": false,
+  "5_melhor_que_btc_sma200": false,
+  "6_reserva_sharpe_positivo": true,
+  "7_acima_do_p95_do_acaso": false
+ },
+ "passed_all_seven": false,
+ "verdict": "NAO VALIDADA",
+ "info_old_period": {
+  "days": [
+   "2021-07-30",
+   "2024-10-10"
+  ],
+  "all": {
+   "return_pct": -10.5,
+   "cagr_pct": -3.4,
+   "max_drawdown_pct": 17.3,
+   "sharpe": -0.3,
+   "calmar": -0.2,
+   "invested_pct": 15
+  },
+  "baseline": {
+   "return_pct": 57.4,
+   "cagr_pct": 15.2,
+   "max_drawdown_pct": 37.2,
+   "sharpe": 0.56,
+   "calmar": 0.41,
+   "invested_pct": 55
+  },
+  "trades": {
+   "n": 54,
+   "win_rate": 42.6,
+   "r_medio": -0.128,
+   "ret_medio_pct": -0.74,
+   "risco_medio_pct": 5.4,
+   "custo_medio_r": 0.157,
+   "saidas": {
+    "STOP": 31,
+    "BREAKEVEN": 17,
+    "TP3": 6
+   }
+  }
+ }
+}

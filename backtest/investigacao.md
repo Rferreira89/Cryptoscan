@@ -1,10 +1,12 @@
 # Diário de investigação
 
-**Hipóteses testadas contra esta reserva: 7** (4 neste diário: compra de
-quedas, compressão, oversold bounce 4H, day trade 1H; mais 3 no diário de
-afinação, H1 a H3). Atualizado em 2026-10-11. Quanto maior este número,
-maior a probabilidade de uma hipótese passar por sorte: com 7 testes, a
-probabilidade de pelo menos um falso positivo a 5% já ronda os 30%.
+**Hipóteses testadas contra esta reserva: 9** (6 neste diário: compra de
+quedas, compressão, oversold bounce 4H, day trade 1H, bounce com outras
+saídas, sweep a mercado; mais 3 no diário de afinação, H1 a H3).
+Atualizado em 2026-10-13. Quanto maior este número, maior a probabilidade
+de uma hipótese passar por sorte: com 9 testes, a probabilidade de pelo
+menos um falso positivo a 5% já ronda os 37% (e as várias configurações
+de cada grelha aumentam-na ainda mais).
 
 Uma hipótese por entrada, com o veredicto. Método: `tools/research.py`
 (decisão no fecho, execução na abertura seguinte, 0,25% de comissão + 0,1% de
@@ -67,7 +69,8 @@ dá "AMOSTRA INSUFICIENTE".
    máximo: CANDIDATA (papel durante 30 operações ou 8 semanas antes de
    dinheiro real). Nada é ligado ao vivo.
 
-3. (PEDIDA em 2026-10-11, testar na próxima execução.) **Oversold Bounce
+3. (TESTADA em 2026-10-13, ver entrada "Oversold Bounce no 4H com uma
+   saída melhor": NÃO VALIDADA — PARA PAPEL.) **Oversold Bounce
    no 4H com uma saída melhor.** Origem: em 2026-10-11 o gatilho do
    Oversold Bounce foi o primeiro a bater o acaso nos momentos de entrada
    (percentil 99,5 fora da amostra), mas a saída original (stop largo,
@@ -153,7 +156,7 @@ o Rui), e o morto fica registado. Um por corrida, na segunda vaga.
 
 | Morto | Data da morte | Causa encontrada | Sucessor | Veredicto |
 |---|---|---|---|---|
-| PULLBACK, BREAKOUT, LIQUIDITY_SWEEP, TREND_DAILY, REJEITADOS | 2026-10-13 (forma recente, 90 dias) | ver entrada de 2026-10-13 | LIQUIDITY_SWEEP → SWEEP_MERCADO (os outros ficam por agora sem sucessor, ver autópsia) | (a testar) |
+| PULLBACK, BREAKOUT, LIQUIDITY_SWEEP, TREND_DAILY, REJEITADOS | 2026-10-13 (forma recente, 90 dias) | ver entrada de 2026-10-13 | LIQUIDITY_SWEEP → SWEEP_MERCADO (os outros ficam por agora sem sucessor, ver autópsia) | NÃO VALIDADA (2026-10-13; percentil 4,8 contra o acaso) |
 
 ## Hipóteses anteriores a este diário (até 2026-10-02, período 2021-2026)
 
@@ -417,3 +420,108 @@ fechadas, poucas para concluir).
 - Expectativa declarada: sem custos a entrada na abertura ficou perto de
   zero (−0,03R), por isso o mais provável é NÃO VALIDADA; o teste serve
   para confirmar ou afastar a causa.
+
+## 2026-10-13 — Oversold Bounce no 4H com uma saída melhor (fila do Rui, hipótese 3)
+
+**Veredicto: NÃO VALIDADA — PARA PAPEL.** Falha 3 dos 7 critérios (dobras
+positivas, estabilidade da grelha, grandes moedas), mas fica acima do
+percentil 95 contra o acaso fora da amostra (percentil 100). AVISO: a
+reserva já foi usada por 8 hipóteses antes desta; um bom resultado aqui só
+conta como indício. A prova tem de vir do papel e do combate.
+
+- **Regras** (as da fila, fixadas antes de qualquer teste): gatilho
+  exatamente o de `tools/research_bounce.signals` sem filtro da EMA200 da
+  moeda; nenhuma saída entra se a abertura seguinte já estiver na média de
+  20 velas ou acima (como no papel). V1 = plano do sistema ao vivo
+  (`engine/risk.plan`, stop do gatilho, 30 dias); V2 = stop no fecho menos
+  1,5 ATR14, um objetivo a 2R, sem stop na entrada, 3 dias; V3 = stop
+  original, um objetivo a 2R, sem stop na entrada, 3 dias.
+- **Grelha** (6): {V1, V2, V3} × X ∈ {25, 30}. Carteira de 4 × 25%, uma por
+  moeda, primeiro o RSI mais baixo. Universo: 62 moedas.
+- **Custos**: 0,25% + 0,1% por lado (objetivos são ordens limite).
+- **Janela**: desenho 2024-10-11 a 2026-04-10; reserva 2026-04-11 a
+  2026-10-10 (última vela do histórico: 2026-10-11 08:00 UTC).
+  Walk-forward: treino 183 dias, teste 91, 4 dobras.
+- **Desenho**: 2 de 6 configurações positivas (33%), as duas com X=25:
+  V3/X=25 +36,6% (Sharpe 0,83, queda máxima 19,2%, 113 op., 53,1% de
+  acerto, +0,149R) e V2/X=25 +23,6% (Sharpe 0,62, 117 op., +0,144R). Com
+  X=30 todas perdem (−14% a −34%). V1 (a saída do sistema ao vivo) perde
+  sempre (−31% e −34%, −0,27R e −0,16R). Referência BTC>SMA200: +12,2%,
+  Sharpe 0,40.
+- **Walk-forward fora da amostra** (364 dias): +42,2%, Sharpe 1,48, queda
+  máxima 11,2%, 55 operações, 60,0% ganhadoras, +0,278R (custo médio
+  0,15R por operação). Dobras: +26,7% / −4,4% / +17,3% / 0,0% (sem
+  operações, BTC abaixo da SMA200) = 2 de 4. Grandes moedas: −8,5%,
+  Sharpe −0,34. Referência nas mesmas datas: +7,0%, Sharpe 0,41.
+- **Configuração escolhida**: V3, X=25 (stop original, objetivo a 2R, sem
+  stop na entrada, 3 dias).
+- **Reserva (uma avaliação)**: +10,5%, Sharpe 2,50, queda máxima 1,1%, só
+  10 operações (7 ganhadoras, +0,768R). Referência: +19,3%, Sharpe 1,66.
+  Grandes moedas: +0,2%.
+- **Contra o acaso** (1000 séries, ±90 velas, mesma geometria): fora da
+  amostra (65 op.) +0,353R contra mediana ao acaso de −0,235R e p95 de
+  −0,027R: **percentil 100**. Só walk-forward (55): percentil 100. Só
+  reserva (10): percentil 98,7.
+- **Critérios**: 1 sim; 2 NÃO (50%); 3 NÃO (33%); 4 NÃO (grandes moedas
+  −8,5%); 5 sim (1,48 contra 0,41); 6 sim; 7 sim.
+- **Período antigo (informativo, não conta)**: 2021-07-30 a 2024-10-10 a
+  mesma configuração daria −41,7% (Sharpe −0,71, 181 operações, 38,1% de
+  acerto, −0,21R) contra +57,4% da referência.
+- **Leitura**: a saída a 2R sem stop na entrada transforma o empate do
+  Bounce original num ganho no período recente, e o momento de entrada
+  continua muito melhor do que o acaso. Mas o resultado é frágil: só
+  funciona com RSI abaixo de 25 (com 30 perde em todas as saídas), não
+  funciona nas grandes moedas, depende de poucos trimestres e no período
+  antigo perde muito. A saída do sistema ao vivo (V1) estraga o gatilho.
+- **Papel / ringue**: a configuração escolhida (V3, X=25) e a V2/X=25 já
+  são lutadores do combate de hora a hora (BOUNCE_V3 "Violeta" e
+  BOUNCE_V2 "Vera", com funções em `SINAIS` de `tools/arena_ringue.py`),
+  por isso não é preciso acrescentar nada: entram em papel ao vivo
+  sozinhos quando se qualificarem. No combate dos últimos 90 dias (ramo
+  `arena`, 2026-10-13) a V3 leva 26 operações a +0,71R e a V2 26 a
+  +0,73R, ambas acima do p95 do acaso; esses 90 dias estão dentro da
+  reserva, por isso não são prova independente. Dinheiro real só numa
+  sessão com o Rui.
+- Código: `tools/research_bounce_exits.py` (e `tools/research_rlib.py`, que
+  passou a aceitar planos calculados à abertura e saídas sem stop na
+  entrada); teste sem look-ahead: `tests/test_research_bounce_exits.py`;
+  números: `backtest/research_bounce_exits.json`.
+
+## 2026-10-13 — SWEEP_MERCADO: LIQUIDITY_SWEEP sem ordem limite à espera (sucessor da arena)
+
+**Veredicto: NÃO VALIDADA.** Falha 6 dos 7 critérios e fica abaixo da
+mediana do acaso (percentil 4,8). A causa suspeita (seleção adversa da
+ordem limite) não explica a perda: a entrada a mercado também perde.
+
+- **Hipótese e grelha**: as do pré-registo acima (commit dff0269, antes dos
+  testes). A = abre sempre na abertura seguinte; B = só se essa abertura
+  estiver no topo da zona de entrada ou abaixo. Setups do motor ao vivo
+  (`engine/backtest.candidates`), score ≥ mínimo, BTC acima da SMA200.
+- **Janela**: desenho 2024-10-11 a 2026-04-10; reserva 2026-04-11 a
+  2026-10-10; 62 moedas. Walk-forward: treino 183, teste 91, 4 dobras.
+  Custos 0,25% + 0,1% por lado.
+- **Desenho**: 0 de 2 configurações positivas. A: −30,2% (Sharpe −1,25,
+  79 op., 35,4% de acerto, −0,316R). B: −20,1% (Sharpe −0,87, 59 op.,
+  37,3%, −0,251R). Referência: +12,2%.
+- **Walk-forward fora da amostra**: −17,8%, Sharpe −1,11, queda máxima
+  20,1%, 51 operações, 35,3% de acerto, −0,336R (custo 0,18R). Dobras:
+  −2,0% / −11,1% / −5,6% / 0,0% = 0 de 4. Grandes moedas: −16,5%.
+  Referência: +7,0%, Sharpe 0,41.
+- **Configuração escolhida**: B.
+- **Reserva (uma avaliação)**: +8,6%, Sharpe 1,02, queda máxima 6,8%, 14
+  operações (50% de acerto, +0,20R). Referência: +19,3%, Sharpe 1,66.
+- **Contra o acaso** (1000 séries, ±90 velas): fora da amostra (65 op.)
+  −0,220R contra mediana ao acaso de +0,025R e p95 de +0,288R:
+  **percentil 4,8**. Walk-forward: percentil 1,3; reserva: 49,9.
+- **Critérios**: 1 NÃO; 2 NÃO; 3 NÃO; 4 NÃO; 5 NÃO; 6 sim; 7 NÃO.
+- **Período antigo (informativo)**: 2021-07-30 a 2024-10-10: −10,5%
+  (Sharpe −0,30, 54 op., −0,13R) contra +57,4% da referência.
+- **Leitura**: tirar a ordem limite não salva o sweep. O que falha é o
+  próprio setup (o momento em que o sweep é identificado), não a forma de
+  executar: com a mesma geometria, entrar ao acaso na mesma moeda dá mais.
+  A diferença da autópsia entre preenchimento imediato e tardio era, pelo
+  que se vê aqui, sobretudo ruído. O LIQUIDITY_SWEEP fica morto sem
+  herdeiro. Nada foi ligado ao vivo nem ao ringue.
+- Código: `tools/research_sweep_market.py`; teste sem look-ahead:
+  `tests/test_research_sweep_market.py`; números:
+  `backtest/research_sweep_market.json`.

@@ -84,6 +84,13 @@ def atr(bars, n=14):
 def plan_at(sig, o):
     """Plano concreto na abertura `o`. None se o plano deixou de ser valido
     (abertura no stop ou abaixo, stop demasiado perto, objetivo ja passado)."""
+    if sig.get("gate") is not None and o >= sig["gate"]:
+        return None                    # entrada ja acima do 1.o objetivo do gatilho
+    if sig.get("plan_fn"):             # plano calculado ao preco de abertura
+        p = sig["plan_fn"](o)
+        if p is None or o <= p["stop"] or o >= p["tp"][0]:
+            return None
+        return dict(p, breakeven=p.get("breakeven", True))
     stop = sig["stop"]
     if o <= stop:
         return None
@@ -95,7 +102,8 @@ def plan_at(sig, o):
         tps = list(sig["tp"])
     if o >= tps[0]:
         return None
-    return {"stop": stop, "tp": tps, "partials": list(sig["partials"])}
+    return {"stop": stop, "tp": tps, "partials": list(sig["partials"]),
+            "breakeven": sig.get("breakeven", True)}
 
 
 def run_trade(bars, j, plan, tf, hold_s, fee_pct=FEE_PCT, slip_pct=SLIP_PCT):
@@ -103,7 +111,8 @@ def run_trade(bars, j, plan, tf, hold_s, fee_pct=FEE_PCT, slip_pct=SLIP_PCT):
     diante. Devolve (posicao fechada, indice da ultima vela) ou None se o
     historico acabar antes do fecho."""
     b = bars[j]
-    pos = trade.open_position(plan, b["o"], b["t"], fee_pct, slip_pct)
+    pos = trade.open_position(plan, b["o"], b["t"], fee_pct, slip_pct,
+                              breakeven=plan.get("breakeven", True))
     k = j
     while True:
         x = bars[k]
@@ -154,7 +163,8 @@ def simulate(data, sigs, tf, hold_s, universe=None, max_pos=4, frac=0.25,
                 notional = min(frac * eq, cash)
                 if plan is None or notional < 0.01 * eq:
                     continue
-                p = trade.open_position(plan, o, t, fee_pct, slip_pct)
+                p = trade.open_position(plan, o, t, fee_pct, slip_pct,
+                                        breakeven=plan["breakeven"])
                 cash -= notional
                 pos[a] = {"p": p, "notional": notional, "last": o, "i": i,
                           "units": notional / p["entry"], "plan": plan, "o": o}
@@ -177,7 +187,8 @@ def simulate(data, sigs, tf, hold_s, universe=None, max_pos=4, frac=0.25,
                     "risk_pct": 100 * (q["o"] - q["plan"]["stop"]) / q["o"],
                     "geo": {"stop": q["plan"]["stop"] / q["o"] - 1,
                             "tp": [z / q["o"] - 1 for z in q["plan"]["tp"]],
-                            "partials": q["plan"]["partials"]}})
+                            "partials": q["plan"]["partials"],
+                            "breakeven": q["plan"]["breakeven"]}})
                 del pos[a]
         if (t + tf) % DAY == 0:
             curve.append((t // DAY, equity()))
@@ -193,7 +204,8 @@ def control_rs(bars, i, geo, tf, hold_s, window, fee_pct=FEE_PCT,
         o = bars[j]["o"]
         plan = {"stop": o * (1 + geo["stop"]),
                 "tp": [o * (1 + z) for z in geo["tp"]],
-                "partials": geo["partials"]}
+                "partials": geo["partials"],
+                "breakeven": geo.get("breakeven", True)}
         r = run_trade(bars, j, plan, tf, hold_s, fee_pct, slip_pct)
         if r is not None:
             out.append(r[0]["r"])
