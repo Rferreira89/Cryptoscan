@@ -218,8 +218,9 @@ def usdc_free(w):
     return account.usdc_free(w) or 0.0
 
 
-def fills(order_id, symbol, base):
-    """(preco medio, quantidade liquida recebida) de uma ordem."""
+def fills(order_id, symbol, base, side="Buy"):
+    """(preco medio, quantidade): numa compra, a liquida recebida (sem a
+    comissao paga na propria moeda); numa venda, a quantidade vendida."""
     for _ in range(5):
         r = get("/v5/execution/list", {"category": "spot", "symbol": symbol,
                                        "orderId": order_id})
@@ -229,7 +230,7 @@ def fills(order_id, symbol, base):
             v = sum(float(e["execQty"]) * float(e["execPrice"]) for e in ex)
             fee = sum(float(e.get("execFee") or 0) for e in ex
                       if (e.get("feeCurrency") or base).upper() == base.upper())
-            return v / q, q - fee
+            return v / q, (q - fee) if side == "Buy" else q
         time.sleep(1)
     raise ExecError("a ordem não mostrou execução")
 
@@ -258,10 +259,15 @@ def place_part(symbol, quote, tp, stop, inst, tag):
                                           tpOrderType="Market", slOrderType="Market"))
         return r["orderId"], True
     except ExecError as e:
+        global LAST_ATTACH_ERR
+        LAST_ATTACH_ERR = str(e)[:160]
         if "insufficient" in str(e).lower() or "balance" in str(e).lower():
             raise
         r = post("/v5/order/create", base)
         return r["orderId"], False
+
+
+LAST_ATTACH_ERR = None
 
 
 def stop_order(symbol, qty, stop, inst, tag):
@@ -433,7 +439,7 @@ def do_close(state, req, ex, now, send, why="saída do plano"):
     oid = sell_all(op["symbol"], qty, inst, f"{req['op'][-20:]}-f")
     op.update(status="fechada", fechado=now, motivo=why)
     if oid:
-        avg, q = fills(oid, op["symbol"], "USDC")
+        avg, q = fills(oid, op["symbol"], op["asset"], side="Sell")
         op["saida"] = avg
         send(f"🏁 {op['asset']}: {why}. Vendi {q:.6g} a {avg:.6g} e cancelei as ordens abertas.")
     else:
@@ -469,7 +475,7 @@ def do_test(state, req, ex, now, send):
         return "sem saldo"
     try:
         oid, attached = place_part(sym, q, px * 1.05, px * 0.95, inst, f"teste-{now}")
-        steps.append(f"compra {q:.2f} USDC: ok (TP/SL anexados: {'sim' if attached else 'não'})")
+        steps.append(f"compra {q:.2f} USDC: ok (TP/SL anexados: {'sim' if attached else 'não — ' + str(LAST_ATTACH_ERR)})")
         avg, qty = fills(oid, sym, "BTC")
         steps.append(f"executada a {avg:.2f}, {qty:.8f} BTC líquidos")
         time.sleep(2)
@@ -504,8 +510,8 @@ def do_test(state, req, ex, now, send):
         time.sleep(1)
         sid = sell_all(sym, min(qty, held(wallet(), "BTC")), inst, f"teste-v{now}")
         if sid:
-            a2, q2 = fills(sid, sym, "USDC")
-            steps.append(f"venda: {q2:.8f} BTC a {a2:.2f} (custo do teste ≈ {(avg - a2) * q2 + q * 0.002:.3f} USDC)")
+            a2, q2 = fills(sid, sym, "BTC", side="Sell")
+            steps.append(f"venda: {q2:.8f} BTC a {a2:.2f} (resultado do teste ≈ {(a2 - avg) * q2 - q * 0.002:+.3f} USDC)")
     except ExecError as e:
         steps.append(f"ERRO: {e}")
     ex["teste"] = {"t": now, "passos": steps}
@@ -513,7 +519,40 @@ def do_test(state, req, ex, now, send):
     return "ok"
 
 
-ACTIONS = {"comprar": do_buy, "breakeven": do_breakeven, "fechar": do_close,
+def do_diag(state, req, ex, now, send):
+    """Sem custo: ordens limite de compra muito abaixo do preco (nunca
+    executam) com TP/SL anexados, em varias formas; regista o que a Bybit
+    aceita e cancela tudo logo a seguir."""
+    sym, out = "BTCUSDC", []
+    inst = instrument(sym)
+    px = last_price(sym)
+    lim = px * 0.5
+    qty = max(inst["min_amt"] * 1.2 / lim, float(inst["base_step"]))
+    common = {"category": "spot", "symbol": sym, "side": "Buy", "orderType": "Limit",
+              "qty": fmt(qty * 1.0001, inst["base_step"]), "price": fmt(lim, inst["tick"]),
+              "timeInForce": "GTC"}
+    variants = {
+        "limite_tp_sl_mercado": dict(takeProfit=fmt(px * 0.6, inst["tick"]), stopLoss=fmt(px * 0.45, inst["tick"]),
+                                     tpOrderType="Market", slOrderType="Market"),
+        "limite_tp_sl_simples": dict(takeProfit=fmt(px * 0.6, inst["tick"]), stopLoss=fmt(px * 0.45, inst["tick"])),
+        "limite_so_sl": dict(stopLoss=fmt(px * 0.45, inst["tick"])),
+    }
+    for k, extra in variants.items():
+        try:
+            r = post("/v5/order/create", dict(common, orderLinkId=f"{LINK}d{k[:8]}{now % 100000}", **extra))
+            out.append(f"{k}: ACEITE")
+            try:
+                post("/v5/order/cancel", {"category": "spot", "symbol": sym, "orderId": r["orderId"]})
+                out.append(f"{k}: cancelada")
+            except ExecError as e:
+                out.append(f"{k}: cancelar ERRO {e}")
+        except ExecError as e:
+            out.append(f"{k}: recusada — {e}")
+    ex["diag"] = {"t": now, "min_amt": inst["min_amt"], "passos": out}
+    return "ok"
+
+
+ACTIONS = {"diag": do_diag, "comprar": do_buy, "breakeven": do_breakeven, "fechar": do_close,
            "parar": do_stop_all, "teste": do_test}
 
 
