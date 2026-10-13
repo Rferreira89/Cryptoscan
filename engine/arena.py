@@ -68,7 +68,8 @@ NAMES = {"PULLBACK": "Recuo (ao vivo)", "BREAKOUT": "Quebra (ao vivo)",
          "BOUNCE_FLUXO": "Bounce com compradores agressivos", "BOUNCE_FORTE": "Bounce em moeda forte",
          "BOUNCE_SQUEEZE": "Bounce com shorts em aperto", "BOUNCE_ISOLADA": "Bounce com o BTC estável",
          "BOUNCE_NOREACT": "Bounce que sai sem reação", "BOUNCE_TRAIL": "Bounce com stop que sobe",
-         "BOUNCE_HORAS": "Bounce só em horas líquidas"}
+         "BOUNCE_HORAS": "Bounce só em horas líquidas",
+         "BOUNCE_DESALAV": "Bounce depois da desalavancagem"}
 # cada concorrente e um analista com nome proprio (decisao do Rui)
 PERSONA = {"BREAKOUT": "Bruno", "PULLBACK": "Rita", "LIQUIDITY_SWEEP": "Simão",
            "RANGE": "Raquel", "TREND_DAILY": "Teodoro", "BOUNCE_G0": "Gaspar",
@@ -77,7 +78,7 @@ PERSONA = {"BREAKOUT": "Bruno", "PULLBACK": "Rita", "LIQUIDITY_SWEEP": "Simão",
            "BOUNCE_X30": "Xavier", "DIP_TREND": "Diana", "CAPITULACAO": "Caio",
            "BOUNCE_FLUXO": "Flávio", "BOUNCE_FORTE": "Fernanda", "BOUNCE_SQUEEZE": "Sérgio",
            "BOUNCE_ISOLADA": "Isabel", "BOUNCE_NOREACT": "Nélson", "BOUNCE_TRAIL": "Tânia",
-           "BOUNCE_HORAS": "Horácio"}
+           "BOUNCE_HORAS": "Horácio", "BOUNCE_DESALAV": "Dália"}
 POOL = ["Leonor", "Duarte", "Matilde", "Afonso", "Carolina", "Martim", "Beatriz",
         "Lourenço", "Mariana", "Salvador", "Francisca", "Henrique", "Clara",
         "Tomás", "Joana", "Miguel", "Catarina", "Diogo", "Lara", "Gonçalo"]

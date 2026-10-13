@@ -9,7 +9,8 @@ Nada daqui altera o tamanho das posicoes nem o risco: so informa
 (stop colocado ou nao, entrada detetada, saldo em USDC).
 
 O resultado publicado (scan.json) e minimo de proposito, porque o
-repositorio e publico: so o saldo livre em USDC e, por operacao aberta,
+repositorio e publico: so o saldo livre em USDC, o valor total (que passa a ser o capital) e,
+por operacao aberta,
 se ha moedas, se ha stop e a que preco. Nunca a carteira inteira.
 
 Uso de teste: python -m engine.account <ficheiro_saida.json> [state.json]
@@ -107,6 +108,25 @@ def usdc_free(wallet):
                     except (TypeError, ValueError):
                         continue
     return None
+
+
+def equity(wallet):
+    """Valor total da conta em USD (totalEquity ou soma de usdValue)."""
+    tot, seen = 0.0, False
+    for acc in wallet.get("list") or []:
+        try:
+            v = float(acc.get("totalEquity") or "")
+            tot, seen = tot + v, True
+            continue
+        except (TypeError, ValueError):
+            pass
+        for c in acc.get("coin") or []:
+            try:
+                tot += float(c.get("usdValue") or "")
+                seen = True
+            except (TypeError, ValueError):
+                continue
+    return round(tot, 2) if seen else None
 
 
 def _f(x):
@@ -225,6 +245,7 @@ def snapshot(state, now=None):
         since = min([r.get("issued_at") or now for r in opened] or [now])
         execs = executions([symbol_of(r) for r in opened], since - 600)
         return {"ok": True, "t": int(now), "usdc_free": usdc_free(wallet),
+                "equity": equity(wallet),
                 "expires": info.get("expiredAt"),
                 "trades": check_trades(led, held, orders, execs, now)}
     except AccountError as e:

@@ -35,8 +35,12 @@ REAL_OK = ("BOUNCE_G0", "BOUNCE_V2", "BOUNCE_V3", "BOUNCE_X30", "DIP_TREND",
            "BOUNCE_ISOLADA", "BOUNCE_NOREACT", "BOUNCE_TRAIL", "BOUNCE_HORAS")
 
 
+EU = None            # dados do servidor europeu (scanner.run preenche)
+
+
 def set_context(rows, bars):
-    """Da as funcoes de sinal o BTC e o funding atual (OKX) de cada moeda."""
+    """Da as funcoes de sinal o BTC, o funding atual (Binance pelo servidor
+    europeu, ou OKX) e o open interest da Binance de cada moeda."""
     try:
         from tools.arena_ringue import CTX
     except Exception:
@@ -46,6 +50,9 @@ def set_context(rows, bars):
     CTX["funding"] = {r["asset"]: [(int(__import__("time").time()) - 14000,
                                     (r.get("derivatives") or {}).get("funding_rate"))]
                       for r in rows if (r.get("derivatives") or {}).get("funding_rate") is not None}
+    # open interest da Binance de 4 em 4 horas (servidor europeu)
+    CTX["oi"] = {b: [tuple(x) for x in c.get("oi") or []]
+                 for b, c in ((EU or {}).get("moedas") or {}).items()}
 
 
 def registry():

@@ -5,7 +5,7 @@ import os
 import sys
 from zoneinfo import ZoneInfo
 
-from . import (alerts, config, inbox, ledger, paper_bounce, paper_trend,
+from . import (alerts, config, europa, inbox, ledger, paper_bounce, paper_trend,
                reports, scanner,
                strategies, validation)
 
@@ -33,6 +33,8 @@ def summary(res):
         return L
     L.append(f"COUNTS {res['counts']}")
     L.append(f"DERIVADOS {res.get('derivatives_source')}")
+    L.append(f"EUROPA {res.get('europa')} CONTA "
+             f"{ {k: v for k, v in (res.get('conta') or {}).items() if k != 'trades'} }")
     L.append(f"REGIME BTC {res['market_regime']['btc']}")
     for r in res["universe"]:
         d = r["decision"]
@@ -541,7 +543,8 @@ def main():
     state = _load("state.json", {})
     process_inbox(state)
     apply_admin(state, send=alerts.send if alerts.configured() else None)
-    res, state, events = scanner.run(state=state, forma=load_forma())
+    res, state, events = scanner.run(state=state, forma=load_forma(),
+                                     eu=europa.load())
     extra = reports.due(res, state, res["generated_at"]) if res["universe"] else []
     res["journal"] = ledger.view(state.get("ledger", []))
     if res["universe"]:             # so conta scans com dados

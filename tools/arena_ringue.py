@@ -313,7 +313,7 @@ def sig_capitulacao(c4):
 
 # contexto partilhado pelos filtros: velas do BTC e funding (o combate e o
 # motor ao vivo preenchem-no antes de chamar as funcoes de sinal)
-CTX = {"btc": None, "funding": {}, "asset": None}
+CTX = {"btc": None, "funding": {}, "asset": None, "oi": {}}
 
 
 def _btc_ret(t_end, n):
@@ -392,7 +392,29 @@ def sig_horas(c4):
     return s0
 
 
-NEW_SIGS = {"BOUNCE_NOREACT": sig_noreact, "BOUNCE_TRAIL": sig_trail, "BOUNCE_HORAS": sig_horas,
+OI_DROP = -0.05             # OI caiu pelo menos 5% em 24h: alavancagem limpa
+
+
+def sig_desalav(c4):
+    """X30 depois de uma desalavancagem: o open interest (Binance, servidor
+    europeu) caiu >= 5% nas ultimas 24h. Longs forcados a sair, vendedores
+    esgotados. A Binance so da 30 dias de OI, por isso o combate e curto."""
+    import bisect
+    s0 = sig_x30(c4)
+    oi = (CTX.get("oi") or {}).get(CTX.get("asset")) or []
+    if not s0 or len(oi) < 7:
+        return None
+    t = c4[-1]["t"] + H4
+    k = bisect.bisect_right([x[0] for x in oi], t) - 1
+    if k < 6 or t - oi[k][0] > H4 or not oi[k - 6][1]:
+        return None
+    chg = oi[k][1] / oi[k - 6][1] - 1
+    if chg > OI_DROP:
+        return None
+    return dict(s0, gatilho=f"sobrevenda a virar depois de o open interest cair {chg:.0%} em 24h (alavancagem limpa)")
+
+
+NEW_SIGS = {"BOUNCE_DESALAV": sig_desalav, "BOUNCE_NOREACT": sig_noreact, "BOUNCE_TRAIL": sig_trail, "BOUNCE_HORAS": sig_horas,
             "BOUNCE_X30": sig_x30, "DIP_TREND": sig_dip_trend, "CAPITULACAO": sig_capitulacao,
             "BOUNCE_FLUXO": sig_fluxo, "BOUNCE_FORTE": sig_forte,
             "BOUNCE_SQUEEZE": sig_squeeze, "BOUNCE_ISOLADA": sig_isolada}
@@ -548,10 +570,10 @@ def judge(trs, bars, rng, bars1h=None):
             "veredicto": arena.verdict(len(rs), mean, med, p95, has_ctrl)}
 
 
-def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None, funding=None):
+def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None, funding=None, oi=None):
     t0 = now - days * DAY
     btc = bars.get("BTC")
-    CTX.update(btc=btc, funding=funding or {})
+    CTX.update(btc=btc, funding=funding or {}, oi=oi or {})
     reg, above = B.regimes(btc), btc_above(btc)
     groups = {k: [] for k in LIVE + ("REJEITADOS", "BOUNCE_G0", "BOUNCE_V1",
                                      "BOUNCE_V2", "BOUNCE_V3", "TREND_DAILY",
@@ -607,13 +629,27 @@ def main(dest, days=DAYS):
     if "BTC" not in bars:
         raise SystemExit("sem velas do BTC: ringue nao corre")
     t = time.time()
-    funding = {}
+    # Binance (servidor europeu) quando ha dados recentes; senao OKX
+    from engine import europa
+    eu = europa.load(europa.MAX_AGE_RING, now)
+    funding, oi, fonte = {}, {}, {"binance": 0, "okx": 0}
     for base in bars:
-        fr = fetch_funding(base, now, days)
-        if fr:
+        c = europa.coin(eu, base) or {}
+        fr = [tuple(x) for x in c.get("funding") or []]
+        if fr and fr[0][0] <= now - (days - 5) * DAY:
             funding[base] = fr
-    res = run(bars, cfg, now, days, bars1h=bars1h, funding=funding)
+            fonte["binance"] += 1
+        else:
+            fr = fetch_funding(base, now, days)
+            if fr:
+                funding[base] = fr
+                fonte["okx"] += 1
+        if c.get("oi"):
+            oi[base] = [tuple(x) for x in c["oi"]]
+    res = run(bars, cfg, now, days, bars1h=bars1h, funding=funding, oi=oi)
     res["funding_moedas"] = len(funding)
+    res["funding_fonte"] = fonte
+    res["oi_moedas"] = len(oi)
     res["segundos"] = round(time.time() - t)
     res["falhas"] = falhas[:20]
     os.makedirs(dest, exist_ok=True)

@@ -1,0 +1,33 @@
+name: Europa (dados Binance e conta)
+# Corre no servidor europeu (runner "eu"). Recolhe funding, open interest e
+# long/short da Binance Futures e le a conta Bybit UE (chave so de leitura).
+# Publica dados.json no ramo "europa". O ciclo do scanner lanca-o de 15 em
+# 15 minutos; o agendamento abaixo e so uma rede de seguranca.
+on:
+  schedule:
+    - cron: "7,37 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: europa-dados
+  cancel-in-progress: false
+jobs:
+  dados:
+    runs-on: [self-hosted, eu]
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Recolher e publicar
+        env:
+          BYBIT_API_KEY: ${{ secrets.BYBIT_API_KEY }}
+          BYBIT_API_SECRET: ${{ secrets.BYBIT_API_SECRET }}
+          PUSH_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
+        run: |
+          rm -rf /tmp/eud && mkdir -p /tmp/eud
+          git fetch -q origin data && git show FETCH_HEAD:state.json > /tmp/eud-state.json || echo '{}' > /tmp/eud-state.json
+          python3 -m tools.eu.dados /tmp/eud/dados.json /tmp/eud-state.json
+          cd /tmp/eud && git init -q -b europa && git config user.name cryptoscan-bot \
+            && git config user.email bot@users.noreply.github.com \
+            && git add dados.json && git commit -q -m "dados $(date -u +%FT%TZ)" \
+            && git push -q -f "$PUSH_URL" europa:europa

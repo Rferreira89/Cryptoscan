@@ -10,7 +10,7 @@ import statistics
 import time
 from concurrent.futures import ThreadPoolExecutor
 
-from . import (analysis, config, derivatives, events as calendar, ledger, short,
+from . import (analysis, config, derivatives, europa, events as calendar, ledger, short,
                arena, paper_bounce, paper_ring, paper_shadow, promo, rewards,
                liquidity, paper_trend, regime, review,
                signals,
@@ -177,21 +177,34 @@ def deep_check(row, src_order, now):
     return out
 
 
-def add_derivatives(rows, now):
-    """Derivados para os ativos analisados. Devolve o estado da fonte."""
+def add_derivatives(rows, now, eu=None):
+    """Derivados para os ativos analisados. Devolve o estado da fonte.
+    Com dados recentes do servidor europeu, funding, OI e long/short vem
+    da Binance (engine/europa.py); as liquidacoes continuam na OKX."""
+    okx_err = None
     try:
         snap = derivatives.market_snapshot()
+        with ThreadPoolExecutor(max_workers=4) as ex:
+            res = list(ex.map(lambda r: derivatives.analyse(
+                r["asset"], r["price"], snap, now), rows))
     except (sources.SourceError, KeyError, TypeError) as e:
-        for r in rows:
-            r["derivatives"] = None
-        return {"ok": False, "error": str(e)[:200]}
-    with ThreadPoolExecutor(max_workers=4) as ex:
-        res = list(ex.map(lambda r: derivatives.analyse(
-            r["asset"], r["price"], snap, now), rows))
+        okx_err, res = str(e)[:200], [None] * len(rows)
+    nb = 0
+    for i, r in enumerate(rows):
+        c = europa.coin(eu, r["asset"])
+        if c:
+            res[i] = europa.overlay(res[i], c, now)
+            nb += res[i] is not None and res[i].get("venue") == "binance"
     for r, d in zip(rows, res):
         r["derivatives"] = d
-    return {"ok": True, "with_perp": sum(d is not None for d in res),
-            "incomplete": sum(bool(d and d["missing"]) for d in res)}
+    if okx_err and not nb:
+        return {"ok": False, "error": okx_err}
+    out = {"ok": True, "with_perp": sum(d is not None for d in res),
+           "incomplete": sum(bool(d and d["missing"]) for d in res),
+           "binance": nb}
+    if okx_err:
+        out["okx_error"] = okx_err
+    return out
 
 
 def compounding(cfg, led, since):
@@ -225,12 +238,30 @@ def losing_streak(led):
     return n
 
 
-def run(now=None, state=None, cfg=None, forma=None):
+def apply_account(state, eu, now):
+    """Capital automatico (decisao do Rui, 2026-10-13: "o saldo fica sempre
+    certo sem eu o enviar"): o valor total da conta Bybit lido pelo servidor
+    europeu passa a ser o capital. Devolve o resumo publicado ou None."""
+    acc = europa.account(eu)
+    if not acc or now - (acc.get("t") or 0) > europa.MAX_AGE_LIVE:
+        return None
+    cap = europa.capital_from(acc)
+    if cap is not None:
+        state["capital"] = cap
+        state["capital_t"] = int(acc["t"])   # o composto conta a partir daqui
+        state["capital_auto"] = True
+    return {"t": acc["t"], "usdc_free": acc.get("usdc_free"),
+            "equity": acc.get("equity"), "trades": acc.get("trades") or {}}
+
+
+def run(now=None, state=None, cfg=None, forma=None, eu=None):
     """Devolve (resultado, estado, eventos de auditoria)."""
     now = int(now or time.time())
     state = state if state is not None else {}
     cfg = dict(cfg or config.load())
     ledger.fix_stop_exits(state)
+    conta = apply_account(state, eu, now)
+    promo.EU = eu
     since = cfg.get("capital_since") or 0
     if state.get("capital"):                 # definido pelo Telegram
         cfg["capital_usdc"] = state["capital"]
@@ -244,7 +275,10 @@ def run(now=None, state=None, cfg=None, forma=None):
     status, data = collect_tickers()
     live = [s for s in sources.ALL if status[s.name]["ok"]]
     result = {"generated_at": now, "phase": 4, "sources": status,
-              "config": cfg,
+              "config": cfg, "conta": conta,
+              "europa": {"ok": eu is not None,
+                         "t": (eu or {}).get("t"),
+                         "moedas": len((eu or {}).get("moedas") or {})},
               "thresholds": {"min_volume_usd": MIN_VOLUME_USD,
                              "max_spread_bps": MAX_SPREAD_BPS,
                              "deep_n": DEEP_N},
@@ -274,7 +308,8 @@ def run(now=None, state=None, cfg=None, forma=None):
                 lambda r: deep_check(r, live, now), eligible)):
             row.update(deep)
     analysed = [r for r in eligible if r.get("analysis")]
-    result["derivatives_source"] = add_derivatives(analysed, now)
+    result["derivatives_source"] = (add_derivatives(analysed, now, eu) if eu
+                                    else add_derivatives(analysed, now))
 
     # Regimes: o do BTC e contexto para todos; mudancas reduzem confianca.
     prev = state.get("regimes", {})

@@ -1,6 +1,6 @@
 name: Europa (teste do servidor)
 # Corre no servidor europeu (runner com a etiqueta "eu") e testa o acesso
-# aos dados que o GitHub nos EUA nao alcanca. Resultado no ramo "europa".
+# aos dados que o GitHub nos EUA nao alcanca. Resultado no ramo "europa-teste".
 on:
   workflow_dispatch:
 permissions:
@@ -19,7 +19,7 @@ jobs:
         run: |
           mkdir -p /tmp/eu && python3 -m tools.eu.teste /tmp/eu/teste.json
           cat /tmp/eu/teste.json
-          cd /tmp/eu && rm -rf .git && git init -q -b europa && git config user.name cryptoscan-bot \
+          cd /tmp/eu && rm -rf .git && git init -q -b europa-teste && git config user.name cryptoscan-bot \
             && git config user.email bot@users.noreply.github.com \
             && git add teste.json && git commit -q -m "teste $(date -u +%FT%TZ)" \
-            && git push -q -f "$PUSH_URL" europa:europa
+            && git push -q -f "$PUSH_URL" europa-teste:europa-teste
