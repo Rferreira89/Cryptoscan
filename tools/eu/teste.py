@@ -11,13 +11,18 @@ TESTS = {
     "binance_futuros_oi": "https://fapi.binance.com/futures/data/openInterestHist?symbol=BTCUSDT&period=4h&limit=2",
     "bybit_derivados": "https://api.bybit.com/v5/market/tickers?category=linear&symbol=BTCUSDT",
     "bybit_eu_publico": "https://api.bybit.eu/v5/market/tickers?category=spot&symbol=BTCUSDC",
+    "yahoo_sp500_fut": "https://query1.finance.yahoo.com/v8/finance/chart/ES=F?interval=1h&range=120d",
+    "yahoo_dxy": "https://query2.finance.yahoo.com/v8/finance/chart/DX-Y.NYB?interval=1h&range=120d",
+    "yahoo_vix": "https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX?interval=1h&range=5d",
+    "stooq_spx": "https://stooq.com/q/d/l/?s=%5Espx&i=d",
+    "fred_dolar": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DTWEXBGS",
 }
 
 
 def probe(url):
     t = time.time()
     try:
-        with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "cryptoscan"}), timeout=15) as r:
+        with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) cryptoscan"}), timeout=15) as r:
             body = r.read(400).decode(errors="replace")
             return {"ok": r.status == 200, "http": r.status, "ms": round((time.time() - t) * 1000), "amostra": body[:120]}
     except Exception as e:
