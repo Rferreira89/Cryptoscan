@@ -92,8 +92,10 @@ class CompraSimulada(unittest.TestCase):
         self.assertEqual(len(posts), 2)
         self.assertEqual(posts[0]["takeProfit"], "105.00")
         self.assertEqual(posts[0]["stopLoss"], "95.00")
-        self.assertEqual(posts[0]["marketUnit"], "quoteCoin")
-        self.assertEqual(posts[0]["qty"], "10.00")
+        self.assertEqual(posts[0]["orderType"], "Limit")
+        self.assertEqual(posts[0]["timeInForce"], "IOC")
+        self.assertEqual(posts[0]["price"], "99.79")          # 0,3% acima de 99.5
+        self.assertEqual(posts[0]["qty"], "0.100")            # 10 USDC / 99.79
         o = ex["ops"]["SOL-BOUNCE_X30-1"]
         self.assertEqual(o["status"], "aberta")
         self.assertAlmostEqual(o["qty"], 0.1998)

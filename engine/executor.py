@@ -247,12 +247,20 @@ def tpsl_orders(symbol):
     return out
 
 
-def place_part(symbol, quote, tp, stop, inst, tag):
-    """Compra a mercado 'quote' USDC com TP e stop da Bybit anexados.
-    Se a Bybit recusar o anexo, compra sem ele e poe um stop condicional."""
-    base = {"category": "spot", "symbol": symbol, "side": "Buy", "orderType": "Market",
-            "qty": fmt(quote, inst["quote_step"]), "marketUnit": "quoteCoin",
-            "orderLinkId": f"{LINK}{tag}"[:36]}
+def place_part(symbol, quote, tp, stop, inst, tag, px=None):
+    """Compra 'quote' USDC com TP e stop da Bybit anexados.
+
+    A Bybit UE so aceita TP/SL anexados em ordens LIMITE (provado no
+    diagnostico de 2026-10-13), por isso a compra e uma ordem limite IOC
+    ligeiramente acima do preco: executa ja ao preco de mercado ou nao
+    executa nada. Se o anexo for recusado, compra sem ele e o chamador poe
+    um stop condicional."""
+    px = px or last_price(symbol)
+    lim = float(fmt(px * (1 + LIMIT_SLIP), inst["tick"])) or px
+    qty = floor_to(quote / lim, inst["base_step"])
+    base = {"category": "spot", "symbol": symbol, "side": "Buy", "orderType": "Limit",
+            "timeInForce": "IOC", "price": fmt(lim, inst["tick"]),
+            "qty": fmt(qty, inst["base_step"]), "orderLinkId": f"{LINK}{tag}"[:36]}
     try:
         r = post("/v5/order/create", dict(base, takeProfit=fmt(tp, inst["tick"]),
                                           stopLoss=fmt(stop, inst["tick"]),
@@ -263,10 +271,11 @@ def place_part(symbol, quote, tp, stop, inst, tag):
         LAST_ATTACH_ERR = str(e)[:160]
         if "insufficient" in str(e).lower() or "balance" in str(e).lower():
             raise
-        r = post("/v5/order/create", base)
+        r = post("/v5/order/create", dict(base, orderLinkId=f"{LINK}{tag}b"[:36]))
         return r["orderId"], False
 
 
+LIMIT_SLIP = 0.003              # limite IOC 0,3% acima: executa como mercado
 LAST_ATTACH_ERR = None
 
 
