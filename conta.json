@@ -1,0 +1,31 @@
+{
+ "ok": true,
+ "t": 1791930083,
+ "usdc_free": 3.86,
+ "equity": 83.48,
+ "expires": "2027-01-09T20:52:00Z",
+ "trades": [
+  {
+   "id": "SOL-BOUNCE_X30-1791881411",
+   "asset": "SOL",
+   "symbol": "SOLUSDC",
+   "held": true,
+   "stop_found": true,
+   "stop_px": 101.48,
+   "plan_stop": 101.47987348289404,
+   "fill_px": 107.71,
+   "stop_gap_pct": 0.0
+  },
+  {
+   "id": "XRP-BOUNCE_X30-1791881411",
+   "asset": "XRP",
+   "symbol": "XRPUSDC",
+   "held": true,
+   "stop_found": true,
+   "stop_px": 1.3088,
+   "plan_stop": 1.3088384144470642,
+   "fill_px": 1.3716,
+   "stop_gap_pct": -0.0
+  }
+ ]
+}
