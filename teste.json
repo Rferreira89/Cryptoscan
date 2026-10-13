@@ -1,0 +1,63 @@
+{
+ "t": 1791908125,
+ "testes": {
+  "binance_futuros_funding": {
+   "ok": true,
+   "http": 200,
+   "ms": 278,
+   "amostra": "[{\"symbol\":\"BTCUSDT\",\"fundingTime\":1791907200000,\"fundingRate\":\"0.00003455\",\"markPrice\":\"83393.32302899\",\"rateType\":\"Reg"
+  },
+  "binance_futuros_oi": {
+   "ok": true,
+   "http": 200,
+   "ms": 257,
+   "amostra": "[{\"symbol\":\"BTCUSDT\",\"sumOpenInterest\":\"93649.77700000\",\"sumOpenInterestValue\":\"7803386398.48040000\",\"CMCCirculatingSupp"
+  },
+  "bybit_derivados": {
+   "ok": true,
+   "http": 200,
+   "ms": 183,
+   "amostra": "{\"retCode\":0,\"retMsg\":\"OK\",\"result\":{\"category\":\"linear\",\"list\":[{\"symbol\":\"BTCUSDT\",\"lastPrice\":\"83449.30\",\"indexPrice\""
+  },
+  "bybit_eu_publico": {
+   "ok": true,
+   "http": 200,
+   "ms": 193,
+   "amostra": "{\"retCode\":0,\"retMsg\":\"OK\",\"result\":{\"category\":\"spot\",\"list\":[{\"symbol\":\"BTCUSDC\",\"bid1Price\":\"83410.2\",\"bid1Size\":\"0.0"
+  },
+  "yahoo_sp500_fut": {
+   "ok": true,
+   "http": 200,
+   "ms": 93,
+   "amostra": "{\"chart\":{\"result\":[{\"meta\":{\"currency\":\"USD\",\"symbol\":\"ES=F\",\"exchangeName\":\"CME\",\"fullExchangeName\":\"CME\",\"instrumentT"
+  },
+  "yahoo_dxy": {
+   "ok": true,
+   "http": 200,
+   "ms": 151,
+   "amostra": "{\"chart\":{\"result\":[{\"meta\":{\"currency\":\"USD\",\"symbol\":\"DX-Y.NYB\",\"exchangeName\":\"NYB\",\"fullExchangeName\":\"ICE Futures\","
+  },
+  "yahoo_vix": {
+   "ok": true,
+   "http": 200,
+   "ms": 193,
+   "amostra": "{\"chart\":{\"result\":[{\"meta\":{\"currency\":\"USD\",\"symbol\":\"^VIX\",\"exchangeName\":\"CXI\",\"fullExchangeName\":\"Cboe Indices\",\"in"
+  },
+  "stooq_spx": {
+   "ok": true,
+   "http": 200,
+   "ms": 66,
+   "amostra": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"robots\" content=\"noindex,nofollow\"></head><body><noscript>T"
+  },
+  "fred_dolar": {
+   "ok": false,
+   "erro": "The read operation timed out"
+  }
+ },
+ "ip": "2.28.62.236",
+ "conta_bybit_eu": {
+  "ok": true,
+  "usdc_livre": 3.98,
+  "erro": null
+ }
+}
