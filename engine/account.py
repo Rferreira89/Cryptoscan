@@ -198,15 +198,21 @@ def check_trades(ledger, held, orders, execs, now):
 # ---------- leitura completa ----------
 
 def open_orders():
-    out = []
-    for flt in ("Order", "StopOrder", "tpslOrder"):
+    """Todas as ordens spot abertas. A Bybit UE so devolve as TP/SL
+    (BidirectionalTpslOrder) quando o pedido vai SEM orderFilter
+    (confirmado a 2026-10-13 com as ordens da SOL e da XRP)."""
+    seen = {}
+    for flt in (None, "Order", "StopOrder", "tpslOrder"):
+        prm = {"category": "spot", "limit": 50}
+        if flt:
+            prm["orderFilter"] = flt
         try:
-            res = get("/v5/order/realtime",
-                      {"category": "spot", "orderFilter": flt, "limit": 50})
+            res = get("/v5/order/realtime", prm)
         except AccountError:
             continue
-        out += res.get("list") or []
-    return out
+        for o in res.get("list") or []:
+            seen[o.get("orderId") or id(o)] = o
+    return list(seen.values())
 
 
 def executions(symbols, since):
