@@ -21,6 +21,7 @@ PID = os.path.join(DIR, "escuta.pid")
 VENV = os.path.expanduser("~/liq-venv")
 URL = "wss://fstream.binance.com/ws/!forceOrder@arr"
 KEEP_DAYS = 10
+VERSION = "2"                    # muda quando o codigo da escuta muda (relanca)
 H4 = 14400
 
 
@@ -36,13 +37,20 @@ def correr():
     import websockets
     os.makedirs(DIR, exist_ok=True)
     with open(PID, "w") as f:
-        f.write(str(os.getpid()))
+        f.write(f"{os.getpid()} {VERSION}")
 
     async def loop():
         while True:
             try:
-                async with websockets.connect(URL, ping_interval=60, close_timeout=5) as ws:
+                async with websockets.connect(URL, ping_interval=60, close_timeout=5,
+                                              open_timeout=20) as ws:
+                    print(time.strftime("%H:%M:%S"), "ligado", flush=True)
+                    n, last = 0, time.time()
                     async for msg in ws:
+                        n += 1
+                        if time.time() - last > 600:
+                            print(time.strftime("%H:%M:%S"), f"{n} mensagens", flush=True)
+                            last = time.time()
                         o = (json.loads(msg) or {}).get("o") or {}
                         if not o.get("s", "").endswith("USDT"):
                             continue
@@ -59,10 +67,15 @@ def correr():
     asyncio.run(loop())
 
 
-def vivo():
+def vivo(version=None):
     try:
-        pid = int(open(PID).read().strip())
+        parts = open(PID).read().split()
+        pid = int(parts[0])
         os.kill(pid, 0)
+        if version and (parts[1:] or [""])[0] != version:
+            os.kill(pid, 15)                 # versao antiga: termina para relancar
+            time.sleep(1)
+            return None
         return pid
     except Exception:
         return None
@@ -77,7 +90,7 @@ def garantir():
     if not os.path.exists(py):
         subprocess.run([sys.executable, "-m", "venv", VENV], check=True)
         subprocess.run([py, "-m", "pip", "install", "-q", "websockets==12.0"], check=True)
-    pid = vivo()
+    pid = vivo(VERSION)
     if pid:
         print(f"escuta viva (pid {pid})")
         return
