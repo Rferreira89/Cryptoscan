@@ -65,6 +65,35 @@ class Regras(unittest.TestCase):
 
 
 class CompraSimulada(unittest.TestCase):
+    free = "50"
+
+    def test_compra_com_margem(self):
+        self.free = "12"
+        posts = []
+
+        def fake_get(path, params=None):
+            if "tickers" in path:
+                return {"list": [{"lastPrice": "99.5"}]}
+            if "instruments" in path:
+                return {"list": [{"lotSizeFilter": {"basePrecision": "0.001", "quotePrecision": "0.01",
+                                                    "minOrderAmt": "5"}, "priceFilter": {"tickSize": "0.01"}}]}
+            if "wallet" in path:
+                return {"list": [{"coin": [{"coin": "USDC", "walletBalance": self.free}]}]}
+            if "spot-margin" in path:
+                return {"spotLeverage": "2"}
+            if "execution" in path:
+                return {"list": [{"execQty": "0.1", "execPrice": "99.6"}]}
+            return {}
+        st = state()
+        st["signals"]["SOL-BOUNCE_X30-1"]["plan"]["leverage"] = {"use": 2.44}
+        with mock.patch.object(X, "get", fake_get), \
+                mock.patch.object(X, "post", lambda p, q: posts.append(q) or {"orderId": "o"}), \
+                mock.patch.object(X.time, "sleep", lambda s: None):
+            X.do_buy(st, {"op": "SOL-BOUNCE_X30-1"}, {"ops": {}, "feitos": []}, NOW, lambda t, html=False: None)
+        # 12 livres x 0.98 x 2 (teto da conta) = 23.52 > 20 do plano: compra 20 com margem
+        self.assertTrue(all(p.get("isLeverage") == 1 for p in posts))
+        self.free = "50"
+
     def test_compra_em_partes(self):
         posts, msgs = [], []
 
@@ -75,7 +104,9 @@ class CompraSimulada(unittest.TestCase):
                 return {"list": [{"lotSizeFilter": {"basePrecision": "0.001", "quotePrecision": "0.01",
                                                     "minOrderAmt": "5"}, "priceFilter": {"tickSize": "0.01"}}]}
             if "wallet" in path:
-                return {"list": [{"coin": [{"coin": "USDC", "walletBalance": "50"}]}]}
+                return {"list": [{"coin": [{"coin": "USDC", "walletBalance": self.free}]}]}
+            if "spot-margin" in path:
+                return {"spotLeverage": "2", "spotMarginMode": "1"}
             if "execution" in path:
                 return {"list": [{"execQty": "0.1", "execPrice": "99.6", "execFee": "0.0001",
                                   "feeCurrency": "SOL"}]}

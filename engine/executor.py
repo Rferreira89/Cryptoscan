@@ -396,9 +396,19 @@ def do_buy(state, req, ex, now, send):
     free = usdc_free(w)
     if size <= 0:
         return "plano sem valor"
+    # alavancagem do plano (margem spot da Bybit), limitada a da conta
+    lev_plan = float((plan.get("leverage") or {}).get("use") or 1)
+    try:
+        lev_acct = float(get("/v5/spot-margin-trade/state").get("spotLeverage") or 1)
+    except ExecError:
+        lev_acct = 1.0
+    lev = max(1.0, min(lev_plan, lev_acct))
     reduced = False
-    if free < size:
-        size, reduced = math.floor(free * 0.98 * 100) / 100, True
+    cap = math.floor(free * 0.98 * lev * 100) / 100       # o maximo que a margem permite
+    if cap < size:
+        size, reduced = cap, True
+    margin = size > free * 0.98
+    debt0 = usdc_debt(w)
     parts = parts_for(size, plan["tp"], plan.get("partials") or [100], inst["min_amt"])
     if not parts:
         why = (f"USDC livre insuficiente ({free:.2f}; mínimo da Bybit "
@@ -410,7 +420,8 @@ def do_buy(state, req, ex, now, send):
          "stop": plan["stop"], "partes": [], "t": now}
     for i, (q, tp) in enumerate(parts):
         try:
-            oid, attached = place_part(symbol, q, tp, plan["stop"], inst, f"{op[-20:]}-{i}")
+            oid, attached = place_part(symbol, q, tp, plan["stop"], inst, f"{op[-20:]}-{i}",
+                                       margin=margin)
         except ExecError as e:
             o["erro"] = str(e)[:120]
             break
@@ -436,6 +447,10 @@ def do_buy(state, req, ex, now, send):
             pass
         if all(p.get("filho") or not p.get("anexo") for p in o["partes"]):
             break
+    try:
+        o["emprestado"] = round(max(0.0, usdc_debt(wallet()) - debt0), 4)
+    except ExecError:
+        o["emprestado"] = None
     q_tot = sum(p["qty"] for p in o["partes"])
     o["entrada"] = sum(p["preco"] * p["qty"] for p in o["partes"]) / q_tot
     o["qty"] = q_tot
@@ -448,8 +463,12 @@ def do_buy(state, req, ex, now, send):
          f"Stop em {plan['stop']:g} em todas as partes (fica na Bybit até ao fim)."]
     L += [f"• Parte {i + 1}: {p['usdc']:.2f} USDC → objetivo {p['tp']:g}"
           for i, p in enumerate(o["partes"])]
+    if o.get("emprestado"):
+        L.append(f"Alavancagem {o['usdc'] / max(o['usdc'] - o['emprestado'], 0.01):.2f}x: "
+                 f"{o['emprestado']:.2f} USDC emprestados pela Bybit (pagos na venda).")
     if reduced:
-        L.append(f"Valor reduzido ao USDC livre ({free:.2f}).")
+        L.append(f"Valor reduzido ao que o teu USDC livre ({free:.2f}) e a alavancagem "
+                 f"da conta ({lev_acct:g}x) permitem.")
     if o.get("erro"):
         L.append(f"⚠️ Uma parte falhou: {o['erro']}")
     if miss:
@@ -510,6 +529,15 @@ def do_close(state, req, ex, now, send, why="saída do plano"):
     qty = max(0.0, min(have, op["qty"] - sold_tp))
     oid = sell_all(op["symbol"], qty, inst, f"{req['op'][-20:]}-f")
     op.update(status="fechada", fechado=now, motivo=why)
+    if op.get("emprestado"):                 # a venda abate a divida; confirma
+        try:
+            time.sleep(2)
+            d = usdc_debt(wallet())
+            if d > 0:
+                repay_usdc(min(d, op["emprestado"]))
+                op["pago"] = round(min(d, op["emprestado"]), 4)
+        except ExecError as e:
+            op.setdefault("avisos", []).append(f"pagamento: {str(e)[:80]}")
     if oid:
         avg, q = fills(oid, op["symbol"], op["asset"], side="Sell")
         op["saida"] = avg
