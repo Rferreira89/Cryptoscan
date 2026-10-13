@@ -412,7 +412,7 @@ def do_buy(state, req, ex, now, send):
     L = [f"⚡ <b>Executado: {rec['asset']}</b>",
          f"Compra de {o['usdc']:.2f} USDC a {o['entrada']:.6g} ({q_tot:.6g} {rec['asset']}), "
          f"em {len(o['partes'])} parte{'s' if len(o['partes']) > 1 else ''}.",
-         f"Stop em {plan['stop']:g} em todas as partes."]
+         f"Stop em {plan['stop']:g} em todas as partes (fica na Bybit até ao fim)."]
     L += [f"• Parte {i + 1}: {p['usdc']:.2f} USDC → objetivo {p['tp']:g}"
           for i, p in enumerate(o["partes"])]
     if reduced:
@@ -422,7 +422,8 @@ def do_buy(state, req, ex, now, send):
     if miss:
         L.append("⚠️ A Bybit não aceitou o objetivo anexado em "
                  f"{len(miss)} parte(s): coloquei só o stop. Confirma na app.")
-    L.append("Confirma na app da Bybit as ordens abertas.")
+    L.append("Depois do TP1, se o preço voltar à entrada, o programa vende o resto "
+             "(1 a 2 minutos). Confirma na app da Bybit as ordens abertas.")
     send("\n".join(L), html=True)
     return "ok"
 
@@ -498,8 +499,9 @@ def do_stop_all(state, req, ex, now, send):
 
 
 def do_test(state, req, ex, now, send):
-    """Prova real e pequena: compra ~5 USDC de BTC com TP/SL anexados, le as
-    ordens, ajusta o stop, cancela e vende tudo. Regista cada passo."""
+    """Prova real e pequena: compra ate 5 USDC de BTC com TP/SL anexados,
+    confirma a ordem de protecao na Bybit, cancela-a e vende tudo (o mesmo
+    caminho de uma saida do programa). Regista cada passo."""
     sym, steps = "BTCUSDC", []
     inst = instrument(sym)
     px = last_price(sym)
@@ -530,19 +532,6 @@ def do_test(state, req, ex, now, send):
             sid = stop_order(sym, qty, px * 0.95, inst, f"teste-s{now}")
             steps.append(f"stop separado: {sid}")
             od = [o for o in tpsl_orders(sym) if float(o.get("createdTime") or 0) >= (now - 5) * 1000]
-        for o in od:
-            try:
-                if float(o.get("stopLoss") or 0):
-                    post("/v5/order/amend", {"category": "spot", "symbol": sym, "orderId": o["orderId"],
-                                             "stopLoss": fmt(px * 0.96, inst["tick"])})
-                elif float(o.get("triggerPrice") or 0) < px:
-                    post("/v5/order/amend", {"category": "spot", "symbol": sym, "orderId": o["orderId"],
-                                             "triggerPrice": fmt(px * 0.96, inst["tick"])})
-                else:
-                    continue
-                steps.append(f"ajuste do stop ({o['orderId'][-6:]}): ok")
-            except ExecError as e:
-                steps.append(f"ajuste do stop: ERRO {e}")
         for o in od:
             try:
                 cancel(sym, o)

@@ -1,6 +1,6 @@
 """Lado do scanner da execucao com um toque (engine/executor.py corre na
-Europa). Aqui: pedidos do Telegram, ganchos do acompanhamento (TP1 ->
-stop na entrada; tempo / sem reacao -> fechar) e leitura do resultado
+Europa). Aqui: pedidos do Telegram, ganchos do acompanhamento (volta a
+entrada depois do TP1, tempo, sem reacao -> fechar) e leitura do resultado
 (exec.json no ramo "execucoes") para marcar o registo."""
 import json
 import os
@@ -72,9 +72,12 @@ def hooks(state, events, now):
     for e in events:
         if auto.get(e.get("id")) != "aberta":
             continue
-        if e["event"] == "TP1":
-            request(state, "breakeven", e["id"], now)
-        elif e["event"] in ("NOREACT", "TIME"):
+        # A Bybit UE nao deixa alterar a protecao anexada (TP + stop numa so
+        # ordem, provado a 2026-10-13). O stop original fica sempre na Bybit
+        # como rede de seguranca; o "stop na entrada" depois do TP1 (e o stop
+        # que sobe da Tania) e feito pelo programa: quando o acompanhamento ve
+        # o preco voltar a entrada, vende o resto. Idem tempo / sem reacao.
+        if e["event"] in ("BREAKEVEN", "NOREACT", "TIME"):
             request(state, "fechar", e["id"], now)
 
 

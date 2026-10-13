@@ -136,7 +136,9 @@ class LadoDoScanner(unittest.TestCase):
         self.assertEqual(rec["exec_price"], 99.6)
         execucao.hooks(st, [{"event": "TP1", "id": "SOL-BOUNCE_X30-1"},
                             {"event": "TIME", "id": "OUTRA"}], NOW)
-        self.assertEqual([r["acao"] for r in st["exec_req"]], ["breakeven"])
+        self.assertEqual(st["exec_req"], [])                   # TP1: a Bybit trata
+        execucao.hooks(st, [{"event": "BREAKEVEN", "id": "SOL-BOUNCE_X30-1"}], NOW)
+        self.assertEqual([r["acao"] for r in st["exec_req"]], ["fechar"])
 
     def test_botao_e_parar(self):
         e = {"event": "ISSUED", "id": "SOL-BOUNCE_X30-1", "asset": "SOL", "t": 1}
