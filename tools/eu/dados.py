@@ -117,6 +117,13 @@ def main(dest, state_path=None):
         res["moedas"], res["falhas"] = collect(now)
     except Exception as e:
         res["falhas"].append(f"binance: {type(e).__name__}: {str(e)[:80]}")
+    try:                                     # liquidacoes da escuta (se existir)
+        from tools.eu import liquidacoes
+        res["liq"] = liquidacoes.resumo()
+        res["liq_escuta"] = bool(liquidacoes.vivo())
+    except Exception as e:
+        res["liq"], res["liq_escuta"] = {}, False
+        res["falhas"].append(f"liquidações: {type(e).__name__}")
     res["macro"], fm = macro()
     res["falhas"] += fm
     try:

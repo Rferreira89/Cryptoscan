@@ -192,3 +192,19 @@ class Macro(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Liquidacoes(unittest.TestCase):
+    def test_resumo_por_4h(self):
+        from tools.eu import liquidacoes as L
+        with tempfile.TemporaryDirectory() as d:
+            t = NOW - 3600
+            with open(os.path.join(d, "20270115.jsonl"), "w") as f:
+                f.write(json.dumps({"t": t, "s": "1000PEPEUSDT", "lado": "SELL", "q": 1000, "p": 0.01}) + "\n")
+                f.write(json.dumps({"t": t, "s": "1000PEPEUSDT", "lado": "BUY", "q": 500, "p": 0.01}) + "\n")
+                f.write("lixo\n")
+                f.write(json.dumps({"t": NOW - 40 * 86400, "s": "BTCUSDT", "lado": "SELL", "q": 1, "p": 1}) + "\n")
+            r = L.resumo(d, NOW)
+        self.assertEqual(list(r), ["PEPE"])
+        self.assertEqual(r["PEPE"][0][1:], [10, 5])
+        self.assertEqual(r["PEPE"][0][0] % 14400, 0)
