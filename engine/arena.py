@@ -28,14 +28,17 @@ Regras (declaradas antes de haver resultados)
           combater nos ultimos 90 dias de mercado em todas as moedas, com
           as funcoes do sistema ao vivo e o mesmo teste contra o acaso. As
           mesmas regras de morte aplicam-se a essa amostra (dezenas de
-          operacoes em vez de 2 ou 3). A forma recente so pode MATAR, nunca
-          promover. A morte e definitiva: quem morre nao volta (o lugar
+          operacoes em vez de 2 ou 3). A morte e definitiva: quem morre nao volta (o lugar
           passa a ser de um sucessor da investigacao).
   MORTE AUTOMATICA (decisao do Rui, 2026-10-13: "as estrategias falham e
           morrem automaticamente, sem eu ter de intervir"): uma estrategia
           ao vivo que morre e desligada logo (state["disabled"], motivo
           "arena") e deixa de emitir sinais reais; as operacoes ja abertas
           continuam a ser acompanhadas ate fecharem. Substitui a opcao B.
+  QUALIFICA / CAMPEAO (decisao do Rui, 2026-10-13): ver engine/promo.py.
+          Com 20 ou mais operacoes no combate, R medio positivo e acima do
+          percentil 95 do acaso, o lutador opera em papel ao vivo; o melhor
+          qualificado da lista revista da sinais reais.
   SOBE    com pelo menos 30 operacoes, R medio positivo e acima do
           percentil 95 das entradas ao acaso: e proposta ao Rui para
           dinheiro real. A decisao e sempre dele.
@@ -58,12 +61,13 @@ NAMES = {"PULLBACK": "Recuo (ao vivo)", "BREAKOUT": "Quebra (ao vivo)",
          "BOUNCE_V1": "Oversold Bounce + saída ao vivo (papel)",
          "BOUNCE_V2": "Oversold Bounce stop curto 2R (papel)",
          "BOUNCE_V3": "Oversold Bounce stop original 2R (papel)",
-         "REJEITADOS": "Setups rejeitados pelos filtros (papel)"}
+         "REJEITADOS": "Setups rejeitados pelos filtros (papel)",
+         "BOUNCE_1H": "Oversold Bounce em 1H (combate)"}
 # cada concorrente e um analista com nome proprio (decisao do Rui)
 PERSONA = {"BREAKOUT": "Bruno", "PULLBACK": "Rita", "LIQUIDITY_SWEEP": "Simão",
            "RANGE": "Raquel", "TREND_DAILY": "Teodoro", "BOUNCE_G0": "Gaspar",
            "BOUNCE_V1": "Vasco", "BOUNCE_V2": "Vera", "BOUNCE_V3": "Violeta",
-           "REJEITADOS": "Óscar"}
+           "REJEITADOS": "Óscar", "BOUNCE_1H": "Hélio"}
 POOL = ["Leonor", "Duarte", "Matilde", "Afonso", "Carolina", "Martim", "Beatriz",
         "Lourenço", "Mariana", "Salvador", "Francisca", "Henrique", "Clara",
         "Tomás", "Joana", "Miguel", "Catarina", "Diogo", "Lara", "Gonçalo"]
@@ -101,14 +105,24 @@ def trades(state):
             "partials": r.get("partials") or [50, 30, 20],
             "opened_at": r.get("opened_at"), "closed_at": r.get("closed_at"),
             "r": r["result_r"], "breakeven": True}))
+    # operacoes reais do campeao (estrategia BOUNCE_xx no registo): a mesma
+    # entrada no papel do Bounce nao conta duas vezes
+    real = {(r.get("strategy"), r["asset"], (r.get("opened_at") or 0) // TF)
+            for r in state.get("ledger", []) if str(r.get("strategy")).startswith("BOUNCE_")}
     for g, b in (state.get("paper_bounce", {}).get("geo") or {}).items():
         for c in b.get("closed", []):
             k = "BOUNCE_" + g
+            if (k, c["asset"], (c.get("opened_at") or 0) // TF) in real:
+                continue
             out.append((k, f"{k}-{c['asset']}-{c['opened_at']}", dict(
                 c, side="LONG")))
     for c in state.get("paper_shadow", {}).get("closed", []):
         out.append(("REJEITADOS", f"SHADOW-{c['asset']}-{c['opened_at']}",
                     dict(c, side="LONG")))
+    for k, b in (state.get("paper_ring") or {}).items():
+        for c in b.get("closed", []):
+            out.append((k, f"RING-{k}-{c['asset']}-{c['opened_at']}",
+                        dict(c, side="LONG")))
     for c in state.get("paper_trend", {}).get("closed", []):
         out.append(("TREND_DAILY", f"TREND-{c.get('asset')}-{c.get('exit_t')}",
                     {"asset": c.get("asset"), "r": c.get("r"),

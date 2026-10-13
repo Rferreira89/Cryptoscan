@@ -186,8 +186,9 @@ def short_text(e, s, head, note):
                 f"{_px(e['price'])}: recomprar {e['sold_pct']:.0f}% da "
                 f"posição.{extra}")
     if k in ("STOP", "BREAKEVEN", "TIME"):
+        hold = (p.get("max_hold_s") or 30 * 86400) // 86400
         txt = {"STOP": "Stop atingido", "BREAKEVEN": "Stop na entrada atingido",
-               "TIME": "Tempo máximo (30 dias) atingido"}[k]
+               "TIME": f"Tempo máximo ({hold:g} dias) atingido"}[k]
         return (f"🔴 RECOMPRA — {head}\n{txt} em {_px(e['price'])}: recomprar "
                 "tudo e devolver o empréstimo. "
                 f"Resultado: {e['r']:+.2f}R.")
@@ -195,6 +196,14 @@ def short_text(e, s, head, note):
         return (f"⚪ CANCELAR — {head}\n{e['reason']}. Cancela a ordem de "
                 "venda se ainda estiver aberta.")
     return None
+
+
+CHAMP_PREFIX = "BOUNCE_"
+
+
+def champ_name(k):
+    from . import arena
+    return f"{arena.persona(k)} · {arena._name(k).replace(' (papel)', '')}"
 
 
 def alert_text(e, sigs, note):
@@ -318,6 +327,18 @@ def alert_text(e, sigs, note):
         return paper_text(e, s, head, note)
     if s.get("direction") == "SHORT":
         return short_text(e, s, head, note)
+    if k == "ISSUED" and str(s["strategy"]).startswith(CHAMP_PREFIX):
+        hold = p.get("max_hold_s")
+        return (f"🟢 COMPRA — {head}\n"
+                f"🏆 Campeão da arena: {champ_name(s['strategy'])}\n"
+                f"Ordem limite perto de {_px(p['entry_zone'][1])} (já, na zona "
+                f"{_px(p['entry_zone'][0])} a {_px(p['entry_zone'][1])})\n"
+                f"{invest_line(p['position_pct'], p['risk_pct'], p.get('leverage'), p.get('position_usdc'))}\n"
+                f"Stop: {_px(p['stop'])} (-{p['stop_pct']}%)\n"
+                f"{targets_line(p)}\n"
+                + (f"Saída obrigatória ao fim de {hold // 86400:g} dia(s), se não "
+                   "tiver fechado antes.\n" if hold else "")
+                + f"{note}")
     if k == "ISSUED":
         return (f"🟢 COMPRA — {head}\n"
                 f"{s['strategy']} · {s['timeframe']} · score {s['score']}/100\n"
@@ -342,8 +363,9 @@ def alert_text(e, sigs, note):
         return (f"🟠 VENDA PARCIAL — {head}\n{k} atingido em {_px(e['price'])}: "
                 f"vender {e['sold_pct']:.0f}% da posição.{extra}")
     if k in ("STOP", "BREAKEVEN", "TIME"):
+        hold = (p.get("max_hold_s") or 30 * 86400) // 86400
         txt = {"STOP": "Stop atingido", "BREAKEVEN": "Stop na entrada atingido",
-               "TIME": "Tempo máximo (30 dias) atingido"}[k]
+               "TIME": f"Tempo máximo ({hold:g} dias) atingido"}[k]
         return (f"🔴 VENDA — {head}\n{txt} em {_px(e['price'])}: vender o "
                 f"resto da posição. Resultado: {e['r']:+.2f}R.")
     if k in ("EXPIRED", "INVALIDATED"):

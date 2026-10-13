@@ -11,7 +11,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 
 from . import (analysis, config, derivatives, events as calendar, ledger, short,
-               arena, paper_bounce, paper_shadow, rewards,
+               arena, paper_bounce, paper_ring, paper_shadow, promo, rewards,
                liquidity, paper_trend, regime, review,
                signals,
                sources, validate, venue, volume)
@@ -314,6 +314,23 @@ def run(now=None, state=None, cfg=None, forma=None):
                     r, daily.get(r["asset"]), c4, cfg, ven.get(r["asset"]),
                     btc_reg_m, changed.get(r["asset"], False), short_ok, ab,
                     set(disabled))
+    # campeao da arena: o lutador qualificado no combate com melhor R medio
+    # da sinais reais pelo circuito normal (engine/promo.py)
+    champ = promo.champion(state, set(disabled))
+    try:
+        def block_for(a):
+            if block:
+                return block
+            e = calendar.block(now, a)
+            return e["name"] if e else None
+        for a, d in promo.decisions(state, eligible, c4s, cfg, now, champ,
+                                    market_ok, block_for).items():
+            row = next(r for r in eligible if r["asset"] == a)
+            row["decision"] = d
+    except Exception as e:  # a promocao nunca pode parar o scan
+        result["promo_erro"] = str(e)[:120]
+    result["promo"] = {"campeao": champ, "qualificados": [
+        {"id": k, "avg_r": r} for k, r in promo.qualified(state)]}
     # os shorts entram como linhas proprias no ciclo de vida dos sinais
     both = eligible + [dict(r, decision=r["decision_short"])
                        for r in eligible if r.get("decision_short")]
@@ -324,6 +341,10 @@ def run(now=None, state=None, cfg=None, forma=None):
         result["paper_bounce"], ev = paper_bounce.update(
             state, eligible, c4s, market_ok, now, cfg,
             dead=arena.dead_paper(state))
+        # o campeao ja da o sinal real: o aviso de papel da mesma saida seria
+        # repetido (o papel continua a ser registado)
+        if champ == "BOUNCE_G0":
+            ev = [e for e in ev if not e["event"].startswith("BOUNCE_PAPER")]
         events += ev
     except Exception as e:  # o papel nunca pode parar o scan
         result["paper_bounce"] = {"erro": str(e)[:120]}
@@ -332,6 +353,11 @@ def run(now=None, state=None, cfg=None, forma=None):
         result["paper_shadow"] = paper_shadow.update(state, eligible, c4s, now)
     except Exception as e:  # nunca pode parar o scan
         result["paper_shadow"] = {"erro": str(e)[:120]}
+    # papel automatico dos qualificados no combate (sem papel proprio)
+    try:
+        result["paper_ring"] = paper_ring.update(state, eligible, c4s, now, market_ok)
+    except Exception as e:  # nunca pode parar o scan
+        result["paper_ring"] = {"erro": str(e)[:120]}
     # arena: classificacao de todas as estrategias contra o acaso
     try:
         result["arena"] = arena.update(state, c4s, now, forma=forma)

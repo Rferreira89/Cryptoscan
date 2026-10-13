@@ -350,7 +350,8 @@ def track(state, prices, cfg, now, ranges=None):
             elif px is not None and d * (px - edge) <= 0:
                 s.update(status="TRIGGERED", triggered_at=now,
                          position=trade.open_position(
-                             pl, px, now, cfg["fee_pct"], side=side))
+                             pl, px, now, cfg["fee_pct"], side=side,
+                             breakeven=pl.get("breakeven", True)))
                 events.append({"t": now, "event": "TRIGGERED", "id": key,
                                "asset": s["asset"], "price": px})
         elif s["status"] == "TRIGGERED" and px is not None:

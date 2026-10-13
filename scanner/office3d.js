@@ -371,7 +371,7 @@ function buildBoard() {
 const ARENA_C = V(27, 0);
 let arenaG = null, arenaTex = null, arenaSig = "", fighters = [], arenaLabels = [];
 const SHORT = { BREAKOUT: "Quebra", PULLBACK: "Recuo", LIQUIDITY_SWEEP: "Sweep", RANGE: "Range",
-  TREND_DAILY: "Tendência", BOUNCE_G0: "Bounce G0", BOUNCE_V1: "Bounce V1", BOUNCE_V2: "Bounce V2", BOUNCE_V3: "Bounce V3", REJEITADOS: "Rejeitados" };
+  TREND_DAILY: "Tendência", BOUNCE_G0: "Bounce G0", BOUNCE_V1: "Bounce V1", BOUNCE_V2: "Bounce V2", BOUNCE_V3: "Bounce V3", BOUNCE_1H: "Bounce 1H", REJEITADOS: "Rejeitados" };
 const FCOL = ["#4FD1C5", "#FF6FB5", "#F6C453", "#B794F4", "#63B3ED", "#68D391", "#FFA94D", "#FC8181", "#90CDF4", "#FBD38D", "#9AE6B4", "#D6BCFA"];
 // no 3D mostra-se a amostra maior: o combate de 90 dias (forma recente) quando
 // existe, senao os sinais ao vivo
@@ -664,6 +664,7 @@ let stG = null, stSig = "", stPeople = [], stTex = {}, stFloor = null;
 function drawStrat(g, b) {
   const W = 512, H = 320, r = b.avg_r;
   g.fillStyle = "#0b1220"; g.fillRect(0, 0, W, H);
+  if (b.champ || b.prov) { g.fillStyle = "#F6C453"; g.fillRect(0, 0, W, 6); g.font = "800 16px system-ui"; g.textAlign = "right"; g.fillText(b.champ ? "🏆 CAMPEÃO · SINAIS REAIS" : "✓ PROVOU · PAPEL AO VIVO", W - 14, 28); g.textAlign = "left"; }
   g.fillStyle = "#e9eef7"; g.font = "800 30px system-ui"; g.fillText(`${b.persona || ""} · ${SHORT[b.id] || b.id}`, 18, 44);
   g.font = "500 18px system-ui"; g.fillStyle = "#93a4c3"; g.fillText(b.name || "", 18, 70);
   g.font = "700 46px system-ui"; g.fillStyle = r == null ? "#93a4c3" : r > 0 ? "#68D391" : "#FC8181";
@@ -682,11 +683,14 @@ function buildStrategyRoom() {
 }
 function updateStrategyRoom() {
   if (!stG) return;
-  const rows = arenaRows().filter(b => b.estado !== "MORTA");
-  const sig = JSON.stringify(rows.map(b => [b.id, b.n, b.avg_r, b.wins, b.estado]));
+  const P = (API().D() || {}).promo || {}, Q = new Set((P.qualificados || []).map(q => q.id));
+  // o campeao fica na primeira secretaria; os qualificados a seguir
+  const rows = arenaRows().filter(b => b.estado !== "MORTA").map(b => Object.assign({}, b, { champ: b.id === P.campeao, prov: Q.has(b.id) }))
+    .sort((a, b) => (b.champ - a.champ) || (b.prov - a.prov));
+  const sig = JSON.stringify(rows.map(b => [b.id, b.n, b.avg_r, b.wins, b.estado, b.champ, b.prov]));
   rows.forEach(b => { const t = stTex[b.id]; if (t) { drawStrat(t.userData.c.getContext("2d"), b); t.needsUpdate = true; } });
   if (sig === stSig) return;
-  const ids = rows.map(b => b.id).join(","), same = stSig && JSON.parse(stSig).map(x => x[0]).join(",") === ids; stSig = sig;
+  const ids = rows.map(b => b.id + (b.champ ? "*" : "") + (b.prov ? "+" : "")).join(","), same = stSig && JSON.parse(stSig).map(x => x[0] + (x[5] ? "*" : "") + (x[6] ? "+" : "")).join(",") === ids; stSig = sig;
   if (same) return;                    // so os ecras mudaram
   stG.clear(); stPeople.forEach(p => { scene.remove(p.g); p.name.remove(); }); stPeople = []; stTex = {};
   const nRows = Math.max(1, Math.ceil(rows.length / ST_ZS.length)), len = 2 + nRows * ST_DX; stLen = len;
@@ -713,6 +717,11 @@ function updateStrategyRoom() {
     STYLE[key] = { skin: SKINS[h % SKINS.length], hair: HAIRS[(h >> 2) % HAIRS.length], hs: fem ? (h % 2 ? "long" : "bun") : ["short", "buzz", "curly"][h % 3], top: col, legs: "#1d1b2e", beard: !fem && h % 4 === 0 ? 1 : 0, glasses: h % 5 === 0 ? 1 : 0 };
     DESK[key] = { z: "srv", p: V(x, z), f: 1 };
     const p = makePerson({ id: key, nm, c: col }); p.mode = "work"; p.sit = true; p.path = []; p.name.style.display = "none"; stPeople.push(p);
+    if (b.champ || b.prov) {               // lugar conquistado: placa dourada (campeao: trofeu grande)
+      boxM(.04, .14, 1.0, mat("#F6C453", .9), -.56, .9, 0, g);
+      if (b.champ) { const cup = new THREE.Mesh(new THREE.CylinderGeometry(.14, .07, .3, 16), mat("#F6C453", 1.2)); cup.position.set(-.1, .96, .75); g.add(cup);
+        const lt = new THREE.PointLight(0xF6C453, 6, 4); lt.position.set(0, 2.4, 0); g.add(lt); }
+    }
     if ((b.wins || 0) > 0) { const tr = new THREE.Mesh(new THREE.CylinderGeometry(.06, .04, .16, 12), mat("#F6C453", .9)); tr.position.set(-.25, .86, .75); g.add(tr); }   // premio na mesa
   });
 }

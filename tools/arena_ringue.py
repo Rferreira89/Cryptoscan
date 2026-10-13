@@ -20,11 +20,26 @@ Lutadores e regras de selecao (iguais ao que o sistema ao vivo faria):
   BOUNCE_G0/V1/V2/V3: o gatilho e as quatro saidas do papel do Bounce
   TREND_DAILY: tendencia diaria das grandes moedas (sem geometria fixa:
       julgada so pelo R medio)
+  BOUNCE_1H: o mesmo gatilho do Bounce em velas de 1H (day trade, nao
+      scalp), regra escrita antes de testar (2026-10-13): RSI14 de 1H abaixo
+      de 25 numa das ultimas 3 velas, fecho acima do maximo da anterior com
+      o RSI a subir, BTC acima da media de 200 dias; stop no minimo das
+      ultimas 6 velas (>= 1,25 ATR); 50% na media de 20 velas, resto no
+      maximo das 42 velas anteriores; stop na entrada depois do 1.o objetivo;
+      saida ao fim de 24 horas
+
+SINAIS (decisao do Rui, 2026-10-13: "cada lutador que provar que e bom
+merece um lugar"): para um lutador poder operar AO VIVO (papel e, se for o
+campeao da arena, dinheiro real) precisa de uma funcao de sinal em SINAIS:
+f(c4, px, cfg) -> plano para a ULTIMA vela fechada de 4H, ou None. O plano
+tem stop, tp, partials, breakeven, hold_s e t_sig. O motor (engine/promo.py
+e engine/paper_ring.py) usa esta tabela; os agentes acrescentam lutadores
+novos aqui, com testes, sem mexer no motor.
 
 Limites declarados: os 90 dias sao mercado ja visto por quem desenhou as
-estrategias ate ao inicio da janela de reserva; por isso a forma recente
-SO PODE MATAR, nunca promover. Subir a dinheiro real continua a exigir 30
-operacoes ao vivo (papel ou reais) acima do percentil 95 do acaso.
+estrategias ate ao inicio da janela de reserva. Por decisao do Rui
+(2026-10-13) o combate tambem qualifica: ver engine/promo.py (papel ao vivo
+automatico; dinheiro real so para o campeao e so com codigo revisto).
 
 Uso: python -m tools.arena_ringue <pasta_saida> [dias]
 """
@@ -38,7 +53,8 @@ from engine import arena, backtest as B, config, paper_bounce as PB, paper_trend
 from engine import trade
 
 DAYS = 90
-H4, DAY = B.H4, B.DAY
+H4, DAY, H1 = B.H4, B.DAY, 3600
+HOLD_1H = DAY
 NEED_BARS = 6 * (B.analysis.MIN_BARS + 15) + 6 * DAYS   # aquecer o diario
 LIVE = ("PULLBACK", "BREAKOUT", "LIQUIDITY_SWEEP", "RANGE")
 REPS = 200
@@ -57,6 +73,16 @@ def fetch(base, now):
              "l": float(r[3]), "c": float(r[4]), "v": float(r[5]),
              "tb": float(r[9])} for r in raw]
     return closed(rows, now)
+
+
+def fetch_1h(base, now, days):
+    from tools import fetch_history as FH
+    start = (now - (days + 15) * DAY) * 1000
+    raw = FH.history(base, "1h", start)
+    rows = [{"t": r[0] // 1000, "o": float(r[1]), "h": float(r[2]),
+             "l": float(r[3]), "c": float(r[4]), "v": float(r[5]),
+             "tb": float(r[9])} for r in raw]
+    return [r for r in rows if r["t"] + H1 <= now]
 
 
 def btc_above(btc4):
@@ -142,6 +168,64 @@ def bounce_trades(asset, c4, above, cfg, t0):
     return out
 
 
+def bounce_1h_trades(asset, c1, above, t0):
+    """Bounce em 1H (ver cabecalho). Entrada na abertura da vela seguinte."""
+    out, busy = [], -1
+    for i in range(PB.HIGH_BARS + 30, len(c1) - 1):
+        t_sig = c1[i]["t"] + H1
+        if i < busy or t_sig < t0 or not _known(t_sig, above):
+            continue
+        sig = PB.signal(c1[max(0, i - 299):i + 1])
+        if not sig:
+            continue
+        px = c1[i + 1]["o"]
+        p = PB.plans(sig, px).get("G0")
+        if not p:
+            continue
+        pos = trade.open_position(p, px, c1[i + 1]["t"], PB.FEE_PCT,
+                                  PB.SLIP_PCT, breakeven=True)
+        k = i + 1
+        while not pos["closed"] and k < len(c1):
+            x = c1[k]
+            trade.step(pos, x["o"], x["h"], x["l"], x["c"], x["t"] + H1)
+            if not pos["closed"] and x["t"] + H1 - pos["opened_at"] >= HOLD_1H:
+                trade._sell(pos, pos["remaining"], x["c"] * (1 - pos["slip"]))
+                trade._finish(pos, "TIME", x["t"] + H1)
+            k += 1
+        if not pos["closed"]:
+            continue
+        busy = k
+        out.append(("BOUNCE_1H", {"asset": asset, "t": pos["opened_at"], "r": pos["r"],
+                                  "tf": "1h", "geo": {"stop": p["stop"] / px - 1,
+                                                      "tp": [x / px - 1 for x in p["tp"]],
+                                                      "partials": list(p["partials"]),
+                                                      "breakeven": True}}))
+    return out
+
+
+# ---------- sinais ao vivo (para papel e dinheiro real) ----------
+
+def sinal_bounce(g):
+    """Sinal do Bounce com a saida g na ultima vela fechada de 4H."""
+    def f(c4, px, cfg=None):
+        if len(c4) < PB.HIGH_BARS + 2:
+            return None
+        sig = PB.signal(c4[-300:])
+        if not sig:
+            return None
+        p = PB.plans(sig, px).get(g)
+        if not p:
+            return None
+        return dict(p, hold_s=PB.GEOS[g]["hold"], t_sig=sig["t"],
+                    atr=sig["atr"], gatilho=f"RSI 4H a {sig['rsi']:.0f} e fecho "
+                    "acima do máximo da vela anterior (sobrevenda a virar)")
+    return f
+
+
+SINAIS = {"BOUNCE_G0": sinal_bounce("G0"), "BOUNCE_V2": sinal_bounce("V2"),
+          "BOUNCE_V3": sinal_bounce("V3")}
+
+
 # ---------- tendencia diaria (grandes moedas) ----------
 
 def trend_trades(asset, c4, above, cfg, t0):
@@ -178,13 +262,14 @@ def trend_trades(asset, c4, above, cfg, t0):
 
 # ---------- juntar tudo ----------
 
-def judge(trs, bars, rng):
+def judge(trs, bars, rng, bars1h=None):
     """Resumo de um lutador com o teste contra o acaso."""
     rs = [t["r"] for t in trs]
     lists = []
     for t in trs:
-        if t.get("geo"):
-            lists.append(arena.control_rs(bars[t["asset"]], t["t"], t["geo"],
+        src = (bars1h or {}) if t.get("tf") == "1h" else bars
+        if t.get("geo") and src.get(t["asset"]):
+            lists.append(arena.control_rs(src[t["asset"]], t["t"], t["geo"],
                                           "LONG", rng, reps=REPS))
     has_ctrl = bool(lists) and sum(1 for c in lists if c) >= max(1, len(rs) // 2)
     med, p95 = arena._dist(lists, rng) if has_ctrl else (None, None)
@@ -197,12 +282,13 @@ def judge(trs, bars, rng):
             "veredicto": arena.verdict(len(rs), mean, med, p95, has_ctrl)}
 
 
-def run(bars, cfg, now, days=DAYS, seed=7):
+def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None):
     t0 = now - days * DAY
     btc = bars.get("BTC")
     reg, above = B.regimes(btc), btc_above(btc)
     groups = {k: [] for k in LIVE + ("REJEITADOS", "BOUNCE_G0", "BOUNCE_V1",
-                                     "BOUNCE_V2", "BOUNCE_V3", "TREND_DAILY")}
+                                     "BOUNCE_V2", "BOUNCE_V3", "TREND_DAILY",
+                                     "BOUNCE_1H")}
     for a, c4 in sorted(bars.items()):
         try:
             for k, t in live_trades(a, c4, reg, above, cfg, t0):
@@ -211,13 +297,16 @@ def run(bars, cfg, now, days=DAYS, seed=7):
                 groups[k].append(t)
             for k, t in trend_trades(a, c4, above, cfg, t0):
                 groups[k].append(t)
+            if (bars1h or {}).get(a):
+                for k, t in bounce_1h_trades(a, bars1h[a], above, t0):
+                    groups[k].append(t)
         except Exception as e:                       # uma moeda nao para o ringue
             print(f"{a}: {type(e).__name__}: {e}", file=sys.stderr)
     rng = random.Random(seed)
     out = {}
     for k, trs in groups.items():
         trs.sort(key=lambda t: t["t"])
-        out[k] = judge(trs, bars, rng) if trs else {
+        out[k] = judge(trs, bars, rng, bars1h) if trs else {
             "n": 0, "wins": 0, "avg_r": None, "total_r": 0, "ultimas": [],
             "acaso_mediana": None, "acaso_p95": None, "veredicto": "A COMPETIR"}
     return {"atualizado": int(now), "janela_dias": days,
@@ -228,7 +317,7 @@ def main(dest, days=DAYS):
     from engine import venue
     now = int(time.time())
     cfg = config.load()
-    bars, falhas = {}, []
+    bars, bars1h, falhas = {}, {}, []
     listed = sorted(set(venue.fetch("USDC")) | {"BTC"})
     for base in listed:
         try:
@@ -238,11 +327,17 @@ def main(dest, days=DAYS):
             continue
         if len(c) >= NEED_BARS:
             bars[base] = c
+            try:
+                h1 = fetch_1h(base, now, days)
+                if len(h1) >= 24 * days:
+                    bars1h[base] = h1
+            except Exception as e:
+                falhas.append(f"{base} 1H: {str(e)[:40]}")
         time.sleep(0.1)
     if "BTC" not in bars:
         raise SystemExit("sem velas do BTC: ringue nao corre")
     t = time.time()
-    res = run(bars, cfg, now, days)
+    res = run(bars, cfg, now, days, bars1h=bars1h)
     res["segundos"] = round(time.time() - t)
     res["falhas"] = falhas[:20]
     os.makedirs(dest, exist_ok=True)

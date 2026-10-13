@@ -25,6 +25,7 @@ def open_position(plan, fill_price, t, fee_pct, slip_pct=0.0, breakeven=True,
             "remaining": 100.0, "tp_hit": 0, "realized": 0.0, "fee": fee,
             "slip": slip_pct / 100, "opened_at": t, "breakeven": breakeven,
             "risk_unit": d * (entry - stop0) + fee * (entry + stop0),
+            "max_hold": plan.get("max_hold_s"),
             "closed": False, "r": None, "exit_reason": None}
 
 
@@ -87,7 +88,7 @@ def step(pos, o, h, l, c, t, gap=True):
     if pos["remaining"] <= 1e-9:
         _finish(pos, ev[-1]["event"], t)       # objetivo que fechou a posicao
         ev[-1]["r"] = pos["r"]
-    elif t - pos["opened_at"] >= MAX_HOLD_SECONDS:
+    elif t - pos["opened_at"] >= (pos.get("max_hold") or MAX_HOLD_SECONDS):
         _sell(pos, pos["remaining"], c * (1 - d * pos["slip"]))
         _finish(pos, "TIME", t)
         ev.append({"event": "TIME", "price": c, "r": pos["r"]})
