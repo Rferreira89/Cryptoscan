@@ -634,7 +634,52 @@ def do_clean(state, req, ex, now, send):
     return "ok"
 
 
-ACTIONS = {"limpar": do_clean, "diag": do_diag, "comprar": do_buy, "breakeven": do_breakeven, "fechar": do_close,
+def do_test2(state, req, ex, now, send):
+    """Prova do 'stop para a entrada': a Bybit UE nao deixa alterar a ordem
+    TP/SL anexada. Testa substitui-la por duas ordens condicionais (objetivo
+    e stop) sobre as mesmas moedas, depois cancela e vende tudo."""
+    sym, steps = "BTCUSDC", []
+    inst = instrument(sym)
+    px = last_price(sym)
+    q = max(min(TEST_USDC, round(usdc_free(wallet()) * 0.9, 2)), round(inst["min_amt"] * 1.1, 2))
+    try:
+        oid, attached = place_part(sym, q, px * 1.05, px * 0.95, inst, f"t2-{now}")
+        avg, qty = fills(oid, sym, "BTC")
+        steps.append(f"compra {q:.2f} USDC a {avg:.2f} (anexo: {'sim' if attached else 'não'})")
+        od = []
+        for _ in range(8):
+            time.sleep(2)
+            od = [o for o in tpsl_orders(sym) if float(o.get("createdTime") or 0) >= (now - 5) * 1000]
+            if od:
+                break
+        for o in od:
+            cancel(sym, o)
+            steps.append(f"cancelar a proteção anexada ({o.get('stopOrderType')}): ok")
+        time.sleep(1)
+        ids = []
+        for nome, trig in (("objetivo", px * 1.05), ("stop na entrada", avg)):
+            try:
+                ids.append(stop_order(sym, qty, trig, inst, f"t2{nome[:3]}{now % 100000}"))
+                steps.append(f"{nome} condicional: ACEITE")
+            except ExecError as e:
+                steps.append(f"{nome} condicional: recusada — {e}")
+        time.sleep(1)
+        for o in tpsl_orders(sym):
+            if o["orderId"] in ids:
+                cancel(sym, o)
+                steps.append(f"cancelar {o['orderId'][-6:]}: ok")
+        time.sleep(1)
+        sid = sell_all(sym, min(qty, held(wallet(), "BTC")), inst, f"t2v{now % 100000}")
+        if sid:
+            a2, q2 = fills(sid, sym, "BTC", side="Sell")
+            steps.append(f"venda: {q2:.8f} BTC a {a2:.2f}")
+    except ExecError as e:
+        steps.append(f"ERRO: {e}")
+    ex["teste2"] = {"t": now, "passos": steps}
+    return "ok"
+
+
+ACTIONS = {"teste2": do_test2, "limpar": do_clean, "diag": do_diag, "comprar": do_buy, "breakeven": do_breakeven, "fechar": do_close,
            "parar": do_stop_all, "teste": do_test}
 
 
