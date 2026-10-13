@@ -153,7 +153,7 @@ o Rui), e o morto fica registado. Um por corrida, na segunda vaga.
 
 | Morto | Data da morte | Causa encontrada | Sucessor | Veredicto |
 |---|---|---|---|---|
-| (nenhum ainda) | | | | |
+| PULLBACK, BREAKOUT, LIQUIDITY_SWEEP, TREND_DAILY, REJEITADOS | 2026-10-13 (forma recente, 90 dias) | ver entrada de 2026-10-13 | LIQUIDITY_SWEEP → SWEEP_MERCADO (os outros ficam por agora sem sucessor, ver autópsia) | (a testar) |
 
 ## Hipóteses anteriores a este diário (até 2026-10-02, período 2021-2026)
 
@@ -360,3 +360,60 @@ hoje: perde em todas as configurações e é pior do que entrar ao acaso.
   ligado ao vivo.
 - Código: `tools/research_day1h.py`; teste sem look-ahead:
   `tests/test_research_day1h.py`; números: `backtest/research_day1h.json`.
+
+## 2026-10-13 — Pré-registo (escrito antes de qualquer teste desta corrida)
+
+Duas vagas: a primeira para a fila do Rui (hipótese 3, Oversold Bounce com
+uma saída melhor, regras e grelha já fixadas na fila; código
+`tools/research_bounce_exits.py`) e a segunda para um sucessor da arena.
+
+### Autópsia dos mortos (2026-10-13, janela de 24 meses, todas as moedas)
+
+Morreram cinco lutadores no combate de hora a hora (forma recente de 90
+dias): PULLBACK (−0,085R, 54 op.), LIQUIDITY_SWEEP (−0,181R, 50),
+BREAKOUT (−0,411R, 37), TREND_DAILY (−0,611R, 26) e REJEITADOS (−0,073R,
+76). Autópsia feita com os setups do motor ao vivo (`engine/backtest.
+candidates` + `simulate`, score ≥ mínimo, BTC acima da SMA200) nos últimos
+24 meses de 62 moedas do ramo `history` (o ledger real só tem 10 operações
+fechadas, poucas para concluir).
+
+- **BREAKOUT** (102 op., −0,47R, 22% de acerto): 61% dos stops em menos de
+  um dia; nas 6 velas depois da entrada o preço desce em média 0,16R a
+  0,21R; 74 de 102 entradas vêm depois de uma subida de mais de 3% em 6
+  velas. Mesmo sem custos perde −0,28R. Causa: as quebras de 4H revertem
+  neste mercado (entra-se no fim do movimento). A correção natural
+  (esperar o reteste) já foi rejeitada, e a quebra com compradores
+  agressivos é a hipótese 5 da fila do Rui: **sem sucessor novo hoje**.
+- **PULLBACK** (161 op., −0,086R): sem custos ficaria em +0,08R; as perdas
+  não têm um padrão claro (hora, regime e distância do stop dão diferenças
+  pequenas e instáveis). **Causa clara não encontrada**: sem sucessor.
+- **TREND_DAILY**: é a tendência diária, já rejeitada na reserva em 2026-10;
+  sem correção nova. **REJEITADOS** é um grupo de controlo (o que os
+  filtros deitam fora), não uma estratégia: não leva sucessor.
+- **LIQUIDITY_SWEEP** (154 op., −0,287R, 34% de acerto): diferença grande
+  conforme a forma de entrar. Quando a abertura seguinte já está dentro da
+  zona de entrada e a operação abre logo (104 op.), dá −0,17R; quando a
+  ordem limite fica à espera e só é preenchida mais tarde, com o preço a
+  voltar para baixo (50 op.), dá −0,54R e o preço continua a cair depois
+  (−0,14R nas 6 velas seguintes). É seleção adversa: a ordem limite só é
+  apanhada quando o sweep está a falhar. Causa encontrada (com cautela:
+  cerca de 2 desvios-padrão).
+
+### Sucessor: SWEEP_MERCADO (LIQUIDITY_SWEEP sem ordem limite à espera)
+
+- **Correção única**: o setup, o stop, os objetivos e as vendas parciais
+  são exatamente os do LIQUIDITY_SWEEP ao vivo (score ≥ mínimo, BTC acima
+  da SMA200 no último dia fechado); a única mudança é a execução: a
+  operação abre a mercado na abertura da vela de 4H seguinte ao sinal ou
+  não abre (nada de ordem limite à espera durante 3 velas).
+- **Grelha (2, escrita antes de testar)**: A = abre sempre na abertura
+  seguinte (se estiver entre o stop e o 1.º objetivo); B = só abre se a
+  abertura seguinte estiver dentro da zona de entrada ou abaixo do topo.
+- Stop na entrada depois do 1.º objetivo (como ao vivo); saída por tempo
+  ao fim de 30 dias; carteira de 4 posições de 25%, uma por moeda, primeiro
+  o score mais alto; custos 0,25% + 0,1% por lado; mesma janela,
+  walk-forward e os sete critérios (contra o acaso: mesma geometria, ±90
+  velas). Código: `tools/research_sweep_market.py`.
+- Expectativa declarada: sem custos a entrada na abertura ficou perto de
+  zero (−0,03R), por isso o mais provável é NÃO VALIDADA; o teste serve
+  para confirmar ou afastar a causa.
