@@ -107,3 +107,35 @@ class Ringue(unittest.TestCase):
         j = AR.judge(trs, {"AAA": c4}, random.Random(1))
         self.assertEqual(j["n"], 12)
         self.assertEqual(j["veredicto"], "MORTA")
+
+
+class MorteAutomatica(unittest.TestCase):
+    def test_estrategia_ao_vivo_morta_e_desligada(self):
+        st = {}
+        res = arena.update(st, {}, 1000, seed=1, forma=forma("BREAKOUT", 33, -0.5))
+        self.assertEqual(arena.auto_disable(st, res, 1000), ["BREAKOUT"])
+        self.assertEqual(st["disabled"]["BREAKOUT"]["reason"], "arena")
+        self.assertEqual(arena.auto_disable(st, res, 1001), [])     # so uma vez
+        ev = dict(arena.events(res, 1000)[0], desligada=True)
+        self.assertIn("Desligada automaticamente", run.alert_text(ev, {}, ""))
+        # /liga nao ressuscita quem morreu na arena
+        self.assertIn("definitiva", inbox.onoff(st, "/liga quebra", 5))
+        self.assertIn("BREAKOUT", st["disabled"])
+
+    def test_papel_nao_e_desligado_assim(self):
+        st = {}
+        res = arena.update(st, {}, 1000, seed=1, forma=forma("BOUNCE_G0", 30, -0.6))
+        self.assertEqual(arena.auto_disable(st, res, 1000), [])
+
+    def test_aviso_das_mortas_antigas(self):
+        txt = run.alert_text({"event": "ARENA_OFF", "strategies": ["BREAKOUT", "TREND_DAILY"],
+                              "id": "x"}, {}, "")
+        self.assertIn("Quebra", txt)
+        self.assertIn("Tendência", txt)
+
+    def test_scanner_desliga_e_o_sinal_nao_sai(self):
+        from engine import signals
+        st = {"disabled": {}}
+        res = arena.update(st, {}, 1000, seed=1, forma=forma("PULLBACK", 50, -0.3))
+        arena.auto_disable(st, res, 1000)
+        self.assertIn("PULLBACK", st["disabled"])

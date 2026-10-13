@@ -53,6 +53,9 @@ def onoff(state, text, now, cfg_disabled=()):
         return (f"Desligada: {NOMES[k]}. Não emite sinais reais novos; as "
                 "operações já abertas continuam a ser acompanhadas. Para voltar: "
                 f"/liga {m.group(2).strip()}")
+    if (dis.get(k) or {}).get("reason") == "arena":
+        return (f"{NOMES[k]} morreu na arena e foi desligada automaticamente. "
+                "A morte é definitiva: só volta um sucessor que bata o acaso.")
     if k in cfg_disabled:
         return (f"{NOMES[k]} está desligada na configuração do programa; só "
                 "se liga numa sessão de revisão.")

@@ -335,7 +335,16 @@ def run(now=None, state=None, cfg=None, forma=None):
     # arena: classificacao de todas as estrategias contra o acaso
     try:
         result["arena"] = arena.update(state, c4s, now, forma=forma)
-        events += arena.events(result["arena"], now)
+        off = arena.auto_disable(state, result["arena"], now)   # morte automatica
+        for e in arena.events(result["arena"], now):
+            e["desligada"] = e.get("strategy") in off or \
+                (state.get("disabled", {}).get(e.get("strategy")) or {}).get("reason") == "arena"
+            events.append(e)
+        late = [k for k in off if not any(e.get("strategy") == k for e in events
+                                           if e["event"] == "ARENA")]
+        if late:                 # mortas antes da morte automatica existir
+            events.append({"t": now, "event": "ARENA_OFF", "id": f"arena-off-{now}",
+                           "strategies": late, "real": False})
     except Exception as e:  # a arena nunca pode parar o scan
         result["arena"] = {"erro": str(e)[:120]}
     # recompensas do escritorio: conquistas reais desbloqueiam espacos

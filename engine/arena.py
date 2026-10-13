@@ -2,7 +2,7 @@
 2026-10-11).
 
 Concorrentes
-  - estrategias ao vivo (recuo, quebra, sweep, ...): contam TODOS os sinais
+  - estrategias ao vivo (recuo, quebra, sweep, tendencia): contam TODOS os sinais
     que emitiram, executados ou nao, porque mede-se a estrategia e nao a
     execucao do Rui;
   - papel do Oversold Bounce (G0, V1, V2, V3);
@@ -21,9 +21,8 @@ Regras (declaradas antes de haver resultados)
           decisao do Rui: luta ate a morte), ou
           com pelo menos 20 operacoes, se o R medio for <= -0,2R ou nao
           passar a mediana das entradas ao acaso. Uma estrategia de papel
-          morta deixa de abrir operacoes. As estrategias ao vivo NUNCA sao
-          desligadas pela arena (opcao B do Rui): ficam marcadas e
-          continuam a dar sinais reais.
+          morta deixa de abrir operacoes; uma ao vivo e desligada (ver
+          MORTE AUTOMATICA).
   FORMA RECENTE (decisao do Rui, 2026-10-13: "os lutadores nao estao a
           morrer"): de hora a hora tools/arena_ringue.py poe cada lutador a
           combater nos ultimos 90 dias de mercado em todas as moedas, com
@@ -32,6 +31,11 @@ Regras (declaradas antes de haver resultados)
           operacoes em vez de 2 ou 3). A forma recente so pode MATAR, nunca
           promover. A morte e definitiva: quem morre nao volta (o lugar
           passa a ser de um sucessor da investigacao).
+  MORTE AUTOMATICA (decisao do Rui, 2026-10-13: "as estrategias falham e
+          morrem automaticamente, sem eu ter de intervir"): uma estrategia
+          ao vivo que morre e desligada logo (state["disabled"], motivo
+          "arena") e deixa de emitir sinais reais; as operacoes ja abertas
+          continuam a ser acompanhadas ate fecharem. Substitui a opcao B.
   SOBE    com pelo menos 30 operacoes, R medio positivo e acima do
           percentil 95 das entradas ao acaso: e proposta ao Rui para
           dinheiro real. A decisao e sempre dele.
@@ -282,6 +286,24 @@ def update(state, bars, now, seed=None, forma=None):
         "forma": "de hora a hora cada lutador combate nos últimos 90 dias de "
                  "mercado, em todas as moedas, com as mesmas regras de morte; "
                  "a forma recente só mata, nunca promove; a morte é definitiva"}, "classificacao": board}
+
+
+LIVE_KILLABLE = ("PULLBACK", "BREAKOUT", "LIQUIDITY_SWEEP", "RANGE",
+                 "TREND_DAILY")
+
+
+def auto_disable(state, summary, now):
+    """Desliga as estrategias ao vivo mortas na arena. Devolve as novas."""
+    dis = state.setdefault("disabled", {})
+    new = []
+    for b in summary.get("classificacao", []):
+        k = b["id"]
+        if b["estado"] == "MORTA" and k.replace("_SHORT", "") in LIVE_KILLABLE \
+                and dis.get(k, {}).get("reason") != "arena":
+            dis[k] = {"since": int(now), "reason": "arena",
+                      "motivo": b.get("motivo")}
+            new.append(k)
+    return new
 
 
 def dead_paper(state):

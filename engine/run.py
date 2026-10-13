@@ -218,14 +218,29 @@ def alert_text(e, sigs, note):
     if k == "REWARD":
         return (f"🎉 ESCRITÓRIO — desbloqueaste: {e['name']}! "
                 f"Conquista real: {e['cond']}. Vai ver ao escritório 3D.")
+    if k == "ARENA_OFF":
+        nm = {"BREAKOUT": "Quebra (Bruno)", "PULLBACK": "Recuo (Rita)",
+              "LIQUIDITY_SWEEP": "Sweep (Simão)", "RANGE": "Range (Raquel)",
+              "TREND_DAILY": "Tendência diária (Teodoro)"}
+        lst = ", ".join(nm.get(x.replace("_SHORT", ""), x) +
+                        (" short" if x.endswith("_SHORT") else "")
+                        for x in e["strategies"])
+        return ("⚙️ ARENA — morte automática: desliguei " + lst + ". Morreram "
+                "na arena e deixam de emitir sinais reais; as operações já "
+                "abertas continuam a ser acompanhadas até fecharem. Não "
+                "precisas de fazer nada.")
     if k == "ARENA":
         if e["estado"] == "MORTA":
             cmd = {"BREAKOUT": "quebra", "PULLBACK": "recuo",
                    "LIQUIDITY_SWEEP": "sweep", "RANGE": "range",
                    "TREND_DAILY": "tendencia"}.get(e.get("strategy"))
-            if e["live"] and cmd:
-                extra = (" Continua a dar sinais reais até decidires. Para a "
-                         f"desligar responde: /desliga {cmd}")
+            if e["live"] and e.get("desligada"):
+                extra = (" Desligada automaticamente: deixa de emitir sinais "
+                         "reais. As operações já abertas continuam a ser "
+                         "acompanhadas até fecharem. Só volta como sucessor "
+                         "da investigação, se bater o acaso.")
+            elif e["live"] and cmd:
+                extra = (" Para a desligar responde: /desliga " + cmd)
             elif e["live"]:
                 extra = ""
             else:
