@@ -110,7 +110,12 @@ def key_ok(info):
     except (TypeError, ValueError):
         return False, "não consegui ler as permissões da chave"
     perms = info.get("permissions") or {}
-    bad = [k for k, v in perms.items() if v and k not in ("Spot",)]
+    # Na Bybit UE a caixa "Trading" da conta unificada da sempre SpotTrade e
+    # DerivativesTrade juntas (nao se separam). Aceita-se so esse par: o
+    # programa so envia ordens spot e a chave continua sem carteira,
+    # levantamentos ou transferencias, presa ao IP do servidor.
+    allowed = {"Spot": {"SpotTrade"}, "Derivatives": {"DerivativesTrade"}}
+    bad = [k for k, v in perms.items() if v and not set(v) <= allowed.get(k, set())]
     if bad:
         return False, f"a chave tem permissões a mais ({', '.join(sorted(bad))}): só pode ter Spot"
     if not perms.get("Spot"):

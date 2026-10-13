@@ -26,6 +26,11 @@ class Chave(unittest.TestCase):
         self.assertFalse(X.key_ok(dict(ok, readOnly=1))[0])
         self.assertIn("a mais", X.key_ok(dict(ok, permissions={"Spot": ["SpotTrade"], "Wallet": ["Withdraw"]}))[1])
         self.assertIn("a mais", X.key_ok(dict(ok, permissions={"Spot": ["SpotTrade"], "ContractTrade": ["Order"]}))[1])
+        # Bybit UE: "Trading" junta spot e derivados; aceite (o programa so faz spot)
+        self.assertTrue(X.key_ok(dict(ok, permissions={"Spot": ["SpotTrade"], "Derivatives": ["DerivativesTrade"],
+                                                       "Wallet": []}))[0])
+        self.assertFalse(X.key_ok(dict(ok, permissions={"Spot": ["SpotTrade"], "Derivatives": ["DerivativesTrade"],
+                                                        "Earn": ["Earn"]}))[0])
         self.assertIn("IP", X.key_ok(dict(ok, ips=["*"]))[1])
         self.assertIn("IP", X.key_ok(dict(ok, ips=[]))[1])
         self.assertFalse(X.key_ok(dict(ok, permissions={}))[0])
