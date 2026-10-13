@@ -449,8 +449,6 @@ function buildArena() {
   for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2 + Math.PI / 8; const x = ARENA_C.x + Math.cos(a) * 5.3, z = ARENA_C.z + Math.sin(a) * 5.3;
     boxM(.14, 1.6, .14, mat("#FF6FB5", .9), x, 1.15, z); posts.push(new THREE.Vector3(x, 0, z)); }
   [0.95, 1.4].forEach((h, k) => line(posts.concat([posts[0]]).map(p => p.clone().setY(h)), k ? 0xFF6FB5 : 0x4FD1C5));
-  // cemiterio de quem morre
-  const cem = new THREE.Mesh(new THREE.PlaneGeometry(4, 9), mat("#0d0a22")); cem.rotation.x = -Math.PI / 2; cem.position.set(ARENA_C.x + 4.6, .02, 7.4); scene.add(cem);
   // placar
   arenaTex = canvasTex(768, 512, drawArenaBoard);
   // placar virado para a vista do telemovel
@@ -489,6 +487,7 @@ function updateArena() {
       const a = pair / Math.max(1, n) * Math.PI * 2 + .4, rad = n > 5 ? (pair % 2 ? 4.3 : 2.6) : 3.3;
       const cx = ARENA_C.x + Math.cos(a) * rad, cz = ARENA_C.z + Math.sin(a) * rad, tx = -Math.sin(a), tz = Math.cos(a);
       f.home = new THREE.Vector3(cx + tx * side * .65, .36, cz + tz * side * .65);
+      f.lab = new THREE.Vector3(cx + tx * side * 1.5, .36, cz + tz * side * 1.5);   // etiqueta afastada do par
       f.faceTo = Math.atan2(-tx * side, -tz * side);
     }
     const wins = Math.min(5, b.wins || 0);        // medalhas por operacoes ganhas
@@ -497,15 +496,13 @@ function updateArena() {
     if (b.estado === "SOBE") { const beam = new THREE.Mesh(new THREE.CylinderGeometry(.55, .55, 9, 24, 1, true), new THREE.MeshBasicMaterial({ color: 0xF6C453, transparent: true, opacity: .18, side: THREE.DoubleSide, toneMapped: false })); beam.position.y = 4.5; f.g.add(beam); }
     f.g.position.copy(f.home); arenaG.add(f.g); fighters.push(f);
   });
-  dead.forEach((b, i) => {                 // cemiterio: lapide e o lutador deitado
-    const f = fighter("#666", true, b.id, b.persona); f.b = b; f.dead = true;
-    const x = ARENA_C.x + 3.6 + (i % 2) * 2, z = 4.6 + Math.floor(i / 2) * 2.2;
-    const st = boxM(.7, .9, .18, mat("#4a4560"), x, .45, z - .6, arenaG);
-    f.g.rotation.z = Math.PI / 2; f.g.position.set(x - .9, .15, z + .1); f.home = f.g.position.clone(); arenaG.add(f.g); fighters.push(f);
-  });
-  fighters.forEach(f => { const r = f.b.avg_r, nm = (f.b.persona ? f.b.persona + " · " : "") + (SHORT[f.b.id] || f.b.id) + (f.b.n ? ` ${r > 0 ? "+" : ""}${(r || 0).toFixed(2).replace(".", ",")}R` : " · à espera");
-    const el = label((f.dead ? "💀 " : f.leader ? "👑 " : f.b.estado === "SOBE" ? "🏆 " : "") + nm + (f.b.wins ? ` 🏅${f.b.wins}` : ""), f.dead ? "#9a94b8" : f.b.estado === "SOBE" ? "#F6C453" : "#ffffff", true);
-    const l = { el, p: f.home.clone().setY(f.home.y + (f.dead ? 1.3 : 2.9)) }; labels.push(l); arenaLabels.push(l); });
+  updateMemorial(dead);                    // quem morre vai para o memorial (sala propria)
+  // etiquetas curtas (nome e resultado), em duas alturas para os pares nao
+  // se taparem, e so quando a camara esta perto da arena
+  fighters.forEach((f, i) => { const r = f.b.avg_r, nm = (f.b.persona || SHORT[f.b.id] || f.b.id) + (f.b.n ? ` ${r > 0 ? "+" : ""}${(r || 0).toFixed(2).replace(".", ",")}R` : "");
+    const el = label((f.leader ? "👑 " : f.b.estado === "SOBE" ? "🏆 " : "") + nm, f.b.estado === "SOBE" ? "#F6C453" : r > 0 ? "#9AE6B4" : "#ffffff", true);
+    el.style.padding = "1px 6px"; el.style.borderRadius = "6px"; el.style.background = "#0c0a24cc"; el.style.fontSize = "10.5px";
+    const l = { el, p: (f.lab || f.home).clone().setY(f.home.y + (f.leader ? 3.1 : i % 2 ? 2.2 : 2.9)), near: ARENA_C.clone(), maxD: 38 }; labels.push(l); arenaLabels.push(l); });
 }
 function animateArena(dt, t) {
   fighters.forEach(f => {
@@ -726,6 +723,62 @@ function updateStrategyRoom() {
   });
 }
 
+// ---------- memorial: quem morre na arena sai do ringue e fica aqui, numa sala
+// propria ao lado da sala de estrategia. Cada lapide tem a placa com o nome,
+// a estrategia, os numeros com que morreu, a data e o motivo (texto desenhado
+// na pedra, sem etiquetas a flutuar umas por cima das outras)
+const MEM_X0 = 37.6, MEM_Z = [8.0, 10.1, 12.2], MEM_DX = 2.7;
+let memG = null, memSig = "";
+function drawTomb(g, b) {
+  const W = 320, H = 240, m = b.morte || {}, r = m.avg_r != null ? m.avg_r : b.avg_r;
+  const gr = g.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, "#6f6a80"); gr.addColorStop(1, "#4d4860"); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  g.strokeStyle = "#8f89a6"; g.lineWidth = 6; g.strokeRect(8, 8, W - 16, H - 16);
+  g.textAlign = "center"; g.fillStyle = "#f2eff8"; g.font = "800 34px system-ui"; g.fillText(b.persona || "", W / 2, 58);
+  g.font = "600 20px system-ui"; g.fillStyle = "#dcd8e8"; g.fillText((b.name || b.id).replace(" (ao vivo)", "").replace(" (papel)", "").slice(0, 26), W / 2, 90);
+  g.font = "700 30px system-ui"; g.fillStyle = r > 0 ? "#9AE6B4" : "#FEB2B2"; g.fillText(r == null ? "–" : (r > 0 ? "+" : "") + r.toFixed(2).replace(".", ",") + "R", W / 2, 138);
+  g.font = "500 18px system-ui"; g.fillStyle = "#e6e2f0"; g.fillText(`${m.n != null ? m.n : b.n} operações`, W / 2, 166);
+  const d = m.t ? new Date(m.t * 1000).toLocaleDateString("pt-PT", { day: "2-digit", month: "2-digit" }) : "";
+  g.font = "500 16px system-ui"; g.fillStyle = "#cfcade"; g.fillText(`† ${d}${b.motivo || m.motivo ? " · " + (b.motivo || m.motivo).replace("forma recente", "combate") : ""}`, W / 2, 200);
+  g.textAlign = "left";
+}
+function buildMemorial() {
+  memG = new THREE.Group(); scene.add(memG);
+  const zl = label("Memorial", "#c9c2ee", true); zl.style.pointerEvents = "auto"; zl.style.cursor = "pointer"; zl.style.padding = "3px 8px"; zl.style.borderRadius = "99px"; zl.style.background = "#0c0a24b3"; zl.style.border = "1px solid #c9c2ee66";
+  zl.addEventListener("click", () => API().openZone("arena")); labels.push({ el: zl, p: new THREE.Vector3(MEM_X0 - 1.6, .2, 10.1) });
+}
+function updateMemorial(dead) {
+  if (!memG) return;
+  const sig = JSON.stringify(dead.map(b => [b.id, b.motivo, (b.morte || {}).t]));
+  if (sig === memSig) return; memSig = sig;
+  memG.clear();
+  const rows = Math.max(1, Math.ceil(dead.length / MEM_Z.length)), len = 1.6 + rows * MEM_DX, cx = MEM_X0 - 1 + len / 2;
+  // sala: chao escuro, relva baixa, muro e luz fria
+  const fl = new THREE.Mesh(new THREE.PlaneGeometry(len, 7.4), mat("#2a2d33")); fl.rotation.x = -Math.PI / 2; fl.position.set(cx, .006, 10.1); fl.receiveShadow = true; memG.add(fl);
+  const gr = new THREE.Mesh(new THREE.PlaneGeometry(len - .6, 6.8), mat("#2f4a37")); gr.rotation.x = -Math.PI / 2; gr.position.set(cx, .012, 10.1); memG.add(gr);
+  const wall = mat("#5b5f69"); boxM(len, .7, .18, wall, cx, .35, 6.4, memG); boxM(len, .7, .18, wall, cx, .35, 13.8, memG); boxM(.18, .7, 7.4, wall, MEM_X0 - 1 + len, .35, 10.1, memG);
+  const lt = new THREE.PointLight(0xb9c6ff, 8, 12); lt.position.set(cx, 4, 10.1); memG.add(lt);
+  if (!dead.length) {                      // ninguem morreu ainda: placa vazia
+    const tx = canvasTex(320, 240, g => { g.fillStyle = "#4d4860"; g.fillRect(0, 0, 320, 240); g.fillStyle = "#e6e2f0"; g.font = "600 22px system-ui"; g.textAlign = "center"; g.fillText("Ainda ninguém morreu", 160, 128); });
+    const pl = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 1.05), new THREE.MeshBasicMaterial({ map: tx })); pl.position.set(MEM_X0 + .3, .9, 10.1); pl.rotation.y = -Math.PI / 2; memG.add(pl); return;
+  }
+  dead.forEach((b, i) => {
+    const x = MEM_X0 + Math.floor(i / MEM_Z.length) * MEM_DX, z = MEM_Z[i % MEM_Z.length];
+    const g = new THREE.Group(); g.position.set(x, 0, z); memG.add(g);
+    boxM(.5, .12, 1.7, mat("#3d3a48"), .05, .06, 0, g);                         // base
+    boxM(.22, 1.25, 1.5, mat("#5d5870"), .12, .74, 0, g);                       // pedra
+    boxM(.24, .1, 1.62, mat("#6b6680"), .12, 1.41, 0, g);                      // remate
+    const tx = canvasTex(320, 240, gg => drawTomb(gg, b));
+    const pl = new THREE.Mesh(new THREE.PlaneGeometry(1.36, 1.02), new THREE.MeshBasicMaterial({ map: tx })); pl.position.set(0, .8, 0); pl.rotation.y = -Math.PI / 2; g.add(pl);
+    // vela e flores a frente da lapide
+    const cd = new THREE.Mesh(new THREE.CylinderGeometry(.05, .05, .2, 10), mat("#f4f1e8")); cd.position.set(-.45, .1, -.45); g.add(cd);
+    const fm = new THREE.Mesh(new THREE.SphereGeometry(.04, 8, 6), mat("#F6C453", 2)); fm.position.set(-.45, .24, -.45); g.add(fm);
+    [-.1, .05, .2].forEach((dz, k) => { const fw = new THREE.Mesh(new THREE.SphereGeometry(.07, 8, 6), mat(["#FC8181", "#F6C453", "#B794F4"][k])); fw.position.set(-.42, .08, .35 + dz); g.add(fw); });
+  });
+}
+function goMemorial() { const n = Math.max(1, Math.ceil(arenaRows().filter(b => b.estado === "MORTA").length / MEM_Z.length)), len = 1.6 + n * MEM_DX;
+  const T = V(MEM_X0 - 1 + len / 2, 10.45), dx = T.x - ctl.target.x, dz = T.z - ctl.target.z; ctl.target.copy(T); cam.position.x += dx; cam.position.z += dz;
+  const d = cam.position.clone().sub(ctl.target); cam.position.copy(ctl.target.clone().add(d.setLength(14 + len * .5))); ctl.update(); }
+
 // ---------- equipa permanente: trabalho que corre em CADA scan de 5 min ----------
 // Os agentes agendados (Jorge, Ines, Andre, Nuno, Sofia, Henrique) so trabalham
 // quando a corrida deles acontece; estas pessoas fazem o trabalho continuo que
@@ -942,7 +995,8 @@ function animate(p, dt, t) {
 // ---------- ciclo ----------
 function project(v) { const p = v.clone().project(cam), r = R.domElement; return { x: (p.x + 1) / 2 * r.clientWidth, y: (1 - p.y) / 2 * r.clientHeight, ok: p.z < 1 }; }
 function placeOverlays(dt) {
-  labels.forEach(l => { const s = project(l.p); l.el.style.left = s.x + "px"; l.el.style.top = s.y + "px"; l.el.style.display = s.ok ? "" : "none"; });
+  labels.forEach(l => { const s = project(l.p); l.el.style.left = s.x + "px"; l.el.style.top = s.y + "px";
+    l.el.style.display = s.ok && !(l.maxD && cam.position.distanceTo(l.near) > l.maxD) ? "" : "none"; });
   people.forEach(p => { const s = project(p.g.position.clone().setY(p.g.position.y + 2.5)); p.name.style.left = s.x + "px"; p.name.style.top = s.y + "px"; p.name.style.display = API().sel() === p.a.id ? "" : "none";
     p.name.textContent = p.a.nm + (p.mode === "sleep" && !p.path.length ? " 💤" : ""); });
   const od = API().data(); if (!od) return;
@@ -1014,7 +1068,7 @@ function init(container) {
   ctl.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_ROTATE };
   ctl.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
   // nao sair do escritorio: o ponto para onde se olha fica dentro das paredes
-  ctl.addEventListener("change", () => { const t = ctl.target, cx = Math.max(-18.5, Math.min(Math.max(48, ST_WALL + stLen + 2), t.x)), cz = Math.max(t.x > 19 ? -11 : -8.5, Math.min(t.x > 19 ? 13 : 11.5, t.z));
+  ctl.addEventListener("change", () => { const t = ctl.target, cx = Math.max(-18.5, Math.min(Math.max(48, ST_WALL + stLen + 2), t.x)), cz = Math.max(t.x > 19 ? -11 : -8.5, Math.min(t.x > 19 ? 14 : 11.5, t.z));
     if (cx !== t.x || cz !== t.z || t.y !== 0) { const dx = cx - t.x, dz = cz - t.z, dy = -t.y; t.set(cx, 0, cz); cam.position.x += dx; cam.position.z += dz; cam.position.y += dy; } });
   scene.add(new THREE.HemisphereLight(0xffffff, 0x6b6f78, 1.75));
   const dl = new THREE.DirectionalLight(0xfff4e8, 1.35); dl.position.set(8, 20, 10); scene.add(dl);
@@ -1030,7 +1084,7 @@ function init(container) {
     bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), .28, .4, .92); composer.addPass(bloom); composer.addPass(new OutputPass());
   } catch (e) { composer = null; }
   monTex = canvasTex(256, 160, drawMon);
-  buildRoom(); buildAccessories(); Object.keys(DESK).forEach(buildDesk); buildRadar(); buildBoard(); updateRadar(); buildArena(); buildRewards(); buildSectors(); buildStrategyRoom(); buildStaff();
+  buildRoom(); buildAccessories(); Object.keys(DESK).forEach(buildDesk); buildRadar(); buildBoard(); updateRadar(); buildArena(); buildRewards(); buildSectors(); buildStrategyRoom(); buildStaff(); buildMemorial(); arenaSig = ""; updateArena();
   people = API().agents.map(makePerson);
   // ao abrir: quem esta em pausa ja esta num sitio de descanso (sem marcha em
   // grupo pelo corredor), cada um com a sua faixa e o seu ritmo
@@ -1074,4 +1128,4 @@ function goStrategy() { const T = V(ST_WALL + stLen / 2 + .6, 0), dx = T.x - ctl
   const d = cam.position.clone().sub(ctl.target), want = 17 + stLen * .35; cam.position.copy(ctl.target.clone().add(d.setLength(want))); ctl.update(); }
 function goTo(x, z, want = 14) { const T = V(x, z), dx = T.x - ctl.target.x, dz = T.z - ctl.target.z; ctl.target.copy(T); cam.position.x += dx; cam.position.z += dz;
   const d = cam.position.clone().sub(ctl.target); cam.position.copy(ctl.target.clone().add(d.setLength(want))); ctl.update(); }
-window.Office3D = { init, supported, refresh: () => { tvT = 0; }, resetView, goArena, goRewards, goSectors, goStrategy, goTo };
+window.Office3D = { init, supported, refresh: () => { tvT = 0; }, resetView, goArena, goRewards, goSectors, goStrategy, goMemorial, goTo };
