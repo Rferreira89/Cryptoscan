@@ -21,7 +21,7 @@ PID = os.path.join(DIR, "escuta.pid")
 VENV = os.path.expanduser("~/liq-venv")
 URL = "wss://fstream.binance.com/ws/!forceOrder@arr"
 KEEP_DAYS = 10
-VERSION = "2"                    # muda quando o codigo da escuta muda (relanca)
+VERSION = "3"                    # muda quando o codigo da escuta muda (relanca)
 H4 = 14400
 
 
@@ -45,21 +45,31 @@ def correr():
                 async with websockets.connect(URL, ping_interval=60, close_timeout=5,
                                               open_timeout=20) as ws:
                     print(time.strftime("%H:%M:%S"), "ligado", flush=True)
-                    n, last = 0, time.time()
-                    async for msg in ws:
-                        n += 1
+                    n, last, seen = 0, time.time(), time.time()
+                    while True:
+                        if time.time() - seen > 1800:          # 30 min em silencio: volta a ligar
+                            print(time.strftime("%H:%M:%S"), "30 min sem mensagens: nova ligação", flush=True)
+                            break
+                        try:
+                            msg = await asyncio.wait_for(ws.recv(), timeout=60)
+                        except asyncio.TimeoutError:
+                            msg = None
                         if time.time() - last > 600:
-                            print(time.strftime("%H:%M:%S"), f"{n} mensagens", flush=True)
+                            print(time.strftime("%H:%M:%S"), f"{n} mensagens desde a ligação", flush=True)
                             last = time.time()
-                        o = (json.loads(msg) or {}).get("o") or {}
-                        if not o.get("s", "").endswith("USDT"):
+                        if msg is None:
                             continue
-                        rec = {"t": int(o.get("T", 0)) // 1000, "s": o["s"], "lado": o.get("S"),
-                               "q": float(o.get("z") or o.get("q") or 0),
-                               "p": float(o.get("ap") or o.get("p") or 0)}
-                        day = time.strftime("%Y%m%d", time.gmtime(rec["t"] or time.time()))
-                        with open(os.path.join(DIR, f"{day}.jsonl"), "a") as f:
-                            f.write(json.dumps(rec, separators=(",", ":")) + "\n")
+                        n, seen = n + 1, time.time()
+                        d = json.loads(msg) or {}
+                        for o in [x.get("o") or {} for x in (d if isinstance(d, list) else [d])]:
+                            if not o.get("s", "").endswith("USDT"):
+                                continue
+                            rec = {"t": int(o.get("T", 0)) // 1000, "s": o["s"], "lado": o.get("S"),
+                                   "q": float(o.get("z") or o.get("q") or 0),
+                                   "p": float(o.get("ap") or o.get("p") or 0)}
+                            day = time.strftime("%Y%m%d", time.gmtime(rec["t"] or time.time()))
+                            with open(os.path.join(DIR, f"{day}.jsonl"), "a") as f:
+                                f.write(json.dumps(rec, separators=(",", ":")) + "\n")
             except Exception as e:                 # rede: espera e volta a ligar
                 print("ligacao caiu:", type(e).__name__, flush=True)
                 await asyncio.sleep(5)
