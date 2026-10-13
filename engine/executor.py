@@ -459,7 +459,14 @@ def do_test(state, req, ex, now, send):
     sym, steps = "BTCUSDC", []
     inst = instrument(sym)
     px = last_price(sym)
-    q = max(TEST_USDC, inst["min_amt"] * 1.05)
+    free = usdc_free(wallet())
+    q = min(TEST_USDC, round(free * 0.9, 2))          # o mais pequeno possivel
+    q = max(q, round(inst["min_amt"] * 1.1, 2))
+    if free < q:
+        steps.append(f"ERRO: USDC livre ({free:.2f}) abaixo do mínimo da Bybit para BTC ({inst['min_amt']:g})")
+        ex["teste"] = {"t": now, "passos": steps}
+        send("🧪 Teste de execução não feito: " + steps[-1])
+        return "sem saldo"
     try:
         oid, attached = place_part(sym, q, px * 1.05, px * 0.95, inst, f"teste-{now}")
         steps.append(f"compra {q:.2f} USDC: ok (TP/SL anexados: {'sim' if attached else 'não'})")
@@ -502,7 +509,7 @@ def do_test(state, req, ex, now, send):
     except ExecError as e:
         steps.append(f"ERRO: {e}")
     ex["teste"] = {"t": now, "passos": steps}
-    send("🧪 <b>Teste de execução (BTC, 5 USDC)</b>\n" + "\n".join(f"• {s}" for s in steps), html=True)
+    send(f"🧪 <b>Teste de execução (BTC, {q:.2f} USDC)</b>\n" + "\n".join(f"• {s}" for s in steps), html=True)
     return "ok"
 
 
