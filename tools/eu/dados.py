@@ -121,6 +121,14 @@ def main(dest, state_path=None):
         from tools.eu import liquidacoes
         res["liq"] = liquidacoes.resumo()
         res["liq_escuta"] = bool(liquidacoes.vivo())
+        try:
+            import glob
+            lg = os.path.join(liquidacoes.DIR, "escuta.log")
+            res["liq_diag"] = {"ficheiros": [os.path.basename(f) + f":{os.path.getsize(f)}"
+                                             for f in glob.glob(os.path.join(liquidacoes.DIR, "2*.jsonl"))],
+                               "log": open(lg).read()[-300:] if os.path.exists(lg) else ""}
+        except Exception:
+            pass
     except Exception as e:
         res["liq"], res["liq_escuta"] = {}, False
         res["falhas"].append(f"liquidações: {type(e).__name__}")
