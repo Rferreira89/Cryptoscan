@@ -21,7 +21,7 @@ PID = os.path.join(DIR, "escuta.pid")
 VENV = os.path.expanduser("~/liq-venv")
 URL = "wss://fstream.binance.com/ws/!forceOrder@arr"
 KEEP_DAYS = 10
-VERSION = "3"                    # muda quando o codigo da escuta muda (relanca)
+VERSION = "4"                    # muda quando o codigo da escuta muda (relanca)
 H4 = 14400
 
 
@@ -39,7 +39,21 @@ def correr():
     with open(PID, "w") as f:
         f.write(f"{os.getpid()} {VERSION}")
 
+    async def probe():
+        """Prova da ligacao com um canal que fala sempre (negocios do BTC)."""
+        try:
+            async with websockets.connect("wss://fstream.binance.com/ws/btcusdt@aggTrade",
+                                          open_timeout=20) as ws:
+                n = 0
+                for _ in range(3):
+                    await asyncio.wait_for(ws.recv(), timeout=20)
+                    n += 1
+                print(time.strftime("%H:%M:%S"), f"prova btcusdt@aggTrade: {n} mensagens", flush=True)
+        except Exception as e:
+            print(time.strftime("%H:%M:%S"), "prova falhou:", type(e).__name__, str(e)[:80], flush=True)
+
     async def loop():
+        await probe()
         while True:
             try:
                 async with websockets.connect(URL, ping_interval=60, close_timeout=5,
