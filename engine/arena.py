@@ -74,7 +74,9 @@ NAMES = {"PULLBACK": "Recuo (ao vivo)", "BREAKOUT": "Quebra (ao vivo)",
          "BOUNCE_MACRO": "Bounce com macroeconomia favorável",
          "BOUNCE_MEDO": "Bounce depois de medo na macroeconomia",
          "BOUNCE_ABSORCAO": "Bounce com absorção das vendas",
-         "BOUNCE_LSR": "Bounce com vendedores a descoberto em excesso"}
+         "BOUNCE_LSR": "Bounce com vendedores a descoberto em excesso",
+         "TURTLE": "Tartarugas: rompimento de 20 dias", "SQUEEZE_BB": "Compressão de volatilidade",
+         "MOMENTUM": "Momentum: as 5 mais fortes da semana"}
 # cada concorrente e um analista com nome proprio (decisao do Rui)
 PERSONA = {"BREAKOUT": "Bruno", "PULLBACK": "Rita", "LIQUIDITY_SWEEP": "Simão",
            "RANGE": "Raquel", "TREND_DAILY": "Teodoro", "BOUNCE_G0": "Gaspar",
@@ -85,7 +87,8 @@ PERSONA = {"BREAKOUT": "Bruno", "PULLBACK": "Rita", "LIQUIDITY_SWEEP": "Simão",
            "BOUNCE_ISOLADA": "Isabel", "BOUNCE_NOREACT": "Nélson", "BOUNCE_TRAIL": "Tânia",
            "BOUNCE_HORAS": "Horácio", "BOUNCE_DESALAV": "Dália",
            "BOUNCE_MACRO": "Mário", "BOUNCE_MEDO": "Vicente",
-           "BOUNCE_ABSORCAO": "Abel", "BOUNCE_LSR": "Leandro"}
+           "BOUNCE_ABSORCAO": "Abel", "BOUNCE_LSR": "Leandro",
+           "TURTLE": "Rodrigo", "SQUEEZE_BB": "Beatriz", "MOMENTUM": "Mónica"}
 POOL = ["Leonor", "Duarte", "Matilde", "Afonso", "Carolina", "Martim", "Beatriz",
         "Lourenço", "Mariana", "Salvador", "Francisca", "Henrique", "Clara",
         "Tomás", "Joana", "Miguel", "Catarina", "Diogo", "Lara", "Gonçalo"]

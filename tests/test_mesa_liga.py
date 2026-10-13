@@ -103,3 +103,46 @@ class Liga(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class FamiliasNovas(unittest.TestCase):
+    def test_tartarugas_rompimento(self):
+        c4 = bars(200)
+        for x in c4:
+            x.update(h=101, l=99, c=100)
+        c4[-1].update(c=103, h=103.5)
+        p = AR.sig_turtle(c4)
+        self.assertIsNotNone(p)
+        self.assertLess(p["stop"], 103)
+        self.assertEqual(len(p["tp"]), 2)
+        self.assertEqual(p["trail_r"], 1.0)
+        c4[-2]["c"] = 102                      # ja estava acima: nao e rompimento novo
+        c4[-3].update(h=102.5)
+        self.assertIsNone(AR.sig_turtle(c4))
+
+    def test_momentum_so_a_segunda_e_no_top(self):
+        import time as _t
+        t0 = 1_799_020_800                    # segunda-feira 00h UTC
+        self.assertEqual(_t.gmtime(t0).tm_wday, 0)
+        mk = lambda g: [{"t": t0 - (300 - i) * H4, "o": 1, "h": 1, "l": 1, "c": 100 * (1 + g) ** i, "v": 1}
+                        for i in range(300)]
+        bars_ = {f"A{i}": mk(0.001 * i) for i in range(8)}
+        bars_["BTC"] = mk(0.0)
+        AR.CTX.update(bars=bars_, rank={}, btc=bars_["BTC"], asset="A7")
+        try:
+            self.assertEqual(AR.momentum_rank(bars_, t0)[0], "A7")
+            self.assertIsNotNone(AR.sig_momentum(bars_["A7"]))
+            AR.CTX["asset"] = "A1"
+            self.assertIsNone(AR.sig_momentum(bars_["A1"]))           # fora do top 5
+            AR.CTX["asset"] = "A7"
+            self.assertIsNone(AR.sig_momentum(bars_["A7"][:-1]))      # nao e segunda 00h
+        finally:
+            AR.CTX.update(bars={}, rank={}, btc=None, asset=None)
+
+    def test_nomes_e_mesa(self):
+        from engine import arena
+        for k, n in (("TURTLE", "Rodrigo"), ("SQUEEZE_BB", "Beatriz"), ("MOMENTUM", "Mónica")):
+            self.assertEqual(arena.persona(k), n)
+            self.assertIn(k, AR.SINAIS)
+        v = debate.votes("AAA", bars(200), 100, {"TURTLE"})
+        self.assertIn("máximo de 20 dias", v[0]["razao"])

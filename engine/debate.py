@@ -74,6 +74,44 @@ def _filter(k, c4):
     return None
 
 
+def _why_turtle(c4):
+    from engine import backtest as B
+    d = [x for x in B.daily(c4) if x["t"] + DAY <= c4[-1]["t"] + H4]
+    if len(d) < 22:
+        return "sem 20 dias de histórico"
+    hi = max(x["h"] for x in d[-21:-1])
+    gap = (hi / c4[-1]["c"] - 1) * 100
+    return (f"máximo de 20 dias em {hi:.6g}: " + (f"faltam {gap:.1f}% para o rompimento" if gap > 0
+                                                 else "já acima, à espera de um rompimento novo"))
+
+
+def _why_squeeze(c4):
+    c = [x["c"] for x in c4[-140:]]
+    if len(c) < 140:
+        return "sem velas suficientes"
+
+    def w(k):
+        x = c[k - 19:k + 1]
+        m = sum(x) / 20
+        return 4 * (sum((v - m) ** 2 for v in x) / 20) ** 0.5 / m
+    ws = sorted(w(k) for k in range(len(c) - 121, len(c) - 1))
+    p = 100 * sum(1 for v in ws if v < w(len(c) - 1)) / len(ws)
+    return f"largura das bandas no percentil {p:.0f} de 20 dias (preciso de aperto ≤ 10 e rompimento com volume)"
+
+
+def _why_momentum(c4):
+    from tools import arena_ringue as AR
+    t = c4[-1]["t"] + H4
+    rank = AR.momentum_rank(AR.CTX.get("bars") or {}, t)
+    a = AR.CTX.get("asset")
+    pos = rank.index(a) + 1 if a in rank else None
+    return (f"{pos}.ª de {len(rank)} em força a 30 dias" if pos else "sem 30 dias de histórico") + \
+        f" (compra as {AR.MOM_TOP} primeiras, só à segunda-feira 00h UTC)"
+
+
+TREND = {"TURTLE": _why_turtle, "SQUEEZE_BB": _why_squeeze, "MOMENTUM": _why_momentum}
+
+
 BASE = {"BOUNCE_G0": 25, "BOUNCE_V2": 25, "BOUNCE_V3": 25, "DIP_TREND": 35}
 
 
@@ -90,7 +128,9 @@ def votes(asset, c4, px, alive):
             sig = fn(c4, px)
         except Exception:
             sig = None
-        if k == "CAPITULACAO":
+        if k in TREND:
+            why, ok_b, f = TREND[k](c4), False, None
+        elif k == "CAPITULACAO":
             v = c4[-1]["v"] / max(1e-12, sum(x["v"] for x in c4[-21:-1]) / 20)
             why = f"volume {v:.1f}× o normal (preciso de 3× com pavio longo)"
         else:
@@ -102,7 +142,7 @@ def votes(asset, c4, px, alive):
                 why = f"{why} ({f[1]}: ok)"
         if sig:
             why = sig.get("gatilho") or why
-        elif k != "CAPITULACAO" and ok_b and (f is None or f[0]):
+        elif k not in TREND and k != "CAPITULACAO" and ok_b and (f is None or f[0]):
             why += ("; a tendência diária não é forte o suficiente" if k == "DIP_TREND"
                     else "; o plano não tem margem até ao objetivo")
         out.append({"id": k, "persona": arena.persona(k), "voto": "entra" if sig else "não",

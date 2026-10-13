@@ -520,7 +520,100 @@ def sig_lsr(c4):
     return dict(s0, gatilho=f"sobrevenda a virar com {txt}") if ok else None
 
 
-NEW_SIGS = {"BOUNCE_ABSORCAO": sig_absorcao, "BOUNCE_LSR": sig_lsr,
+# ---------- familias usadas pelos grandes gestores, alem da sobrevenda ----------
+# (decisao do Rui, 2026-10-14: "quero todas as estrategias dos melhores
+# traders do mundo"). Entram no ringue como os outros: so papel ate provar.
+
+def _trend_plan(c4, stop, r_mult=(2, 5), hold=20 * DAY, trail=1.0, gat=""):
+    """Plano de seguimento de tendencia: objetivos a 2R e 5R, metade em cada,
+    stop para a entrada no TP1 e depois a seguir o preco (trail)."""
+    e = c4[-1]["c"]
+    if not 0 < stop < e * 0.995:
+        return None
+    r = e - stop
+    return {"stop": stop, "tp": [e + r_mult[0] * r, e + r_mult[1] * r], "partials": [50, 50],
+            "breakeven": True, "hold_s": hold, "trail_r": trail, "atr": PB.atr(c4[-100:])[-1],
+            "gatilho": gat}
+
+
+def sig_turtle(c4):
+    """Tartarugas (Richard Dennis): rompimento do maximo de 20 dias, stop a
+    2 N (N = ATR diario de 20 dias), objetivos 2R/5R e stop que segue."""
+    d = [x for x in B.daily(c4) if x["t"] + DAY <= c4[-1]["t"] + H4]
+    if len(d) < 25:
+        return None
+    hi20 = max(x["h"] for x in d[-21:-1])
+    prev = c4[-2]["c"]
+    if not (c4[-1]["c"] > hi20 >= prev):
+        return None
+    tr = [max(d[k]["h"], d[k - 1]["c"]) - min(d[k]["l"], d[k - 1]["c"]) for k in range(len(d) - 20, len(d))]
+    n = sum(tr) / 20
+    return _trend_plan(c4, c4[-1]["c"] - 2 * n, gat=f"rompimento do máximo de 20 dias ({hi20:.6g})")
+
+
+def sig_squeeze_bb(c4):
+    """Compressao de volatilidade (Bollinger squeeze): bandas no aperto mais
+    estreito de 20 dias e fecho acima da banda superior com volume."""
+    if len(c4) < 140:
+        return None
+    c = [x["c"] for x in c4[-140:]]
+
+    def width(k):
+        w = c[k - 19:k + 1]
+        m = sum(w) / 20
+        sd = (sum((x - m) ** 2 for x in w) / 20) ** 0.5
+        return m, sd, 4 * sd / m if m else 0
+    m, sd, wnow = width(len(c) - 1)
+    ws = [width(k)[2] for k in range(len(c) - 121, len(c) - 1)]
+    _, _, wprev = width(len(c) - 2)
+    vavg = sum(x["v"] for x in c4[-21:-1]) / 20
+    if not (wprev <= sorted(ws)[len(ws) // 10] and c[-1] > m + 2 * sd and c4[-1]["v"] > 1.5 * vavg):
+        return None
+    return _trend_plan(c4, m - 0.5 * sd, r_mult=(1.5, 3), hold=5 * DAY,
+                       gat="volatilidade comprimida a soltar-se para cima, com volume")
+
+
+MOM_TOP = 5
+
+
+def momentum_rank(bars, t):
+    """[moedas] por retorno de 30 dias ate t (velas de 4H fechadas), melhor primeiro."""
+    import bisect
+    out = []
+    for a, c4 in bars.items():
+        k = bisect.bisect_right([x["t"] + H4 for x in c4], t) - 1
+        if k >= 180:
+            out.append((c4[k]["c"] / c4[k - 180]["c"] - 1, a))
+    return [a for _, a in sorted(out, reverse=True)]
+
+
+def sig_momentum(c4):
+    """Momentum entre moedas (rotacao semanal, usado por fundos quant): a
+    segunda-feira as 00h UTC compra as 5 moedas com melhor retorno a 30 dias,
+    se esse retorno for positivo e maior do que o do BTC; fica 7 dias."""
+    t = c4[-1]["t"] + H4
+    g = time.gmtime(t)
+    if g.tm_wday != 0 or g.tm_hour != 0 or len(c4) < 181:
+        return None
+    rank = (CTX.get("rank") or {}).get(t)
+    if rank is None:
+        rank = momentum_rank(CTX.get("bars") or {}, t)
+    a = CTX.get("asset")
+    if a not in rank[:MOM_TOP]:
+        return None
+    mine = c4[-1]["c"] / c4[-181]["c"] - 1
+    btc = _btc_ret(t, 180)
+    if mine <= 0 or (btc is not None and mine <= btc):
+        return None
+    at = PB.atr(c4[-100:])[-1]
+    e = c4[-1]["c"]
+    return {"stop": e - 3 * at, "tp": [e + 6 * at], "partials": [100], "breakeven": False,
+            "hold_s": 7 * DAY, "atr": at,
+            "gatilho": f"entre as {MOM_TOP} moedas mais fortes a 30 dias ({mine:+.0%}, {rank.index(a) + 1}.ª)"}
+
+
+NEW_SIGS = {"TURTLE": sig_turtle, "SQUEEZE_BB": sig_squeeze_bb, "MOMENTUM": sig_momentum,
+            "BOUNCE_ABSORCAO": sig_absorcao, "BOUNCE_LSR": sig_lsr,
             "BOUNCE_MACRO": sig_macro, "BOUNCE_MEDO": sig_medo,
             "BOUNCE_DESALAV": sig_desalav, "BOUNCE_NOREACT": sig_noreact, "BOUNCE_TRAIL": sig_trail, "BOUNCE_HORAS": sig_horas,
             "BOUNCE_X30": sig_x30, "DIP_TREND": sig_dip_trend, "CAPITULACAO": sig_capitulacao,
@@ -682,7 +775,14 @@ def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None, funding=None, oi=None,
         macro=None, ls=None):
     t0 = now - days * DAY
     btc = bars.get("BTC")
-    CTX.update(btc=btc, funding=funding or {}, oi=oi or {}, macro=macro or {}, ls=ls or {})
+    CTX.update(btc=btc, funding=funding or {}, oi=oi or {}, macro=macro or {}, ls=ls or {},
+               bars=bars, rank={})
+    # rotacao semanal: o ranking de cada segunda-feira 00h UTC, calculado uma vez
+    for x in btc or []:
+        t = x["t"] + H4
+        g = time.gmtime(t)
+        if g.tm_wday == 0 and g.tm_hour == 0 and t >= t0:
+            CTX["rank"][t] = momentum_rank(bars, t)
     reg, above = B.regimes(btc), btc_above(btc)
     groups = {k: [] for k in LIVE + ("REJEITADOS", "BOUNCE_G0", "BOUNCE_V1",
                                      "BOUNCE_V2", "BOUNCE_V3", "TREND_DAILY",

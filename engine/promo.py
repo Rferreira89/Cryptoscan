@@ -46,6 +46,8 @@ def set_context(rows, bars):
     except Exception:
         return
     CTX["btc"] = bars.get("BTC")
+    CTX["bars"] = {a: c for a, c in bars.items() if c}    # rotacao: ranking ao vivo
+    CTX["rank"] = {}
     # a taxa atual conta como a ultima liquidacao (ha menos de 4 horas)
     CTX["funding"] = {r["asset"]: [(int(__import__("time").time()) - 14000,
                                     (r.get("derivatives") or {}).get("funding_rate"))]
