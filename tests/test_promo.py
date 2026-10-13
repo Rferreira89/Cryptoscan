@@ -205,3 +205,24 @@ class Admin(unittest.TestCase):
         self.assertEqual(st["ledger"][0]["user_exit"], 5.143)
         self.assertEqual(run.apply_admin(st, p, now=200), [])
         self.assertEqual(run.apply_admin(st, os.path.join(d, "nada.json")), [])
+
+
+class CadeiaDeQuedas(unittest.TestCase):
+    def test_no_maximo_duas_entradas_por_vela(self):
+        c4 = bars()
+        now = c4[-1]["t"] + TF + 60
+        sig = {"stop": 80.0, "tp": [90.0, 95.0], "partials": [50, 50], "breakeven": True,
+               "hold_s": 3 * 86400, "t_sig": c4[-1]["t"] + TF, "atr": 1.5}
+        rows = [{"asset": a, "price": 84.1,
+                 "decision": {"decision": "NO TRADE", "venue": {"pair": a + "/USDC"}}}
+                for a in ("AAA", "BBB", "CCC", "DDD")]
+        st = {}
+        with mock.patch.object(promo, "registry", return_value={"BOUNCE_G0": lambda c, px, cfg: sig}):
+            d = promo.decisions(st, rows, {r["asset"]: c4 for r in rows}, CFG, now,
+                                ["BOUNCE_G0"], True, lambda a: None)
+            self.assertEqual(len(d), 2)
+            self.assertEqual(len(st["promo_lost"]), 2)
+            self.assertIn("quedas em cadeia", st["promo_lost"][0]["reason"])
+            # scan seguinte na mesma vela: nada de novo
+            self.assertEqual(promo.decisions(st, rows, {r["asset"]: c4 for r in rows}, CFG,
+                                             now + 300, ["BOUNCE_G0"], True, lambda a: None), {})

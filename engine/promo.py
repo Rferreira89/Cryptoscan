@@ -20,6 +20,11 @@ from . import risk
 
 MIN_N = 20
 TF = 14400
+# Protecao contra quedas em cadeia (decisao do Rui, 2026-10-13): o Bounce
+# compra quedas de mercado e os sinais chegam em grupo, em moedas que se
+# mexem juntas. No maximo MAX_PER_BAR entradas novas por vela de 4H; o resto
+# fica registado como oportunidade perdida.
+MAX_PER_BAR = 2
 # Lutadores cujo codigo de sinal foi revisto numa sessao com o Rui e que por
 # isso podem ser campeoes com dinheiro real. Os lutadores novos criados pelos
 # agentes entram no combate e em papel ao vivo sozinhos; para dinheiro real
@@ -111,13 +116,14 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
     if not champs or not market_ok:
         return {}
     seen = state.setdefault("promo_last", {})
-    out = {}
+    bar = state.setdefault("promo_bar", {"t": 0, "n": 0})
+    cands = []                                # (posicao do campeao, ativo, sinal, decisao)
     for r in rows:
         a, c4 = r.get("asset"), bars.get(r.get("asset"))
         d0 = r.get("decision") or {}
         if not c4 or not d0.get("venue") or d0.get("decision") in ("LONG", "SHORT"):
             continue
-        for champ in champs:
+        for rank, champ in enumerate(champs):
             try:
                 sig = registry()[champ](c4, r["price"], cfg)
             except Exception:
@@ -132,21 +138,31 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
             p, why = plan_for(sig, r["price"], cfg)
             if not p:
                 continue
-            seen[a] = sig["t_sig"]
-            out[a] = {
-                "decision": "LONG", "mode": "REAL", "validated": False,
-                "strategy": champ, "state": "READY", "plan": p, "score": 75,
-                "score_label": "campeão da arena", "confidence": "MÉDIA",
-                "regime": d0.get("regime"), "regime_changed": False,
-                "conflicts": [], "warnings": [], "venue": d0["venue"],
-                "families": {"combate de 90 dias acima do acaso": 1.0,
-                             "gatilho do campeão": 0.8},
-                "notes": [f"Campeão da arena ({champ}): no combate dos últimos "
-                          "90 dias bateu 95% das entradas ao acaso"],
-                "trigger": sig.get("gatilho") or "gatilho do campeão",
-                "reason": "campeão da arena", "checks": d0.get("checks", []),
-                "rejected": []}
+            cands.append((rank, a, champ, sig, p, d0))
             break
+    out = {}
+    for rank, a, champ, sig, p, d0 in sorted(cands, key=lambda x: x[0]):
+        seen[a] = sig["t_sig"]
+        if bar["t"] != sig["t_sig"]:
+            bar.update(t=sig["t_sig"], n=0)
+        if bar["n"] >= MAX_PER_BAR:
+            lost(state, now, a, champ, f"limite de {MAX_PER_BAR} entradas por vela de 4H "
+                 "(proteção contra quedas em cadeia)")
+            continue
+        bar["n"] += 1
+        out[a] = {
+            "decision": "LONG", "mode": "REAL", "validated": False,
+            "strategy": champ, "state": "READY", "plan": p, "score": 75 - rank,
+            "score_label": "campeão da arena", "confidence": "MÉDIA",
+            "regime": d0.get("regime"), "regime_changed": False,
+            "conflicts": [], "warnings": [], "venue": d0["venue"],
+            "families": {"combate de 90 dias acima do acaso": 1.0,
+                         "gatilho do campeão": 0.8},
+            "notes": [f"Campeão da arena ({champ}): no combate dos últimos "
+                      "90 dias bateu 95% das entradas ao acaso"],
+            "trigger": sig.get("gatilho") or "gatilho do campeão",
+            "reason": "campeão da arena", "checks": d0.get("checks", []),
+            "rejected": []}
     return out
 
 
