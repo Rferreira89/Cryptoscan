@@ -29,7 +29,11 @@ def apply(state, ex):
     if not ex:
         READY = bool(state.get("exec_ready"))
         return
-    READY = bool(ex.get("pronto"))
+    # botao so depois do teste real de 5 USDC ter passado (decisao do Rui)
+    passos = (ex.get("teste") or {}).get("passos") or []
+    teste_ok = bool(passos) and not any("ERRO" in p for p in passos) and \
+        any(p.startswith("venda") for p in passos)
+    READY = bool(ex.get("pronto")) and teste_ok
     state["exec_ready"] = READY
     done = set(ex.get("feitos") or [])
     state["exec_req"] = [r for r in state.get("exec_req") or [] if r["id"] not in done]

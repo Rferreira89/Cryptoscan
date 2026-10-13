@@ -123,6 +123,9 @@ class LadoDoScanner(unittest.TestCase):
         rid = st["exec_req"][0]["id"]
         ex = {"pronto": True, "feitos": [rid], "ops": {"SOL-BOUNCE_X30-1": {"status": "aberta", "entrada": 99.6}}}
         execucao.apply(st, ex)
+        self.assertFalse(execucao.READY)                  # sem teste real aprovado
+        ex["teste"] = {"passos": ["compra 5.25 USDC: ok", "venda: 0.0001 BTC a 1"]}
+        execucao.apply(st, ex)
         self.assertTrue(execucao.READY)
         self.assertEqual(st["exec_req"], [])
         rec = st["ledger"][0]
