@@ -402,6 +402,15 @@ def do_buy(state, req, ex, now, send):
         lev_acct = float(get("/v5/spot-margin-trade/state").get("spotLeverage") or 1)
     except ExecError:
         lev_acct = 1.0
+    need = min(10, math.ceil(lev_plan - 1e-9))
+    if lev_plan > 1 and need > lev_acct:
+        # a conta tem um teto de alavancagem (2x a 10x) definido na Bybit:
+        # sobe-o ao necessario para este plano (nunca o baixa)
+        try:
+            post("/v5/spot-margin-trade/set-leverage", {"leverage": str(need)})
+            lev_acct = float(need)
+        except ExecError as e:
+            print("teto de alavancagem nao alterado:", e)
     lev = max(1.0, min(lev_plan, lev_acct))
     reduced = False
     cap = math.floor(free * 0.98 * lev * 100) / 100       # o maximo que a margem permite
@@ -790,7 +799,20 @@ def do_test_margin(state, req, ex, now, send):
     return "ok"
 
 
-ACTIONS = {"teste_margem": do_test_margin, "teste2": do_test2, "limpar": do_clean, "diag": do_diag, "comprar": do_buy, "breakeven": do_breakeven, "fechar": do_close,
+def do_test_lev(state, req, ex, now, send):
+    """Sem custo: le o teto de alavancagem da conta e volta a grava-lo com o
+    mesmo valor, para provar que a chave o pode alterar."""
+    try:
+        cur = get("/v5/spot-margin-trade/state").get("spotLeverage") or "2"
+        post("/v5/spot-margin-trade/set-leverage", {"leverage": str(int(float(cur)))})
+        out = f"teto atual {cur}x; a chave pode alterá-lo: sim"
+    except ExecError as e:
+        out = f"ERRO: {e}"
+    ex["teste_alav"] = {"t": now, "res": out}
+    return "ok"
+
+
+ACTIONS = {"teste_alav": do_test_lev, "teste_margem": do_test_margin, "teste2": do_test2, "limpar": do_clean, "diag": do_diag, "comprar": do_buy, "breakeven": do_breakeven, "fechar": do_close,
            "parar": do_stop_all, "teste": do_test}
 
 

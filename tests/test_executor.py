@@ -90,8 +90,9 @@ class CompraSimulada(unittest.TestCase):
                 mock.patch.object(X, "post", lambda p, q: posts.append(q) or {"orderId": "o"}), \
                 mock.patch.object(X.time, "sleep", lambda s: None):
             X.do_buy(st, {"op": "SOL-BOUNCE_X30-1"}, {"ops": {}, "feitos": []}, NOW, lambda t, html=False: None)
-        # 12 livres x 0.98 x 2 (teto da conta) = 23.52 > 20 do plano: compra 20 com margem
-        self.assertTrue(all(p.get("isLeverage") == 1 for p in posts))
+        # teto da conta 2x < plano 2.44x: sobe o teto para 3x; compra 20 com margem
+        self.assertEqual(posts[0], {"leverage": "3"})
+        self.assertTrue(all(p.get("isLeverage") == 1 for p in posts[1:]))
         self.free = "50"
 
     def test_compra_em_partes(self):
