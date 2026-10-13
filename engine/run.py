@@ -198,7 +198,7 @@ def short_text(e, s, head, note):
     return None
 
 
-CHAMP_PREFIX = "BOUNCE_"
+CHAMP_PREFIX = ("BOUNCE_", "DIP_TREND", "CAPITULACAO")
 
 
 def champ_name(k):

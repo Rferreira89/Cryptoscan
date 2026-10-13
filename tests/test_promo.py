@@ -139,3 +139,51 @@ class Ringue1H(unittest.TestCase):
             cut = full[0][1]["t"] + 2 * 86400
             part = AR.bounce_1h_trades("AAA", [x for x in c1 if x["t"] < cut], above, t0)
             self.assertEqual(round(part[0][1]["r"], 6), round(full[0][1]["r"], 6))
+
+
+class VariosCampeoes(unittest.TestCase):
+    def test_todos_os_qualificados_revistos_dao_sinais(self):
+        st = state_with({"BOUNCE_G0": f(26, 0.8, -0.2), "BOUNCE_X30": f(64, 0.4, 0.07),
+                         "DIP_TREND": f(42, 0.02, 0.07)})
+        self.assertEqual(promo.champions(st), ["BOUNCE_G0", "BOUNCE_X30"])
+
+    def test_melhor_campeao_com_sinal_ganha_a_moeda_e_evento_fica_registado(self):
+        c4 = bars()
+        now = c4[-1]["t"] + TF + 60
+        sig = {"stop": 80.0, "tp": [90.0, 95.0], "partials": [50, 50], "breakeven": True,
+               "hold_s": 3 * 86400, "t_sig": c4[-1]["t"] + TF, "atr": 1.5}
+        row = {"asset": "AAA", "price": 84.1,
+               "decision": {"decision": "NO TRADE", "venue": {"pair": "AAA/USDC"}}}
+        reg = {"BOUNCE_G0": lambda c, px, cfg: None, "BOUNCE_X30": lambda c, px, cfg: sig}
+        st = {}
+        with mock.patch.object(promo, "registry", return_value=reg):
+            d = promo.decisions(st, [row], {"AAA": c4}, CFG, now,
+                                ["BOUNCE_G0", "BOUNCE_X30"], True, lambda a: None)
+            self.assertEqual(d["AAA"]["strategy"], "BOUNCE_X30")
+            st2 = {}
+            promo.decisions(st2, [row], {"AAA": c4}, CFG, now, ["BOUNCE_X30"], True,
+                            lambda a: "CPI")
+            self.assertEqual(st2["promo_lost"][0]["asset"], "AAA")
+
+    def test_novos_lutadores_no_ringue(self):
+        for k in ("BOUNCE_X30", "DIP_TREND", "CAPITULACAO"):
+            self.assertIn(k, AR.SINAIS)
+            self.assertIn(k, promo.REAL_OK)
+        self.assertIsNone(AR.sig_x30(bars()))
+        self.assertIsNone(AR.sig_capitulacao(bars()))
+
+    def test_generico_sem_look_ahead(self):
+        import random
+        rnd = random.Random(3)
+        c4, p = [], 100.0
+        t0 = 1_800_000_000 // TF * TF
+        for i in range(700):
+            p *= 1 + rnd.uniform(-0.03, 0.03)
+            c4.append({"t": t0 + i * TF, "o": p, "h": p * 1.015, "l": p * 0.985, "c": p, "v": 1 + rnd.random()})
+        above = {x["t"] // 86400: True for x in c4}
+        full = AR.generic_trades("AAA", c4, above, t0, "BOUNCE_X30", AR.sig_x30)
+        self.assertTrue(full)
+        cut = full[0][1]["t"] + 4 * 86400
+        part = AR.generic_trades("AAA", [x for x in c4 if x["t"] < cut], above, t0,
+                                 "BOUNCE_X30", AR.sig_x30)
+        self.assertEqual(round(part[0][1]["r"], 6), round(full[0][1]["r"], 6))

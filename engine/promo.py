@@ -25,7 +25,8 @@ TF = 14400
 # agentes entram no combate e em papel ao vivo sozinhos; para dinheiro real
 # o codigo deles tem de ser revisto e acrescentado aqui (os agentes nao
 # mexem em engine/).
-REAL_OK = ("BOUNCE_G0", "BOUNCE_V2", "BOUNCE_V3")
+REAL_OK = ("BOUNCE_G0", "BOUNCE_V2", "BOUNCE_V3", "BOUNCE_X30", "DIP_TREND",
+           "CAPITULACAO")
 
 
 def registry():
@@ -50,13 +51,19 @@ def qualified(state):
     return sorted(out, key=lambda x: -x[1])
 
 
-def champion(state, disabled=()):
-    """Lutador que da sinais reais agora (ou None)."""
+def champions(state, disabled=()):
+    """Lutadores que dao sinais reais agora, melhor primeiro (decisao do
+    Rui, 2026-10-13: "nao quero perder oportunidades"): TODOS os
+    qualificados com codigo revisto, nao so o primeiro."""
     reg = registry()
-    for k, _ in qualified(state):
-        if k in reg and k in REAL_OK and k not in disabled:
-            return k
-    return None
+    return [k for k, _ in qualified(state)
+            if k in reg and k in REAL_OK and k not in disabled]
+
+
+def champion(state, disabled=()):
+    """O melhor dos campeoes (ou None)."""
+    c = champions(state, disabled)
+    return c[0] if c else None
 
 
 def plan_for(sig, px, cfg):
@@ -93,13 +100,15 @@ def plan_for(sig, px, cfg):
             "max_hold_s": sig.get("hold_s")}, None
 
 
-def decisions(state, rows, bars, cfg, now, champ, market_ok, block_for):
-    """{ativo: decisao LONG} para os sinais frescos do campeao. Cada vela
-    de sinal so e usada uma vez. block_for(ativo) -> motivo ou None."""
-    if not champ or not market_ok:
-        return {}
-    fn = registry().get(champ)
-    if not fn:
+def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
+    """{ativo: decisao LONG} para os sinais frescos dos campeoes (o melhor
+    campeao com sinal ganha a moeda). Cada vela de sinal so e usada uma vez
+    por moeda. block_for(ativo) -> motivo ou None. Os sinais bloqueados por
+    evento ficam em state["promo_lost"]."""
+    if isinstance(champs, str):
+        champs = [champs]
+    champs = [k for k in (champs or []) if registry().get(k)]
+    if not champs or not market_ok:
         return {}
     seen = state.setdefault("promo_last", {})
     out = {}
@@ -108,29 +117,41 @@ def decisions(state, rows, bars, cfg, now, champ, market_ok, block_for):
         d0 = r.get("decision") or {}
         if not c4 or not d0.get("venue") or d0.get("decision") in ("LONG", "SHORT"):
             continue
-        try:
-            sig = fn(c4, r["price"], cfg)
-        except Exception:
-            continue
-        if not sig or now - sig["t_sig"] > TF or seen.get(a) == sig["t_sig"]:
-            continue
-        if block_for(a):
-            continue
-        p, why = plan_for(sig, r["price"], cfg)
-        if not p:
-            continue
-        seen[a] = sig["t_sig"]
-        out[a] = {
-            "decision": "LONG", "mode": "REAL", "validated": False,
-            "strategy": champ, "state": "READY", "plan": p, "score": 75,
-            "score_label": "campeão da arena", "confidence": "MÉDIA",
-            "regime": d0.get("regime"), "regime_changed": False,
-            "conflicts": [], "warnings": [], "venue": d0["venue"],
-            "families": {"combate de 90 dias acima do acaso": 1.0,
-                         "gatilho de sobrevenda": 0.8},
-            "notes": [f"Campeão da arena ({champ}): no combate dos últimos "
-                      "90 dias bateu 95% das entradas ao acaso"],
-            "trigger": sig.get("gatilho") or "gatilho do campeão",
-            "reason": "campeão da arena", "checks": d0.get("checks", []),
-            "rejected": []}
+        for champ in champs:
+            try:
+                sig = registry()[champ](c4, r["price"], cfg)
+            except Exception:
+                continue
+            if not sig or now - sig["t_sig"] > TF or seen.get(a) == sig["t_sig"]:
+                continue
+            why = block_for(a)
+            if why:
+                seen[a] = sig["t_sig"]
+                lost(state, now, a, champ, f"evento: {why}")
+                break
+            p, why = plan_for(sig, r["price"], cfg)
+            if not p:
+                continue
+            seen[a] = sig["t_sig"]
+            out[a] = {
+                "decision": "LONG", "mode": "REAL", "validated": False,
+                "strategy": champ, "state": "READY", "plan": p, "score": 75,
+                "score_label": "campeão da arena", "confidence": "MÉDIA",
+                "regime": d0.get("regime"), "regime_changed": False,
+                "conflicts": [], "warnings": [], "venue": d0["venue"],
+                "families": {"combate de 90 dias acima do acaso": 1.0,
+                             "gatilho do campeão": 0.8},
+                "notes": [f"Campeão da arena ({champ}): no combate dos últimos "
+                          "90 dias bateu 95% das entradas ao acaso"],
+                "trigger": sig.get("gatilho") or "gatilho do campeão",
+                "reason": "campeão da arena", "checks": d0.get("checks", []),
+                "rejected": []}
+            break
     return out
+
+
+def lost(state, now, asset, champ, why):
+    """Regista uma oportunidade de um campeao que nao virou sinal."""
+    lst = state.setdefault("promo_lost", [])
+    lst.append({"t": int(now), "asset": asset, "strategy": champ, "reason": why})
+    del lst[:-100]

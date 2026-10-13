@@ -16,9 +16,9 @@ from . import (analysis, config, derivatives, events as calendar, ledger, short,
                signals,
                sources, validate, venue, volume)
 
-MIN_VOLUME_USD = 5_000_000
+MIN_VOLUME_USD = 1_000_000       # 2026-10-13: alinhado com o combate da arena (todas as moedas da Bybit UE)
 MAX_SPREAD_BPS = 20
-DEEP_N = 60                 # cobre todos os ativos elegiveis da Bybit UE
+DEEP_N = 100                # cobre todos os ativos elegiveis da Bybit UE
 TIMEFRAMES = ["1d", "4h"]
 
 STABLE_OR_PEGGED = {
@@ -316,25 +316,35 @@ def run(now=None, state=None, cfg=None, forma=None):
                     set(disabled))
     # campeao da arena: o lutador qualificado no combate com melhor R medio
     # da sinais reais pelo circuito normal (engine/promo.py)
-    champ = promo.champion(state, set(disabled))
+    champs = promo.champions(state, set(disabled))
+    champ = champs[0] if champs else None
+    promo_rows = {}
     try:
         def block_for(a):
             if block:
                 return block
             e = calendar.block(now, a)
             return e["name"] if e else None
-        for a, d in promo.decisions(state, eligible, c4s, cfg, now, champ,
+        for a, d in promo.decisions(state, eligible, c4s, cfg, now, champs,
                                     market_ok, block_for).items():
             row = next(r for r in eligible if r["asset"] == a)
             row["decision"] = d
+            promo_rows[a] = row
     except Exception as e:  # a promocao nunca pode parar o scan
         result["promo_erro"] = str(e)[:120]
-    result["promo"] = {"campeao": champ, "qualificados": [
+    result["promo"] = {"campeao": champ, "campeoes": champs, "qualificados": [
         {"id": k, "avg_r": r} for k, r in promo.qualified(state)]}
     # os shorts entram como linhas proprias no ciclo de vida dos sinais
     both = eligible + [dict(r, decision=r["decision_short"])
                        for r in eligible if r.get("decision_short")]
     events += signals.update_state(state, both, cfg, now, daily)
+    for a, row in promo_rows.items():     # campeao que nao virou sinal: porque?
+        if row["decision"].get("decision") != "LONG" or not row["decision"].get("active_signal"):
+            if row["decision"].get("decision") != "LONG":
+                promo.lost(state, now, a, row["decision"].get("strategy"),
+                           row["decision"].get("reason") or "")
+    lost = state.get("promo_lost", [])
+    result["promo"]["perdidas_7d"] = [x for x in lost if now - x["t"] < 7 * 86400][-20:]
     events += calendar.open_warnings(state, now)
     # papel do Oversold Bounce (nao validada): nunca gera ordens reais
     try:
@@ -343,7 +353,7 @@ def run(now=None, state=None, cfg=None, forma=None):
             dead=arena.dead_paper(state))
         # o campeao ja da o sinal real: o aviso de papel da mesma saida seria
         # repetido (o papel continua a ser registado)
-        if champ == "BOUNCE_G0":
+        if "BOUNCE_G0" in champs or "BOUNCE_X30" in champs:
             ev = [e for e in ev if not e["event"].startswith("BOUNCE_PAPER")]
         events += ev
     except Exception as e:  # o papel nunca pode parar o scan

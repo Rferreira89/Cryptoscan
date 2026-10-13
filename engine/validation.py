@@ -31,7 +31,7 @@ def note(strategy):
     st = status(strategy)
     if st.get("validated"):
         return "Estratégia validada."
-    if str(strategy).startswith("BOUNCE_") and not st.get("n"):
+    if str(strategy).startswith(("BOUNCE_", "DIP_TREND", "CAPITULACAO")) and not st.get("n"):
         return ("⚠️ Promovida pela arena, sem validação completa: no combate "
                 "dos últimos 90 dias bateu 95% das entradas ao acaso. Perde o "
                 "lugar automaticamente se começar a perder.")

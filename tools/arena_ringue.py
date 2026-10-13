@@ -28,6 +28,20 @@ Lutadores e regras de selecao (iguais ao que o sistema ao vivo faria):
       maximo das 42 velas anteriores; stop na entrada depois do 1.o objetivo;
       saida ao fim de 24 horas
 
+LUTADORES NOVOS de 2026-10-13 (regras escritas ANTES de testar; o Rui pediu
+mais oportunidades sem perder rigor). Todos so de compra, BTC acima da media
+de 200 dias, entrada na abertura seguinte, stop na entrada depois do 1.o
+objetivo, saida ao fim de 3 dias, objetivos como o Bounce G0 (50% na media
+de 20 velas, resto no maximo das 42 velas anteriores), stop >= 1,25 ATR:
+  BOUNCE_X30: o gatilho do Bounce com RSI abaixo de 30 (em vez de 25)
+  DIP_TREND:  recuo numa tendencia forte: no diario fecho > SMA50 > SMA200;
+              RSI 4H abaixo de 35 numa das ultimas 3 velas; ultima vela fecha
+              acima do maximo da anterior com o RSI a subir
+  CAPITULACAO: vela de 4H com volume >= 3x a media de 20, pavio inferior
+              >= 50% da amplitude, fecho no terco superior, depois de uma
+              queda >= 8% desde o maximo das 18 velas anteriores; stop no
+              minimo dessa vela menos 0,1 ATR
+
 SINAIS (decisao do Rui, 2026-10-13: "cada lutador que provar que e bom
 merece um lugar"): para um lutador poder operar AO VIVO (papel e, se for o
 campeao da arena, dinheiro real) precisa de uma funcao de sinal em SINAIS:
@@ -203,6 +217,128 @@ def bounce_1h_trades(asset, c1, above, t0):
     return out
 
 
+# ---------- lutadores novos (ver cabecalho) ----------
+
+def _ind(c4):
+    c = [x["c"] for x in c4]
+    return c, PB.rsi(c), PB.atr(c4), PB.sma(c, 20)
+
+
+def _exits(c4, i, stop, at):
+    """Objetivos e stop no formato do Bounce G0 para a vela i."""
+    c, ma = c4[i]["c"], PB.sma([x["c"] for x in c4[max(0, i - 25):i + 1]], 20)[-1]
+    if ma is None or ma < c * 1.01:
+        return None
+    stop = min(stop, c - PB.MIN_ATR * at)
+    if stop <= 0:
+        return None
+    tp2 = max(x["h"] for x in c4[max(0, i - PB.HIGH_BARS):i])
+    two = tp2 >= ma * 1.005
+    return {"stop": stop, "tp": [ma, tp2] if two else [ma],
+            "partials": [50, 50] if two else [100], "breakeven": True,
+            "hold_s": 3 * DAY}
+
+
+def sig_x30(c4):
+    i = len(c4) - 1
+    c, rs, at, _ = _ind(c4[-300:])
+    k = len(c) - 1
+    if k < PB.HIGH_BARS + 1 or rs[k - 2] is None or at[k] is None:
+        return None
+    if min(rs[k - 2:k + 1]) >= 30 or not (c[k] > c4[i - 1]["h"] and rs[k] > rs[k - 1]):
+        return None
+    lo = min(x["l"] for x in c4[i - PB.LOW_BARS + 1:i + 1]) - 0.1 * at[k]
+    e = _exits(c4, i, lo, at[k])
+    return dict(e, atr=at[k], gatilho=f"RSI 4H abaixo de 30 a virar") if e else None
+
+
+def sig_dip_trend(c4):
+    i = len(c4) - 1
+    d = [x for x in B.daily(c4[:i + 1]) if x["t"] + DAY <= c4[i]["t"] + H4]
+    if len(d) < 200:
+        return None
+    dc = [x["c"] for x in d]
+    s50, s200 = sum(dc[-50:]) / 50, sum(dc[-200:]) / 200
+    if not (dc[-1] > s50 > s200):
+        return None
+    c, rs, at, _ = _ind(c4[-300:])
+    k = len(c) - 1
+    if rs[k - 2] is None or at[k] is None:
+        return None
+    if min(rs[k - 2:k + 1]) >= 35 or not (c[k] > c4[i - 1]["h"] and rs[k] > rs[k - 1]):
+        return None
+    lo = min(x["l"] for x in c4[i - PB.LOW_BARS + 1:i + 1]) - 0.1 * at[k]
+    e = _exits(c4, i, lo, at[k])
+    return dict(e, atr=at[k], gatilho="recuo numa tendência forte a virar") if e else None
+
+
+def sig_capitulacao(c4):
+    i = len(c4) - 1
+    if i < 60:
+        return None
+    b = c4[i]
+    rng_ = b["h"] - b["l"]
+    vavg = sum(x["v"] for x in c4[i - 20:i]) / 20
+    if rng_ <= 0 or vavg <= 0 or b["v"] < 3 * vavg:
+        return None
+    wick = min(b["o"], b["c"]) - b["l"]
+    hi18 = max(x["h"] for x in c4[i - 18:i])
+    if wick < 0.5 * rng_ or b["c"] < b["l"] + 2 / 3 * rng_ or b["l"] > hi18 * 0.92:
+        return None
+    at = PB.atr(c4[-100:])[-1]
+    if not at:
+        return None
+    e = _exits(c4, i, b["l"] - 0.1 * at, at)
+    return dict(e, atr=at, gatilho="vela de capitulação com volume e pavio") if e else None
+
+
+NEW_SIGS = {"BOUNCE_X30": sig_x30, "DIP_TREND": sig_dip_trend, "CAPITULACAO": sig_capitulacao}
+
+
+def generic_trades(asset, c4, above, t0, key, fn):
+    """Corre uma funcao de sinal vela a vela (so passado) e simula G0."""
+    out, busy = [], -1
+    for i in range(250, len(c4) - 1):
+        t_sig = c4[i]["t"] + H4
+        if i < busy or t_sig < t0 or not _known(t_sig, above):
+            continue
+        sig = fn(c4[:i + 1])
+        if not sig:
+            continue
+        px = c4[i + 1]["o"]
+        if not (sig["stop"] < px < sig["tp"][0]):
+            continue
+        pos = trade.open_position(sig, px, c4[i + 1]["t"], PB.FEE_PCT, PB.SLIP_PCT,
+                                  breakeven=True)
+        k = i + 1
+        while not pos["closed"] and k < len(c4):
+            x = c4[k]
+            trade.step(pos, x["o"], x["h"], x["l"], x["c"], x["t"] + H4)
+            if not pos["closed"] and x["t"] + H4 - pos["opened_at"] >= sig["hold_s"]:
+                trade._sell(pos, pos["remaining"], x["c"] * (1 - pos["slip"]))
+                trade._finish(pos, "TIME", x["t"] + H4)
+            k += 1
+        if not pos["closed"]:
+            continue
+        busy = k
+        out.append((key, {"asset": asset, "t": pos["opened_at"], "r": pos["r"],
+                          "geo": {"stop": sig["stop"] / px - 1,
+                                  "tp": [x / px - 1 for x in sig["tp"]],
+                                  "partials": list(sig["partials"]),
+                                  "breakeven": True}}))
+    return out
+
+
+def live_sig(fn):
+    """Adapta uma funcao de sinal ao formato SINAIS (sinal na ultima vela)."""
+    def f(c4, px, cfg=None):
+        sig = fn(c4)
+        if not sig or not (sig["stop"] < px < sig["tp"][0]):
+            return None
+        return dict(sig, t_sig=c4[-1]["t"] + H4)
+    return f
+
+
 # ---------- sinais ao vivo (para papel e dinheiro real) ----------
 
 def sinal_bounce(g):
@@ -223,7 +359,8 @@ def sinal_bounce(g):
 
 
 SINAIS = {"BOUNCE_G0": sinal_bounce("G0"), "BOUNCE_V2": sinal_bounce("V2"),
-          "BOUNCE_V3": sinal_bounce("V3")}
+          "BOUNCE_V3": sinal_bounce("V3"),
+          **{k: live_sig(fn) for k, fn in NEW_SIGS.items()}}
 
 
 # ---------- tendencia diaria (grandes moedas) ----------
@@ -288,7 +425,7 @@ def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None):
     reg, above = B.regimes(btc), btc_above(btc)
     groups = {k: [] for k in LIVE + ("REJEITADOS", "BOUNCE_G0", "BOUNCE_V1",
                                      "BOUNCE_V2", "BOUNCE_V3", "TREND_DAILY",
-                                     "BOUNCE_1H")}
+                                     "BOUNCE_1H") + tuple(NEW_SIGS)}
     for a, c4 in sorted(bars.items()):
         try:
             for k, t in live_trades(a, c4, reg, above, cfg, t0):
@@ -297,6 +434,9 @@ def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None):
                 groups[k].append(t)
             for k, t in trend_trades(a, c4, above, cfg, t0):
                 groups[k].append(t)
+            for key, fn in NEW_SIGS.items():
+                for k, t in generic_trades(a, c4, above, t0, key, fn):
+                    groups[k].append(t)
             if (bars1h or {}).get(a):
                 for k, t in bounce_1h_trades(a, bars1h[a], above, t0):
                     groups[k].append(t)

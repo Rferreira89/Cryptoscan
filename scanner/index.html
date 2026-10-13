@@ -242,7 +242,7 @@ body.sheet-open #sheet{transform:none}
 @media (prefers-reduced-motion:reduce){.typing i,.bot .eye{animation:none}.bub{transition:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module" src="office3d.js?v=20261013b"></script>
+<script type="module" src="office3d.js?v=20261013c"></script>
 </head>
 <body class="w3d">
 <div id="world">
@@ -363,8 +363,9 @@ function renderArena(D){
     return `<tr><td>${i+1}. <b>${esc(b.persona||"")}</b> ${esc(b.name)}</td><td>${fm}</td><td>${lv}</td><td class="${t[1]}">${t[0]}${why}</td></tr>`}).join("");
   const alive=A.classificacao.filter(b=>b.estado!=="MORTA").length,F=A.forma;
   $("n-arena").textContent=`${alive} vivas de ${A.classificacao.length}`;
-  const P=D.promo||{},champ=P.campeao?A.classificacao.find(b=>b.id===P.campeao):null;
-  const champH=`<div class="banner"><b>${champ?`🏆 Campeão com sinais reais: ${esc(champ.persona||"")} · ${esc(champ.name.replace(" (papel)",""))}`:"Sem campeão neste momento"}</b>${champ?"É o lutador qualificado com melhor resultado no combate. Os sinais dele chegam como compras reais, com ordem pronta. Perde o lugar sozinho se começar a perder.":"Nenhum lutador vivo provou ainda no combate que bate 95% do acaso com pelo menos 20 operações e resultado positivo. Sem campeão, não há sinais reais: nunca se volta a uma estratégia morta."}${(P.qualificados||[]).length>1?`<br>Qualificados (os outros operam em papel ao vivo): ${P.qualificados.map(q=>esc((A.classificacao.find(b=>b.id===q.id)||{}).persona||q.id)).join(", ")}.`:""}</div>`;
+  const P=D.promo||{},CH=(P.campeoes||(P.campeao?[P.campeao]:[])).map(id=>A.classificacao.find(b=>b.id===id)).filter(Boolean),nm=b=>`${esc(b.persona||"")} · ${esc(b.name.replace(" (papel)",""))}`;
+  const lost=P.perdidas_7d||[];
+  const champH=`<div class="banner"><b>${CH.length?`🏆 Campeões com sinais reais (${CH.length})`:"Sem campeões neste momento"}</b>${CH.length?`${CH.map(nm).join("<br>")}<br><span style="color:var(--mut)">Todos os lutadores que provaram no combate (pelo menos 20 operações, resultado positivo e acima de 95% do acaso) dão sinais reais; se dois apanharem a mesma moeda, ganha o melhor. Quem começar a perder morre e sai sozinho.</span>`:"Nenhum lutador vivo provou ainda no combate que bate 95% do acaso com pelo menos 20 operações e resultado positivo. Sem campeões não há sinais reais: nunca se volta a uma estratégia morta."}${lost.length?`<br><b>Oportunidades dos campeões que não viraram sinal (7 dias): ${lost.length}</b><br><span style="color:var(--mut)">${lost.slice(-5).map(x=>`${esc(x.asset)} — ${esc(x.reason)}`).join("<br>")}</span>`:""}</div>`;
   $("arena").innerHTML=champH+`<div class="banner"><b>Luta até à morte, de hora a hora</b>${F?`Último combate ${hm(F.atualizado)}: cada lutador nos últimos ${F.janela_dias} dias de mercado, em ${F.moedas} moedas, contra entradas ao acaso. `:"O primeiro combate de hora a hora ainda não chegou. "}Morre: ${esc(A.regras.morre)}. A morte é definitiva e quem morre é desligado automaticamente. Qualifica-se quem tiver pelo menos 20 operações no combate, resultado positivo e acima de 95% do acaso: ganha lugar no escritório e opera em papel ao vivo; o melhor qualificado é o campeão e dá os sinais reais.</div>${A.recrutar?`<div class="banner"><b>⚠️ Poucos lutadores vivos (${A.vivos} de um mínimo de ${A.minimo_vivos})</b>A investigação está obrigada a trazer concorrentes novos em cada corrida até a arena voltar a ter lutadores suficientes.</div>`:""}<div class="tw"><table><tr><th>Lutador</th><th>Combate 90 dias</th><th>Ao vivo</th><th>Estado</th></tr>${rows}</table></div><div class="note">"Combate 90 dias": todas as entradas que a estratégia faria nos últimos 90 dias, com as mesmas regras e custos do programa. "Ao vivo": os sinais emitidos desde o arranque, executados ou não. As operações ao vivo também contam: um campeão que comece a perder morre e o lugar passa ao seguinte.</div>`;
 }
 const price=v=>v==null?"–":v>=100?num(v,2):v>=1?num(v,3):Number(v).toLocaleString("pt-PT",{maximumSignificantDigits:4});
@@ -441,7 +442,7 @@ function tfBlock(name,a){
   ${flowBlock(a)}
   </div>`;
 }
-const STR={PULLBACK:"Recuo em tendência",BREAKOUT:"Quebra com reteste",LIQUIDITY_SWEEP:"Sweep de liquidez",RANGE:"Fundo de range",PULLBACK_SHORT:"Short: retoma da descida",BREAKOUT_SHORT:"Short: quebra em baixa",LIQUIDITY_SWEEP_SHORT:"Short: sweep de topos",RANGE_SHORT:"Short: topo de range",BOUNCE_G0:"🏆 Campeão da arena · Oversold Bounce",BOUNCE_V2:"🏆 Campeão da arena · Oversold Bounce (stop curto)",BOUNCE_V3:"🏆 Campeão da arena · Oversold Bounce (2R)"};
+const STR={PULLBACK:"Recuo em tendência",BREAKOUT:"Quebra com reteste",LIQUIDITY_SWEEP:"Sweep de liquidez",RANGE:"Fundo de range",PULLBACK_SHORT:"Short: retoma da descida",BREAKOUT_SHORT:"Short: quebra em baixa",LIQUIDITY_SWEEP_SHORT:"Short: sweep de topos",RANGE_SHORT:"Short: topo de range",BOUNCE_G0:"🏆 Campeão da arena · Oversold Bounce",BOUNCE_V2:"🏆 Campeão da arena · Oversold Bounce (stop curto)",BOUNCE_V3:"🏆 Campeão da arena · Oversold Bounce (2R)",BOUNCE_X30:"🏆 Campeão da arena · Bounce RSI 30",DIP_TREND:"🏆 Campeão da arena · Recuo em tendência forte",CAPITULACAO:"🏆 Campeão da arena · Capitulação"};
 const DEC={LONG:"COMPRA",SHORT:"SHORT",WATCHLIST:"A VIGIAR","NO TRADE":"NÃO OPERAR"};
 const hm=t=>new Date(t*1000).toLocaleString("pt-PT",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
 function capital(){const v=parseFloat(($("cap").value||"").replace(",","."));return v>0?v:null}
@@ -824,7 +825,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261013b";
+const PAGE_V="20261013c";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:

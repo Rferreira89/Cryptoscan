@@ -371,7 +371,7 @@ function buildBoard() {
 const ARENA_C = V(27, 0);
 let arenaG = null, arenaTex = null, arenaSig = "", fighters = [], arenaLabels = [];
 const SHORT = { BREAKOUT: "Quebra", PULLBACK: "Recuo", LIQUIDITY_SWEEP: "Sweep", RANGE: "Range",
-  TREND_DAILY: "Tendência", BOUNCE_G0: "Bounce G0", BOUNCE_V1: "Bounce V1", BOUNCE_V2: "Bounce V2", BOUNCE_V3: "Bounce V3", BOUNCE_1H: "Bounce 1H", REJEITADOS: "Rejeitados" };
+  TREND_DAILY: "Tendência", BOUNCE_G0: "Bounce G0", BOUNCE_V1: "Bounce V1", BOUNCE_V2: "Bounce V2", BOUNCE_V3: "Bounce V3", BOUNCE_1H: "Bounce 1H", BOUNCE_X30: "Bounce RSI30", DIP_TREND: "Recuo forte", CAPITULACAO: "Capitulação", REJEITADOS: "Rejeitados" };
 const FCOL = ["#4FD1C5", "#FF6FB5", "#F6C453", "#B794F4", "#63B3ED", "#68D391", "#FFA94D", "#FC8181", "#90CDF4", "#FBD38D", "#9AE6B4", "#D6BCFA"];
 // no 3D mostra-se a amostra maior: o combate de 90 dias (forma recente) quando
 // existe, senao os sinais ao vivo
@@ -683,9 +683,9 @@ function buildStrategyRoom() {
 }
 function updateStrategyRoom() {
   if (!stG) return;
-  const P = (API().D() || {}).promo || {}, Q = new Set((P.qualificados || []).map(q => q.id));
+  const P = (API().D() || {}).promo || {}, Q = new Set((P.qualificados || []).map(q => q.id)), CH = new Set(P.campeoes || (P.campeao ? [P.campeao] : []));
   // o campeao fica na primeira secretaria; os qualificados a seguir
-  const rows = arenaRows().filter(b => b.estado !== "MORTA").map(b => Object.assign({}, b, { champ: b.id === P.campeao, prov: Q.has(b.id) }))
+  const rows = arenaRows().filter(b => b.estado !== "MORTA").map(b => Object.assign({}, b, { champ: CH.has(b.id), prov: Q.has(b.id) }))
     .sort((a, b) => (b.champ - a.champ) || (b.prov - a.prov));
   const sig = JSON.stringify(rows.map(b => [b.id, b.n, b.avg_r, b.wins, b.estado, b.champ, b.prov]));
   rows.forEach(b => { const t = stTex[b.id]; if (t) { drawStrat(t.userData.c.getContext("2d"), b); t.needsUpdate = true; } });

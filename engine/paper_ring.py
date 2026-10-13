@@ -16,7 +16,9 @@ OWN_PAPER = ("BOUNCE_G0", "BOUNCE_V1", "BOUNCE_V2", "BOUNCE_V3")
 def update(state, rows, bars, now, market_ok=True):
     st = state.setdefault("paper_ring", {})
     reg = promo.registry()
-    active = [k for k, _ in promo.qualified(state) if k in reg and k not in OWN_PAPER]
+    # os qualificados com codigo revisto ja operam a dinheiro real (registo)
+    active = [k for k, _ in promo.qualified(state)
+              if k in reg and k not in OWN_PAPER and k not in promo.REAL_OK]
     for k in set(st) | set(active):
         b = st.setdefault(k, {"open": {}, "closed": [], "last": {}})
         for a in list(b["open"]):

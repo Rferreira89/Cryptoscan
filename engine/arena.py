@@ -62,12 +62,15 @@ NAMES = {"PULLBACK": "Recuo (ao vivo)", "BREAKOUT": "Quebra (ao vivo)",
          "BOUNCE_V2": "Oversold Bounce stop curto 2R (papel)",
          "BOUNCE_V3": "Oversold Bounce stop original 2R (papel)",
          "REJEITADOS": "Setups rejeitados pelos filtros (papel)",
-         "BOUNCE_1H": "Oversold Bounce em 1H (combate)"}
+         "BOUNCE_1H": "Oversold Bounce em 1H (combate)",
+         "BOUNCE_X30": "Oversold Bounce RSI 30", "DIP_TREND": "Recuo em tendência forte",
+         "CAPITULACAO": "Capitulação com volume"}
 # cada concorrente e um analista com nome proprio (decisao do Rui)
 PERSONA = {"BREAKOUT": "Bruno", "PULLBACK": "Rita", "LIQUIDITY_SWEEP": "Simão",
            "RANGE": "Raquel", "TREND_DAILY": "Teodoro", "BOUNCE_G0": "Gaspar",
            "BOUNCE_V1": "Vasco", "BOUNCE_V2": "Vera", "BOUNCE_V3": "Violeta",
-           "REJEITADOS": "Óscar", "BOUNCE_1H": "Hélio"}
+           "REJEITADOS": "Óscar", "BOUNCE_1H": "Hélio",
+           "BOUNCE_X30": "Xavier", "DIP_TREND": "Diana", "CAPITULACAO": "Caio"}
 POOL = ["Leonor", "Duarte", "Matilde", "Afonso", "Carolina", "Martim", "Beatriz",
         "Lourenço", "Mariana", "Salvador", "Francisca", "Henrique", "Clara",
         "Tomás", "Joana", "Miguel", "Catarina", "Diogo", "Lara", "Gonçalo"]
