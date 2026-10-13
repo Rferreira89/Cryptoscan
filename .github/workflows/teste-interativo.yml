@@ -1,0 +1,37 @@
+name: Teste interativo (velas reais e Telegram)
+# So corre a pedido. Testa o explorador com velas reais a partir da Europa
+# (como o iPhone do Rui) e envia ao Telegram as respostas reais dos comandos.
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  velas:
+    runs-on: [self-hosted, eu]
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Velas como a pagina
+        env:
+          PUSH_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
+        run: |
+          rm -rf /tmp/ti && python3 -m tools.teste_interativo velas /tmp/ti
+          cd /tmp/ti && git init -q -b teste-interativo && git config user.name cryptoscan-bot \
+            && git config user.email bot@users.noreply.github.com \
+            && git add . && git commit -q -m "teste $(date -u +%FT%TZ)" \
+            && git push -q -f "$PUSH_URL" teste-interativo:teste-interativo
+  telegram:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Enviar respostas reais
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          git fetch -q origin data && git show FETCH_HEAD:scan.json > /tmp/scan.json && git show FETCH_HEAD:state.json > /tmp/state.json
+          python -m tools.teste_interativo telegram /tmp/scan.json /tmp/state.json
