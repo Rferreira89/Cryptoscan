@@ -23,7 +23,7 @@ sudo -u runner mkdir -p actions-runner
 cd actions-runner
 sudo -u runner curl -sL -o runner.tgz "https://github.com/actions/runner/releases/download/v${VER}/actions-runner-linux-${ARCH}-${VER}.tar.gz"
 sudo -u runner tar xzf runner.tgz && rm -f runner.tgz
-./bin/installdependencies.sh
+./bin/installdependencies.sh || apt-get install -yq libicu-dev libkrb5-3 zlib1g libssl3t64 || true
 sudo -u runner ./config.sh --url "$REPO" --token "$TOKEN" --labels eu --name cryptoscan-eu --unattended --replace
 ./svc.sh install runner
 ./svc.sh start
