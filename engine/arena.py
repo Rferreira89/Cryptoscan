@@ -52,6 +52,7 @@ TF = 14400
 WINDOW, REPS, MAX_BARS = 90, 200, 6 * 90
 MIN_DEATH, MIN_PROMO, DEATH_R = 20, 30, -0.2
 FAST_N, FAST_R = 10, -0.5        # morte rapida: claramente mau ao fim de 10
+LOSER_N = 50                     # perdedor persistente: 50+ operacoes com R medio negativo
 MIN_ALIVE = 5                    # abaixo disto a investigacao tem de criar lutadores
 FEE_PCT, SLIP_PCT = 0.25, 0.1
 NAMES = {"PULLBACK": "Recuo (ao vivo)", "BREAKOUT": "Quebra (ao vivo)",
@@ -193,6 +194,10 @@ def verdict(n, mean, med, p95, has_ctrl):
     if n >= MIN_DEATH and (mean <= DEATH_R or (has_ctrl and med is not None
                                                and mean <= med)):
         return "MORTA"
+    # revisao de 2026-10-13: quem perde dinheiro em 50+ operacoes morre, mesmo
+    # que o acaso ainda seja pior (perder menos do que o acaso nao chega)
+    if n >= LOSER_N and mean < 0:
+        return "MORTA"
     return "A COMPETIR"
 
 
@@ -312,7 +317,7 @@ def update(state, bars, now, seed=None, forma=None):
             "recrutar": alive < MIN_ALIVE, "regras": {
         "morre": f"≥{FAST_N} operações com R médio ≤ {str(FAST_R).replace('.', ',')}R (morte rápida), ou "
                  f"≥{MIN_DEATH} operações e R médio ≤ {str(DEATH_R).replace('.', ',')}R ou abaixo "
-                 "da mediana ao acaso",
+                 f"da mediana ao acaso, ou ≥{LOSER_N} operações com R médio negativo",
         "sobe": f"≥{MIN_PROMO} operações, R médio positivo e acima do "
                 "percentil 95 ao acaso",
         "forma": "de hora a hora cada lutador combate nos últimos 90 dias de "

@@ -196,5 +196,14 @@ class LadoDoScanner(unittest.TestCase):
         self.assertNotIn("exec_req", st)
 
 
+class StopNaConta(unittest.TestCase):
+    def test_ordem_bidirecional_conta_como_stop(self):
+        from engine import account
+        o = [{"symbol": "SOLUSDC", "side": "Sell", "triggerPrice": "0", "stopLoss": "101.5",
+              "stopOrderType": "BidirectionalTpslOrder"}]
+        self.assertEqual(account.stop_for(o, "SOLUSDC"), 101.5)
+        self.assertIsNone(account.stop_for([], "SOLUSDC"))
+
+
 if __name__ == "__main__":
     unittest.main()

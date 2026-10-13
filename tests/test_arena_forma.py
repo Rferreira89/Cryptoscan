@@ -139,3 +139,11 @@ class MorteAutomatica(unittest.TestCase):
         res = arena.update(st, {}, 1000, seed=1, forma=forma("PULLBACK", 50, -0.3))
         arena.auto_disable(st, res, 1000)
         self.assertIn("PULLBACK", st["disabled"])
+
+
+class PerdedorPersistente(unittest.TestCase):
+    def test_morre_com_50_negativas_mesmo_acima_do_acaso(self):
+        from engine import arena
+        self.assertEqual(arena.verdict(182, -0.172, -0.25, -0.183, True), "MORTA")
+        self.assertEqual(arena.verdict(49, -0.05, -0.25, -0.1, True), "A COMPETIR")
+        self.assertEqual(arena.verdict(60, 0.05, -0.25, 0.2, True), "A COMPETIR")

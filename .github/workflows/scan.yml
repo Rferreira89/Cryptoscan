@@ -99,8 +99,9 @@ jobs:
               gh workflow run arena.yml --repo "${{ github.repository }}" --ref main || echo "arena nao lancada"
             fi
             # dados da Binance e da conta no servidor europeu, de 15 em 15 min
-            if [ $(( $(date +%s) % 900 )) -ge 360 ] && [ $(( $(date +%s) % 900 )) -lt 420 ]; then
-              gh workflow run europa-dados.yml --repo "${{ github.repository }}" --ref main || echo "europa nao lancada"
+            # (conta o tempo desde o ultimo pedido: um ciclo demorado nao o salta)
+            if [ $(( $(date +%s) - ${LAST_EU:-0} )) -ge 870 ]; then
+              gh workflow run europa-dados.yml --repo "${{ github.repository }}" --ref main && LAST_EU=$(date +%s) || echo "europa nao lancada"
             fi
             NOW=$(date +%s)
             sleep $(( 60 - NOW % 60 + 5 ))

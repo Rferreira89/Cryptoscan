@@ -143,9 +143,11 @@ def stop_for(orders, symbol, side="LONG"):
     stop-limit ou TP/SL). O preco devolvido e o disparo mais alto abaixo
     do qual a posicao fica protegida."""
     want = "Sell" if side == "LONG" else "Buy"
-    trig = [_f(o.get("triggerPrice")) for o in orders
+    # a Bybit UE guarda o TP/SL anexado a uma compra como uma ordem
+    # BidirectionalTpslOrder com triggerPrice 0 e o stop no campo stopLoss
+    trig = [_f(o.get("triggerPrice")) or _f(o.get("stopLoss")) for o in orders
             if o.get("symbol") == symbol and o.get("side") == want
-            and _f(o.get("triggerPrice")) > 0]
+            and (_f(o.get("triggerPrice")) > 0 or _f(o.get("stopLoss")) > 0)]
     if not trig:
         return None
     return max(trig) if side == "LONG" else min(trig)
