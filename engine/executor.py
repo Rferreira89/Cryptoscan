@@ -268,7 +268,38 @@ def _match_children(symbol, parts, t0, step):
             free.remove(best)
 
 
-def place_part(symbol, quote, tp, stop, inst, tag, px=None):
+def usdc_debt(w):
+    """Divida em USDC (emprestimo da margem) na conta unificada."""
+    for acc in w.get("list") or []:
+        for c in acc.get("coin") or []:
+            if c.get("coin") == "USDC":
+                for k in ("spotBorrow", "borrowAmount"):
+                    try:
+                        v = float(c.get(k) or 0)
+                    except (TypeError, ValueError):
+                        v = 0.0
+                    if v:
+                        return v
+                return 0.0
+    return 0.0
+
+
+def usdc_fields(w):
+    for acc in w.get("list") or []:
+        for c in acc.get("coin") or []:
+            if c.get("coin") == "USDC":
+                return {k: c.get(k) for k in ("walletBalance", "equity", "borrowAmount", "spotBorrow",
+                                               "accruedInterest", "availableToBorrow", "locked")}
+    return {}
+
+
+def repay_usdc(amount):
+    """Paga 'amount' USDC de divida (so a criada pelo programa)."""
+    amt = math.ceil(amount * 100) / 100
+    return post("/v5/account/repay", {"coin": "USDC", "amount": f"{amt:.2f}"})
+
+
+def place_part(symbol, quote, tp, stop, inst, tag, px=None, margin=False):
     """Compra 'quote' USDC com TP e stop da Bybit anexados.
 
     A Bybit UE so aceita TP/SL anexados em ordens LIMITE (provado no
@@ -282,6 +313,8 @@ def place_part(symbol, quote, tp, stop, inst, tag, px=None):
     base = {"category": "spot", "symbol": symbol, "side": "Buy", "orderType": "Limit",
             "timeInForce": "IOC", "price": fmt(lim, inst["tick"]),
             "qty": fmt(qty, inst["base_step"]), "orderLinkId": f"{LINK}{tag}"[:36]}
+    if margin:
+        base["isLeverage"] = 1
     try:
         r = post("/v5/order/create", dict(base, takeProfit=fmt(tp, inst["tick"]),
                                           stopLoss=fmt(stop, inst["tick"]),
@@ -668,7 +701,68 @@ def do_test2(state, req, ex, now, send):
     return "ok"
 
 
-ACTIONS = {"teste2": do_test2, "limpar": do_clean, "diag": do_diag, "comprar": do_buy, "breakeven": do_breakeven, "fechar": do_close,
+def do_test_margin(state, req, ex, now, send):
+    """Prova minima da margem: compra BTC com ~2 USDC emprestados (TP/SL
+    anexados), cancela a protecao, vende e confirma que a divida criada
+    pelo teste fica paga a 100%."""
+    sym, steps = "BTCUSDC", []
+    inst = instrument(sym)
+    try:
+        st = get("/v5/spot-margin-trade/state")
+        steps.append(f"margem spot: modo={st.get('spotMarginMode')} alavancagem={st.get('spotLeverage')}")
+    except ExecError as e:
+        steps.append(f"estado da margem: ERRO {e}")
+    w0 = wallet()
+    d0, free = usdc_debt(w0), usdc_free(w0)
+    steps.append(f"antes: USDC livre {free:.2f}, dívida {d0:.4f} — {usdc_fields(w0)}")
+    q = round(max(free, 0) + 2.0, 2)
+    try:
+        oid, attached = place_part(sym, q, last_price(sym) * 1.05, last_price(sym) * 0.95, inst,
+                                   f"tm-{now}", margin=True)
+        avg, qty = fills(oid, sym, "BTC")
+        steps.append(f"compra com margem {q:.2f} USDC a {avg:.2f}, {qty:.8f} BTC (anexo: "
+                     f"{'sim' if attached else 'não — ' + str(LAST_ATTACH_ERR)})")
+        w1 = wallet()
+        steps.append(f"depois da compra: dívida {usdc_debt(w1):.4f} — {usdc_fields(w1)}")
+        od = []
+        for _ in range(8):
+            time.sleep(2)
+            od = [o for o in tpsl_orders(sym) if float(o.get("createdTime") or 0) >= (now - 5) * 1000]
+            if od:
+                break
+        for o in od:
+            cancel(sym, o)
+            steps.append(f"cancelar proteção ({o.get('stopOrderType')}): ok")
+        time.sleep(1)
+        sid = sell_all(sym, min(qty, held(wallet(), "BTC")), inst, f"tmv{now % 100000}")
+        if sid:
+            a2, q2 = fills(sid, sym, "BTC", side="Sell")
+            steps.append(f"venda: {q2:.8f} BTC a {a2:.2f}")
+        time.sleep(2)
+        w2 = wallet()
+        d2 = usdc_debt(w2)
+        steps.append(f"depois da venda: dívida {d2:.4f} — {usdc_fields(w2)}")
+        if d2 > d0 + 1e-6:
+            try:
+                repay_usdc(d2 - d0)
+                steps.append(f"pagamento de {d2 - d0:.4f} USDC: ok")
+            except ExecError as e:
+                steps.append(f"pagamento: ERRO {e}")
+            time.sleep(2)
+            d3 = usdc_debt(wallet())
+            steps.append(f"dívida final {d3:.4f} (antes do teste {d0:.4f})")
+            if d3 > d0 + 0.01:
+                steps.append("ERRO: ficou dívida do teste por pagar")
+        else:
+            steps.append("a Bybit abateu a dívida sozinha com o USDC da venda")
+    except ExecError as e:
+        steps.append(f"ERRO: {e}")
+    ex["teste_margem"] = {"t": now, "passos": steps}
+    send("🧪 <b>Teste de margem</b>\n" + "\n".join(f"• {x}" for x in steps[-6:]), html=True)
+    return "ok"
+
+
+ACTIONS = {"teste_margem": do_test_margin, "teste2": do_test2, "limpar": do_clean, "diag": do_diag, "comprar": do_buy, "breakeven": do_breakeven, "fechar": do_close,
            "parar": do_stop_all, "teste": do_test}
 
 
