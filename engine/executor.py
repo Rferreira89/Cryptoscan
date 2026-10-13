@@ -561,7 +561,47 @@ def do_diag(state, req, ex, now, send):
     return "ok"
 
 
-ACTIONS = {"diag": do_diag, "comprar": do_buy, "breakeven": do_breakeven, "fechar": do_close,
+def do_clean(state, req, ex, now, send):
+    """Limpa o teste: mostra TODAS as ordens abertas em BTCUSDC criadas pelo
+    teste (desde o inicio do ultimo teste), cancela-as e vende o BTC do teste."""
+    sym, out = "BTCUSDC", []
+    t0 = ((ex.get("teste") or {}).get("t") or now) - 10
+    inst = instrument(sym)
+    seen = {}
+    for flt in (None, "Order", "tpslOrder", "StopOrder"):
+        prm = {"category": "spot", "symbol": sym, "limit": 50}
+        if flt:
+            prm["orderFilter"] = flt
+        try:
+            for o in get("/v5/order/realtime", prm).get("list") or []:
+                seen[o["orderId"]] = dict(o, _flt=flt or o.get("orderFilter") or "Order")
+        except ExecError as e:
+            out.append(f"listar {flt}: ERRO {e}")
+    mine = [o for o in seen.values() if float(o.get("createdTime") or 0) >= t0 * 1000]
+    for o in mine:
+        out.append(f"ordem {o['orderId'][-6:]} filtro={o.get('orderFilter') or o['_flt']} tipo={o.get('stopOrderType')} "
+                   f"lado={o.get('side')} trig={o.get('triggerPrice')} qty={o.get('qty')} estado={o.get('orderStatus')}")
+        try:
+            post("/v5/order/cancel", {"category": "spot", "symbol": sym, "orderId": o["orderId"],
+                                      "orderFilter": o.get("orderFilter") or o["_flt"]})
+            out.append("  cancelada")
+        except ExecError as e:
+            out.append(f"  cancelar ERRO {e}")
+    out.append(f"ordens anteriores do Rui em BTCUSDC (não tocadas): {len(seen) - len(mine)}")
+    time.sleep(1)
+    q = 0.0000409
+    try:
+        sid = sell_all(sym, min(q, held(wallet(), "BTC")), inst, f"limpa{now % 100000}")
+        if sid:
+            a, qq = fills(sid, sym, "BTC", side="Sell")
+            out.append(f"venda: {qq:.8f} BTC a {a:.2f}")
+    except ExecError as e:
+        out.append(f"venda: ERRO {e}")
+    ex["limpeza"] = {"t": now, "passos": out}
+    return "ok"
+
+
+ACTIONS = {"limpar": do_clean, "diag": do_diag, "comprar": do_buy, "breakeven": do_breakeven, "fechar": do_close,
            "parar": do_stop_all, "teste": do_test}
 
 
