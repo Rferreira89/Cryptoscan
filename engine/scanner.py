@@ -10,7 +10,7 @@ import statistics
 import time
 from concurrent.futures import ThreadPoolExecutor
 
-from . import (analysis, config, derivatives, europa, events as calendar, ledger, short,
+from . import (analysis, config, consultas, derivatives, europa, events as calendar, ledger, short,
                arena, paper_bounce, paper_ring, paper_shadow, promo, rewards,
                liquidity, paper_trend, regime, review,
                signals,
@@ -393,6 +393,13 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
         result["macro"] = promo.macro_summary(now)
     except Exception:                       # informativo: nunca para o scan
         result["macro"] = None
+    # leitura por departamentos (pagina e /porque no Telegram)
+    for r in eligible:
+        try:
+            r["departamentos"] = consultas.departments(
+                r, result["macro"], c4s.get("BTC"), c4s.get(r["asset"]))
+        except Exception:
+            r["departamentos"] = []
     result["promo"] = {"campeao": champ, "campeoes": champs, "qualificados": [
         {"id": k, "avg_r": r} for k, r in promo.qualified(state)]}
     # os shorts entram como linhas proprias no ciclo de vida dos sinais

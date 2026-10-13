@@ -52,6 +52,13 @@ h1{font-size:26px;font-weight:800;font-stretch:70%;letter-spacing:-.01em;margin:
 .sec[open]{padding-bottom:10px}
 .op.flash{box-shadow:0 0 0 2px var(--now)}
 h2{font-size:19px;font-weight:750;font-stretch:80%;margin:22px 0 10px}
+#fcard{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);width:min(440px,calc(100vw - 24px));max-height:72vh;overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;z-index:60;box-shadow:0 12px 40px #0009;font-size:13.5px}
+#fcard h3{margin:0 0 2px;font-size:17px}#fcard .fx{position:absolute;top:8px;right:10px;background:none;border:0;color:var(--mut);font-size:20px}
+#fcard .bd{display:inline-block;font-size:11px;padding:2px 8px;border-radius:99px;margin-left:6px;vertical-align:2px}
+#fcard .kv{margin:10px 0}#fcard .sec2{margin-top:10px;color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+.dep{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px}.dep:last-child{border:0}.dep b{white-space:nowrap}
+#xchart{width:100%;height:260px;display:block;border-radius:10px;background:#07142a}
+.xleg{display:flex;flex-wrap:wrap;gap:10px;font-size:11.5px;color:var(--mut);margin:6px 0 10px}.xleg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
 .banner{background:var(--card);border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:13.5px}
 .banner b{display:block;margin-bottom:2px}
 .up{color:var(--up)}.dn{color:var(--dn)}.warn{color:var(--warn)}
@@ -244,7 +251,7 @@ body.sheet-open #sheet{transform:none}
 @media (prefers-reduced-motion:reduce){.typing i,.bot .eye{animation:none}.bub{transition:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module" src="office3d.js?v=20261013h"></script>
+<script type="module" src="office3d.js?v=20261013i"></script>
 </head>
 <body class="w3d">
 <div id="world">
@@ -269,6 +276,7 @@ body.sheet-open #sheet{transform:none}
 <div id="navhint" hidden>☝️ Arrasta com um dedo para andar · ✌️ dois dedos para rodar e aproximar</div>
 <span id="n-esc" hidden></span>
 </div>
+<div id="fcard" hidden></div>
 <div id="sheet" aria-hidden="true">
 <div class="sh-head"><span class="grip"></span><b id="sh-title">Centro de comando</b><button id="sh-close" aria-label="Fechar">✕</button></div>
 <nav class="sh-idx" id="shidx" aria-label="Secções"><button data-p="ops">Operações</button><button data-p="meet">Resultado</button><button data-p="lab">Pesquisa</button><button data-p="srv">Ativos</button><button data-p="ctrl">Sistema</button></nav>
@@ -292,6 +300,9 @@ body.sheet-open #sheet{transform:none}
 <h2>Tendência diária</h2><div id="paper"></div></details>
 </section>
 <section class="panel on" id="pn-srv" data-p="srv" data-h="Todos os ativos" data-t="Servidores · todos os ativos">
+<details class="sec" id="s-explorar" open><summary>🔎 Explorador de moedas<span id="n-explorar"></span></summary>
+<div class="bar"><input id="xq" list="xlist" placeholder="Escreve ou escolhe uma moeda (ex.: SOL)" autocomplete="off" autocapitalize="characters"><datalist id="xlist"></datalist></div>
+<div id="xbox"><div class="banner">Escolhe uma moeda para ver o gráfico com os níveis e a opinião de cada departamento.</div></div></details>
 <details class="sec" id="s-setores" open><summary>Equipa por setor<span id="n-setores"></span></summary><div id="setores"></div></details>
 <details class="sec" id="s-mercado"><summary>Todos os ativos<span id="n-mercado"></span></summary>
 <div class="stats" id="stats"></div>
@@ -751,6 +762,7 @@ function decOne(d,title){
   return `<div class="tf"><h3>${title}</h3><div><b>${d.decision==="LONG"&&d.mode==="PAPER"?"SETUP EM PAPEL (estratégia não validada)":DEC[d.decision]}</b>${d.reason?" — "+esc(d.reason):""}</div>${rej}<div class="chk">${ch}</div></div>`;
 }
 function render(){
+  try{xAfterRender()}catch(_){}
   if(!D) return;
   const q=$("q").value.trim().toUpperCase(),s=$("sort").value,f=$("flt").value;
   const key=r=>s==="adx"||s==="rsi"?(r.analysis&&r.analysis["1d"]&&r.analysis["1d"].ok?r.analysis["1d"][s]:-1):(r[s]??-1e18);
@@ -833,7 +845,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261013h";
+const PAGE_V="20261013i";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -1037,6 +1049,7 @@ function renderHud(){if(!D)return;const C=D.config||{},J=(D.journal||{}).rows||[
 $("alerts").addEventListener("click",e=>{const b=e.target.closest(".al");if(!b)return;openPanel(b.dataset.go,b.dataset.id?`.op[data-id="${b.dataset.id}"]`:null)});
 window.OFAPI_openZone=k=>openPanel(k);
 if(/^#(ops|meet|lab|srv|ctrl)$/.test(location.hash))openPanel(location.hash.slice(1));
+addEventListener("hashchange",()=>{const m=location.hash.match(/^#moeda=([A-Za-z0-9]+)/);if(m&&D){XA=m[1].toUpperCase();openPanel("srv","#s-explorar");$("xq").value=XA;renderExplorer(XA)}});
 
 // ===== Graficos: velas reais de 4H (Bybit UE; reserva: Binance) =====
 const CND={};
@@ -1168,6 +1181,74 @@ async function checkVersion(){try{const t=await (await fetch("./index.html?nocac
 checkVersion();setInterval(checkVersion,600000);
 load();setInterval(load,60000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)load()});
+
+// ===== Explorador de moedas e cartao dos lutadores =====
+const XC={};let XA=(location.hash.match(/^#moeda=([A-Za-z0-9]+)/)||[])[1];XA=XA?XA.toUpperCase():null;let XPEND=!!XA;
+const DOTC={verde:"🟢",amarelo:"🟡",vermelho:"🔴"};
+function personaOf(id){const r=((D&&D.arena||{}).classificacao||[]).find(x=>x.id===id);return r?r.persona:id}
+function xAfterRender(){if(!D)return;const el=$("xlist");if(el&&!el.dataset.n){const L=(D.universe||[]).filter(r=>r.eligible&&r.analysis).map(r=>r.asset);el.innerHTML=L.map(a=>`<option value="${esc(a)}">`).join("");el.dataset.n=L.length;$("n-explorar").textContent=L.length+" moedas"}
+  if(XPEND){XPEND=false;openPanel("srv","#s-explorar");$("xq").value=XA;renderExplorer(XA)}else if(XA)renderExplorer(XA,true)}
+$("xq").addEventListener("change",e=>{const a=e.target.value.trim().toUpperCase();if(a){XA=a;renderExplorer(a)}});
+$("xq").addEventListener("keydown",e=>{if(e.key==="Enter"){const a=e.target.value.trim().toUpperCase();if(a){XA=a;renderExplorer(a);e.target.blur()}}});
+function xLevels(r){const a=((r.analysis||{})["4h"])||{},l=a.liquidity||{},lv=[],zn=[];
+  if(a.swing_low!=null)lv.push({v:a.swing_low,c:"#3ee0c4",l:"Suporte"});
+  if(a.swing_high!=null)lv.push({v:a.swing_high,c:"#ff6f8a",l:"Resist."});
+  if(l.sweep&&l.sweep.bars_ago<=12)lv.push({v:l.sweep.level,c:"#FFA94D",l:"Varrim."});
+  if(l.order_block)zn.push({z:l.order_block.zone,c:l.order_block.side==="DEMAND"?"#3ee0c433":"#ff6f8a33",l:l.order_block.side==="DEMAND"?"OB compra":"OB venda"});
+  if(l.fvg_below)zn.push({z:l.fvg_below,c:"#B794F433",l:"FVG"});if(l.fvg_above)zn.push({z:l.fvg_above,c:"#B794F433",l:"FVG"});
+  const s=(D.active_signals||[]).find(x=>x.asset===r.asset&&x.plan),j=(((D.journal||{}).rows)||[]).find(x=>x.asset===r.asset&&x.status==="OPEN"),pl=s?s.plan:j;
+  if(pl){const e=(j&&(j.exec_price||j.entry))||(pl.entry_ref||(pl.entry_zone||[])[1]);if(e)lv.push({v:e,c:"#B794F4",l:"Entrada"});if(pl.stop)lv.push({v:pl.stop,c:"#ff3d6a",l:"Stop"});(pl.tp||[]).slice(0,2).forEach((v,i)=>lv.push({v,c:"#7CFFB2",l:"TP"+(i+1)}))}
+  return {lv,zn}}
+function drawX(cv,cs,r){const dpr=window.devicePixelRatio||1,W=cv.clientWidth,H=cv.clientHeight;cv.width=W*dpr;cv.height=H*dpr;const g=cv.getContext("2d");g.scale(dpr,dpr);
+  const pad={l:6,r:64,t:10,b:18};g.fillStyle="#07142a";g.fillRect(0,0,W,H);
+  if(!cs||!cs.length){g.fillStyle="#8AA0B4";g.font="13px system-ui";g.fillText("sem velas disponíveis agora",10,H/2);return}
+  const {lv,zn}=xLevels(r),near=v=>v>Math.min(...cs.map(x=>x.l))*.85&&v<Math.max(...cs.map(x=>x.h))*1.15;
+  const L=lv.filter(x=>near(x.v)),Z=zn.filter(z=>near(z.z[0])&&near(z.z[1]));
+  let lo=Math.min(...cs.map(x=>x.l),...L.map(x=>x.v),...Z.map(z=>z.z[0])),hi=Math.max(...cs.map(x=>x.h),...L.map(x=>x.v),...Z.map(z=>z.z[1]));const sp=hi-lo||hi*.01;lo-=sp*.04;hi+=sp*.04;
+  const n=cs.length,X=i=>pad.l+(i+.5)/n*(W-pad.l-pad.r),Y=v=>pad.t+(hi-v)/(hi-lo)*(H-pad.t-pad.b),bw=Math.max(1.2,(W-pad.l-pad.r)/n*.62);
+  Z.forEach(z=>{g.fillStyle=z.c;const y1=Y(z.z[1]),y2=Y(z.z[0]);g.fillRect(pad.l,y1,W-pad.l-pad.r,Math.max(2,y2-y1));g.fillStyle="#E6EDF3aa";g.font="600 10px system-ui";g.fillText(z.l,pad.l+4,y1+11)});
+  cs.forEach((x,i)=>{const up=x.c>=x.o,xc=X(i);g.strokeStyle=g.fillStyle=up?"#3ee0c4":"#ff6f8a";g.lineWidth=1;g.beginPath();g.moveTo(xc,Y(x.h));g.lineTo(xc,Y(x.l));g.stroke();const y1=Y(Math.max(x.o,x.c)),y2=Y(Math.min(x.o,x.c));g.fillRect(xc-bw/2,y1,bw,Math.max(1,y2-y1))});
+  // etiquetas sem se sobreporem: afastam-se umas das outras na margem direita
+  const tags=L.map(x=>({...x,y:Y(x.v)})).sort((a,b)=>a.y-b.y);for(let i=1;i<tags.length;i++)if(tags[i].y-tags[i-1].y<15)tags[i].y=tags[i-1].y+15;const ov=tags.length?tags[tags.length-1].y-(H-pad.b-8):0;if(ov>0)tags.forEach(t=>t.y-=ov);
+  g.font="600 10.5px system-ui";tags.forEach(x=>{const y=Y(x.v);g.strokeStyle=x.c;g.setLineDash([5,4]);g.beginPath();g.moveTo(pad.l,y);g.lineTo(W-pad.r,y);g.stroke();g.setLineDash([]);
+    g.fillStyle=x.c;g.fillRect(W-pad.r+2,x.y-7,pad.r-4,14);g.fillStyle="#07142a";g.fillText(x.l,W-pad.r+5,x.y+4)});
+  const last=cs[n-1].c,yl=Y(last);g.fillStyle="#E6EDF3";g.beginPath();g.arc(X(n-1),yl,3,0,7);g.fill();
+  g.fillStyle="#8AA0B4";g.font="10px system-ui";g.fillText(new Date(cs[0].t*1000).toLocaleDateString("pt-PT",{day:"2-digit",month:"2-digit"}),pad.l,H-4);g.textAlign="right";g.fillText("agora · velas de 4H",W-pad.r,H-4);g.textAlign="left"}
+async function renderExplorer(a,quiet){const r=(D.universe||[]).find(x=>x.asset===a);
+  if(!r||!r.analysis){$("xbox").innerHTML=`<div class="banner">${esc(a)} não está entre as moedas analisadas agora (as mais líquidas listadas na Bybit UE em USDC).</div>`;return}
+  const deps=r.departamentos||[],n={verde:0,amarelo:0,vermelho:0};deps.forEach(d=>n[d.cor]++);
+  const d=r.decision||{},act=d.active_signal,dec=d.plan?"✅ Há sinal de compra ativo nesta moeda.":act?`📌 Já há uma operação em curso nesta moeda (${esc(personaOf(act.split("-")[1]))}).`:`⏸️ Sem sinal agora: ${esc(d.reason||"nenhuma estratégia viva encontrou entrada")}.`;
+  const html=`<div class="banner"><b style="font-size:16px">${esc(a)} <span style="font-weight:600">${price(r.price)} $</span> <span class="${r.chg_24h>=0?"up":"dn"}" style="font-size:13px">${r.chg_24h>=0?"+":""}${num(r.chg_24h,2)}%</span></b>
+  <canvas id="xchart"></canvas><div class="xleg"><span><i style="background:#3ee0c4"></i>suporte</span><span><i style="background:#ff6f8a"></i>resistência</span><span><i style="background:#B794F4"></i>FVG / entrada</span><span><i style="background:#FFA94D"></i>varrimento</span><span><i style="background:#3ee0c455"></i>order block</span></div>
+  ${deps.length?deps.map(x=>`<div class="dep"><span>${DOTC[x.cor]}</span><div><div style="font-weight:700">${esc(x.dep)}</div><div style="color:var(--mut)">${esc(x.texto)}</div></div></div>`).join(""):`<div style="color:var(--mut)">A leitura por departamentos aparece no próximo scan.</div>`}
+  ${deps.length?`<div style="margin-top:8px"><b>Balanço:</b> ${n.verde} 🟢 · ${n.amarelo} 🟡 · ${n.vermelho} 🔴</div>`:""}<div style="margin-top:6px">${dec}</div>
+  <button class="gobb" id="xfull" style="border:0;width:100%">Ver análise completa</button></div>`;
+  if(!quiet||!$("xchart")||$("xbox").dataset.a!==a){$("xbox").innerHTML=html;$("xbox").dataset.a=a;
+    $("xfull").onclick=()=>{open.add(a);$("q").value=a;render();const el=document.querySelector(`.row[data-a="${a}"]`);if(el){$("s-mercado").open=true;const b=document.querySelector(".sh-body");setTimeout(()=>b.scrollTo({top:el.offsetTop-b.offsetTop-6,behavior:"smooth"}),80)}}}
+  const now=Date.now()/1000;let c=XC[a];if(!c||now-c.t>300){const cs=await candlesRange(a,(r.venue||{}).pair,Math.floor(now-120*14400),Math.floor(now));c=XC[a]={t:now,cs}}
+  if($("xbox").dataset.a===a&&$("xchart"))drawX($("xchart"),(c.cs||[]).slice(-120),r)}
+const FDESC={BOUNCE_G0:"Compra quando o RSI de 4H sai da sobrevenda e a vela fecha acima da anterior. Saída original do Oversold Bounce.",BOUNCE_V2:"Mesma entrada do Gaspar com stop mais curto e objetivo de 2R.",BOUNCE_V3:"Mesma entrada do Gaspar com o stop original e objetivo de 2R.",BOUNCE_V1:"Mesma entrada com a saída das estratégias ao vivo.",
+ BOUNCE_X30:"Compra quando o RSI de 4H esteve abaixo de 30 e vira para cima, com fecho acima da vela anterior.",DIP_TREND:"Compra recuos (RSI abaixo de 35 a virar) só em moedas em tendência forte no diário.",CAPITULACAO:"Compra velas de capitulação: volume 3× o normal e pavio longo por baixo.",
+ BOUNCE_FLUXO:"Sobrevenda a virar com pelo menos 55% de compradores agressivos na vela.",BOUNCE_FORTE:"Sobrevenda a virar só em moedas mais fortes do que o BTC a 30 dias.",BOUNCE_SQUEEZE:"Sobrevenda a virar com funding negativo: os vendedores estão a pagar e podem ser apertados.",
+ BOUNCE_ISOLADA:"Sobrevenda a virar só quando a queda é da própria moeda e o BTC está estável.",BOUNCE_NOREACT:"Sobrevenda a virar; sai ao fim de 12h se o preço não reagir.",BOUNCE_TRAIL:"Sobrevenda a virar; o stop sobe atrás do lucro.",BOUNCE_HORAS:"Sobrevenda a virar só em horas de mercado líquido (sem fins de semana nem madrugada UTC).",
+ BOUNCE_DESALAV:"Sobrevenda a virar depois de as posições abertas na Binance caírem 5% ou mais em 24h (alavancagem limpa).",BOUNCE_MACRO:"Sobrevenda a virar só com a macroeconomia favorável (bolsa estável, dólar calmo, VIX baixo).",BOUNCE_MEDO:"Sobrevenda a virar depois de medo na macroeconomia (VIX alto, bolsa a cair ou dólar a disparar).",
+ BOUNCE_1H:"Oversold Bounce em velas de 1 hora.",PULLBACK:"Recuo numa tendência de subida.",BREAKOUT:"Quebra de um nível com reteste.",LIQUIDITY_SWEEP:"Varrimento de mínimos seguido de recuperação.",RANGE:"Compra no fundo de um intervalo lateral.",TREND_DAILY:"Segue a tendência diária das grandes moedas.",REJEITADOS:"Mede os setups que os filtros rejeitam, para saber se os filtros ajudam."};
+function showFighter(id){if(!D)return;const b=((D.arena||{}).classificacao||[]).find(x=>x.id===id);if(!b)return;const f=b.forma||{},P=D.promo||{},ch=(P.campeoes||[]).includes(id),q=(P.qualificados||[]).some(x=>x.id===id),dead=b.estado==="MORTA";
+  const bd=dead?["🕯️ no memorial","#3a2f45","#d7c9e6"]:ch?["🏆 campeão: dá sinais reais","#F6C453","#2a2100"]:q?["✅ qualificado: opera em papel","#4FD1C5","#0F2233"]:["⚔️ em combate","#17324A","#8AA0B4"];
+  const U=(f.ultimas||[]).slice(-20),mx=Math.max(1,...U.map(Math.abs)),spark=U.length?`<svg viewBox="0 0 ${U.length*9} 40" preserveAspectRatio="none" style="width:100%;height:40px">${U.map((v,i)=>`<rect x="${i*9+1}" y="${v>=0?20-v/mx*18:20}" width="7" height="${Math.max(1,Math.abs(v)/mx*18)}" fill="${v>=0?"#3ee0c4":"#ff6f8a"}" rx="1"/>`).join("")}<line x1="0" y1="20" x2="${U.length*9}" y2="20" stroke="#1E3A52"/></svg>`:"";
+  const sig=(D.active_signals||[]).filter(s=>s.strategy===id),jr=(((D.journal||{}).rows)||[]).filter(r=>r.strategy===id).slice(-5).reverse();
+  const now=sig.length?sig.map(s=>`● ${esc(s.asset)} — ${s.status==="TRIGGERED"?"operação aberta":"à espera de entrada"}${s.mode==="PAPER"?" (papel)":""}`).join("<br>"):dead?"Fora do ringue. Os conhecimentos dele continuam a ser usados como contexto nas análises.":`À procura de entradas nas ${(D.counts||{}).deep_checked||"–"} moedas analisadas, a cada 5 minutos.`;
+  $("fcard").innerHTML=`<button class="fx" aria-label="Fechar">✕</button><h3>${esc(b.persona)}<span class="bd" style="background:${bd[1]};color:${bd[2]}">${bd[0]}</span></h3><div style="color:var(--mut)">${esc(b.name)}</div>
+  <div style="margin-top:8px">${esc(FDESC[id]||"")}</div>
+  <div class="sec2">Combate dos últimos 90 dias</div><div class="kv"><div><span>Operações</span><b>${f.n||0}</b></div><div><span>Acerto</span><b>${f.n?num(100*(f.wins||0)/f.n,0)+"%":"–"}</b></div>
+  <div><span>R médio</span><b class="${f.avg_r>0?"up":f.avg_r<0?"dn":""}">${f.avg_r==null?"–":(f.avg_r>0?"+":"")+num(f.avg_r,2)+"R"}</b></div><div><span>Acaso (p95)</span><b>${f.acaso_p95==null?"–":num(f.acaso_p95,2)+"R"}</b></div></div>
+  ${spark?`<div class="sec2">Últimas operações do combate</div>${spark}`:""}
+  ${dead?`<div class="warn" style="margin-top:8px">Morreu: ${esc((b.morte||{}).motivo||b.motivo||"")}${(b.morte||{}).n?` (${b.morte.n} operações, ${num(b.morte.avg_r,2)}R)`:""}</div>`:""}
+  <div class="sec2">Agora</div><div>${now}</div>
+  ${jr.length?`<div class="sec2">Registo recente</div>${jr.map(r=>`<div>${esc(r.asset)} · ${r.status==="CLOSED"?`<b class="${r.result_r>0?"up":"dn"}">${r.result_r>0?"+":""}${num(r.result_r,2)}R</b>`:r.status==="OPEN"?"aberta":esc(r.status.toLowerCase())}${r.mode==="PAPER"?" (papel)":""}</div>`).join("")}`:""}
+  <button class="gobb" id="fgo" style="border:0;width:100%">Ver o ringue completo</button>`;
+  $("fcard").hidden=false;$("fcard").querySelector(".fx").onclick=()=>{$("fcard").hidden=true};$("fgo").onclick=()=>{$("fcard").hidden=true;openPanel("lab","#s-arena")}}
+window.OFAPI.fighter=showFighter;
 </script>
 </body>
 </html>

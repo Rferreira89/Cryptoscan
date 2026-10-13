@@ -1236,7 +1236,10 @@ function init(container) {
     ray.setFromCamera(m, cam); const hit = ray.intersectObjects(people.map(p => p.g), true)[0];
     if (hit) { API().select(hit.object.userData.agent); bubAt = 0; return; }
     const sh = ray.intersectObjects(secPeople.map(p => p.g), true)[0]; if (sh) { API().openZone("sectors"); return; }
-    const sp = ray.intersectObjects(stPeople.map(p => p.g), true)[0]; if (sp) { API().openZone("arena"); return; }
+    // lutadores (arena, sala de estrategia, academia): cartao com o combate e o que fazem agora
+    const fid = h => { let o = h && h.object; while (o && !o.userData.agent) o = o.parent; const k = o && o.userData.agent || ""; return /^(fx|st|ac)_/.test(k) && k !== "ac_mentor" ? k.slice(3) : null; };
+    const fh = ray.intersectObjects(fighters.map(f => f.g), true)[0] || ray.intersectObjects(stPeople.map(p => p.g), true)[0] || ray.intersectObjects(acPeople.map(p => p.g), true)[0];
+    if (fh) { const id = fid(fh); if (id && API().fighter) API().fighter(id); else API().openZone("arena"); return; }
     const sf = ray.intersectObjects(staffPeople.map(p => p.g), true)[0]; if (sf) { let o = sf.object; while (o && !o.userData.agent) o = o.parent; const q = staffPeople.find(p => p.a.id === (o && o.userData.agent)); API().openZone(q ? q.staffZone : "lab"); return; }
     const zh = ray.intersectObjects(zoneHits, false)[0]; if (zh) API().openZone(zh.object.userData.zone);
   });

@@ -5,6 +5,8 @@ Comandos de texto:  /preco LINK 14.25   (preco real de entrada)
                     /fechei LINK 15.10  (fechaste tudo a mao a esse preco)
                     /desliga quebra     (desliga uma estrategia ao vivo)
                     /liga quebra        (volta a liga-la)
+Perguntas (so leitura): /porque SOL, /ringue, /macro, /conta, /hoje, /ajuda
+(engine/consultas.py).
 So sao aceites mensagens do chat configurado em TELEGRAM_CHAT_ID.
 """
 import json
@@ -147,8 +149,10 @@ def fetch(state):
     return ups
 
 
-def apply(state, updates, chat_id):
-    """Aplica as respostas ao registo. Devolve [(texto, callback_id)]."""
+def apply(state, updates, chat_id, res=None):
+    """Aplica as respostas ao registo e responde as perguntas.
+    Devolve [(texto, callback_id)] ou [(texto, callback_id, html)]."""
+    from . import consultas
     led = state.get("ledger", [])
     by_id = {r["id"]: r for r in led}
     out = []
@@ -158,6 +162,9 @@ def apply(state, updates, chat_id):
             if str(cq.get("message", {}).get("chat", {}).get("id")) != str(chat_id):
                 continue
             parts = (cq.get("data") or "").split("|", 2)
+            if len(parts) == 3 and parts[0] == "q":      # botao "Porque"
+                out.append((consultas.why(res, parts[2].upper()), cq["id"], True))
+                continue
             rec = by_id.get(parts[2]) if len(parts) == 3 and parts[0] == "x" else None
             if not rec:
                 out.append(("Operação não encontrada no registo.", cq["id"]))
@@ -174,6 +181,10 @@ def apply(state, updates, chat_id):
             if str(msg.get("chat", {}).get("id")) != str(chat_id):
                 continue
             text = (msg.get("text") or "").strip()
+            ans = consultas.answer(text, res, state)
+            if ans:
+                out.append((ans, None, True))
+                continue
             oo = onoff(state, text, int(msg.get("date") or 0),
                        _cfg_disabled())
             if oo:
@@ -232,11 +243,12 @@ def apply(state, updates, chat_id):
 
 
 def reply(items, send):
-    for text, cb in items:
+    for it in items:
+        text, cb, html = (tuple(it) + (False,))[:3]
         try:
             if cb:
                 _api("answerCallbackQuery", {"callback_query_id": cb})
-            send(text)
+            send(text, html=True) if html else send(text)
         except Exception:
             pass
 

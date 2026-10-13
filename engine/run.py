@@ -5,7 +5,7 @@ import os
 import sys
 from zoneinfo import ZoneInfo
 
-from . import (alerts, config, europa, inbox, ledger, paper_bounce, paper_trend,
+from . import (alerts, config, consultas, europa, inbox, ledger, paper_bounce, paper_trend,
                reports, scanner,
                strategies, validation)
 
@@ -417,7 +417,12 @@ def markup_for(e, s, real):
     """Botoes do alerta: executei / nao executei. (O link para a Bybit foi
     retirado: no iPhone o Telegram abre o site e nao a app.)"""
     oid = op_id(e)
-    return inbox.buttons(oid) if oid and real else None
+    if not (oid and real):
+        return None
+    m = inbox.buttons(oid)
+    if e.get("asset"):
+        m["inline_keyboard"].append(consultas.why_buttons(e["asset"]))
+    return m
 
 
 def op_id(e):
@@ -429,13 +434,14 @@ def op_id(e):
     return None
 
 
-def process_inbox(state):
-    """Le respostas do Telegram e aplica-as ao registo."""
+def process_inbox(state, res=None):
+    """Le respostas do Telegram, aplica-as ao registo e responde as
+    perguntas (/porque, /ringue, ...) com o ultimo scan (res)."""
     chat = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
     if not alerts.configured():
         return False
     ups = inbox.fetch(state)
-    inbox.reply(inbox.apply(state, ups, chat), alerts.send)
+    inbox.reply(inbox.apply(state, ups, chat, res), alerts.send)
     return bool(ups)
 
 
@@ -541,7 +547,7 @@ def load_forma():
 def main():
     os.makedirs(OUT, exist_ok=True)
     state = _load("state.json", {})
-    process_inbox(state)
+    process_inbox(state, _load("scan.json", None))
     apply_admin(state, send=alerts.send if alerts.configured() else None)
     res, state, events = scanner.run(state=state, forma=load_forma(),
                                      eu=europa.load())

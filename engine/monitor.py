@@ -75,7 +75,7 @@ def main():
         return
     cfg = config.load()
     now = int(time.time())
-    replied = run.process_inbox(state)
+    replied = run.process_inbox(state, res)
     events, assets = [], needed_assets(state)
     if assets:
         _, data = scanner.collect_tickers()
