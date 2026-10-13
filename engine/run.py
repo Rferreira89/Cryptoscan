@@ -185,10 +185,11 @@ def short_text(e, s, head, note):
         return (f"🟠 RECOMPRA PARCIAL — {head}\n{k} atingido em "
                 f"{_px(e['price'])}: recomprar {e['sold_pct']:.0f}% da "
                 f"posição.{extra}")
-    if k in ("STOP", "BREAKEVEN", "TIME"):
+    if k in ("STOP", "BREAKEVEN", "TIME", "NOREACT"):
         hold = (p.get("max_hold_s") or 30 * 86400) // 86400
-        txt = {"STOP": "Stop atingido", "BREAKEVEN": "Stop na entrada atingido",
-               "TIME": f"Tempo máximo ({hold:g} dias) atingido"}[k]
+        txt = {"STOP": "Stop atingido", "BREAKEVEN": "Stop atingido (acima ou na entrada)",
+               "TIME": f"Tempo máximo ({hold:g} dias) atingido",
+               "NOREACT": f"Sem reação em {(p.get('no_react_s') or 43200) // 3600:g} horas: o ressalto não arrancou"}[k]
         return (f"🔴 RECOMPRA — {head}\n{txt} em {_px(e['price'])}: recomprar "
                 "tudo e devolver o empréstimo. "
                 f"Resultado: {e['r']:+.2f}R.")
@@ -338,6 +339,13 @@ def alert_text(e, sigs, note):
                 f"{targets_line(p)}\n"
                 + (f"Saída obrigatória ao fim de {hold // 86400:g} dia(s), se não "
                    "tiver fechado antes.\n" if hold else "")
+                + (f"Se ao fim de {p['no_react_s'] // 3600:g} horas não houver reação "
+                   "(preço abaixo da entrada), o programa avisa para sair.\n"
+                   if p.get("no_react_s") else "")
+                + ("Depois do 1.º objetivo o stop sobe com o preço; segue os avisos.\n"
+                   if p.get("trail_r") else "")
+                + ("⚠️ Risco reduzido para metade depois de 2 perdas seguidas.\n"
+                   if p.get("risk_reduced") else "")
                 + f"{note}")
     if k == "ISSUED":
         return (f"🟢 COMPRA — {head}\n"
@@ -362,10 +370,11 @@ def alert_text(e, sigs, note):
                     "teu preço de entrada.")
         return (f"🟠 VENDA PARCIAL — {head}\n{k} atingido em {_px(e['price'])}: "
                 f"vender {e['sold_pct']:.0f}% da posição.{extra}")
-    if k in ("STOP", "BREAKEVEN", "TIME"):
+    if k in ("STOP", "BREAKEVEN", "TIME", "NOREACT"):
         hold = (p.get("max_hold_s") or 30 * 86400) // 86400
-        txt = {"STOP": "Stop atingido", "BREAKEVEN": "Stop na entrada atingido",
-               "TIME": f"Tempo máximo ({hold:g} dias) atingido"}[k]
+        txt = {"STOP": "Stop atingido", "BREAKEVEN": "Stop atingido (acima ou na entrada)",
+               "TIME": f"Tempo máximo ({hold:g} dias) atingido",
+               "NOREACT": f"Sem reação em {(p.get('no_react_s') or 43200) // 3600:g} horas: o ressalto não arrancou"}[k]
         return (f"🔴 VENDA — {head}\n{txt} em {_px(e['price'])}: vender o "
                 f"resto da posição. Resultado: {e['r']:+.2f}R.")
     if k in ("EXPIRED", "INVALIDATED"):

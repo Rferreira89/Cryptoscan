@@ -208,6 +208,23 @@ def compounding(cfg, led, since):
             "max_risk_usdc": round(eq * cfg["risk_pct_of_capital"] / 100, 2)}
 
 
+def losing_streak(led):
+    """Perdas seguidas nas operacoes executadas fechadas (a mais recente
+    primeiro); para no primeiro ganho."""
+    rows = [r for r in led if r.get("executed") is True and
+            (r.get("status") == "CLOSED" or ledger.user_closed(r))]
+    rows.sort(key=lambda r: r.get("user_closed_at") or r.get("closed_at") or 0)
+    n = 0
+    for r in reversed(rows):
+        R = ledger.user_r(r)
+        if R is None:
+            continue
+        if R > 0:
+            break
+        n += 1
+    return n
+
+
 def run(now=None, state=None, cfg=None, forma=None):
     """Devolve (resultado, estado, eventos de auditoria)."""
     now = int(now or time.time())
@@ -219,6 +236,11 @@ def run(now=None, state=None, cfg=None, forma=None):
         cfg["capital_usdc"] = state["capital"]
         since = state.get("capital_t") or since
     cfg.update(compounding(cfg, state.get("ledger", []), since))
+    # decisao do Rui (2026-10-13): depois de 2 perdas seguidas nas tuas
+    # operacoes, o risco por operacao passa a metade ate haver um ganho
+    if losing_streak(state.get("ledger", [])) >= 2 and cfg.get("max_risk_usdc"):
+        cfg["max_risk_usdc"] = round(cfg["max_risk_usdc"] / 2, 2)
+        cfg["risk_reduced"] = True
     status, data = collect_tickers()
     live = [s for s in sources.ALL if status[s.name]["ok"]]
     result = {"generated_at": now, "phase": 4, "sources": status,

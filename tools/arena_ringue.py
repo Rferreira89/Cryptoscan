@@ -52,6 +52,14 @@ cada, para medir se o filtro acrescenta valor:
   BOUNCE_ISOLADA: o BTC nao caiu mais de 2% nas 24 horas antes do sinal (a
                   queda e da moeda, nao do mercado inteiro)
 
+LUTADORES PARA REDUZIR PERDAS (2026-10-13, 3.a ronda; regras escritas antes de
+testar). O mesmo gatilho do BOUNCE_X30, muda so a gestao ou o horario:
+  BOUNCE_NOREACT: ao fim de 12 horas, sem objetivo atingido e com o preco na
+                  entrada ou abaixo, sai ao fecho da vela
+  BOUNCE_TRAIL:   depois do 1.o objetivo o stop acompanha o maximo a 1 risco
+                  de distancia (nunca abaixo da entrada)
+  BOUNCE_HORAS:   sem entradas ao fim de semana (UTC) nem das 00h as 06h UTC
+
 SINAIS (decisao do Rui, 2026-10-13: "cada lutador que provar que e bom
 merece um lugar"): para um lutador poder operar AO VIVO (papel e, se for o
 campeao da arena, dinheiro real) precisa de uma funcao de sinal em SINAIS:
@@ -188,7 +196,8 @@ def bounce_trades(asset, c4, above, cfg, t0):
                                         "geo": {"stop": p["stop"] / px - 1,
                                                 "tp": [x / px - 1 for x in p["tp"]],
                                                 "partials": list(p["partials"]),
-                                                "breakeven": p["breakeven"]}}))
+                                                "breakeven": p["breakeven"],
+                                                "max_hold_s": PB.GEOS[g]["hold"]}}))
     return out
 
 
@@ -220,7 +229,7 @@ def bounce_1h_trades(asset, c1, above, t0):
             continue
         busy = k
         out.append(("BOUNCE_1H", {"asset": asset, "t": pos["opened_at"], "r": pos["r"],
-                                  "tf": "1h", "geo": {"stop": p["stop"] / px - 1,
+                                  "tf": "1h", "geo": {"max_hold_s": HOLD_1H, "stop": p["stop"] / px - 1,
                                                       "tp": [x / px - 1 for x in p["tp"]],
                                                       "partials": list(p["partials"]),
                                                       "breakeven": True}}))
@@ -362,7 +371,29 @@ def sig_isolada(c4):
     return dict(s0, gatilho="queda da própria moeda, com o BTC estável")
 
 
-NEW_SIGS = {"BOUNCE_X30": sig_x30, "DIP_TREND": sig_dip_trend, "CAPITULACAO": sig_capitulacao,
+def sig_noreact(c4):
+    s0 = sig_x30(c4)
+    return dict(s0, no_react_s=12 * 3600, gatilho=s0["gatilho"] + "; sai se não reagir em 12h") if s0 else None
+
+
+def sig_trail(c4):
+    s0 = sig_x30(c4)
+    return dict(s0, trail_r=1.0, gatilho=s0["gatilho"] + "; stop acompanha o lucro") if s0 else None
+
+
+def sig_horas(c4):
+    s0 = sig_x30(c4)
+    if not s0:
+        return None
+    t = c4[-1]["t"] + H4                   # momento da entrada (fecho da vela)
+    g = time.gmtime(t)
+    if g.tm_wday >= 5 or g.tm_hour < 6:
+        return None
+    return s0
+
+
+NEW_SIGS = {"BOUNCE_NOREACT": sig_noreact, "BOUNCE_TRAIL": sig_trail, "BOUNCE_HORAS": sig_horas,
+            "BOUNCE_X30": sig_x30, "DIP_TREND": sig_dip_trend, "CAPITULACAO": sig_capitulacao,
             "BOUNCE_FLUXO": sig_fluxo, "BOUNCE_FORTE": sig_forte,
             "BOUNCE_SQUEEZE": sig_squeeze, "BOUNCE_ISOLADA": sig_isolada}
 
@@ -404,8 +435,8 @@ def generic_trades(asset, c4, above, t0, key, fn):
         px = c4[i + 1]["o"]
         if not (sig["stop"] < px < sig["tp"][0]):
             continue
-        pos = trade.open_position(sig, px, c4[i + 1]["t"], PB.FEE_PCT, PB.SLIP_PCT,
-                                  breakeven=True)
+        pos = trade.open_position(dict(sig, max_hold_s=None), px, c4[i + 1]["t"], PB.FEE_PCT,
+                                  PB.SLIP_PCT, breakeven=True)
         k = i + 1
         while not pos["closed"] and k < len(c4):
             x = c4[k]
@@ -421,7 +452,9 @@ def generic_trades(asset, c4, above, t0, key, fn):
                           "geo": {"stop": sig["stop"] / px - 1,
                                   "tp": [x / px - 1 for x in sig["tp"]],
                                   "partials": list(sig["partials"]),
-                                  "breakeven": True}}))
+                                  "breakeven": True, "max_hold_s": sig["hold_s"],
+                                  "no_react_s": sig.get("no_react_s"),
+                                  "trail_r": sig.get("trail_r")}}))
     return out
 
 

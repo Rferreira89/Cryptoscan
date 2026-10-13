@@ -26,6 +26,12 @@ def open_position(plan, fill_price, t, fee_pct, slip_pct=0.0, breakeven=True,
             "slip": slip_pct / 100, "opened_at": t, "breakeven": breakeven,
             "risk_unit": d * (entry - stop0) + fee * (entry + stop0),
             "max_hold": plan.get("max_hold_s"),
+            # saida por falta de reacao: ao fim de np_s segundos, se ainda nao
+            # houve objetivo e o preco nao esta acima da entrada, sai
+            "np_s": plan.get("no_react_s"), "np_done": False,
+            # stop que acompanha o lucro depois do 1.o objetivo: fica a
+            # trail_r riscos abaixo do maximo atingido (nunca abaixo da entrada)
+            "trail_r": plan.get("trail_r"), "peak": fill_price,
             "closed": False, "r": None, "exit_reason": None}
 
 
@@ -85,9 +91,23 @@ def step(pos, o, h, l, c, t, gap=True):
                 ev.append({"event": "BREAKEVEN", "price": pos["entry"],
                            "r": pos["r"]})
                 return ev
+    if pos.get("trail_r") and pos["tp_hit"] >= 1 and pos["remaining"] > 1e-9:
+        pos["peak"] = max(pos.get("peak") or favour, favour) if d == 1 else \
+            min(pos.get("peak") or favour, favour)
+        dist = abs(pos["entry"] - pos["stop0"]) * pos["trail_r"]
+        new_stop = pos["peak"] - d * dist
+        if d * (new_stop - pos["stop"]) > 0:
+            pos["stop"] = new_stop
     if pos["remaining"] <= 1e-9:
         _finish(pos, ev[-1]["event"], t)       # objetivo que fechou a posicao
         ev[-1]["r"] = pos["r"]
+    elif pos.get("np_s") and not pos.get("np_done") and pos["tp_hit"] == 0 \
+            and t - pos["opened_at"] >= pos["np_s"]:
+        pos["np_done"] = True                  # verifica-se uma unica vez
+        if d * (c - pos["entry"]) <= 0:
+            _sell(pos, pos["remaining"], c * (1 - d * pos["slip"]))
+            _finish(pos, "NOREACT", t)
+            ev.append({"event": "NOREACT", "price": c, "r": pos["r"]})
     elif t - pos["opened_at"] >= (pos.get("max_hold") or MAX_HOLD_SECONDS):
         _sell(pos, pos["remaining"], c * (1 - d * pos["slip"]))
         _finish(pos, "TIME", t)

@@ -66,7 +66,9 @@ NAMES = {"PULLBACK": "Recuo (ao vivo)", "BREAKOUT": "Quebra (ao vivo)",
          "BOUNCE_X30": "Oversold Bounce RSI 30", "DIP_TREND": "Recuo em tendência forte",
          "CAPITULACAO": "Capitulação com volume",
          "BOUNCE_FLUXO": "Bounce com compradores agressivos", "BOUNCE_FORTE": "Bounce em moeda forte",
-         "BOUNCE_SQUEEZE": "Bounce com shorts em aperto", "BOUNCE_ISOLADA": "Bounce com o BTC estável"}
+         "BOUNCE_SQUEEZE": "Bounce com shorts em aperto", "BOUNCE_ISOLADA": "Bounce com o BTC estável",
+         "BOUNCE_NOREACT": "Bounce que sai sem reação", "BOUNCE_TRAIL": "Bounce com stop que sobe",
+         "BOUNCE_HORAS": "Bounce só em horas líquidas"}
 # cada concorrente e um analista com nome proprio (decisao do Rui)
 PERSONA = {"BREAKOUT": "Bruno", "PULLBACK": "Rita", "LIQUIDITY_SWEEP": "Simão",
            "RANGE": "Raquel", "TREND_DAILY": "Teodoro", "BOUNCE_G0": "Gaspar",
@@ -74,7 +76,8 @@ PERSONA = {"BREAKOUT": "Bruno", "PULLBACK": "Rita", "LIQUIDITY_SWEEP": "Simão",
            "REJEITADOS": "Óscar", "BOUNCE_1H": "Hélio",
            "BOUNCE_X30": "Xavier", "DIP_TREND": "Diana", "CAPITULACAO": "Caio",
            "BOUNCE_FLUXO": "Flávio", "BOUNCE_FORTE": "Fernanda", "BOUNCE_SQUEEZE": "Sérgio",
-           "BOUNCE_ISOLADA": "Isabel"}
+           "BOUNCE_ISOLADA": "Isabel", "BOUNCE_NOREACT": "Nélson", "BOUNCE_TRAIL": "Tânia",
+           "BOUNCE_HORAS": "Horácio"}
 POOL = ["Leonor", "Duarte", "Matilde", "Afonso", "Carolina", "Martim", "Beatriz",
         "Lourenço", "Mariana", "Salvador", "Francisca", "Henrique", "Clara",
         "Tomás", "Joana", "Miguel", "Catarina", "Diogo", "Lara", "Gonçalo"]
@@ -150,8 +153,12 @@ def control_rs(c4, t_entry, geo, side, rng, reps=REPS):
         j = rng.randint(lo, hi)
         b = c4[j]
         e = b["o"]
+        # a mesma gestao da operacao real: tempo maximo, saida sem reacao e
+        # stop que acompanha o lucro (quando o lutador os usa)
         plan = {"stop": e * (1 + geo["stop"]), "partials": geo["partials"],
-                "tp": [e * (1 + x) for x in geo["tp"]]}
+                "tp": [e * (1 + x) for x in geo["tp"]],
+                "max_hold_s": geo.get("max_hold_s"), "no_react_s": geo.get("no_react_s"),
+                "trail_r": geo.get("trail_r")}
         pos = trade.open_position(plan, e, b["t"], FEE_PCT, SLIP_PCT,
                                   breakeven=geo["breakeven"], side=side)
         k = j

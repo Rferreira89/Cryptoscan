@@ -32,7 +32,7 @@ MAX_PER_BAR = 2
 # mexem em engine/).
 REAL_OK = ("BOUNCE_G0", "BOUNCE_V2", "BOUNCE_V3", "BOUNCE_X30", "DIP_TREND",
            "CAPITULACAO", "BOUNCE_FLUXO", "BOUNCE_FORTE", "BOUNCE_SQUEEZE",
-           "BOUNCE_ISOLADA")
+           "BOUNCE_ISOLADA", "BOUNCE_NOREACT", "BOUNCE_TRAIL", "BOUNCE_HORAS")
 
 
 def set_context(rows, bars):
@@ -116,7 +116,8 @@ def plan_for(sig, px, cfg):
             "position_pct": round(sz["size_pct"], 1),
             "risk_pct": round(sz["size_pct"] * stop_pct / 100, 2),
             "breakeven": bool(sig.get("breakeven", True)),
-            "max_hold_s": sig.get("hold_s")}, None
+            "max_hold_s": sig.get("hold_s"), "no_react_s": sig.get("no_react_s"),
+            "trail_r": sig.get("trail_r"), "risk_reduced": bool(cfg.get("risk_reduced"))}, None
 
 
 def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):

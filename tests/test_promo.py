@@ -248,3 +248,44 @@ class FiltrosNovos(unittest.TestCase):
             AR.CTX["funding"] = {"AAA": [(c4[-1]["t"], 0.0001)]}
             self.assertIsNone(AR.sig_squeeze(c4))
         AR.CTX.update(btc=None, funding={}, asset=None)
+
+
+class ReduzirPerdas(unittest.TestCase):
+    def test_saida_sem_reacao(self):
+        pos = trade.open_position({"stop": 90, "tp": [110, 120], "partials": [50, 50],
+                                   "no_react_s": 43200}, 100, 0, 0.25)
+        trade.step(pos, 100, 101, 99, 99.5, 3600, gap=False)
+        self.assertFalse(pos["closed"])
+        ev = trade.step(pos, 99.5, 100, 99, 99.0, 43300, gap=False)
+        self.assertTrue(pos["closed"])
+        self.assertEqual(ev[-1]["event"], "NOREACT")
+        self.assertGreater(pos["r"], -1)                      # perde menos do que o stop
+        pos2 = trade.open_position({"stop": 90, "tp": [110], "partials": [100],
+                                    "no_react_s": 43200}, 100, 0, 0.25)
+        trade.step(pos2, 101, 102, 100.5, 101.5, 43300, gap=False)
+        self.assertFalse(pos2["closed"])                      # reagiu: fica
+
+    def test_stop_acompanha_o_lucro(self):
+        pos = trade.open_position({"stop": 90, "tp": [105, 140], "partials": [50, 50],
+                                   "trail_r": 1.0}, 100, 0, 0.25, breakeven=True)
+        trade.step(pos, 101, 106, 101, 105, 1)                # TP1
+        trade.step(pos, 105, 125, 112, 124, 2)                # sobe ate 125
+        self.assertAlmostEqual(pos["stop"], 115.0, places=6)  # 125 - 1 risco (10)
+        trade.step(pos, 124, 124, 114, 115, 3)
+        self.assertTrue(pos["closed"])
+        self.assertGreater(pos["r"], 0.5)
+
+    def test_duas_perdas_seguidas(self):
+        from engine import scanner
+        led = [{"executed": True, "status": "CLOSED", "closed_at": 1, "result_r": 1.0},
+               {"executed": True, "status": "CLOSED", "closed_at": 2, "result_r": -1.0},
+               {"executed": False, "status": "CLOSED", "closed_at": 3, "result_r": 2.0},
+               {"executed": True, "status": "CLOSED", "closed_at": 4, "result_r": -0.5}]
+        self.assertEqual(scanner.losing_streak(led), 2)
+        led.append({"executed": True, "status": "CLOSED", "closed_at": 5, "result_r": 0.3})
+        self.assertEqual(scanner.losing_streak(led), 0)
+
+    def test_lutadores_de_gestao(self):
+        for k in ("BOUNCE_NOREACT", "BOUNCE_TRAIL", "BOUNCE_HORAS"):
+            self.assertIn(k, AR.SINAIS)
+            self.assertIn(k, promo.REAL_OK)

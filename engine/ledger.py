@@ -5,7 +5,7 @@ precos sao os do mercado no momento de cada scan, nao os das ordens do
 utilizador: e o registo do que o sistema sinalizou, nao da conta real.
 """
 MAX = 1000
-CLOSERS = ("STOP", "BREAKEVEN", "TIME", "TP1", "TP2", "TP3")
+CLOSERS = ("STOP", "BREAKEVEN", "TIME", "NOREACT", "TP1", "TP2", "TP3")
 
 
 def declined(state):
