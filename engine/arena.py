@@ -24,6 +24,14 @@ Regras (declaradas antes de haver resultados)
           morta deixa de abrir operacoes. As estrategias ao vivo NUNCA sao
           desligadas pela arena (opcao B do Rui): ficam marcadas e
           continuam a dar sinais reais.
+  FORMA RECENTE (decisao do Rui, 2026-10-13: "os lutadores nao estao a
+          morrer"): de hora a hora tools/arena_ringue.py poe cada lutador a
+          combater nos ultimos 90 dias de mercado em todas as moedas, com
+          as funcoes do sistema ao vivo e o mesmo teste contra o acaso. As
+          mesmas regras de morte aplicam-se a essa amostra (dezenas de
+          operacoes em vez de 2 ou 3). A forma recente so pode MATAR, nunca
+          promover. A morte e definitiva: quem morre nao volta (o lugar
+          passa a ser de um sucessor da investigacao).
   SOBE    com pelo menos 30 operacoes, R medio positivo e acima do
           percentil 95 das entradas ao acaso: e proposta ao Rui para
           dinheiro real. A decisao e sempre dele.
@@ -41,7 +49,7 @@ MIN_ALIVE = 5                    # abaixo disto a investigacao tem de criar luta
 FEE_PCT, SLIP_PCT = 0.25, 0.1
 NAMES = {"PULLBACK": "Recuo (ao vivo)", "BREAKOUT": "Quebra (ao vivo)",
          "LIQUIDITY_SWEEP": "Sweep (ao vivo)", "RANGE": "Range (ao vivo)",
-         "TREND_DAILY": "Tendência diária (papel)",
+         "TREND_DAILY": "Tendência diária",
          "BOUNCE_G0": "Oversold Bounce original (papel)",
          "BOUNCE_V1": "Oversold Bounce + saída ao vivo (papel)",
          "BOUNCE_V2": "Oversold Bounce stop curto 2R (papel)",
@@ -162,10 +170,23 @@ def _dist(ctrl_lists, rng, reps=1000):
     return means[len(means) // 2], means[int(0.95 * (len(means) - 1))]
 
 
-def update(state, bars, now, seed=None):
+def _forma_rows(forma):
+    return (forma or {}).get("lutadores") or {}
+
+
+def update(state, bars, now, seed=None, forma=None):
     """Calcula controlos em falta (no maximo CTRL_PER_SCAN por scan) e a
-    classificacao. bars: {ativo: velas de 4H fechadas}. Devolve o resumo."""
+    classificacao. bars: {ativo: velas de 4H fechadas}. forma: resultado de
+    tools/arena_ringue.py (ou None: usa o ultimo guardado). Devolve o resumo."""
     ar = state.setdefault("arena", {"ctrl": {}, "status": {}})
+    if forma and _forma_rows(forma):
+        ar["forma"] = {"atualizado": forma.get("atualizado"),
+                       "janela_dias": forma.get("janela_dias"),
+                       "moedas": forma.get("moedas"),
+                       "lutadores": _forma_rows(forma)}
+    fm = ar.get("forma") or {}
+    frows = _forma_rows(fm)
+    mortos = ar.setdefault("mortos", {})
     ctrl = ar.setdefault("ctrl", {})
     rng = random.Random(seed if seed is not None else now)
     all_t = trades(state)
@@ -186,49 +207,81 @@ def update(state, bars, now, seed=None):
     for k, key, t in all_t:
         groups.setdefault(k, []).append((key, t))
     board = []
+    for k in frows:                          # lutadores so com forma recente
+        groups.setdefault(k, [])
     for k, ts in groups.items():
         rs = [t["r"] for _, t in ts if t.get("r") is not None]
-        if not rs:
+        f = frows.get(k)
+        if not rs and not (f and f.get("n")) and k not in mortos:
             continue
-        mean = sum(rs) / len(rs)
+        mean = sum(rs) / len(rs) if rs else None
         lists = [ctrl.get(key) for key, t in ts]
-        has_ctrl = not any(t.get("no_geometry") for _, t in ts) and \
+        has_ctrl = bool(rs) and not any(t.get("no_geometry") for _, t in ts) and \
             sum(1 for c in lists if c) >= max(1, len(rs) // 2)
         med, p95 = _dist(lists, rng) if has_ctrl else (None, None)
-        v = verdict(len(rs), mean, med, p95, has_ctrl)
+        v = verdict(len(rs), mean, med, p95, has_ctrl) if rs else "A COMPETIR"
+        motivo = "ao vivo" if v == "MORTA" else None
+        vf = (f or {}).get("veredicto")
+        if vf == "MORTA" and v != "MORTA":       # a forma recente so mata
+            v, motivo = "MORTA", f"forma recente ({fm.get('janela_dias', 90)} dias)"
         prev = ar["status"].get(k)
+        if k in mortos:                          # a morte e definitiva
+            v, motivo = "MORTA", mortos[k].get("motivo")
+        elif v == "MORTA":
+            mortos[k] = {"t": int(now), "motivo": motivo,
+                         "n": (f or {}).get("n") if motivo and motivo.startswith("forma") else len(rs),
+                         "avg_r": (f or {}).get("avg_r") if motivo and motivo.startswith("forma") else round(mean, 3)}
         ar["status"][k] = v
-        board.append({"id": k, "name": _name(k), "persona": persona(k), "n": len(rs),
-                      "wins": sum(1 for x in rs if x > 0),
-                      "avg_r": round(mean, 3), "total_r": round(sum(rs), 2),
-                      "ultimas": [round(x, 2) for x in rs[-10:]],
-                      "acaso_mediana": None if med is None else round(med, 3),
-                      "acaso_p95": None if p95 is None else round(p95, 3),
-                      "estado": v, "mudou": (prev or "A COMPETIR") != v,
-                      "live": not (k.startswith("BOUNCE_") or k in ("TREND_DAILY", "REJEITADOS"))})
+        row = {"id": k, "name": _name(k), "persona": persona(k), "n": len(rs),
+               "wins": sum(1 for x in rs if x > 0),
+               "avg_r": None if mean is None else round(mean, 3),
+               "total_r": round(sum(rs), 2),
+               "ultimas": [round(x, 2) for x in rs[-10:]],
+               "acaso_mediana": None if med is None else round(med, 3),
+               "acaso_p95": None if p95 is None else round(p95, 3),
+               "estado": v, "mudou": (prev or "A COMPETIR") != v,
+               "motivo": motivo if v == "MORTA" else None,
+               "morte": mortos.get(k),
+               "live": not (k.startswith("BOUNCE_") or k == "REJEITADOS")}
+        if f:
+            row["forma"] = {x: f.get(x) for x in ("n", "wins", "avg_r", "total_r",
+                                                  "ultimas", "acaso_mediana",
+                                                  "acaso_p95", "veredicto")}
+        board.append(row)
     for k0 in ("BOUNCE_G0", "BOUNCE_V1", "BOUNCE_V2", "BOUNCE_V3",
                "REJEITADOS"):                    # papel ainda sem operacoes
         if not any(b["id"] == k0 for b in board):
+            st0 = "MORTA" if k0 in mortos else "A COMPETIR"
             board.append({"id": k0, "name": _name(k0),
                           "persona": persona(k0),
                           "n": 0, "wins": 0, "avg_r": None, "total_r": 0,
+                          "ultimas": [],
                           "acaso_mediana": None, "acaso_p95": None,
-                          "estado": "A COMPETIR", "mudou": False,
-                          "live": False})
+                          "estado": st0, "mudou": False,
+                          "motivo": (mortos.get(k0) or {}).get("motivo"),
+                          "morte": mortos.get(k0), "live": False})
     order = {"SOBE": 0, "A COMPETIR": 1, "MORTA": 2}
-    board.sort(key=lambda b: (order[b["estado"]],
-                              -(b["avg_r"] if b["avg_r"] is not None else -9),
-                              -b["n"]))
+
+    def score(b):                            # forma recente pesa mais (amostra maior)
+        f = b.get("forma") or {}
+        x = f.get("avg_r") if f.get("n") else b["avg_r"]
+        return -(x if x is not None else -9)
+    board.sort(key=lambda b: (order[b["estado"]], score(b),
+                              -b["n"] - (b.get("forma") or {}).get("n", 0)))
     # o Oscar (rejeitados) e um medidor, nao conta para o minimo de lutadores
     alive = sum(1 for b in board if b["estado"] != "MORTA"
                 and b["id"] != "REJEITADOS")
     return {"atualizado": int(now), "vivos": alive, "minimo_vivos": MIN_ALIVE,
+            "forma": {x: fm.get(x) for x in ("atualizado", "janela_dias", "moedas")} if fm else None,
             "recrutar": alive < MIN_ALIVE, "regras": {
         "morre": f"≥{FAST_N} operações com R médio ≤ {str(FAST_R).replace('.', ',')}R (morte rápida), ou "
                  f"≥{MIN_DEATH} operações e R médio ≤ {str(DEATH_R).replace('.', ',')}R ou abaixo "
                  "da mediana ao acaso",
         "sobe": f"≥{MIN_PROMO} operações, R médio positivo e acima do "
-                "percentil 95 ao acaso"}, "classificacao": board}
+                "percentil 95 ao acaso",
+        "forma": "de hora a hora cada lutador combate nos últimos 90 dias de "
+                 "mercado, em todas as moedas, com as mesmas regras de morte; "
+                 "a forma recente só mata, nunca promove; a morte é definitiva"}, "classificacao": board}
 
 
 def dead_paper(state):
@@ -243,7 +296,10 @@ def events(summary, now):
     for b in summary.get("classificacao", []):
         if b["mudou"] and b["estado"] in ("MORTA", "SOBE"):
             out.append({"t": now, "event": "ARENA", "id": f"arena-{b['id']}",
-                        "name": f"{b['persona']} ({b['name']})", "estado": b["estado"], "n": b["n"],
-                        "avg_r": b["avg_r"], "live": b["live"],
+                        "name": f"{b['persona']} ({b['name']})", "estado": b["estado"],
+                        "n": (b.get("morte") or {}).get("n", b["n"]),
+                        "avg_r": (b.get("morte") or {}).get("avg_r", b["avg_r"]),
+                        "motivo": b.get("motivo"), "strategy": b["id"],
+                        "live": b["live"],
                         "real": False})
     return out

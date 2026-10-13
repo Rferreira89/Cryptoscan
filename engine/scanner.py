@@ -208,7 +208,7 @@ def compounding(cfg, led, since):
             "max_risk_usdc": round(eq * cfg["risk_pct_of_capital"] / 100, 2)}
 
 
-def run(now=None, state=None, cfg=None):
+def run(now=None, state=None, cfg=None, forma=None):
     """Devolve (resultado, estado, eventos de auditoria)."""
     now = int(now or time.time())
     state = state if state is not None else {}
@@ -334,7 +334,7 @@ def run(now=None, state=None, cfg=None):
         result["paper_shadow"] = {"erro": str(e)[:120]}
     # arena: classificacao de todas as estrategias contra o acaso
     try:
-        result["arena"] = arena.update(state, c4s, now)
+        result["arena"] = arena.update(state, c4s, now, forma=forma)
         events += arena.events(result["arena"], now)
     except Exception as e:  # a arena nunca pode parar o scan
         result["arena"] = {"erro": str(e)[:120]}

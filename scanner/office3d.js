@@ -27,7 +27,7 @@ const DESK = {
   afin: { z: "lab", p: V(-10.5, 2.5), f: -1 }, inv: { z: "lab", p: V(-10.5, 6.2), f: -1 },
   juiz: { z: "lab", p: V(-10.5, 9.9), f: -1 },
   vig: { z: "ctrl", p: V(6, 7.4), f: 1 }, news: { z: "ctrl", p: V(6, 10.4), f: 1 },
-  aud: { z: "ctrl", p: V(10.5, 8.9), f: 1 },
+  aud: { z: "ctrl", p: V(10.5, 7.4), f: 1 },
 };
 const SPOTS = [
   { z: "cafe", p: V(11.4, -0.8), k: "cafe" }, { z: "cafe", p: V(11.4, 0.6), k: "cafe" },
@@ -373,13 +373,16 @@ let arenaG = null, arenaTex = null, arenaSig = "", fighters = [], arenaLabels = 
 const SHORT = { BREAKOUT: "Quebra", PULLBACK: "Recuo", LIQUIDITY_SWEEP: "Sweep", RANGE: "Range",
   TREND_DAILY: "Tendência", BOUNCE_G0: "Bounce G0", BOUNCE_V1: "Bounce V1", BOUNCE_V2: "Bounce V2", BOUNCE_V3: "Bounce V3", REJEITADOS: "Rejeitados" };
 const FCOL = ["#4FD1C5", "#FF6FB5", "#F6C453", "#B794F4", "#63B3ED", "#68D391", "#FFA94D", "#FC8181", "#90CDF4", "#FBD38D", "#9AE6B4", "#D6BCFA"];
-function arenaRows() { const A = (API().D() || {}).arena; return (A && A.classificacao) || []; }
+// no 3D mostra-se a amostra maior: o combate de 90 dias (forma recente) quando
+// existe, senao os sinais ao vivo
+function arenaRows() { const A = (API().D() || {}).arena; return ((A && A.classificacao) || []).map(b => { const f = b.forma;
+  return f && f.n > b.n ? Object.assign({}, b, { n: f.n, wins: f.wins, avg_r: f.avg_r, ultimas: f.ultimas || [], live_n: b.n, src: "90 dias" }) : b; }); }
 function drawArenaBoard(g) {
   const W = 768, H = 512, rows = arenaRows();
   const bg = g.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, "#14082e"); bg.addColorStop(1, "#060312"); g.fillStyle = bg; g.fillRect(0, 0, W, H);
   g.strokeStyle = "#FF6FB5"; g.lineWidth = 8; g.strokeRect(4, 4, W - 8, H - 8);
   g.fillStyle = "#FF6FB5"; g.font = "800 46px system-ui"; g.fillText("⚔ ARENA", 28, 62);
-  g.fillStyle = "#c9c2ee"; g.font = "500 20px system-ui"; g.fillText("R médio por operação · contra o acaso", 270, 58);
+  g.fillStyle = "#c9c2ee"; g.font = "500 20px system-ui"; g.fillText("combate de 90 dias · R médio contra o acaso", 270, 58);
   if (!rows.length) { g.fillStyle = "#c9c2ee"; g.font = "28px system-ui"; g.fillText("A carregar a classificação…", 28, 140); return; }
   rows.slice(0, 9).forEach((b, i) => {
     const y = 108 + i * 44, dead = b.estado === "MORTA", up = b.estado === "SOBE";
@@ -665,7 +668,7 @@ function drawStrat(g, b) {
   g.font = "500 18px system-ui"; g.fillStyle = "#93a4c3"; g.fillText(b.name || "", 18, 70);
   g.font = "700 46px system-ui"; g.fillStyle = r == null ? "#93a4c3" : r > 0 ? "#68D391" : "#FC8181";
   g.fillText(r == null ? "sem operações" : (r > 0 ? "+" : "") + r.toFixed(2).replace(".", ",") + "R", 18, 130);
-  g.font = "600 20px system-ui"; g.fillStyle = "#c9d3e6"; g.fillText(`${b.n} operações · ${b.wins || 0} ganhas · ${b.estado === "SOBE" ? "🏆 sobe" : "⚔ a competir"}`, 18, 168);
+  g.font = "600 20px system-ui"; g.fillStyle = "#c9d3e6"; g.fillText(`${b.n} op.${b.src ? " (90 dias)" : ""} · ${b.wins || 0} ganhas · ${b.estado === "SOBE" ? "🏆 sobe" : "⚔ a lutar"}`, 18, 168);
   const u = b.ultimas || []; g.fillStyle = "#93a4c3"; g.font = "16px system-ui"; g.fillText("últimas operações", 18, 206);
   u.forEach((x, i) => { g.fillStyle = x > 0 ? "#68D391" : "#FC8181"; const h = Math.min(70, Math.abs(x) * 35 + 6); g.fillRect(18 + i * 46, x > 0 ? 290 - h : 290, 34, h > 0 ? (x > 0 ? h : Math.min(h, 28)) : 4); });
   if (!u.length) { g.fillStyle = "#5d6b85"; g.fillText("à espera do primeiro sinal", 18, 260); }
@@ -693,8 +696,6 @@ function updateStrategyRoom() {
   const rug = new THREE.Mesh(new THREE.PlaneGeometry(len - .8, 8.6), mat("#3d4656")); rug.rotation.x = -Math.PI / 2; rug.position.set(cx, .015, 0); stG.add(rug);
   const glass = mat("#9fd3ff", .05, .08); boxM(len, 1.2, .05, glass, cx, .6, -5, stG); boxM(len, 1.2, .05, glass, cx, .6, 5, stG);
   boxM(.05, 1.2, 10, glass, ST_WALL + len, .6, 0, stG);
-  // candeeiros de teto por fila
-  for (let k = 0; k < nRows; k++) ST_ZS.forEach(z => { const lx = ST_X0 + k * ST_DX; boxM(.012, .5, .012, mat("#222"), lx - .75, 3.05, z, stG); const l = new THREE.Mesh(new THREE.ConeGeometry(.2, .18, 16, 1, true), mat("#f4f1e8", .3)); l.position.set(lx - .75, 2.75, z); stG.add(l); });
   rows.forEach((b, i) => {
     const x = ST_X0 + Math.floor(i / ST_ZS.length) * ST_DX, z = ST_ZS[i % ST_ZS.length];
     const col = FCOL[arenaRows().indexOf(b) % FCOL.length];
@@ -715,6 +716,77 @@ function updateStrategyRoom() {
     if ((b.wins || 0) > 0) { const tr = new THREE.Mesh(new THREE.CylinderGeometry(.06, .04, .16, 12), mat("#F6C453", .9)); tr.position.set(-.25, .86, .75); g.add(tr); }   // premio na mesa
   });
 }
+
+// ---------- equipa permanente: trabalho que corre em CADA scan de 5 min ----------
+// Os agentes agendados (Jorge, Ines, Andre, Nuno, Sofia, Henrique) so trabalham
+// quando a corrida deles acontece; estas pessoas fazem o trabalho continuo que
+// o scanner faz de facto a cada 5 minutos, por isso nunca ha salas vazias.
+// Cada ecra mostra os numeros reais do ultimo scan.
+const STAFF = [
+  { id: "acaso", nm: "Clara · Acaso", z: "lab", p: V(-15.2, 2.5), c: "#B794F4", st: { skin: "#f1c27d", hair: "#1c1c1c", hs: "bun", top: "#B794F4", jacket: "#3b2f5a", legs: "#232033", glasses: 1 } },
+  { id: "regime", nm: "Hugo · Regime", z: "lab", p: V(-15.2, 6.2), c: "#4FD1C5", st: { skin: "#e0ac69", hair: "#4a3020", hs: "short", top: "#e8eef7", jacket: "#22404a", legs: "#1f2a33", beard: 1 } },
+  { id: "dados", nm: "Lúcia · Dados", z: "lab", p: V(-15.2, 9.9), c: "#63B3ED", st: { skin: "#8d5524", hair: "#111", hs: "long", top: "#63B3ED", legs: "#1d2433" } },
+  { id: "risco", nm: "Paulo · Risco", z: "ctrl", p: V(10.5, 10.4), c: "#FC8181", st: { skin: "#ffdbac", hair: "#8a8a8a", hs: "short", top: "#f2f2f2", jacket: "#3a2a2a", legs: "#262626", glasses: 1 } },
+];
+let staffPeople = [], staffTex = {};
+const pc = (x, d = 1) => (x == null || isNaN(x)) ? "–" : (x > 0 ? "+" : "") + Number(x).toFixed(d).replace(".", ",");
+function staffLines(id) {
+  const D = (API().D && API().D()) || {}, F = (API().files && API().files()) || {}, C = D.config || {};
+  const ageMin = D.generated_at ? Math.round((Date.now() / 1000 - D.generated_at) / 60) : null;
+  if (id === "acaso") {
+    const rb = F.rb && F.rb.TODAS, lg = F.lg && F.lg.estrategias && F.lg.estrategias.TODAS;
+    const pb = D.paper_bounce || {}, sh = D.paper_shadow || {};
+    const pn = Object.values(pb).reduce((a, g) => a + (g.n || 0), 0) + (sh.n || 0);
+    const po = Object.values(pb).reduce((a, g) => a + ((g.open || []).length), 0) + ((sh.open || []).length);
+    return ["Mede tudo contra entradas ao acaso",
+      rb ? [`Histórico ${pc(rb.r_real, 2)}R · acaso ${pc(rb.r_acaso_mediana, 2)}R`, rb.vantagem ? "#68D391" : "#FC8181"] : ["Histórico: a carregar…", "#93a4c3"],
+      lg ? `Ao vivo: ${lg.n} sinais (faltam ${Math.max(0, 30 - lg.n)} p/ veredicto)` : "Ao vivo: à espera de sinais",
+      `Papel: ${pn} fechadas · ${po} abertas agora`];
+  }
+  if (id === "regime") {
+    const mf = D.market_filter || {}, ev = D.next_event, dv = D.derivatives_source || {};
+    const h = ev && ev.t ? Math.round((ev.t - Date.now() / 1000) / 3600) : null;
+    return ["Regime de mercado, a cada 5 min",
+      mf.close ? [`BTC ${mf.btc_above_sma200 ? "acima" : "ABAIXO"} da média 200d (${pc(mf.distance_pct)}%)`, mf.btc_above_sma200 ? "#68D391" : "#FC8181"] : "BTC: a carregar…",
+      `Derivados: ${dv.with_perp != null ? dv.with_perp + " moedas com funding" : "–"}`,
+      ev ? [`${D.event_block ? "⛔ " : ""}${ev.name}${h != null ? (h >= 0 ? ` daqui a ${h} h` : "") : ""}`, D.event_block ? "#FC8181" : "#F6C453"] : "Sem eventos marcados"];
+  }
+  if (id === "dados") {
+    const src = D.sources || {}, n = D.counts || {};
+    const ok = Object.entries(src).map(([k, v]) => `${k} ${v.ok ? "✓" : "✗"}`).join(" · ");
+    return ["Qualidade dos dados de cada scan",
+      ok || "Fontes: a carregar…",
+      `${n.pairs_seen || 0} pares → ${n.eligible || 0} elegíveis → ${n.data_valid || 0} válidos`,
+      ageMin == null ? "–" : [`Último scan: há ${ageMin} min`, ageMin > 30 ? "#FC8181" : "#68D391"]];
+  }
+  const J = (D.journal || {}).rows || [], dec = new Set(J.filter(r => r.executed === false || r.user_closed_flag).map(r => r.id));
+  const open = (D.active_signals || []).filter(s => s.mode !== "PAPER" && !dec.has(s.id) && s.status === "TRIGGERED").length;
+  return ["Controla o risco antes de cada sinal",
+    [`Abertas ${open}/${C.max_open_positions || "–"}`, open >= (C.max_open_positions || 99) ? "#F6C453" : "#68D391"],
+    `Risco ${C.risk_pct_of_capital || "–"}% de ${C.capital_usdc != null ? Number(C.capital_usdc).toFixed(2).replace(".", ",") : "–"} USDC`,
+    D.halt ? ["⛔ Programa travado", "#FC8181"] : [`Perda máx.: ${C.max_daily_loss_r || "–"}R/dia · ${C.max_weekly_loss_r || "–"}R/semana`, "#c9d3e6"]];
+}
+function drawStaff(g, S) {
+  const W = 512, H = 384, L = staffLines(S.id);
+  g.fillStyle = "#0b1220"; g.fillRect(0, 0, W, H); g.fillStyle = S.c; g.fillRect(0, 0, W, 8);
+  g.fillStyle = "#e9eef7"; g.font = "800 34px system-ui"; g.fillText(S.nm, 20, 56);
+  g.fillStyle = "#93a4c3"; g.font = "500 20px system-ui"; g.fillText(L[0], 20, 88);
+  L.slice(1).forEach((x, i) => { const [t, c] = Array.isArray(x) ? x : [x, "#c9d3e6"]; g.fillStyle = c; g.font = (i === 0 ? "700 26px" : "600 22px") + " system-ui";
+    let tt = t; while (g.measureText(tt).width > W - 40 && tt.length > 4) tt = tt.slice(0, -2); if (tt !== t) tt += "…"; g.fillText(tt, 20, 146 + i * 62); });
+  g.fillStyle = "#4b5a75"; g.font = "16px system-ui"; g.fillText("dados do último scan · atualiza a cada 5 min", 20, H - 18);
+}
+function buildStaff() {
+  STAFF.forEach(S => {
+    DESK[S.id] = { z: S.z, p: S.p, f: 1 }; buildDesk(S.id); STYLE[S.id] = S.st;
+    const tx = canvasTex(512, 384, g => drawStaff(g, S)); staffTex[S.id] = tx;
+    const m = monOn[S.id].material; m.map = tx; m.color.set(0xffffff); m.needsUpdate = true;
+    const pan = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 1.42), new THREE.MeshBasicMaterial({ map: tx, toneMapped: false }));
+    pan.position.set(S.p.x + .62, 2.45, S.p.z); pan.rotation.y = -Math.PI / 2; scene.add(pan);
+    boxM(.05, 1.5, 2.0, mat("#0d1224"), S.p.x + .66, 2.45, S.p.z); boxM(.06, .9, .06, mat("#222"), S.p.x + .66, 1.25, S.p.z);
+    const p = makePerson({ id: S.id, nm: S.nm, c: S.c }); p.mode = "work"; p.sit = true; p.path = []; p.staffZone = S.z; p.name.style.display = "none"; staffPeople.push(p);
+  });
+}
+function updateStaff() { STAFF.forEach(S => { const t = staffTex[S.id]; if (t) { drawStaff(t.userData.c.getContext("2d"), S); t.needsUpdate = true; } }); }
 
 // ---------- pessoas ----------
 function label(text, color, zone) {
@@ -806,6 +878,12 @@ function decide(p) {
   const st = stateOf(p.a.id); p.state = st;
   if (st === "work") { if (p.mode !== "work") { p.mode = "work"; p.spot = null; p.path = route(p, p.seat, DESK[p.a.id].z); p.dest = DESK[p.a.id].z; p.sit = false; } return; }
   if (p.mode === "work" || (!p.path.length && p.wait <= 0)) {
+    // 24/7 (decisao do Rui): entre corridas cada agente fica sobretudo na sua
+    // secretaria, a acompanhar os dados ao vivo; pausas curtas no cafe
+    if (Math.random() < .75) {
+      p.mode = "desk"; p.spot = null; p.sit = false; p.path = route(p, p.seat, DESK[p.a.id].z); p.dest = DESK[p.a.id].z;
+      p.wait = 60 + Math.random() * 90; return;
+    }
     const used = new Set(people.filter(q => q.spot != null).map(q => q.spot));
     let opts = SPOTS.map((s, k) => k).filter(k => !used.has(k) && (st !== "sleep" || SPOTS[k].k === "sofa" || SPOTS[k].k === "reuniao"));
     if (!opts.length) opts = SPOTS.map((s, k) => k).filter(k => !used.has(k));
@@ -818,11 +896,11 @@ function animate(p, dt, t) {
   const pos = p.g.position;
   if (p.path.length) {
     const tg = p.path[0], d = tg.clone().sub(pos); d.y = 0; const L = d.length(), v = 1.8 * dt;
-    if (L <= v) { pos.copy(tg); p.path.shift(); if (!p.path.length) { p.zone = p.dest; p.sit = p.mode === "work" || (p.spot != null && !!SPOTS[p.spot].sit); } }
+    if (L <= v) { pos.copy(tg); p.path.shift(); if (!p.path.length) { p.zone = p.dest; p.sit = p.mode === "work" || p.mode === "desk" || (p.spot != null && !!SPOTS[p.spot].sit); } }
     else { pos.addScaledVector(d.normalize(), v); p.g.rotation.y = Math.atan2(d.x, d.z); }
   } else if (p.mode !== "work" && p.mode !== "sleep") p.wait -= dt;
   const walking = p.path.length > 0;
-  if (!walking) p.g.rotation.y = p.mode === "work" ? p.face : (p.spot != null && SPOTS[p.spot].r != null ? SPOTS[p.spot].r : p.g.rotation.y);
+  if (!walking) p.g.rotation.y = p.mode === "work" || p.mode === "desk" ? p.face : (p.spot != null && SPOTS[p.spot].r != null ? SPOTS[p.spot].r : p.g.rotation.y);
   const sit = p.sit && !walking, typing = p.mode === "work" && sit, sleep = p.mode === "sleep" && !walking;
   const cafe = !walking && p.spot != null && SPOTS[p.spot].k === "cafe";
   const k = p.rig, ph = t * 7.5 + p.ph, sw = walking ? Math.sin(ph) : 0;
@@ -878,7 +956,7 @@ function frame() {
   people.forEach(p => { if (!p.path.length || (stateOf(p.a.id) === "work" && p.mode !== "work")) decide(p); animate(p, dt, t); });
   // monitores ligados so para quem esta a trabalhar e sentado
   monTex.userData.draw(monTex.userData.c.getContext("2d"), t); monTex.needsUpdate = true;
-  people.forEach(p => { const on = p.mode === "work" && p.sit && !p.path.length, m = monOn[p.a.id].material, tx = deskTex[p.a.id] || monTex;
+  people.forEach(p => { const on = (p.mode === "work" || p.mode === "desk") && p.sit && !p.path.length, m = monOn[p.a.id].material, tx = deskTex[p.a.id] || monTex;
     if (on && m.map !== tx) { m.map = tx; m.color.set(0xffffff); m.needsUpdate = true; } else if (!on && m.map) { m.map = null; m.color.set(0x0b1424); m.needsUpdate = true; } });
   const nowMs = performance.now();
   if (nowMs - (frame.ledAt || 0) > 350) { frame.ledAt = nowMs; drawLeds(ledTex.userData.c.getContext("2d")); ledTex.needsUpdate = true; }
@@ -892,9 +970,9 @@ function frame() {
       if (it) window.drawCandles(g, 512, 256, it.cs, it.lv, { title: it.asset, axis: false, n: 40 }); tx.needsUpdate = true; }
     if (clock3d) { drawClock(clock3d.userData.c.getContext("2d")); clock3d.needsUpdate = true; }
     if (dataTex) { dataI++; drawDataWall(dataTex.userData.c.getContext("2d")); dataTex.needsUpdate = true; } }
-  if (nowMs - (frame.tvAt || -1e9) > 30000 || tvT <= 0) { frame.tvAt = nowMs; tvT = 30; drawTV(tvTex.userData.c.getContext("2d")); tvTex.needsUpdate = true; updateRadar(); updateArena(); updateRewards(); updateSectors(); updateStrategyRoom(); drawBoard(board.userData.c.getContext("2d")); board.needsUpdate = true; }
+  if (nowMs - (frame.tvAt || -1e9) > 30000 || tvT <= 0) { frame.tvAt = nowMs; tvT = 30; drawTV(tvTex.userData.c.getContext("2d")); tvTex.needsUpdate = true; updateRadar(); updateArena(); updateRewards(); updateSectors(); updateStrategyRoom(); updateStaff(); drawBoard(board.userData.c.getContext("2d")); board.needsUpdate = true; }
   if (radar) { radar.sweep.rotation.z -= dt * 1.4; radar.blips.children.forEach((b, i) => { if (b.geometry.type === "SphereGeometry") b.scale.setScalar(1 + Math.sin(t * 4 + i) * .15); }); }
-  animateArena(dt, t); animateRewards(dt, t); secPeople.forEach(p => animate(p, dt, t)); stPeople.forEach(p => animate(p, dt, t));
+  animateArena(dt, t); animateRewards(dt, t); secPeople.forEach(p => animate(p, dt, t)); stPeople.forEach(p => animate(p, dt, t)); staffPeople.forEach(p => animate(p, dt, t));
   ctl.update(); if (composer) composer.render(); else R.render(scene, cam); placeOverlays(dt);
 }
 function resize() {
@@ -943,7 +1021,7 @@ function init(container) {
     bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), .28, .4, .92); composer.addPass(bloom); composer.addPass(new OutputPass());
   } catch (e) { composer = null; }
   monTex = canvasTex(256, 160, drawMon);
-  buildRoom(); buildAccessories(); Object.keys(DESK).forEach(buildDesk); buildRadar(); buildBoard(); updateRadar(); buildArena(); buildRewards(); buildSectors(); buildStrategyRoom();
+  buildRoom(); buildAccessories(); Object.keys(DESK).forEach(buildDesk); buildRadar(); buildBoard(); updateRadar(); buildArena(); buildRewards(); buildSectors(); buildStrategyRoom(); buildStaff();
   people = API().agents.map(makePerson);
   // ao abrir: quem esta em pausa ja esta num sitio de descanso (sem marcha em
   // grupo pelo corredor), cada um com a sua faixa e o seu ritmo
@@ -951,6 +1029,7 @@ function init(container) {
   people.forEach((p, i) => {
     p.lane = (i - 3.5) * .32; const st = stateOf(p.a.id); p.state = st;
     if (st === "work") return;
+    if (Math.random() < .75) { p.mode = "desk"; p.wait = 30 + Math.random() * 90; return; }   // ja sentado
     const opts = SPOTS.map((s, k) => k).filter(k => !used.has(k) && (st !== "sleep" || ["sofa", "reuniao"].includes(SPOTS[k].k)));
     const k = opts[Math.floor(Math.random() * opts.length)]; if (k == null) return; used.add(k);
     p.spot = k; p.mode = st; p.zone = SPOTS[k].z; p.dest = SPOTS[k].z; p.g.position.copy(SPOTS[k].p); p.sit = !!SPOTS[k].sit;
@@ -966,6 +1045,7 @@ function init(container) {
     if (hit) { API().select(hit.object.userData.agent); bubAt = 0; return; }
     const sh = ray.intersectObjects(secPeople.map(p => p.g), true)[0]; if (sh) { API().openZone("sectors"); return; }
     const sp = ray.intersectObjects(stPeople.map(p => p.g), true)[0]; if (sp) { API().openZone("arena"); return; }
+    const sf = ray.intersectObjects(staffPeople.map(p => p.g), true)[0]; if (sf) { let o = sf.object; while (o && !o.userData.agent) o = o.parent; const q = staffPeople.find(p => p.a.id === (o && o.userData.agent)); API().openZone(q ? q.staffZone : "lab"); return; }
     const zh = ray.intersectObjects(zoneHits, false)[0]; if (zh) API().openZone(zh.object.userData.zone);
   });
   new IntersectionObserver(es => { visible = es[0].isIntersecting; }).observe(box);
@@ -983,4 +1063,6 @@ function goSectors() { const T = V(23.8, 10.9), dx = T.x - ctl.target.x, dz = T.
   const d = cam.position.clone().sub(ctl.target), want = 18; if (d.length() > want) cam.position.copy(ctl.target.clone().add(d.setLength(want))); ctl.update(); }
 function goStrategy() { const T = V(ST_WALL + stLen / 2 + .6, 0), dx = T.x - ctl.target.x, dz = T.z - ctl.target.z; ctl.target.copy(T); cam.position.x += dx; cam.position.z += dz;
   const d = cam.position.clone().sub(ctl.target), want = 17 + stLen * .35; cam.position.copy(ctl.target.clone().add(d.setLength(want))); ctl.update(); }
-window.Office3D = { init, supported, refresh: () => { tvT = 0; }, resetView, goArena, goRewards, goSectors, goStrategy };
+function goTo(x, z, want = 14) { const T = V(x, z), dx = T.x - ctl.target.x, dz = T.z - ctl.target.z; ctl.target.copy(T); cam.position.x += dx; cam.position.z += dz;
+  const d = cam.position.clone().sub(ctl.target); cam.position.copy(ctl.target.clone().add(d.setLength(want))); ctl.update(); }
+window.Office3D = { init, supported, refresh: () => { tvT = 0; }, resetView, goArena, goRewards, goSectors, goStrategy, goTo };

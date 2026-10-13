@@ -56,7 +56,7 @@ class Arena(unittest.TestCase):
         self.assertEqual(len([e for e in evs if e["estado"] == "MORTA"]), 1)
         txt = run.alert_text(evs[0], {}, "")
         self.assertIn("morreu", txt)
-        self.assertIn("opção B", txt)
+        self.assertIn("/desliga recuo", txt)
 
     def test_papel_morto_deixa_de_abrir(self):
         st = {"arena": {"status": {"BOUNCE_V2": "MORTA", "BREAKOUT": "MORTA"}}}

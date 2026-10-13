@@ -220,10 +220,21 @@ def alert_text(e, sigs, note):
                 f"Conquista real: {e['cond']}. Vai ver ao escritório 3D.")
     if k == "ARENA":
         if e["estado"] == "MORTA":
-            extra = (" Continua a dar sinais reais (opção B), mas perdeu na "
-                     "arena." if e["live"] else " Deixa de abrir operações.")
-            return (f"💀 ARENA — {e['name']} morreu: {e['n']} operações, "
-                    f"{e['avg_r']:+.2f}R em média, sem vantagem sobre o "
+            cmd = {"BREAKOUT": "quebra", "PULLBACK": "recuo",
+                   "LIQUIDITY_SWEEP": "sweep", "RANGE": "range",
+                   "TREND_DAILY": "tendencia"}.get(e.get("strategy"))
+            if e["live"] and cmd:
+                extra = (" Continua a dar sinais reais até decidires. Para a "
+                         f"desligar responde: /desliga {cmd}")
+            elif e["live"]:
+                extra = ""
+            else:
+                extra = " Deixa de abrir operações."
+            onde = (f" na {e['motivo']}" if e.get("motivo") and
+                    e["motivo"].startswith("forma") else "")
+            r_ = e["avg_r"] if e.get("avg_r") is not None else 0
+            return (f"💀 ARENA — {e['name']} morreu{onde}: {e['n']} operações, "
+                    f"{r_:+.2f}R em média, sem vantagem sobre o "
                     f"acaso.{extra}")
         return (f"🏆 ARENA — {e['name']} ganhou o direito a ser proposta para "
                 f"dinheiro real: {e['n']} operações, {e['avg_r']:+.2f}R em "
@@ -432,11 +443,26 @@ def record_scan(state, t):
     return state["scan_times"]
 
 
+def load_forma():
+    """Ultima forma recente da arena (tools/arena_ringue.py, ramo arena).
+    So no GitHub Actions; falha de rede -> None (a arena usa a guardada)."""
+    repo = os.environ.get("GITHUB_REPOSITORY")
+    if not repo:
+        return None
+    import urllib.request
+    try:
+        url = f"https://raw.githubusercontent.com/{repo}/arena/forma.json"
+        with urllib.request.urlopen(url, timeout=10) as r:
+            return json.loads(r.read().decode())
+    except Exception:
+        return None
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
     state = _load("state.json", {})
     process_inbox(state)
-    res, state, events = scanner.run(state=state)
+    res, state, events = scanner.run(state=state, forma=load_forma())
     extra = reports.due(res, state, res["generated_at"]) if res["universe"] else []
     res["journal"] = ledger.view(state.get("ledger", []))
     if res["universe"]:             # so conta scans com dados

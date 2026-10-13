@@ -3,6 +3,8 @@
 Botoes em cada alerta de compra:  executei / nao executei.
 Comandos de texto:  /preco LINK 14.25   (preco real de entrada)
                     /fechei LINK 15.10  (fechaste tudo a mao a esse preco)
+                    /desliga quebra     (desliga uma estrategia ao vivo)
+                    /liga quebra        (volta a liga-la)
 So sao aceites mensagens do chat configurado em TELEGRAM_CHAT_ID.
 """
 import json
@@ -24,6 +26,40 @@ CLOSE = re.compile(r"^/?fechei\s+([A-Za-z0-9]+)\s+([0-9]+(?:[.,][0-9]+)?)\s*$",
 CAP = re.compile(r"^/?capital\s+([0-9]+(?:[.,][0-9]+)?)\s*$", re.I)
 
 
+ONOFF = re.compile(r"^/?(desliga|liga)\s+([A-Za-zçãéá_ ]+?)\s*$", re.I)
+STRATS = {"quebra": "BREAKOUT", "breakout": "BREAKOUT", "recuo": "PULLBACK",
+          "pullback": "PULLBACK", "sweep": "LIQUIDITY_SWEEP",
+          "liquidity_sweep": "LIQUIDITY_SWEEP", "range": "RANGE",
+          "tendencia": "TREND_DAILY", "tendência": "TREND_DAILY",
+          "trend": "TREND_DAILY", "trend_daily": "TREND_DAILY"}
+NOMES = {"BREAKOUT": "Quebra (Bruno)", "PULLBACK": "Recuo (Rita)",
+         "LIQUIDITY_SWEEP": "Sweep (Simão)", "RANGE": "Range (Raquel)",
+         "TREND_DAILY": "Tendência diária (Teodoro)"}
+
+
+def onoff(state, text, now, cfg_disabled=()):
+    """/desliga ESTRATEGIA ou /liga ESTRATEGIA. Devolve a resposta ou None.
+    Desligar uma estrategia ao vivo e decisao do Rui (a arena so propoe)."""
+    m = ONOFF.match(text or "")
+    if not m:
+        return None
+    k = STRATS.get(m.group(2).strip().lower().replace(" ", "_"))
+    if not k:
+        return ("Estratégia desconhecida. Usa: quebra, recuo, sweep, range ou "
+                "tendencia.")
+    dis = state.setdefault("disabled", {})
+    if m.group(1).lower() == "desliga":
+        dis[k] = {"since": int(now), "reason": "rui"}
+        return (f"Desligada: {NOMES[k]}. Não emite sinais reais novos; as "
+                "operações já abertas continuam a ser acompanhadas. Para voltar: "
+                f"/liga {m.group(2).strip()}")
+    if k in cfg_disabled:
+        return (f"{NOMES[k]} está desligada na configuração do programa; só "
+                "se liga numa sessão de revisão.")
+    dis.pop(k, None)
+    return f"Ligada outra vez: {NOMES[k]}. Volta a emitir sinais reais."
+
+
 SLIP_WARN_PCT = 0.3        # entrada pior do que isto face ao sinal: avisar
 
 
@@ -33,6 +69,14 @@ def _fee_pct():
         return config.load()["fee_pct"]
     except Exception:
         return 0.25
+
+
+def _cfg_disabled():
+    try:
+        from . import config
+        return set(config.load().get("disabled_strategies") or [])
+    except Exception:
+        return set()
 
 
 def slip_note(rec, px, fee_pct=None):
@@ -127,6 +171,11 @@ def apply(state, updates, chat_id):
             if str(msg.get("chat", {}).get("id")) != str(chat_id):
                 continue
             text = (msg.get("text") or "").strip()
+            oo = onoff(state, text, int(msg.get("date") or 0),
+                       _cfg_disabled())
+            if oo:
+                out.append((oo, None))
+                continue
             c = CAP.match(text)
             if c:
                 val = float(c.group(1).replace(",", "."))

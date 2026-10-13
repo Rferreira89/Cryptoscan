@@ -1,0 +1,32 @@
+name: Arena (ringue de hora a hora)
+# Cada lutador da arena combate nos ultimos 90 dias de mercado, em todas as
+# moedas da Bybit UE, com as funcoes do sistema ao vivo e o teste contra o
+# acaso (tools/arena_ringue.py). Resultado em forma.json no ramo `arena`,
+# lido pelo scanner. So pode matar lutadores, nunca promover.
+on:
+  schedule:
+    - cron: "23 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: arena
+  cancel-in-progress: false
+jobs:
+  ringue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Ringue
+        run: |
+          if [ -f STOP ]; then echo "STOP: arena parada"; exit 0; fi
+          python -m unittest discover -q -s tests -t .
+          python -m tools.arena_ringue out
+          cd out && git init -q -b arena && git config user.name cryptoscan-bot \
+            && git config user.email bot@users.noreply.github.com \
+            && git add forma.json && git commit -q -m "forma $(date -u +%FT%TZ)" \
+            && git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" arena:arena

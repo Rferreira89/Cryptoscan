@@ -121,7 +121,7 @@ select,input{font:inherit;padding:9px 10px;border-radius:8px;border:1px solid va
 .kv div{display:flex;justify-content:space-between;gap:8px}
 .kv span{color:var(--mut)}
 .seclist{background:var(--card);border-radius:10px;margin-bottom:12px}.seclist .si{padding:9px 12px;border-bottom:1px solid var(--line)}.seclist .si:last-child{border-bottom:0}.seclist .si.hot{background:#4FD1C512}.seclist .sh{display:flex;justify-content:space-between;align-items:baseline;font-size:14px}.seclist .sr{font-size:12.5px;color:var(--mut);margin-top:3px;line-height:1.4;overflow-wrap:anywhere}
-.tw{overflow-x:auto;margin-bottom:10px}table{border-collapse:collapse;width:100%;font-size:12.5px;background:var(--card);border-radius:10px}th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}th:first-child,td:first-child{text-align:left;white-space:normal}th{color:var(--mut);font-weight:600}
+.tw{overflow-x:auto;margin-bottom:10px}#arena{min-width:0;max-width:100%}#arena td,#arena th{white-space:normal}#arena td:first-child{min-width:110px}table{border-collapse:collapse;width:100%;font-size:12.5px;background:var(--card);border-radius:10px}th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}th:first-child,td:first-child{text-align:left;white-space:normal}th{color:var(--mut);font-weight:600}
 .chk{font-size:12.5px;margin-top:6px}.chk div{display:flex;gap:6px}
 button:focus-visible,summary:focus-visible,.steps li:focus-visible{outline:2px solid var(--now);outline-offset:2px}
 #toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:13.5px;opacity:0;pointer-events:none;transition:opacity .15s}
@@ -242,7 +242,7 @@ body.sheet-open #sheet{transform:none}
 @media (prefers-reduced-motion:reduce){.typing i,.bot .eye{animation:none}.bub{transition:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module" src="office3d.js?v=20261011k"></script>
+<script type="module" src="office3d.js?v=20261013a"></script>
 </head>
 <body class="w3d">
 <div id="world">
@@ -355,11 +355,15 @@ function renderSectors(D){const U=D.universe||[];let html="";
 function renderArena(D){
   const A=D.arena;if(!A||!A.classificacao){$("arena").innerHTML=`<div class="banner">A arena começa no próximo scan.</div>`;return}
   const tag={"SOBE":["🏆 Sobe","up"],"A COMPETIR":["⚔️ A competir",""],"MORTA":["💀 Morta","dn"]};
-  const rows=A.classificacao.map((b,i)=>{const t=tag[b.estado]||[b.estado,""];const ac=b.acaso_mediana==null?"–":`${b.acaso_mediana>0?"+":""}${num(b.acaso_mediana,2)}R`;
-    return `<tr><td>${i+1}. <b>${esc(b.persona||"")}</b> ${esc(b.name)}</td><td>${b.n}</td><td class="${b.avg_r>0?"up":b.avg_r<0?"dn":""}">${b.avg_r==null?"–":(b.avg_r>0?"+":"")+num(b.avg_r,2)+"R"}</td><td>${ac}</td><td class="${t[1]}">${t[0]}</td></tr>`}).join("");
-  const alive=A.classificacao.filter(b=>b.estado!=="MORTA").length;
+  const R=x=>x==null?"–":(x>0?"+":"")+num(x,2)+"R",cls=x=>x>0?"up":x<0?"dn":"";
+  const rows=A.classificacao.map((b,i)=>{const t=tag[b.estado]||[b.estado,""],f=b.forma||{};
+    const fm=f.n?`<b class="${cls(f.avg_r)}">${R(f.avg_r)}</b><br><span style="color:var(--mut);font-size:12px">${f.n} op. · acaso ${R(f.acaso_mediana)}</span>`:`<span style="color:var(--mut)">–</span>`;
+    const lv=b.n?`<b class="${cls(b.avg_r)}">${R(b.avg_r)}</b><br><span style="color:var(--mut);font-size:12px">${b.n} op.</span>`:`<span style="color:var(--mut)">–</span>`;
+    const why=b.estado==="MORTA"&&b.motivo?`<br><span style="color:var(--mut);font-size:12px">${esc(b.motivo)}</span>`:"";
+    return `<tr><td>${i+1}. <b>${esc(b.persona||"")}</b> ${esc(b.name)}</td><td>${fm}</td><td>${lv}</td><td class="${t[1]}">${t[0]}${why}</td></tr>`}).join("");
+  const alive=A.classificacao.filter(b=>b.estado!=="MORTA").length,F=A.forma;
   $("n-arena").textContent=`${alive} vivas de ${A.classificacao.length}`;
-  $("arena").innerHTML=`<div class="banner"><b>Todas as estratégias a competir com as mesmas regras</b>Morre: ${esc(A.regras.morre)}. Sobe para dinheiro real (só com o teu sim): ${esc(A.regras.sobe)}. As estratégias ao vivo continuam a dar sinais mesmo mortas (opção B).</div>${A.recrutar?`<div class="banner"><b>⚠️ Poucos lutadores vivos (${A.vivos} de um mínimo de ${A.minimo_vivos})</b>A investigação está obrigada a trazer concorrentes novos em cada corrida até a arena voltar a ter lutadores suficientes.</div>`:""}<div class="tw"><table><tr><th>Concorrente</th><th>N</th><th>R médio</th><th>Acaso</th><th>Estado</th></tr>${rows}</table></div><div class="note">Contam todos os sinais emitidos, executados ou não: mede-se a estratégia, não a execução.</div>`;
+  $("arena").innerHTML=`<div class="banner"><b>Luta até à morte, de hora a hora</b>${F?`Último combate ${hm(F.atualizado)}: cada lutador nos últimos ${F.janela_dias} dias de mercado, em ${F.moedas} moedas, contra entradas ao acaso. `:"O primeiro combate de hora a hora ainda não chegou. "}Morre: ${esc(A.regras.morre)}. A morte é definitiva. Sobe para dinheiro real (só com o teu sim): ${esc(A.regras.sobe)}, com operações ao vivo. Uma estratégia ao vivo morta continua a dar sinais até a desligares com /desliga no Telegram.</div>${A.recrutar?`<div class="banner"><b>⚠️ Poucos lutadores vivos (${A.vivos} de um mínimo de ${A.minimo_vivos})</b>A investigação está obrigada a trazer concorrentes novos em cada corrida até a arena voltar a ter lutadores suficientes.</div>`:""}<div class="tw"><table><tr><th>Lutador</th><th>Combate 90 dias</th><th>Ao vivo</th><th>Estado</th></tr>${rows}</table></div><div class="note">"Combate 90 dias": todas as entradas que a estratégia faria nos últimos 90 dias, com as mesmas regras e custos do programa. "Ao vivo": os sinais emitidos desde o arranque, executados ou não. O combate só pode matar; para subir são precisas operações ao vivo.</div>`;
 }
 const price=v=>v==null?"–":v>=100?num(v,2):v>=1?num(v,3):Number(v).toLocaleString("pt-PT",{maximumSignificantDigits:4});
 const vol=v=>v>=1e9?num(v/1e9,2)+" mM $":num(v/1e6,1)+" M $";
@@ -610,13 +614,24 @@ function goAsset(a){
   card.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth",block:"start"});
   card.classList.add("flash");setTimeout(()=>card.classList.remove("flash"),1600);
 }
+// operacoes da tendencia diaria (1D) que marcaste como executadas: nao sao
+// sinais de 4H (active_signals), vivem em paper_trend + registo
+function trendOps(){
+  const J=(D.journal||{}).rows||[],P=(D.paper_trend||{}).positions||{};
+  return J.filter(r=>r.kind==="1D"&&r.status==="OPEN"&&r.executed===true&&r.user_result_r==null&&P[r.asset]);
+}
+function trendCard(r){
+  const cur=curPrice(r.asset),e=r.exec_price||r.entry,pl=cur&&e?(cur/e-1)*100:null,p=(D.paper_trend.positions||{})[r.asset]||{};
+  const dist=cur&&p.stop0?(cur/p.stop0-1)*100:null;
+  return `<div class="op open" data-asset="${esc(r.asset)}" data-id="${esc(r.id)}"><b>${esc(r.asset)}</b> (${esc(r.pair||r.asset+"/USDC")}) · Tendência diária · <b class="${pl>0?"up":pl<0?"dn":""}">${pl==null?"aberta":(pl>0?"+":"")+num(pl,1)+"%"}</b><br>Entraste a ${price(e)} em ${hm(r.opened_at)} · stop ${price(p.stop0)}${dist!=null?` (a ${num(dist,1)}%)`:""} · preço agora ${price(cur)}<br><span style="color:var(--mut)">Sem objetivo fixo: o programa avisa para vender quando o fecho diário ficar abaixo do mínimo dos 20 dias anteriores ou se o stop for tocado. Se fechares antes, envia /fechei ${esc(r.asset)} preço.</span></div>`;
+}
 function renderOps(){
   // sinais que marcaste como "Não executei" saem das tuas operações e do
   // radar; o programa continua a segui-los em simulação (Registo, com ❌)
   const dec=new Set(((D.journal||{}).rows||[]).filter(r=>r.executed===false||r.user_closed_flag).map(r=>r.id));
   const all=(D.active_signals||[]).filter(s=>s.mode!=="PAPER"),act=all.filter(s=>!dec.has(s.id)),skip=all.filter(s=>dec.has(s.id));
   const skipNote=skip.length?`<div class="note" style="margin:0 0 12px">Marcaste como não executado: ${skip.map(s=>esc(s.asset)).join(", ")}. Não conta para o teu resultado; o programa segue-o em simulação no Registo. Se afinal entraste, carrega em "Executei" na mensagem do Telegram.</div>`:"";
-  $("ops").innerHTML=(act.map(sigCard).join("")+skipNote)||`<div class="banner">${D.halt?`<b class="dn">Operações suspensas</b>${esc(D.halt)}. Sem sinais novos até o travão de perdas libertar.`:(D.market_filter&&!D.market_filter.btc_above_sma200?"Sem compras novas: o BTC está abaixo da média de 200 dias.":"Nenhuma operação neste momento. O sistema só emite quando todas as condições se alinham.")}</div>`;
+  $("ops").innerHTML=(act.map(sigCard).join("")+trendOps().map(trendCard).join("")+skipNote)||`<div class="banner">${D.halt?`<b class="dn">Operações suspensas</b>${esc(D.halt)}. Sem sinais novos até o travão de perdas libertar.`:(D.market_filter&&!D.market_filter.btc_above_sma200?"Sem compras novas: o BTC está abaixo da média de 200 dias.":"Nenhuma operação neste momento. O sistema só emite quando todas as condições se alinham.")}</div>`;
   const w=[];
   D.universe.forEach(r=>[r.decision,r.decision_short].forEach(d=>{if(d&&d.decision==="WATCHLIST"&&d.plan&&!d.active_signal)w.push([r,d])}));
   w.sort((a,b)=>b[1].score-a[1].score);
@@ -807,7 +822,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261011k";
+const PAGE_V="20261013a";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -879,7 +894,7 @@ const LOOK={scan:{hair:"#2b1b12",skin:"#f1c27d"},mon:{hair:"#d9a441",skin:"#e0ac
 const SPOTS=[{x:44,y:196,sit:1,k:"sofa"},{x:60,y:196,sit:1,k:"sofa"},{x:76,y:196,sit:1,k:"sofa"},{x:126,y:186,k:"cafe"},{x:142,y:188,k:"cafe"},{x:176,y:186,k:"agua"},{x:236,y:198,sit:1,k:"mesa"},{x:276,y:198,sit:1,k:"mesa"},{x:256,y:178,sit:1,k:"mesa"}];
 const SC={pp:[],sel:null,last:0,bubI:0,bubT:0,ok:false};
 function runningNow(cr,mins){if(!cr)return false;const n=new Date();for(let k=0;k<=mins;k++){const d=new Date(n.getTime()-k*60000);if((!cr.d||cr.d.includes(d.getDay()))&&cr.h.includes(d.getHours())&&d.getMinutes()===cr.m)return true}return false}
-function agState(a,od){const o=od[a.id];if(a.cron)o.on=runningNow(a.cron,a.id==="vig"?10:40);if(o.on)return"work";const h=new Date().getHours(),nx=nextRun(a.cron);return(h<7||h>=23)&&(!nx||nx-new Date()>3*3600e3)?"sleep":"pause"}
+function agState(a,od){const o=od[a.id];if(a.cron)o.on=runningNow(a.cron,a.id==="vig"?10:40);if(o.on)return"work";return"pause"}
 function seatOf(i){const[d,y]=DESKS[i];return{x:d+16,y:y+13}}
 function routeTo(p,t){const pts=[];const ais=x=>{const i=DESKS.findIndex(d=>Math.abs(d[0]+16-x)<2);return i<0?x:Math.max(4,DESKS[i][0]-9)};
   const cy=152;if(p.y<cy-4){pts.push({x:ais(p.x),y:p.y},{x:ais(p.x),y:cy})}
@@ -957,7 +972,7 @@ function placeBubble(){const b=$("obub");if(!OF.data){b.hidden=true;return}
   const left=Math.max(4,Math.min(r.width-b.offsetWidth-4,p.x*sx-b.offsetWidth/2));b.style.left=left+"px";b.style.top=Math.max(2,(p.y-18)*sx-b.offsetHeight)+"px";
 }
 function showDetail(){if(!$("odetail")||!OF.data)return;$("odetail").hidden=!OF.sel;if(!OF.sel)return;const id=OF.sel||"scan",a=AGENTS.find(x=>x.id===id),o=OF.data[id],st=(OF.states||{})[id]||"pause";
-  $("odetail").innerHTML=`<div class="banner" style="margin-top:8px"><b>${a.nm} <span style="margin-left:6px;font-size:11px;padding:1px 7px;border-radius:99px;background:${st==="work"?"var(--up)":"var(--chip)"};color:${st==="work"?"var(--card)":"var(--mut)"}">${st==="work"?"a trabalhar":st==="sleep"?"a dormir":"em pausa"}</span></b><span style="color:var(--mut);font-size:12.5px">${esc(a.rl)} · ${esc(o.nx)}</span><ul style="margin:8px 0 0 18px;padding:0">${o.msgs.slice(0,4).map(m=>`<li>${m}</li>`).join("")}${o.more.map(m=>`<li style="color:var(--mut)">${m}</li>`).join("")}</ul></div>`}
+  $("odetail").innerHTML=`<div class="banner" style="margin-top:8px"><b>${a.nm} <span style="margin-left:6px;font-size:11px;padding:1px 7px;border-radius:99px;background:${st==="work"?"var(--up)":"var(--chip)"};color:${st==="work"?"var(--card)":"var(--mut)"}">${st==="work"?"em corrida agora":"à secretária, entre corridas"}</span></b><span style="color:var(--mut);font-size:12.5px">${esc(a.rl)} · ${esc(o.nx)}</span><ul style="margin:8px 0 0 18px;padding:0">${o.msgs.slice(0,4).map(m=>`<li>${m}</li>`).join("")}${o.more.map(m=>`<li style="color:var(--mut)">${m}</li>`).join("")}</ul></div>`}
 function loopScene(ts){if(!SC.ok)return;const dt=Math.min(.1,(ts-(SC.last||ts))/1000);SC.last=ts;
   const open=!document.hidden&&!document.body.classList.contains("sheet-open");if(open&&OF.data){stepScene(dt);drawScene(ts);SC.bubT-=dt;placeBubble()}requestAnimationFrame(loopScene)}
 window.OFAPI={agents:AGENTS,data:()=>OF.data,states:()=>OF.states,sel:()=>OF.sel,select:id=>{OF.sel=OF.sel===id?null:id;showDetail()},D:()=>D,openZone:k=>k==="arena"?openPanel("lab","#s-arena"):k==="sectors"?openPanel("srv","#s-setores"):openPanel(k),files:()=>OF.files};
@@ -970,7 +985,7 @@ function startScene(){
 }
 function renderOffice(){if(!D)return;OF.data=officeData();
   const st=AGENTS.map(a=>agState(a,OF.data));OF.states=Object.fromEntries(AGENTS.map((a,i)=>[a.id,st[i]]));
-  if(!SC.ok)startScene();$("n-esc").textContent=`${st.filter(x=>x==="work").length} a trabalhar · ${st.filter(x=>x==="pause").length} em pausa${st.includes("sleep")?" · "+st.filter(x=>x==="sleep").length+" a dormir":""}`;showDetail()}
+  if(!SC.ok)startScene();$("n-esc").textContent=`24/7: Tiago, Marta e 4 especialistas em contínuo · ${st.filter(x=>x==="work").length} agentes em corrida agora`;showDetail()}
 setInterval(()=>{renderOffice();loadOfficeFiles()},60000);
 
 
@@ -993,16 +1008,17 @@ $("zonebar").addEventListener("click",e=>{const b=e.target.closest("button");if(
 function renderHud(){if(!D)return;const C=D.config||{},J=(D.journal||{}).rows||[];
   const dec=new Set(J.filter(r=>r.executed===false||r.user_closed_flag).map(r=>r.id));
   const act=(D.active_signals||[]).filter(s=>s.mode!=="PAPER"&&!dec.has(s.id));
-  const open=act.filter(s=>s.status==="TRIGGERED"),wait=act.filter(s=>s.status!=="TRIGGERED");
+  const open=act.filter(s=>s.status==="TRIGGERED"),wait=act.filter(s=>s.status!=="TRIGGERED"),tro=trendOps();
   const mine=J.filter(r=>r.executed===true&&r.status==="CLOSED"),R=r=>r.user_r!=null?r.user_r:r.result_r,w=mine.filter(r=>R(r)>0).length;
   const btc=(D.universe||[]).find(r=>r.asset==="BTC")||{};
-  $("hudstats").innerHTML=[["Capital USDC",C.capital_usdc!=null?num(C.capital_usdc,2):"–"],["Abertas",open.length+"/"+(C.max_open_positions||2)],["Ganhas/perdidas",`<span class="up">${w}</span> / <span class="dn">${mine.length-w}</span>`],[`BTC <span class="${btc.chg_24h>=0?"up":"dn"}">${btc.chg_24h>=0?"+":""}${num(btc.chg_24h,1)}%</span>`,btc.price?Math.round(btc.price).toLocaleString("pt-PT"):"–"]].map(([k,v])=>`<div class="hs">${k}<b>${v}</b></div>`).join("");
+  $("hudstats").innerHTML=[["Capital USDC",C.capital_usdc!=null?num(C.capital_usdc,2):"–"],["Abertas",(open.length+tro.length)+"/"+(C.max_open_positions||2)],["Ganhas/perdidas",`<span class="up">${w}</span> / <span class="dn">${mine.length-w}</span>`],[`BTC <span class="${btc.chg_24h>=0?"up":"dn"}">${btc.chg_24h>=0?"+":""}${num(btc.chg_24h,1)}%</span>`,btc.price?Math.round(btc.price).toLocaleString("pt-PT"):"–"]].map(([k,v])=>`<div class="hs">${k}<b>${v}</b></div>`).join("");
   const chips=[];
   if(D.halt)chips.push(`<button class="al stop" data-go="ctrl">⛔ Travão ativo</button>`);
   wait.forEach(s=>chips.push(`<button class="al buy" data-go="ops" data-id="${esc(s.id)}">${s.direction==="SHORT"?"🔻 SHORT":"🟢 COMPRA"} ${esc(s.asset)} · à espera de entrada</button>`));
   open.forEach(s=>{const cur=curPrice(s.asset),p=s.position||{},pl=cur&&p.entry?(cur/p.entry-1)*100*(s.direction==="SHORT"?-1:1):null;chips.push(`<button class="al open" data-go="ops" data-id="${esc(s.id)}">● ${esc(s.asset)} ${pl==null?"aberta":(pl>0?"+":"")+num(pl,1)+"%"}</button>`)});
+  tro.forEach(r=>{const cur=curPrice(r.asset),e=r.exec_price||r.entry,pl=cur&&e?(cur/e-1)*100:null;chips.push(`<button class="al open" data-go="ops" data-id="${esc(r.id)}">● ${esc(r.asset)} ${pl==null?"aberta":(pl>0?"+":"")+num(pl,1)+"%"}</button>`)});
   if(!chips.length)chips.push(`<button class="al watch" data-go="ops">Sem sinais agora · ${(D.counts||{}).deep_checked||0} moedas analisadas</button>`);
-  $("alerts").innerHTML=chips.join("");$("zb-ops").textContent=act.length||"";
+  $("alerts").innerHTML=chips.join("");$("zb-ops").textContent=(act.length+tro.length)||"";
   // estado do sistema (zona de Controlo)
   const age=Math.round((Date.now()/1000-D.generated_at)/60),src=D.sources||{};
   $("sysstate").innerHTML=`<div class="banner"><b>Estado do sistema</b>Último scan: ${hm(D.generated_at)} (há ${age} min) · ${(D.counts||{}).pairs_seen||"–"} pares vistos, ${(D.counts||{}).deep_checked||"–"} analisados a fundo.<br>Fontes de preços: ${Object.entries(src).map(([k,v])=>`${esc(k)} ${v.ok?"✅":"❌"}`).join(" · ")}<br>${D.halt?`<span class="dn">Travão ativo: ${esc(D.halt)}</span>`:"Sem travões ativos."} ${D.next_event?`<br>Próximo evento: ${esc(D.next_event.name)}, ${hm(D.next_event.t)}.`:""}</div>`;
