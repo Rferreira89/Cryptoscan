@@ -31,7 +31,21 @@ MAX_PER_BAR = 2
 # o codigo deles tem de ser revisto e acrescentado aqui (os agentes nao
 # mexem em engine/).
 REAL_OK = ("BOUNCE_G0", "BOUNCE_V2", "BOUNCE_V3", "BOUNCE_X30", "DIP_TREND",
-           "CAPITULACAO")
+           "CAPITULACAO", "BOUNCE_FLUXO", "BOUNCE_FORTE", "BOUNCE_SQUEEZE",
+           "BOUNCE_ISOLADA")
+
+
+def set_context(rows, bars):
+    """Da as funcoes de sinal o BTC e o funding atual (OKX) de cada moeda."""
+    try:
+        from tools.arena_ringue import CTX
+    except Exception:
+        return
+    CTX["btc"] = bars.get("BTC")
+    # a taxa atual conta como a ultima liquidacao (ha menos de 4 horas)
+    CTX["funding"] = {r["asset"]: [(int(__import__("time").time()) - 14000,
+                                    (r.get("derivatives") or {}).get("funding_rate"))]
+                      for r in rows if (r.get("derivatives") or {}).get("funding_rate") is not None}
 
 
 def registry():
@@ -117,12 +131,18 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
         return {}
     seen = state.setdefault("promo_last", {})
     bar = state.setdefault("promo_bar", {"t": 0, "n": 0})
+    set_context(rows, bars)
+    try:
+        from tools.arena_ringue import CTX
+    except Exception:
+        CTX = {}
     cands = []                                # (posicao do campeao, ativo, sinal, decisao)
     for r in rows:
         a, c4 = r.get("asset"), bars.get(r.get("asset"))
         d0 = r.get("decision") or {}
         if not c4 or not d0.get("venue") or d0.get("decision") in ("LONG", "SHORT"):
             continue
+        CTX["asset"] = a
         for rank, champ in enumerate(champs):
             try:
                 sig = registry()[champ](c4, r["price"], cfg)

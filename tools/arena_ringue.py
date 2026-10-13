@@ -42,6 +42,16 @@ de 20 velas, resto no maximo das 42 velas anteriores), stop >= 1,25 ATR:
               queda >= 8% desde o maximo das 18 velas anteriores; stop no
               minimo dessa vela menos 0,1 ATR
 
+LUTADORES DE 2026-10-13 (2.a ronda, pedidos pelo Rui; regras escritas antes de
+testar). Todos usam o gatilho do BOUNCE_X30 e as mesmas saidas, com UM filtro
+cada, para medir se o filtro acrescenta valor:
+  BOUNCE_FLUXO:   na vela do sinal, compradores agressivos >= 55% do volume
+  BOUNCE_FORTE:   a moeda subiu mais do que o BTC nos 30 dias anteriores
+  BOUNCE_SQUEEZE: funding do perpetuo (OKX) negativo na ultima liquidacao
+                  antes do sinal (shorts a pagar: aperto provavel)
+  BOUNCE_ISOLADA: o BTC nao caiu mais de 2% nas 24 horas antes do sinal (a
+                  queda e da moeda, nao do mercado inteiro)
+
 SINAIS (decisao do Rui, 2026-10-13: "cada lutador que provar que e bom
 merece um lugar"): para um lutador poder operar AO VIVO (papel e, se for o
 campeao da arena, dinheiro real) precisa de uma funcao de sinal em SINAIS:
@@ -292,11 +302,97 @@ def sig_capitulacao(c4):
     return dict(e, atr=at, gatilho="vela de capitulação com volume e pavio") if e else None
 
 
-NEW_SIGS = {"BOUNCE_X30": sig_x30, "DIP_TREND": sig_dip_trend, "CAPITULACAO": sig_capitulacao}
+# contexto partilhado pelos filtros: velas do BTC e funding (o combate e o
+# motor ao vivo preenchem-no antes de chamar as funcoes de sinal)
+CTX = {"btc": None, "funding": {}, "asset": None}
+
+
+def _btc_ret(t_end, n):
+    """Variacao do BTC nas n velas de 4H fechadas ate t_end (ou None)."""
+    import bisect
+    b = CTX.get("btc") or []
+    if not b:
+        return None
+    k = bisect.bisect_right([x["t"] + H4 for x in b], t_end) - 1
+    if k - n < 0:
+        return None
+    return b[k]["c"] / b[k - n]["c"] - 1
+
+
+def sig_fluxo(c4):
+    s0 = sig_x30(c4)
+    b = c4[-1]
+    if not s0 or not b.get("tb") or not b.get("v"):
+        return None
+    share = b["tb"] / b["v"]
+    return dict(s0, gatilho=f"sobrevenda a virar com {share:.0%} de compradores agressivos") if share >= .55 else None
+
+
+def sig_forte(c4):
+    s0 = sig_x30(c4)
+    if not s0 or len(c4) < 181:
+        return None
+    mine = c4[-1]["c"] / c4[-181]["c"] - 1
+    btc = _btc_ret(c4[-1]["t"] + H4, 180)
+    if btc is None or mine <= btc:
+        return None
+    return dict(s0, gatilho=f"queda numa moeda mais forte do que o BTC a 30 dias ({mine - btc:+.0%})")
+
+
+def sig_squeeze(c4):
+    import bisect
+    s0 = sig_x30(c4)
+    fr = (CTX.get("funding") or {}).get(CTX.get("asset")) or []
+    if not s0 or not fr:
+        return None
+    t = c4[-1]["t"] + H4
+    k = bisect.bisect_right([x[0] for x in fr], t) - 1
+    if k < 0 or t - fr[k][0] > DAY or fr[k][1] >= 0:
+        return None
+    return dict(s0, gatilho=f"sobrevenda com funding negativo ({fr[k][1] * 100:.3f}%): shorts a pagar")
+
+
+def sig_isolada(c4):
+    s0 = sig_x30(c4)
+    if not s0:
+        return None
+    btc = _btc_ret(c4[-1]["t"] + H4, 6)
+    if btc is None or btc < -0.02:
+        return None
+    return dict(s0, gatilho="queda da própria moeda, com o BTC estável")
+
+
+NEW_SIGS = {"BOUNCE_X30": sig_x30, "DIP_TREND": sig_dip_trend, "CAPITULACAO": sig_capitulacao,
+            "BOUNCE_FLUXO": sig_fluxo, "BOUNCE_FORTE": sig_forte,
+            "BOUNCE_SQUEEZE": sig_squeeze, "BOUNCE_ISOLADA": sig_isolada}
+
+
+def fetch_funding(base, now, days):
+    """[(t_s, taxa)] do perpetuo USDT da OKX nos ultimos dias ([] se nao houver)."""
+    from engine import sources
+    out, after = [], None
+    while True:
+        params = {"instId": f"{base}-USDT-SWAP", "limit": 100}
+        if after:
+            params["after"] = after
+        try:
+            d = sources._get("https://www.okx.com/api/v5/public/funding-rate-history", params)
+        except Exception:
+            break
+        rows = d.get("data") or [] if isinstance(d, dict) else []
+        if not rows:
+            break
+        out += [(int(r["fundingTime"]) // 1000, float(r["fundingRate"])) for r in rows]
+        after = rows[-1]["fundingTime"]
+        if out[-1][0] < now - (days + 5) * DAY or len(rows) < 100:
+            break
+        time.sleep(0.15)
+    return sorted(set(out))
 
 
 def generic_trades(asset, c4, above, t0, key, fn):
     """Corre uma funcao de sinal vela a vela (so passado) e simula G0."""
+    CTX["asset"] = asset
     out, busy = [], -1
     for i in range(250, len(c4) - 1):
         t_sig = c4[i]["t"] + H4
@@ -419,9 +515,10 @@ def judge(trs, bars, rng, bars1h=None):
             "veredicto": arena.verdict(len(rs), mean, med, p95, has_ctrl)}
 
 
-def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None):
+def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None, funding=None):
     t0 = now - days * DAY
     btc = bars.get("BTC")
+    CTX.update(btc=btc, funding=funding or {})
     reg, above = B.regimes(btc), btc_above(btc)
     groups = {k: [] for k in LIVE + ("REJEITADOS", "BOUNCE_G0", "BOUNCE_V1",
                                      "BOUNCE_V2", "BOUNCE_V3", "TREND_DAILY",
@@ -477,7 +574,13 @@ def main(dest, days=DAYS):
     if "BTC" not in bars:
         raise SystemExit("sem velas do BTC: ringue nao corre")
     t = time.time()
-    res = run(bars, cfg, now, days, bars1h=bars1h)
+    funding = {}
+    for base in bars:
+        fr = fetch_funding(base, now, days)
+        if fr:
+            funding[base] = fr
+    res = run(bars, cfg, now, days, bars1h=bars1h, funding=funding)
+    res["funding_moedas"] = len(funding)
     res["segundos"] = round(time.time() - t)
     res["falhas"] = falhas[:20]
     os.makedirs(dest, exist_ok=True)

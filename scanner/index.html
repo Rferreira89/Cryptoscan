@@ -244,7 +244,7 @@ body.sheet-open #sheet{transform:none}
 @media (prefers-reduced-motion:reduce){.typing i,.bot .eye{animation:none}.bub{transition:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module" src="office3d.js?v=20261013e"></script>
+<script type="module" src="office3d.js?v=20261013f"></script>
 </head>
 <body class="w3d">
 <div id="world">
@@ -446,7 +446,7 @@ function tfBlock(name,a){
   ${flowBlock(a)}
   </div>`;
 }
-const STR={PULLBACK:"Recuo em tendência",BREAKOUT:"Quebra com reteste",LIQUIDITY_SWEEP:"Sweep de liquidez",RANGE:"Fundo de range",PULLBACK_SHORT:"Short: retoma da descida",BREAKOUT_SHORT:"Short: quebra em baixa",LIQUIDITY_SWEEP_SHORT:"Short: sweep de topos",RANGE_SHORT:"Short: topo de range",BOUNCE_G0:"🏆 Campeão da arena · Oversold Bounce",BOUNCE_V2:"🏆 Campeão da arena · Oversold Bounce (stop curto)",BOUNCE_V3:"🏆 Campeão da arena · Oversold Bounce (2R)",BOUNCE_X30:"🏆 Campeão da arena · Bounce RSI 30",DIP_TREND:"🏆 Campeão da arena · Recuo em tendência forte",CAPITULACAO:"🏆 Campeão da arena · Capitulação"};
+const STR={PULLBACK:"Recuo em tendência",BREAKOUT:"Quebra com reteste",LIQUIDITY_SWEEP:"Sweep de liquidez",RANGE:"Fundo de range",PULLBACK_SHORT:"Short: retoma da descida",BREAKOUT_SHORT:"Short: quebra em baixa",LIQUIDITY_SWEEP_SHORT:"Short: sweep de topos",RANGE_SHORT:"Short: topo de range",BOUNCE_G0:"🏆 Campeão da arena · Oversold Bounce",BOUNCE_V2:"🏆 Campeão da arena · Oversold Bounce (stop curto)",BOUNCE_V3:"🏆 Campeão da arena · Oversold Bounce (2R)",BOUNCE_X30:"🏆 Campeão da arena · Bounce RSI 30",DIP_TREND:"🏆 Campeão da arena · Recuo em tendência forte",CAPITULACAO:"🏆 Campeão da arena · Capitulação",BOUNCE_FLUXO:"🏆 Campeão da arena · Bounce com compradores agressivos",BOUNCE_FORTE:"🏆 Campeão da arena · Bounce em moeda forte",BOUNCE_SQUEEZE:"🏆 Campeão da arena · Bounce com shorts em aperto",BOUNCE_ISOLADA:"🏆 Campeão da arena · Bounce com o BTC estável"};
 const DEC={LONG:"COMPRA",SHORT:"SHORT",WATCHLIST:"A VIGIAR","NO TRADE":"NÃO OPERAR"};
 const hm=t=>new Date(t*1000).toLocaleString("pt-PT",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
 function capital(){const v=parseFloat(($("cap").value||"").replace(",","."));return v>0?v:null}
@@ -829,7 +829,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261013e";
+const PAGE_V="20261013f";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:

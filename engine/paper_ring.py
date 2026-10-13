@@ -41,8 +41,14 @@ def update(state, rows, bars, now, market_ok=True):
                 del b["open"][a]
         if k not in active or not market_ok:
             continue
+        promo.set_context(rows, bars)
+        try:
+            from tools.arena_ringue import CTX
+        except Exception:
+            CTX = {}
         for r in rows:
             a, c4 = r.get("asset"), bars.get(r.get("asset"))
+            CTX["asset"] = a
             if not c4 or a in b["open"] or len(b["open"]) >= MAX_POS:
                 continue
             try:

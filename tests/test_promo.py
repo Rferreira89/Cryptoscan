@@ -226,3 +226,25 @@ class CadeiaDeQuedas(unittest.TestCase):
             # scan seguinte na mesma vela: nada de novo
             self.assertEqual(promo.decisions(st, rows, {r["asset"]: c4 for r in rows}, CFG,
                                              now + 300, ["BOUNCE_G0"], True, lambda a: None), {})
+
+
+class FiltrosNovos(unittest.TestCase):
+    def test_filtros_e_contexto(self):
+        c4 = bars()
+        AR.CTX.update(btc=c4, funding={"AAA": [(c4[-1]["t"], -0.0001)]}, asset="AAA")
+        self.assertAlmostEqual(AR._btc_ret(c4[-1]["t"] + TF, 6), c4[-1]["c"] / c4[-7]["c"] - 1)
+        for k in ("BOUNCE_FLUXO", "BOUNCE_FORTE", "BOUNCE_SQUEEZE", "BOUNCE_ISOLADA"):
+            self.assertIn(k, AR.SINAIS)
+            self.assertIn(k, promo.REAL_OK)
+            self.assertIsNone(AR.NEW_SIGS[k](c4))         # sem sobrevenda: nada
+        base = {"stop": 80.0, "tp": [90.0], "partials": [100], "breakeven": True, "hold_s": 1}
+        with mock.patch.object(AR, "sig_x30", return_value=dict(base)):
+            c = [dict(x) for x in c4]
+            c[-1].update(tb=0.4, v=1)
+            self.assertIsNone(AR.sig_fluxo(c))
+            c[-1].update(tb=0.7, v=1)
+            self.assertIsNotNone(AR.sig_fluxo(c))
+            self.assertIsNotNone(AR.sig_squeeze(c4))       # funding negativo
+            AR.CTX["funding"] = {"AAA": [(c4[-1]["t"], 0.0001)]}
+            self.assertIsNone(AR.sig_squeeze(c4))
+        AR.CTX.update(btc=None, funding={}, asset=None)
