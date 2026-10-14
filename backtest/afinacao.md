@@ -1,7 +1,7 @@
 # Diário de afinação dos sinais
 
 Hipóteses testadas sobre as estratégias que já estão ao vivo, uma por
-entrada, com o veredicto. Hipóteses testadas até agora: 3.
+entrada, com o veredicto. Hipóteses testadas até agora: 4.
 
 ## Decisões do Rui (valem para todas as execuções)
 
@@ -403,3 +403,63 @@ Notas para as próximas execuções:
 - Hipóteses testadas até agora: 3. Com três tentativas nos mesmos 18
   meses, a probabilidade de uma passar por acaso continua baixa, mas sobe
   a cada execução; nenhuma chegou perto de passar.
+
+## Mudança de alvo (2026-10-13)
+
+A arena matou as quatro estratégias que davam sinais reais (Recuo, Quebra,
+Sweep, Tendência diária) e o lutador dos setups rejeitados. As hipóteses
+H1 a H3 e a fila acima (stop de tempo, sem stop na entrada) eram sobre
+essas estratégias e deixam de ter objeto. A partir da H4 este diário afina
+os lutadores VIVOS da arena (as variantes do Oversold Bounce), para que
+cheguem mais depressa e com mais margem ao critério de dinheiro real (30
+operações ao vivo acima do percentil 95 do acaso e o sim do Rui).
+
+### 2026-10-14 — H4: tempo máximo mais curto no Bounce RSI 30 (Xavier)
+
+**Escrito antes de correr qualquer teste.**
+
+- Lutador: BOUNCE_X30 ("Xavier"), o tronco de onde saem nove dos
+  lutadores vivos (FLUXO, FORTE, SQUEEZE, ISOLADA, NOREACT, TRAIL, HORAS,
+  DESALAV, MACRO, ...): uma melhoria na saída dele passa para todos. Gatilho
+  exatamente o de `tools/arena_ringue.sig_x30` (o que o ringue e o papel
+  usam): BTC acima da SMA200 diária; RSI14 de 4H abaixo de 30 numa das
+  últimas 3 velas; fecho acima do máximo da vela anterior com o RSI a subir;
+  stop no mínimo das 6 velas menos 0,1 ATR (no mínimo 1,25 ATR); 50% na
+  média de 20 velas, resto no máximo das 42 velas anteriores; stop na
+  entrada depois do 1.º objetivo. Hoje sai ao fim de 3 dias.
+- Hipótese (saída): o ressalto de uma sobrevenda é rápido; se a moeda não
+  chegou à média de 20 velas em pouco tempo, a pressão vendedora não
+  acabou e o que resta é risco de voltar ao stop. Encurtar o tempo
+  máximo corta essas operações perto da entrada (perda pequena em vez de
+  −1R), liberta a moeda e a vaga mais cedo (mais operações por mês) e
+  deve subir o R médio.
+- Grelha (6 configurações, só muda o tempo máximo): 12 h, 1 dia, 1,5
+  dias, 2 dias, 3 dias (atual), 5 dias (o sentido contrário, para ver se
+  a relação é monótona).
+- Simulação: `tools/research_rlib.simulate` (decisão no fecho, entrada na
+  abertura seguinte, `engine/trade.py`, conta o stop se stop e objetivo
+  caem na mesma vela), carteira de 4 operações de 25%, uma por moeda,
+  primeiro o RSI mais baixo; comissão 0,25% + slippage 0,1% por lado.
+  Universo: todas as moedas do ramo `history` com velas suficientes (sem
+  excluir as recentes). Código: `tools/afinacao_h04_tempo.py`.
+- Janela: últimos 18 meses até ao último dia completo do histórico;
+  desenho = primeiros 12 meses, reserva = últimos 6. Walk-forward ancorado
+  no desenho: primeiro treino de 121 dias, 4 janelas de teste de 61 dias;
+  em cada uma aplica-se o tempo com melhor R médio no treino (mínimo de 20
+  operações no treino, senão fica o atual) e compara-se com os 3 dias na
+  mesma janela.
+- Configuração final: a de melhor R médio em todo o desenho com pelo
+  menos 30 operações. Só essa é avaliada na reserva, uma única vez. Se a
+  escolhida for a atual (3 dias), a hipótese fica REJEITADA.
+- Teste contra o acaso: as operações fora da amostra (janelas de teste e
+  reserva), cada uma com controlos na mesma moeda até ±90 velas, mesma
+  geometria e mesmo tempo máximo; 1000 séries.
+- Critérios para APROVAR (todos): R médio > 0 fora da amostra no
+  walk-forward; pelo menos 60 operações fora da amostra no desenho e 30 na
+  reserva (senão AMOSTRA INSUFICIENTE); melhor do que os 3 dias em pelo
+  menos 3 das 4 janelas; R médio > 0 na reserva; R médio > 0 sem a melhor
+  moeda (fora da amostra e na reserva); acima do percentil 95 do acaso.
+  Se ficar acima do percentil 95 do acaso sem ganhar à versão atual, não
+  vai para o ringue: o Xavier já lá está com a mesma entrada.
+- Hipóteses testadas até agora (com esta): 4 neste diário; 10 contra os
+  mesmos dados contando o diário de investigação.
