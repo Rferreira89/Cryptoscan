@@ -399,8 +399,8 @@ def update_state(state, rows, cfg, now, daily=None):
         return sum(1 for k, s in sigs.items()
                    if s["status"] in ("ACTIVE", "TRIGGERED")
                    and s.get("mode", "REAL") == mode and k not in no_ids)
-    trend_open = sum(1 for a in state.get("paper_trend", {}).get(
-        "positions", {}) if a not in no_trend)
+    trend_open = sum(1 for a, p in state.get("paper_trend", {}).get(
+        "positions", {}).items() if a not in no_trend and p.get("real", True))
     slots = {m: cfg["max_open_positions"] - used(m)
              - (trend_open if m == "REAL" else 0) for m in ("REAL", "PAPER")}
     cands = sorted((r for r in rows

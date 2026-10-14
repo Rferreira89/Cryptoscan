@@ -465,6 +465,14 @@ def director_text(res, asset=""):
         L.append(f"{'✅' if x['decisao'] == 'AUTORIZADO' else '⛔'} {_esc(x['ativo'])} · "
                  f"{_esc(arena.persona(str(x['estrategia']).split('-')[-1]) or x['estrategia'])} "
                  f"({x['lado']})" + (f": {_esc('; '.join(x['motivos']))}" if x.get("motivos") else ""))
+    sb = d.get("departamentos") or []
+    L += ["", "<b>Quem acerta</b> (a favor e ganhou, ou contra e perdeu):"]
+    if sb:
+        for t in sb[:8]:
+            L.append(f"{_esc(t['dep'])}: {t['taxa']:.0f}% em {t['n']}"
+                     + ("" if t["amostra"] else f" (amostra curta, {t['n']}/30)"))
+    else:
+        L.append("ainda sem operações avaliadas (começa a contar nas próximas)")
     L += ["", "Regras: " + " ".join(_esc(r.split(":")[0]) for r in d.get("regras") or []),
           "/diretor MOEDA mostra o relatório estruturado de cada agente."]
     return "\n".join(L)

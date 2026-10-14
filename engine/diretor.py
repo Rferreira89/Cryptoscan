@@ -159,7 +159,9 @@ def review(row, dec, c4, macro, btc_c4, now):
         motivos.append("derivados contra e mais um departamento contra: "      # R5
                        + ", ".join(r["agente"] for r in contra))
     ok = not motivos
-    return {"decisao": "AUTORIZADO" if ok else "REJEITADO", "t": int(now),
+    deps = {r["agente"]: ("esperado" if r.get("esperado") else "contra" if r["contra"]
+                          else "favor" if r["a_favor"] else "neutro") for r in reps[1:]}
+    return {"decisao": "AUTORIZADO" if ok else "REJEITADO", "t": int(now), "deps": deps,
             "ativo": row["asset"], "estrategia": dec.get("strategy"), "lado": side,
             "motivos": motivos, "estado_dados": est, "familia": fam,
             "esperado": [r["agente"] for r in reps[1:] if r.get("esperado")],
@@ -188,8 +190,8 @@ def gate(state, rows, c4s, macro, now):
                      "a_favor": [], "contra": [], "invalidacao": [], "estado_dados": "indisponivel",
                      "t": int(now), "ativo": r["asset"], "estrategia": d.get("strategy"),
                      "lado": d["decision"], "familia": None, "esperado": [], "relatorios": []}
-            d["diretor"] = {k: v[k] for k in ("decisao", "motivos", "a_favor", "contra", "invalidacao",
-                                              "estado_dados", "esperado")}
+            d["diretor"] = {k: v.get(k) for k in ("decisao", "motivos", "a_favor", "contra", "invalidacao",
+                                                  "estado_dados", "esperado", "deps")}
             short = {k: v[k] for k in ("decisao", "t", "ativo", "estrategia", "lado", "motivos",
                                        "a_favor", "contra", "invalidacao", "estado_dados",
                                        "familia", "esperado")}
@@ -206,7 +208,7 @@ def gate(state, rows, c4s, macro, now):
                     "t": int(now), "ativo": r["asset"], "estrategia": d.get("strategy"), "lado": d["decision"],
                     "entrada": (p.get("entry_ref") or (p.get("entry_zone") or [None, None])[1]),
                     "stop": p.get("stop"), "tp": (p.get("tp") or [])[:2], "motivos": v["motivos"],
-                    "estado": "aberto"}])[-60:]
+                    "deps": v.get("deps"), "estado": "aberto"}])[-60:]
             if v["decisao"] == "REJEITADO":
                 d.update(decision="NO TRADE", reason="Diretor de Trading: " + "; ".join(v["motivos"]))
     return dr
@@ -252,7 +254,43 @@ def summary(state, now):
             "autorizados_24h": sum(1 for x in hoje if x["decisao"] == "AUTORIZADO"),
             "rejeitados_24h": sum(1 for x in hoje if x["decisao"] == "REJEITADO"),
             "rejeitados": sorted(dr.get("rejeitados") or [], key=lambda x: -x["t"])[:15],
-            "regras": REGRAS}
+            "departamentos": scoreboard(state), "regras": REGRAS}
+
+
+# ---------- avaliacao dos departamentos ----------
+# Em cada operacao fechada (e em cada rejeicao seguida em papel) ve-se quem
+# tinha razao: a favor e ganhou, ou contra e perdeu = acerto. As leituras
+# neutras e as "esperadas pela estrategia" nao contam. Com 30 avaliacoes
+# um departamento tem amostra para pesar nas regras do diretor.
+MIN_AVAL = 30
+
+
+def _outcomes(state):
+    """[(deps, ganhou)] das operacoes fechadas e das rejeicoes ja resolvidas."""
+    out = []
+    for r in state.get("ledger") or []:
+        if r.get("deps") and r.get("status") == "CLOSED" and r.get("result_r") is not None:
+            out.append((r["deps"], r["result_r"] > 0))
+    for x in (state.get("diretor") or {}).get("rejeitados") or []:
+        if x.get("deps") and x.get("estado") in ("evitou perda", "custou ganho"):
+            out.append((x["deps"], x["estado"] == "custou ganho"))
+    return out
+
+
+def scoreboard(state):
+    """Taxa de acerto de cada departamento (quando estava a favor ou contra)."""
+    tab = {}
+    for deps, won in _outcomes(state):
+        for dep, pos in deps.items():
+            if pos not in ("favor", "contra"):
+                continue
+            t = tab.setdefault(dep, {"dep": dep, "n": 0, "acertos": 0})
+            t["n"] += 1
+            t["acertos"] += int((pos == "favor") == won)
+    for t in tab.values():
+        t["taxa"] = round(100 * t["acertos"] / t["n"], 1)
+        t["amostra"] = t["n"] >= MIN_AVAL
+    return sorted(tab.values(), key=lambda t: (not t["amostra"], -t["taxa"], -t["n"]))
 
 
 REGRAS = [

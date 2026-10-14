@@ -44,7 +44,7 @@ DEFAULTS = {
     # Decisao do utilizador (2026-10-02): operar com dinheiro real mesmo sem
     # estrategias validadas. Os sinais saem como operacoes reais, cada um
     # com o registo do backtest. False = nao validadas ficam em PAPEL.
-    "real_money_unvalidated": True,
+    "real_money_unvalidated": False,   # decisao do Rui 2026-10-14: so estrategias validadas (ou campeoes do ringue) usam dinheiro real
     "paper_unvalidated": True,
     # Risco base das estrategias nao validadas (nunca mais do que risk_pct).
     # Com alavancagem 2x o risco efetivo por operacao chega a 2%.

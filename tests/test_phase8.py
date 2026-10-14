@@ -404,7 +404,7 @@ class Concentrated(unittest.TestCase):
         orig = validation.load
         validation.load = lambda: None
         self.addCleanup(lambda: setattr(validation, "load", orig))
-        cfg = config.load("nao-existe.json")
+        cfg = dict(config.load("nao-existe.json"), real_money_unvalidated=True)
         rows = []
         for k in range(4):
             r = T4.row(asset=f"A{k}")

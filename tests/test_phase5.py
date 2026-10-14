@@ -4,7 +4,7 @@ from engine import backtest as B
 from engine import config, stats, trade
 from tests.test_analysis import walk
 
-CFG = dict(config.DEFAULTS, swing_leverage=1.0, max_open_positions=4,
+CFG = dict(config.DEFAULTS, real_money_unvalidated=True, swing_leverage=1.0, max_open_positions=4,
            unvalidated_risk_pct=0.5,
            fixed_position_usdc=None)   # valores de base fixos para os testes
 PLAN = {"entry_zone": [99.7, 100.0], "stop": 98.0, "tp": [104.0, 108.0, 112.0],

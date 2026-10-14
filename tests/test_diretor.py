@@ -165,3 +165,47 @@ class Saidas(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Avaliacao(unittest.TestCase):
+    def test_deps_chegam_ao_registo_e_contam(self):
+        from engine import ledger
+        v = diretor.review(row(deps(**{"Derivados": "verde", "Suportes e resistências": "vermelho",
+                                        "Tendência e estrutura": "vermelho"})), dec(), c4(), None, None, NOW)
+        self.assertEqual(v["deps"]["Derivados"], "favor")
+        self.assertEqual(v["deps"]["Suportes e resistências"], "contra")
+        self.assertEqual(v["deps"]["Tendência e estrutura"], "esperado")
+        st = {"ledger": [{"deps": v["deps"], "status": "CLOSED", "result_r": -1.0},
+                         {"deps": v["deps"], "status": "CLOSED", "result_r": 1.5},
+                         {"deps": v["deps"], "status": "OPEN", "result_r": None}],
+              "diretor": {"rejeitados": [{"deps": v["deps"], "estado": "evitou perda"}]}}
+        sb = {t["dep"]: t for t in diretor.scoreboard(st)}
+        self.assertEqual((sb["Derivados"]["n"], sb["Derivados"]["acertos"]), (3, 1))
+        self.assertEqual(sb["Suportes e resistências"]["acertos"], 2)
+        self.assertNotIn("Tendência e estrutura", sb)            # esperado nao conta
+        self.assertNotIn("Liquidez e smart money", sb)           # neutro nao conta
+        self.assertFalse(sb["Derivados"]["amostra"])
+        # o sinal emitido leva as leituras para o registo
+        sig = {"asset": "SOL", "pair": "SOL/USDC", "strategy": "BOUNCE_X30", "score": 75,
+               "plan": {"entry_zone": [1, 2], "stop": 0.5, "tp": [3], "rr": 2, "risk_pct": 1,
+                        "position_pct": 10}, "diretor": {"deps": v["deps"]}}
+        s2 = {}
+        ledger.apply(s2, [{"event": "ISSUED", "id": "x", "t": NOW, "signal": sig}])
+        self.assertEqual(s2["ledger"][0]["deps"], v["deps"])
+
+
+class SoValidadas(unittest.TestCase):
+    def test_por_omissao_estrategias_nao_validadas_ficam_em_papel(self):
+        from engine import config
+        self.assertFalse(config.DEFAULTS["real_money_unvalidated"])
+
+    def test_tendencia_aberta_a_real_vende_a_real(self):
+        from engine import paper_trend as P
+        st = {"positions": {"NEAR": {"entry": 10, "stop0": 9, "pair": "NEAR/USDC", "risk_frac": .01}},
+              "equity": 1.0, "closed": []}
+        ev = []
+        P._close(st, ev, "NEAR", 9.5, "TRAIL", 0.0025, NOW, {"real_money_unvalidated": False})
+        self.assertTrue(ev[0]["real"])                           # aberta antes da mudanca
+        st["positions"]["X"] = {"entry": 10, "stop0": 9, "pair": "X/USDC", "risk_frac": .01, "real": False}
+        P._close(st, ev, "X", 9.5, "TRAIL", 0.0025, NOW, {})
+        self.assertFalse(ev[1]["real"])

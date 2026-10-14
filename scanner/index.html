@@ -863,7 +863,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261014h";
+const PAGE_V="20261014i";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -1329,6 +1329,7 @@ function renderDiretor(){if(!D||!$("diretor"))return;const R=D.diretor||{},L=R.d
     ${x.relatorios?`<ul class="reps">${rep(x)}</ul>`:""}</details>`).join("");
   $("diretor").innerHTML=`<p class="note">Coordena as análises, verifica conflitos e autoriza ou rejeita cada entrada real. Cada agente entrega um relatório estruturado (dados com hora, direção, condições, entrada/stop/alvos, evidência contra, estado dos dados e o que invalida). Rejeições seguidas em papel: ${A.evitou_perda||0} evitaram perda, ${A.custou_ganho||0} custaram ganho, ${A.em_curso||0} em curso.</p>
   ${rows||'<p class="note">Ainda sem entradas revistas.</p>'}
+  <details open><summary>Quem acerta (avaliação dos departamentos)</summary>${(R.departamentos||[]).length?`<table class="tb"><tr><th>Departamento</th><th>Acerto</th><th>Avaliações</th></tr>${R.departamentos.map(t=>`<tr><td>${esc(t.dep)}</td><td class="${t.taxa>=55?"up":t.taxa<45?"dn":""}">${num(t.taxa,0)}%</td><td>${t.n}${t.amostra?"":" / 30"}</td></tr>`).join("")}</table><p class="note">Acerto = estava a favor e a operação ganhou, ou estava contra e perdeu. Conta as operações fechadas e as rejeições seguidas em papel. Com 30 avaliações, o departamento tem amostra para pesar nas regras do diretor.</p>`:'<p class="note">Ainda sem operações avaliadas: começa a contar a partir das próximas entradas revistas pelo diretor.</p>'}</details>
   <details><summary>Regras definidas</summary><ul>${(R.regras||[]).map(r=>`<li>${esc(r)}</li>`).join("")}</ul></details>`}
 
 // ===== Estrategias por altura do mercado (ringue longo, 365 dias) =====

@@ -74,7 +74,9 @@ def _close(st, ev, a, px, reason, fee, now, cfg):
     ev.append({"t": now, "event": "PAPER_SELL", "id": f"paper-{a}",
                "asset": a, "price": exit_px, "r": rec["r"],
                "reason": reason, "pair": p["pair"],
-               "real": bool(cfg.get("real_money_unvalidated"))})
+               # a venda segue a compra: uma posicao aberta a dinheiro real
+               # recebe o aviso de venda real mesmo que a regra mude depois
+               "real": bool(p.get("real", True))})
 
 
 def update(state, rows, daily, cfg, now, market_ok=True, halted=None):
@@ -140,7 +142,8 @@ def update(state, rows, daily, cfg, now, market_ok=True, halted=None):
                 st["positions"][a] = {
                     "entry": entry, "stop0": stop, "entry_t": now,
                     "pair": r["venue"]["pair"], "position_pct": round(frac * 100, 1),
-                    "risk_frac": frac * risk_unit / entry}
+                    "risk_frac": frac * risk_unit / entry,
+                    "real": bool(cfg.get("real_money_unvalidated"))}
                 ev.append({"t": now, "event": "PAPER_BUY", "id": f"paper-{a}",
                            "asset": a, "price": entry, "stop": stop,
                            "pair": r["venue"]["pair"],
