@@ -54,6 +54,7 @@ MIN_DEATH, MIN_PROMO, DEATH_R = 20, 30, -0.2
 FAST_N, FAST_R = 10, -0.5        # morte rapida: claramente mau ao fim de 10
 LOSER_N = 50                     # perdedor persistente: 50+ operacoes com R medio negativo
 REGIME_STABLE = 7 * 86400        # regime de mercado firme ha 7 dias antes de um regresso
+LONG_MIN_N = 15                  # operacoes minimas no ringue longo para decidir um regresso
 REGIME_PT = {"subida": "tendência de subida", "queda": "tendência de descida", "lateral": "lateral"}
 
 
@@ -96,17 +97,21 @@ def rebirth(state, now, regime):
     out = []
     for k, m in (ar.get("mortos") or {}).items():
         m.setdefault("regime", regime)        # morreu no regime em que o vimos morrer
-        if m.get("renasceu") or now - mk["desde"] < REGIME_STABLE or m["regime"] == regime:
+        if m.get("renasceu") or now - mk["desde"] < REGIME_STABLE:
             continue
         b = base_key(k)
-        # o ringue longo (365 dias por regime) diz se a familia presta neste regime:
-        # so regressa quem la ganhou e bateu o acaso (sem dados longos: regressa)
+        # o ringue longo (365 dias por regime) diz se a familia presta neste regime
         lg = (((ar.get("longo") or {}).get("lutadores") or {}).get(b) or {}).get("por_regime") or {}
         ev = lg.get(regime)
-        if ev and ev.get("n") and ev["n"] >= 20 and not (
-                (ev.get("avg_r") or 0) > 0 and ev.get("acaso_p95") is not None
-                and ev["avg_r"] > ev["acaso_p95"]):
-            continue
+        prova = bool(ev and (ev.get("n") or 0) >= LONG_MIN_N and (ev.get("avg_r") or 0) > 0
+                     and ev.get("acaso_p95") is not None and ev["avg_r"] > ev["acaso_p95"])
+        if m["regime"] == regime:
+            # mesmo regime em que morreu: so volta se o ano inteiro mostrar que
+            # ganha neste regime (a morte veio de uma janela de 90 dias misturada)
+            if not prova or now - (m.get("t") or now) < REGIME_STABLE:
+                continue
+        elif ev and (ev.get("n") or 0) >= LONG_MIN_N and not prova:
+            continue                           # regime novo, mas o ano mostra que perde nele
         g = int(k[len(b) + 2:]) + 1 if k != b else 2
         nk = f"{b}_R{g}"
         ren[nk] = {"base": b, "desde": int(now), "de": k, "regime": regime}

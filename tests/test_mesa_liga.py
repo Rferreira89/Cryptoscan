@@ -200,3 +200,19 @@ class RegressoComProva(unittest.TestCase):
               "mercado": {"regime": "subida", "desde": NOW - 8 * 86400}}
         ev = arena.rebirth(st, NOW, "subida")
         self.assertEqual([e["novo"] for e in ev], ["TURTLE_R2"])
+
+
+class RegressoMesmoRegime(unittest.TestCase):
+    def test_volta_no_mesmo_regime_se_o_ano_provar(self):
+        from engine import arena
+        st = {"arena": {"mortos": {"PULLBACK": {"t": NOW - 10 * 86400, "regime": "subida"},
+                                   "BREAKOUT": {"t": NOW - 10 * 86400, "regime": "subida"}},
+                        "longo": {"lutadores": {
+                            "PULLBACK": {"por_regime": {"subida": {"n": 16, "avg_r": 0.72, "acaso_p95": 0.3}}},
+                            "BREAKOUT": {"por_regime": {"subida": {"n": 12, "avg_r": -0.5, "acaso_p95": 0.4}}}}}},
+              "mercado": {"regime": "subida", "desde": NOW - 30 * 86400}}
+        ev = arena.rebirth(st, NOW, "subida")
+        self.assertEqual([e["novo"] for e in ev], ["PULLBACK_R2"])
+        st["arena"]["mortos"]["PULLBACK"]["t"] = NOW            # morreu agora: espera 7 dias
+        st["arena"]["mortos"]["PULLBACK"].pop("renasceu")
+        self.assertEqual(arena.rebirth(st, NOW, "subida"), [])

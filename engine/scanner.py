@@ -344,6 +344,18 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
     disabled = dict(disabled)
     for name in cfg.get("disabled_strategies") or []:
         disabled.setdefault(name, {"reason": "config"})
+    # regresso de uma estrategia ao vivo (PULLBACK_R2...): se o lutador que
+    # regressou se qualificar no combate (e nao estiver suspenso pela prova
+    # real), a estrategia de origem volta a dar sinais pelo circuito normal
+    try:
+        sus = promo.suspended(state)
+        for k, _ in promo.qualified(state):
+            b = arena.base_key(k)
+            if b != k and k not in sus and (disabled.get(b) or {}).get("reason") == "arena":
+                disabled.pop(b, None)
+                result.setdefault("regressos_ativos", []).append(k)
+    except Exception:
+        pass
     result.update(next_event=calendar.next_event(now), event_block=block,
                   calendar_stale=calendar.stale(now),
                   disabled_strategies=disabled)
