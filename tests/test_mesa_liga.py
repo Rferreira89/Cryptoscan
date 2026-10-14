@@ -146,3 +146,44 @@ class FamiliasNovas(unittest.TestCase):
             self.assertIn(k, AR.SINAIS)
         v = debate.votes("AAA", bars(200), 100, {"TURTLE"})
         self.assertIn("máximo de 20 dias", v[0]["razao"])
+
+
+class Regresso(unittest.TestCase):
+    def test_regime_e_regresso_com_nome_novo(self):
+        from engine import arena
+        st = {"arena": {"mortos": {"TURTLE": {"t": NOW, "motivo": "x"}}}}
+        self.assertEqual(arena.rebirth(st, NOW, "lateral"), [])
+        self.assertEqual(st["arena"]["mortos"]["TURTLE"]["regime"], "lateral")
+        self.assertEqual(arena.rebirth(st, NOW + 3600, "subida"), [])        # ainda nao firme
+        ev = arena.rebirth(st, NOW + 3600 + 8 * 86400, "subida")
+        self.assertEqual(ev[0]["novo"], "TURTLE_R2")
+        self.assertNotEqual(ev[0]["nome"], arena.persona("TURTLE"))
+        self.assertIn("(regresso)", arena._name("TURTLE_R2"))
+        self.assertEqual(st["arena"]["renascidos"]["TURTLE_R2"]["base"], "TURTLE")
+        self.assertEqual(arena.rebirth(st, NOW + 20 * 86400, "subida"), [])  # so uma vez
+        st["arena"]["mortos"]["TURTLE_R2"] = {"t": NOW, "regime": "subida"}
+        ev = arena.rebirth(st, NOW + 40 * 86400, "queda")
+        self.assertEqual(arena.rebirth(st, NOW + 48 * 86400, "queda")[0]["novo"], "TURTLE_R3")
+
+    def test_registo_e_dinheiro_real_herdam(self):
+        from engine import promo
+        self.assertIn("TURTLE_R2", AR.SINAIS)
+        self.assertIs(AR.SINAIS.get("TURTLE_R2"), AR.SINAIS["TURTLE"])
+        self.assertIsNone(AR.SINAIS.get("XPTO_R2"))
+        self.assertIn("TURTLE_R3", promo.REAL_OK)
+        self.assertNotIn("PULLBACK_R2", promo.REAL_OK)
+
+    def test_ringue_so_conta_depois_do_regresso(self):
+        out = AR.run({"BTC": bars(10)}, {}, NOW, days=1,
+                     renascidos={"TURTLE_R2": {"base": "TURTLE", "desde": NOW + 1}})
+        self.assertIn("TURTLE_R2", out["lutadores"])
+        self.assertEqual(out["lutadores"]["TURTLE_R2"]["n"], 0)
+
+    def test_regime_btc(self):
+        from engine import arena
+        up = [{"t": NOW - (1500 - i) * H4, "o": 1, "h": 1, "l": 1, "c": 100 * 1.001 ** i, "v": 1, "tb": 0.5}
+              for i in range(1500)]
+        self.assertEqual(arena.market_regime(up), "subida")
+        flat = [dict(x, c=100) for x in up]
+        self.assertEqual(arena.market_regime(flat), "lateral")
+        self.assertIsNone(arena.market_regime(up[:100]))

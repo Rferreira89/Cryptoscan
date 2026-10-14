@@ -25,7 +25,8 @@ jobs:
         run: |
           if [ -f STOP ]; then echo "STOP: arena parada"; exit 0; fi
           python -m unittest discover -q -s tests -t .
-          python -m tools.arena_ringue out
+          git fetch -q origin data && git show FETCH_HEAD:state.json > /tmp/state.json || echo '{}' > /tmp/state.json
+          python -m tools.arena_ringue out 90 /tmp/state.json
           cd out && git init -q -b arena && git config user.name cryptoscan-bot \
             && git config user.email bot@users.noreply.github.com \
             && git add forma.json && git commit -q -m "forma $(date -u +%FT%TZ)" \

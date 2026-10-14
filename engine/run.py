@@ -241,6 +241,11 @@ def alert_text(e, sigs, note):
                 "na arena e deixam de emitir sinais reais; as operações já "
                 "abertas continuam a ser acompanhadas até fecharem. Não "
                 "precisas de fazer nada.")
+    if k == "ARENA_REGRESSO":
+        return (f"🔄 ARENA — regresso: o mercado mudou para {e['regime']}. "
+                f"A estratégia de {e['antes']} volta ao ringue com um nome novo, "
+                f"{e['nome']}, e registo limpo. Só conta o que fizer a partir de "
+                "agora; se falhar, volta a morrer pelas mesmas regras.")
     if k == "ARENA":
         if e["estado"] == "MORTA":
             cmd = {"BREAKOUT": "quebra", "PULLBACK": "recuo",

@@ -30,9 +30,24 @@ MAX_PER_BAR = 2
 # agentes entram no combate e em papel ao vivo sozinhos; para dinheiro real
 # o codigo deles tem de ser revisto e acrescentado aqui (os agentes nao
 # mexem em engine/).
-REAL_OK = ("BOUNCE_G0", "BOUNCE_V2", "BOUNCE_V3", "BOUNCE_X30", "DIP_TREND",
-           "CAPITULACAO", "BOUNCE_FLUXO", "BOUNCE_FORTE", "BOUNCE_SQUEEZE",
-           "BOUNCE_ISOLADA", "BOUNCE_NOREACT", "BOUNCE_TRAIL", "BOUNCE_HORAS")
+class _RealOK(frozenset):
+    """Lista de codigo revisto para dinheiro real. Um lutador que regressa
+    com nome novo (TURTLE_R2) herda a revisao da familia de origem."""
+    def __contains__(self, k):
+        import re
+        return frozenset.__contains__(self, k) or (
+            isinstance(k, str) and frozenset.__contains__(self, re.sub(r"_R\d+$", "", k)))
+
+
+# decisao do Rui (2026-10-14: "quero todas as estrategias e as melhores a
+# funcionar"): todas as familias com funcao de sinal revista podem dar sinais
+# reais, mas SO depois de se qualificarem no combate (20+ operacoes, R medio
+# positivo e acima do percentil 95 do acaso). Quem nao prova, nao opera.
+REAL_OK = _RealOK({"BOUNCE_G0", "BOUNCE_V2", "BOUNCE_V3", "BOUNCE_X30", "DIP_TREND",
+                   "CAPITULACAO", "BOUNCE_FLUXO", "BOUNCE_FORTE", "BOUNCE_SQUEEZE",
+                   "BOUNCE_ISOLADA", "BOUNCE_NOREACT", "BOUNCE_TRAIL", "BOUNCE_HORAS",
+                   "BOUNCE_DESALAV", "BOUNCE_ABSORCAO", "BOUNCE_LSR", "BOUNCE_MACRO",
+                   "BOUNCE_MEDO", "TURTLE", "SQUEEZE_BB", "MOMENTUM"})
 
 
 EU = None            # dados do servidor europeu (scanner.run preenche)

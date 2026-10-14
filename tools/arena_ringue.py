@@ -710,9 +710,34 @@ def sinal_bounce(g):
     return f
 
 
+class _Sinais(dict):
+    """Registo de sinais que tambem responde pelos lutadores que regressaram
+    com nome novo (TURTLE_R2 usa a funcao de TURTLE)."""
+    @staticmethod
+    def _b(k):
+        import re
+        return re.sub(r"_R\d+$", "", k) if isinstance(k, str) else k
+
+    def __contains__(self, k):
+        return dict.__contains__(self, k) or dict.__contains__(self, self._b(k))
+
+    def __missing__(self, k):
+        b = self._b(k)
+        if b != k and dict.__contains__(self, b):
+            return dict.__getitem__(self, b)
+        raise KeyError(k)
+
+    def get(self, k, d=None):
+        try:
+            return self[k]
+        except KeyError:
+            return d
+
+
 SINAIS = {"BOUNCE_G0": sinal_bounce("G0"), "BOUNCE_V2": sinal_bounce("V2"),
           "BOUNCE_V3": sinal_bounce("V3"),
           **{k: live_sig(fn) for k, fn in NEW_SIGS.items()}}
+SINAIS = _Sinais(SINAIS)
 
 
 # ---------- tendencia diaria (grandes moedas) ----------
@@ -772,7 +797,7 @@ def judge(trs, bars, rng, bars1h=None):
 
 
 def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None, funding=None, oi=None,
-        macro=None, ls=None):
+        macro=None, ls=None, renascidos=None):
     t0 = now - days * DAY
     btc = bars.get("BTC")
     CTX.update(btc=btc, funding=funding or {}, oi=oi or {}, macro=macro or {}, ls=ls or {},
@@ -803,6 +828,11 @@ def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None, funding=None, oi=None,
                     groups[k].append(t)
         except Exception as e:                       # uma moeda nao para o ringue
             print(f"{a}: {type(e).__name__}: {e}", file=sys.stderr)
+    # lutadores que regressaram com nome novo: as operacoes da familia de
+    # origem, mas so a partir do regresso (registo limpo)
+    for nk, info in (renascidos or {}).items():
+        groups[nk] = [t for t in groups.get(info.get("base"), [])
+                      if t["t"] >= (info.get("desde") or 0)]
     rng = random.Random(seed)
     out = {}
     for k, trs in groups.items():
@@ -814,7 +844,7 @@ def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None, funding=None, oi=None,
             "desde": int(t0), "moedas": len(bars), "lutadores": out}
 
 
-def main(dest, days=DAYS):
+def main(dest, days=DAYS, state_path=None):
     from engine import venue
     now = int(time.time())
     cfg = config.load()
@@ -858,7 +888,15 @@ def main(dest, days=DAYS):
         if c.get("ls"):
             ls[base] = [tuple(x) for x in c["ls"]]
     macro = {k: [tuple(x) for x in v] for k, v in ((eu or {}).get("macro") or {}).items()}
-    res = run(bars, cfg, now, days, bars1h=bars1h, funding=funding, oi=oi, macro=macro, ls=ls)
+    renascidos = {}
+    try:
+        if state_path and os.path.exists(state_path):
+            with open(state_path) as f:
+                renascidos = ((json.load(f).get("arena") or {}).get("renascidos")) or {}
+    except Exception as e:
+        print("estado ilegível:", e, file=sys.stderr)
+    res = run(bars, cfg, now, days, bars1h=bars1h, funding=funding, oi=oi, macro=macro, ls=ls,
+              renascidos=renascidos)
     res["macro_series"] = sorted(macro)
     res["funding_moedas"] = len(funding)
     res["funding_fonte"] = fonte
@@ -874,4 +912,5 @@ def main(dest, days=DAYS):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], int(sys.argv[2]) if len(sys.argv) > 2 else DAYS)
+    main(sys.argv[1], int(sys.argv[2]) if len(sys.argv) > 2 else DAYS,
+         sys.argv[3] if len(sys.argv) > 3 else None)

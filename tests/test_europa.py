@@ -114,7 +114,7 @@ class Desalavancagem(unittest.TestCase):
 
     def test_sinal(self):
         self.assertIn("BOUNCE_DESALAV", AR.SINAIS)
-        self.assertNotIn("BOUNCE_DESALAV", promo.REAL_OK)    # so papel ate provar
+        self.assertIn("BOUNCE_DESALAV", promo.REAL_OK)       # real so depois de se qualificar
         self.assertEqual(arena.persona("BOUNCE_DESALAV"), "Dália")
         with mock.patch.object(AR, "sig_x30", return_value=dict(self.base)):
             self.oi(-0.08)
@@ -163,7 +163,7 @@ class Macro(unittest.TestCase):
     def test_lutadores(self):
         for k, p in (("BOUNCE_MACRO", "Mário"), ("BOUNCE_MEDO", "Vicente")):
             self.assertIn(k, AR.SINAIS)
-            self.assertNotIn(k, promo.REAL_OK)
+            self.assertIn(k, promo.REAL_OK)
             self.assertEqual(arena.persona(k), p)
         c4 = [{"t": NOW - (300 - i) * H4, "o": 1, "h": 1, "l": 1, "c": 1, "v": 1}
               for i in range(300)]

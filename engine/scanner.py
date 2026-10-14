@@ -452,6 +452,13 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
                                          champs, now)
         except Exception as e:                # informativo: nunca para o scan
             result["liga_erro"] = str(e)[:120]
+        try:                                  # regresso dos mortos quando o mercado muda
+            reg_mkt = arena.market_regime(c4s.get("BTC"))
+            events.extend(arena.rebirth(state, now, reg_mkt))
+            result["mercado"] = {"regime": reg_mkt, **(state.get("mercado") or {}),
+                                 "renascidos": (state.get("arena") or {}).get("renascidos") or {}}
+        except Exception as e:
+            result["mercado_erro"] = str(e)[:120]
         off = arena.auto_disable(state, result["arena"], now)   # morte automatica
         for e in arena.events(result["arena"], now):
             e["desligada"] = e.get("strategy") in off or \

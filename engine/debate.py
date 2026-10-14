@@ -121,29 +121,31 @@ def votes(asset, c4, px, alive):
     from . import arena
     AR.CTX["asset"] = asset
     out = []
-    for k, fn in AR.SINAIS.items():
-        if k not in alive:
+    for k in sorted(alive):
+        fn = AR.SINAIS.get(k)
+        if not fn:
             continue
+        kb = arena.base_key(k)                 # regressos usam as regras da familia
         try:
             sig = fn(c4, px)
         except Exception:
             sig = None
-        if k in TREND:
-            why, ok_b, f = TREND[k](c4), False, None
-        elif k == "CAPITULACAO":
+        if kb in TREND:
+            why, ok_b, f = TREND[kb](c4), False, None
+        elif kb == "CAPITULACAO":
             v = c4[-1]["v"] / max(1e-12, sum(x["v"] for x in c4[-21:-1]) / 20)
             why = f"volume {v:.1f}× o normal (preciso de 3× com pavio longo)"
         else:
-            ok_b, why = _base(c4, BASE.get(k, 30))
-            f = _filter(k, c4)
+            ok_b, why = _base(c4, BASE.get(kb, 30))
+            f = _filter(kb, c4)
             if f is not None and ok_b:
                 why = f"{why}; {f[1]}"
             elif f is not None and not ok_b and f[0]:
                 why = f"{why} ({f[1]}: ok)"
         if sig:
             why = sig.get("gatilho") or why
-        elif k not in TREND and k != "CAPITULACAO" and ok_b and (f is None or f[0]):
-            why += ("; a tendência diária não é forte o suficiente" if k == "DIP_TREND"
+        elif kb not in TREND and kb != "CAPITULACAO" and ok_b and (f is None or f[0]):
+            why += ("; a tendência diária não é forte o suficiente" if kb == "DIP_TREND"
                     else "; o plano não tem margem até ao objetivo")
         out.append({"id": k, "persona": arena.persona(k), "voto": "entra" if sig else "não",
                     "razao": why})

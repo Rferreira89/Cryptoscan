@@ -53,6 +53,59 @@ WINDOW, REPS, MAX_BARS = 90, 200, 6 * 90
 MIN_DEATH, MIN_PROMO, DEATH_R = 20, 30, -0.2
 FAST_N, FAST_R = 10, -0.5        # morte rapida: claramente mau ao fim de 10
 LOSER_N = 50                     # perdedor persistente: 50+ operacoes com R medio negativo
+REGIME_STABLE = 7 * 86400        # regime de mercado firme ha 7 dias antes de um regresso
+REGIME_PT = {"subida": "tendência de subida", "queda": "tendência de descida", "lateral": "lateral"}
+
+
+def market_regime(btc4):
+    """Regime do mercado pelo BTC diario: subida, queda ou lateral."""
+    from . import backtest as B
+    d = B.daily(btc4 or [])
+    if len(d) < 200:
+        return None
+    c = [x["c"] for x in d]
+    s50, s200 = sum(c[-50:]) / 50, sum(c[-200:]) / 200
+    r30 = c[-1] / c[-31] - 1
+    if c[-1] > s50 > s200 and r30 > 0.08:
+        return "subida"
+    if c[-1] < s50 < s200 and r30 < -0.08:
+        return "queda"
+    return "lateral"
+
+
+def base_key(k):
+    """TURTLE_R2 -> TURTLE (lutador que regressou com nome novo)."""
+    import re
+    return re.sub(r"_R\d+$", "", k)
+
+
+def rebirth(state, now, regime):
+    """Regresso dos mortos (decisao do Rui, 2026-10-14: "se for preciso voltar
+    a combater com um nome novo, voltam"): quando o regime de mercado muda e
+    fica firme 7 dias, cada familia morta noutro regime volta ao ringue com
+    um nome novo e registo limpo (so contam operacoes a partir do regresso).
+    Volta a morrer pelas mesmas regras. Devolve os regressos novos."""
+    if not regime:
+        return []
+    ar = state.setdefault("arena", {})
+    mk = state.setdefault("mercado", {})
+    if mk.get("regime") != regime:
+        mk.update(regime=regime, desde=int(now))
+    ren = ar.setdefault("renascidos", {})
+    out = []
+    for k, m in (ar.get("mortos") or {}).items():
+        m.setdefault("regime", regime)        # morreu no regime em que o vimos morrer
+        if m.get("renasceu") or now - mk["desde"] < REGIME_STABLE or m["regime"] == regime:
+            continue
+        b = base_key(k)
+        g = int(k[len(b) + 2:]) + 1 if k != b else 2
+        nk = f"{b}_R{g}"
+        ren[nk] = {"base": b, "desde": int(now), "de": k, "regime": regime}
+        m["renasceu"] = nk
+        out.append({"t": int(now), "event": "ARENA_REGRESSO", "id": f"regresso-{nk}",
+                    "novo": nk, "nome": persona(nk), "antes": persona(k), "regime": REGIME_PT[regime],
+                    "real": False})
+    return out
 MIN_ALIVE = 5                    # abaixo disto a investigacao tem de criar lutadores
 FEE_PCT, SLIP_PCT = 0.25, 0.1
 NAMES = {"PULLBACK": "Recuo (ao vivo)", "BREAKOUT": "Quebra (ao vivo)",
@@ -101,15 +154,17 @@ def persona(k):
     if base in PERSONA:
         return PERSONA[base] + (" Jr." if k.endswith("_SHORT") else "")
     h = sum(ord(c) * (i + 1) for i, c in enumerate(base))
-    return POOL[h % len(POOL)]
+    free = [n for n in POOL if n not in set(PERSONA.values())]   # sem nomes repetidos
+    return free[h % len(free)]
 
 CTRL_PER_SCAN = 6            # operacoes de controlo novas por scan (tempo)
 
 
 def _name(k):
-    base = k.replace("_SHORT", "")
-    return NAMES.get(base, base.title()) + (" short" if k.endswith("_SHORT")
-                                            else "")
+    b0 = base_key(k)
+    base = b0.replace("_SHORT", "")
+    return NAMES.get(base, base.title()) + (" short" if b0.endswith("_SHORT") else "") + \
+        (" (regresso)" if b0 != k else "")
 
 
 def trades(state):
