@@ -110,16 +110,39 @@ def macro():
     return out, falhas
 
 
-def main(dest, state_path=None):
+KEEP_HIST = 90 * DAY            # historico proprio de OI e long/short (a Binance so da 30 / 16 dias)
+
+
+def merge_hist(new, old, now, keep=KEEP_HIST):
+    """Junta series [(t, v)] do ficheiro anterior com as novas, sem repetir
+    instantes, e guarda so os ultimos 'keep' segundos."""
+    m = {int(t): v for t, v in (old or [])}
+    m.update({int(t): v for t, v in (new or [])})
+    return [[t, m[t]] for t in sorted(m) if t >= now - keep]
+
+
+def main(dest, state_path=None, prev_path=None):
     now = int(time.time())
     res = {"t": now, "fonte": "binance-futures", "moedas": {}, "falhas": []}
     try:
         res["moedas"], res["falhas"] = collect(now)
     except Exception as e:
         res["falhas"].append(f"binance: {type(e).__name__}: {str(e)[:80]}")
+    # historico acumulado: OI (4H) e rácio long/short alem do que a Binance guarda,
+    # para os lutadores que dependem deles (Dalia, Leandro) terem combates longos
+    try:
+        prev = json.load(open(prev_path)) if prev_path and os.path.exists(prev_path) else {}
+    except Exception:
+        prev = {}
+    for b, c in res["moedas"].items():
+        pc = (prev.get("moedas") or {}).get(b) or {}
+        for k in ("oi", "ls"):
+            if c.get(k) or pc.get(k):
+                c[k] = merge_hist(c.get(k), pc.get(k), now)
     try:                                     # liquidacoes da escuta (se existir)
         from tools.eu import liquidacoes
-        res["liq"] = liquidacoes.resumo()
+        # so as moedas acompanhadas (o canal traz centenas): ficheiro leve
+        res["liq"] = {b: v for b, v in liquidacoes.resumo().items() if b in res["moedas"]}
         res["liq_escuta"] = bool(liquidacoes.vivo())
         try:
             import glob
@@ -152,4 +175,4 @@ def main(dest, state_path=None):
 
 
 if __name__ == "__main__":
-    main(*sys.argv[1:3])
+    main(*sys.argv[1:4])

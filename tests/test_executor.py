@@ -207,3 +207,11 @@ class StopNaConta(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class AvisoCapital(unittest.TestCase):
+    def test_aviso_quando_falta_usdc(self):
+        st = {"conta_livre": {"usdc": 3.86}}
+        self.assertIn("3.86", run.capital_warning(st, {"collateral_usdc": 18.2}))
+        self.assertIsNone(run.capital_warning({"conta_livre": {"usdc": 50}}, {"collateral_usdc": 18.2}))
+        self.assertIsNone(run.capital_warning({}, {"collateral_usdc": 18.2}))

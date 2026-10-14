@@ -208,3 +208,12 @@ class Liquidacoes(unittest.TestCase):
         self.assertEqual(list(r), ["PEPE"])
         self.assertEqual(r["PEPE"][0][1:], [10, 5])
         self.assertEqual(r["PEPE"][0][0] % 14400, 0)
+
+
+class Historico(unittest.TestCase):
+    def test_junta_sem_repetir_e_corta_antigos(self):
+        from tools.eu import dados
+        old = [[NOW - 100 * 86400, 1.0], [NOW - 10, 2.0]]
+        new = [[NOW - 10, 3.0], [NOW, 4.0]]
+        self.assertEqual(dados.merge_hist(new, old, NOW), [[NOW - 10, 3.0], [NOW, 4.0]])
+        self.assertEqual(dados.merge_hist(None, [[NOW, 1]], NOW), [[NOW, 1]])

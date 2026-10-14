@@ -486,6 +486,17 @@ def apply_admin(state, path=ADMIN, now=None, send=None):
     return out
 
 
+def capital_warning(state, plan):
+    """Aviso quando o USDC livre na Bybit nao chega para a margem da operacao."""
+    cl = state.get("conta_livre") or {}
+    free, need = cl.get("usdc"), plan.get("collateral_usdc") or plan.get("position_usdc")
+    if free is None or not need or free >= need * 1.02:
+        return None
+    return (f"⚠️ Capital: tens {free:.2f} USDC livres e esta operação precisa de "
+            f"{need:.2f} USDC de margem própria. Para a abrir tens de libertar capital "
+            "(fechar ou reduzir uma operação) ou usar a margem da Bybit.")
+
+
 def deliver(cfg, state, events, extra=()):
     """Envia os alertas dos eventos (e relatorios) pelo Telegram."""
     if not (cfg.get("alerts") and alerts.configured()):
@@ -508,6 +519,9 @@ def deliver(cfg, state, events, extra=()):
         if real and e["event"] == "ISSUED" and s.get("plan"):
             txt = html.escape(txt) + "\n\n" + order_block(s)
             html_mode = True
+            warn = capital_warning(state, s["plan"])
+            if warn:
+                txt += "\n\n" + html.escape(warn)
         try:
             alerts.send(txt, markup_for(e, s, real), html=html_mode)
         except alerts.AlertError as err:

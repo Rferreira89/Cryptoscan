@@ -28,7 +28,8 @@ jobs:
           python3 -m tools.eu.liquidacoes garantir || echo "escuta das liquidacoes nao lancada"
           rm -rf /tmp/eud && mkdir -p /tmp/eud
           git fetch -q origin data && git show FETCH_HEAD:state.json > /tmp/eud-state.json || echo '{}' > /tmp/eud-state.json
-          python3 -m tools.eu.dados /tmp/eud/dados.json /tmp/eud-state.json
+          git fetch -q origin europa && git show FETCH_HEAD:dados.json > /tmp/eud-prev.json || echo '{}' > /tmp/eud-prev.json
+          python3 -m tools.eu.dados /tmp/eud/dados.json /tmp/eud-state.json /tmp/eud-prev.json
           cd /tmp/eud && git init -q -b europa && git config user.name cryptoscan-bot \
             && git config user.email bot@users.noreply.github.com \
             && git add dados.json && git commit -q -m "dados $(date -u +%FT%TZ)" \

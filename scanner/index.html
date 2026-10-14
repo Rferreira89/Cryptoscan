@@ -56,6 +56,8 @@ h2{font-size:19px;font-weight:750;font-stretch:80%;margin:22px 0 10px}
 .mesa-tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:8px}.mesa-tabs button{flex:none;border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:99px;padding:5px 11px;font-size:12.5px}
 .mesa-tabs button.on{background:var(--up);color:var(--card);border-color:var(--up)}
 .lg{display:grid;grid-template-columns:28px 1fr auto auto;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px}.lg:last-child{border:0}
+.gst{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:4px 0 10px}.gst div{background:var(--chip);border-radius:10px;padding:9px 11px}.gst b{display:block;font-size:17px}.gst span{font-size:11.5px;color:var(--mut)}
+.todo{background:var(--card);border-left:4px solid var(--now);border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:13.5px}
 #fcard{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);width:min(440px,calc(100vw - 24px));max-height:72vh;overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;z-index:60;box-shadow:0 12px 40px #0009;font-size:13.5px}
 #fcard h3{margin:0 0 2px;font-size:17px}#fcard .fx{position:absolute;top:8px;right:10px;background:none;border:0;color:var(--mut);font-size:20px}
 #fcard .bd{display:inline-block;font-size:11px;padding:2px 8px;border-radius:99px;margin-left:6px;vertical-align:2px}
@@ -255,7 +257,7 @@ body.sheet-open #sheet{transform:none}
 @media (prefers-reduced-motion:reduce){.typing i,.bot .eye{animation:none}.bub{transition:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module" src="office3d.js?v=20261014c"></script>
+<script type="module" src="office3d.js?v=20261014d"></script>
 </head>
 <body class="w3d">
 <div id="world">
@@ -286,6 +288,7 @@ body.sheet-open #sheet{transform:none}
 <nav class="sh-idx" id="shidx" aria-label="Secções"><button data-p="ops">Operações</button><button data-p="meet">Resultado</button><button data-p="lab">Pesquisa</button><button data-p="srv">Ativos</button><button data-p="ctrl">Sistema</button></nav>
 <main class="sh-body">
 <section class="panel on" id="pn-ops" data-p="ops" data-h="Mesa de operações" data-t="Mesa de operações">
+<div id="gestor"></div>
 <div id="radar" aria-label="Radar de oportunidades"></div>
 <p id="rnote"></p>
 <h2>As tuas operações</h2><div id="bynote" class="note" style="margin:0 0 8px"></div><div id="ops"></div>
@@ -769,7 +772,7 @@ function decOne(d,title){
 }
 function render(){
   try{xAfterRender()}catch(_){}
-  try{renderMesa();renderLiga()}catch(_){}
+  try{renderMesa();renderLiga();renderGestor()}catch(_){}
   if(!D) return;
   const q=$("q").value.trim().toUpperCase(),s=$("sort").value,f=$("flt").value;
   const key=r=>s==="adx"||s==="rsi"?(r.analysis&&r.analysis["1d"]&&r.analysis["1d"].ok?r.analysis["1d"][s]:-1):(r[s]??-1e18);
@@ -854,7 +857,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261014c";
+const PAGE_V="20261014d";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -1278,6 +1281,28 @@ function renderLiga(){if(!D)return;const L=D.liga;if(!L||!L.tabela){$("liga").in
   <b class="${t.avg_r>0?"up":t.avg_r<0?"dn":""}">${t.avg_r==null?"–":(t.avg_r>0?"+":"")+num(t.avg_r,2)+"R"}</b><span style="min-width:34px;text-align:right;color:${t.mov>0?"var(--up)":t.mov<0?"var(--dn)":"var(--mut)"}">${t.mov==null?"novo":t.mov>0?"▲"+t.mov:t.mov<0?"▼"+(-t.mov):"="}</span></div>`).join("")+
   `<div class="note">Posição pelo R médio no combate dos últimos 90 dias (de hora a hora). Setas: subidas e descidas desde o início da semana. Zona de morte: perto das regras que matam. Resumo no Telegram ao domingo à noite; /liga a qualquer hora. Toca num lutador para ver o cartão.</div>`;
   $("liga").querySelectorAll("[data-f]").forEach(x=>x.onclick=()=>showFighter(x.dataset.f))}
+
+// ===== Painel do gestor: o essencial numa vista =====
+function renderGestor(){if(!D||!$("gestor"))return;const C=D.config||{},K=D.conta||{},J=((D.journal||{}).rows)||[],now=Date.now()/1000;
+  const open=J.filter(r=>r.status==="OPEN"&&r.executed===true&&!r.user_closed_flag&&r.user_result_r==null);
+  const eq=K.equity!=null?K.equity:C.capital_usdc,free=K.usdc_free;
+  const used=open.reduce((a,r)=>{const p=curPrice(r.asset),e=r.exec_price||r.entry;return a+(p&&e&&r.position_usdc?r.position_usdc*p/e:(r.position_usdc||0))},0);
+  const risk=open.reduce((a,r)=>a+(r.risk_usdc||0),0);
+  const sig24=J.filter(r=>r.mode==="REAL"&&now-(r.issued_at||0)<86400).length,ch=((D.promo||{}).campeoes||[]).length;
+  const MC=D.macro||{},MK=D.mercado||{},RG={subida:"subida",queda:"descida",lateral:"lateral"},ME={favoravel:"favorável",neutro:"neutra",medo:"medo"};
+  const mesa=(D.mesa||[]).slice(0,3).map(x=>`${esc(x.asset)} (RSI ${num(x.rsi,0)})`).join(", ");
+  const need=(C.fixed_position_usdc||18)*0.55;let todo;
+  if(D.halt)todo="⛔ Travão de perdas ativo: o programa não abre operações novas até ser retomado.";
+  else if(free!=null&&free<need)todo=`💡 Tens ${num(free,2)} USDC livres: não chega para a margem de uma operação nova (≈ ${num(need,0)} USDC). Os próximos sinais vão chegar mas não os consegues abrir sem libertar capital.`;
+  else if(!sig24)todo=`⏳ Sem sinais reais nas últimas 24h: o mercado está em ${RG[MK.regime]||"–"} e as moedas ainda não chegaram à sobrevenda que os campeões procuram.${mesa?" Mais perto: "+mesa+".":""}`;
+  else todo=`✅ ${sig24} sinal${sig24>1?"is":""} real${sig24>1?"is":""} nas últimas 24h. Confirma os stops na Bybit e acompanha com /hoje.`;
+  $("gestor").innerHTML=`<div class="todo">${todo}</div><div class="gst">
+  <div><b>${eq!=null?num(eq,2):"–"}</b><span>Capital total (USDC)</span></div>
+  <div><b>${free!=null?num(free,2):"–"}</b><span>USDC livre na Bybit</span></div>
+  <div><b>${eq?num(Math.min(999,used/eq*100),0)+"%":"–"}</b><span>Capital em operações (${open.length})</span></div>
+  <div><b class="${C.risk_reduced?"dn":""}">${num(risk,2)}</b><span>Risco em aberto (USDC)${C.risk_reduced?" · risco a metade":""}</span></div>
+  <div><b>${RG[MK.regime]||"–"}</b><span>Mercado · macro ${ME[MC.estado]||"–"}</span></div>
+  <div><b>${ch}</b><span>Campeões a dar sinais reais</span></div></div>`}
 </script>
 </body>
 </html>

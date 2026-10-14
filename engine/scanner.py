@@ -250,6 +250,7 @@ def apply_account(state, eu, now):
         state["capital"] = cap
         state["capital_t"] = int(acc["t"])   # o composto conta a partir daqui
         state["capital_auto"] = True
+    state["conta_livre"] = {"t": acc["t"], "usdc": acc.get("usdc_free")}
     return {"t": acc["t"], "usdc_free": acc.get("usdc_free"),
             "equity": acc.get("equity"), "trades": acc.get("trades") or {}}
 
