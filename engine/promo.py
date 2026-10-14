@@ -119,13 +119,73 @@ def qualified(state):
     return sorted(out, key=lambda x: -x[1])
 
 
+# ---------- diversificacao por familia (decisao do Rui, 2026-10-14) ----------
+# "Nao quero todos os analistas numa estrategia so": as familias agrupam os
+# lutadores que reagem ao mesmo fenomeno de mercado e por isso ganham e perdem
+# juntos. No maximo MAX_PER_FAMILY operacoes reais abertas da mesma familia.
+MAX_PER_FAMILY = 2
+FAMILIAS = {"sobrevenda": "Sobrevenda a virar", "tendencia": "Tendência e rompimento",
+            "volatilidade": "Volatilidade", "capitulacao": "Capitulação", "short": "Venda a descoberto"}
+
+
+def family(k):
+    import re
+    b = re.sub(r"_R\d+$", "", k or "")
+    if b.startswith("SHORT_"):
+        return "short"
+    if b in ("DIP_TREND", "TURTLE", "MOMENTUM", "TREND_DAILY", "BREAKOUT", "PULLBACK"):
+        return "tendencia"
+    if b in ("SQUEEZE_BB",):
+        return "volatilidade"
+    if b in ("CAPITULACAO",):
+        return "capitulacao"
+    return "sobrevenda"
+
+
+def family_open(state):
+    """{familia: operacoes reais abertas} (registo)."""
+    out = {}
+    for r in state.get("ledger") or []:
+        if r.get("mode") == "REAL" and r.get("status") in ("OPEN", "WAITING") \
+                and r.get("executed") is not False and r.get("user_result_r") is None:
+            f = family(r.get("strategy"))
+            out[f] = out.get(f, 0) + 1
+    return out
+
+
+# ---------- prova real dos campeoes ----------
+# Um campeao que no dinheiro real fica muito abaixo do que o combate previa
+# perde a vez (suspenso) ate o real voltar a acompanhar o combate.
+LIVE_MIN_N = 8
+
+
+def live_record(state, k):
+    """(n, R medio) das operacoes reais fechadas do lutador k."""
+    rs = [r.get("result_r") for r in state.get("ledger") or []
+          if r.get("strategy") == k and r.get("status") == "CLOSED" and r.get("result_r") is not None]
+    return len(rs), (sum(rs) / len(rs) if rs else None)
+
+
+def suspended(state):
+    """{lutador: motivo} dos campeoes suspensos pela prova real."""
+    out = {}
+    lut = (((state.get("arena") or {}).get("forma") or {}).get("lutadores")) or {}
+    for k, f in lut.items():
+        n, r = live_record(state, k)
+        if n >= LIVE_MIN_N and r is not None and (r <= -0.5 or r <= (f.get("avg_r") or 0) - 1.0):
+            out[k] = (f"no dinheiro real: {r:+.2f}R em {n} operações, contra "
+                      f"{(f.get('avg_r') or 0):+.2f}R previstos no combate")
+    return out
+
+
 def champions(state, disabled=()):
     """Lutadores que dao sinais reais agora, melhor primeiro (decisao do
     Rui, 2026-10-13: "nao quero perder oportunidades"): TODOS os
     qualificados com codigo revisto, nao so o primeiro."""
     reg = registry()
+    sus = suspended(state)
     return [k for k, _ in qualified(state)
-            if k in reg and k in REAL_OK and k not in disabled]
+            if k in reg and k in REAL_OK and k not in disabled and k not in sus]
 
 
 def champion(state, disabled=()):
@@ -247,8 +307,14 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
             cands.append((rank, a, champ, sig, p, d0))
             break
     out = {}
+    fam = family_open(state)
     for rank, a, champ, sig, p, d0 in sorted(cands, key=lambda x: x[0]):
         seen[a] = sig["t_sig"]
+        f = family(champ)
+        if fam.get(f, 0) >= MAX_PER_FAMILY:
+            lost(state, now, a, champ, f"diversificação: já há {fam[f]} operações da família "
+                 f"«{FAMILIAS[f]}» abertas (máximo {MAX_PER_FAMILY})")
+            continue
         if bar["t"] != sig["t_sig"]:
             bar.update(t=sig["t_sig"], n=0)
         if bar["n"] >= MAX_PER_BAR:

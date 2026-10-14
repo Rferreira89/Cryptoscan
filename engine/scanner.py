@@ -262,6 +262,8 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
     cfg = dict(cfg or config.load())
     ledger.fix_stop_exits(state)
     conta = apply_account(state, eu, now)
+    state.setdefault("meta_base", {"t": int(now), "capital": (conta or {}).get("equity")
+                                   or state.get("capital") or cfg.get("capital_usdc")})
     promo.EU = eu
     since = cfg.get("capital_since") or 0
     if state.get("capital"):                 # definido pelo Telegram
@@ -276,7 +278,7 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
     status, data = collect_tickers()
     live = [s for s in sources.ALL if status[s.name]["ok"]]
     result = {"generated_at": now, "phase": 4, "sources": status,
-              "config": cfg, "conta": conta,
+              "config": cfg, "conta": conta, "meta_base": state.get("meta_base"),
               "europa": {"ok": eu is not None,
                          "t": (eu or {}).get("t"),
                          "moedas": len((eu or {}).get("moedas") or {})},
@@ -397,6 +399,12 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
         result["mesa"] = debate.table(eligible, c4s, state)
     except Exception as e:
         result["mesa"], result["mesa_erro"] = [], str(e)[:120]
+    try:                                      # meta do primeiro milhao (so mostra)
+        from . import meta
+        result["meta"] = meta.progress(state.get("meta_base"), (conta or {}).get("equity")
+                                       or cfg.get("capital_usdc"))
+    except Exception:
+        result["meta"] = None
     try:
         result["macro"] = promo.macro_summary(now)
     except Exception:                       # informativo: nunca para o scan
@@ -410,6 +418,22 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
             r["departamentos"] = []
     result["promo"] = {"campeao": champ, "campeoes": champs, "qualificados": [
         {"id": k, "avg_r": r} for k, r in promo.qualified(state)]}
+    try:                                      # prova real e diversificacao
+        sus = promo.suspended(state)
+        prev = state.get("suspensos") or {}
+        for k in set(sus) - set(prev):
+            events.append({"t": now, "event": "SUSPENSO", "id": f"susp-{k}-{now}", "strategy": k,
+                           "nome": arena.persona(k), "motivo": sus[k], "real": False})
+        for k in set(prev) - set(sus):
+            events.append({"t": now, "event": "RETOMADO", "id": f"ret-{k}-{now}", "strategy": k,
+                           "nome": arena.persona(k), "real": False})
+        state["suspensos"] = sus
+        result["promo"]["suspensos"] = sus
+        result["promo"]["familias"] = promo.family_open(state)
+        result["promo"]["prova_real"] = {k: dict(zip(("n", "avg_r"), promo.live_record(state, k)))
+                                         for k, _ in promo.qualified(state)}
+    except Exception as e:
+        result["promo"]["prova_erro"] = str(e)[:120]
     # os shorts entram como linhas proprias no ciclo de vida dos sinais
     both = eligible + [dict(r, decision=r["decision_short"])
                        for r in eligible if r.get("decision_short")]
@@ -459,6 +483,7 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
         try:                                  # regresso dos mortos quando o mercado muda
             reg_mkt = arena.market_regime(c4s.get("BTC"), daily.get("BTC"))
             events.extend(arena.rebirth(state, now, reg_mkt))
+            result["arena_longo"] = (state.get("arena") or {}).get("longo")
             result["mercado"] = {"regime": reg_mkt, **(state.get("mercado") or {}),
                                  "renascidos": (state.get("arena") or {}).get("renascidos") or {}}
         except Exception as e:

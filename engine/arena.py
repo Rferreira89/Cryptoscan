@@ -99,6 +99,14 @@ def rebirth(state, now, regime):
         if m.get("renasceu") or now - mk["desde"] < REGIME_STABLE or m["regime"] == regime:
             continue
         b = base_key(k)
+        # o ringue longo (365 dias por regime) diz se a familia presta neste regime:
+        # so regressa quem la ganhou e bateu o acaso (sem dados longos: regressa)
+        lg = (((ar.get("longo") or {}).get("lutadores") or {}).get(b) or {}).get("por_regime") or {}
+        ev = lg.get(regime)
+        if ev and ev.get("n") and ev["n"] >= 20 and not (
+                (ev.get("avg_r") or 0) > 0 and ev.get("acaso_p95") is not None
+                and ev["avg_r"] > ev["acaso_p95"]):
+            continue
         g = int(k[len(b) + 2:]) + 1 if k != b else 2
         nk = f"{b}_R{g}"
         ren[nk] = {"base": b, "desde": int(now), "de": k, "regime": regime}

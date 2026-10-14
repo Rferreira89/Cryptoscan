@@ -241,6 +241,12 @@ def alert_text(e, sigs, note):
                 "na arena e deixam de emitir sinais reais; as operações já "
                 "abertas continuam a ser acompanhadas até fecharem. Não "
                 "precisas de fazer nada.")
+    if k == "SUSPENSO":
+        return (f"⏸️ PROVA REAL — {e['nome']} perde a vez: {e['motivo']}. Deixa de dar sinais "
+                "reais até o resultado real voltar a acompanhar o combate. As operações abertas "
+                "continuam a ser acompanhadas.")
+    if k == "RETOMADO":
+        return f"▶️ PROVA REAL — {e['nome']} volta a dar sinais reais: o resultado real recuperou."
     if k == "ARENA_REGRESSO":
         return (f"🔄 ARENA — regresso: o mercado mudou para {e['regime']}. "
                 f"A estratégia de {e['antes']} volta ao ringue com um nome novo, "
@@ -580,10 +586,40 @@ def exec_after(state, events, now):
     return False
 
 
+def load_longo():
+    """Ringue longo (365 dias, por regime): ramo arena-longo. None se falhar."""
+    repo = os.environ.get("GITHUB_REPOSITORY")
+    if not repo:
+        return None
+    import urllib.request
+    try:
+        url = f"https://raw.githubusercontent.com/{repo}/arena-longo/longo.json"
+        with urllib.request.urlopen(url, timeout=15) as r:
+            return json.loads(r.read().decode())
+    except Exception:
+        return None
+
+
+def keep_longo(state, lg):
+    """Guarda so o essencial do ringue longo: por lutador e por regime."""
+    if not lg or not lg.get("lutadores"):
+        return
+    comp = {}
+    for k, v in lg["lutadores"].items():
+        comp[k] = {"n": v.get("n"), "avg_r": v.get("avg_r"),
+                   "por_regime": {rg: {x: r.get(x) for x in ("n", "avg_r", "acaso_p95", "veredicto")}
+                                  for rg, r in (v.get("por_regime") or {}).items()}}
+    state.setdefault("arena", {})["longo"] = {"atualizado": lg.get("atualizado"), "lutadores": comp}
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
     state = _load("state.json", {})
     execucao.apply(state, execucao.load())
+    try:
+        keep_longo(state, load_longo())
+    except Exception as e:
+        print("ringue longo:", e)
     process_inbox(state, _load("scan.json", None))
     apply_admin(state, send=alerts.send if alerts.configured() else None)
     res, state, events = scanner.run(state=state, forma=load_forma(),

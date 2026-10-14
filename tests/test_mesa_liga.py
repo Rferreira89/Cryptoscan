@@ -187,3 +187,16 @@ class Regresso(unittest.TestCase):
         flat = [dict(x, c=100) for x in up]
         self.assertEqual(arena.market_regime(flat), "lateral")
         self.assertIsNone(arena.market_regime(up[:100]))
+
+
+class RegressoComProva(unittest.TestCase):
+    def test_so_regressa_quem_ganhou_no_regime(self):
+        from engine import arena
+        st = {"arena": {"mortos": {"TURTLE": {"t": NOW, "regime": "lateral"},
+                                   "SQUEEZE_BB": {"t": NOW, "regime": "lateral"}},
+                        "longo": {"lutadores": {
+                            "TURTLE": {"por_regime": {"subida": {"n": 40, "avg_r": 0.6, "acaso_p95": 0.3}}},
+                            "SQUEEZE_BB": {"por_regime": {"subida": {"n": 40, "avg_r": -0.2, "acaso_p95": 0.1}}}}}},
+              "mercado": {"regime": "subida", "desde": NOW - 8 * 86400}}
+        ev = arena.rebirth(st, NOW, "subida")
+        self.assertEqual([e["novo"] for e in ev], ["TURTLE_R2"])

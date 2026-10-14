@@ -1,0 +1,32 @@
+name: Arena longa (365 dias, por altura do mercado)
+# Uma vez por dia cada lutador (vivo ou morto) combate no ultimo ano, com o
+# resultado separado por regime do mercado (subida, lateral, queda). Diz que
+# estrategias funcionam em cada altura; o regresso dos mortos usa-o.
+on:
+  schedule:
+    - cron: "37 3 * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: arena-longo
+  cancel-in-progress: false
+jobs:
+  longo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 170
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Ringue longo
+        run: |
+          if [ -f STOP ]; then echo "STOP"; exit 0; fi
+          python -m unittest discover -q -s tests -t .
+          git fetch -q origin data && git show FETCH_HEAD:state.json > /tmp/state.json || echo '{}' > /tmp/state.json
+          python -m tools.arena_ringue out 365 /tmp/state.json longo
+          cd out && git init -q -b arena-longo && git config user.name cryptoscan-bot \
+            && git config user.email bot@users.noreply.github.com \
+            && git add longo.json && git commit -q -m "longo $(date -u +%FT%TZ)" \
+            && git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" arena-longo:arena-longo

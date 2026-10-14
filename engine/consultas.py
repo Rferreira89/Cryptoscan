@@ -19,7 +19,7 @@ from . import arena
 PAGE = "https://rferreira89.github.io/Cryptoscan/scanner/"
 G, Y, R = "verde", "amarelo", "vermelho"
 DOT = {G: "🟢", Y: "🟡", R: "🔴"}
-CMD = re.compile(r"^/?(porque|porquê|debate|liga|ringue|macro|conta|hoje|ajuda|help|start)"
+CMD = re.compile(r"^/?(porque|porquê|debate|liga|oportunidades|meta|ringue|macro|conta|hoje|ajuda|help|start)"
                  r"(?:@\w+)?(?:\s+([A-Za-z0-9]+))?\s*$", re.I)
 
 
@@ -336,12 +336,58 @@ def mesa_text(res):
     return "\n".join(L)
 
 
+def opportunities(res, n=8):
+    """Moedas mais perto de dar sinal: sobrevenda (compras) e sobrecompra (vendas)."""
+    rows = [r for r in (res or {}).get("universe") or []
+            if ((r.get("analysis") or {}).get("4h") or {}).get("rsi") is not None and r.get("eligible")]
+    if not rows:
+        return "Sem dados do último scan."
+    rsi = lambda r: r["analysis"]["4h"]["rsi"]
+    yes = lambda r: sum(1 for x in r.get("debate") or [] if x["voto"] != "não")
+    lo = sorted(rows, key=rsi)[:n]
+    hi = sorted(rows, key=rsi, reverse=True)[:3]
+    L = ["🎯 <b>Oportunidades mais perto</b>", "", "<b>Compras</b> (os campeões entram com RSI 4H abaixo de 30 a virar):"]
+    for r in lo:
+        gap = rsi(r) - 30
+        L.append(f"• {r['asset']}: RSI {rsi(r):.0f}" + (" — já em sobrevenda, à espera da viragem" if gap <= 0
+                                                      else f" — faltam {gap:.0f} pontos")
+                 + (f" · {yes(r)} lutador(es) a operar" if yes(r) else ""))
+    L += ["", "<b>Vendas a descoberto</b> (sobrecompra, RSI acima de 70):"]
+    for r in hi:
+        L.append(f"• {r['asset']}: RSI {rsi(r):.0f}" + ("" if rsi(r) >= 70 else f" — faltam {70 - rsi(r):.0f} pontos"))
+    L += ["", "Detalhe: /debate MOEDA · /porque MOEDA"]
+    return "\n".join(L)
+
+
+GOAL = 1_000_000
+
+
+def goal_text(res):
+    from . import meta
+    m = meta.progress((res or {}).get("meta_base"), ((res or {}).get("conta") or {}).get("equity")
+                      or ((res or {}).get("config") or {}).get("capital_usdc"))
+    if not m:
+        return "Sem capital lido ainda."
+    L = [f"🏁 <b>Meta: o primeiro milhão</b>", "",
+         f"Capital agora: {m['capital']:,.2f} USDC".replace(",", " "),
+         f"Progresso: {m['pct']:.4f}% · próximo marco: {m['marco']:,} USDC ({m['falta_marco']:,.2f} em falta)".replace(",", " "),
+         "", "<b>Quanto tempo, ao ritmo composto de</b>:"]
+    for r, meses in m["cenarios"]:
+        L.append(f"• {r:.0f}% ao mês → {meses / 12:.1f} anos")
+    L += ["", "Com honestidade: 5% ao mês de forma consistente já é excelente. O programa persegue a "
+          "meta com disciplina (só estratégias que batem o acaso, risco limitado), nunca aumentando "
+          "o risco para encurtar o caminho: uma perda grande atrasa a meta mais do que qualquer ganho a acelera."]
+    return "\n".join(L)
+
+
 HELP = "\n".join([
     "🤖 <b>Perguntas ao Cryptoscan</b>", "",
     "/porque SOL — o que cada departamento vê numa moeda",
     "/ringue — classificação dos lutadores",
     "/debate MOEDA — o que cada lutador faria nessa moeda (/debate sozinho: as mais quentes)",
     "/liga — liga semanal dos lutadores",
+    "/oportunidades — moedas mais perto de dar sinal",
+    "/meta — caminho até ao primeiro milhão",
     "/macro — macroeconomia agora",
     "/conta — saldo na Bybit",
     "/hoje — resumo do dia", "",
@@ -360,6 +406,10 @@ def answer(text, res, state):
         return why(res, arg) if arg else "Diz-me a moeda, por exemplo: /porque SOL"
     if c == "debate":
         return debate_text(res, arg) if arg else mesa_text(res)
+    if c == "oportunidades":
+        return opportunities(res)
+    if c == "meta":
+        return goal_text(res)
     if c == "liga":
         from . import liga
         return _esc(liga.text((res or {}).get("liga")) or "A liga ainda não tem dados.")

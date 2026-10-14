@@ -97,9 +97,9 @@ def closed(rows, now):
     return [r for r in rows if r["t"] + H4 <= now]
 
 
-def fetch(base, now):
+def fetch(base, now, need=None):
     from tools import fetch_history as FH
-    start = (now - (NEED_BARS + 12) * H4) * 1000
+    start = (now - ((need or NEED_BARS) + 12) * H4) * 1000
     raw = FH.history(base, "4h", start)
     rows = [{"t": r[0] // 1000, "o": float(r[1]), "h": float(r[2]),
              "l": float(r[3]), "c": float(r[4]), "v": float(r[5]),
@@ -865,8 +865,22 @@ def judge(trs, bars, rng, bars1h=None):
             "veredicto": arena.verdict(len(rs), mean, med, p95, has_ctrl)}
 
 
+def regime_by_day(btc4):
+    """{dia: 'subida'|'queda'|'lateral'} com o regime do BTC no fecho de cada dia
+    (mesmas regras de engine/arena.market_regime, so com dias passados)."""
+    d = B.daily(btc4 or [])
+    c = [x["c"] for x in d]
+    out = {}
+    for k in range(200, len(d)):
+        s50, s200 = sum(c[k - 49:k + 1]) / 50, sum(c[k - 199:k + 1]) / 200
+        r30 = c[k] / c[k - 30] - 1
+        out[d[k]["t"] // DAY] = ("subida" if c[k] > s50 > s200 and r30 > 0.08 else
+                                 "queda" if c[k] < s50 < s200 and r30 < -0.08 else "lateral")
+    return out
+
+
 def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None, funding=None, oi=None,
-        macro=None, ls=None, renascidos=None):
+        macro=None, ls=None, renascidos=None, regimes=False):
     t0 = now - days * DAY
     btc = bars.get("BTC")
     CTX.update(btc=btc, funding=funding or {}, oi=oi or {}, macro=macro or {}, ls=ls or {},
@@ -908,6 +922,8 @@ def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None, funding=None, oi=None,
     for nk, info in (renascidos or {}).items():
         groups[nk] = [t for t in groups.get(info.get("base"), [])
                       if t["t"] >= (info.get("desde") or 0)]
+    if regimes:
+        CTX["regmap"] = regime_by_day(btc)
     rng = random.Random(seed)
     out = {}
     for k, trs in groups.items():
@@ -916,24 +932,34 @@ def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None, funding=None, oi=None,
         out[k] = judge(trs, jb, rng, bars1h) if trs else {
             "n": 0, "wins": 0, "avg_r": None, "total_r": 0, "ultimas": [],
             "acaso_mediana": None, "acaso_p95": None, "veredicto": "A COMPETIR"}
+        if regimes and trs:                    # ringue longo: resultado por altura do mercado
+            rmap = CTX.get("regmap") or {}
+            out[k]["por_regime"] = {}
+            for rg in ("subida", "lateral", "queda"):
+                sub = [t for t in trs if rmap.get((t["t"] - DAY) // DAY) == rg]
+                if sub:
+                    out[k]["por_regime"][rg] = judge(sub, jb, rng, bars1h)
     return {"atualizado": int(now), "janela_dias": days,
             "desde": int(t0), "moedas": len(bars), "lutadores": out}
 
 
-def main(dest, days=DAYS, state_path=None):
+def main(dest, days=DAYS, state_path=None, longo=False):
     from engine import venue
     now = int(time.time())
     cfg = config.load()
     bars, bars1h, falhas = {}, {}, []
+    need = 6 * (B.analysis.MIN_BARS + 15) + 6 * days
     listed = sorted(set(venue.fetch("USDC")) | {"BTC"})
     for base in listed:
         try:
-            c = fetch(base, now)
+            c = fetch(base, now, need)
         except Exception as e:
             falhas.append(f"{base}: {str(e)[:50]}")
             continue
-        if len(c) >= NEED_BARS:
+        if len(c) >= need or (longo and len(c) >= NEED_BARS):
             bars[base] = c
+            if longo:                        # o ringue longo nao corre o 1H (pesado)
+                continue
             try:
                 h1 = fetch_1h(base, now, days)
                 if len(h1) >= 24 * days:
@@ -972,7 +998,7 @@ def main(dest, days=DAYS, state_path=None):
     except Exception as e:
         print("estado ilegível:", e, file=sys.stderr)
     res = run(bars, cfg, now, days, bars1h=bars1h, funding=funding, oi=oi, macro=macro, ls=ls,
-              renascidos=renascidos)
+              renascidos=renascidos, regimes=longo)
     res["macro_series"] = sorted(macro)
     res["funding_moedas"] = len(funding)
     res["funding_fonte"] = fonte
@@ -980,7 +1006,7 @@ def main(dest, days=DAYS, state_path=None):
     res["segundos"] = round(time.time() - t)
     res["falhas"] = falhas[:20]
     os.makedirs(dest, exist_ok=True)
-    with open(os.path.join(dest, "forma.json"), "w") as f:
+    with open(os.path.join(dest, "longo.json" if longo else "forma.json"), "w") as f:
         json.dump(res, f, ensure_ascii=False, indent=1)
     for k, v in res["lutadores"].items():
         print(f"{k:16s} n={v['n']:4d} R={v['avg_r']} acaso={v['acaso_mediana']}"
@@ -989,4 +1015,5 @@ def main(dest, days=DAYS, state_path=None):
 
 if __name__ == "__main__":
     main(sys.argv[1], int(sys.argv[2]) if len(sys.argv) > 2 else DAYS,
-         sys.argv[3] if len(sys.argv) > 3 else None)
+         sys.argv[3] if len(sys.argv) > 3 else None,
+         longo=len(sys.argv) > 4 and sys.argv[4] == "longo")

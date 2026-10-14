@@ -58,6 +58,8 @@ h2{font-size:19px;font-weight:750;font-stretch:80%;margin:22px 0 10px}
 .lg{display:grid;grid-template-columns:28px 1fr auto auto;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px}.lg:last-child{border:0}
 .gst{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:4px 0 10px}.gst div{background:var(--chip);border-radius:10px;padding:9px 11px}.gst b{display:block;font-size:17px}.gst span{font-size:11.5px;color:var(--mut)}
 .todo{background:var(--card);border-left:4px solid var(--now);border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:13.5px}
+.alt{width:100%;border-collapse:collapse;font-size:12.5px}.alt th,.alt td{padding:6px 4px;border-bottom:1px solid var(--line);text-align:right}.alt th:first-child,.alt td:first-child{text-align:left}.alt th.cur{color:var(--now)}
+.metabar{height:10px;border-radius:99px;background:var(--chip);overflow:hidden;margin:6px 0}.metabar i{display:block;height:100%;background:linear-gradient(90deg,var(--up),var(--now))}
 #fcard{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);width:min(440px,calc(100vw - 24px));max-height:72vh;overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;z-index:60;box-shadow:0 12px 40px #0009;font-size:13.5px}
 #fcard h3{margin:0 0 2px;font-size:17px}#fcard .fx{position:absolute;top:8px;right:10px;background:none;border:0;color:var(--mut);font-size:20px}
 #fcard .bd{display:inline-block;font-size:11px;padding:2px 8px;border-radius:99px;margin-left:6px;vertical-align:2px}
@@ -257,7 +259,7 @@ body.sheet-open #sheet{transform:none}
 @media (prefers-reduced-motion:reduce){.typing i,.bot .eye{animation:none}.bub{transition:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module" src="office3d.js?v=20261014d"></script>
+<script type="module" src="office3d.js?v=20261014e"></script>
 </head>
 <body class="w3d">
 <div id="world">
@@ -301,6 +303,7 @@ body.sheet-open #sheet{transform:none}
 </section>
 <section class="panel on" id="pn-lab" data-p="lab" data-h="Pesquisa" data-t="Pesquisa">
 <details class="sec" id="s-mesa" open><summary>🗣️ Mesa redonda<span id="n-mesa"></span></summary><div id="mesa"><div class="banner">A carregar…</div></div></details>
+<details class="sec" id="s-alturas" open><summary>📈 Estratégias por altura do mercado<span id="n-alturas"></span></summary><div id="alturas"><div class="banner">A carregar…</div></div></details>
 <details class="sec" id="s-liga" open><summary>🏆 Liga semanal<span id="n-liga"></span></summary><div id="liga"><div class="banner">A carregar…</div></div></details>
 <details class="sec" id="s-arena" open><summary>Arena<span id="n-arena"></span></summary><div id="arena"><div class="banner">A carregar…</div></div></details>
 <details class="sec" id="s-acaso"><summary>Contra o acaso<span id="n-acaso"></span></summary><div id="acaso"><div class="banner">A carregar…</div></div></details>
@@ -772,7 +775,7 @@ function decOne(d,title){
 }
 function render(){
   try{xAfterRender()}catch(_){}
-  try{renderMesa();renderLiga();renderGestor()}catch(_){}
+  try{renderMesa();renderLiga();renderGestor();renderMeta();renderAlturas()}catch(_){}
   if(!D) return;
   const q=$("q").value.trim().toUpperCase(),s=$("sort").value,f=$("flt").value;
   const key=r=>s==="adx"||s==="rsi"?(r.analysis&&r.analysis["1d"]&&r.analysis["1d"].ok?r.analysis["1d"][s]:-1):(r[s]??-1e18);
@@ -857,7 +860,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261014d";
+const PAGE_V="20261014e";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -1258,6 +1261,7 @@ function showFighter(id){if(!D)return;const b=((D.arena||{}).classificacao||[]).
   <div><span>R médio</span><b class="${f.avg_r>0?"up":f.avg_r<0?"dn":""}">${f.avg_r==null?"–":(f.avg_r>0?"+":"")+num(f.avg_r,2)+"R"}</b></div><div><span>Acaso (p95)</span><b>${f.acaso_p95==null?"–":num(f.acaso_p95,2)+"R"}</b></div></div>
   ${spark?`<div class="sec2">Últimas operações do combate</div>${spark}`:""}
   ${dead?`<div class="warn" style="margin-top:8px">Morreu: ${esc((b.morte||{}).motivo||b.motivo||"")}${(b.morte||{}).n?` (${b.morte.n} operações, ${num(b.morte.avg_r,2)}R)`:""}</div>`:""}
+  ${(()=>{const pr=((D.promo||{}).prova_real||{})[id],su=((D.promo||{}).suspensos||{})[id];return pr||su?`<div class="sec2">Prova real</div><div>${pr&&pr.n?`${pr.n} operações reais fechadas · ${pr.avg_r>0?"+":""}${num(pr.avg_r,2)}R`:"Ainda sem operações reais fechadas."}${su?`<div class="warn">⏸️ Suspenso: ${esc(su)}</div>`:""}</div>`:""})()}
   <div class="sec2">Agora</div><div>${now}</div>
   ${jr.length?`<div class="sec2">Registo recente</div>${jr.map(r=>`<div>${esc(r.asset)} · ${r.status==="CLOSED"?`<b class="${r.result_r>0?"up":"dn"}">${r.result_r>0?"+":""}${num(r.result_r,2)}R</b>`:r.status==="OPEN"?"aberta":esc(r.status.toLowerCase())}${r.mode==="PAPER"?" (papel)":""}</div>`).join("")}`:""}
   <button class="gobb" id="fgo" style="border:0;width:100%">Ver o ringue completo</button>`;
@@ -1303,6 +1307,20 @@ function renderGestor(){if(!D||!$("gestor"))return;const C=D.config||{},K=D.cont
   <div><b class="${C.risk_reduced?"dn":""}">${num(risk,2)}</b><span>Risco em aberto (USDC)${C.risk_reduced?" · risco a metade":""}</span></div>
   <div><b>${RG[MK.regime]||"–"}</b><span>Mercado · macro ${ME[MC.estado]||"–"}</span></div>
   <div><b>${ch}</b><span>Campeões a dar sinais reais</span></div></div>`}
+
+// ===== Estrategias por altura do mercado (ringue longo, 365 dias) =====
+function renderAlturas(){if(!D||!$("alturas"))return;const L=D.arena_longo,cur=(D.mercado||{}).regime;
+  if(!L||!L.lutadores){$("alturas").innerHTML=`<div class="banner">O ringue longo (365 dias) corre uma vez por dia; a tabela aparece depois da primeira ronda.</div>`;return}
+  const st=((D.arena||{}).classificacao||[]),dead=new Set(st.filter(b=>b.estado==="MORTA").map(b=>b.id)),champ=new Set((D.promo||{}).campeoes||[]);
+  const rg=["subida","lateral","queda"],RN={subida:"Subida",lateral:"Lateral",queda:"Descida"};
+  const cell=x=>!x||!x.n?'<td style="color:var(--mut)">–</td>':`<td class="${x.avg_r>0&&x.acaso_p95!=null&&x.avg_r>x.acaso_p95?"up":x.avg_r<0?"dn":""}">${x.avg_r>0?"+":""}${num(x.avg_r,2)}<br><span style="color:var(--mut);font-size:10.5px">${x.n} op.</span></td>`;
+  const rows=Object.entries(L.lutadores).filter(([k,v])=>v.n).sort((a,b)=>((b[1].por_regime||{})[cur]||{}).avg_r-((a[1].por_regime||{})[cur]||{}).avg_r||0);
+  $("n-alturas").textContent=rows.length+" lutadores";
+  $("alturas").innerHTML=`<div class="banner"><b>Que estratégia funciona em cada altura</b><span style="color:var(--mut);font-size:12.5px">Cada lutador (vivos e mortos) combate no último ano; o resultado (R médio por operação) é separado pelo regime do mercado no dia da entrada. Verde: ganhou e bateu o acaso. Quando o mercado muda, só regressa ao ringue quem ganhou nesse regime. Agora: <b>${RN[cur]||"–"}</b>.</span></div>
+  <div class="tw"><table class="alt"><tr><th>Lutador</th>${rg.map(r=>`<th class="${r===cur?"cur":""}">${RN[r]}</th>`).join("")}</tr>${rows.map(([k,v])=>`<tr><td>${champ.has(k)?"🏆":dead.has(k)?"🕯️":"⚔️"} ${esc(personaOf(k))}<br><span style="color:var(--mut);font-size:10.5px">${esc(k)}</span></td>${rg.map(r=>cell((v.por_regime||{})[r])).join("")}</tr>`).join("")}</table></div>`}
+function renderMeta(){const M=D&&D.meta;if(!M||!$("gestor"))return;const done=M.marcos.filter(x=>x.feito).length;
+  $("gestor").insertAdjacentHTML("beforeend",`<div class="banner"><b>🏁 Meta: o primeiro milhão</b><div class="metabar"><i style="width:${Math.max(1,Math.log10(M.capital)/6*100)}%"></i></div>
+  <span style="color:var(--mut);font-size:12.5px">${num(M.capital,2)} USDC · próximo marco ${num(M.marco,0)} USDC (faltam ${num(M.falta_marco,2)}) · ${done} de ${M.marcos.length} marcos. A 5% ao mês, ${num(M.cenarios[1][1]/12,1)} anos; a 10% ao mês, ${num(M.cenarios[3][1]/12,1)} anos. Sem aumentar o risco: disciplina e compostos. /meta no Telegram.</span></div>`)}
 </script>
 </body>
 </html>
