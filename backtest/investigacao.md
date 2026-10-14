@@ -525,3 +525,76 @@ ordem limite) não explica a perda: a entrada a mercado também perde.
 - Código: `tools/research_sweep_market.py`; teste sem look-ahead:
   `tests/test_research_sweep_market.py`; números:
   `backtest/research_sweep_market.json`.
+
+## 2026-10-14 — Pré-registo (escrito antes de qualquer teste desta corrida)
+
+Duas vagas: a primeira para a fila do Rui (hipótese 4, funding muito
+negativo); a segunda para um sucessor da arena, se a autópsia encontrar
+uma causa com correção; se não encontrar, a segunda vaga volta à fila
+(hipótese 5, quebra com compradores agressivos). Arena em 2026-10-14
+(scan.json do ramo `data`): 19 lutadores vivos, `recrutar` falso.
+
+### Autópsia dos mortos sem sucessor (2026-10-14)
+
+Mortos ainda sem sucessor registado: BOUNCE_1H, TURTLE, SQUEEZE_BB,
+MOMENTUM e quatro shorts (SHORT_X30, SHORT_FLUXO, SHORT_TURTLE,
+SHORT_ISOLADA). Números do combate (forma.json do ramo `arena`, 90 dias).
+
+- **BOUNCE_1H** (combate: 198 op., −0,128R, acima do p95 do acaso, que é
+  −0,178R; morreu por R médio ≤ −0,2R? não: por −0,128R abaixo de zero com
+  20+ operações e forma). Autópsia nos últimos 24 meses de 1H (69 moedas,
+  a mesma função `bounce_1h_trades` do ringue): 1749 operações, −0,279R,
+  41,8% de acerto. Risco médio 5,5% mas custo médio de 0,25R por operação;
+  sem custos ficaria em cerca de −0,03R. Por distância do stop: <1,5% →
+  −0,61R a −0,70R; 1,5–2% → −0,42R; 2–3% → −0,33R; ≥3% → −0,16R (910 op.).
+  Causa: os custos pesam, mas mesmo sem custos não há vantagem bruta nos
+  24 meses, e o melhor grupo (stops largos) continua negativo. Exigir um
+  stop mínimo não chega a zero. **Sem sucessor** (não há uma correção que
+  ataque uma causa e possa tornar a regra positiva).
+- **TURTLE** (191 op., +0,28R, mas o acaso com a mesma geometria dá
+  mediana +0,76R e p95 +0,92R) e **SQUEEZE_BB** (66 op., −0,47R contra
+  mediana −0,08R): a geometria de seguimento de tendência funciona com
+  entradas ao acaso; o que estraga é o momento da entrada (comprar o
+  rompimento). É a mesma causa da autópsia do BREAKOUT de 2026-10-13: as
+  quebras de 4H revertem neste mercado. A correção que ataca esta causa já
+  está escrita pelo Rui: a hipótese 5 da fila (só quebras com compradores
+  agressivos). Por isso não se escreve um sucessor à parte: a segunda vaga
+  é a hipótese 5, registada como resposta à família das quebras.
+- **MOMENTUM** (31 op.): amostra curta para autópsia; fica para depois.
+- **Shorts**: a investigação desta rotina é só de compras; ficam
+  registados sem sucessor.
+
+### Hipótese 4 (fila do Rui): funding muito negativo com o preço a aguentar
+
+Regras e grelha as da fila. Detalhes de implementação fixados agora, antes
+de testar (`tools/research_funding.py`):
+- f24 = média das liquidações de funding com instante em (fecho − 24h,
+  fecho] (com liquidações de 8h são as últimas 3; algumas moedas liquidam
+  de 4 em 4 horas). Extremo = f24 < 0 e abaixo do percentil P dos f24
+  calculados em cada liquidação dos 90 dias anteriores (até fecho − 24h).
+  Exige pelo menos 60 dias de funding antes (o ficheiro começa em
+  2024-08-01) e 30 valores na janela de 90 dias.
+- Gatilho: fecho de 4H acima do máximo da vela anterior; entrada na
+  abertura seguinte; stop no fecho menos 1,5 ATR14; um objetivo a 2R; sem
+  stop na entrada; 3 dias. Prioridade: f24 mais negativo.
+- Grelha (4): P ∈ {10, 5} × filtro do BTC acima da SMA200 ∈ {sim, não}.
+- Janela: o funding do ramo `history` só chega ao último mês completo
+  (2026-09-30), por isso a janela de 24 meses acaba aí: desenho
+  2024-10-01 a 2026-03-31, reserva 2026-04-01 a 2026-09-30. Sem linha do
+  período antigo (não há funding antes de 2024-08).
+- Universo: as 66 moedas com funding.
+
+### Segunda vaga — hipótese 5 (fila do Rui): quebra com compradores agressivos
+
+Regras e grelha as da fila (`tools/research_taker_breakout.py`). Detalhe
+fixado agora: "stop no mínimo 1 ATR" quer dizer que, se o mínimo da vela
+da quebra menos 0,1 ATR ficar a menos de 1 ATR do fecho, o stop desce para
+fecho − 1 ATR; a mais de 3 ATR não há operação. Média de volume das 20
+velas anteriores (sem a da quebra). Prioridade: maior parte compradora.
+Grelha (4): q ∈ {0,55; 0,60} × H ∈ {3, 7} dias. Janela de 24 meses até
+ao último dia completo do histórico de 4H.
+
+Expectativa declarada: as duas são de lógica económica razoável, mas a
+família das quebras perdeu em tudo até hoje; o mais provável na 5 é NÃO
+VALIDADA. Com 12 hipóteses contra esta reserva no fim desta corrida, só o
+papel ao vivo pode provar alguma coisa.
