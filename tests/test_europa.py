@@ -217,3 +217,13 @@ class Historico(unittest.TestCase):
         new = [[NOW - 10, 3.0], [NOW, 4.0]]
         self.assertEqual(dados.merge_hist(new, old, NOW), [[NOW - 10, 3.0], [NOW, 4.0]])
         self.assertEqual(dados.merge_hist(None, [[NOW, 1]], NOW), [[NOW, 1]])
+
+
+class Livro(unittest.TestCase):
+    def test_desequilibrio(self):
+        from tools.eu import dados
+        bids = [["100", "10"], ["99.5", "10"], ["90", "1000"]]     # 90 fora da banda de 1%
+        asks = [["100.1", "5"], ["100.5", "5"]]
+        v = dados.book_imbalance(bids, asks)
+        self.assertGreater(v, 0.3)
+        self.assertIsNone(dados.book_imbalance([], asks))

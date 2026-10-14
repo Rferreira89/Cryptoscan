@@ -29,8 +29,9 @@ jobs:
           rm -rf /tmp/eud && mkdir -p /tmp/eud
           git fetch -q origin data && git show FETCH_HEAD:state.json > /tmp/eud-state.json || echo '{}' > /tmp/eud-state.json
           git fetch -q origin europa && git show FETCH_HEAD:dados.json > /tmp/eud-prev.json || echo '{}' > /tmp/eud-prev.json
-          python3 -m tools.eu.dados /tmp/eud/dados.json /tmp/eud-state.json /tmp/eud-prev.json
+          git show FETCH_HEAD:livro.json > /tmp/eud-livro.json 2>/dev/null || echo '{}' > /tmp/eud-livro.json
+          python3 -m tools.eu.dados /tmp/eud/dados.json /tmp/eud-state.json /tmp/eud-prev.json /tmp/eud-livro.json
           cd /tmp/eud && git init -q -b europa && git config user.name cryptoscan-bot \
             && git config user.email bot@users.noreply.github.com \
-            && git add dados.json && git commit -q -m "dados $(date -u +%FT%TZ)" \
+            && git add dados.json && { [ -f livro.json ] && git add livro.json || true; } && git commit -q -m "dados $(date -u +%FT%TZ)" \
             && git push -q -f "$PUSH_URL" europa:europa

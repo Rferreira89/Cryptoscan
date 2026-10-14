@@ -121,7 +121,48 @@ def merge_hist(new, old, now, keep=KEEP_HIST):
     return [[t, m[t]] for t in sorted(m) if t >= now - keep]
 
 
-def main(dest, state_path=None, prev_path=None):
+BOOK_KEEP = 60 * DAY
+
+
+def book_imbalance(bids, asks, band=0.01):
+    """(compras - vendas) / total em USD dentro de +-1% do preco medio."""
+    try:
+        bb, ba = float(bids[0][0]), float(asks[0][0])
+    except (IndexError, ValueError, TypeError):
+        return None
+    mid = (bb + ba) / 2
+    b = sum(float(p) * float(q) for p, q in bids if float(p) >= mid * (1 - band))
+    a = sum(float(p) * float(q) for p, q in asks if float(p) <= mid * (1 + band))
+    return round((b - a) / (b + a), 4) if b + a else None
+
+
+def record_book(moedas, prev_path, dest_dir, now):
+    """Grava o desequilibrio do livro de ordens (Binance Futures) de hora a
+    hora em livro.json (60 dias), para o ringue o poder testar mais tarde."""
+    try:
+        prev = json.load(open(prev_path)) if prev_path and os.path.exists(prev_path) else {}
+    except Exception:
+        prev = {}
+    hist = prev.get("moedas") or {}
+    hour = (now // 3600) * 3600
+    for b, c in moedas.items():
+        try:
+            d = _get("/fapi/v1/depth", {"symbol": c["s"], "limit": 100})
+            v = book_imbalance(d.get("bids") or [], d.get("asks") or [])
+        except Exception:
+            v = None
+        if v is None:
+            continue
+        old = {int(t): x for t, x in hist.get(b) or []}
+        old[hour] = v                               # um valor por hora (o ultimo)
+        hist[b] = [[t, old[t]] for t in sorted(old) if t >= now - BOOK_KEEP]
+        time.sleep(0.05)
+    with open(os.path.join(dest_dir, "livro.json"), "w") as f:
+        json.dump({"t": now, "fonte": "binance-futures depth ±1%", "moedas": hist}, f, separators=(",", ":"))
+    return len(hist)
+
+
+def main(dest, state_path=None, prev_path=None, book_prev=None):
     now = int(time.time())
     res = {"t": now, "fonte": "binance-futures", "moedas": {}, "falhas": []}
     try:
@@ -155,6 +196,10 @@ def main(dest, state_path=None, prev_path=None):
     except Exception as e:
         res["liq"], res["liq_escuta"] = {}, False
         res["falhas"].append(f"liquidações: {type(e).__name__}")
+    try:                                     # livro de ordens (historico proprio)
+        res["livro_moedas"] = record_book(res["moedas"], book_prev, os.path.dirname(dest) or ".", now)
+    except Exception as e:
+        res["falhas"].append(f"livro: {type(e).__name__}")
     res["macro"], fm = macro()
     res["falhas"] += fm
     try:
@@ -175,4 +220,4 @@ def main(dest, state_path=None, prev_path=None):
 
 
 if __name__ == "__main__":
-    main(*sys.argv[1:4])
+    main(*sys.argv[1:5])

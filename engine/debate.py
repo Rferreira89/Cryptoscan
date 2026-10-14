@@ -126,7 +126,26 @@ def _why_momentum(c4):
         f" (compra as {AR.MOM_TOP} primeiras, só à segunda-feira 00h UTC)"
 
 
-TREND = {"TURTLE": _why_turtle, "SQUEEZE_BB": _why_squeeze, "MOMENTUM": _why_momentum}
+def _why_brk(c4):
+    lv = max(x["h"] for x in c4[-31:-1]) if len(c4) > 31 else None
+    if not lv:
+        return "sem velas suficientes"
+    g = (lv / c4[-1]["c"] - 1) * 100
+    return (f"nível de 5 dias em {lv:.6g}: " + (f"faltam {g:.1f}% para o rompimento" if g > 0
+                                               else "já acima: só entra num rompimento novo com volume e espaço"))
+
+
+def _why_reteste(c4):
+    if len(c4) < 60:
+        return "sem velas suficientes"
+    lv = max(x["h"] for x in c4[-60:-12])
+    broke = any(x["c"] > lv * 1.01 for x in c4[-12:-1])
+    if not broke:
+        return f"sem rompimento recente do nível {lv:.6g}"
+    return f"nível {lv:.6g} rompido: à espera de um reteste por cima com vela de retoma"
+
+
+TREND = {"BRK_ESPACO": _why_brk, "RETESTE": _why_reteste, "TURTLE": _why_turtle, "SQUEEZE_BB": _why_squeeze, "MOMENTUM": _why_momentum}
 
 
 BASE = {"BOUNCE_G0": 25, "BOUNCE_V2": 25, "BOUNCE_V3": 25, "DIP_TREND": 35}

@@ -216,3 +216,37 @@ class RegressoMesmoRegime(unittest.TestCase):
         st["arena"]["mortos"]["PULLBACK"]["t"] = NOW            # morreu agora: espera 7 dias
         st["arena"]["mortos"]["PULLBACK"].pop("renasceu")
         self.assertEqual(arena.rebirth(st, NOW, "subida"), [])
+
+
+class RompimentoReteste(unittest.TestCase):
+    def mk(self, n=220):
+        return [{"t": NOW - (n - i) * H4, "o": 100, "h": 101, "l": 99, "c": 100, "v": 10, "tb": 5}
+                for i in range(n)]
+
+    def test_rompimento_com_espaco(self):
+        c4 = self.mk()
+        for x in c4[-181:-40]:
+            x["h"] = 120                         # resistencia longe (espaco)
+        c4[-1].update(c=101.5, h=101.8, v=30)    # rompe 101 com volume, pouco esticado
+        p = AR.sig_breakout_espaco(c4)
+        self.assertIsNotNone(p)
+        self.assertLess(p["stop"], 101)
+        c4[-1].update(c=106, h=106.5)            # entrada tardia: recusa
+        self.assertIsNone(AR.sig_breakout_espaco(c4))
+        c4[-1].update(c=101.5, h=101.8)
+        for x in c4[-181:-40]:
+            x["h"] = 102                         # resistencia colada: sem espaco
+        self.assertIsNone(AR.sig_breakout_espaco(c4))
+
+    def test_reteste(self):
+        c4 = self.mk(150)
+        for x in c4[-12:-3]:
+            x.update(c=104, h=105, l=103)        # rompeu 101 e ficou acima
+        c4[-3].update(l=101.2, c=102, h=103)     # volta ao nivel
+        c4[-2].update(o=102, c=101.8, h=102.5, l=100.9)
+        c4[-1].update(o=101.9, c=103, h=103.2, l=101.5)   # vela de retoma acima do maximo anterior
+        p = AR.sig_reteste(c4)
+        self.assertIsNotNone(p)
+        self.assertLess(p["stop"], 101)
+        self.assertIn("RETESTE", AR.SINAIS)
+        self.assertIn("BRK_ESPACO", AR.SINAIS)

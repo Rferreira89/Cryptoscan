@@ -680,7 +680,66 @@ def short_live(fn):
     return f
 
 
-NEW_SIGS = {"TURTLE": sig_turtle, "SQUEEZE_BB": sig_squeeze_bb, "MOMENTUM": sig_momentum,
+# ---------- rompimento com espaco e reteste do nivel rompido (2026-10-14) ----------
+
+def sig_breakout_espaco(c4):
+    """Rompimento com confirmacao: fecho acima do maximo de 5 dias com volume
+    1,5x, SEM entrada tardia (no maximo 1 ATR acima do nivel) e com espaco ate
+    a proxima resistencia de pelo menos 2R. Stop de volta dentro do nivel."""
+    if len(c4) < 200:
+        return None
+    at = PB.atr(c4[-100:])[-1]
+    if not at:
+        return None
+    level = max(x["h"] for x in c4[-31:-1])
+    b, prev = c4[-1], c4[-2]
+    vavg = sum(x["v"] for x in c4[-21:-1]) / 20
+    if not (b["c"] > level >= prev["c"] and b["v"] > 1.5 * vavg):
+        return None
+    if b["c"] - level > at:                        # entrada tardia: ja esticou
+        return None
+    e, stop = b["c"], level - 0.5 * at
+    r = e - stop
+    above = [x["h"] for x in c4[-181:-31] if x["h"] > e * 1.002]
+    res = min(above) if above else None
+    if res is not None and res - e < 2 * r:        # sem espaco ate a resistencia
+        return None
+    tp2 = res if res is not None and res > e + 2 * r else e + 4 * r
+    return {"stop": stop, "tp": [e + 2 * r, tp2], "partials": [50, 50], "breakeven": True,
+            "hold_s": 5 * DAY, "trail_r": 1.0, "atr": at,
+            "gatilho": f"rompimento de {level:.6g} com volume, sem entrada tardia e com espaço até "
+                       + (f"{res:.6g}" if res else "máximos")}
+
+
+def sig_reteste(c4):
+    """Reteste do nivel rompido: uma resistencia (maximo de 8 a 2 dias atras)
+    foi rompida nas ultimas 12 velas; o preco volta a testa-la por cima e fecha
+    em alta acima do maximo da vela anterior (confirmacao de retoma)."""
+    if len(c4) < 120:
+        return None
+    at = PB.atr(c4[-100:])[-1]
+    if not at:
+        return None
+    level = max(x["h"] for x in c4[-60:-12])
+    broke = any(x["c"] > level * 1.01 for x in c4[-12:-1])
+    b, prev = c4[-1], c4[-2]
+    touched = min(x["l"] for x in c4[-3:]) <= level * 1.005
+    if not (broke and touched and b["c"] > level and b["c"] > b["o"] and b["c"] > prev["h"]):
+        return None
+    e = b["c"]
+    stop = min(level - 0.7 * at, min(x["l"] for x in c4[-3:]) - 0.1 * at)
+    r = e - stop
+    if r <= 0:
+        return None
+    hi = max(x["h"] for x in c4[-12:-1])
+    tp1 = hi if hi > e + r else e + 1.5 * r
+    return {"stop": stop, "tp": [tp1, e + 3 * r], "partials": [50, 50], "breakeven": True,
+            "hold_s": 5 * DAY, "atr": at,
+            "gatilho": f"reteste por cima do nível rompido {level:.6g} com vela de retoma"}
+
+
+NEW_SIGS = {"BRK_ESPACO": sig_breakout_espaco, "RETESTE": sig_reteste,
+            "TURTLE": sig_turtle, "SQUEEZE_BB": sig_squeeze_bb, "MOMENTUM": sig_momentum,
             "BOUNCE_ABSORCAO": sig_absorcao, "BOUNCE_LSR": sig_lsr,
             "BOUNCE_MACRO": sig_macro, "BOUNCE_MEDO": sig_medo,
             "BOUNCE_DESALAV": sig_desalav, "BOUNCE_NOREACT": sig_noreact, "BOUNCE_TRAIL": sig_trail, "BOUNCE_HORAS": sig_horas,

@@ -47,7 +47,7 @@ REAL_OK = _RealOK({"BOUNCE_G0", "BOUNCE_V2", "BOUNCE_V3", "BOUNCE_X30", "DIP_TRE
                    "CAPITULACAO", "BOUNCE_FLUXO", "BOUNCE_FORTE", "BOUNCE_SQUEEZE",
                    "BOUNCE_ISOLADA", "BOUNCE_NOREACT", "BOUNCE_TRAIL", "BOUNCE_HORAS",
                    "BOUNCE_DESALAV", "BOUNCE_ABSORCAO", "BOUNCE_LSR", "BOUNCE_MACRO",
-                   "BOUNCE_MEDO", "TURTLE", "SQUEEZE_BB", "MOMENTUM",
+                   "BOUNCE_MEDO", "TURTLE", "SQUEEZE_BB", "MOMENTUM", "BRK_ESPACO", "RETESTE",
                    "SHORT_X30", "SHORT_FLUXO", "SHORT_TURTLE", "SHORT_SQUEEZE", "SHORT_ISOLADA"})
 
 
@@ -133,7 +133,8 @@ def family(k):
     b = re.sub(r"_R\d+$", "", k or "")
     if b.startswith("SHORT_"):
         return "short"
-    if b in ("DIP_TREND", "TURTLE", "MOMENTUM", "TREND_DAILY", "BREAKOUT", "PULLBACK"):
+    if b in ("DIP_TREND", "TURTLE", "MOMENTUM", "TREND_DAILY", "BREAKOUT", "PULLBACK",
+             "BRK_ESPACO", "RETESTE"):
         return "tendencia"
     if b in ("SQUEEZE_BB",):
         return "volatilidade"
