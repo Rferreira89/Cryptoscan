@@ -6,6 +6,16 @@ Scanner de criptomoedas para operar em **spot e margem spot na Bybit UE** (pares
 - Dados publicados: ramo `data` (`scan.json`, `state.json`, `audit.jsonl`, `resumo.txt`)
 - Paragem de emergência: criar um ficheiro `STOP` na raiz do repositório
 
+## Objetivo e regras de equipa (decisão do Rui, 2026-10-14)
+
+**Meta: levar o capital ao primeiro milhão (1 000 000 USDC).** Todos os agentes, analistas e lutadores trabalham para isto, com estas regras, que valem mais do que a pressa:
+
+1. **Só operam com dinheiro estratégias que batem o acaso** (ringue de hora a hora: 20+ operações, R médio positivo e acima do percentil 95 das entradas ao acaso). A meta persegue-se com compostos e disciplina, **nunca aumentando o risco** para encurtar o caminho: uma perda grande atrasa a meta mais do que qualquer ganho a acelera. Marcos: 100, 250, 500, 1 000, 2 500, 5 000, 10 000 … (`engine/meta.py`, `/meta` no Telegram).
+2. **Estratégias para todas as alturas do mercado.** Não queremos todos os analistas na mesma ideia. Hoje os campeões são quase todos da família "sobrevenda a virar"; a investigação deve procurar sobretudo famílias diferentes (tendência, rompimento, volatilidade, fluxo, derivados, macro, vendas a descoberto) e testá-las por regime: o ringue longo (`arena-longo.yml`, ramo `arena-longo`, `longo.json`) dá o resultado de cada lutador no último ano separado por **subida, lateral e descida**. Uma hipótese que ganhe num regime onde os campeões atuais não operam vale mais do que mais uma variante da sobrevenda.
+3. **Diversificação:** no máximo 2 operações reais abertas da mesma família (`engine/promo.py`, `MAX_PER_FAMILY`).
+4. **Prova real:** um campeão que no dinheiro real fique muito abaixo do combate é suspenso automaticamente.
+5. **Regresso:** famílias mortas voltam com nome novo quando o regime muda, se o ringue longo mostrar que ganham nesse regime.
+
 ## Estado de validação
 
 Nenhuma estratégia está validada. O backtest (2021 a 2026, custos incluídos) deu expectativa negativa para as estratégias de 4H, e as duas hipóteses em diário falharam a reserva.
