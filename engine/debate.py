@@ -27,6 +27,23 @@ def _base(c4, lim):
     return True, f"RSI 4H esteve a {low:.0f} e virou"
 
 
+def _base_short(c4):
+    """(ok, texto) da condicao comum dos shorts em precos reais: RSI de 4H
+    acima de 70 nas ultimas 3 velas e a virar para baixo."""
+    from tools import arena_ringue as AR
+    c, rs, _, _ = AR._ind(c4[-300:])
+    k = len(c) - 1
+    if k < 3 or rs[k] is None or rs[k - 2] is None:
+        return False, "sem velas suficientes"
+    hi = max(rs[k - 2:k + 1])
+    turn = c[k] < c4[-2]["l"] and rs[k] < rs[k - 1]
+    if hi <= 70:
+        return False, f"RSI 4H a {rs[k]:.0f}: sem sobrecompra (preciso acima de 70)"
+    if not turn:
+        return False, f"RSI 4H a {rs[k]:.0f}, em sobrecompra mas ainda sem virar para baixo"
+    return True, f"RSI 4H esteve a {hi:.0f} e virou para baixo"
+
+
 def _filter(k, c4):
     """(ok, texto) do filtro proprio de cada lutador (None se nao tem)."""
     from tools import arena_ringue as AR
@@ -130,7 +147,31 @@ def votes(asset, c4, px, alive):
             sig = fn(c4, px)
         except Exception:
             sig = None
-        if kb in TREND:
+        if kb.startswith("SHORT_"):
+            ok_b, why = _base_short(c4)
+            f = None
+            if kb == "SHORT_TURTLE":
+                from engine import backtest as B
+                d = [x for x in B.daily(c4) if x["t"] + DAY <= c4[-1]["t"] + H4]
+                lo = min(x["l"] for x in d[-21:-1]) if len(d) > 21 else None
+                why, ok_b = ((f"mínimo de 20 dias em {lo:.6g}: faltam "
+                              f"{(c4[-1]['c'] / lo - 1) * 100:.1f}% para a quebra") if lo else
+                             "sem 20 dias de histórico"), False
+            elif kb == "SHORT_SQUEEZE":
+                fr = (AR.CTX.get("funding") or {}).get(asset) or []
+                v = fr[-1][1] if fr else None
+                f = (v is not None and v >= 0.0002,
+                     "funding " + ("–" if v is None else f"{v * 100:.4f}%") + " (preciso ≥ 0,02%)")
+            elif kb == "SHORT_ISOLADA":
+                b = AR._btc_ret(c4[-1]["t"] + H4, 6)
+                f = (b is not None and b <= 0.02, "BTC 24h " + ("–" if b is None else f"{b:+.1%}") + " (preciso ≤ +2%)")
+            elif kb == "SHORT_FLUXO":
+                x = c4[-1]
+                sh = 1 - (x.get("tb") or 0) / x["v"] if x.get("v") and x.get("tb") is not None else None
+                f = (sh is not None and sh >= .55, "vendedores agressivos " + ("–" if sh is None else f"{sh:.0%}") + " (preciso de 55%)")
+            if f is not None and ok_b:
+                why = f"{why}; {f[1]}"
+        elif kb in TREND:
             why, ok_b, f = TREND[kb](c4), False, None
         elif kb == "CAPITULACAO":
             v = c4[-1]["v"] / max(1e-12, sum(x["v"] for x in c4[-21:-1]) / 20)
@@ -144,12 +185,13 @@ def votes(asset, c4, px, alive):
                 why = f"{why} ({f[1]}: ok)"
         if sig:
             why = sig.get("gatilho") or why
-        elif kb not in TREND and kb != "CAPITULACAO" and ok_b and (f is None or f[0]):
+        elif not kb.startswith("SHORT_") and kb not in TREND and kb != "CAPITULACAO" and ok_b and (f is None or f[0]):
             why += ("; a tendência diária não é forte o suficiente" if kb == "DIP_TREND"
                     else "; o plano não tem margem até ao objetivo")
-        out.append({"id": k, "persona": arena.persona(k), "voto": "entra" if sig else "não",
+        out.append({"id": k, "persona": arena.persona(k),
+                    "voto": ("vende" if kb.startswith("SHORT_") else "entra") if sig else "não",
                     "razao": why})
-    out.sort(key=lambda x: (x["voto"] != "entra", x["persona"]))
+    out.sort(key=lambda x: (x["voto"] == "não", x["persona"]))
     return out
 
 
@@ -171,7 +213,7 @@ def table(rows, c4s, state, limit=None):
         except Exception:
             continue
         r["debate"] = v
-        yes = sum(1 for x in v if x["voto"] == "entra")
+        yes = sum(1 for x in v if x["voto"] != "não")
         rsi = ((r.get("analysis") or {}).get("4h") or {}).get("rsi") or 99
         hot.append((-yes, rsi, r["asset"], yes, len(v)))
     hot.sort()

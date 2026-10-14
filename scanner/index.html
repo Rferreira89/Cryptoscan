@@ -255,7 +255,7 @@ body.sheet-open #sheet{transform:none}
 @media (prefers-reduced-motion:reduce){.typing i,.bot .eye{animation:none}.bub{transition:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module" src="office3d.js?v=20261014b"></script>
+<script type="module" src="office3d.js?v=20261014c"></script>
 </head>
 <body class="w3d">
 <div id="world">
@@ -854,7 +854,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261014b";
+const PAGE_V="20261014c";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -1230,14 +1230,14 @@ async function renderExplorer(a,quiet){const r=(D.universe||[]).find(x=>x.asset=
   const html=`<div class="banner"><b style="font-size:16px">${esc(a)} <span style="font-weight:600">${price(r.price)} $</span> <span class="${r.chg_24h>=0?"up":"dn"}" style="font-size:13px">${r.chg_24h>=0?"+":""}${num(r.chg_24h,2)}%</span></b>
   <canvas id="xchart"></canvas><div class="xleg"><span><i style="background:#3ee0c4"></i>suporte</span><span><i style="background:#ff6f8a"></i>resistência</span><span><i style="background:#B794F4"></i>FVG / entrada</span><span><i style="background:#FFA94D"></i>varrimento</span><span><i style="background:#3ee0c455"></i>order block</span></div>
   ${deps.length?deps.map(x=>`<div class="dep"><span>${DOTC[x.cor]}</span><div><div style="font-weight:700">${esc(x.dep)}</div><div style="color:var(--mut)">${esc(x.texto)}</div></div></div>`).join(""):`<div style="color:var(--mut)">A leitura por departamentos aparece no próximo scan.</div>`}
-  ${(r.debate||[]).length?`<div class="sec2" style="margin-top:12px;color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.04em">Mesa redonda: ${(r.debate||[]).filter(x=>x.voto==="entra").length} de ${r.debate.length} entravam</div>${votesHtml(r.debate)}`:""}
+  ${(r.debate||[]).length?`<div class="sec2" style="margin-top:12px;color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.04em">Mesa redonda: ${(r.debate||[]).filter(x=>x.voto!=="não").length} de ${r.debate.length} operavam</div>${votesHtml(r.debate)}`:""}
   ${deps.length?`<div style="margin-top:8px"><b>Balanço:</b> ${n.verde} 🟢 · ${n.amarelo} 🟡 · ${n.vermelho} 🔴</div>`:""}<div style="margin-top:6px">${dec}</div>
   <button class="gobb" id="xfull" style="border:0;width:100%">Ver análise completa</button></div>`;
   if(!quiet||!$("xchart")||$("xbox").dataset.a!==a){$("xbox").innerHTML=html;$("xbox").dataset.a=a;
     $("xfull").onclick=()=>{open.add(a);$("q").value=a;render();const el=document.querySelector(`.row[data-a="${a}"]`);if(el){$("s-mercado").open=true;const b=document.querySelector(".sh-body");setTimeout(()=>b.scrollTo({top:el.offsetTop-b.offsetTop-6,behavior:"smooth"}),80)}}}
   const now=Date.now()/1000;let c=XC[a];if(!c||now-c.t>300){const cs=await candlesRange(a,(r.venue||{}).pair,Math.floor(now-120*14400),Math.floor(now));c=XC[a]={t:now,cs}}
   if($("xbox").dataset.a===a&&$("xchart"))drawX($("xchart"),(c.cs||[]).slice(-120),r)}
-const FDESC={TURTLE:"Método das Tartarugas (Richard Dennis): compra o rompimento do máximo de 20 dias, stop a 2× a volatilidade diária, deixa correr a tendência com stop que segue.",SQUEEZE_BB:"Compressão de volatilidade: quando as bandas de Bollinger ficam no aperto mais estreito de 20 dias e o preço rompe para cima com volume.",MOMENTUM:"Momentum entre moedas, usado por fundos quantitativos: à segunda-feira compra as 5 moedas mais fortes a 30 dias (e mais fortes do que o BTC) e fica 7 dias.",BOUNCE_ABSORCAO:"Sobrevenda a virar com absorção: o preço fez um mínimo mais baixo mas os compradores agressivos aumentaram.",BOUNCE_LSR:"Sobrevenda a virar quando o rácio long/short da Binance está no quartil mais baixo (vendedores a descoberto em excesso).",BOUNCE_G0:"Compra quando o RSI de 4H sai da sobrevenda e a vela fecha acima da anterior. Saída original do Oversold Bounce.",BOUNCE_V2:"Mesma entrada do Gaspar com stop mais curto e objetivo de 2R.",BOUNCE_V3:"Mesma entrada do Gaspar com o stop original e objetivo de 2R.",BOUNCE_V1:"Mesma entrada com a saída das estratégias ao vivo.",
+const FDESC={SHORT_X30:"Venda a descoberto: sobrecompra (RSI 4H acima de 70) a virar para baixo.",SHORT_FLUXO:"Venda a descoberto: sobrecompra a virar com vendedores agressivos.",SHORT_TURTLE:"Venda a descoberto: quebra do mínimo de 20 dias (Tartarugas ao contrário).",SHORT_SQUEEZE:"Venda a descoberto: sobrecompra com funding alto, compradores alavancados a pagar.",SHORT_ISOLADA:"Venda a descoberto: subida exagerada da própria moeda com o BTC parado.",TURTLE:"Método das Tartarugas (Richard Dennis): compra o rompimento do máximo de 20 dias, stop a 2× a volatilidade diária, deixa correr a tendência com stop que segue.",SQUEEZE_BB:"Compressão de volatilidade: quando as bandas de Bollinger ficam no aperto mais estreito de 20 dias e o preço rompe para cima com volume.",MOMENTUM:"Momentum entre moedas, usado por fundos quantitativos: à segunda-feira compra as 5 moedas mais fortes a 30 dias (e mais fortes do que o BTC) e fica 7 dias.",BOUNCE_ABSORCAO:"Sobrevenda a virar com absorção: o preço fez um mínimo mais baixo mas os compradores agressivos aumentaram.",BOUNCE_LSR:"Sobrevenda a virar quando o rácio long/short da Binance está no quartil mais baixo (vendedores a descoberto em excesso).",BOUNCE_G0:"Compra quando o RSI de 4H sai da sobrevenda e a vela fecha acima da anterior. Saída original do Oversold Bounce.",BOUNCE_V2:"Mesma entrada do Gaspar com stop mais curto e objetivo de 2R.",BOUNCE_V3:"Mesma entrada do Gaspar com o stop original e objetivo de 2R.",BOUNCE_V1:"Mesma entrada com a saída das estratégias ao vivo.",
  BOUNCE_X30:"Compra quando o RSI de 4H esteve abaixo de 30 e vira para cima, com fecho acima da vela anterior.",DIP_TREND:"Compra recuos (RSI abaixo de 35 a virar) só em moedas em tendência forte no diário.",CAPITULACAO:"Compra velas de capitulação: volume 3× o normal e pavio longo por baixo.",
  BOUNCE_FLUXO:"Sobrevenda a virar com pelo menos 55% de compradores agressivos na vela.",BOUNCE_FORTE:"Sobrevenda a virar só em moedas mais fortes do que o BTC a 30 dias.",BOUNCE_SQUEEZE:"Sobrevenda a virar com funding negativo: os vendedores estão a pagar e podem ser apertados.",
  BOUNCE_ISOLADA:"Sobrevenda a virar só quando a queda é da própria moeda e o BTC está estável.",BOUNCE_NOREACT:"Sobrevenda a virar; sai ao fim de 12h se o preço não reagir.",BOUNCE_TRAIL:"Sobrevenda a virar; o stop sobe atrás do lucro.",BOUNCE_HORAS:"Sobrevenda a virar só em horas de mercado líquido (sem fins de semana nem madrugada UTC).",
@@ -1263,12 +1263,12 @@ window.OFAPI.fighter=showFighter;
 
 // ===== Mesa redonda e liga semanal =====
 let MESA_A=null;
-function votesHtml(v){return v.map(x=>`<div class="vote"><span>${x.voto==="entra"?"✅":"❌"}</span><div><b>${esc(x.persona)}</b> <span style="color:var(--mut)">${esc(x.razao)}</span></div></div>`).join("")}
+function votesHtml(v){return v.map(x=>`<div class="vote"><span>${x.voto==="entra"?"✅":x.voto==="vende"?"🔻":"❌"}</span><div><b>${esc(x.persona)}</b> <span style="color:var(--mut)">${esc(x.razao)}</span></div></div>`).join("")}
 function renderMesa(){if(!D)return;const M=D.mesa||[];$("n-mesa").textContent=M.length?M.length+" moedas":"";
   if(!M.length){$("mesa").innerHTML=`<div class="banner">A mesa redonda aparece no próximo scan.</div>`;return}
-  if(!MESA_A||!M.some(x=>x.asset===MESA_A))MESA_A=M[0].asset;const r=(D.universe||[]).find(x=>x.asset===MESA_A)||{},v=r.debate||[],yes=v.filter(x=>x.voto==="entra").length;
+  if(!MESA_A||!M.some(x=>x.asset===MESA_A))MESA_A=M[0].asset;const r=(D.universe||[]).find(x=>x.asset===MESA_A)||{},v=r.debate||[],yes=v.filter(x=>x.voto!=="não").length;
   $("mesa").innerHTML=`<div class="mesa-tabs">${M.map(x=>`<button data-m="${esc(x.asset)}" class="${x.asset===MESA_A?"on":""}">${esc(x.asset)} · ${x.a_favor}/${x.votantes}</button>`).join("")}</div>
-  <div class="banner"><b>${esc(MESA_A)} — ${yes} de ${v.length} lutadores entravam agora</b><span style="color:var(--mut);font-size:12.5px">Cada lutador vivo diz se a sua regra entrava nesta moeda neste momento e porquê. As moedas aparecem pela ordem dos votos a favor e da sobrevenda.</span></div>${votesHtml(v)}
+  <div class="banner"><b>${esc(MESA_A)} — ${yes} de ${v.length} lutadores operavam agora</b><span style="color:var(--mut);font-size:12.5px">Cada lutador vivo diz se a sua regra operava nesta moeda neste momento e porquê (✅ compra · 🔻 venda a descoberto). As moedas aparecem pela ordem dos votos a favor e da sobrevenda.</span></div>${votesHtml(v)}
   <div class="note">No Telegram: /debate ${esc(MESA_A)}</div>`;
   $("mesa").querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{MESA_A=b.dataset.m;renderMesa()})}
 function renderLiga(){if(!D)return;const L=D.liga;if(!L||!L.tabela){$("liga").innerHTML=`<div class="banner">A liga aparece no próximo scan.</div>`;return}

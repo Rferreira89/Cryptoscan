@@ -47,7 +47,8 @@ REAL_OK = _RealOK({"BOUNCE_G0", "BOUNCE_V2", "BOUNCE_V3", "BOUNCE_X30", "DIP_TRE
                    "CAPITULACAO", "BOUNCE_FLUXO", "BOUNCE_FORTE", "BOUNCE_SQUEEZE",
                    "BOUNCE_ISOLADA", "BOUNCE_NOREACT", "BOUNCE_TRAIL", "BOUNCE_HORAS",
                    "BOUNCE_DESALAV", "BOUNCE_ABSORCAO", "BOUNCE_LSR", "BOUNCE_MACRO",
-                   "BOUNCE_MEDO", "TURTLE", "SQUEEZE_BB", "MOMENTUM"})
+                   "BOUNCE_MEDO", "TURTLE", "SQUEEZE_BB", "MOMENTUM",
+                   "SHORT_X30", "SHORT_FLUXO", "SHORT_TURTLE", "SHORT_SQUEEZE", "SHORT_ISOLADA"})
 
 
 EU = None            # dados do servidor europeu (scanner.run preenche)
@@ -168,6 +169,37 @@ def plan_for(sig, px, cfg):
             "trail_r": sig.get("trail_r"), "risk_reduced": bool(cfg.get("risk_reduced"))}, None
 
 
+def short_plan_for(sig, px, cfg):
+    """Plano de venda a descoberto (margem spot) em precos reais: stop acima,
+    objetivos abaixo. Mesmo dimensionamento das compras (risk.sizing)."""
+    stop, tps = sig["stop"], list(sig["tp"])
+    lo, hi = px * 0.998, px * 1.003
+    entry = lo                                  # pior preco para quem vende
+    if not (stop > hi and tps[0] < entry):
+        return None, "plano de short inválido ao preço atual"
+    fee = cfg["fee_pct"] / 100
+    ru = stop - entry + fee * (entry + stop)
+    stop_pct = ru / entry * 100
+    sz, why = risk.sizing(stop_pct, (stop - entry) / entry, entry, cfg, short=True)
+    if sz is None:
+        return None, why
+    if len(tps) == 1:
+        tp3, parts = [tps[0]] * 3, [100, 0, 0]
+    else:
+        tp3 = [tps[0], tps[1], tps[1]]
+        parts = [50, 50, 0] if sz["partials"][0] > 0 else [0, 100, 0]
+    net = lambda tp: (entry - tp - fee * (tp + entry)) / ru
+    return {"side": "SHORT", "leverage": sz["leverage"], **sz["usdc"],
+            "entry_zone": [lo, hi], "entry_ref": entry, "stop": stop,
+            "tp": tp3, "tp_projected": [], "partials": parts,
+            "rr": round(net(tp3[-1]), 2), "rr_tp1": round(net(tp3[0]), 2),
+            "rr_tp3": round(net(tp3[-1]), 2), "stop_pct": round(stop_pct, 2),
+            "stop_atr": None, "position_pct": round(sz["size_pct"], 1),
+            "risk_pct": round(sz["size_pct"] * stop_pct / 100, 2),
+            "breakeven": True, "max_hold_s": sig.get("hold_s"),
+            "no_react_s": sig.get("no_react_s"), "trail_r": sig.get("trail_r")}, None
+
+
 def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
     """{ativo: decisao LONG} para os sinais frescos dos campeoes (o melhor
     campeao com sinal ganha a moeda). Cada vela de sinal so e usada uma vez
@@ -204,7 +236,12 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
                 seen[a] = sig["t_sig"]
                 lost(state, now, a, champ, f"evento: {why}")
                 break
-            p, why = plan_for(sig, r["price"], cfg)
+            if sig.get("side") == "SHORT":
+                if not cfg.get("shorts"):
+                    continue
+                p, why = short_plan_for(sig, r["price"], cfg)
+            else:
+                p, why = plan_for(sig, r["price"], cfg)
             if not p:
                 continue
             cands.append((rank, a, champ, sig, p, d0))
@@ -219,8 +256,10 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
                  "(proteção contra quedas em cadeia)")
             continue
         bar["n"] += 1
+        short = p.get("side") == "SHORT"
         out[a] = {
-            "decision": "LONG", "mode": "REAL", "validated": False,
+            "decision": "SHORT" if short else "LONG", "side": "SHORT" if short else "LONG",
+            "mode": "REAL", "validated": False,
             "strategy": champ, "state": "READY", "plan": p, "score": 75 - rank,
             "score_label": "campeão da arena", "confidence": "MÉDIA",
             "regime": d0.get("regime"), "regime_changed": False,
@@ -228,7 +267,10 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
             "families": {"combate de 90 dias acima do acaso": 1.0,
                          "gatilho do campeão": 0.8},
             "notes": [f"Campeão da arena ({champ}): no combate dos últimos "
-                      "90 dias bateu 95% das entradas ao acaso"],
+                      "90 dias bateu 95% das entradas ao acaso"]
+                     + (["Venda a descoberto em margem spot: pedes a moeda emprestada, vendes "
+                         "e recompras mais barato. Perda limitada pelo stop acima; pagas juros "
+                         "pela moeda emprestada."] if short else []),
             "trigger": sig.get("gatilho") or "gatilho do campeão",
             "reason": "campeão da arena", "checks": d0.get("checks", []),
             "rejected": []}

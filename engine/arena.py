@@ -130,7 +130,10 @@ NAMES = {"PULLBACK": "Recuo (ao vivo)", "BREAKOUT": "Quebra (ao vivo)",
          "BOUNCE_ABSORCAO": "Bounce com absorção das vendas",
          "BOUNCE_LSR": "Bounce com vendedores a descoberto em excesso",
          "TURTLE": "Tartarugas: rompimento de 20 dias", "SQUEEZE_BB": "Compressão de volatilidade",
-         "MOMENTUM": "Momentum: as 5 mais fortes da semana"}
+         "MOMENTUM": "Momentum: as 5 mais fortes da semana",
+         "SHORT_X30": "Short: sobrecompra a virar", "SHORT_FLUXO": "Short: vendedores agressivos",
+         "SHORT_TURTLE": "Short: quebra do mínimo de 20 dias", "SHORT_SQUEEZE": "Short: compradores alavancados a pagar",
+         "SHORT_ISOLADA": "Short: subida isolada com o BTC parado"}
 # cada concorrente e um analista com nome proprio (decisao do Rui)
 PERSONA = {"BREAKOUT": "Bruno", "PULLBACK": "Rita", "LIQUIDITY_SWEEP": "Simão",
            "RANGE": "Raquel", "TREND_DAILY": "Teodoro", "BOUNCE_G0": "Gaspar",
@@ -142,7 +145,9 @@ PERSONA = {"BREAKOUT": "Bruno", "PULLBACK": "Rita", "LIQUIDITY_SWEEP": "Simão",
            "BOUNCE_HORAS": "Horácio", "BOUNCE_DESALAV": "Dália",
            "BOUNCE_MACRO": "Mário", "BOUNCE_MEDO": "Vicente",
            "BOUNCE_ABSORCAO": "Abel", "BOUNCE_LSR": "Leandro",
-           "TURTLE": "Rodrigo", "SQUEEZE_BB": "Beatriz", "MOMENTUM": "Mónica"}
+           "TURTLE": "Rodrigo", "SQUEEZE_BB": "Beatriz", "MOMENTUM": "Mónica",
+           "SHORT_X30": "Xénia", "SHORT_FLUXO": "Filipa", "SHORT_TURTLE": "Ramiro",
+           "SHORT_SQUEEZE": "Sara", "SHORT_ISOLADA": "Irene"}
 POOL = ["Leonor", "Duarte", "Matilde", "Afonso", "Carolina", "Martim", "Beatriz",
         "Lourenço", "Mariana", "Salvador", "Francisca", "Henrique", "Clara",
         "Tomás", "Joana", "Miguel", "Catarina", "Diogo", "Lara", "Gonçalo"]

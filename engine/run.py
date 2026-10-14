@@ -425,7 +425,9 @@ def markup_for(e, s, real):
     if not (oid and real):
         return None
     m = inbox.buttons(oid)
-    if execucao.READY and e.get("event") == "ISSUED":        # fase 2: um toque
+    # fase 2: um toque (so compras; as vendas a descoberto sao manuais por agora)
+    if execucao.READY and e.get("event") == "ISSUED" and s.get("direction") != "SHORT" \
+            and (s.get("plan") or {}).get("side") != "SHORT":
         m["inline_keyboard"].insert(0, [execucao.button(oid)])
     if e.get("asset"):
         m["inline_keyboard"].append(consultas.why_buttons(e["asset"]))

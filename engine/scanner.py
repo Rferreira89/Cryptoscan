@@ -385,7 +385,10 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
         for a, d in promo.decisions(state, eligible, c4s, cfg, now, champs,
                                     market_ok, block_for).items():
             row = next(r for r in eligible if r["asset"] == a)
-            row["decision"] = d
+            if d["decision"] == "SHORT":           # shorts seguem o ciclo dos shorts
+                row["decision_short"] = d
+            else:
+                row["decision"] = d
             promo_rows[a] = row
     except Exception as e:  # a promocao nunca pode parar o scan
         result["promo_erro"] = str(e)[:120]
@@ -411,10 +414,10 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
                        for r in eligible if r.get("decision_short")]
     events += signals.update_state(state, both, cfg, now, daily)
     for a, row in promo_rows.items():     # campeao que nao virou sinal: porque?
-        if row["decision"].get("decision") != "LONG" or not row["decision"].get("active_signal"):
-            if row["decision"].get("decision") != "LONG":
-                promo.lost(state, now, a, row["decision"].get("strategy"),
-                           row["decision"].get("reason") or "")
+        ds = row.get("decision_short") or {}
+        d, want = (ds, "SHORT") if ds.get("score_label") == "campeão da arena" else (row["decision"], "LONG")
+        if d.get("decision") != want:
+            promo.lost(state, now, a, d.get("strategy"), d.get("reason") or "")
     lost = state.get("promo_lost", [])
     result["promo"]["perdidas_7d"] = [x for x in lost if now - x["t"] < 7 * 86400][-20:]
     events += calendar.open_warnings(state, now)

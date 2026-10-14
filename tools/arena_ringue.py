@@ -612,6 +612,74 @@ def sig_momentum(c4):
             "gatilho": f"entre as {MOM_TOP} moedas mais fortes a 30 dias ({mine:+.0%}, {rank.index(a) + 1}.ª)"}
 
 
+# ---------- vendas a descoberto pela margem spot (decisao do Rui, 2026-10-14) ----------
+# Cada short e o ESPELHO de uma compra (engine/short.py): as funcoes correm
+# sobre as velas invertidas (1/preco). Um "minimo" no espelho e um maximo
+# real; sobrevenda no espelho e sobrecompra real. Ganham quando o preco cai.
+
+def _btc_ret_real(t, n):
+    return _btc_ret(t, n)
+
+
+def sig_short_squeeze(m4):
+    """Short de sobrecompra com funding muito positivo (compradores a pagar,
+    alavancados em excesso do lado comprador)."""
+    import bisect
+    s0 = sig_x30(m4)
+    fr = (CTX.get("funding") or {}).get(CTX.get("asset")) or []
+    if not s0 or not fr:
+        return None
+    t = m4[-1]["t"] + H4
+    k = bisect.bisect_right([x[0] for x in fr], t) - 1
+    if k < 0 or t - fr[k][0] > DAY or fr[k][1] < 0.0002:
+        return None
+    return dict(s0, gatilho=f"sobrecompra a virar com funding alto ({fr[k][1] * 100:.3f}%): compradores alavancados a pagar")
+
+
+def sig_short_isolada(m4):
+    """Short de uma subida so da propria moeda, com o BTC parado."""
+    s0 = sig_x30(m4)
+    if not s0:
+        return None
+    btc = _btc_ret_real(m4[-1]["t"] + H4, 6)
+    if btc is None or btc > 0.02:
+        return None
+    return dict(s0, gatilho="subida exagerada da própria moeda, com o BTC parado")
+
+
+def _shortify(fn, txt):
+    def f(m4):
+        s0 = fn(m4)
+        return dict(s0, gatilho=txt(s0)) if s0 else None
+    return f
+
+
+SHORT_SIGS = {
+    "SHORT_X30": _shortify(sig_x30, lambda s: "sobrecompra (RSI 4H acima de 70) a virar para baixo"),
+    "SHORT_FLUXO": _shortify(sig_fluxo, lambda s: "sobrecompra a virar com vendedores agressivos"),
+    "SHORT_TURTLE": _shortify(sig_turtle, lambda s: "quebra do mínimo de 20 dias (Tartarugas, em descida)"),
+    "SHORT_SQUEEZE": sig_short_squeeze,
+    "SHORT_ISOLADA": sig_short_isolada,
+}
+
+
+def short_live(fn):
+    """Sinal de short ao vivo em precos REAIS a partir da funcao do espelho."""
+    from engine import short as SH
+
+    def f(c4, px, cfg=None):
+        m4 = SH.mirror(c4)
+        sig = fn(m4)
+        if not sig:
+            return None
+        pm = 1 / px
+        if not (sig["stop"] < pm < sig["tp"][0]):
+            return None
+        return dict(sig, side="SHORT", stop=1 / sig["stop"], tp=[1 / x for x in sig["tp"]],
+                    t_sig=m4[-1]["t"] + H4)
+    return f
+
+
 NEW_SIGS = {"TURTLE": sig_turtle, "SQUEEZE_BB": sig_squeeze_bb, "MOMENTUM": sig_momentum,
             "BOUNCE_ABSORCAO": sig_absorcao, "BOUNCE_LSR": sig_lsr,
             "BOUNCE_MACRO": sig_macro, "BOUNCE_MEDO": sig_medo,
@@ -736,7 +804,8 @@ class _Sinais(dict):
 
 SINAIS = {"BOUNCE_G0": sinal_bounce("G0"), "BOUNCE_V2": sinal_bounce("V2"),
           "BOUNCE_V3": sinal_bounce("V3"),
-          **{k: live_sig(fn) for k, fn in NEW_SIGS.items()}}
+          **{k: live_sig(fn) for k, fn in NEW_SIGS.items()},
+          **{k: short_live(fn) for k, fn in SHORT_SIGS.items()}}
 SINAIS = _Sinais(SINAIS)
 
 
@@ -811,7 +880,10 @@ def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None, funding=None, oi=None,
     reg, above = B.regimes(btc), btc_above(btc)
     groups = {k: [] for k in LIVE + ("REJEITADOS", "BOUNCE_G0", "BOUNCE_V1",
                                      "BOUNCE_V2", "BOUNCE_V3", "TREND_DAILY",
-                                     "BOUNCE_1H") + tuple(NEW_SIGS)}
+                                     "BOUNCE_1H") + tuple(NEW_SIGS) + tuple(SHORT_SIGS)}
+    from engine import short as SH
+    mbars = {a: SH.mirror(c) for a, c in bars.items()}
+    always = {k: True for k in above}             # shorts: sem filtro do BTC
     for a, c4 in sorted(bars.items()):
         try:
             for k, t in live_trades(a, c4, reg, above, cfg, t0):
@@ -823,6 +895,9 @@ def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None, funding=None, oi=None,
             for key, fn in NEW_SIGS.items():
                 for k, t in generic_trades(a, c4, above, t0, key, fn):
                     groups[k].append(t)
+            for key, fn in SHORT_SIGS.items():
+                for k, t in generic_trades(a, mbars[a], always, t0, key, fn):
+                    groups[k].append(dict(t, side="SHORT"))
             if (bars1h or {}).get(a):
                 for k, t in bounce_1h_trades(a, bars1h[a], above, t0):
                     groups[k].append(t)
@@ -837,7 +912,8 @@ def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None, funding=None, oi=None,
     out = {}
     for k, trs in groups.items():
         trs.sort(key=lambda t: t["t"])
-        out[k] = judge(trs, bars, rng, bars1h) if trs else {
+        jb = mbars if arena.base_key(k).startswith("SHORT_") else bars   # acaso no espelho
+        out[k] = judge(trs, jb, rng, bars1h) if trs else {
             "n": 0, "wins": 0, "avg_r": None, "total_r": 0, "ultimas": [],
             "acaso_mediana": None, "acaso_p95": None, "veredicto": "A COMPETIR"}
     return {"atualizado": int(now), "janela_dias": days,

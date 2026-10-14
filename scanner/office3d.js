@@ -328,11 +328,12 @@ function drawMesa(g) {
   if (!M.length) { g.fillStyle = "#cbd5e0"; g.font = "20px sans-serif"; g.fillText("à espera do próximo scan", 18, 90); return; }
   const m = M[mesaI % M.length], r = (D.universe || []).find(x => x.asset === m.asset) || {}, v = r.debate || [];
   g.fillStyle = "#fff"; g.font = "bold 30px sans-serif"; g.fillText(m.asset, 18, 82);
-  g.fillStyle = m.a_favor ? "#68D391" : "#a0aec0"; g.font = "22px sans-serif"; g.fillText(`${m.a_favor} de ${m.votantes} entravam`, 150, 80);
+  g.fillStyle = m.a_favor ? "#68D391" : "#a0aec0"; g.font = "22px sans-serif"; g.fillText(`${m.a_favor} de ${m.votantes} operavam`, 150, 80);
   g.font = "19px sans-serif";
   v.slice(0, 10).forEach((x, i) => { const col = i % 2, row = Math.floor(i / 2), X = 18 + col * 248, Y = 122 + row * 50;
-    g.fillStyle = x.voto === "entra" ? "#1f4d3a" : "#2a2f45"; g.fillRect(X, Y - 26, 236, 40);
-    g.fillStyle = x.voto === "entra" ? "#9AE6B4" : "#cbd5e0"; g.fillText(`${x.voto === "entra" ? "✅" : "❌"} ${x.persona}`, X + 8, Y);
+    const on = x.voto !== "não";
+    g.fillStyle = on ? (x.voto === "vende" ? "#4d1f2a" : "#1f4d3a") : "#2a2f45"; g.fillRect(X, Y - 26, 236, 40);
+    g.fillStyle = on ? (x.voto === "vende" ? "#FEB2B2" : "#9AE6B4") : "#cbd5e0"; g.fillText(`${x.voto === "entra" ? "✅" : x.voto === "vende" ? "🔻" : "❌"} ${x.persona}`, X + 8, Y);
   });
   g.fillStyle = "#718096"; g.font = "15px sans-serif"; g.fillText(`${(mesaI % M.length) + 1}/${M.length} · toca para ver as razões`, 18, 372);
 }
@@ -392,7 +393,7 @@ function buildBoard() {
 const ARENA_C = V(27, 0);
 let arenaG = null, arenaTex = null, arenaSig = "", fighters = [], arenaLabels = [];
 const SHORT = { BREAKOUT: "Quebra", PULLBACK: "Recuo", LIQUIDITY_SWEEP: "Sweep", RANGE: "Range",
-  TREND_DAILY: "Tendência", BOUNCE_G0: "Bounce G0", BOUNCE_V1: "Bounce V1", BOUNCE_V2: "Bounce V2", BOUNCE_V3: "Bounce V3", BOUNCE_1H: "Bounce 1H", BOUNCE_X30: "Bounce RSI30", DIP_TREND: "Recuo forte", CAPITULACAO: "Capitulação", BOUNCE_FLUXO: "Bounce fluxo", BOUNCE_FORTE: "Bounce forte", BOUNCE_SQUEEZE: "Bounce squeeze", BOUNCE_ISOLADA: "Bounce isolada", BOUNCE_DESALAV: "Desalavancagem", BOUNCE_MACRO: "Macro favorável", BOUNCE_MEDO: "Medo macro", BOUNCE_ABSORCAO: "Absorção", BOUNCE_LSR: "Long/short", TURTLE: "Tartarugas", SQUEEZE_BB: "Compressão", MOMENTUM: "Momentum", REJEITADOS: "Rejeitados" };
+  TREND_DAILY: "Tendência", BOUNCE_G0: "Bounce G0", BOUNCE_V1: "Bounce V1", BOUNCE_V2: "Bounce V2", BOUNCE_V3: "Bounce V3", BOUNCE_1H: "Bounce 1H", BOUNCE_X30: "Bounce RSI30", DIP_TREND: "Recuo forte", CAPITULACAO: "Capitulação", BOUNCE_FLUXO: "Bounce fluxo", BOUNCE_FORTE: "Bounce forte", BOUNCE_SQUEEZE: "Bounce squeeze", BOUNCE_ISOLADA: "Bounce isolada", BOUNCE_DESALAV: "Desalavancagem", BOUNCE_MACRO: "Macro favorável", BOUNCE_MEDO: "Medo macro", BOUNCE_ABSORCAO: "Absorção", BOUNCE_LSR: "Long/short", TURTLE: "Tartarugas", SQUEEZE_BB: "Compressão", MOMENTUM: "Momentum", SHORT_X30: "Short RSI70", SHORT_FLUXO: "Short fluxo", SHORT_TURTLE: "Short 20d", SHORT_SQUEEZE: "Short funding", SHORT_ISOLADA: "Short isolada", REJEITADOS: "Rejeitados" };
 const FCOL = ["#4FD1C5", "#FF6FB5", "#F6C453", "#B794F4", "#63B3ED", "#68D391", "#FFA94D", "#FC8181", "#90CDF4", "#FBD38D", "#9AE6B4", "#D6BCFA"];
 // no 3D mostra-se a amostra maior: o combate de 90 dias (forma recente) quando
 // existe, senao os sinais ao vivo
@@ -440,7 +441,7 @@ function robotFighter(col, dead) {
 
 // lutadores com aspeto de pessoas reais (o mesmo corpo articulado do
 // escritorio), com luvas de boxe; o aspeto e estavel para cada analista
-const FEM = new Set(["Rita", "Vera", "Violeta", "Raquel", "Leonor", "Matilde", "Carolina", "Beatriz", "Mariana", "Francisca", "Clara", "Joana", "Catarina", "Lara", "Sofia", "Marta", "Inês", "Carla", "Patrícia", "Diana", "Fernanda", "Isabel"]);
+const FEM = new Set(["Rita", "Vera", "Violeta", "Raquel", "Leonor", "Matilde", "Carolina", "Beatriz", "Mariana", "Francisca", "Clara", "Joana", "Catarina", "Lara", "Sofia", "Marta", "Inês", "Carla", "Patrícia", "Diana", "Fernanda", "Isabel", "Dália", "Mónica", "Xénia", "Filipa", "Sara", "Irene"]);
 const SKINS = ["#ffdbac", "#f1c27d", "#e0ac69", "#c68642", "#8d5524"], HAIRS = ["#1a1a1a", "#3b2a1a", "#6b3b1f", "#b5803a", "#d9b26a", "#7a2e1a"];
 function hsh(t) { let h = 7; for (const c of String(t)) h = (h * 31 + c.charCodeAt(0)) % 9973; return h; }
 function fighter(col, dead, id, persona) {

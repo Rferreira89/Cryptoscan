@@ -316,11 +316,12 @@ def debate_text(res, asset):
     if not row or not row.get("debate"):
         return f"Sem mesa redonda para {asset} neste momento (só as moedas analisadas, no scan seguinte)."
     v = row["debate"]
-    yes = [x for x in v if x["voto"] == "entra"]
+    yes = [x for x in v if x["voto"] != "não"]
     L = [f"🗣️ <b>Mesa redonda: {asset}</b> a {row.get('price'):g} USD", "",
-         f"{len(yes)} de {len(v)} lutadores entravam agora.", ""]
+         f"{len(yes)} de {len(v)} lutadores operavam agora (✅ compra · 🔻 venda a descoberto).", ""]
     for x in v:
-        L.append(f"{'✅' if x['voto'] == 'entra' else '❌'} <b>{_esc(x['persona'])}</b>: {_esc(x['razao'])}")
+        ic = {"entra": "✅", "vende": "🔻"}.get(x["voto"], "❌")
+        L.append(f"{ic} <b>{_esc(x['persona'])}</b>: {_esc(x['razao'])}")
     return "\n".join(L)
 
 
