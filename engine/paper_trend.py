@@ -48,11 +48,23 @@ def market_filter(c1_btc, state, now):
 RECORD = "⚠️ Não validada (desde ago. 2025: -1% nas grandes moedas)."
 
 
+def sync_real(state):
+    """Uma posicao que o Rui ja fechou a mao (/fechei) ou nao abriu deixa de
+    ser real: o programa continua a segui-la para as estatisticas, mas sem
+    mandar um aviso de VENDA de algo que ele ja nao tem."""
+    st = state.get("paper_trend") or {}
+    for r in state.get("ledger") or []:
+        if r.get("kind") == "1D" and r.get("status") == "OPEN" and r["asset"] in st.get("positions", {}) \
+                and (r.get("user_result_r") is not None or r.get("executed") is False):
+            st["positions"][r["asset"]]["real"] = False
+
+
 def check_stops(state, prices, cfg, now):
     """So stops, com os precos dados (passagens de 5 minutos)."""
     st = state.get("paper_trend")
     if not st:
         return []
+    sync_real(state)
     ev, fee = [], cfg["fee_pct"] / 100
     for a in list(st["positions"]):
         px = prices.get(a)
@@ -85,6 +97,7 @@ def update(state, rows, daily, cfg, now, market_ok=True, halted=None):
                                           "closed": [], "last_day": {}})
     fee = cfg["fee_pct"] / 100
     ev = []
+    sync_real(state)
     # limite de operacoes partilhado com os sinais de 4H
     # (operacoes marcadas "nao executei" nao ocupam vaga)
     no_ids, no_trend = ledger.declined(state)

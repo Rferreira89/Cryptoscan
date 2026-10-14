@@ -209,3 +209,14 @@ class SoValidadas(unittest.TestCase):
         st["positions"]["X"] = {"entry": 10, "stop0": 9, "pair": "X/USDC", "risk_frac": .01, "real": False}
         P._close(st, ev, "X", 9.5, "TRAIL", 0.0025, NOW, {})
         self.assertFalse(ev[1]["real"])
+
+
+class TendenciaFechadaAMao(unittest.TestCase):
+    def test_sem_aviso_de_venda_depois_de_fechei(self):
+        from engine import paper_trend as P
+        st = {"paper_trend": {"positions": {"NEAR": {"entry": 10, "stop0": 9, "pair": "NEAR/USDC",
+                                                       "risk_frac": .01}}, "equity": 1.0, "closed": []},
+              "ledger": [{"kind": "1D", "asset": "NEAR", "status": "OPEN", "user_result_r": -0.64}]}
+        ev = P.check_stops(st, {"NEAR": 8.5}, {"fee_pct": 0.25}, NOW)
+        self.assertEqual(ev[0]["event"], "PAPER_SELL")
+        self.assertFalse(ev[0]["real"])
