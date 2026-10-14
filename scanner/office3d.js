@@ -1001,6 +1001,101 @@ function buildStaff() {
 }
 function updateStaff() { STAFF.forEach(S => { const t = staffTex[S.id]; if (t) { drawStaff(t.userData.c.getContext("2d"), S); t.needsUpdate = true; } }); }
 
+// ---------- gabinete do Diretor de Trading (a oeste da mesa de operacoes) ----------
+// Coordena as analises, verifica conflitos e autoriza ou rejeita cada entrada
+// real. O ecra grande mostra a ultima decisao (carimbo verde ou vermelho), o
+// da parede lateral as cinco regras e se a ultima entrada passou em cada uma.
+const DIR = { x: [-32.5, -21.4], z: [-6.5, 6.5], c: "#F6C453" }, DIR_C = V(-27, 0);
+let dirTex = null, dirRulesTex = null, dirLamp = null, dirLampL = null, dirPeople = [], dirSig = "";
+const DIR_RULES = [["R1", "Dados válidos e frescos", m => /dados|velas|fontes|preço da Bybit/.test(m)],
+  ["R2", "Plano coerente e R:R ≥ 1,2", m => /plano|R:R/.test(m)],
+  ["R3", "Menos de 3 departamentos contra", m => /departamentos contra/.test(m)],
+  ["R4", "Macroeconomia sem medo", m => /macroeconomia/.test(m)],
+  ["R5", "Derivados não contra + outro", m => /derivados contra/.test(m)]];
+function dirData() { return (API().D && API().D() || {}).diretor || {}; }
+function wrap(g, t, x, y, w, lh, max) { const ws = String(t).split(" "); let l = "", n = 0;
+  for (const w_ of ws) { const tt = l ? l + " " + w_ : w_; if (g.measureText(tt).width > w && l) { g.fillText(l, x, y + n * lh); l = w_; if (++n >= max) return n; } else l = tt; }
+  if (l && n < max) { g.fillText(l, x, y + n * lh); n++; } return n; }
+function drawDirector(g) {
+  const W = 1024, H = 576, R = dirData(), L = R.decisoes || [], x = L[0], A = R.avaliacao || {};
+  g.fillStyle = "#0b1020"; g.fillRect(0, 0, W, H); g.fillStyle = DIR.c; g.fillRect(0, 0, W, 10);
+  g.fillStyle = "#F6E7B0"; g.font = "800 44px system-ui"; g.fillText("🧭 Diretor de Trading", 32, 66);
+  g.fillStyle = "#93a4c3"; g.font = "600 22px system-ui"; g.fillText(`24h: ${R.autorizados_24h || 0} autorizadas · ${R.rejeitados_24h || 0} rejeitadas`, 32, 102);
+  if (!x) { g.fillStyle = "#cbd5e0"; g.font = "600 32px system-ui"; g.fillText("Sem entradas para rever.", 32, 200);
+    g.font = "500 24px system-ui"; g.fillStyle = "#93a4c3"; wrap(g, "Nenhuma entrada real chega ao Telegram sem passar por aqui. Cada agente entrega um relatório estruturado e o diretor decide com regras definidas antes.", 32, 250, W - 64, 34, 4); }
+  else {
+    const ok = x.decisao === "AUTORIZADO", col = ok ? "#68D391" : "#FC8181";
+    g.save(); g.translate(W - 230, 190); g.rotate(-.12); g.strokeStyle = col; g.lineWidth = 8; g.strokeRect(-170, -48, 340, 96);
+    g.fillStyle = col; g.font = "900 46px system-ui"; g.textAlign = "center"; g.fillText(ok ? "AUTORIZADO" : "REJEITADO", 0, 16); g.restore(); g.textAlign = "left";
+    g.fillStyle = "#fff"; g.font = "800 56px system-ui"; g.fillText(x.ativo, 32, 178);
+    g.fillStyle = "#c9d3e6"; g.font = "600 24px system-ui"; g.fillText(`${x.estrategia} · ${x.lado === "SHORT" ? "venda" : "compra"} · dados ${({ valido: "válidos", atrasado: "atrasados", indisponivel: "indisponíveis" })[x.estado_dados] || x.estado_dados}`, 32, 214);
+    g.fillStyle = "#718096"; g.font = "500 20px system-ui"; g.fillText(new Date(x.t * 1000).toLocaleString("pt-PT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }), 32, 244);
+    let y = 296; g.font = "600 23px system-ui";
+    const lines = [...(x.motivos || []).map(m => ["✖ " + m, "#FEB2B2"]), ...(x.a_favor || []).slice(0, 3).map(m => ["✔ " + m, "#9AE6B4"]),
+      ...(x.contra || []).slice(0, 2).map(m => ["✖ " + m, "#FEB2B2"]), ...((x.invalidacao || []).slice(0, 1).map(m => ["Invalida se: " + m, "#F6C453"]))];
+    for (const [t, c] of lines) { if (y > H - 70) break; g.fillStyle = c; y += 32 * wrap(g, t, 32, y, W - 64, 30, 2) + 6; }
+  }
+  g.fillStyle = "#4b5a75"; g.font = "18px system-ui";
+  g.fillText(`Rejeições seguidas em papel: ${A.evitou_perda || 0} evitaram perda · ${A.custou_ganho || 0} custaram ganho · ${A.em_curso || 0} em curso`, 32, H - 22);
+}
+function drawDirRules(g) {
+  const W = 512, H = 576, x = (dirData().decisoes || [])[0], ms = (x && x.motivos) || [];
+  g.fillStyle = "#0b1020"; g.fillRect(0, 0, W, H); g.fillStyle = DIR.c; g.fillRect(0, 0, W, 8);
+  g.fillStyle = "#F6E7B0"; g.font = "800 32px system-ui"; g.fillText("Regras do diretor", 24, 56);
+  g.fillStyle = "#93a4c3"; g.font = "500 18px system-ui"; g.fillText(x ? `última revisão: ${x.ativo}` : "definidas antes de cada entrada", 24, 86);
+  DIR_RULES.forEach(([k, t, f], i) => { const y = 140 + i * 82, bad = x && ms.some(f), col = !x ? "#4b5a75" : bad ? "#FC8181" : "#68D391";
+    g.fillStyle = "#141c33"; g.fillRect(16, y - 40, W - 32, 68); g.fillStyle = col; g.fillRect(16, y - 40, 8, 68);
+    g.font = "800 26px system-ui"; g.fillText(!x ? "•" : bad ? "✖" : "✔", 38, y + 2);
+    g.fillStyle = "#e9eef7"; g.font = "800 24px system-ui"; g.fillText(k, 76, y + 2); g.font = "600 21px system-ui"; g.fillStyle = "#c9d3e6"; g.fillText(t, 130, y + 2); });
+  g.fillStyle = "#4b5a75"; g.font = "16px system-ui"; g.fillText("toca para ver os relatórios dos agentes", 24, H - 20);
+}
+function buildDirector() {
+  const w = DIR.x[1] - DIR.x[0], d = DIR.z[1] - DIR.z[0], cx = (DIR.x[0] + DIR.x[1]) / 2, cz = (DIR.z[0] + DIR.z[1]) / 2;
+  const fl = new THREE.Mesh(new THREE.PlaneGeometry(w, d), mat("#3a2f26")); fl.rotation.x = -Math.PI / 2; fl.position.set(cx, .012, cz); fl.receiveShadow = true; scene.add(fl);
+  const rug = new THREE.Mesh(new THREE.PlaneGeometry(5.2, 4.2), mat("#5a2333")); rug.rotation.x = -Math.PI / 2; rug.position.set(DIR_C.x, .02, DIR_C.z); scene.add(rug);
+  const glass = mat(DIR.c, .15, .07), h = 2.8, col = new THREE.Color(DIR.c);
+  // paredes: fundo (z min), frente (z max, baixa para se ver) e lado oeste; lado este aberto para o escritorio
+  boxM(w, h, .05, glass, cx, h / 2, DIR.z[0]); boxM(.05, h, d, glass, DIR.x[0], h / 2, cz); boxM(w, .9, .05, glass, cx, .45, DIR.z[1]);
+  const c = [V(DIR.x[0], DIR.z[0]), V(DIR.x[1], DIR.z[0]), V(DIR.x[1], DIR.z[1]), V(DIR.x[0], DIR.z[1]), V(DIR.x[0], DIR.z[0])];
+  line(c.map(p => p.clone().setY(.03)), col); line([c[0], c[1]].map(p => p.clone().setY(h)), col); line([c[0], c[3]].map(p => p.clone().setY(h)), col);
+  // ecra grande na parede do fundo (a ultima decisao) e ecra das regras na parede oeste
+  dirTex = canvasTex(1024, 576, drawDirector);
+  const big = new THREE.Mesh(new THREE.PlaneGeometry(6.4, 3.6), new THREE.MeshBasicMaterial({ map: dirTex, toneMapped: false })); big.position.set(cx + .4, 1.95, DIR.z[0] + .1); scene.add(big);
+  boxM(6.6, 3.8, .06, mat("#0d1224"), cx + .4, 1.95, DIR.z[0] + .03);
+  dirRulesTex = canvasTex(512, 576, drawDirRules);
+  const rs = new THREE.Mesh(new THREE.PlaneGeometry(3.0, 3.375), new THREE.MeshBasicMaterial({ map: dirRulesTex, toneMapped: false })); rs.position.set(DIR.x[0] + .06, 1.85, 1.6); rs.rotation.y = Math.PI / 2; scene.add(rs);
+  [big, rs].forEach(m => { const hh = m.clone(); hh.material = new THREE.MeshBasicMaterial({ visible: false }); hh.userData.zone = "diretor"; scene.add(hh); zoneHits.push(hh); });
+  // secretaria executiva com o diretor, duas cadeiras para quem vem reportar
+  DESK.diretor = { z: "ops", p: DIR_C.clone(), f: 1 }; buildDesk("diretor");
+  boxM(1.5, .06, 2.6, mat("#5b3a22"), DIR_C.x, .78, DIR_C.z);                    // tampo maior, em madeira escura
+  [[1.0, -.6], [1.0, .6]].forEach(([dx, dz]) => { const ch = new THREE.Group(); ch.position.set(DIR_C.x + dx + .3, 0, DIR_C.z + dz); ch.rotation.y = -Math.PI / 2; scene.add(ch);
+    boxM(.55, .08, .55, mat("#4a2a35"), 0, .48, 0, ch); boxM(.55, .6, .08, mat("#4a2a35"), 0, .8, -.27, ch); boxM(.06, .45, .06, mat("#111"), 0, .24, 0, ch); });
+  // estante, planta e luz de estado (verde: autorizou; vermelho: rejeitou)
+  boxM(.5, 2.0, 2.4, mat("#3b2a1a"), DIR.x[0] + .4, 1.0, -4.2); [.5, 1.1, 1.7].forEach(y => boxM(.45, .03, 2.3, mat("#c08a5a"), DIR.x[0] + .4, y, -4.2));
+  [[-4.6, "#B794F4"], [-4.0, "#63B3ED"], [-3.5, "#F6C453"]].forEach(([z, cc]) => boxM(.3, .4, .25, mat(cc, .3), DIR.x[0] + .4, .72, z));
+  boxM(.5, .5, .5, mat("#7a4b2a"), DIR.x[1] - .6, .25, DIR.z[0] + .6); const pl = new THREE.Mesh(new THREE.SphereGeometry(.55, 12, 10), mat("#38d6b5", .25)); pl.position.set(DIR.x[1] - .6, 1, DIR.z[0] + .6); scene.add(pl);
+  dirLamp = new THREE.Mesh(new THREE.SphereGeometry(.16, 16, 12), mat("#F6C453", 2)); dirLamp.position.set(DIR_C.x - .2, 1.35, DIR_C.z - 1.05); scene.add(dirLamp);
+  boxM(.05, .5, .05, mat("#222"), DIR_C.x - .2, 1.05, DIR_C.z - 1.05);
+  dirLampL = new THREE.PointLight(0xF6C453, 6, 7); dirLampL.position.set(DIR_C.x, 2.4, DIR_C.z); scene.add(dirLampL);
+  // a pessoa
+  STYLE.diretor = { skin: "#e0ac69", hair: "#3a2a1a", hs: "short", top: "#f4f4f4", jacket: "#1c2440", legs: "#1a1f30", glasses: 1, beard: 1 };
+  const tx = canvasTex(512, 384, () => {}); const m = monOn.diretor.material; m.map = dirTex; m.color.set(0xffffff); m.needsUpdate = true;
+  const p = makePerson({ id: "diretor", nm: "Diretor de Trading", c: DIR.c }); p.mode = "work"; p.sit = true; p.path = []; p.name.style.display = "none"; dirPeople.push(p);
+  const zl = label("🧭 Gabinete do Diretor de Trading", DIR.c, true); zl.style.pointerEvents = "auto"; zl.style.cursor = "pointer"; zl.style.padding = "3px 8px"; zl.style.borderRadius = "99px"; zl.style.background = "#0c0a24b3"; zl.style.border = `1px solid ${DIR.c}66`;
+  zl.addEventListener("click", () => API().openZone("diretor")); labels.push({ el: zl, p: new THREE.Vector3(cx, 4.4, DIR.z[0] + .2) });
+  updateDirector(true);
+}
+function updateDirector(force) {
+  if (!dirTex) return; const x = (dirData().decisoes || [])[0], sig = x ? x.t + x.ativo + x.decisao : "-";
+  drawDirector(dirTex.userData.c.getContext("2d")); dirTex.needsUpdate = true; drawDirRules(dirRulesTex.userData.c.getContext("2d")); dirRulesTex.needsUpdate = true;
+  const c = !x ? 0xF6C453 : x.decisao === "AUTORIZADO" ? 0x68D391 : 0xFC8181; dirLamp.material.color.setHex(c); dirLamp.material.emissive && dirLamp.material.emissive.setHex(c); dirLampL.color.setHex(c);
+  if (!force && sig !== dirSig && x) { const pp = dirLamp.position.clone(); pp.y += .4; if (x.decisao === "AUTORIZADO") burst(pp); }   // nova autorizacao: confetes
+  dirSig = sig;
+}
+function goDirector() {                 // de frente para o ecra grande da parede do fundo
+  const T = V(DIR_C.x + .4, DIR_C.z - 2.4); ctl.target.copy(T); const tall = innerHeight > innerWidth;
+  cam.position.set(T.x + 1.6, tall ? 10.5 : 8, T.z + (tall ? 12.5 : 10)); ctl.update(); }
+
 // ---------- pessoas ----------
 function label(text, color, zone) {
   const el = document.createElement("div"); el.textContent = text;
@@ -1184,9 +1279,9 @@ function frame() {
       if (it) window.drawCandles(g, 512, 256, it.cs, it.lv, { title: it.asset, axis: false, n: 40 }); tx.needsUpdate = true; }
     if (clock3d) { drawClock(clock3d.userData.c.getContext("2d")); clock3d.needsUpdate = true; }
     if (dataTex) { dataI++; drawDataWall(dataTex.userData.c.getContext("2d")); dataTex.needsUpdate = true; } }
-  if (nowMs - (frame.tvAt || -1e9) > 30000 || tvT <= 0) { frame.tvAt = nowMs; tvT = 30; drawTV(tvTex.userData.c.getContext("2d")); tvTex.needsUpdate = true; if (mesaTex) { mesaI++; drawMesa(mesaTex.userData.c.getContext("2d")); mesaTex.needsUpdate = true; } updateRadar(); updateArena(); updateRewards(); updateSectors(); updateStrategyRoom(); updateStaff(); updateAcademy(); updateMoney(); drawBoard(board.userData.c.getContext("2d")); board.needsUpdate = true; }
+  if (nowMs - (frame.tvAt || -1e9) > 30000 || tvT <= 0) { frame.tvAt = nowMs; tvT = 30; drawTV(tvTex.userData.c.getContext("2d")); tvTex.needsUpdate = true; if (mesaTex) { mesaI++; drawMesa(mesaTex.userData.c.getContext("2d")); mesaTex.needsUpdate = true; } updateRadar(); updateArena(); updateRewards(); updateSectors(); updateStrategyRoom(); updateStaff(); updateDirector(); updateAcademy(); updateMoney(); drawBoard(board.userData.c.getContext("2d")); board.needsUpdate = true; }
   if (radar) { radar.sweep.rotation.z -= dt * 1.4; radar.blips.children.forEach((b, i) => { if (b.geometry.type === "SphereGeometry") b.scale.setScalar(1 + Math.sin(t * 4 + i) * .15); }); }
-  animateArena(dt, t); animateRewards(dt, t); secPeople.forEach(p => animate(p, dt, t)); stPeople.forEach(p => animate(p, dt, t)); staffPeople.forEach(p => animate(p, dt, t)); acPeople.forEach(p => animate(p, dt, t));
+  animateArena(dt, t); animateRewards(dt, t); secPeople.forEach(p => animate(p, dt, t)); stPeople.forEach(p => animate(p, dt, t)); staffPeople.forEach(p => animate(p, dt, t)); dirPeople.forEach(p => animate(p, dt, t)); acPeople.forEach(p => animate(p, dt, t));
   ctl.update(); if (composer) composer.render(); else R.render(scene, cam); placeOverlays(dt);
 }
 function resize() {
@@ -1219,7 +1314,7 @@ function init(container) {
   ctl.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_ROTATE };
   ctl.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
   // nao sair do escritorio: o ponto para onde se olha fica dentro das paredes
-  ctl.addEventListener("change", () => { const t = ctl.target, cx = Math.max(-18.5, Math.min(Math.max(48, ST_WALL + stLen + 2, acEnd + 1), t.x)), cz = Math.max(t.x > 19 ? -14 : -8.5, Math.min(t.x > 19 ? 14 : 11.5, t.z));
+  ctl.addEventListener("change", () => { const t = ctl.target, cx = Math.max(-28.5, Math.min(Math.max(48, ST_WALL + stLen + 2, acEnd + 1), t.x)), cz = t.x < -19.5 ? Math.max(-5, Math.min(5, t.z)) : Math.max(t.x > 19 ? -14 : -8.5, Math.min(t.x > 19 ? 14 : 11.5, t.z));
     if (cx !== t.x || cz !== t.z || t.y !== 0) { const dx = cx - t.x, dz = cz - t.z, dy = -t.y; t.set(cx, 0, cz); cam.position.x += dx; cam.position.z += dz; cam.position.y += dy; } });
   scene.add(new THREE.HemisphereLight(0xffffff, 0x6b6f78, 1.75));
   const dl = new THREE.DirectionalLight(0xfff4e8, 1.35); dl.position.set(8, 20, 10); scene.add(dl);
@@ -1235,7 +1330,7 @@ function init(container) {
     bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), .28, .4, .92); composer.addPass(bloom); composer.addPass(new OutputPass());
   } catch (e) { composer = null; }
   monTex = canvasTex(256, 160, drawMon);
-  buildRoom(); buildAccessories(); Object.keys(DESK).forEach(buildDesk); buildRadar(); buildBoard(); updateRadar(); buildArena(); buildRewards(); buildSectors(); buildStrategyRoom(); buildStaff(); buildMemorial(); buildAcademy(); buildOpsMoney(); updateMoney(); arenaSig = ""; updateArena();
+  buildRoom(); buildAccessories(); Object.keys(DESK).forEach(buildDesk); buildRadar(); buildBoard(); updateRadar(); buildArena(); buildRewards(); buildSectors(); buildStrategyRoom(); buildStaff(); buildDirector(); buildMemorial(); buildAcademy(); buildOpsMoney(); updateMoney(); arenaSig = ""; updateArena();
   people = API().agents.map(makePerson);
   // ao abrir: quem esta em pausa ja esta num sitio de descanso (sem marcha em
   // grupo pelo corredor), cada um com a sua faixa e o seu ritmo
@@ -1262,6 +1357,7 @@ function init(container) {
     const fid = h => { let o = h && h.object; while (o && !o.userData.agent) o = o.parent; const k = o && o.userData.agent || ""; return /^(fx|st|ac)_/.test(k) && k !== "ac_mentor" ? k.slice(3) : null; };
     const fh = ray.intersectObjects(fighters.map(f => f.g), true)[0] || ray.intersectObjects(stPeople.map(p => p.g), true)[0] || ray.intersectObjects(acPeople.map(p => p.g), true)[0];
     if (fh) { const id = fid(fh); if (id && API().fighter) API().fighter(id); else API().openZone("arena"); return; }
+    if (ray.intersectObjects(dirPeople.map(p => p.g), true)[0]) { API().openZone("diretor"); return; }
     const sf = ray.intersectObjects(staffPeople.map(p => p.g), true)[0]; if (sf) { let o = sf.object; while (o && !o.userData.agent) o = o.parent; const q = staffPeople.find(p => p.a.id === (o && o.userData.agent)); API().openZone(q ? q.staffZone : "lab"); return; }
     const zh = ray.intersectObjects(zoneHits, false)[0]; if (zh) API().openZone(zh.object.userData.zone);
   });
@@ -1282,4 +1378,4 @@ function goStrategy() { const T = V(ST_WALL + stLen / 2 + .6, 0), dx = T.x - ctl
   const d = cam.position.clone().sub(ctl.target), want = 17 + stLen * .35; cam.position.copy(ctl.target.clone().add(d.setLength(want))); ctl.update(); }
 function goTo(x, z, want = 14) { const T = V(x, z), dx = T.x - ctl.target.x, dz = T.z - ctl.target.z; ctl.target.copy(T); cam.position.x += dx; cam.position.z += dz;
   const d = cam.position.clone().sub(ctl.target); cam.position.copy(ctl.target.clone().add(d.setLength(want))); ctl.update(); }
-window.Office3D = { init, supported, refresh: () => { tvT = 0; }, resetView, goArena, goRewards, goSectors, goStrategy, goMemorial, goAcademy, goTo };
+window.Office3D = { init, supported, refresh: () => { tvT = 0; }, resetView, goArena, goRewards, goSectors, goStrategy, goMemorial, goAcademy, goDirector, goTo };
