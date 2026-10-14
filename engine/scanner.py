@@ -10,7 +10,7 @@ import statistics
 import time
 from concurrent.futures import ThreadPoolExecutor
 
-from . import (analysis, config, consultas, debate, derivatives, europa, liga, events as calendar, ledger, short,
+from . import (analysis, config, consultas, debate, derivatives, diretor, europa, liga, events as calendar, ledger, short,
                arena, paper_bounce, paper_ring, paper_shadow, promo, rewards,
                liquidity, paper_trend, regime, review,
                signals,
@@ -446,6 +446,17 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
                                          for k, _ in promo.qualified(state)}
     except Exception as e:
         result["promo"]["prova_erro"] = str(e)[:120]
+    # Diretor de Trading: nenhuma entrada real passa sem a sua autorizacao
+    try:
+        diretor.gate(state, eligible, c4s, result["macro"], now)
+        result["diretor"] = dict(diretor.summary(state, now), avaliacao=diretor.follow(state, c4s, now))
+    except Exception as e:                  # falha fechada: sem diretor nao ha entradas
+        result["diretor_erro"] = str(e)[:120]
+        for r in eligible:
+            for key in ("decision", "decision_short"):
+                d = r.get(key) or {}
+                if d.get("decision") in ("LONG", "SHORT"):
+                    d.update(decision="NO TRADE", reason="Diretor de Trading indisponível")
     # os shorts entram como linhas proprias no ciclo de vida dos sinais
     both = eligible + [dict(r, decision=r["decision_short"])
                        for r in eligible if r.get("decision_short")]

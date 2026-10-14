@@ -19,7 +19,7 @@ from . import arena
 PAGE = "https://rferreira89.github.io/Cryptoscan/scanner/"
 G, Y, R = "verde", "amarelo", "vermelho"
 DOT = {G: "🟢", Y: "🟡", R: "🔴"}
-CMD = re.compile(r"^/?(porque|porquê|debate|liga|oportunidades|meta|ringue|macro|conta|hoje|ajuda|help|start)"
+CMD = re.compile(r"^/?(porque|porquê|debate|diretor|liga|oportunidades|meta|ringue|macro|conta|hoje|ajuda|help|start)"
                  r"(?:@\w+)?(?:\s+([A-Za-z0-9]+))?\s*$", re.I)
 
 
@@ -385,6 +385,7 @@ HELP = "\n".join([
     "/porque SOL — o que cada departamento vê numa moeda",
     "/ringue — classificação dos lutadores",
     "/debate MOEDA — o que cada lutador faria nessa moeda (/debate sozinho: as mais quentes)",
+    "/diretor — últimas decisões do Diretor de Trading (/diretor SOL: o relatório de cada agente)",
     "/liga — liga semanal dos lutadores",
     "/oportunidades — moedas mais perto de dar sinal",
     "/meta — caminho até ao primeiro milhão",
@@ -406,6 +407,8 @@ def answer(text, res, state):
         return why(res, arg) if arg else "Diz-me a moeda, por exemplo: /porque SOL"
     if c == "debate":
         return debate_text(res, arg) if arg else mesa_text(res)
+    if c == "diretor":
+        return director_text(res, arg)
     if c == "oportunidades":
         return opportunities(res)
     if c == "meta":
@@ -422,6 +425,49 @@ def answer(text, res, state):
     if c == "hoje":
         return today(res, state)
     return HELP
+
+
+def director_text(res, asset=""):
+    """Decisoes do Diretor de Trading; com moeda, o relatorio de cada agente."""
+    d = (res or {}).get("diretor") or {}
+    dec = d.get("decisoes") or []
+    if asset:
+        x = next((x for x in dec if x.get("ativo") == asset and x.get("relatorios")), None)
+        if not x:
+            return f"O Diretor de Trading não reviu nenhuma entrada em {_esc(asset)} recentemente."
+        L = [f"🧭 <b>Diretor de Trading — {_esc(asset)}</b>",
+             f"{_esc(x['estrategia'])} ({_esc(x['lado'])}): <b>{x['decisao']}</b>, dados {x['estado_dados']}"]
+        for m in x.get("motivos") or []:
+            L.append(f"✖ {_esc(m)}")
+        for r in x["relatorios"]:
+            L.append("")
+            L.append(f"<b>{_esc(r['agente'])}</b> · {r['timeframe']} · {_esc(r['direcao'])}"
+                     + (" (contra, esperado)" if r.get("esperado") else ""))
+            L.append("Dados: " + "; ".join(f"{_esc(z['fonte'])} {z['t'] or '–'}" for z in r["dados"]))
+            L.append("Condições: " + _esc("; ".join(r["condicoes"])))
+            if r.get("stop"):
+                L.append(f"Entrada {r['entrada']} · stop {r['stop']} · alvos {r['alvos']}")
+            if r.get("contra"):
+                L.append("Contra: " + _esc("; ".join(r["contra"])))
+            if r.get("invalidacao"):
+                L.append("Invalida se: " + _esc("; ".join(i for i in r["invalidacao"] if i)))
+            L.append(f"Estado dos dados: {r['estado_dados']}")
+        return "\n".join(L)
+    if not dec:
+        return ("🧭 O Diretor de Trading ainda não reviu nenhuma entrada. Todas as entradas "
+                "reais passam por ele antes do alerta.")
+    av = d.get("avaliacao") or {}
+    L = ["🧭 <b>Diretor de Trading</b>",
+         f"24h: {d.get('autorizados_24h', 0)} autorizadas, {d.get('rejeitados_24h', 0)} rejeitadas",
+         f"Rejeições seguidas em papel: {av.get('evitou_perda', 0)} evitaram perda, "
+         f"{av.get('custou_ganho', 0)} custaram ganho, {av.get('em_curso', 0)} em curso", ""]
+    for x in dec[:8]:
+        L.append(f"{'✅' if x['decisao'] == 'AUTORIZADO' else '⛔'} {_esc(x['ativo'])} · "
+                 f"{_esc(arena.persona(str(x['estrategia']).split('-')[-1]) or x['estrategia'])} "
+                 f"({x['lado']})" + (f": {_esc('; '.join(x['motivos']))}" if x.get("motivos") else ""))
+    L += ["", "Regras: " + " ".join(_esc(r.split(":")[0]) for r in d.get("regras") or []),
+          "/diretor MOEDA mostra o relatório estruturado de cada agente."]
+    return "\n".join(L)
 
 
 def why_buttons(asset):

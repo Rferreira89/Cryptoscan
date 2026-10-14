@@ -291,6 +291,7 @@ body.sheet-open #sheet{transform:none}
 <main class="sh-body">
 <section class="panel on" id="pn-ops" data-p="ops" data-h="Mesa de operações" data-t="Mesa de operações">
 <div id="gestor"></div>
+<details class="sec" id="s-diretor"><summary>🧭 Diretor de Trading<span id="n-diretor"></span></summary><div id="diretor"></div></details>
 <div id="radar" aria-label="Radar de oportunidades"></div>
 <p id="rnote"></p>
 <h2>As tuas operações</h2><div id="bynote" class="note" style="margin:0 0 8px"></div><div id="ops"></div>
@@ -775,7 +776,7 @@ function decOne(d,title){
 }
 function render(){
   try{xAfterRender()}catch(_){}
-  try{renderMesa();renderLiga();renderGestor();renderMeta();renderAlturas()}catch(_){}
+  try{renderMesa();renderLiga();renderGestor();renderDiretor();renderMeta();renderAlturas()}catch(_){}
   if(!D) return;
   const q=$("q").value.trim().toUpperCase(),s=$("sort").value,f=$("flt").value;
   const key=r=>s==="adx"||s==="rsi"?(r.analysis&&r.analysis["1d"]&&r.analysis["1d"].ok?r.analysis["1d"][s]:-1):(r[s]??-1e18);
@@ -860,7 +861,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261014f";
+const PAGE_V="20261014g";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -1307,6 +1308,25 @@ function renderGestor(){if(!D||!$("gestor"))return;const C=D.config||{},K=D.cont
   <div><b class="${C.risk_reduced?"dn":""}">${num(risk,2)}</b><span>Risco em aberto (USDC)${C.risk_reduced?" · risco a metade":""}</span></div>
   <div><b>${RG[MK.regime]||"–"}</b><span>Mercado · macro ${ME[MC.estado]||"–"}</span></div>
   <div><b>${ch}</b><span>Campeões a dar sinais reais</span></div></div>`}
+
+// ===== Diretor de Trading: autoriza ou rejeita cada entrada real =====
+function renderDiretor(){if(!D||!$("diretor"))return;const R=D.diretor||{},L=R.decisoes||[],A=R.avaliacao||{};
+  $("n-diretor").textContent=` · 24h: ${R.autorizados_24h||0} ✅ ${R.rejeitados_24h||0} ⛔`;
+  const ED={valido:"válidos",atrasado:"atrasados",indisponivel:"indisponíveis"};
+  const rep=x=>(x.relatorios||[]).map(r=>`<li><b>${esc(r.agente)}</b> · ${esc(r.timeframe)} · ${esc(r.direcao)}${r.esperado?" <i>(contra, esperado pela estratégia)</i>":""}<br>
+    <small>Dados: ${(r.dados||[]).map(z=>esc(z.fonte)+" "+esc(z.t||"–")).join("; ")} · estado ${ED[r.estado_dados]||esc(r.estado_dados)}</small><br>
+    ${esc((r.condicoes||[]).join("; "))}${r.stop?`<br>Entrada ${esc(JSON.stringify(r.entrada))} · stop ${num(r.stop,6)} · alvos ${(r.alvos||[]).map(t=>num(t,6)).join(" / ")}`:""}
+    ${(r.contra||[]).length?`<br><span class="dn">Contra: ${esc(r.contra.join("; "))}</span>`:""}
+    ${(r.invalidacao||[]).filter(Boolean).length?`<br><small>Invalida se: ${esc(r.invalidacao.filter(Boolean).join("; "))}</small>`:""}</li>`).join("");
+  const rows=L.map(x=>`<details class="dir ${x.decisao==="AUTORIZADO"?"ok":"no"}"><summary>${x.decisao==="AUTORIZADO"?"✅":"⛔"} <b>${esc(x.ativo)}</b> · ${esc(x.estrategia)} (${esc(x.lado)}) · ${new Date(x.t*1000).toLocaleString("pt-PT",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}</summary>
+    ${(x.motivos||[]).map(m=>`<div class="dn">✖ ${esc(m)}</div>`).join("")}
+    ${(x.a_favor||[]).map(m=>`<div>✔ ${esc(m)}</div>`).join("")}${(x.contra||[]).map(m=>`<div class="dn">✖ ${esc(m)}</div>`).join("")}
+    ${(x.esperado||[]).length?`<div><small>Contra mas esperado pela estratégia: ${esc(x.esperado.join(", "))}</small></div>`:""}
+    ${(x.invalidacao||[]).length?`<div><small>Invalida se: ${esc(x.invalidacao.join("; "))}</small></div>`:""}
+    ${x.relatorios?`<ul class="reps">${rep(x)}</ul>`:""}</details>`).join("");
+  $("diretor").innerHTML=`<p class="note">Coordena as análises, verifica conflitos e autoriza ou rejeita cada entrada real. Cada agente entrega um relatório estruturado (dados com hora, direção, condições, entrada/stop/alvos, evidência contra, estado dos dados e o que invalida). Rejeições seguidas em papel: ${A.evitou_perda||0} evitaram perda, ${A.custou_ganho||0} custaram ganho, ${A.em_curso||0} em curso.</p>
+  ${rows||'<p class="note">Ainda sem entradas revistas.</p>'}
+  <details><summary>Regras definidas</summary><ul>${(R.regras||[]).map(r=>`<li>${esc(r)}</li>`).join("")}</ul></details>`}
 
 // ===== Estrategias por altura do mercado (ringue longo, 365 dias) =====
 function renderAlturas(){if(!D||!$("alturas"))return;const L=D.arena_longo,cur=(D.mercado||{}).regime;

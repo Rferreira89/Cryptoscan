@@ -337,6 +337,8 @@ def alert_text(e, sigs, note):
         return None
     p = s["plan"]
     head = f"{s['asset']} ({s['pair']}, {s['venue']})"
+    if k == "ISSUED" and s.get("diretor"):
+        note = diretor_lines(s["diretor"]) + note
     if s.get("mode") == "PAPER":
         return paper_text(e, s, head, note)
     if s.get("direction") == "SHORT":
@@ -394,6 +396,20 @@ def alert_text(e, sigs, note):
         return (f"⚪ CANCELAR — {head}\n{e['reason']}. Cancela a ordem de "
                 "compra se ainda estiver aberta.")
     return None
+
+
+def diretor_lines(v):
+    """Parecer do Diretor de Trading no alerta de entrada."""
+    L = [f"🧭 Diretor de Trading: {v.get('decisao', '–')} (dados {v.get('estado_dados', '–')})"]
+    for x in (v.get("a_favor") or [])[:3]:
+        L.append(f"  ✔ {x}")
+    for x in (v.get("contra") or [])[:3]:
+        L.append(f"  ✖ {x}")
+    if v.get("esperado"):
+        L.append("  (contra mas esperado pela estratégia: " + ", ".join(v["esperado"]) + ")")
+    if v.get("invalidacao"):
+        L.append("  Invalida se: " + "; ".join(v["invalidacao"][:2]))
+    return "\n".join(L) + "\n"
 
 
 def bybit_url(pair):

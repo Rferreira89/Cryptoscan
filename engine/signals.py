@@ -442,7 +442,8 @@ def update_state(state, rows, cfg, now, daily=None):
                "explain": explain(r), "issued_at": now,
                "expires_at": now + cfg["signal_expiry_hours"] * 3600,
                "status": "ACTIVE", "mode": d["mode"], "correlation": corr,
-               "validation": validation.status(d["strategy"])}
+               "validation": validation.status(d["strategy"]),
+               "diretor": d.get("diretor")}
         sig["validated"] = bool(sig["validation"].get("validated"))
         sigs[key] = sig
         events.append({"t": now, "event": "ISSUED", "id": key,
