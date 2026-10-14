@@ -145,7 +145,10 @@ def record_book(moedas, prev_path, dest_dir, now):
         prev = {}
     hist = prev.get("moedas") or {}
     hour = (now // 3600) * 3600
-    for b, c in moedas.items():
+    # uma leitura por hora chega: nas outras corridas so regrava o ficheiro
+    # (mantem o servidor livre para o botao Executar)
+    done = any(int(t) == hour for t, _ in (hist.get("BTC") or [])[-1:])
+    for b, c in ({} if done else moedas).items():
         try:
             d = _get("/fapi/v1/depth", {"symbol": c["s"], "limit": 100})
             v = book_imbalance(d.get("bids") or [], d.get("asks") or [])
@@ -156,7 +159,7 @@ def record_book(moedas, prev_path, dest_dir, now):
         old = {int(t): x for t, x in hist.get(b) or []}
         old[hour] = v                               # um valor por hora (o ultimo)
         hist[b] = [[t, old[t]] for t in sorted(old) if t >= now - BOOK_KEEP]
-        time.sleep(0.05)
+        time.sleep(0.02)
     with open(os.path.join(dest_dir, "livro.json"), "w") as f:
         json.dump({"t": now, "fonte": "binance-futures depth ±1%", "moedas": hist}, f, separators=(",", ":"))
     return len(hist)
