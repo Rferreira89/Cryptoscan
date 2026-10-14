@@ -1,12 +1,12 @@
 # Diário de investigação
 
-**Hipóteses testadas contra esta reserva: 9** (6 neste diário: compra de
+**Hipóteses testadas contra esta reserva: 12** (8 neste diário: compra de
 quedas, compressão, oversold bounce 4H, day trade 1H, bounce com outras
-saídas, sweep a mercado; mais 3 no diário de afinação, H1 a H3).
-Atualizado em 2026-10-13. Quanto maior este número, maior a probabilidade
-de uma hipótese passar por sorte: com 9 testes, a probabilidade de pelo
-menos um falso positivo a 5% já ronda os 37% (e as várias configurações
-de cada grelha aumentam-na ainda mais).
+saídas, sweep a mercado, funding negativo, quebra com compradores; mais 4
+no diário de afinação, H1 a H4). Atualizado em 2026-10-14. Quanto maior
+este número, maior a probabilidade de uma hipótese passar por sorte: com 12
+testes, a probabilidade de pelo menos um falso positivo a 5% já ronda os
+46% (e as várias configurações de cada grelha aumentam-na ainda mais).
 
 Uma hipótese por entrada, com o veredicto. Método: `tools/research.py`
 (decisão no fecho, execução na abertura seguinte, 0,25% de comissão + 0,1% de
@@ -100,7 +100,8 @@ dá "AMOSTRA INSUFICIENTE".
    2026-10-11 com G0, V1, V2 e V3 em paralelo, X=25). Veredicto máximo:
    CANDIDATA. Nada é ligado ao vivo.
 
-4. (PEDIDA em 2026-10-11.) **Funding muito negativo com o preço a
+4. (TESTADA em 2026-10-14, ver entrada "Funding muito negativo com o
+   preço a aguentar": NÃO VALIDADA.) **Funding muito negativo com o preço a
    aguentar (4H, só compras).** Lógica: funding muito negativo nos
    perpétuos quer dizer que há muita gente vendida a pagar para manter a
    posição; se o preço não cai, essas posições acabam por ser fechadas à
@@ -119,7 +120,8 @@ dá "AMOSTRA INSUFICIENTE".
    acima da SMA200 ∈ {sim, não}. Mesma carteira, custos, janela e critérios
    (seis de sempre + contra o acaso acima do percentil 95).
 
-5. (PEDIDA em 2026-10-11.) **Quebra com compradores agressivos (4H, só
+5. (TESTADA em 2026-10-14, ver entrada "Quebra com compradores
+   agressivos": NÃO VALIDADA.) **Quebra com compradores agressivos (4H, só
    compras).** Lógica: uma quebra de máximo em que a maior parte do volume
    é de compras a mercado (taker) mostra procura real; a mesma quebra sem
    compradores agressivos é muitas vezes falsa. O programa hoje só olha
@@ -157,6 +159,9 @@ o Rui), e o morto fica registado. Um por corrida, na segunda vaga.
 | Morto | Data da morte | Causa encontrada | Sucessor | Veredicto |
 |---|---|---|---|---|
 | PULLBACK, BREAKOUT, LIQUIDITY_SWEEP, TREND_DAILY, REJEITADOS | 2026-10-13 (forma recente, 90 dias) | ver entrada de 2026-10-13 | LIQUIDITY_SWEEP → SWEEP_MERCADO (os outros ficam por agora sem sucessor, ver autópsia) | NÃO VALIDADA (2026-10-13; percentil 4,8 contra o acaso) |
+| BOUNCE_1H | 2026-10-14 (forma recente) | custos de 0,25R por operação e, mesmo sem custos, cerca de −0,03R em 24 meses (ver entrada de 2026-10-14) | sem sucessor (nenhuma correção única chega a zero) | — |
+| TURTLE, SQUEEZE_BB | 2026-10-14 (forma recente) | o momento da entrada (comprar o rompimento): a mesma geometria com entradas ao acaso dá muito mais | família das quebras → QUEBRA_COMPRADORES (hipótese 5 da fila) | NÃO VALIDADA (2026-10-14; percentil 12,8 contra o acaso) |
+| MOMENTUM, SHORT_X30, SHORT_FLUXO, SHORT_TURTLE, SHORT_ISOLADA | 2026-10-14 (forma recente) | MOMENTUM: 31 operações, pouco para autópsia; shorts fora desta investigação (só compras) | sem sucessor por agora | — |
 
 ## Hipóteses anteriores a este diário (até 2026-10-02, período 2021-2026)
 
@@ -540,9 +545,8 @@ Mortos ainda sem sucessor registado: BOUNCE_1H, TURTLE, SQUEEZE_BB,
 MOMENTUM e quatro shorts (SHORT_X30, SHORT_FLUXO, SHORT_TURTLE,
 SHORT_ISOLADA). Números do combate (forma.json do ramo `arena`, 90 dias).
 
-- **BOUNCE_1H** (combate: 198 op., −0,128R, acima do p95 do acaso, que é
-  −0,178R; morreu por R médio ≤ −0,2R? não: por −0,128R abaixo de zero com
-  20+ operações e forma). Autópsia nos últimos 24 meses de 1H (69 moedas,
+- **BOUNCE_1H** (morto por forma recente; no combate atual 198 op.,
+  −0,128R, acima do p95 do acaso, que é −0,178R). Autópsia nos últimos 24 meses de 1H (69 moedas,
   a mesma função `bounce_1h_trades` do ringue): 1749 operações, −0,279R,
   41,8% de acerto. Risco médio 5,5% mas custo médio de 0,25R por operação;
   sem custos ficaria em cerca de −0,03R. Por distância do stop: <1,5% →
@@ -598,3 +602,88 @@ Expectativa declarada: as duas são de lógica económica razoável, mas a
 família das quebras perdeu em tudo até hoje; o mais provável na 5 é NÃO
 VALIDADA. Com 12 hipóteses contra esta reserva no fim desta corrida, só o
 papel ao vivo pode provar alguma coisa.
+
+## 2026-10-14 — Funding muito negativo com o preço a aguentar (fila do Rui, hipótese 4)
+
+**Veredicto: NÃO VALIDADA.** Falha 6 dos 7 critérios; contra o acaso fica
+no percentil 85,4 fora da amostra (abaixo do 95). Não vai para papel.
+
+- **Regras e grelha**: as da fila e do pré-registo acima (commit b27b82e,
+  antes dos testes). Grelha (4): P ∈ {10, 5} × filtro do BTC ∈ {sim, não}.
+  Universo: 59 moedas com funding e velas de 4H.
+- **Janela**: desenho 2024-10-01 a 2026-03-31; reserva 2026-04-01 a
+  2026-09-30 (último dia com funding no ramo `history`). Walk-forward:
+  treino 183 dias, teste 91, 4 dobras. Custos 0,25% + 0,1% por lado.
+- **Desenho**: 0 de 4 configurações positivas. P=5 com BTC: −49,7%
+  (Sharpe −0,87, 382 op., 39,3% de acerto, −0,099R); P=5 sem BTC: −83,3%
+  (706 op., −0,148R); P=10 com BTC: −79,4% (473 op., −0,189R); P=10 sem
+  BTC: −93,4% (887 op., −0,205R). Custo médio 0,15R por operação. O filtro
+  do BTC ajuda sempre; quanto mais extremo o funding (P=5), menos mau.
+  Referência BTC>SMA200 no desenho: +12,2%, Sharpe 0,40.
+- **Walk-forward fora da amostra** (364 dias): −17,6%, Sharpe −0,23,
+  queda máxima 44,6%, 267 operações, 41,9% de acerto, −0,026R. Dobras:
+  +26,6% / −20,4% / −18,3% / 0,0% (sem operações com o filtro do BTC) =
+  1 de 4. Grandes moedas: −29,3%. Referência nas mesmas datas: −2,0%,
+  Sharpe 0,03.
+- **Configuração escolhida**: P=5, com o filtro do BTC.
+- **Reserva (uma avaliação)**: +5,6%, Sharpe 1,02, queda máxima 6,8%, 25
+  operações (60% de acerto, +0,328R). Referência: +20,2%, Sharpe 1,79.
+  Grandes moedas: −0,2%.
+- **Contra o acaso** (1000 séries, ±90 velas, mesma geometria): fora da
+  amostra (292 op.) +0,004R contra mediana −0,062R e p95 +0,043R:
+  **percentil 85,4**. Só walk-forward (267): percentil 71,5. Só reserva
+  (25): percentil 96,5 (amostra curta, não é o critério).
+- **Critérios**: 1 NÃO; 2 NÃO (25%); 3 NÃO (0%); 4 NÃO; 5 NÃO; 6 sim; 7 NÃO.
+- **Período antigo**: não existe (o funding do ramo começa em 2024-08).
+- **Leitura**: o funding muito negativo dá um ligeiro avanço sobre o acaso
+  (o momento é um pouco melhor do que uma entrada qualquer), mas pequeno
+  demais para pagar 0,7% de custos ida e volta: fora da amostra fica em
+  zero antes de custos de carteira e perde no conjunto. A reserva boa (25
+  operações) é o mesmo período em que tudo o que compra sobrevenda ganhou;
+  não muda a leitura. Nada foi ligado ao vivo nem ao ringue (o ringue já
+  tem o BOUNCE_SQUEEZE, que usa funding negativo com o gatilho do Bounce).
+- Código: `tools/research_funding.py`; teste sem look-ahead (velas e
+  funding): `tests/test_research_funding.py`; números:
+  `backtest/research_funding.json`.
+
+## 2026-10-14 — Quebra com compradores agressivos (fila do Rui, hipótese 5; resposta à família das quebras da arena)
+
+**Veredicto: NÃO VALIDADA.** Falha 6 dos 7 critérios e é PIOR do que o
+acaso (percentil 12,8). Separar as quebras pela parte compradora não as
+salva: as quebras de 4H continuam a reverter.
+
+- **Regras e grelha**: as da fila e do pré-registo acima (commit b27b82e).
+  Grelha (4): q ∈ {0,55; 0,60} × H ∈ {3, 7} dias. Universo: 62 moedas.
+- **Janela**: desenho 2024-10-11 a 2026-04-10; reserva 2026-04-11 a
+  2026-10-10 (última vela do histórico: 2026-10-11). Walk-forward: treino
+  183 dias, teste 91, 4 dobras. Custos 0,25% + 0,1% por lado.
+- **Desenho**: 0 de 4 configurações positivas. q=0,55: −51,0% (H=3, 329
+  op., 37,7%, −0,168R) e −43,3% (H=7, −0,147R); q=0,60: −11,8% (H=3, 111
+  op., 40,5%, −0,130R) e −15,2% (H=7, −0,146R). Custo médio 0,20R a 0,27R
+  por operação. Referência: +12,2%, Sharpe 0,40.
+- **Walk-forward fora da amostra** (364 dias): −24,3%, Sharpe −1,68,
+  queda máxima 26,5%, 92 operações, 34,8% de acerto, −0,209R. Dobras:
+  −8,0% / −7,2% / −11,3% / 0,0% (sem operações) = 0 de 4. Grandes moedas:
+  −15,0%. Referência nas mesmas datas: +7,0%, Sharpe 0,41.
+- **Configuração escolhida**: q=0,55, H=7.
+- **Reserva (uma avaliação)**: +13,0%, Sharpe 0,95, queda máxima 21,1%, 75
+  operações (45,3% de acerto, +0,086R). Referência: +19,3%, Sharpe 1,66.
+  Grandes moedas: +8,4%.
+- **Contra o acaso** (1000 séries, ±90 velas, mesma geometria): fora da
+  amostra (167 op.) −0,077R contra mediana +0,021R e p95 +0,160R:
+  **percentil 12,8**. Walk-forward: percentil 28,7 (3 dias) e 13,8 (7
+  dias); reserva: 41,5.
+- **Critérios**: 1 NÃO; 2 NÃO (0%); 3 NÃO (0%); 4 NÃO; 5 NÃO; 6 sim; 7 NÃO.
+- **Período antigo (informativo, não conta)**: 2021-07-30 a 2024-10-10 a
+  mesma configuração daria −46,3% (Sharpe −0,55, 492 operações, 35,2% de
+  acerto, −0,142R) contra +57,4% da referência.
+- **Leitura**: comprar quebras de 4H perde com ou sem compradores
+  agressivos, e com a mesma geometria entrar ao acaso na mesma moeda dá
+  mais. Com o BREAKOUT, a quebra com reteste, a compressão, o TURTLE, o
+  SQUEEZE_BB e agora esta, a família "comprar a quebra em 4H" fica
+  esgotada neste projeto: não voltar a ela sem uma ideia de outra natureza.
+  Nada foi ligado ao vivo nem ao ringue.
+- Código: `tools/research_taker_breakout.py`; teste sem look-ahead:
+  `tests/test_research_taker_breakout.py`; números:
+  `backtest/research_taker_breakout.json`.
+

@@ -1,0 +1,359 @@
+{
+ "generated_at": 1791975799,
+ "hypothesis": "FUNDING_NEGATIVO",
+ "assets": 59,
+ "window": {
+  "design": [
+   "2024-10-01",
+   "2026-03-31"
+  ],
+  "holdout": [
+   "2026-04-01",
+   "2026-09-30"
+  ]
+ },
+ "costs": {
+  "fee_pct": 0.25,
+  "slippage_pct": 0.1
+ },
+ "grid": {
+  "{\"P\": 10, \"btc\": true}": {
+   "all": {
+    "return_pct": -79.4,
+    "cagr_pct": -65.2,
+    "max_drawdown_pct": 81.2,
+    "sharpe": -2.02,
+    "calmar": -0.8,
+    "invested_pct": 56
+   },
+   "majors21": {
+    "return_pct": -28.2,
+    "cagr_pct": -19.9,
+    "max_drawdown_pct": 37.5,
+    "sharpe": -0.49,
+    "calmar": -0.53,
+    "invested_pct": 47
+   },
+   "trades": {
+    "n": 473,
+    "win_rate": 34.5,
+    "r_medio": -0.189,
+    "ret_medio_pct": -1.22,
+    "risco_medio_pct": 5.89,
+    "custo_medio_r": 0.151,
+    "saidas": {
+     "STOP": 258,
+     "TP1": 96,
+     "TIME": 119
+    }
+   }
+  },
+  "{\"P\": 10, \"btc\": false}": {
+   "all": {
+    "return_pct": -93.4,
+    "cagr_pct": -83.7,
+    "max_drawdown_pct": 93.5,
+    "sharpe": -2.43,
+    "calmar": -0.9,
+    "invested_pct": 91
+   },
+   "majors21": {
+    "return_pct": -58.6,
+    "cagr_pct": -44.5,
+    "max_drawdown_pct": 65.9,
+    "sharpe": -0.94,
+    "calmar": -0.68,
+    "invested_pct": 79
+   },
+   "trades": {
+    "n": 887,
+    "win_rate": 33.5,
+    "r_medio": -0.205,
+    "ret_medio_pct": -1.1,
+    "risco_medio_pct": 5.67,
+    "custo_medio_r": 0.155,
+    "saidas": {
+     "STOP": 504,
+     "TIME": 194,
+     "TP1": 189
+    }
+   }
+  },
+  "{\"P\": 5, \"btc\": true}": {
+   "all": {
+    "return_pct": -49.7,
+    "cagr_pct": -36.8,
+    "max_drawdown_pct": 55.3,
+    "sharpe": -0.87,
+    "calmar": -0.67,
+    "invested_pct": 51
+   },
+   "majors21": {
+    "return_pct": -21.1,
+    "cagr_pct": -14.7,
+    "max_drawdown_pct": 30.2,
+    "sharpe": -0.38,
+    "calmar": -0.49,
+    "invested_pct": 39
+   },
+   "trades": {
+    "n": 382,
+    "win_rate": 39.3,
+    "r_medio": -0.099,
+    "ret_medio_pct": -0.59,
+    "risco_medio_pct": 6.05,
+    "custo_medio_r": 0.148,
+    "saidas": {
+     "TP1": 84,
+     "STOP": 188,
+     "TIME": 110
+    }
+   }
+  },
+  "{\"P\": 5, \"btc\": false}": {
+   "all": {
+    "return_pct": -83.3,
+    "cagr_pct": -69.7,
+    "max_drawdown_pct": 83.6,
+    "sharpe": -1.8,
+    "calmar": -0.83,
+    "invested_pct": 84
+   },
+   "majors21": {
+    "return_pct": -21.9,
+    "cagr_pct": -15.3,
+    "max_drawdown_pct": 38.6,
+    "sharpe": -0.18,
+    "calmar": -0.4,
+    "invested_pct": 64
+   },
+   "trades": {
+    "n": 706,
+    "win_rate": 36.7,
+    "r_medio": -0.148,
+    "ret_medio_pct": -0.9,
+    "risco_medio_pct": 5.74,
+    "custo_medio_r": 0.152,
+    "saidas": {
+     "STOP": 382,
+     "TIME": 168,
+     "TP1": 156
+    }
+   }
+  }
+ },
+ "grid_positive_share": 0.0,
+ "baseline_btc_sma200_design": {
+  "return_pct": 12.2,
+  "cagr_pct": 8.0,
+  "max_drawdown_pct": 33.4,
+  "sharpe": 0.4,
+  "calmar": 0.24,
+  "invested_pct": 65
+ },
+ "walk_forward": {
+  "folds": [
+   {
+    "train": [
+     19997,
+     20180
+    ],
+    "test_days": [
+     20180,
+     20271
+    ],
+    "chosen": "{\"P\": 5, \"btc\": false}",
+    "test": {
+     "return_pct": 26.6,
+     "cagr_pct": 160.2,
+     "max_drawdown_pct": 14.4,
+     "sharpe": 1.77,
+     "calmar": 11.11,
+     "invested_pct": 89
+    },
+    "trades": 120
+   },
+   {
+    "train": [
+     20088,
+     20271
+    ],
+    "test_days": [
+     20271,
+     20362
+    ],
+    "chosen": "{\"P\": 5, \"btc\": false}",
+    "test": {
+     "return_pct": -20.4,
+     "cagr_pct": -60.3,
+     "max_drawdown_pct": 27.3,
+     "sharpe": -2.07,
+     "calmar": -2.21,
+     "invested_pct": 76
+    },
+    "trades": 83
+   },
+   {
+    "train": [
+     20179,
+     20362
+    ],
+    "test_days": [
+     20362,
+     20453
+    ],
+    "chosen": "{\"P\": 5, \"btc\": true}",
+    "test": {
+     "return_pct": -18.3,
+     "cagr_pct": -55.9,
+     "max_drawdown_pct": 27.9,
+     "sharpe": -1.78,
+     "calmar": -2.0,
+     "invested_pct": 37
+    },
+    "trades": 64
+   },
+   {
+    "train": [
+     20270,
+     20453
+    ],
+    "test_days": [
+     20453,
+     20544
+    ],
+    "chosen": "{\"P\": 5, \"btc\": true}",
+    "test": {
+     "return_pct": 0.0,
+     "cagr_pct": 0.0,
+     "max_drawdown_pct": 0.0,
+     "sharpe": 0.0,
+     "calmar": null,
+     "invested_pct": 0
+    },
+    "trades": 0
+   }
+  ],
+  "oos": {
+   "return_pct": -17.6,
+   "cagr_pct": -17.8,
+   "max_drawdown_pct": 44.6,
+   "sharpe": -0.23,
+   "calmar": -0.4,
+   "invested_pct": 50
+  },
+  "folds_positive": 1,
+  "oos_trades": 267,
+  "oos_trade_stats": {
+   "n": 267,
+   "win_rate": 41.9,
+   "r_medio": -0.026,
+   "ret_medio_pct": 0.05,
+   "risco_medio_pct": 5.76,
+   "custo_medio_r": 0.152,
+   "saidas": {
+    "TIME": 63,
+    "STOP": 133,
+    "TP1": 71
+   }
+  },
+  "majors21": {
+   "return_pct": -29.3,
+   "cagr_pct": -29.6,
+   "max_drawdown_pct": 42.5,
+   "sharpe": -0.82,
+   "calmar": -0.7,
+   "invested_pct": 55
+  },
+  "baseline": {
+   "return_pct": -2.0,
+   "cagr_pct": -2.1,
+   "max_drawdown_pct": 23.3,
+   "sharpe": 0.03,
+   "calmar": -0.09,
+   "invested_pct": 54
+  }
+ },
+ "deploy_config": {
+  "P": 5,
+  "btc": true
+ },
+ "holdout": {
+  "all": {
+   "return_pct": 5.6,
+   "cagr_pct": 11.5,
+   "max_drawdown_pct": 6.8,
+   "sharpe": 1.02,
+   "calmar": 1.68,
+   "invested_pct": 12
+  },
+  "majors21": {
+   "return_pct": -0.2,
+   "cagr_pct": -0.5,
+   "max_drawdown_pct": 2.9,
+   "sharpe": -0.04,
+   "calmar": -0.16,
+   "invested_pct": 12
+  },
+  "baseline_btc_sma200": {
+   "return_pct": 20.2,
+   "cagr_pct": 44.6,
+   "max_drawdown_pct": 6.9,
+   "sharpe": 1.79,
+   "calmar": 6.44,
+   "invested_pct": 24
+  },
+  "trades": {
+   "n": 25,
+   "win_rate": 60.0,
+   "r_medio": 0.328,
+   "ret_medio_pct": 0.99,
+   "risco_medio_pct": 4.12,
+   "custo_medio_r": 0.232,
+   "saidas": {
+    "TP1": 10,
+    "STOP": 8,
+    "TIME": 7
+   }
+  }
+ },
+ "random": {
+  "walk_forward": {
+   "n": 267,
+   "r_real": -0.026,
+   "r_acaso_mediana": -0.064,
+   "r_acaso_p95": 0.046,
+   "percentil": 71.5,
+   "vantagem": false
+  },
+  "reserva": {
+   "n": 25,
+   "r_real": 0.328,
+   "r_acaso_mediana": -0.061,
+   "r_acaso_p95": 0.3,
+   "percentil": 96.5,
+   "vantagem": true
+  },
+  "fora_da_amostra": {
+   "n": 292,
+   "r_real": 0.004,
+   "r_acaso_mediana": -0.062,
+   "r_acaso_p95": 0.043,
+   "percentil": 85.4,
+   "vantagem": false
+  }
+ },
+ "criteria": {
+  "1_oos_retorno_e_sharpe": false,
+  "2_janelas_positivas": false,
+  "3_grelha_estavel": false,
+  "4_grandes_moedas_2021": false,
+  "5_melhor_que_btc_sma200": false,
+  "6_reserva_sharpe_positivo": true,
+  "7_acima_do_p95_do_acaso": false
+ },
+ "passed_all_seven": false,
+ "verdict": "NAO VALIDADA",
+ "funding_moedas": 66,
+ "info_old_period": "nao existe: o funding do ramo history comeca em 2024-08"
+}
