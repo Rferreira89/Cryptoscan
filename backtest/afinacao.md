@@ -463,3 +463,72 @@ operações ao vivo acima do percentil 95 do acaso e o sim do Rui).
   vai para o ringue: o Xavier já lá está com a mesma entrada.
 - Hipóteses testadas até agora (com esta): 4 neste diário; 10 contra os
   mesmos dados contando o diário de investigação.
+
+**Resultados** (velas até 2026-10-11 08:00 UTC, 3 dias de atraso; 69
+moedas, nenhuma de fora; `backtest/afinacao_h04_tempo.json`).
+
+- Janela: desenho de 2025-04-11 a 2026-04-10, reserva de 2026-04-11 a
+  2026-10-10.
+- Grelha no desenho (carteira de 4 × 25%):
+
+  | Tempo máximo | Operações | Acerto | R médio | Sem a melhor moeda |
+  |---|---|---|---|---|
+  | 12 h | 184 | 40,8% | −0,140 | −0,153 |
+  | 1 dia | 147 | 46,9% | −0,111 | −0,128 |
+  | 1,5 dias | 139 | 49,6% | −0,123 | −0,145 |
+  | 2 dias | 124 | 52,4% | −0,128 | −0,156 |
+  | **3 dias (atual)** | 122 | 55,7% | **−0,084** | −0,115 |
+  | 5 dias | 120 | 49,2% | −0,146 | −0,183 |
+
+  Nenhuma positiva. Encurtar o tempo dá mais operações (até +50% com 12 h)
+  mas baixa o acerto e o R médio: as operações cortadas cedo saem com
+  perda pequena, mas muitas delas teriam chegado ao 1.º objetivo. A
+  ideia "se não reage depressa, não vai reagir" não se confirma.
+- Walk-forward (4 janelas de 61 dias, 2025-08-10 a 2026-04-10): o treino
+  escolheu os 3 dias (a versão atual) em todas as janelas. 52 operações
+  fora da amostra, 51,9% de acerto, −0,148R; sem a melhor moeda (EIGEN)
+  −0,204R. Janelas melhores do que a atual: 0 de 4 (iguais nas duas
+  primeiras; nas duas últimas, 2025-12-10 a 2026-04-10, não houve
+  operações porque o BTC esteve abaixo da média de 200 dias).
+- Configuração escolhida no desenho: 3 dias, ou seja, a atual. Pela regra
+  declarada, a hipótese fica REJEITADA e a reserva não avalia nenhuma
+  alternativa.
+- Referência (só a versão atual, nada escolhido): reserva 30 operações,
+  50,0% de acerto, +0,090R; sem a melhor moeda (TIA) −0,028R.
+- Contra o acaso (versão atual, mesma geometria, ±90 velas, 1000 séries):
+  walk-forward −0,148R contra mediana de −0,290R e p95 de −0,104R,
+  **percentil 90,5**; reserva +0,090R contra mediana −0,170R e p95
+  +0,153R, **percentil 91,0**. O gatilho do Xavier é melhor do que o acaso,
+  mas não chega ao percentil 95 em nenhum dos dois blocos.
+- Linha informativa do período antigo (2023-04-11 a 2025-04-10, não conta):
+  3 dias → 380 operações, 48,2% de acerto, −0,218R.
+
+**Veredicto: REJEITADA.** O tempo máximo de 3 dias já é o melhor da
+grelha; qualquer tempo mais curto (ou mais longo) piora o R médio. Nada
+entra no ringue.
+
+Leitura importante para o Rui (não é uma hipótese, é o que os números
+mostram): no combate dos últimos 90 dias o Xavier leva 92 operações a
++0,50R, acima do p95 do acaso. Nos 12 meses de desenho, com a mesma
+função de sinal e a mesma saída, dá −0,08R (122 operações) e no período
+antigo −0,22R (380). Na reserva (abril a outubro de 2026) dá +0,09R com a
+carteira de 4 vagas. A forma recente do Bounce vem sobretudo de um
+trimestre favorável; os 90 dias do ringue não chegam para dizer que a
+vantagem é estável. Por isso o critério de 30 operações AO VIVO acima do
+p95 continua a ser a prova que conta, e convém esperar que ele seja
+cumprido também num período de mercado diferente.
+
+Notas para as próximas execuções:
+
+- A saída por tempo está afinada (3 dias). Não voltar a testar o tempo.
+- O resultado está muito ligado ao regime: em 12 meses houve 4 meses sem
+  operações (BTC abaixo da SMA200) e as janelas com operações perderam.
+- Próxima hipótese proposta (H5), sobre a saída e sem mexer no gatilho:
+  vender 100% na média de 20 velas (sem a segunda metade até ao máximo de
+  7 dias). Nos 122 trades do desenho só 3 chegaram ao 2.º objetivo e 25
+  saíram a zeros depois do 1.º: a segunda metade quase nunca paga e custa
+  comissão e tempo. Grelha a fixar antes: parte vendida no 1.º objetivo ∈
+  {50% (atual), 75%, 100%}, com e sem stop na entrada depois do 1.º.
+- Hipóteses testadas até agora: 4 neste diário (H1 a H4); 10 contra os
+  mesmos dados contando o diário de investigação. Com 10 tentativas, a
+  probabilidade de pelo menos um falso positivo a 5% ronda os 40%.

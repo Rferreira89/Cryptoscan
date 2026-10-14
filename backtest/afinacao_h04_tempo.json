@@ -1,0 +1,273 @@
+{
+ "hipotese": "H4 tempo maximo do BOUNCE_X30",
+ "moedas": 69,
+ "fora": {},
+ "janela": {
+  "desenho": [
+   "2025-04-11",
+   "2026-04-10"
+  ],
+  "reserva": [
+   "2026-04-11",
+   "2026-10-10"
+  ],
+  "ultima_vela": 1791705600
+ },
+ "grelha_desenho": {
+  "0.5": {
+   "n": 184,
+   "acerto_pct": 40.8,
+   "r_medio": -0.14,
+   "r_total": -25.81,
+   "saidas": {
+    "STOP": 23,
+    "TIME": 143,
+    "BREAKEVEN": 18
+   },
+   "melhor_moeda": "BONK",
+   "sem_melhor_moeda": {
+    "n": 178,
+    "r_medio": -0.153
+   },
+   "moedas": 59
+  },
+  "1": {
+   "n": 147,
+   "acerto_pct": 46.9,
+   "r_medio": -0.111,
+   "r_total": -16.38,
+   "saidas": {
+    "STOP": 33,
+    "TIME": 94,
+    "BREAKEVEN": 19,
+    "TP2": 1
+   },
+   "melhor_moeda": "SUI",
+   "sem_melhor_moeda": {
+    "n": 144,
+    "r_medio": -0.128
+   },
+   "moedas": 57
+  },
+  "1.5": {
+   "n": 139,
+   "acerto_pct": 49.6,
+   "r_medio": -0.123,
+   "r_total": -17.03,
+   "saidas": {
+    "STOP": 41,
+    "TIME": 71,
+    "BREAKEVEN": 25,
+    "TP2": 2
+   },
+   "melhor_moeda": "EIGEN",
+   "sem_melhor_moeda": {
+    "n": 136,
+    "r_medio": -0.145
+   },
+   "moedas": 58
+  },
+  "2": {
+   "n": 124,
+   "acerto_pct": 52.4,
+   "r_medio": -0.128,
+   "r_total": -15.87,
+   "saidas": {
+    "STOP": 43,
+    "BREAKEVEN": 24,
+    "TIME": 54,
+    "TP2": 3
+   },
+   "melhor_moeda": "EIGEN",
+   "sem_melhor_moeda": {
+    "n": 121,
+    "r_medio": -0.156
+   },
+   "moedas": 54
+  },
+  "3": {
+   "n": 122,
+   "acerto_pct": 55.7,
+   "r_medio": -0.084,
+   "r_total": -10.29,
+   "saidas": {
+    "STOP": 48,
+    "BREAKEVEN": 25,
+    "TP2": 3,
+    "TIME": 46
+   },
+   "melhor_moeda": "EIGEN",
+   "sem_melhor_moeda": {
+    "n": 119,
+    "r_medio": -0.115
+   },
+   "moedas": 54
+  },
+  "5": {
+   "n": 120,
+   "acerto_pct": 49.2,
+   "r_medio": -0.146,
+   "r_total": -17.47,
+   "saidas": {
+    "STOP": 54,
+    "BREAKEVEN": 30,
+    "TP2": 6,
+    "TIME": 30
+   },
+   "melhor_moeda": "EIGEN",
+   "sem_melhor_moeda": {
+    "n": 117,
+    "r_medio": -0.183
+   },
+   "moedas": 54
+  }
+ },
+ "walk_forward": {
+  "janelas": [
+   {
+    "teste": [
+     "2025-08-10",
+     "2025-10-09"
+    ],
+    "escolha_dias": 3,
+    "n": 33,
+    "r_medio": -0.157,
+    "atual_n": 33,
+    "atual_r": -0.157,
+    "melhor": false
+   },
+   {
+    "teste": [
+     "2025-10-10",
+     "2025-12-09"
+    ],
+    "escolha_dias": 3,
+    "n": 19,
+    "r_medio": -0.131,
+    "atual_n": 19,
+    "atual_r": -0.131,
+    "melhor": false
+   },
+   {
+    "teste": [
+     "2025-12-10",
+     "2026-02-08"
+    ],
+    "escolha_dias": 3,
+    "n": 0,
+    "r_medio": null,
+    "atual_n": 0,
+    "atual_r": null,
+    "melhor": false
+   },
+   {
+    "teste": [
+     "2026-02-09",
+     "2026-04-10"
+    ],
+    "escolha_dias": 3,
+    "n": 0,
+    "r_medio": null,
+    "atual_n": 0,
+    "atual_r": null,
+    "melhor": false
+   }
+  ],
+  "fora_da_amostra": {
+   "n": 52,
+   "acerto_pct": 51.9,
+   "r_medio": -0.148,
+   "r_total": -7.68,
+   "saidas": {
+    "STOP": 21,
+    "BREAKEVEN": 8,
+    "TIME": 22,
+    "TP2": 1
+   },
+   "melhor_moeda": "EIGEN",
+   "sem_melhor_moeda": {
+    "n": 51,
+    "r_medio": -0.204
+   },
+   "moedas": 33
+  },
+  "atual_mesmas_janelas": {
+   "n": 52,
+   "acerto_pct": 51.9,
+   "r_medio": -0.148,
+   "r_total": -7.68,
+   "saidas": {
+    "STOP": 21,
+    "BREAKEVEN": 8,
+    "TIME": 22,
+    "TP2": 1
+   },
+   "melhor_moeda": "EIGEN",
+   "sem_melhor_moeda": {
+    "n": 51,
+    "r_medio": -0.204
+   },
+   "moedas": 33
+  },
+  "janelas_melhor": 0
+ },
+ "escolhida_dias": 3,
+ "periodo_antigo": {
+  "dias": [
+   "2023-04-11",
+   "2025-04-10"
+  ],
+  "3": {
+   "n": 380,
+   "acerto_pct": 48.2,
+   "r_medio": -0.218,
+   "r_total": -83.01,
+   "saidas": {
+    "STOP": 156,
+    "BREAKEVEN": 100,
+    "TIME": 116,
+    "TP2": 8
+   },
+   "melhor_moeda": "UNI",
+   "sem_melhor_moeda": {
+    "n": 366,
+    "r_medio": -0.236
+   },
+   "moedas": 53
+  }
+ },
+ "reserva_atual_referencia": {
+  "n": 30,
+  "acerto_pct": 50.0,
+  "r_medio": 0.09,
+  "r_total": 2.69,
+  "saidas": {
+   "TP2": 3,
+   "STOP": 10,
+   "BREAKEVEN": 9,
+   "TIME": 8
+  },
+  "melhor_moeda": "TIA",
+  "sem_melhor_moeda": {
+   "n": 28,
+   "r_medio": -0.028
+  },
+  "moedas": 24
+ },
+ "acaso_atual_reserva": {
+  "n": 30,
+  "r_real": 0.09,
+  "r_acaso_mediana": -0.17,
+  "r_acaso_p95": 0.153,
+  "percentil": 91.0,
+  "vantagem": false
+ },
+ "acaso_atual_walk_forward": {
+  "n": 52,
+  "r_real": -0.148,
+  "r_acaso_mediana": -0.29,
+  "r_acaso_p95": -0.104,
+  "percentil": 90.5,
+  "vantagem": false
+ }
+}
