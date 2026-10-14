@@ -57,10 +57,11 @@ REGIME_STABLE = 7 * 86400        # regime de mercado firme ha 7 dias antes de um
 REGIME_PT = {"subida": "tendência de subida", "queda": "tendência de descida", "lateral": "lateral"}
 
 
-def market_regime(btc4):
-    """Regime do mercado pelo BTC diario: subida, queda ou lateral."""
+def market_regime(btc4=None, btc1d=None):
+    """Regime do mercado pelo BTC diario: subida, queda ou lateral. Aceita
+    velas diarias (btc1d, preferidas) ou de 4H (agregadas em dias)."""
     from . import backtest as B
-    d = B.daily(btc4 or [])
+    d = list(btc1d or []) or B.daily(btc4 or [])
     if len(d) < 200:
         return None
     c = [x["c"] for x in d]
