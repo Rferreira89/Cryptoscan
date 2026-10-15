@@ -374,6 +374,15 @@ def goal_text(res):
          "", "<b>Quanto tempo, ao ritmo composto de</b>:"]
     for r, meses in m["cenarios"]:
         L.append(f"• {r:.0f}% ao mês → {meses / 12:.1f} anos")
+    L += ["", "<b>Com depósitos mensais</b> (o atalho que não aumenta o risco):"]
+    for r, d, meses in m.get("depositos") or []:
+        L.append(f"• {r}% ao mês + {d} €/mês → {meses / 12:.1f} anos")
+    cr = ((res or {}).get("promo") or {}).get("crescimento") or []
+    if cr:
+        L += ["", "<b>Quem nos leva mais depressa</b> (estimativa do combate, antes da prova real):"]
+        for x in cr[:5]:
+            L.append(f"• {_esc(x['persona'])}: {x['r_mes']:+.1f}R/mês ≈ {x['pct_mes']:+.1f}%/mês"
+                     + (f" → {x['anos']:.0f} anos" if x.get("anos") else ""))
     L += ["", "Com honestidade: 5% ao mês de forma consistente já é excelente. O programa persegue a "
           "meta com disciplina (só estratégias que batem o acaso, risco limitado), nunca aumentando "
           "o risco para encurtar o caminho: uma perda grande atrasa a meta mais do que qualquer ganho a acelera."]

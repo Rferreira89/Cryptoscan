@@ -236,3 +236,38 @@ class TravaoSoDinheiroReal(unittest.TestCase):
         led[2]["executed"] = None                                               # sem resposta: conta
         led[4]["user_result_r"] = None
         self.assertIn("perda diária", signals.trading_halt(sigs, cfg, NOW, led))
+
+
+class MetaMilhao(unittest.TestCase):
+    def test_r6_historico_na_fase_do_mercado(self):
+        longo = {"BOUNCE_X30": {"por_regime": {"lateral": {"n": 30, "avg_r": -0.2},
+                                               "subida": {"n": 30, "avg_r": 0.5}}}}
+        v = diretor.review(row(), dec(strategy="BOUNCE_X30_R1"), c4(), None, None, NOW, "lateral", longo)
+        self.assertEqual(v["decisao"], "REJEITADO")
+        self.assertIn("histórico contra", v["motivos"][0])
+        v = diretor.review(row(), dec(), c4(), None, None, NOW, "subida", longo)
+        self.assertEqual(v["decisao"], "AUTORIZADO")
+        self.assertIn("+0.50R", v["historico"])
+        longo["BOUNCE_X30"]["por_regime"]["lateral"]["n"] = 5           # amostra curta: so informa
+        self.assertEqual(diretor.review(row(), dec(), c4(), None, None, NOW, "lateral", longo)["decisao"],
+                         "AUTORIZADO")
+
+    def test_crescimento_e_ordem_dos_campeoes(self):
+        from engine import promo
+        st = {"arena": {"status": {}, "mortos": {}, "forma": {"lutadores": {
+            "A": {"n": 90, "avg_r": 0.3, "acaso_p95": 0.0},      # 8 ops/mes (teto) -> 2.4R
+            "B": {"n": 24, "avg_r": 0.6, "acaso_p95": 0.0}}}}}   # 8 ops/mes -> 4.8R
+        self.assertEqual([k for k, _ in promo.qualified(st)], ["B", "A"])
+        st["arena"]["forma"]["lutadores"]["B"]["n"] = 21           # 7 ops/mes -> 4.2R
+        g = promo.growth(st, {"capital_usdc": 100, "max_risk_usdc": 2, "risk_reduced": True})
+        self.assertEqual(g[0]["id"], "B")
+        self.assertEqual(g[0]["r_mes"], 4.2)
+        self.assertEqual(g[0]["pct_mes"], 4.2)                      # 1% de risco por operacao
+        self.assertTrue(g[0]["anos"] > 0)
+
+    def test_depositos_encurtam(self):
+        from engine import meta
+        m = meta.progress(None, 80)
+        d = {(r, x): mm for r, x, mm in m["depositos"]}
+        self.assertLess(d[(5, 300)], d[(5, 100)])
+        self.assertLess(d[(5, 100)] / 12, 11)

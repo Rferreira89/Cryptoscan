@@ -430,6 +430,10 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
             r["departamentos"] = []
     result["promo"] = {"campeao": champ, "campeoes": champs, "qualificados": [
         {"id": k, "avg_r": r} for k, r in promo.qualified(state)]}
+    try:                                      # contributo de cada campeao para a meta
+        result["promo"]["crescimento"] = promo.growth(state, cfg)
+    except Exception as e:
+        result["promo"]["crescimento_erro"] = str(e)[:120]
     try:                                      # prova real e diversificacao
         sus = promo.suspended(state)
         prev = state.get("suspensos") or {}

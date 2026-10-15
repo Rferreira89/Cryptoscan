@@ -18,7 +18,14 @@ def progress(base, capital):
     for r in (3, 5, 8, 10, 15):
         meses = math.log(GOAL / capital) / math.log(1 + r / 100) if capital < GOAL else 0
         cen.append((r, meses))
-    return {"capital": round(capital, 2), "pct": capital / GOAL * 100, "marco": marco,
+    dep = []                                  # o atalho legitimo: juntar capital todos os meses
+    for r in (3, 5):
+        for d in (100, 300):
+            c, m = capital, 0
+            while c < GOAL and m < 1200:
+                c, m = c * (1 + r / 100) + d, m + 1
+            dep.append((r, d, m))
+    return {"capital": round(capital, 2), "depositos": dep, "pct": capital / GOAL * 100, "marco": marco,
             "falta_marco": round(marco - capital, 2), "multiplicar": round(GOAL / capital, 1),
             "base": base, "cenarios": cen,
             "marcos": [{"valor": m, "feito": capital >= m} for m in MARCOS]}

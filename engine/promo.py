@@ -115,8 +115,45 @@ def qualified(state):
             continue
         n, r, p95 = f.get("n") or 0, f.get("avg_r"), f.get("acaso_p95")
         if n >= MIN_N and r is not None and r > 0 and p95 is not None and r > p95:
-            out.append((k, r))
-    return sorted(out, key=lambda x: -x[1])
+            out.append((k, r, r_month(f)))
+    # ordem pelo crescimento que da ao capital por mes (decisao do Rui,
+    # 2026-10-15), nao so pelo ganho medio por operacao
+    return [(k, r) for k, r, _ in sorted(out, key=lambda x: (-x[2], -x[1]))]
+
+
+# ---------- contributo para a meta do milhao ----------
+# O que leva ao milhao e o crescimento por mes: ganho medio x operacoes por
+# mes. No combate de 90 dias o lutador opera em dezenas de moedas ao mesmo
+# tempo; ao vivo as vagas, as familias e o limite por vela cortam isso, por
+# isso conta no maximo LIVE_CAP operacoes por mes (estimativa prudente).
+LIVE_CAP = 8
+
+
+def r_month(f):
+    n, r = f.get("n") or 0, f.get("avg_r") or 0
+    return round(r * min(n / 3.0, LIVE_CAP), 2)
+
+
+def growth(state, cfg):
+    """[{id, persona, avg_r, ops_mes, r_mes, pct_mes, anos}] dos qualificados,
+    do maior contributo para o menor. pct_mes usa o risco atual por operacao."""
+    import math
+    from . import arena
+    cap = cfg.get("capital_usdc") or 0
+    risk = (cfg.get("max_risk_usdc") or 0) / cap * 100 if cap else cfg.get("risk_pct", 1.0)
+    if cfg.get("risk_reduced"):
+        risk /= 2
+    lut = ((state.get("arena") or {}).get("forma") or {}).get("lutadores") or {}
+    out = []
+    for k, r in qualified(state):
+        f = lut.get(k) or {}
+        rm = r_month(f)
+        pct = rm * risk
+        anos = (math.log(1_000_000 / cap) / math.log(1 + pct / 100) / 12) if cap and pct > 0 else None
+        out.append({"id": k, "persona": arena.persona(k), "avg_r": r,
+                    "ops_mes": round(min((f.get("n") or 0) / 3.0, LIVE_CAP), 1),
+                    "r_mes": rm, "pct_mes": round(pct, 1), "anos": round(anos, 1) if anos else None})
+    return out
 
 
 # ---------- diversificacao por familia (decisao do Rui, 2026-10-14) ----------
@@ -307,7 +344,7 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
                 continue
             cands.append((rank, a, champ, sig, p, d0))
             break
-    out = {}
+    out, ok = {}, []
     fam = family_open(state)
     for rank, a, champ, sig, p, d0 in sorted(cands, key=lambda x: x[0]):
         seen[a] = sig["t_sig"]
@@ -317,12 +354,45 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
                  f"«{FAMILIAS[f]}» abertas (máximo {MAX_PER_FAMILY})")
             continue
         if bar["t"] != sig["t_sig"]:
-            bar.update(t=sig["t_sig"], n=0)
+            bar.update(t=sig["t_sig"], n=0, fam={})
         if bar["n"] >= MAX_PER_BAR:
             lost(state, now, a, champ, f"limite de {MAX_PER_BAR} entradas por vela de 4H "
                  "(proteção contra quedas em cadeia)")
             continue
         bar["n"] += 1
+        fam[f] = fam.get(f, 0) + 1
+        ok.append((rank, a, champ, sig, p, d0))
+    # Uma so aposta (decisao do Rui, 2026-10-15): sinais da mesma familia na
+    # mesma vela de 4H reagem ao mesmo movimento e ganham ou perdem juntos
+    # (14/10: SOL, XRP, AAVE e BONK no stop no mesmo quarto de hora). Dividem
+    # o risco de UMA operacao: com 2 sinais, cada um leva metade.
+    grp = {}
+    for x in ok:
+        grp.setdefault((family(x[2]), x[3]["t_sig"]), []).append(x)
+    bf = bar.setdefault("fam", {})
+    for (f, t), xs in grp.items():
+        k = len(xs) + bf.get(f, 0)               # inclui as ja emitidas nesta vela
+        bf[f] = bf.get(f, 0) + len(xs)
+        if k <= 1:
+            continue
+        c2 = dict(cfg, risk_pct=cfg["risk_pct"] / k,
+                  max_risk_usdc=cfg.get("max_risk_usdc", float("inf")) / k)
+        if c2.get("fixed_position_usdc"):
+            c2["fixed_position_usdc"] = cfg["fixed_position_usdc"] / k
+        for i, (rank, a, champ, sig, p, d0) in enumerate(xs):
+            short = p.get("side") == "SHORT"
+            p2, _ = (short_plan_for if short else plan_for)(sig, sig.get("px") or p["entry_ref"] /
+                                                          (0.998 if short else 1.002), c2)
+            if p2:
+                p2["cluster"] = {"n": k, "familia": FAMILIAS.get(f, f)}
+                xs[i] = (rank, a, champ, sig, p2, d0)
+            else:                                # metade nao cabe na ordem minima: fica de fora
+                lost(state, now, a, champ, "risco dividido com outro sinal da mesma família "
+                     "nesta vela não cabe na ordem mínima")
+                xs[i] = None
+        xs = [x for x in xs if x]
+        ok = [y for y in ok if (family(y[2]), y[3]["t_sig"]) != (f, t)] + xs
+    for rank, a, champ, sig, p, d0 in sorted(ok, key=lambda x: x[0]):
         short = p.get("side") == "SHORT"
         out[a] = {
             "decision": "SHORT" if short else "LONG", "side": "SHORT" if short else "LONG",

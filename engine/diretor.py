@@ -27,6 +27,9 @@ verificavel e com estas regras, definidas antes:
      tendencia a favor -> conta como conflito.
   R5 Derivados contra (compradores em excesso / funding extremo numa compra,
      ou o inverso numa venda) + mais um departamento contra -> REJEITA.
+  R6 Historico na mesma fase do mercado (decisao do Rui, 2026-10-15): no
+     ringue de 365 dias, se a estrategia tem 15 ou mais operacoes na fase
+     atual (subida, lateral ou descida) e perdeu em media -> REJEITA.
 
 As rejeicoes ficam registadas com o plano completo e sao seguidas em papel:
 o diretor tambem e avaliado (quantas vezes rejeitar evitou uma perda).
@@ -36,6 +39,8 @@ import time
 H4 = 14400
 MAX_CONTRA = 3
 MIN_RR = 1.2
+HIST_MIN_N = 15
+FASE = {"subida": "em subida", "lateral": "lateral", "queda": "em descida", "descida": "em descida"}
 # leituras contrarias que sao a premissa da familia (nao contam como conflito)
 ESPERADO = {
     "sobrevenda": {"Tendência e estrutura", "Volume e fluxo", "Força relativa"},
@@ -133,7 +138,21 @@ def check_plan(dec):
     return None
 
 
-def review(row, dec, c4, macro, btc_c4, now):
+def history(strategy, regime, longo):
+    """(n, R medio, texto) da estrategia na fase atual do mercado, no ringue
+    de 365 dias; None se nao houver dados."""
+    import re
+    if not regime or not longo:
+        return None
+    f = (longo.get(re.sub(r"_R\d+$", "", strategy or "")) or {}).get("por_regime") or {}
+    x = f.get(regime) or {}
+    if not x.get("n") or x.get("avg_r") is None:
+        return None
+    return x["n"], x["avg_r"], (f"com o mercado {FASE.get(regime, regime)}, {x['avg_r']:+.2f}R por operação "
+                                f"em {x['n']} operações (ringue de 365 dias)")
+
+
+def review(row, dec, c4, macro, btc_c4, now, regime=None, longo=None):
     """Decide AUTORIZADO / REJEITADO para a decisao de entrada 'dec'."""
     from . import consultas, promo
     side = dec.get("decision")
@@ -158,10 +177,14 @@ def review(row, dec, c4, macro, btc_c4, now):
     if der and len(contra) >= 2 and not any("departamentos contra" in m for m in motivos):
         motivos.append("derivados contra e mais um departamento contra: "      # R5
                        + ", ".join(r["agente"] for r in contra))
+    h = history(dec.get("strategy"), regime, longo)                 # R6
+    if h and h[0] >= HIST_MIN_N and h[1] <= 0:
+        motivos.append("histórico contra: " + h[2])
     ok = not motivos
     deps = {r["agente"]: ("esperado" if r.get("esperado") else "contra" if r["contra"]
                           else "favor" if r["a_favor"] else "neutro") for r in reps[1:]}
     return {"decisao": "AUTORIZADO" if ok else "REJEITADO", "t": int(now), "deps": deps,
+            "historico": h[2] if h else None,
             "ativo": row["asset"], "estrategia": dec.get("strategy"), "lado": side,
             "motivos": motivos, "estado_dados": est, "familia": fam,
             "esperado": [r["agente"] for r in reps[1:] if r.get("esperado")],
@@ -176,6 +199,8 @@ def gate(state, rows, c4s, macro, now):
     passam a NO TRADE e ficam registadas (com o plano, para serem seguidas)."""
     dr = state.setdefault("diretor", {"decisoes": [], "rejeitados": []})
     btc = c4s.get("BTC")
+    regime = (state.get("mercado") or {}).get("regime")
+    longo = ((state.get("arena") or {}).get("longo") or {}).get("lutadores")
     for r in rows:
         for key in ("decision", "decision_short"):
             d = r.get(key) or {}
@@ -184,17 +209,17 @@ def gate(state, rows, c4s, macro, now):
             if d.get("diretor"):                    # ja revista neste scan
                 continue
             try:
-                v = review(r, d, c4s.get(r["asset"]), macro, btc, now)
+                v = review(r, d, c4s.get(r["asset"]), macro, btc, now, regime, longo)
             except Exception as e:          # sem revisao nao ha entrada (falha fechada)
                 v = {"decisao": "REJEITADO", "motivos": [f"diretor sem leitura ({type(e).__name__})"],
                      "a_favor": [], "contra": [], "invalidacao": [], "estado_dados": "indisponivel",
                      "t": int(now), "ativo": r["asset"], "estrategia": d.get("strategy"),
                      "lado": d["decision"], "familia": None, "esperado": [], "relatorios": []}
             d["diretor"] = {k: v.get(k) for k in ("decisao", "motivos", "a_favor", "contra", "invalidacao",
-                                                  "estado_dados", "esperado", "deps")}
-            short = {k: v[k] for k in ("decisao", "t", "ativo", "estrategia", "lado", "motivos",
+                                                  "estado_dados", "esperado", "deps", "historico")}
+            short = {k: v.get(k) for k in ("decisao", "t", "ativo", "estrategia", "lado", "motivos",
                                        "a_favor", "contra", "invalidacao", "estado_dados",
-                                       "familia", "esperado")}
+                                       "familia", "esperado", "historico")}
             short["relatorios"] = v["relatorios"]
             same = lambda x: (x.get("ativo"), x.get("estrategia"), x.get("lado")) == \
                 (r["asset"], d.get("strategy"), d["decision"])
@@ -301,4 +326,6 @@ REGRAS = [
     "que são a premissa da própria estratégia).",
     "R4 Macro: com a macroeconomia em medo não há compras (exceto o lutador do medo).",
     "R5 Derivados contra mais outro departamento contra rejeitam.",
+    "R6 Histórico: se no ringue de 365 dias a estratégia perdeu em média na fase atual do "
+    "mercado (com 15 ou mais operações), rejeita.",
 ]

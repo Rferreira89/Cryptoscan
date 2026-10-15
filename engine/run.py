@@ -350,7 +350,9 @@ def alert_text(e, sigs, note):
                 f"Ordem limite perto de {_px(p['entry_zone'][1])} (já, na zona "
                 f"{_px(p['entry_zone'][0])} a {_px(p['entry_zone'][1])})\n"
                 f"{invest_line(p['position_pct'], p['risk_pct'], p.get('leverage'), p.get('position_usdc'))}\n"
-                f"Stop: {_px(p['stop'])} (-{p['stop_pct']}%)\n"
+                + (f"🔗 Uma só aposta: {p['cluster']['n']} sinais da família «{p['cluster']['familia']}» "
+                   "nesta vela dividem o risco de uma operação.\n" if p.get("cluster") else "")
+                + f"Stop: {_px(p['stop'])} (-{p['stop_pct']}%)\n"
                 f"{targets_line(p)}\n"
                 + (f"Saída obrigatória ao fim de {hold // 86400:g} dia(s), se não "
                    "tiver fechado antes.\n" if hold else "")
@@ -400,13 +402,16 @@ def alert_text(e, sigs, note):
 
 def diretor_lines(v):
     """Parecer do Diretor de Trading no alerta de entrada."""
-    L = [f"🧭 Diretor de Trading: {v.get('decisao', '–')} (dados {v.get('estado_dados', '–')})"]
+    ed = {"valido": "válidos", "atrasado": "atrasados", "indisponivel": "indisponíveis"}
+    L = [f"🧭 Diretor de Trading: {v.get('decisao', '–')} (dados {ed.get(v.get('estado_dados'), '–')})"]
     for x in (v.get("a_favor") or [])[:3]:
         L.append(f"  ✔ {x}")
     for x in (v.get("contra") or [])[:3]:
         L.append(f"  ✖ {x}")
     if v.get("esperado"):
         L.append("  (contra mas esperado pela estratégia: " + ", ".join(v["esperado"]) + ")")
+    if v.get("historico"):
+        L.append("  📚 " + v["historico"])
     if v.get("invalidacao"):
         L.append("  Invalida se: " + "; ".join(v["invalidacao"][:2]))
     return "\n".join(L) + "\n"

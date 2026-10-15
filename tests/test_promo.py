@@ -222,7 +222,14 @@ class CadeiaDeQuedas(unittest.TestCase):
                                 ["BOUNCE_G0"], True, lambda a: None)
             self.assertEqual(len(d), 2)
             self.assertEqual(len(st["promo_lost"]), 2)
-            self.assertIn("quedas em cadeia", st["promo_lost"][0]["reason"])
+            self.assertRegex(st["promo_lost"][0]["reason"], "quedas em cadeia|diversificação")
+            # mesma familia na mesma vela = uma so aposta: cada uma leva metade
+            ps = [x["plan"] for x in d.values()]
+            self.assertTrue(all(p["cluster"]["n"] == 2 for p in ps))
+            solo = promo.plan_for(sig, 84.1, CFG)[0]
+            for p in ps:
+                self.assertLess(p["position_usdc"] if p.get("position_usdc") else p["position_pct"],
+                                (solo.get("position_usdc") or solo["position_pct"]) * 0.6)
             # scan seguinte na mesma vela: nada de novo
             self.assertEqual(promo.decisions(st, rows, {r["asset"]: c4 for r in rows}, CFG,
                                              now + 300, ["BOUNCE_G0"], True, lambda a: None), {})

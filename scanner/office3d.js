@@ -1011,7 +1011,8 @@ const DIR_RULES = [["R1", "Dados válidos e frescos", m => /dados|velas|fontes|p
   ["R2", "Plano coerente e R:R ≥ 1,2", m => /plano|R:R/.test(m)],
   ["R3", "Menos de 3 departamentos contra", m => /departamentos contra/.test(m)],
   ["R4", "Macroeconomia sem medo", m => /macroeconomia/.test(m)],
-  ["R5", "Derivados não contra + outro", m => /derivados contra/.test(m)]];
+  ["R5", "Derivados não contra + outro", m => /derivados contra/.test(m)],
+  ["R6", "Histórico a favor nesta fase", m => /histórico contra/.test(m)]];
 function dirData() { return (API().D && API().D() || {}).diretor || {}; }
 function wrap(g, t, x, y, w, lh, max) { const ws = String(t).split(" "); let l = "", n = 0;
   for (const w_ of ws) { const tt = l ? l + " " + w_ : w_; if (g.measureText(tt).width > w && l) { g.fillText(l, x, y + n * lh); l = w_; if (++n >= max) return n; } else l = tt; }
@@ -1043,8 +1044,8 @@ function drawDirRules(g) {
   g.fillStyle = "#0b1020"; g.fillRect(0, 0, W, H); g.fillStyle = DIR.c; g.fillRect(0, 0, W, 8);
   g.fillStyle = "#F6E7B0"; g.font = "800 32px system-ui"; g.fillText("Regras do diretor", 24, 56);
   g.fillStyle = "#93a4c3"; g.font = "500 18px system-ui"; g.fillText(x ? `última revisão: ${x.ativo}` : "definidas antes de cada entrada", 24, 86);
-  DIR_RULES.forEach(([k, t, f], i) => { const y = 140 + i * 82, bad = x && ms.some(f), col = !x ? "#4b5a75" : bad ? "#FC8181" : "#68D391";
-    g.fillStyle = "#141c33"; g.fillRect(16, y - 40, W - 32, 68); g.fillStyle = col; g.fillRect(16, y - 40, 8, 68);
+  DIR_RULES.forEach(([k, t, f], i) => { const y = 132 + i * 70, bad = x && ms.some(f), col = !x ? "#4b5a75" : bad ? "#FC8181" : "#68D391";
+    g.fillStyle = "#141c33"; g.fillRect(16, y - 38, W - 32, 60); g.fillStyle = col; g.fillRect(16, y - 38, 8, 60);
     g.font = "800 26px system-ui"; g.fillText(!x ? "•" : bad ? "✖" : "✔", 38, y + 2);
     g.fillStyle = "#e9eef7"; g.font = "800 24px system-ui"; g.fillText(k, 76, y + 2); g.font = "600 21px system-ui"; g.fillStyle = "#c9d3e6"; g.fillText(t, 130, y + 2); });
   g.fillStyle = "#4b5a75"; g.font = "16px system-ui"; g.fillText("toca para ver os relatórios dos agentes", 24, H - 20);
