@@ -502,8 +502,12 @@ class VendaADescoberto(unittest.TestCase):
         self.assertFalse(execucao.READY_SHORT)
         e = {"event": "ISSUED", "id": "op1", "asset": "SOL"}
         self.assertNotIn("e|", str(run.markup_for(e, {"direction": "SHORT", "plan": {}}, True)))
+        bad = ["venda a descoberto 0.00007 BTC a 1 (anexo: sim)", "recompra ok", "dívida 0"]
         execucao.apply(s0, {"pronto": True, "teste": {"passos": ["compra ok", "venda ok"]},
-                            "teste_short": {"passos": ["venda a descoberto ok", "recompra ok", "dívida 0"]}})
+                            "teste_short": {"passos": bad}})
+        self.assertFalse(execucao.READY_SHORT)                    # protecao nao cancelada
+        execucao.apply(s0, {"pronto": True, "teste": {"passos": ["compra ok", "venda ok"]},
+                            "teste_short": {"passos": bad[:1] + ["cancelar proteção (Bidirectional): ok"] + bad[1:]}})
         self.assertTrue(execucao.READY_SHORT)
         self.assertIn("e|", str(run.markup_for(e, {"direction": "SHORT", "plan": {}}, True)))
         execucao.READY = execucao.READY_SHORT = False

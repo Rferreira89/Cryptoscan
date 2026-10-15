@@ -251,7 +251,9 @@ def tpsl_orders(symbol):
         for o in r.get("list") or []:
             prot = o.get("stopOrderType") or float(o.get("triggerPrice") or 0) > 0 or \
                 float(o.get("stopLoss") or 0) > 0
-            if o.get("side") == "Sell" and prot:
+            # compras protegem-se com ordens de venda; vendas a descoberto com
+            # ordens de compra (15/10: o teste do short deixou uma por cancelar)
+            if prot:
                 seen[o["orderId"]] = dict(o, _flt=o.get("orderFilter") or flt or "Order")
     return list(seen.values())
 
@@ -262,8 +264,15 @@ def _match_children(symbol, parts, t0, step):
     free = [o for o in tpsl_orders(symbol) if float(o.get("createdTime") or 0) >= t0 * 1000 - 5000]
     for p in parts:
         q = floor_to(p["qty"], step)
-        best = min(free, key=lambda o: abs(float(o.get("qty") or 0) - q), default=None)
-        if best is not None and abs(float(best.get("qty") or 0) - q) <= max(float(step) * 2, q * 0.03):
+        # numa venda a descoberto a protecao (compra) vem em USDC: aceita os dois
+        alvos = [(q, max(float(step) * 2, q * 0.03))] + \
+            ([(p["usdc"], p["usdc"] * 0.05)] if p.get("usdc") else [])
+
+        def dist(o):
+            v = float(o.get("qty") or 0)
+            return min(abs(v - a) / max(tol, 1e-12) for a, tol in alvos)
+        best = min(free, key=dist, default=None)
+        if best is not None and dist(best) <= 1.0:
             p["filho"] = best["orderId"]
             free.remove(best)
 
@@ -373,9 +382,10 @@ def ours(orders, op):
     if out:
         return out
     t0 = (op.get("criado") or 0) * 1000 - 5000
-    qs = [p.get("qty") or 0 for p in op.get("partes") or []]
+    qs = [p.get("qty") or 0 for p in op.get("partes") or []] + \
+        [p.get("usdc") or 0 for p in op.get("partes") or [] if op.get("lado") == "SHORT"]
     return [o for o in orders if float(o.get("createdTime") or 0) >= t0 and
-            any(abs(float(o.get("qty") or 0) - x) <= max(1e-9, x * 0.03) for x in qs)]
+            any(abs(float(o.get("qty") or 0) - x) <= max(1e-9, x * 0.03) for x in qs if x)]
 
 
 # ---------- acoes ----------
@@ -745,11 +755,15 @@ def do_test_short(state, req, ex, now, send):
         time.sleep(2)
         d1 = coin_debt(wallet(), "BTC")
         steps.append(f"empréstimo de BTC criado: {d1 - d0:.8f}")
-        for _ in range(6):
-            od = [o for o in tpsl_orders(sym) if float(o.get("createdTime") or 0) >= (now - 5) * 1000]
+        od = []
+        for _ in range(10):
+            od = [o for o in tpsl_orders(sym) if o.get("side") == "Buy"
+                  and float(o.get("createdTime") or 0) >= (now - 30) * 1000]
             if od:
                 break
             time.sleep(2)
+        if attached and not od:
+            steps.append("ERRO: a proteção anexada não apareceu para cancelar")
         for o in od:
             cancel(sym, o)
             steps.append(f"cancelar proteção ({o.get('stopOrderType')}): ok")
@@ -1009,6 +1023,28 @@ def do_clean(state, req, ex, now, send):
     return "ok"
 
 
+def do_clean_short(state, req, ex, now, send):
+    """Cancela as ordens de COMPRA em BTCUSDC criadas desde o teste da venda a
+    descoberto (as do Rui, anteriores, nao sao tocadas)."""
+    sym, out = "BTCUSDC", []
+    t0 = ((ex.get("teste_short") or {}).get("t") or now) - 60
+    for o in tpsl_orders(sym):
+        if o.get("side") != "Buy" or float(o.get("createdTime") or 0) < t0 * 1000:
+            continue
+        out.append(f"ordem {o['orderId'][-6:]} tipo={o.get('stopOrderType')} tp={o.get('takeProfit')} "
+                   f"sl={o.get('stopLoss')} qty={o.get('qty')}")
+        try:
+            cancel(sym, o)
+            out.append("  cancelada")
+        except ExecError as e:
+            out.append(f"  cancelar ERRO {e}")
+    if not out:
+        out.append("nenhuma ordem do teste por cancelar")
+    ex["limpeza_short"] = {"t": now, "passos": out}
+    send("🧹 Limpeza do teste da venda a descoberto:\n" + "\n".join(out))
+    return "ok"
+
+
 def do_test2(state, req, ex, now, send):
     """Prova do 'stop para a entrada': a Bybit UE nao deixa alterar a ordem
     TP/SL anexada. Testa substitui-la por duas ordens condicionais (objetivo
@@ -1151,7 +1187,7 @@ def do_orders(state, req, ex, now, send):
     return "ok"
 
 
-ACTIONS = {"vender": do_short, "teste_short": do_test_short, "ordens": do_orders, "teste_alav": do_test_lev, "teste_margem": do_test_margin, "teste2": do_test2, "limpar": do_clean, "diag": do_diag, "comprar": do_buy, "breakeven": do_breakeven, "fechar": do_close,
+ACTIONS = {"vender": do_short, "teste_short": do_test_short, "limpar_short": do_clean_short, "ordens": do_orders, "teste_alav": do_test_lev, "teste_margem": do_test_margin, "teste2": do_test2, "limpar": do_clean, "diag": do_diag, "comprar": do_buy, "breakeven": do_breakeven, "fechar": do_close,
            "parar": do_stop_all, "teste": do_test}
 
 

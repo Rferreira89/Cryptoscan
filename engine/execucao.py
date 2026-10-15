@@ -39,8 +39,12 @@ def apply(state, ex):
     state["exec_ready"] = READY
     # vendas a descoberto: so depois do teste real (vender, recomprar e devolver) passar
     ps = (ex.get("teste_short") or {}).get("passos") or []
+    # e, se a protecao veio anexada, ela tem de ter sido encontrada e cancelada
+    # (15/10: o primeiro teste nao a encontrava e deixou-a aberta)
+    anexada = any("(anexo: sim)" in p for p in ps)
     READY_SHORT = READY and bool(ps) and not any("ERRO" in p for p in ps) and \
-        any(p.startswith("recompra") for p in ps)
+        any(p.startswith("recompra") for p in ps) and \
+        (not anexada or any(p.startswith("cancelar proteção") for p in ps))
     state["exec_ready_short"] = READY_SHORT
     done = set(ex.get("feitos") or [])
     state["exec_req"] = [r for r in state.get("exec_req") or [] if r["id"] not in done]
