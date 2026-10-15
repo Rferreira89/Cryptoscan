@@ -1,12 +1,13 @@
 # Diário de investigação
 
-**Hipóteses testadas contra esta reserva: 12** (8 neste diário: compra de
+**Hipóteses testadas contra esta reserva: 14** (10 neste diário: compra de
 quedas, compressão, oversold bounce 4H, day trade 1H, bounce com outras
-saídas, sweep a mercado, funding negativo, quebra com compradores; mais 4
-no diário de afinação, H1 a H4). Atualizado em 2026-10-14. Quanto maior
-este número, maior a probabilidade de uma hipótese passar por sorte: com 12
-testes, a probabilidade de pelo menos um falso positivo a 5% já ronda os
-46% (e as várias configurações de cada grelha aumentam-na ainda mais).
+saídas, sweep a mercado, funding negativo, quebra com compradores,
+capitulação do mercado, atraso face ao BTC; mais 4 no diário de afinação,
+H1 a H4). Atualizado em 2026-10-15. Quanto maior este número, maior a
+probabilidade de uma hipótese passar por sorte: com 14 testes, a
+probabilidade de pelo menos um falso positivo a 5% já ronda os 51% (e as
+várias configurações de cada grelha aumentam-na ainda mais).
 
 Uma hipótese por entrada, com o veredicto. Método: `tools/research.py`
 (decisão no fecho, execução na abertura seguinte, 0,25% de comissão + 0,1% de
@@ -162,6 +163,8 @@ o Rui), e o morto fica registado. Um por corrida, na segunda vaga.
 | BOUNCE_1H | 2026-10-14 (forma recente) | custos de 0,25R por operação e, mesmo sem custos, cerca de −0,03R em 24 meses (ver entrada de 2026-10-14) | sem sucessor (nenhuma correção única chega a zero) | — |
 | TURTLE, SQUEEZE_BB | 2026-10-14 (forma recente) | o momento da entrada (comprar o rompimento): a mesma geometria com entradas ao acaso dá muito mais | família das quebras → QUEBRA_COMPRADORES (hipótese 5 da fila) | NÃO VALIDADA (2026-10-14; percentil 12,8 contra o acaso) |
 | MOMENTUM, SHORT_X30, SHORT_FLUXO, SHORT_TURTLE, SHORT_ISOLADA | 2026-10-14 (forma recente) | MOMENTUM: 31 operações, pouco para autópsia; shorts fora desta investigação (só compras) | sem sucessor por agora | — |
+| RETESTE, BRK_ESPACO | 2026-10-14 (forma recente) | família "comprar a quebra em 4H", já esgotada (ver 2026-10-14) | sem sucessor | — |
+| CAPITULACAO | 2026-10-15 (forma recente; 20 op., −0,218R) | capitulação isolada numa moeda perde; só os colapsos do mercado inteiro recuperam, e o filtro BTC>SMA200 deita-os fora (ver entrada de 2026-10-15) | CAPITULACAO → CAP_MERCADO | AMOSTRA INSUFICIENTE (2026-10-15; 23 op. fora da amostra, percentil 36,4 contra o acaso; reserva 7 op., todas no stop) |
 
 ## Hipóteses anteriores a este diário (até 2026-10-02, período 2021-2026)
 
@@ -763,4 +766,91 @@ uma hipótese nova (fila vazia).
   `tools/research_atraso_btc.py`.
 - Expectativa declarada: NÃO VALIDADA é o mais provável; com 14 hipóteses
   contra esta reserva no fim desta corrida, só o papel pode provar algo.
+
+## 2026-10-15 — CAP_MERCADO: CAPITULACAO só quando o mercado inteiro capitula (sucessor da arena)
+
+**Veredicto: AMOSTRA INSUFICIENTE** (16 operações no walk-forward, 23 fora
+da amostra com a reserva; mínimo 40). Mesmo com mais operações não seria
+validada: falha 3 dos 7 critérios (dobras positivas, reserva, acaso) e na
+reserva perde as 7 operações. Não vai para papel nem para o ringue.
+
+- **Regra e grelha**: as do pré-registo acima (commit 5240ac0, antes dos
+  testes). Gatilho de `sig_capitulacao`, saídas G0 (3 dias), filtro de
+  mercado trocado por "pelo menos B das moedas com o mínimo 7% abaixo do
+  fecho anterior na vela do sinal ou na anterior". Grelha (3): B ∈ {20%,
+  35%, 50%}. Universo: 62 moedas.
+- **Janela**: desenho 2024-10-11 a 2026-04-10; reserva 2026-04-11 a
+  2026-10-10 (última vela do histórico: 2026-10-11). Walk-forward: treino
+  183 dias, teste 91, 4 dobras. Custos 0,25% + 0,1% por lado.
+- **Desenho**: 3 de 3 configurações positivas, mas com poucas operações e
+  quase sem capital investido (8% a 9% do tempo). B=35%: +24,6% (Sharpe
+  0,91, queda máxima 10,5%, 40 op., 60% de acerto, +0,068R); B=20%: +14,3%
+  (46 op., −0,074R); B=50%: +14,4% (35 op., −0,058R). O retorno positivo
+  com R médio negativo vem de poucos colapsos com subidas grandes (risco
+  médio de 13% a 16% por operação). Referência: +12,2%, Sharpe 0,40.
+- **Walk-forward fora da amostra** (364 dias): +14,1%, Sharpe 0,83, queda
+  máxima 7,4%, só 16 operações, 56,2% de acerto, −0,026R. Dobras: −0,1% /
+  +0,3% / +14,9% / −0,9% = 2 de 4 (a terceira, com o colapso de
+  2026-02-06, faz o resultado todo). Grandes moedas: +21,3%, Sharpe 1,26.
+  Referência nas mesmas datas: +7,0%, Sharpe 0,41.
+- **Configuração escolhida**: B=20%.
+- **Reserva (uma avaliação)**: −11,3%, Sharpe −1,85, queda máxima 13,0%,
+  7 operações, 0% de acerto (todas no stop, −1,01R). Referência: +19,3%,
+  Sharpe 1,66.
+- **Contra o acaso** (1000 séries, ±90 velas, mesma geometria): fora da
+  amostra (23 op.) −0,326R contra mediana −0,281R e p95 −0,054R:
+  **percentil 36,4**. Só walk-forward (16): percentil 97,2; só reserva
+  (7): percentil 0. Amostras minúsculas nos dois casos.
+- **Critérios**: 1 sim; 2 NÃO (50%); 3 sim; 4 sim; 5 sim; 6 NÃO; 7 NÃO.
+- **Período antigo (informativo, não conta)**: 2021-07-30 a 2024-10-10 a
+  mesma configuração daria −21,3% (Sharpe −0,39, 75 operações, 48% de
+  acerto, −0,148R) contra +57,4% da referência.
+- **Leitura**: a autópsia acertou na descrição (os ganhos da capitulação
+  vêm dos colapsos gerais), mas isso não é uma regra que se possa operar:
+  são meia dúzia de episódios em dois anos, a carteira só apanha 4 moedas
+  em cada um, e um colapso que continua a cair (reserva: 7 stops seguidos)
+  apaga os ganhos de vários. A "regra" que a autópsia viu era, sobretudo,
+  2 ou 3 dias de sorte, e esses dias já eram conhecidos antes do teste.
+  A CAPITULACAO fica morta sem herdeiro.
+- Código: `tools/research_cap_mercado.py`; teste sem look-ahead:
+  `tests/test_research_cap_mercado.py`; números:
+  `backtest/research_cap_mercado.json`.
+
+## 2026-10-15 — ATRASO_BTC: moedas que não acompanharam um impulso do BTC (hipótese nova)
+
+**Veredicto: NÃO VALIDADA.** Falha 6 dos 7 critérios; contra o acaso fica
+no percentil 79,7 fora da amostra (abaixo do 95). Não vai para papel.
+
+- **Regra e grelha**: as do pré-registo acima (commit 5240ac0). Grelha (4):
+  X ∈ {1,5%; 2,5%} × H ∈ {1, 3} dias. Universo: 61 moedas (sem o BTC).
+- **Janela**: desenho 2024-10-11 a 2026-04-10; reserva 2026-04-11 a
+  2026-10-10. Walk-forward: treino 183 dias, teste 91, 4 dobras. Custos
+  0,25% + 0,1% por lado.
+- **Desenho**: 0 de 4 configurações positivas. X=1,5%: −28,4% (H=1, 192
+  op., 35,9%, −0,106R) e −35,6% (H=3, −0,069R); X=2,5%: −12,5% (H=1, 32
+  op., 28,1%, −0,237R) e −24,2% (H=3, −0,354R). Quanto maior o impulso do
+  BTC, pior: a moeda que não acompanha um impulso forte está fraca, não
+  atrasada. Referência: +12,2%, Sharpe 0,40.
+- **Walk-forward fora da amostra** (364 dias): −9,7%, Sharpe −0,38, queda
+  máxima 25,4%, 65 operações, 40,0% de acerto, −0,129R (custo médio
+  0,19R). Dobras: +21,0% / −24,1% / −1,7% / 0,0% (sem operações) = 1 de 4.
+  Grandes moedas: −0,5%. Referência nas mesmas datas: +7,0%, Sharpe 0,41.
+- **Configuração escolhida**: X=2,5%, H=1.
+- **Reserva (uma avaliação)**: +4,4%, Sharpe 0,81, queda máxima 4,7%, 16
+  operações (62,5% de acerto, +0,322R). Referência: +19,3%, Sharpe 1,66.
+- **Contra o acaso** (1000 séries, ±90 velas, mesma geometria): fora da
+  amostra (81 op.) −0,040R contra mediana −0,114R e p95 +0,050R:
+  **percentil 79,7**. Walk-forward: percentil 67,7 (1 dia) e 2,8 (3 dias,
+  5 op.); reserva: 88,2.
+- **Critérios**: 1 NÃO; 2 NÃO (25%); 3 NÃO (0%); 4 NÃO; 5 NÃO; 6 sim; 7 NÃO.
+- **Período antigo (informativo, não conta)**: 2021-07-30 a 2024-10-10 a
+  mesma configuração daria −21,9% (Sharpe −0,50, 136 operações, 36% de
+  acerto, −0,164R) contra +57,4% da referência.
+- **Leitura**: a 4H não há atraso para apanhar; a falta de reação ao BTC é
+  sinal de fraqueza relativa, e a fraqueza continua. Com custos de 0,7% ida
+  e volta e stops de 6% a 9%, nem um pequeno avanço sobre o acaso chegaria.
+  Nada foi ligado ao vivo nem ao ringue.
+- Código: `tools/research_atraso_btc.py`; teste sem look-ahead:
+  `tests/test_research_atraso_btc.py`; números:
+  `backtest/research_atraso_btc.json`.
 
