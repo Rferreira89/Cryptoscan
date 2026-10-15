@@ -738,6 +738,35 @@ def sig_reteste(c4):
             "gatilho": f"reteste por cima do nível rompido {level:.6g} com vela de retoma"}
 
 
+# ---------- estudo dos stops (decisao do Rui, 2026-10-15) ----------
+# 14/10: SOL e XRP tocaram no stop no minimo de um pavio e voltaram a subir.
+# Duas variantes do Xavier com o MESMO gatilho e os mesmos objetivos, so com
+# o stop noutro sitio, combatem contra o original:
+#   PAVIO: stop 0,6 ATR abaixo do minimo recente (em vez de 0,1 ATR);
+#   LIQ:   stop abaixo do minimo de 30 velas (onde esta a liquidez), no
+#          maximo 3 ATR abaixo da entrada (se for mais longe, nao entra).
+# O risco em USDC fica igual (a posicao encolhe com o stop mais largo); so
+# ganha lugar quem bater o original e o acaso no combate.
+def _stop_var(fn, mode):
+    def f(c4):
+        e = fn(c4)
+        if not e or not e.get("atr"):
+            return e
+        at, c = e["atr"], c4[-1]["c"]
+        if mode == "pavio":
+            stop = e["stop"] - 0.5 * at
+        else:
+            pool = min(x["l"] for x in c4[-30:])
+            stop = min(e["stop"], pool - 0.2 * at)
+            if c - stop > 3 * at:
+                return None
+        if stop <= 0:
+            return None
+        return dict(e, stop=stop, gatilho=e.get("gatilho", "") + (" · stop abaixo dos pavios" if mode == "pavio"
+                                                                 else " · stop abaixo da liquidez"))
+    return f
+
+
 NEW_SIGS = {"BRK_ESPACO": sig_breakout_espaco, "RETESTE": sig_reteste,
             "TURTLE": sig_turtle, "SQUEEZE_BB": sig_squeeze_bb, "MOMENTUM": sig_momentum,
             "BOUNCE_ABSORCAO": sig_absorcao, "BOUNCE_LSR": sig_lsr,
@@ -745,7 +774,9 @@ NEW_SIGS = {"BRK_ESPACO": sig_breakout_espaco, "RETESTE": sig_reteste,
             "BOUNCE_DESALAV": sig_desalav, "BOUNCE_NOREACT": sig_noreact, "BOUNCE_TRAIL": sig_trail, "BOUNCE_HORAS": sig_horas,
             "BOUNCE_X30": sig_x30, "DIP_TREND": sig_dip_trend, "CAPITULACAO": sig_capitulacao,
             "BOUNCE_FLUXO": sig_fluxo, "BOUNCE_FORTE": sig_forte,
-            "BOUNCE_SQUEEZE": sig_squeeze, "BOUNCE_ISOLADA": sig_isolada}
+            "BOUNCE_SQUEEZE": sig_squeeze, "BOUNCE_ISOLADA": sig_isolada,
+            "BOUNCE_X30_PAVIO": _stop_var(sig_x30, "pavio"),
+            "BOUNCE_X30_LIQ": _stop_var(sig_x30, "liq")}
 
 
 def fetch_funding(base, now, days):

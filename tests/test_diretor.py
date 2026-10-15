@@ -271,3 +271,36 @@ class MetaMilhao(unittest.TestCase):
         d = {(r, x): mm for r, x, mm in m["depositos"]}
         self.assertLess(d[(5, 300)], d[(5, 100)])
         self.assertLess(d[(5, 100)] / 12, 11)
+
+
+class AvisoTravao(unittest.TestCase):
+    def test_textos(self):
+        t = run.alert_text({"event": "HALT", "id": "h", "reason": "perda diária de -3.0R atingiu o limite",
+                            "until": NOW + 86400, "loss": [-3.0, -3.4]}, {}, "")
+        self.assertIn("TRAVÃO DE PERDAS ATIVO", t)
+        self.assertIn("-3.40R em 7 dias", t)
+        self.assertIn("DESLIGADO", run.alert_text({"event": "HALT_OFF", "id": "x"}, {}, ""))
+
+
+class EstudoDosStops(unittest.TestCase):
+    def test_variantes_do_stop(self):
+        from unittest import mock
+        from tools import arena_ringue as AR
+        from engine import arena, promo
+        bars = c4(60)
+        base = {"stop": 95.0, "tp": [104.0], "partials": [100], "breakeven": True, "hold_s": 1,
+                "atr": 2.0, "gatilho": "RSI"}
+        with mock.patch.object(AR, "sig_x30", return_value=dict(base)):
+            pav = AR._stop_var(AR.sig_x30, "pavio")(bars)
+            liq = AR._stop_var(AR.sig_x30, "liq")(bars)
+        self.assertEqual(pav["stop"], 94.0)
+        self.assertEqual(pav["tp"], [104.0])                                  # mesmos objetivos
+        self.assertAlmostEqual(liq["stop"], min(95.0, 99.0 - 0.4))
+        bars[-5]["l"] = 80.0                                                   # liquidez longe demais
+        with mock.patch.object(AR, "sig_x30", return_value=dict(base)):
+            self.assertIsNone(AR._stop_var(AR.sig_x30, "liq")(bars))
+        for k in ("BOUNCE_X30_PAVIO", "BOUNCE_X30_LIQ"):
+            self.assertIn(k, AR.NEW_SIGS)
+            self.assertIn(k, promo.REAL_OK)                                    # real so depois de qualificar
+            self.assertEqual(promo.family(k), "sobrevenda")
+            self.assertNotIn(arena.persona(k), ("", None))

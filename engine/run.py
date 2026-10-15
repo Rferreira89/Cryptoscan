@@ -301,6 +301,17 @@ def alert_text(e, sigs, note):
         return (f"⛔ ESTRATÉGIA DESLIGADA — {e['strategy']}: {e['n']} operações "
                 f"ao vivo com resultado {e['sum_r']:+.2f}R. Deixa de gerar "
                 "sinais.")
+    if k == "HALT":
+        quando = (datetime.datetime.fromtimestamp(e["until"], ZoneInfo("Europe/Lisbon"))
+                  .strftime("%d/%m às %H:%M") if e.get("until") else "quando o resultado recuperar")
+        d, w = (e.get("loss") or [0, 0])
+        return (f"⛔ TRAVÃO DE PERDAS ATIVO\n{e['reason']}.\n"
+                f"Dinheiro real: {d:+.2f}R nas últimas 24h, {w:+.2f}R em 7 dias.\n"
+                f"Sem entradas novas até {quando} (se não fechar mais nenhuma operação). "
+                "As operações abertas continuam protegidas pelos stops.")
+    if k == "HALT_OFF":
+        return ("✅ TRAVÃO DESLIGADO — o programa volta a emitir sinais reais. "
+                "Risco e regras de sempre; o Diretor revê cada entrada.")
     if k == "PAPER_BUY" and e.get("real"):
         return (f"🟢 COMPRA — {e['asset']} ({e['pair']}, Bybit EU)\n"
                 "TENDÊNCIA DIÁRIA · quebra do máximo de 20 dias\n"

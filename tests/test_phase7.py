@@ -229,7 +229,7 @@ class Reports(unittest.TestCase):
         import datetime
         return int(datetime.datetime(y, m, d, h, 0, tzinfo=reports.TZ).timestamp())
 
-    def test_daily_once_after_8_lisbon_and_weekly_on_monday(self):
+    def test_daily_once_after_8_lisbon_and_weekly_on_sunday(self):
         st = {}
         self.assertEqual(reports.due(RES, st, self.ts(2026, 10, 3, 7)), [])
         out = reports.due(RES, st, self.ts(2026, 10, 3, 8))        # sabado
@@ -237,9 +237,12 @@ class Reports(unittest.TestCase):
         self.assertIn("AAVE", out[0][1])
         self.assertIn("acima", out[0][1])
         self.assertEqual(reports.due(RES, st, self.ts(2026, 10, 3, 12)), [])
-        out = reports.due(RES, st, self.ts(2026, 10, 5, 9))        # segunda
-        self.assertEqual([k for k, _ in out], ["daily", "weekly"])
-        self.assertIn("nenhum fechado esta semana", out[1][1])
+        out = reports.due(RES, st, self.ts(2026, 10, 4, 9))        # domingo de manha
+        self.assertEqual([k for k, _ in out], ["daily"])
+        out = reports.due(RES, st, self.ts(2026, 10, 4, 20))       # domingo a noite
+        self.assertEqual([k for k, _ in out][:1], ["weekly"])
+        self.assertIn("nenhum fechado esta semana", out[0][1])
+        self.assertEqual([k for k, _ in reports.due(RES, st, self.ts(2026, 10, 4, 22))], [])
 
     def test_health_alert_only_on_change(self):
         st = {"reports": {"daily": "x"}}

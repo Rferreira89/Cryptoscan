@@ -83,7 +83,26 @@ def daily(res, state):
     return "\n".join(L)
 
 
-def weekly(state, now, arena_summary=None):
+def lessons(state, now):
+    """Licoes da semana tiradas dos factos: perdas em cadeia na mesma hora,
+    stops tocados e recuperados, etc. Frases curtas, so com dados."""
+    led = [r for r in state.get("ledger") or [] if r.get("status") == "CLOSED"
+           and r.get("kind") != "1D" and r.get("closed_at") and now - r["closed_at"] < 7 * 86400 and r.get("result_r") is not None]
+    out = []
+    loss = sorted((r for r in led if r["result_r"] < 0), key=lambda r: r["closed_at"])
+    for i, r in enumerate(loss):                 # 3+ stops na mesma hora = a mesma aposta
+        grp = [x for x in loss if 0 <= x["closed_at"] - r["closed_at"] < 3600]
+        if len(grp) >= 3:
+            out.append(f"{len(grp)} stops na mesma hora ({', '.join(x['asset'] for x in grp)}): era uma só "
+                       "aposta no mercado. Desde 15/10 sinais da mesma família na mesma vela dividem o risco.")
+            break
+    wins = [r for r in led if r["result_r"] > 0]
+    if led:
+        out.append(f"Acerto dos sinais da semana: {len(wins)} em {len(led)}.")
+    return out
+
+
+def weekly(state, now, arena_summary=None, res=None):
     """Separa os sinais (todos, para medir as estrategias) das operacoes que
     o Rui executou (o dinheiro dele): so estas falam em % do capital."""
     led = state.get("ledger", [])
@@ -111,10 +130,31 @@ def weekly(state, now, arena_summary=None):
             L.append(f"• {STR.get(k, k)}: {v['n']} sinais, {v['sum_r']:+.2f}R")
     L.append(f"Sinais desde o início: {a['closed']} fechados, "
              f"{a['total_r']:+.2f}R, queda máxima {a['max_drawdown_r']:.1f}R.")
+    res = res or {}
+    for x in lessons(state, now):
+        L.append("💡 " + x)
+    d = res.get("diretor") or {}
+    if d:
+        av = d.get("avaliacao") or {}
+        L.append(f"🧭 Diretor: rejeições seguidas em papel — {av.get('evitou_perda', 0)} evitaram perda, "
+                 f"{av.get('custou_ganho', 0)} custaram ganho.")
+        sb = [t for t in d.get("departamentos") or [] if t.get("n")]
+        if sb:
+            L.append("Quem acerta: " + ", ".join(f"{t['dep']} {t['taxa']:.0f}% ({t['n']})" for t in sb[:4]))
+    cr = (res.get("promo") or {}).get("crescimento") or []
+    if cr:
+        L.append("Quem nos leva mais depressa (combate): " + ", ".join(
+            f"{x['persona']} {x['r_mes']:+.1f}R/mês" for x in cr[:3]))
+    m = res.get("meta") or {}
+    if m:
+        L.append(f"🏁 Meta: {m['capital']:.2f} USDC; próximo marco {m['marco']:,} USDC "
+                 f"(faltam {m['falta_marco']:.2f}).".replace(",", " "))
     board = (arena_summary or {}).get("classificacao") or []
     if board:
         ico = {"SOBE": "🏆", "A COMPETIR": "⚔️", "MORTA": "💀"}
         L.append("Arena (todas as estratégias contra o acaso):")
+        board = sorted((b for b in board if b.get("avg_r") is not None),
+                       key=lambda b: -b["avg_r"])
         for b in board[:8]:
             avg = "sem operações" if b["avg_r"] is None else \
                 f"{b['n']} op., {b['avg_r']:+.2f}R"
@@ -131,9 +171,11 @@ def due(res, state, now):
     if loc.hour >= 8 and rep.get("daily") != day:
         rep["daily"] = day
         out.append(("daily", daily(res, state)))
-        if loc.weekday() == 0 and rep.get("weekly") != day:
-            rep["weekly"] = day
-            out.append(("weekly", weekly(state, now, res.get("arena"))))
+
+    # relatorio semanal ao domingo a partir das 20h (decisao do Rui, 2026-10-15)
+    if loc.weekday() == 6 and loc.hour >= 20 and rep.get("weekly") != day:
+        rep["weekly"] = day
+        out.append(("weekly", weekly(state, now, res.get("arena"), res)))
     # liga semanal: resumo ao domingo a partir das 20h (uma vez por semana)
     if loc.weekday() == 6 and loc.hour >= 20 and res.get("liga") and \
             rep.get("liga") != res["liga"].get("semana"):

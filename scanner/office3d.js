@@ -441,7 +441,7 @@ function robotFighter(col, dead) {
 
 // lutadores com aspeto de pessoas reais (o mesmo corpo articulado do
 // escritorio), com luvas de boxe; o aspeto e estavel para cada analista
-const FEM = new Set(["Rita", "Vera", "Violeta", "Raquel", "Leonor", "Matilde", "Carolina", "Beatriz", "Mariana", "Francisca", "Clara", "Joana", "Catarina", "Lara", "Sofia", "Marta", "Inês", "Carla", "Patrícia", "Diana", "Fernanda", "Isabel", "Dália", "Mónica", "Xénia", "Filipa", "Sara", "Irene"]);
+const FEM = new Set(["Paulina", "Rita", "Vera", "Violeta", "Raquel", "Leonor", "Matilde", "Carolina", "Beatriz", "Mariana", "Francisca", "Clara", "Joana", "Catarina", "Lara", "Sofia", "Marta", "Inês", "Carla", "Patrícia", "Diana", "Fernanda", "Isabel", "Dália", "Mónica", "Xénia", "Filipa", "Sara", "Irene"]);
 const SKINS = ["#ffdbac", "#f1c27d", "#e0ac69", "#c68642", "#8d5524"], HAIRS = ["#1a1a1a", "#3b2a1a", "#6b3b1f", "#b5803a", "#d9b26a", "#7a2e1a"];
 function hsh(t) { let h = 7; for (const c of String(t)) h = (h * 31 + c.charCodeAt(0)) % 9973; return h; }
 function fighter(col, dead, id, persona) {

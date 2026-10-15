@@ -307,6 +307,33 @@ def trading_halt(sigs, cfg, now, led=None):
     return None
 
 
+def halt_until(sigs, cfg, now, led=None):
+    """Quando o travao se desliga se nao fechar mais nenhuma operacao (hora a
+    hora, ate 8 dias)."""
+    for h in range(1, 8 * 24 + 1):
+        if not trading_halt(sigs, cfg, now + h * 3600, led):
+            return int(now + h * 3600)
+    return None
+
+
+def real_loss(sigs, now, led=None):
+    """(R nas ultimas 24h, R nos ultimos 7 dias) do dinheiro real."""
+    by = {r["id"]: r for r in led or []}
+    day = week = 0.0
+    for s in sigs.values():
+        if s["status"] != "CLOSED" or s.get("mode", "REAL") != "REAL":
+            continue
+        r = by.get(s.get("id")) or {}
+        if r.get("executed") is False:
+            continue
+        res = r["user_result_r"] if r.get("user_result_r") is not None else s["result_r"]
+        if now - s["closed_at"] < 86400:
+            day += res
+        if now - s["closed_at"] < 7 * 86400:
+            week += res
+    return [round(day, 2), round(week, 2)]
+
+
 def correlation(ca, cb, n=60):
     """Correlacao dos retornos diarios dos ultimos n dias (ou None)."""
     if not ca or not cb:
@@ -397,6 +424,13 @@ def update_state(state, rows, cfg, now, daily=None):
     live = {s["asset"] for s in sigs.values()
             if s["status"] in ("ACTIVE", "TRIGGERED")}
     halt = trading_halt(sigs, cfg, now, state.get("ledger"))
+    prev = state.get("halt")
+    if halt and not prev:                       # aviso imediato (decisao do Rui, 2026-10-15)
+        events.append({"t": now, "event": "HALT", "id": f"halt-{int(now)}", "reason": halt,
+                       "until": halt_until(sigs, cfg, now, state.get("ledger")),
+                       "loss": real_loss(sigs, now, state.get("ledger")), "real": True})
+    elif prev and not halt:
+        events.append({"t": now, "event": "HALT_OFF", "id": f"halt-off-{int(now)}", "real": True})
     state["halt"] = halt
     if halt:
         for r in rows:

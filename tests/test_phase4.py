@@ -351,8 +351,10 @@ class Signals(unittest.TestCase):
                                      strategy="PULLBACK") for k in range(2)}}
         rows = self._rows()
         ev = signals.update_state(state, rows, CFG, now)
-        self.assertEqual(ev, [])
+        self.assertEqual([e["event"] for e in ev], ["HALT"])         # so o aviso do travao
+        self.assertTrue(now + 86000 < ev[0]["until"] <= now + 86400 + 3600)  # sai das 24h
         self.assertIn("TRADING HALTED", rows[0]["decision"]["reason"])
+        self.assertEqual(signals.update_state(state, rows, CFG, now + 60), [])   # sem repetir o aviso
 
     def test_track_record(self):
         state, now = {}, 1_800_000_000
