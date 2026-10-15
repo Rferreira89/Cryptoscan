@@ -463,9 +463,10 @@ def markup_for(e, s, real):
     if not (oid and real):
         return None
     m = inbox.buttons(oid)
-    # fase 2: um toque (so compras; as vendas a descoberto sao manuais por agora)
-    if execucao.READY and e.get("event") == "ISSUED" and s.get("direction") != "SHORT" \
-            and (s.get("plan") or {}).get("side") != "SHORT":
+    # um toque: compras com o teste da compra; vendas a descoberto so depois
+    # do teste real da venda a descoberto (decisao do Rui, 2026-10-15)
+    short = s.get("direction") == "SHORT" or (s.get("plan") or {}).get("side") == "SHORT"
+    if e.get("event") == "ISSUED" and (execucao.READY_SHORT if short else execucao.READY):
         m["inline_keyboard"].insert(0, [execucao.button(oid)])
     if e.get("asset"):
         m["inline_keyboard"].append(consultas.why_buttons(e["asset"]))
@@ -556,7 +557,7 @@ def deliver(cfg, state, events, extra=()):
                 and "r" not in e:
             # operacao executada pelo programa: ele proprio sobe o stop na Bybit
             txt = (f"🟢 TP1 — {s.get('asset', e.get('asset'))}: objetivo 1 atingido a {_px(e.get('price'))}. "
-                   "O programa está a subir o stop para a entrada na Bybit (1 a 2 minutos): "
+                   "O programa está a mover o stop para a entrada na Bybit (1 a 2 minutos): "
                    "não precisas de fazer nada. Recebes a confirmação a seguir.")
         real = s.get("mode") != "PAPER" and e.get("real", True)
         html_mode = False

@@ -176,7 +176,11 @@ def apply(state, updates, chat_id, res=None):
                 elif not execucao.READY:
                     out.append(("A execução ainda não está ligada (falta a chave de "
                                 "negociação validada).", cq["id"]))
-                elif execucao.request(state, "comprar", parts[1], __import__("time").time()):
+                elif rec.get("side") == "SHORT" and not execucao.READY_SHORT:
+                    out.append(("A venda a descoberto pelo botão ainda não está ligada "
+                                "(falta o teste real). Faz esta à mão.", cq["id"]))
+                elif execucao.request(state, "vender" if rec.get("side") == "SHORT" else "comprar",
+                                      parts[1], __import__("time").time()):
                     out.append((f"⏳ Pedido recebido: a executar {rec['asset']} no servidor "
                                 "europeu. Confirmação em 1 a 2 minutos.", cq["id"]))
                 else:

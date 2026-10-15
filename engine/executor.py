@@ -270,9 +270,14 @@ def _match_children(symbol, parts, t0, step):
 
 def usdc_debt(w):
     """Divida em USDC (emprestimo da margem) na conta unificada."""
+    return coin_debt(w, "USDC")
+
+
+def coin_debt(w, coin):
+    """Divida numa moeda (emprestimo da margem) na conta unificada."""
     for acc in w.get("list") or []:
         for c in acc.get("coin") or []:
-            if c.get("coin") == "USDC":
+            if c.get("coin") == coin.upper():
                 for k in ("spotBorrow", "borrowAmount"):
                     try:
                         v = float(c.get(k) or 0)
@@ -493,7 +498,289 @@ def do_buy(state, req, ex, now, send):
     return "ok"
 
 
+# ---------- vendas a descoberto (decisao do Rui, 2026-10-15) ----------
+# Margem spot da Bybit UE: vender com isLeverage=1 uma moeda que nao se tem
+# pede-a emprestada; recomprar devolve-a. Stop = ordem condicional de COMPRA
+# acima da entrada. So depois de um teste real pequeno (teste_short) passar.
+
+def short_check(state, op, price, now):
+    """(plano, motivo) para uma venda a descoberto: o espelho de buy_check."""
+    sig = (state.get("signals") or {}).get(op) or {}
+    rec = next((r for r in state.get("ledger") or [] if r.get("id") == op), None)
+    plan = sig.get("plan")
+    if not sig or not rec or not plan:
+        return None, "operação não encontrada"
+    if sig.get("mode") == "PAPER":
+        return None, "é um sinal em papel, não real"
+    if sig.get("status") not in ("ACTIVE", "TRIGGERED"):
+        return None, f"o sinal já não está ativo ({str(sig.get('status')).lower()})"
+    if rec.get("executed") is True and not rec.get("auto_exec"):
+        return None, "já marcaste esta operação como executada à mão"
+    if now - (rec.get("issued_at") or now) > MAX_AGE_BUY:
+        return None, "o alerta tem mais de 6 horas"
+    lo, hi = plan["entry_zone"]
+    if price < lo * (1 - ZONE_SLIP):
+        return None, f"o preço ({price:g}) já saiu da zona de venda (desde {lo:g})"
+    if price >= plan["stop"] * 0.998:
+        return None, f"o preço ({price:g}) está colado ao stop ({plan['stop']:g})"
+    if price <= plan["tp"][0] * 1.005:
+        return None, f"o preço ({price:g}) já está no primeiro objetivo"
+    return plan, None
+
+
+def place_short_part(symbol, quote, tp, stop, inst, tag, px=None):
+    """Vende a descoberto ~'quote' USDC (moeda emprestada) com TP/SL anexados;
+    limite IOC ligeiramente abaixo do preco (executa ja ou nao executa)."""
+    px = px or last_price(symbol)
+    lim = float(fmt(px * (1 - LIMIT_SLIP), inst["tick"])) or px
+    qty = floor_to(quote / lim, inst["base_step"])
+    base = {"category": "spot", "symbol": symbol, "side": "Sell", "orderType": "Limit",
+            "timeInForce": "IOC", "price": fmt(lim, inst["tick"]), "isLeverage": 1,
+            "qty": fmt(qty, inst["base_step"]), "orderLinkId": f"{LINK}{tag}"[:36]}
+    try:
+        r = post("/v5/order/create", dict(base, takeProfit=fmt(tp, inst["tick"]),
+                                          stopLoss=fmt(stop, inst["tick"]),
+                                          tpOrderType="Market", slOrderType="Market"))
+        return r["orderId"], True
+    except ExecError as e:
+        global LAST_ATTACH_ERR
+        LAST_ATTACH_ERR = str(e)[:160]
+        if "insufficient" in str(e).lower() or "balance" in str(e).lower():
+            raise
+        r = post("/v5/order/create", dict(base, orderLinkId=f"{LINK}{tag}b"[:36]))
+        return r["orderId"], False
+
+
+def stop_order_buy(symbol, qty, stop, inst, tag):
+    """Stop de uma venda a descoberto: compra condicional acima do preco."""
+    r = post("/v5/order/create", {"category": "spot", "symbol": symbol, "side": "Buy",
+                                  "orderType": "Market", "marketUnit": "baseCoin", "isLeverage": 1,
+                                  "qty": fmt(qty, inst["base_step"]),
+                                  "triggerPrice": fmt(stop, inst["tick"]),
+                                  "orderFilter": "tpslOrder",
+                                  "orderLinkId": f"{LINK}{tag}"[:36]})
+    return r["orderId"]
+
+
+def buy_back(symbol, qty, inst, tag):
+    """Recompra 'qty' moedas (devolve o emprestimo de uma venda a descoberto)."""
+    q = math.ceil(qty / float(inst["base_step"])) * float(inst["base_step"])
+    if q <= 0:
+        return None
+    r = post("/v5/order/create", {"category": "spot", "symbol": symbol, "side": "Buy",
+                                  "orderType": "Market", "marketUnit": "baseCoin", "isLeverage": 1,
+                                  "qty": fmt(q, inst["base_step"]), "orderLinkId": f"{LINK}{tag}"[:36]})
+    return r["orderId"]
+
+
+def repay_coin(coin, amount, step):
+    amt = math.ceil(amount / float(step)) * float(step)
+    return post("/v5/account/repay", {"coin": coin.upper(), "amount": fmt(amt, step)})
+
+
+def do_short(state, req, ex, now, send):
+    """Vende a descoberto pelo botao Executar (espelho de do_buy, uma parte
+    por objetivo, stop condicional de compra acima)."""
+    from . import account
+    op = req["op"]
+    rec = next((r for r in state.get("ledger") or [] if r.get("id") == op), {})
+    if (ex["ops"].get(op) or {}).get("status") == "aberta":
+        return "já executada antes"
+    symbol = account.symbol_of(rec) if rec else None
+    if not symbol:
+        return "operação não encontrada"
+    px = last_price(symbol)
+    plan, why = short_check(state, op, px, now)
+    if why:
+        send(f"⚠️ Não executei a venda de {rec.get('asset')}: {why}. Nada foi vendido.")
+        ex["ops"][op] = {"asset": rec.get("asset"), "status": "recusada", "motivo": why, "t": now}
+        return why
+    inst = instrument(symbol)
+    w = wallet()
+    free = usdc_free(w)
+    size = float(plan.get("position_usdc") or rec.get("position_usdc") or 0)
+    try:
+        lev_acct = float(get("/v5/spot-margin-trade/state").get("spotLeverage") or 2)
+    except ExecError:
+        lev_acct = 2.0
+    cap = math.floor(free * 0.95 * max(1.0, lev_acct) * 100) / 100
+    reduced = cap < size
+    size = min(size, cap)
+    d0 = coin_debt(w, rec["asset"])
+    parts = parts_for(size, plan["tp"], plan.get("partials") or [100], inst["min_amt"])
+    if not parts:
+        why = f"margem insuficiente (USDC livre {free:.2f}; mínimo da Bybit {inst['min_amt']:g})"
+        send(f"⚠️ Não executei a venda de {rec['asset']}: {why}. Nada foi vendido.")
+        ex["ops"][op] = {"asset": rec["asset"], "status": "recusada", "motivo": why, "t": now}
+        return why
+    o = {"asset": rec["asset"], "symbol": symbol, "status": "aberta", "criado": now, "lado": "SHORT",
+         "stop": plan["stop"], "partes": [], "t": now}
+    for i, (q, tp) in enumerate(parts):
+        try:
+            oid, attached = place_short_part(symbol, q, tp, plan["stop"], inst, f"{op[-20:]}-v{i}", px=px)
+        except ExecError as e:
+            o["erro"] = str(e)[:120]
+            break
+        avg, qty = fills(oid, symbol, rec["asset"], side="Sell")
+        part = {"orderId": oid, "usdc": round(q, 2), "tp": tp, "preco": avg, "qty": qty, "anexo": attached}
+        if not attached:
+            part["anexo_erro"] = LAST_ATTACH_ERR
+            try:
+                part["stopId"] = stop_order_buy(symbol, qty * 1.002, plan["stop"], inst, f"{op[-18:]}-s{i}")
+            except ExecError as e:
+                part["stop_erro"] = str(e)[:100]
+        o["partes"].append(part)
+    if not o["partes"]:
+        o["status"] = "recusada"
+        send(f"⚠️ A venda a descoberto de {rec['asset']} falhou na Bybit: {o.get('erro')}. Nada foi vendido.")
+        ex["ops"][op] = o
+        return o.get("erro")
+    for _ in range(6):
+        time.sleep(2)
+        try:
+            _match_children(symbol, [p for p in o["partes"] if not p.get("filho")], now, inst["base_step"])
+        except ExecError:
+            pass
+        if all(p.get("filho") or not p.get("anexo") for p in o["partes"]):
+            break
+    q_tot = sum(p["qty"] for p in o["partes"])
+    o.update(entrada=sum(p["preco"] * p["qty"] for p in o["partes"]) / q_tot, qty=q_tot,
+             usdc=round(sum(p["usdc"] for p in o["partes"]), 2))
+    try:
+        o["emprestado_moeda"] = round(max(0.0, coin_debt(wallet(), rec["asset"]) - d0), 10)
+    except ExecError:
+        o["emprestado_moeda"] = None
+    ex["ops"][op] = o
+    L = [f"⚡ <b>Executado: venda a descoberto de {rec['asset']}</b>",
+         f"Vendi {q_tot:.6g} {rec['asset']} emprestados a {o['entrada']:.6g} ({o['usdc']:.2f} USDC).",
+         f"Stop (compra) em {plan['stop']:g}, acima da entrada; fica na Bybit até ao fim."]
+    L += [f"• Parte {i + 1}: {p['usdc']:.2f} USDC → objetivo {p['tp']:g}" for i, p in enumerate(o["partes"])]
+    if reduced:
+        L.append(f"Valor reduzido ao que a margem permite (USDC livre {free:.2f}).")
+    if any(not p["anexo"] for p in o["partes"]):
+        L.append("⚠️ A Bybit não aceitou o objetivo anexado: o stop ficou como ordem condicional "
+                 "(Ordens → TP/SL) e o objetivo é recomprado pelo programa.")
+    L.append("No TP1 o programa desce o stop para a entrada na Bybit. Pagas juros pela moeda "
+             "emprestada enquanto a venda estiver aberta.")
+    send("\n".join(L), html=True)
+    return "ok"
+
+
+def close_short(state, req, ex, now, send, why):
+    op = ex["ops"][req["op"]]
+    inst = instrument(op["symbol"])
+    for o in ours(tpsl_orders(op["symbol"]), op):
+        try:
+            cancel(op["symbol"], o)
+        except ExecError as e:
+            op.setdefault("avisos", []).append(f"cancelar: {str(e)[:80]}")
+    time.sleep(1)
+    debt = coin_debt(wallet(), op["asset"])
+    owe = min(debt, (op.get("emprestado_moeda") or op["qty"]) * 1.01) if debt else 0.0
+    oid = buy_back(op["symbol"], owe * 1.002, inst, f"{req['op'][-20:]}-r") if owe > 0 else None
+    time.sleep(2)
+    try:                                       # devolve o que ainda faltar com as moedas compradas
+        left = coin_debt(wallet(), op["asset"])
+        if left > 0 and held(wallet(), op["asset"]) > 0:
+            repay_coin(op["asset"], min(left, held(wallet(), op["asset"])), inst["base_step"])
+            op["pago_moeda"] = left
+    except ExecError as e:
+        op.setdefault("avisos", []).append(f"devolver: {str(e)[:80]}")
+    op.update(status="fechada", fechado=now, motivo=why)
+    if oid:
+        avg, q = fills(oid, op["symbol"], op["asset"])
+        op["saida"] = avg
+        send(f"🏁 {op['asset']} (venda a descoberto): {why}. Recomprei {q:.6g} a {avg:.6g}, "
+             "devolvi o empréstimo e cancelei as ordens abertas.")
+    else:
+        send(f"🏁 {op['asset']} (venda a descoberto): {why}. Já não havia empréstimo por devolver; "
+             "cancelei as ordens abertas.")
+    return "ok"
+
+
+def breakeven_short(state, req, ex, now, send):
+    op = ex["ops"][req["op"]]
+    inst = instrument(op["symbol"])
+    new = float(fmt(op["entrada"] * 0.999, inst["tick"]))
+    olds = ours(tpsl_orders(op["symbol"]), op)
+    if any(0 < float(o.get("triggerPrice") or 0) <= new * 1.001 for o in olds):
+        return "stop já na entrada"
+    for o in olds:
+        try:
+            cancel(op["symbol"], o)
+        except ExecError as e:
+            op.setdefault("avisos", []).append(f"cancelar: {str(e)[:80]}")
+    time.sleep(1)
+    owe = coin_debt(wallet(), op["asset"])
+    try:
+        sid = stop_order_buy(op["symbol"], owe * 1.002, new, inst, f"{req['op'][-18:]}-be")
+        for p in op.get("partes") or []:
+            p.update(stopId=sid, filho=sid, anexo=False)
+    except ExecError as e:
+        send(f"⚠️ {op['asset']}: TP1 atingido, mas não consegui descer o stop para a entrada "
+             f"({str(e)[:60]}). Põe-no à mão a {new:.6g}.")
+        return "erro"
+    op["stop"] = new
+    send(f"🔒 {op['asset']} (venda a descoberto): TP1 atingido. O stop desceu para a entrada "
+         f"({new:.6g}) na Bybit — esta operação já não pode dar perda.")
+    return "ok"
+
+
+def do_test_short(state, req, ex, now, send):
+    """Prova real e pequena da venda a descoberto: vende ~6 USDC de BTC
+    emprestado (TP/SL anexados), cancela a protecao, recompra e confirma que
+    o emprestimo de BTC ficou devolvido. Custa so as comissoes."""
+    sym, steps = "BTCUSDC", []
+    inst = instrument(sym)
+    try:
+        w0 = wallet()
+        d0 = coin_debt(w0, "BTC")
+        steps.append(f"antes: USDC livre {usdc_free(w0):.2f}, dívida BTC {d0:.8f}")
+        px = last_price(sym)
+        q = max(inst["min_amt"] * 1.2, 6.0)
+        oid, attached = place_short_part(sym, q, px * 0.95, px * 1.05, inst, f"ts-{now}", px=px)
+        avg, qty = fills(oid, sym, "BTC", side="Sell")
+        steps.append(f"venda a descoberto {qty:.8f} BTC a {avg:.2f} (anexo: "
+                     f"{'sim' if attached else 'não — ' + str(LAST_ATTACH_ERR)})")
+        time.sleep(2)
+        d1 = coin_debt(wallet(), "BTC")
+        steps.append(f"empréstimo de BTC criado: {d1 - d0:.8f}")
+        for _ in range(6):
+            od = [o for o in tpsl_orders(sym) if float(o.get("createdTime") or 0) >= (now - 5) * 1000]
+            if od:
+                break
+            time.sleep(2)
+        for o in od:
+            cancel(sym, o)
+            steps.append(f"cancelar proteção ({o.get('stopOrderType')}): ok")
+        time.sleep(1)
+        rid = buy_back(sym, max(d1 - d0, qty) * 1.002, inst, f"tsr{now % 100000}")
+        a2, q2 = fills(rid, sym, "BTC")
+        steps.append(f"recompra {q2:.8f} BTC a {a2:.2f}")
+        time.sleep(2)
+        left = coin_debt(wallet(), "BTC") - d0
+        if left > 1e-8:
+            repay_coin("BTC", left, inst["base_step"])
+            time.sleep(2)
+            left = coin_debt(wallet(), "BTC") - d0
+        steps.append(f"dívida de BTC no fim: {max(left, 0):.8f}")
+        if left > 1e-6:
+            steps.append("ERRO: ficou empréstimo de BTC por devolver")
+    except ExecError as e:
+        steps.append(f"ERRO: {e}")
+    ex["teste_short"] = {"t": now, "passos": steps}
+    send("🧪 <b>Teste de venda a descoberto</b>\n" + "\n".join(f"• {x}" for x in steps[-7:]), html=True)
+    return "ok"
+
+
 def do_breakeven(state, req, ex, now, send):
+    if (ex["ops"].get(req["op"]) or {}).get("lado") == "SHORT" and \
+            (ex["ops"][req["op"]]).get("status") == "aberta":
+        return breakeven_short(state, req, ex, now, send)
+    return _breakeven_long(state, req, ex, now, send)
+
+
+def _breakeven_long(state, req, ex, now, send):
     """Depois do TP1: o stop das moedas que restam sobe para a entrada, NA
     BYBIT (decisao do Rui, 2026-10-15: "porque e que tenho de o por a mao?").
     A Bybit UE nao deixa alterar a protecao anexada (170312), por isso: tenta
@@ -547,6 +834,8 @@ def do_close(state, req, ex, now, send, why="saída do plano"):
     op = ex["ops"].get(req["op"]) or {}
     if op.get("status") != "aberta":
         return "sem operação aberta do programa"
+    if op.get("lado") == "SHORT":
+        return close_short(state, req, ex, now, send, why)
     inst = instrument(op["symbol"])
     for o in ours(tpsl_orders(op["symbol"]), op):
         try:
@@ -862,7 +1151,7 @@ def do_orders(state, req, ex, now, send):
     return "ok"
 
 
-ACTIONS = {"ordens": do_orders, "teste_alav": do_test_lev, "teste_margem": do_test_margin, "teste2": do_test2, "limpar": do_clean, "diag": do_diag, "comprar": do_buy, "breakeven": do_breakeven, "fechar": do_close,
+ACTIONS = {"vender": do_short, "teste_short": do_test_short, "ordens": do_orders, "teste_alav": do_test_lev, "teste_margem": do_test_margin, "teste2": do_test2, "limpar": do_clean, "diag": do_diag, "comprar": do_buy, "breakeven": do_breakeven, "fechar": do_close,
            "parar": do_stop_all, "teste": do_test}
 
 
@@ -903,10 +1192,10 @@ def main(state_path, ex_in, out):
     for r in reqs:
         res = "ignorado"
         if not ex["pronto"]:
-            if r.get("acao") in ("comprar", "teste", "parar"):
+            if r.get("acao") in ("comprar", "vender", "teste", "parar"):
                 send(f"⚠️ Execução desligada: {ex['chave']}. Nada foi feito.")
             res = "chave não pronta"
-        elif r.get("acao") == "comprar" and now - (r.get("t") or now) > 3600:
+        elif r.get("acao") in ("comprar", "vender") and now - (r.get("t") or now) > 3600:
             res = "pedido demasiado antigo"
         elif r.get("acao") in ACTIONS:
             try:

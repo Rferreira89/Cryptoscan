@@ -7,6 +7,7 @@ import os
 import time
 
 READY = False                   # a chave de negociacao foi validada na Europa
+READY_SHORT = False             # e o teste real da venda a descoberto passou
 RETRY_S = 300
 
 
@@ -25,9 +26,10 @@ def load():
 
 def apply(state, ex):
     """Marca no registo as compras feitas pela Europa e limpa a fila."""
-    global READY
+    global READY, READY_SHORT
     if not ex:
         READY = bool(state.get("exec_ready"))
+        READY_SHORT = bool(state.get("exec_ready_short"))
         return
     # botao so depois do teste real de 5 USDC ter passado (decisao do Rui)
     passos = (ex.get("teste") or {}).get("passos") or []
@@ -35,6 +37,11 @@ def apply(state, ex):
         any(p.startswith("venda") for p in passos)
     READY = bool(ex.get("pronto")) and teste_ok
     state["exec_ready"] = READY
+    # vendas a descoberto: so depois do teste real (vender, recomprar e devolver) passar
+    ps = (ex.get("teste_short") or {}).get("passos") or []
+    READY_SHORT = READY and bool(ps) and not any("ERRO" in p for p in ps) and \
+        any(p.startswith("recompra") for p in ps)
+    state["exec_ready_short"] = READY_SHORT
     done = set(ex.get("feitos") or [])
     state["exec_req"] = [r for r in state.get("exec_req") or [] if r["id"] not in done]
     led = {r["id"]: r for r in state.get("ledger") or []}

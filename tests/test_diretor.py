@@ -420,3 +420,90 @@ class DiretrizDoObjetivo(unittest.TestCase):
         d = meta.diretrizes(meta.progress(None, 79.4))
         self.assertIn("100 USDC", d[0])
         self.assertTrue(any("lucrativo" in x for x in d))
+
+
+class VendaADescoberto(unittest.TestCase):
+    def setUp(self):
+        from engine import executor as X
+        self.X = X
+        self.inst = {"tick": "0.01", "base_step": "0.001", "min_amt": 5.0, "quote_step": "0.01"}
+        self.calls = []
+        self.debt = {"v": 0.0}
+
+    def post(self, path, body):
+        self.calls.append((path, dict(body)))
+        if path == "/v5/order/create" and body.get("side") == "Sell":
+            self.debt["v"] += float(body["qty"])
+        if path == "/v5/order/create" and body.get("side") == "Buy" and "triggerPrice" not in body:
+            self.debt["v"] = 0.0
+        return {"orderId": f"o{len(self.calls)}"}
+
+    def patches(self, **kw):
+        from unittest import mock
+        X = self.X
+        ps = [mock.patch.object(X, "instrument", return_value=self.inst),
+              mock.patch.object(X, "post", side_effect=self.post),
+              mock.patch.object(X, "wallet", return_value={}),
+              mock.patch.object(X, "usdc_free", return_value=70.0),
+              mock.patch.object(X, "coin_debt", side_effect=lambda w, c: self.debt["v"]),
+              mock.patch.object(X, "held", return_value=0.0),
+              mock.patch.object(X, "tpsl_orders", return_value=[]),
+              mock.patch.object(X, "fills", side_effect=lambda oid, sym, b, side="Buy": (100.0, 0.06)),
+              mock.patch.object(X, "get", return_value={"spotLeverage": "2"}),
+              mock.patch.object(X.time, "sleep")]
+        for k, v in kw.items():
+            ps.append(mock.patch.object(X, k, return_value=v))
+        return ps
+
+    def run_with(self, fn, *a, **kw):
+        ps = self.patches(**kw)
+        for p in ps:
+            p.start()
+        try:
+            return fn(*a)
+        finally:
+            for p in ps:
+                p.stop()
+
+    def test_vende_recompra_e_devolve(self):
+        X, sent = self.X, []
+        snd = lambda t, html=False: sent.append(t)
+        sig = {"status": "ACTIVE", "mode": "REAL", "plan": {"entry_zone": [99.5, 100.5], "stop": 106.0,
+               "tp": [94.0, 90.0, 90.0], "partials": [0, 100, 0], "position_usdc": 6.0}}
+        st = {"signals": {"op1": sig}, "ledger": [{"id": "op1", "asset": "SOL", "pair": "SOL/USDC",
+                                                   "side": "SHORT", "issued_at": NOW}]}
+        ex = {"ops": {}}
+        res = self.run_with(X.do_short, st, {"op": "op1"}, ex, NOW, snd, last_price=100.0)
+        self.assertEqual(res, "ok")
+        sell = [b for p, b in self.calls if b.get("side") == "Sell"][0]
+        self.assertEqual((sell["isLeverage"], sell["stopLoss"], sell["takeProfit"]), (1, "106.00", "90.00"))
+        op = ex["ops"]["op1"]
+        self.assertEqual(op["lado"], "SHORT")
+        self.assertIn("venda a descoberto", sent[0])
+        self.calls.clear()
+        self.run_with(X.do_close, st, {"op": "op1"}, ex, NOW + 60, snd)
+        buy = [b for p, b in self.calls if b.get("side") == "Buy"][0]
+        self.assertEqual((buy["isLeverage"], buy["marketUnit"]), (1, "baseCoin"))
+        self.assertEqual(ex["ops"]["op1"]["status"], "fechada")
+        self.assertIn("Recomprei", sent[-1])
+
+    def test_recusa_fora_da_zona_e_botao_so_com_teste(self):
+        from engine import execucao, run
+        X = self.X
+        sig = {"status": "ACTIVE", "mode": "REAL", "plan": {"entry_zone": [99.5, 100.5], "stop": 106.0,
+               "tp": [94.0]}}
+        st = {"signals": {"op1": sig}, "ledger": [{"id": "op1", "issued_at": NOW}]}
+        self.assertIn("saiu da zona", X.short_check(st, "op1", 97.0, NOW)[1])
+        self.assertIn("colado ao stop", X.short_check(st, "op1", 105.9, NOW)[1])
+        self.assertIsNone(X.short_check(st, "op1", 100.0, NOW)[1])
+        s0 = {}
+        execucao.apply(s0, {"pronto": True, "teste": {"passos": ["compra ok", "venda ok"]}})
+        self.assertTrue(execucao.READY)
+        self.assertFalse(execucao.READY_SHORT)
+        e = {"event": "ISSUED", "id": "op1", "asset": "SOL"}
+        self.assertNotIn("e|", str(run.markup_for(e, {"direction": "SHORT", "plan": {}}, True)))
+        execucao.apply(s0, {"pronto": True, "teste": {"passos": ["compra ok", "venda ok"]},
+                            "teste_short": {"passos": ["venda a descoberto ok", "recompra ok", "dívida 0"]}})
+        self.assertTrue(execucao.READY_SHORT)
+        self.assertIn("e|", str(run.markup_for(e, {"direction": "SHORT", "plan": {}}, True)))
+        execucao.READY = execucao.READY_SHORT = False
