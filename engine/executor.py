@@ -494,29 +494,52 @@ def do_buy(state, req, ex, now, send):
 
 
 def do_breakeven(state, req, ex, now, send):
+    """Depois do TP1: o stop das moedas que restam sobe para a entrada, NA
+    BYBIT (decisao do Rui, 2026-10-15: "porque e que tenho de o por a mao?").
+    A Bybit UE nao deixa alterar a protecao anexada (170312), por isso: tenta
+    alterar; se nao der, cancela a ordem antiga e cria um stop novo na
+    entrada (o objetivo final passa a ser vendido pelo programa)."""
     op = ex["ops"].get(req["op"]) or {}
     if op.get("status") != "aberta":
         return "sem operação aberta do programa"
     inst = instrument(op["symbol"])
-    new = op["entrada"]
-    done = 0
-    for o in ours(tpsl_orders(op["symbol"]), op):
+    new = float(fmt(op["entrada"] * 1.001, inst["tick"]))      # entrada + comissao
+    olds = ours(tpsl_orders(op["symbol"]), op)
+    if any(float(o.get("triggerPrice") or 0) >= new * 0.999 for o in olds):
+        return "stop já na entrada"
+    moved = 0
+    for o in olds:                          # 1) alterar o gatilho (stop separado)
         trig = float(o.get("triggerPrice") or 0)
-        sl = float(o.get("stopLoss") or 0)
-        try:
-            if sl and sl < new:
-                post("/v5/order/amend", {"category": "spot", "symbol": op["symbol"],
-                                         "orderId": o["orderId"], "stopLoss": fmt(new, inst["tick"])})
-                done += 1
-            elif trig and trig < new:
+        if trig and not float(o.get("stopLoss") or 0) and trig < new:
+            try:
                 post("/v5/order/amend", {"category": "spot", "symbol": op["symbol"],
                                          "orderId": o["orderId"], "triggerPrice": fmt(new, inst["tick"])})
-                done += 1
+                moved += 1
+                continue
+            except ExecError as e:
+                op.setdefault("avisos", []).append(f"alterar stop: {str(e)[:80]}")
+        try:                                # 2) cancelar e criar um stop novo
+            cancel(op["symbol"], o)
         except ExecError as e:
-            op.setdefault("avisos", []).append(f"breakeven: {str(e)[:80]}")
+            op.setdefault("avisos", []).append(f"cancelar: {str(e)[:80]}")
+    if moved < len(olds) or not olds:
+        time.sleep(1)
+        have = held(wallet(), op["asset"])
+        qty = floor_to(min(have, op["qty"]), inst["base_step"])
+        if qty > 0:
+            try:
+                sid = stop_order(op["symbol"], qty, new, inst, f"{req['op'][-18:]}-be")
+                for p in op.get("partes") or []:
+                    p.update(stopId=sid, filho=sid, anexo=False)
+                moved += 1
+            except ExecError as e:
+                op["stop_erro"] = str(e)[:120]
+                send(f"⚠️ {op['asset']}: TP1 atingido, mas não consegui pôr o stop na entrada "
+                     f"({str(e)[:60]}). Põe-no à mão a {new:.6g}; o programa vende se o preço voltar à entrada.")
+                return "erro"
     op["stop"] = new
-    send(f"🔒 {op['asset']}: TP1 atingido. Stop das partes restantes subiu para a "
-         f"entrada ({new:.6g}) em {done} ordem(ns).")
+    send(f"🔒 {op['asset']}: TP1 atingido. O stop subiu para a entrada ({new:.6g}) na Bybit — "
+         "esta operação já não pode dar perda. O objetivo final é vendido pela Bybit ou pelo programa.")
     return "ok"
 
 

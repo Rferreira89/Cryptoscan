@@ -552,6 +552,12 @@ def deliver(cfg, state, events, extra=()):
         txt = alert_text(e, sigs, validation.note(s.get("strategy")))
         if not txt:
             continue
+        if (state.get("auto_ops") or {}).get(e.get("id")) == "aberta" and e["event"] in ("TP1", "BREAKEVEN") \
+                and "r" not in e:
+            # operacao executada pelo programa: ele proprio sobe o stop na Bybit
+            txt = (f"🟢 TP1 — {s.get('asset', e.get('asset'))}: objetivo 1 atingido a {_px(e.get('price'))}. "
+                   "O programa está a subir o stop para a entrada na Bybit (1 a 2 minutos): "
+                   "não precisas de fazer nada. Recebes a confirmação a seguir.")
         real = s.get("mode") != "PAPER" and e.get("real", True)
         html_mode = False
         if real and e["event"] == "ISSUED" and s.get("plan"):

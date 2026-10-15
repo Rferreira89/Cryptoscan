@@ -310,8 +310,9 @@ class ObjetivoSemAnexo(unittest.TestCase):
     def test_programa_vende_no_objetivo_final(self):
         from engine import execucao
         st = {"auto_ops": {"ENA-X-1": "aberta"}}
-        execucao.hooks(st, [{"event": "TP1", "id": "ENA-X-1", "sold_pct": 50}], NOW)   # parcial: nao
-        self.assertFalse(st.get("exec_req"))
+        execucao.hooks(st, [{"event": "TP1", "id": "ENA-X-1", "sold_pct": 50}], NOW)   # parcial: stop a entrada
+        self.assertEqual([r["acao"] for r in st["exec_req"]], ["breakeven"])
+        st["exec_req"] = []
         execucao.hooks(st, [{"event": "TP1", "id": "ENA-X-1", "r": 2.1, "price": 0.2474}], NOW)
         self.assertEqual([(r["acao"], r["op"]) for r in st["exec_req"]], [("fechar", "ENA-X-1")])
 
@@ -327,3 +328,37 @@ class Reuniao(unittest.TestCase):
         self.assertIn({"de": "Derivados", "tom": "favor", "texto": "A favor: leitura de Derivados"}, L)
         self.assertEqual(L[-1]["tom"], "rejeita")
         self.assertNotIn("Macroeconomia", [m["de"] for m in L])          # neutro nao fala
+
+
+class StopNaEntradaNaBybit(unittest.TestCase):
+    def test_tp1_pede_breakeven(self):
+        from engine import execucao
+        st = {"auto_ops": {"ENA-X-1": "aberta"}}
+        execucao.hooks(st, [{"event": "TP1", "id": "ENA-X-1", "sold_pct": 0, "price": 0.2061}], NOW)
+        self.assertEqual([r["acao"] for r in st["exec_req"]], ["breakeven"])
+
+    def test_breakeven_cancela_e_cria_stop_novo(self):
+        from unittest import mock
+        from engine import executor as X
+        op = {"status": "aberta", "symbol": "ENAUSDC", "asset": "ENA", "entrada": 0.2, "qty": 30.3,
+              "partes": [{"stopId": "s1", "filho": "s1", "qty": 30.3}]}
+        ex, sent, calls = {"ops": {"op1": op}}, [], []
+        inst = {"tick": 0.0001, "base_step": 0.1}
+
+        def post(path, body):
+            calls.append((path, body))
+            if path == "/v5/order/amend":
+                raise X.ExecError("170312 not supported")
+            return {"orderId": "novo"}
+        with mock.patch.object(X, "instrument", return_value=inst), \
+                mock.patch.object(X, "tpsl_orders", return_value=[{"orderId": "s1", "triggerPrice": "0.1816",
+                                                                     "qty": "30.3"}]), \
+                mock.patch.object(X, "post", side_effect=post), mock.patch.object(X, "wallet", return_value={}), \
+                mock.patch.object(X, "held", return_value=30.29), mock.patch.object(X.time, "sleep"):
+            self.assertEqual(X.do_breakeven({}, {"op": "op1"}, ex, NOW, sent.append), "ok")
+        paths = [c[0] for c in calls]
+        self.assertEqual(paths, ["/v5/order/amend", "/v5/order/cancel", "/v5/order/create"])
+        self.assertEqual(calls[-1][1]["triggerPrice"], "0.2002")
+        self.assertEqual(calls[-1][1]["qty"], "30.2")                       # o que ha na conta
+        self.assertEqual(op["partes"][0]["stopId"], "novo")
+        self.assertIn("subiu para a entrada", sent[0])

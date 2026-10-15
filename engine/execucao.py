@@ -84,6 +84,9 @@ def hooks(state, events, now):
         # cancela o stop e nao vende nada (le o saldo antes).
         elif e["event"] in ("TP1", "TP2", "TP3") and "r" in e:
             request(state, "fechar", e["id"], now)
+        # TP1 sem ser o fim: o stop sobe para a entrada na propria Bybit
+        elif e["event"] == "TP1":
+            request(state, "breakeven", e["id"], now)
 
 
 def due(state, now):
