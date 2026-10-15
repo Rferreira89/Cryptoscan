@@ -687,3 +687,80 @@ salva: as quebras de 4H continuam a reverter.
   `tests/test_research_taker_breakout.py`; números:
   `backtest/research_taker_breakout.json`.
 
+## 2026-10-15 — Pré-registo (escrito antes de qualquer teste desta corrida)
+
+A fila do Rui está vazia (hipóteses 1 a 5 testadas). Arena em 2026-10-15
+(scan.json do ramo `data`): 20 lutadores vivos, `recrutar` falso. Mortos
+novos sem sucessor: RETESTE e BRK_ESPACO (2026-10-14) e CAPITULACAO
+(2026-10-15, 20 operações a −0,218R no combate, regime lateral). Duas
+vagas: a primeira para um sucessor da arena (CAPITULACAO) e a segunda para
+uma hipótese nova (fila vazia).
+
+### Autópsia dos mortos (2026-10-15)
+
+- **RETESTE** (244 op., +0,109R mas abaixo da mediana ao acaso) e
+  **BRK_ESPACO** (206 op., −0,316R): família "comprar a quebra em 4H",
+  declarada esgotada em 2026-10-14 (seis variantes, todas piores do que o
+  acaso com a mesma geometria). Mesma causa (as quebras de 4H revertem),
+  nenhuma correção nova: **sem sucessor**.
+- **CAPITULACAO** (`sig_capitulacao` do ringue, saídas G0, 3 dias). Corri a
+  mesma função vela a vela nos últimos 24 meses (até 2026-10-11) em 72
+  moedas, uma operação de cada vez por moeda, custos 0,25% + 0,1% por lado,
+  SEM o filtro do BTC: 294 operações, +0,137R (sem custos +0,247R), 62% de
+  acerto. Mas o resultado vem quase todo de 5 dias de colapso do mercado
+  inteiro (2026-02-06 com 47 sinais na mesma vela, 2025-11-05 com 27,
+  2025-03-11 com 14, 2025-10-11 com 30, 2025-01-13): sem esses 5 dias, 172
+  operações a −0,327R e 35% de acerto; a média por dia distinto é −0,10R.
+  Com o filtro do ringue (BTC acima da SMA200): 111 operações, −0,081R;
+  com o BTC abaixo: 183, +0,269R (porque os colapsos gerais caem aí).
+  **Causa encontrada**: uma vela de capitulação isolada numa moeda é, na
+  maior parte das vezes, venda informada (notícia da própria moeda) e
+  continua a cair; a mesma vela quando o mercado inteiro é despejado ao
+  mesmo tempo é venda forçada (liquidações) sem informação, e recupera.
+  O filtro do BTC acima da SMA200 deita fora precisamente os colapsos
+  gerais e fica com as capitulações isoladas. AVISO: esta autópsia já viu
+  os 24 meses inteiros, reserva incluída; o teste abaixo não é
+  independente dela, e o resultado só conta como indício. A prova é o
+  papel ao vivo.
+
+### Sucessor: CAP_MERCADO (CAPITULACAO só quando o mercado inteiro capitula)
+
+- **Correção única**: o filtro de mercado muda. Em vez de "BTC acima da
+  SMA200", exige-se que o mercado inteiro tenha sido despejado: na vela do
+  sinal ou na anterior, pelo menos B das moedas com histórico nessa vela
+  tiveram o mínimo pelo menos 7% abaixo do fecho da vela anterior (só
+  velas que fecham no mesmo instante ou antes: sem look-ahead). Gatilho
+  da moeda, stop, objetivos (50% na média de 20 velas, resto no máximo das
+  42 anteriores), stop na entrada depois do 1.º e saída ao fim de 3 dias:
+  exatamente os de `sig_capitulacao`.
+- **Grelha (3)**: B ∈ {20%, 35%, 50%}.
+- Carteira de 4 posições de 25%, uma por moeda, primeiro o maior volume
+  relativo; custos 0,25% + 0,1% por lado; janela de 24 meses até ao último
+  dia completo do histórico de 4H (desenho 18, reserva 6); walk-forward
+  (treino 183, teste 91); os sete critérios; contra o acaso com a mesma
+  geometria (±90 velas). Código: `tools/research_cap_mercado.py`.
+- Expectativa declarada: poucos episódios (dezenas de dias em 24 meses) e
+  no máximo 4 operações por episódio; o mais provável é AMOSTRA
+  INSUFICIENTE ou um resultado dominado por 2 ou 3 colapsos.
+
+### Hipótese nova: ATRASO_BTC (as moedas que não acompanharam um impulso do BTC)
+
+- **Lógica**: o BTC lidera; quando sobe forte numa vela de 4H, as moedas
+  com pouca liquidez reagem mais tarde (arbitragem e fluxo chegam com
+  atraso). Uma moeda que quase não se mexeu nessa vela recupera o atraso
+  nas horas seguintes. É uma ideia de entrada nova (nada de sobrevenda nem
+  quebra da própria moeda). Risco declarado: uma moeda que não acompanha
+  o BTC pode estar simplesmente fraca (sem procura), e a 4H a maior parte
+  do atraso já pode ter sido arbitrada.
+- **Regra** (só compras): BTC acima da SMA200 no último dia fechado; vela
+  de 4H do BTC com fecho pelo menos X acima do fecho anterior; na mesma
+  vela a moeda subiu no máximo 1/4 do que o BTC subiu; entrada na abertura
+  seguinte; stop no fecho menos 1,5 ATR14; um objetivo a 2R; sem stop na
+  entrada; saída ao fim de H dias. Prioridade: maior atraso (retorno do
+  BTC menos retorno da moeda).
+- **Grelha (4)**: X ∈ {1,5%; 2,5%} × H ∈ {1, 3} dias.
+- Mesma carteira, custos, janela, walk-forward e sete critérios. Código:
+  `tools/research_atraso_btc.py`.
+- Expectativa declarada: NÃO VALIDADA é o mais provável; com 14 hipóteses
+  contra esta reserva no fim desta corrida, só o papel pode provar algo.
+
