@@ -214,6 +214,31 @@ def suspended(state):
         if n >= LIVE_MIN_N and r is not None and (r <= -0.5 or r <= (f.get("avg_r") or 0) - 1.0):
             out[k] = (f"no dinheiro real: {r:+.2f}R em {n} operações, contra "
                       f"{(f.get('avg_r') or 0):+.2f}R previstos no combate")
+        # diretriz do Rui (2026-10-15): so tem lugar no escritorio quem e
+        # lucrativo e leva a carteira ao objetivo. Com 10 operacoes reais e
+        # resultado medio negativo, perde o lugar ate provar de novo.
+        elif n >= LUCRO_MIN_N and r is not None and r < 0:
+            out[k] = f"não é lucrativo no dinheiro real: {r:+.2f}R em {n} operações (diretriz do objetivo)"
+    return out
+
+
+LUCRO_MIN_N = 10
+
+
+def contribution(state):
+    """{lutador: {n, r, usdc}}: o que cada um ja deu a carteira com dinheiro
+    real (so operacoes executadas; usdc = R x risco em USDC da operacao)."""
+    out = {}
+    for x in state.get("ledger") or []:
+        if x.get("status") != "CLOSED" or x.get("executed") is False or x.get("mode") != "REAL":
+            continue
+        r = x["user_result_r"] if x.get("user_result_r") is not None else x.get("result_r")
+        if r is None:
+            continue
+        t = out.setdefault(x.get("strategy"), {"n": 0, "r": 0.0, "usdc": 0.0})
+        t["n"] += 1
+        t["r"] = round(t["r"] + r, 2)
+        t["usdc"] = round(t["usdc"] + r * (x.get("risk_usdc") or 0), 2)
     return out
 
 

@@ -400,3 +400,23 @@ class ReversaoNoIntervalo(unittest.TestCase):
         c = [{"t": NOW - (200 - i) * H4, "o": 100 + i, "h": 101.5 + i, "l": 99.5 + i, "c": 101 + i,
               "v": 1, "tb": 0.5} for i in range(200)]
         self.assertIsNone(AR.sig_intervalo(c))
+
+
+class DiretrizDoObjetivo(unittest.TestCase):
+    def test_sem_lucro_perde_o_lugar(self):
+        from engine import promo, meta
+        led = [{"strategy": "BOUNCE_X30", "status": "CLOSED", "result_r": r, "mode": "REAL",
+                "executed": True, "risk_usdc": 1.0} for r in [1.0, -1, -1, 0.5, -1, 1.2, -1, 0.4, -1, 0.5]]
+        st = {"ledger": led, "arena": {"forma": {"lutadores": {"BOUNCE_X30": {"avg_r": 0.39}}}}}
+        self.assertIn("não é lucrativo", promo.suspended(st)["BOUNCE_X30"])        # media -0.04 em 10
+        st["ledger"] = led[:9]
+        self.assertEqual(promo.suspended(st), {})                                    # 9: ainda cedo
+        led[-1]["result_r"] = 1.0
+        led[1]["result_r"] = led[2]["result_r"] = 1.5
+        st["ledger"] = led
+        self.assertEqual(promo.suspended(st), {})                                    # lucrativo: fica
+        c = promo.contribution(st)["BOUNCE_X30"]
+        self.assertEqual((c["n"], c["usdc"]), (10, 4.1))
+        d = meta.diretrizes(meta.progress(None, 79.4))
+        self.assertIn("100 USDC", d[0])
+        self.assertTrue(any("lucrativo" in x for x in d))

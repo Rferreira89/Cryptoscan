@@ -29,3 +29,16 @@ def progress(base, capital):
             "falta_marco": round(marco - capital, 2), "multiplicar": round(GOAL / capital, 1),
             "base": base, "cenarios": cen,
             "marcos": [{"valor": m, "feito": capital >= m} for m in MARCOS]}
+
+
+# diretrizes de toda a equipa (decisao do Rui, 2026-10-15)
+def diretrizes(m):
+    alvo = f"{m['marco']:,} USDC".replace(",", " ") if m else "o próximo marco"
+    falta = f" (faltam {m['falta_marco']:.2f} USDC)" if m else ""
+    return [
+        f"O objetivo é para ser atingido: levar a carteira a {alvo}{falta}, e depois ao seguinte, até ao primeiro milhão.",
+        "Só tem lugar no escritório quem é lucrativo: para entrar, bater o acaso no ringue (20 ou mais operações, resultado positivo).",
+        "No dinheiro real tem de continuar lucrativo: com 10 operações reais e resultado médio negativo, perde o lugar até provar de novo.",
+        "Sem atalhos: nunca mais risco para chegar mais depressa. Uma perda grande atrasa o objetivo mais do que qualquer ganho o adianta.",
+        "Cada entrada passa pelo Diretor de Trading, com evidência verificável.",
+    ]

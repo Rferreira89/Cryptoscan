@@ -417,6 +417,12 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
                                        or cfg.get("capital_usdc"))
     except Exception:
         result["meta"] = None
+    try:                                      # diretrizes da equipa e contributo de cada um
+        from . import meta as _m
+        result["diretrizes"] = _m.diretrizes(result.get("meta"))
+        result["contributo"] = promo.contribution(state)
+    except Exception:
+        result["diretrizes"] = []
     try:
         result["macro"] = promo.macro_summary(now)
     except Exception:                       # informativo: nunca para o scan

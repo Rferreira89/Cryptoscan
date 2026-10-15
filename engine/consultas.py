@@ -374,6 +374,15 @@ def goal_text(res):
          "", "<b>Quanto tempo, ao ritmo composto de</b>:"]
     for r, meses in m["cenarios"]:
         L.append(f"• {r:.0f}% ao mês → {meses / 12:.1f} anos")
+    dz = (res or {}).get("diretrizes") or []
+    if dz:
+        L += ["", "<b>Diretrizes da equipa</b>"] + [f"{i + 1}. {_esc(x)}" for i, x in enumerate(dz)]
+    ct = (res or {}).get("contributo") or {}
+    if ct:
+        from . import arena as _a
+        L += ["", "<b>Contributo de cada um para o objetivo</b> (dinheiro real):"]
+        for k, v in sorted(ct.items(), key=lambda kv: -kv[1]["usdc"])[:8]:
+            L.append(f"• {_esc(_a.persona(k))}: {v['usdc']:+.2f} USDC em {v['n']} operações ({v['r']:+.2f}R)")
     L += ["", "<b>Com depósitos mensais</b> (o atalho que não aumenta o risco):"]
     for r, d, meses in m.get("depositos") or []:
         L.append(f"• {r}% ao mês + {d} €/mês → {meses / 12:.1f} anos")

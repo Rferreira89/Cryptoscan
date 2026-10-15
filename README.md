@@ -15,6 +15,7 @@ Scanner de criptomoedas para operar em **spot e margem spot na Bybit UE** (pares
 3. **Diversificação:** no máximo 2 operações reais abertas da mesma família (`engine/promo.py`, `MAX_PER_FAMILY`).
 4. **Prova real:** um campeão que no dinheiro real fique muito abaixo do combate é suspenso automaticamente.
 5. **Regresso:** famílias mortas voltam com nome novo quando o regime muda, se o ringue longo mostrar que ganham nesse regime.
+6. **Lugar no escritório só para quem leva a carteira ao objetivo (diretriz do Rui, 2026-10-15).** O próximo marco da meta é para ser atingido. Para entrar, bater o acaso no ringue; no dinheiro real, quem tiver 10 operações reais com resultado médio negativo perde o lugar até provar de novo (`engine/promo.py`, `LUCRO_MIN_N`). Cada lutador mostra o seu contributo real em USDC para o objetivo (`/meta`, cartão do lutador). Nenhuma diretriz autoriza mais risco: chega-se ao objetivo com operações lucrativas, não com apostas maiores.
 
 ## Estado de validação
 

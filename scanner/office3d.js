@@ -84,7 +84,9 @@ function drawTV(g) {
   [`1. BTC ${btc.price ? Math.round(btc.price).toLocaleString("pt-PT") : "–"} (${(btc.chg_24h || 0) >= 0 ? "+" : ""}${(btc.chg_24h || 0).toFixed(1)}%)`,
    `2. Mercado ${mf.btc_above_sma200 ? "acima" : "abaixo"} da média de 200 dias`,
    `3. Operações abertas: ${ops}`, `4. Próximo evento: ${ne}`]
-    .forEach((s, i) => g.fillText(s.slice(0, 38), 24, 96 + i * 44));
+    .forEach((s, i) => g.fillText(s.slice(0, 38), 24, 92 + i * 40));
+  const M = D.meta; if (M) { g.fillStyle = "#F6C453"; g.font = "bold 22px sans-serif";
+    g.fillText(`🎯 Objetivo: ${Math.round(M.marco)} USDC (faltam ${M.falta_marco.toFixed(2).replace(".", ",")})`.slice(0, 40), 24, 266); }
 }
 
 // ---------- cenario ----------
@@ -1043,7 +1045,9 @@ function drawDirRules(g) {
   const W = 512, H = 576, x = (dirData().decisoes || [])[0], ms = (x && x.motivos) || [];
   g.fillStyle = "#0b1020"; g.fillRect(0, 0, W, H); g.fillStyle = DIR.c; g.fillRect(0, 0, W, 8);
   g.fillStyle = "#F6E7B0"; g.font = "800 32px system-ui"; g.fillText("Regras do diretor", 24, 56);
-  g.fillStyle = "#93a4c3"; g.font = "500 18px system-ui"; g.fillText(x ? `última revisão: ${x.ativo}` : "definidas antes de cada entrada", 24, 86);
+  const M = (API().D && API().D() || {}).meta;
+  g.fillStyle = "#93a4c3"; g.font = "500 18px system-ui"; g.fillText((x ? `última revisão: ${x.ativo}` : "definidas antes de cada entrada")
+    + (M ? ` · objetivo ${Math.round(M.marco)} USDC` : ""), 24, 86);
   DIR_RULES.forEach(([k, t, f], i) => { const y = 132 + i * 70, bad = x && ms.some(f), col = !x ? "#4b5a75" : bad ? "#FC8181" : "#68D391";
     g.fillStyle = "#141c33"; g.fillRect(16, y - 38, W - 32, 60); g.fillStyle = col; g.fillRect(16, y - 38, 8, 60);
     g.font = "800 26px system-ui"; g.fillText(!x ? "•" : bad ? "✖" : "✔", 38, y + 2);

@@ -50,6 +50,9 @@ def daily(res, state):
          f"{(res.get('market_regime') or {}).get('btc')}.",
          f"Analisados {c.get('deep_checked')} ativos: {c.get('long')} com "
          f"sinal, {c.get('watchlist')} em vigilância."]
+    m = res.get("meta") or {}
+    if m:                                   # o objetivo e para ser atingido (diretriz do Rui)
+        L.append(f"🎯 Objetivo da equipa: {m['marco']:,} USDC (faltam {m['falta_marco']:.2f}).".replace(",", " "))
     ne = res.get("next_event")
     if res.get("event_block"):
         L.append(f"⛔ Sem compras novas: {res['event_block']}.")
