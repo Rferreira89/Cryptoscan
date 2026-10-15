@@ -276,11 +276,23 @@ def explain(row):
                          "ou o preço afastar-se da zona de entrada sem a tocar")}
 
 
-def trading_halt(sigs, cfg, now):
-    """Travao de perdas das operacoes reais. Devolve o motivo ou None."""
-    closed = sorted((s for s in sigs.values() if s["status"] == "CLOSED"
-                     and s.get("mode", "REAL") == "REAL"),
-                    key=lambda s: s["closed_at"])
+def trading_halt(sigs, cfg, now, led=None):
+    """Travao de perdas das operacoes reais. Devolve o motivo ou None.
+
+    Decisao do Rui (2026-10-15): conta so o dinheiro que realmente saiu da
+    conta. Sinais que ele marcou como nao executados nao contam; nos que
+    fechou a mao conta o resultado dele. Sem resposta, conta (prudencia)."""
+    by = {r["id"]: r for r in led or []}
+    closed = []
+    for s in sigs.values():
+        if s["status"] != "CLOSED" or s.get("mode", "REAL") != "REAL":
+            continue
+        r = by.get(s.get("id")) or {}
+        if r.get("executed") is False:
+            continue
+        res = r["user_result_r"] if r.get("user_result_r") is not None else s["result_r"]
+        closed.append(dict(s, result_r=res))
+    closed.sort(key=lambda s: s["closed_at"])
     day = sum(s["result_r"] for s in closed if now - s["closed_at"] < 86400)
     week = sum(s["result_r"] for s in closed if now - s["closed_at"] < 7 * 86400)
     if day <= -cfg["max_daily_loss_r"]:
@@ -384,7 +396,7 @@ def update_state(state, rows, cfg, now, daily=None):
     events = track(state, {r["asset"]: r["price"] for r in rows}, cfg, now)
     live = {s["asset"] for s in sigs.values()
             if s["status"] in ("ACTIVE", "TRIGGERED")}
-    halt = trading_halt(sigs, cfg, now)
+    halt = trading_halt(sigs, cfg, now, state.get("ledger"))
     state["halt"] = halt
     if halt:
         for r in rows:

@@ -220,3 +220,19 @@ class TendenciaFechadaAMao(unittest.TestCase):
         ev = P.check_stops(st, {"NEAR": 8.5}, {"fee_pct": 0.25}, NOW)
         self.assertEqual(ev[0]["event"], "PAPER_SELL")
         self.assertFalse(ev[0]["real"])
+
+
+class TravaoSoDinheiroReal(unittest.TestCase):
+    def test_nao_executados_nao_contam(self):
+        from engine import signals
+        cfg = {"max_daily_loss_r": 3.0, "max_weekly_loss_r": 6.0, "cooldown_after_losses": 3}
+        sigs = {k: {"id": k, "status": "CLOSED", "mode": "REAL", "closed_at": NOW - 3600 + i, "result_r": -1.0}
+                for i, k in enumerate("abcde")}
+        self.assertIsNotNone(signals.trading_halt(sigs, cfg, NOW))                # sem registo: conta tudo
+        led = [{"id": "a", "executed": False}, {"id": "b", "executed": False},
+               {"id": "c", "executed": False}, {"id": "d", "executed": True},
+               {"id": "e", "executed": True, "user_result_r": 0.4}]
+        self.assertIsNone(signals.trading_halt(sigs, cfg, NOW, led))
+        led[2]["executed"] = None                                               # sem resposta: conta
+        led[4]["user_result_r"] = None
+        self.assertIn("perda diária", signals.trading_halt(sigs, cfg, NOW, led))
