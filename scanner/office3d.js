@@ -1093,6 +1093,32 @@ function updateDirector(force) {
   if (!force && sig !== dirSig && x) { const pp = dirLamp.position.clone(); pp.y += .4; if (x.decisao === "AUTORIZADO") burst(pp); }   // nova autorizacao: confetes
   dirSig = sig;
 }
+// reuniao no gabinete: as falas da ultima revisao do diretor (ou, sem
+// revisao recente, a mesa redonda da moeda mais quente), em balao, uma a uma
+let dirBub = null, dirDlgI = 0, dirDlgAt = 0;
+function dirDialogue() {
+  const D = (API().D && API().D()) || {}, x = ((D.diretor || {}).decisoes || [])[0];
+  if (x && x.dialogo && x.dialogo.length && Date.now() / 1000 - x.t < 6 * 3600) return x.dialogo;
+  const m = (D.mesa || [])[0], r = m && (D.universe || []).find(u => u.asset === m.asset);
+  if (!r || !(r.debate || []).length) return [{ de: "Diretor", tom: "pergunta", texto: "Sem propostas agora. Departamentos, avisem quando uma moeda virar." }];
+  const v = r.debate.filter(x => x.voto !== "não").concat(r.debate.filter(x => x.voto === "não")).slice(0, 4);
+  return [{ de: "Diretor", tom: "pergunta", texto: `Mesa, alguém entra em ${m.asset}?` }]
+    .concat(v.map(x => ({ de: x.persona, tom: x.voto === "entra" ? "favor" : "contra", texto: (x.voto === "entra" ? "Eu entrava: " : "Ainda não: ") + (x.razao || "") })))
+    .concat([{ de: "Diretor", tom: "pergunta", texto: m.a_favor ? `${m.a_favor} de ${m.votantes} entravam. Só passa a sinal com o gatilho de um campeão e a minha revisão.` : "Ninguém entra. Esperamos pela viragem." }]);
+}
+function placeDirBubble(dt) {
+  if (!dirBub) { dirBub = document.createElement("div"); dirBub.className = "obub3"; dirBub.style.maxWidth = "calc(100% - 80px)"; overlay.appendChild(dirBub); }
+  if (ctl.target.x > -16) { dirBub.style.display = "none"; return; }
+  dirDlgAt -= dt; const L = dirDialogue();
+  if (dirDlgAt <= 0) { dirDlgAt = 4.2; const m = L[(dirDlgI++) % L.length], dr = m.de === "Diretor";
+    const col = dr ? DIR.c : m.tom === "proposta" ? "#4FD1C5" : m.tom === "favor" || m.tom === "autoriza" ? "#68D391" : m.tom === "esperado" ? "#93a4c3" : "#FC8181";
+    dirBub.innerHTML = `<b>${m.de}</b><br>${m.texto}`; dirBub.style.borderColor = col; dirBub.dataset.dr = dr ? "1" : ""; }
+  const at = dirBub.dataset.dr ? V(DIR_C.x - .9, DIR_C.z).setY(2.4) : V(DIR_C.x + 1.4, DIR_C.z).setY(1.9);
+  const s = project(at); if (!s.ok) { dirBub.style.display = "none"; return; }
+  dirBub.style.display = ""; const w = dirBub.offsetWidth, W = R.domElement.clientWidth;
+  const hud = document.getElementById("hud"), top = hud ? hud.offsetHeight + 4 : 4;
+  dirBub.style.left = Math.max(4, Math.min(W - w - 66, s.x - w / 2)) + "px"; dirBub.style.top = Math.max(top, s.y - dirBub.offsetHeight) + "px";
+}
 function goDirector() {                 // de frente para o ecra grande da parede do fundo
   const T = V(DIR_C.x + .4, DIR_C.z - 2.4); ctl.target.copy(T); const tall = innerHeight > innerWidth;
   cam.position.set(T.x + 1.6, tall ? 10.5 : 8, T.z + (tall ? 12.5 : 10)); ctl.update(); }
@@ -1246,8 +1272,9 @@ function placeOverlays(dt) {
     l.el.style.display = s.ok && !(l.maxD && cam.position.distanceTo(l.near) > l.maxD) ? "" : "none"; });
   people.forEach(p => { const s = project(p.g.position.clone().setY(p.g.position.y + 2.5)); p.name.style.left = s.x + "px"; p.name.style.top = s.y + "px"; p.name.style.display = API().sel() === p.a.id ? "" : "none";
     p.name.textContent = p.a.nm + (p.mode === "sleep" && !p.path.length ? " 💤" : ""); });
+  try { placeDirBubble(dt); } catch (e) { }
   const od = API().data(); if (!od) return;
-  bubble.style.display = ctl.target.x > 21 ? "none" : "";
+  bubble.style.display = ctl.target.x > 21 || ctl.target.x < -16 ? "none" : "";
   bubAt -= dt; const sel = API().sel();
   if (bubAt <= 0 || (sel && bubWho !== sel)) {
     const cand = sel ? people.filter(p => p.a.id === sel) : people.filter(p => od[p.a.id].on || Math.random() < .3);

@@ -448,6 +448,8 @@ def director_text(res, asset=""):
              f"{_esc(x['estrategia'])} ({_esc(x['lado'])}): <b>{x['decisao']}</b>, dados {x['estado_dados']}"]
         for m in x.get("motivos") or []:
             L.append(f"✖ {_esc(m)}")
+        if x.get("dialogo"):
+            L += ["", "<b>Reunião</b>"] + [f"<b>{_esc(m['de'])}:</b> {_esc(m['texto'])}" for m in x["dialogo"]]
         for r in x["relatorios"]:
             L.append("")
             L.append(f"<b>{_esc(r['agente'])}</b> · {r['timeframe']} · {_esc(r['direcao'])}"

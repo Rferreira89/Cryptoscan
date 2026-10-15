@@ -226,6 +226,10 @@ body.sheet-open #sheet{transform:none}
 .obub b{color:var(--bg)}
 .obub3{position:absolute;max-width:62%;background:#0c0a24e6;color:#fff;font:12px/1.35 system-ui,sans-serif;padding:6px 9px;border-radius:8px;border:1.5px solid #4FD1C5;box-shadow:0 0 14px #4FD1C566;pointer-events:none}
 .obub3 b{color:#fff}
+.dlg{margin:8px 0;display:flex;flex-direction:column;gap:5px}.dlg>b{font-size:12.5px;color:var(--mut)}
+.dl{max-width:88%;padding:6px 9px;border-radius:10px;background:var(--card);border:1px solid #ffffff1a;font-size:12.5px;line-height:1.35}
+.dl i{display:block;font-style:normal;font-weight:700;font-size:11px;color:var(--mut)}
+.dl.dr{align-self:flex-end;border-color:#F6C45366;background:#F6C4531a}.dl.favor{border-color:#68D39155}.dl.contra,.dl.rejeita{border-color:#FC818166}.dl.autoriza{border-color:#68D391}
 #office{margin:0 0 6px;}
 #odetail li b{display:inline}
 #odetail .banner>b{display:block}
@@ -260,7 +264,7 @@ body.sheet-open #sheet{transform:none}
 @media (prefers-reduced-motion:reduce){.typing i,.bot .eye{animation:none}.bub{transition:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module" src="office3d.js?v=20261015a"></script>
+<script type="module" src="office3d.js?v=20261015b"></script>
 </head>
 <body class="w3d">
 <div id="world">
@@ -863,7 +867,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261015a";
+const PAGE_V="20261015b";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -1327,7 +1331,8 @@ function renderDiretor(){if(!D||!$("diretor"))return;const R=D.diretor||{},L=R.d
     ${x.historico?`<div>📚 ${esc(x.historico)}</div>`:""}
     ${(x.esperado||[]).length?`<div><small>Contra mas esperado pela estratégia: ${esc(x.esperado.join(", "))}</small></div>`:""}
     ${(x.invalidacao||[]).length?`<div><small>Invalida se: ${esc(x.invalidacao.join("; "))}</small></div>`:""}
-    ${x.relatorios?`<ul class="reps">${rep(x)}</ul>`:""}</details>`).join("");
+    ${(x.dialogo||[]).length?`<div class="dlg"><b>Reunião</b>${x.dialogo.map(m=>`<div class="dl ${m.de==="Diretor"?"dr":""} ${m.tom}"><i>${esc(m.de)}</i>${esc(m.texto)}</div>`).join("")}</div>`:""}
+    ${x.relatorios?`<details><summary>Relatórios completos</summary><ul class="reps">${rep(x)}</ul></details>`:""}</details>`).join("");
   $("diretor").innerHTML=`<p class="note">Coordena as análises, verifica conflitos e autoriza ou rejeita cada entrada real. Cada agente entrega um relatório estruturado (dados com hora, direção, condições, entrada/stop/alvos, evidência contra, estado dos dados e o que invalida). Rejeições seguidas em papel: ${A.evitou_perda||0} evitaram perda, ${A.custou_ganho||0} custaram ganho, ${A.em_curso||0} em curso.</p>
   ${rows||'<p class="note">Ainda sem entradas revistas.</p>'}
   <details open><summary>Quem acerta (avaliação dos departamentos)</summary>${(R.departamentos||[]).length?`<table class="tb"><tr><th>Departamento</th><th>Acerto</th><th>Avaliações</th></tr>${R.departamentos.map(t=>`<tr><td>${esc(t.dep)}</td><td class="${t.taxa>=55?"up":t.taxa<45?"dn":""}">${num(t.taxa,0)}%</td><td>${t.n}${t.amostra?"":" / 30"}</td></tr>`).join("")}</table><p class="note">Acerto = estava a favor e a operação ganhou, ou estava contra e perdeu. Conta as operações fechadas e as rejeições seguidas em papel. Com 30 avaliações, o departamento tem amostra para pesar nas regras do diretor.</p>`:'<p class="note">Ainda sem operações avaliadas: começa a contar a partir das próximas entradas revistas pelo diretor.</p>'}</details>

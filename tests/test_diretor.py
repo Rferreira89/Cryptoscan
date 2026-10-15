@@ -314,3 +314,16 @@ class ObjetivoSemAnexo(unittest.TestCase):
         self.assertFalse(st.get("exec_req"))
         execucao.hooks(st, [{"event": "TP1", "id": "ENA-X-1", "r": 2.1, "price": 0.2474}], NOW)
         self.assertEqual([(r["acao"], r["op"]) for r in st["exec_req"]], [("fechar", "ENA-X-1")])
+
+
+class Reuniao(unittest.TestCase):
+    def test_dialogo_vem_dos_relatorios(self):
+        d = deps(**{"Derivados": "verde", "Suportes e resistências": "vermelho", "Sobrevenda": "vermelho",
+                    "Liquidez e smart money": "vermelho"})
+        v = diretor.review(row(d), dec(), c4(), None, None, NOW)
+        L = v["dialogo"]
+        self.assertTrue(L[0]["texto"].startswith("Proponho comprar SOL"))
+        self.assertEqual(L[1]["de"], "Diretor")
+        self.assertIn({"de": "Derivados", "tom": "favor", "texto": "A favor: leitura de Derivados"}, L)
+        self.assertEqual(L[-1]["tom"], "rejeita")
+        self.assertNotIn("Macroeconomia", [m["de"] for m in L])          # neutro nao fala

@@ -152,6 +152,42 @@ def history(strategy, regime, longo):
                                 f"em {x['n']} operações (ringue de 365 dias)")
 
 
+def _px(x):
+    return f"{x:.6g}" if isinstance(x, (int, float)) else "–"
+
+
+def conversation(asset, dec, reps, hist, motivos):
+    """A reuniao do diretor com os agentes, em falas curtas, tirada so dos
+    relatorios estruturados (nada inventado). [{de, texto, tom}]."""
+    from . import arena
+    p, side = dec.get("plan") or {}, dec.get("decision")
+    k = str(dec.get("strategy") or "")
+    quem = arena.persona(k) if k else "Lutador"
+    tps = p.get("tp") or []
+    L = [{"de": quem, "tom": "proposta",
+          "texto": f"Proponho {'vender a descoberto' if side == 'SHORT' else 'comprar'} {asset}: "
+                   f"{(reps[0]['condicoes'] or ['gatilho'])[0]}. Entrada {_px(p.get('entry_ref'))}, "
+                   f"stop {_px(p.get('stop'))}, objetivo {_px(tps[-1] if tps else None)}."},
+         {"de": "Diretor", "tom": "pergunta", "texto": f"Departamentos, o que veem em {asset}?"}]
+    for r in reps[1:]:
+        txt = (r["condicoes"] or [""])[0]
+        if r.get("esperado"):
+            L.append({"de": r["agente"], "tom": "esperado", "texto": f"Contra, mas é o que a estratégia procura: {txt}"})
+        elif r["contra"]:
+            L.append({"de": r["agente"], "tom": "contra", "texto": f"Contra: {txt}"})
+        elif r["a_favor"]:
+            L.append({"de": r["agente"], "tom": "favor", "texto": f"A favor: {txt}"})
+    if hist:
+        L.append({"de": "Diretor", "tom": "pergunta", "texto": f"E o histórico? {hist[2][0].upper() + hist[2][1:]}."})
+    if motivos:
+        L.append({"de": "Diretor", "tom": "rejeita", "texto": "Rejeitado: " + "; ".join(motivos) + "."})
+    else:
+        inv = (reps[0].get("invalidacao") or [""])[0]
+        L.append({"de": "Diretor", "tom": "autoriza",
+                  "texto": "Autorizado. Regras cumpridas" + (f"; sai se houver {inv}." if inv else ".")})
+    return L
+
+
 def review(row, dec, c4, macro, btc_c4, now, regime=None, longo=None):
     """Decide AUTORIZADO / REJEITADO para a decisao de entrada 'dec'."""
     from . import consultas, promo
@@ -183,7 +219,9 @@ def review(row, dec, c4, macro, btc_c4, now, regime=None, longo=None):
     ok = not motivos
     deps = {r["agente"]: ("esperado" if r.get("esperado") else "contra" if r["contra"]
                           else "favor" if r["a_favor"] else "neutro") for r in reps[1:]}
+    dialogo = conversation(row["asset"], dec, reps, h, motivos)
     return {"decisao": "AUTORIZADO" if ok else "REJEITADO", "t": int(now), "deps": deps,
+            "dialogo": dialogo,
             "historico": h[2] if h else None,
             "ativo": row["asset"], "estrategia": dec.get("strategy"), "lado": side,
             "motivos": motivos, "estado_dados": est, "familia": fam,
@@ -219,7 +257,7 @@ def gate(state, rows, c4s, macro, now):
                                                   "estado_dados", "esperado", "deps", "historico")}
             short = {k: v.get(k) for k in ("decisao", "t", "ativo", "estrategia", "lado", "motivos",
                                        "a_favor", "contra", "invalidacao", "estado_dados",
-                                       "familia", "esperado", "historico")}
+                                       "familia", "esperado", "historico", "dialogo")}
             short["relatorios"] = v["relatorios"]
             same = lambda x: (x.get("ativo"), x.get("estrategia"), x.get("lado")) == \
                 (r["asset"], d.get("strategy"), d["decision"])
