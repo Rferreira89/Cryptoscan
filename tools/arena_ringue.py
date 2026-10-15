@@ -738,6 +738,51 @@ def sig_reteste(c4):
             "gatilho": f"reteste por cima do nível rompido {level:.6g} com vela de retoma"}
 
 
+# ---------- reversao no intervalo (decisao do Rui, 2026-10-15) ----------
+# Mean reversion SO com o mercado realmente lateral: forca de tendencia baixa
+# (ADX 4H < 20), media de 50 velas plana e um intervalo claro (6% a 30% entre
+# o maximo e o minimo de 60 velas). Compra no fundo do intervalo: toque na
+# banda inferior de Bollinger e viragem (fecho acima do maximo da vela
+# anterior com o RSI a subir). Objetivos: banda do meio, depois banda de cima
+# (no maximo o topo do intervalo). Stop abaixo do fundo do intervalo.
+def sig_intervalo(c4):
+    from engine import indicators as I
+    if len(c4) < 130:
+        return None
+    w = c4[-130:]
+    c = [x["c"] for x in w]
+    ad = I.adx(w)[-1]
+    if ad is None or ad >= 20:
+        return None
+    s50 = [sum(c[k - 49:k + 1]) / 50 for k in (len(c) - 11, len(c) - 1)]
+    if abs(s50[1] / s50[0] - 1) > 0.015:
+        return None
+    hi, lo = max(x["h"] for x in w[-60:]), min(x["l"] for x in w[-60:])
+    if not (0.06 <= hi / lo - 1 <= 0.30):
+        return None
+    m = sum(c[-20:]) / 20
+    sd = (sum((x - m) ** 2 for x in c[-20:]) / 20) ** 0.5
+    lower, upper = m - 2 * sd, m + 2 * sd
+    rs, at = PB.rsi(c), PB.atr(w)
+    if rs[-1] is None or rs[-2] is None or at[-1] is None:
+        return None
+    toque = min(w[-2]["l"], w[-3]["l"]) <= lower
+    virou = c[-1] > w[-2]["h"] and rs[-1] > rs[-2]
+    fundo = c[-1] <= lo + (hi - lo) / 3
+    if not (toque and virou and fundo):
+        return None
+    stop = min(lo, min(x["l"] for x in w[-10:])) - 0.3 * at[-1]
+    if c[-1] - stop > 3 * at[-1] or stop <= 0:
+        return None
+    tp1, tp2 = m, min(upper, hi)
+    if tp1 < c[-1] * 1.01:
+        return None
+    two = tp2 > tp1 * 1.005
+    return {"stop": stop, "tp": [tp1, tp2] if two else [tp1], "partials": [50, 50] if two else [100],
+            "breakeven": True, "hold_s": 3 * DAY, "atr": at[-1],
+            "gatilho": f"mercado lateral (ADX {ad:.0f}): fundo do intervalo a virar na banda inferior"}
+
+
 # ---------- estudo dos stops (decisao do Rui, 2026-10-15) ----------
 # 14/10: SOL e XRP tocaram no stop no minimo de um pavio e voltaram a subir.
 # Duas variantes do Xavier com o MESMO gatilho e os mesmos objetivos, so com
@@ -776,7 +821,8 @@ NEW_SIGS = {"BRK_ESPACO": sig_breakout_espaco, "RETESTE": sig_reteste,
             "BOUNCE_FLUXO": sig_fluxo, "BOUNCE_FORTE": sig_forte,
             "BOUNCE_SQUEEZE": sig_squeeze, "BOUNCE_ISOLADA": sig_isolada,
             "BOUNCE_X30_PAVIO": _stop_var(sig_x30, "pavio"),
-            "BOUNCE_X30_LIQ": _stop_var(sig_x30, "liq")}
+            "BOUNCE_X30_LIQ": _stop_var(sig_x30, "liq"),
+            "REVERSAO_INTERVALO": sig_intervalo}
 
 
 def fetch_funding(base, now, days):

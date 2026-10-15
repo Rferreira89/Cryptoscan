@@ -362,3 +362,41 @@ class StopNaEntradaNaBybit(unittest.TestCase):
         self.assertEqual(calls[-1][1]["qty"], "30.2")                       # o que ha na conta
         self.assertEqual(op["partes"][0]["stopId"], "novo")
         self.assertIn("subiu para a entrada", sent[0])
+
+
+class ReversaoNoIntervalo(unittest.TestCase):
+    @staticmethod
+    def intervalo(seed=1, n=130):
+        import random
+        r, out, p = random.Random(seed), [], 100.0
+        t0 = NOW - (NOW % H4) - n * H4
+        for i in range(n):
+            o = p
+            c = min(106, max(94, p + r.uniform(-1.6, 1.6) + (100 - p) * 0.15))
+            p = c
+            out.append({"t": t0 + i * H4, "o": o, "h": max(o, c) + r.uniform(0.1, 0.8),
+                        "l": min(o, c) - r.uniform(0.1, 0.8), "c": c, "v": 1, "tb": 0.5})
+        lo = min(x["l"] for x in out[-60:])
+        out[-3].update(o=out[-4]["c"], c=lo + 0.4, h=out[-4]["c"] + 0.2, l=lo - 0.8)
+        out[-2].update(o=lo + 0.4, c=lo + 0.3, h=lo + 0.8, l=lo - 0.2)
+        out[-1].update(o=lo + 0.3, c=lo + 1.6, h=lo + 1.8, l=lo + 0.2)
+        return out
+
+    def test_compra_no_fundo_do_intervalo(self):
+        from tools import arena_ringue as AR
+        from engine import arena, promo
+        c = self.intervalo()
+        s = AR.sig_intervalo(c)
+        self.assertIsNotNone(s)
+        self.assertLess(s["stop"], min(x["l"] for x in c[-60:]))          # stop abaixo do intervalo
+        self.assertGreater(s["tp"][0], c[-1]["c"])
+        self.assertIn("lateral", s["gatilho"])
+        self.assertIn("REVERSAO_INTERVALO", AR.NEW_SIGS)
+        self.assertIn("REVERSAO_INTERVALO", promo.REAL_OK)
+        self.assertEqual(arena.persona("REVERSAO_INTERVALO"), "Inês")
+
+    def test_nao_compra_em_tendencia(self):
+        from tools import arena_ringue as AR
+        c = [{"t": NOW - (200 - i) * H4, "o": 100 + i, "h": 101.5 + i, "l": 99.5 + i, "c": 101 + i,
+              "v": 1, "tb": 0.5} for i in range(200)]
+        self.assertIsNone(AR.sig_intervalo(c))
