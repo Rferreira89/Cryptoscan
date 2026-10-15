@@ -79,6 +79,11 @@ def hooks(state, events, now):
         # o preco voltar a entrada, vende o resto. Idem tempo / sem reacao.
         if e["event"] in ("BREAKEVEN", "NOREACT", "TIME"):
             request(state, "fechar", e["id"], now)
+        # objetivo final atingido: se a Bybit nao aceitou o TP anexado (15/10,
+        # ENA), e o programa que vende. Se o TP anexado ja vendeu, o fecho so
+        # cancela o stop e nao vende nada (le o saldo antes).
+        elif e["event"] in ("TP1", "TP2", "TP3") and "r" in e:
+            request(state, "fechar", e["id"], now)
 
 
 def due(state, now):

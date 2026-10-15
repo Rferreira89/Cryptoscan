@@ -304,3 +304,13 @@ class EstudoDosStops(unittest.TestCase):
             self.assertIn(k, promo.REAL_OK)                                    # real so depois de qualificar
             self.assertEqual(promo.family(k), "sobrevenda")
             self.assertNotIn(arena.persona(k), ("", None))
+
+
+class ObjetivoSemAnexo(unittest.TestCase):
+    def test_programa_vende_no_objetivo_final(self):
+        from engine import execucao
+        st = {"auto_ops": {"ENA-X-1": "aberta"}}
+        execucao.hooks(st, [{"event": "TP1", "id": "ENA-X-1", "sold_pct": 50}], NOW)   # parcial: nao
+        self.assertFalse(st.get("exec_req"))
+        execucao.hooks(st, [{"event": "TP1", "id": "ENA-X-1", "r": 2.1, "price": 0.2474}], NOW)
+        self.assertEqual([(r["acao"], r["op"]) for r in st["exec_req"]], [("fechar", "ENA-X-1")])

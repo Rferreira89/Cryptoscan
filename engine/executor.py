@@ -437,6 +437,8 @@ def do_buy(state, req, ex, now, send):
         avg, qty = fills(oid, symbol, rec["asset"])
         part = {"orderId": oid, "usdc": round(q, 2), "tp": tp, "preco": avg,
                 "qty": qty, "anexo": attached}
+        if not attached:
+            part["anexo_erro"] = LAST_ATTACH_ERR          # porque a Bybit recusou (diagnostico)
         if not attached:                     # sem anexo: pelo menos o stop
             try:
                 part["stopId"] = stop_order(symbol, qty, plan["stop"], inst, f"{op[-18:]}-s{i}")
@@ -482,7 +484,9 @@ def do_buy(state, req, ex, now, send):
         L.append(f"⚠️ Uma parte falhou: {o['erro']}")
     if miss:
         L.append("⚠️ A Bybit não aceitou o objetivo anexado em "
-                 f"{len(miss)} parte(s): coloquei só o stop. Confirma na app.")
+                 f"{len(miss)} parte(s). O stop ficou na Bybit como ordem condicional (na app: "
+                 "Ordens → separador TP/SL). O objetivo fica a cargo do programa: quando o preço "
+                 "lá chegar, vende (1 a 2 minutos).")
     L.append("Depois do TP1, se o preço voltar à entrada, o programa vende o resto "
              "(1 a 2 minutos). Confirma na app da Bybit as ordens abertas.")
     send("\n".join(L), html=True)
