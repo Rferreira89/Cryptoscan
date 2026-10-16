@@ -1079,6 +1079,9 @@ def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None, funding=None, oi=None,
             "desde": int(t0), "moedas": len(bars), "lutadores": out}
 
 
+LONGO_1H_MAX = 40
+
+
 def main(dest, days=DAYS, state_path=None, longo=False):
     from engine import venue
     now = int(time.time())
@@ -1094,7 +1097,7 @@ def main(dest, days=DAYS, state_path=None, longo=False):
             continue
         if len(c) >= need or (longo and len(c) >= NEED_BARS):
             bars[base] = c
-            if longo:                        # o ringue longo nao corre o 1H (pesado)
+            if longo:                        # o 1H do ringue longo e carregado abaixo (so as maiores)
                 continue
             try:
                 h1 = fetch_1h(base, now, days)
@@ -1105,6 +1108,19 @@ def main(dest, days=DAYS, state_path=None, longo=False):
         time.sleep(0.1)
     if "BTC" not in bars:
         raise SystemExit("sem velas do BTC: ringue nao corre")
+    if longo:
+        # day trade no ringue longo (decisao do Rui, 2026-10-16): o Helio (1H)
+        # tambem combate no ultimo ano, por altura do mercado. So as
+        # LONGO_1H_MAX moedas com mais volume, para o ringue caber no tempo.
+        vol = sorted(bars, key=lambda b: -sum(x["v"] * x["c"] for x in bars[b][-180:]))
+        for base in vol[:LONGO_1H_MAX]:
+            try:
+                h1 = fetch_1h(base, now, days)
+                if len(h1) >= 24 * (days - 30):
+                    bars1h[base] = h1
+            except Exception as e:
+                falhas.append(f"{base} 1H: {str(e)[:40]}")
+            time.sleep(0.1)
     t = time.time()
     # Binance (servidor europeu) quando ha dados recentes; senao OKX
     from engine import europa
