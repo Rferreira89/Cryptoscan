@@ -420,6 +420,7 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
     try:                                      # diretrizes da equipa e contributo de cada um
         from . import meta as _m
         result["diretrizes"] = _m.diretrizes(result.get("meta"))
+        result["codigo"] = _m.codigo()
         result["contributo"] = promo.contribution(state)
     except Exception:
         result["diretrizes"] = []

@@ -156,6 +156,22 @@ def _px(x):
     return f"{x:.6g}" if isinstance(x, (int, float)) else "–"
 
 
+# principio do codigo de conduta que cada regra defende (engine/meta.CODIGO)
+PRINCIPIO = [("dados", 3), ("velas", 3), ("fontes", 3), ("plano", 1), ("R:R", 1),
+             ("departamentos contra", 4), ("macroeconomia", 1), ("derivados contra", 4),
+             ("histórico contra", 3), ("diretor sem leitura", 1)]
+
+
+def principle(motivos):
+    """Texto do principio do codigo de conduta que justifica a rejeicao."""
+    from .meta import CODIGO
+    for m in motivos or []:
+        for chave, n in PRINCIPIO:
+            if chave in m:
+                return f"{n}. {CODIGO[n - 1][0]}"
+    return None
+
+
 def conversation(asset, dec, reps, hist, motivos):
     """A reuniao do diretor com os agentes, em falas curtas, tirada so dos
     relatorios estruturados (nada inventado). [{de, texto, tom}]."""
@@ -180,7 +196,9 @@ def conversation(asset, dec, reps, hist, motivos):
     if hist:
         L.append({"de": "Diretor", "tom": "pergunta", "texto": f"E o histórico? {hist[2][0].upper() + hist[2][1:]}."})
     if motivos:
-        L.append({"de": "Diretor", "tom": "rejeita", "texto": "Rejeitado: " + "; ".join(motivos) + "."})
+        pr = principle(motivos)
+        L.append({"de": "Diretor", "tom": "rejeita", "texto": "Rejeitado: " + "; ".join(motivos) + "."
+                  + (f" Princípio: {pr}." if pr else "")})
     else:
         inv = (reps[0].get("invalidacao") or [""])[0]
         L.append({"de": "Diretor", "tom": "autoriza",
@@ -273,7 +291,9 @@ def gate(state, rows, c4s, macro, now):
                     "stop": p.get("stop"), "tp": (p.get("tp") or [])[:2], "motivos": v["motivos"],
                     "deps": v.get("deps"), "estado": "aberto"}])[-60:]
             if v["decisao"] == "REJEITADO":
-                d.update(decision="NO TRADE", reason="Diretor de Trading: " + "; ".join(v["motivos"]))
+                pr = principle(v["motivos"])
+                d.update(decision="NO TRADE", reason="Diretor de Trading: " + "; ".join(v["motivos"])
+                         + (f" (princípio {pr})" if pr else ""))
     return dr
 
 

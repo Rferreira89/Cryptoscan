@@ -511,3 +511,13 @@ class VendaADescoberto(unittest.TestCase):
         self.assertTrue(execucao.READY_SHORT)
         self.assertIn("e|", str(run.markup_for(e, {"direction": "SHORT", "plan": {}}, True)))
         execucao.READY = execucao.READY_SHORT = False
+
+
+class CodigoDeConduta(unittest.TestCase):
+    def test_codigo_e_principio_na_rejeicao(self):
+        from engine import meta
+        self.assertEqual(len(meta.codigo()), 8)
+        v = diretor.review(row(), dec(), c4(), {"estado": "medo"}, None, NOW)
+        self.assertIn("Princípio: 1. Primeiro proteger", v["dialogo"][-1]["texto"])
+        self.assertEqual(diretor.principle(["histórico contra: x"]), "3. Só entrar com vantagem provada")
+        self.assertIn("Código de conduta", consultas.answer("/codigo", {}, {}))

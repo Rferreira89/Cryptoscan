@@ -19,7 +19,7 @@ from . import arena
 PAGE = "https://rferreira89.github.io/Cryptoscan/scanner/"
 G, Y, R = "verde", "amarelo", "vermelho"
 DOT = {G: "🟢", Y: "🟡", R: "🔴"}
-CMD = re.compile(r"^/?(porque|porquê|debate|diretor|liga|oportunidades|meta|ringue|macro|conta|hoje|ajuda|help|start)"
+CMD = re.compile(r"^/?(porque|porquê|debate|diretor|codigo|código|liga|oportunidades|meta|ringue|macro|conta|hoje|ajuda|help|start)"
                  r"(?:@\w+)?(?:\s+([A-Za-z0-9]+))?\s*$", re.I)
 
 
@@ -404,6 +404,7 @@ HELP = "\n".join([
     "/ringue — classificação dos lutadores",
     "/debate MOEDA — o que cada lutador faria nessa moeda (/debate sozinho: as mais quentes)",
     "/diretor — últimas decisões do Diretor de Trading (/diretor SOL: o relatório de cada agente)",
+    "/codigo — o código de conduta da equipa (a forma de pensar de todos os agentes)",
     "/liga — liga semanal dos lutadores",
     "/oportunidades — moedas mais perto de dar sinal",
     "/meta — caminho até ao primeiro milhão",
@@ -427,6 +428,10 @@ def answer(text, res, state):
         return debate_text(res, arg) if arg else mesa_text(res)
     if c == "diretor":
         return director_text(res, arg)
+    if c in ("codigo", "código"):
+        from . import meta
+        return "\n".join(["🧠 <b>Código de conduta da equipa</b>", ""] +
+                         [f"<b>{x['n']}. {_esc(x['titulo'])}</b>\n{_esc(x['texto'])}" for x in meta.codigo()])
     if c == "oportunidades":
         return opportunities(res)
     if c == "meta":

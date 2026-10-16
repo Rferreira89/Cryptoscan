@@ -17,6 +17,21 @@ Scanner de criptomoedas para operar em **spot e margem spot na Bybit UE** (pares
 5. **Regresso:** famílias mortas voltam com nome novo quando o regime muda, se o ringue longo mostrar que ganham nesse regime.
 6. **Lugar no escritório só para quem leva a carteira ao objetivo (diretriz do Rui, 2026-10-15).** O próximo marco da meta é para ser atingido. Para entrar, bater o acaso no ringue; no dinheiro real, quem tiver 10 operações reais com resultado médio negativo perde o lugar até provar de novo (`engine/promo.py`, `LUCRO_MIN_N`). Cada lutador mostra o seu contributo real em USDC para o objetivo (`/meta`, cartão do lutador). Nenhuma diretriz autoriza mais risco: chega-se ao objetivo com operações lucrativas, não com apostas maiores.
 
+## Código de conduta (a forma de pensar da equipa, decisão do Rui, 2026-10-16)
+
+Todos os agentes (Diretor, departamentos, lutadores e agentes agendados) pensam assim. Cada princípio está ligado a regras que o programa cumpre (`engine/meta.py`, `CODIGO`; `/codigo` no Telegram):
+
+1. **Primeiro proteger, depois ganhar.** Stop antes de entrar, risco sempre igual e pequeno; depois do TP1 a operação já não pode dar perda.
+2. **Pensar em probabilidades, não em certezas.** Uma operação não importa; contam 100. Uma perda com as regras cumpridas não é um erro.
+3. **Só entrar com vantagem provada.** Sem palpites: só campeões que batem o acaso, com evidência verificável e histórico positivo na fase atual do mercado.
+4. **Paciência: esperar pela bola certa.** Entra-se quando o gatilho vira, nunca enquanto o preço cai. Ficar parado também é uma decisão.
+5. **Cortar as perdas depressa, deixar os ganhos correr.** O stop sai sem discussão; depois do TP1 o resto segue para o objetivo final.
+6. **Humildade: o mercado muda.** Quem perde a forma sai do ringue; quem não é lucrativo no dinheiro real perde o lugar.
+7. **Aprender com cada operação.** Quem acerta, o que o Diretor rejeitou e porquê, e as lições de cada semana.
+8. **Disciplina acima da emoção.** Nada de vingança depois de perder nem de euforia depois de ganhar; nunca mais risco para recuperar.
+
+As rejeições do Diretor citam o princípio que defendem. Nenhum princípio autoriza mais risco nem menos honestidade sobre os resultados.
+
 ## Estado de validação
 
 Nenhuma estratégia está validada. O backtest (2021 a 2026, custos incluídos) deu expectativa negativa para as estratégias de 4H, e as duas hipóteses em diário falharam a reserva.

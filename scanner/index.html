@@ -264,7 +264,7 @@ body.sheet-open #sheet{transform:none}
 @media (prefers-reduced-motion:reduce){.typing i,.bot .eye{animation:none}.bub{transition:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module" src="office3d.js?v=20261015c"></script>
+<script type="module" src="office3d.js?v=20261016a"></script>
 </head>
 <body class="w3d">
 <div id="world">
@@ -867,7 +867,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261015c";
+const PAGE_V="20261016a";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -1350,9 +1350,10 @@ function renderAlturas(){if(!D||!$("alturas"))return;const L=D.arena_longo,cur=(
   $("alturas").innerHTML=`<div class="banner"><b>Que estratégia funciona em cada altura</b><span style="color:var(--mut);font-size:12.5px">Cada lutador (vivos e mortos) combate no último ano; o resultado (R médio por operação) é separado pelo regime do mercado no dia da entrada. Verde: ganhou e bateu o acaso. Quando o mercado muda, só regressa ao ringue quem ganhou nesse regime. Agora: <b>${RN[cur]||"–"}</b>.</span></div>
   <div class="tw"><table class="alt"><tr><th>Lutador</th>${rg.map(r=>`<th class="${r===cur?"cur":""}">${RN[r]}</th>`).join("")}</tr>${rows.map(([k,v])=>`<tr><td>${champ.has(k)?"🏆":dead.has(k)?"🕯️":"⚔️"} ${esc(personaOf(k))}<br><span style="color:var(--mut);font-size:10.5px">${esc(k)}</span></td>${rg.map(r=>cell((v.por_regime||{})[r])).join("")}</tr>`).join("")}</table></div>`}
 function renderMeta(){const M=D&&D.meta;if(!M||!$("gestor"))return;const done=M.marcos.filter(x=>x.feito).length;
-  const CR=((D.promo||{}).crescimento||[]).slice(0,5),DP=M.depositos||[],DZ=D.diretrizes||[];
+  const CR=((D.promo||{}).crescimento||[]).slice(0,5),DP=M.depositos||[],DZ=D.diretrizes||[],CC=D.codigo||[];
   const extra=(DP.length?`<div style="font-size:12.5px;margin-top:6px"><b>Com depósitos mensais:</b> ${DP.map(([r,d,m])=>`${r}%/mês + ${d} €/mês → ${num(m/12,1)} anos`).join(" · ")}</div>`:"")
    +(DZ.length?`<details style="margin-top:6px" open><summary style="font-size:12.5px"><b>📜 Diretrizes da equipa</b></summary><ol style="font-size:12.5px;margin:4px 0 0 18px;padding:0">${DZ.map(x=>`<li>${esc(x)}</li>`).join("")}</ol></details>`:"")
+   +(CC.length?`<details style="margin-top:6px"><summary style="font-size:12.5px"><b>🧠 Código de conduta (a forma de pensar da equipa)</b></summary><ol style="font-size:12.5px;margin:4px 0 0 18px;padding:0">${CC.map(x=>`<li><b>${esc(x.titulo)}</b> — ${esc(x.texto)}</li>`).join("")}</ol></details>`:"")
    +(CR.length?`<div style="font-size:12.5px;margin-top:6px"><b>Quem nos leva mais depressa</b> <span style="color:var(--mut)">(estimativa do combate, antes da prova real)</span>: ${CR.map(x=>`${esc(x.persona)} ${x.r_mes>0?"+":""}${num(x.r_mes,1)}R/mês`).join(" · ")}</div>`:"");
   $("gestor").insertAdjacentHTML("beforeend",`<div class="banner"><b>🏁 Meta: o primeiro milhão</b><div class="metabar"><i style="width:${Math.max(1,Math.log10(M.capital)/6*100)}%"></i></div>
   <span style="color:var(--mut);font-size:12.5px">${num(M.capital,2)} USDC · próximo marco ${num(M.marco,0)} USDC (faltam ${num(M.falta_marco,2)}) · ${done} de ${M.marcos.length} marcos. A 5% ao mês, ${num(M.cenarios[1][1]/12,1)} anos; a 10% ao mês, ${num(M.cenarios[3][1]/12,1)} anos. Sem aumentar o risco: disciplina e compostos. /meta no Telegram.</span>${extra}</div>`)}

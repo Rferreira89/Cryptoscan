@@ -42,3 +42,29 @@ def diretrizes(m):
         "Sem atalhos: nunca mais risco para chegar mais depressa. Uma perda grande atrasa o objetivo mais do que qualquer ganho o adianta.",
         "Cada entrada passa pelo Diretor de Trading, com evidência verificável.",
     ]
+
+
+# codigo de conduta: a forma de pensar da equipa (decisao do Rui, 2026-10-16).
+# Cada principio esta ligado a regras que o programa cumpre (nao e so texto).
+CODIGO = [
+    ("Primeiro proteger, depois ganhar",
+     "Stop antes de entrar, risco sempre igual e pequeno; depois do TP1 a operação já não pode dar perda."),
+    ("Pensar em probabilidades, não em certezas",
+     "Uma operação não importa; contam 100. Uma perda com as regras cumpridas não é um erro."),
+    ("Só entrar com vantagem provada",
+     "Sem palpites: só campeões que batem o acaso, com evidência verificável e histórico positivo nesta fase do mercado."),
+    ("Paciência: esperar pela bola certa",
+     "Entra-se quando o gatilho vira, nunca enquanto o preço cai. Ficar parado também é uma decisão."),
+    ("Cortar as perdas depressa, deixar os ganhos correr",
+     "O stop sai sem discussão; depois do TP1 o resto segue para o objetivo final."),
+    ("Humildade: o mercado muda",
+     "Quem perde a forma sai do ringue; quem não é lucrativo no dinheiro real perde o lugar."),
+    ("Aprender com cada operação",
+     "Quem acerta, o que o Diretor rejeitou e porquê, e as lições de cada semana."),
+    ("Disciplina acima da emoção",
+     "Nada de vingança depois de perder nem de euforia depois de ganhar; nunca mais risco para recuperar."),
+]
+
+
+def codigo():
+    return [{"n": i + 1, "titulo": t, "texto": x} for i, (t, x) in enumerate(CODIGO)]

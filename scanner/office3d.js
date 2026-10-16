@@ -1104,11 +1104,13 @@ function dirDialogue() {
   const D = (API().D && API().D()) || {}, x = ((D.diretor || {}).decisoes || [])[0];
   if (x && x.dialogo && x.dialogo.length && Date.now() / 1000 - x.t < 6 * 3600) return x.dialogo;
   const m = (D.mesa || [])[0], r = m && (D.universe || []).find(u => u.asset === m.asset);
-  if (!r || !(r.debate || []).length) return [{ de: "Diretor", tom: "pergunta", texto: "Sem propostas agora. Departamentos, avisem quando uma moeda virar." }];
+  const CC = D.codigo || [], pc = CC.length ? CC[Math.floor(Date.now() / 60000) % CC.length] : null;
+  const lembra = pc ? [{ de: "Diretor", tom: "pergunta", texto: `Lembrem-se: ${pc.titulo}. ${pc.texto}` }] : [];
+  if (!r || !(r.debate || []).length) return [{ de: "Diretor", tom: "pergunta", texto: "Sem propostas agora. Departamentos, avisem quando uma moeda virar." }].concat(lembra);
   const v = r.debate.filter(x => x.voto !== "não").concat(r.debate.filter(x => x.voto === "não")).slice(0, 4);
   return [{ de: "Diretor", tom: "pergunta", texto: `Mesa, alguém entra em ${m.asset}?` }]
     .concat(v.map(x => ({ de: x.persona, tom: x.voto === "entra" ? "favor" : "contra", texto: (x.voto === "entra" ? "Eu entrava: " : "Ainda não: ") + (x.razao || "") })))
-    .concat([{ de: "Diretor", tom: "pergunta", texto: m.a_favor ? `${m.a_favor} de ${m.votantes} entravam. Só passa a sinal com o gatilho de um campeão e a minha revisão.` : "Ninguém entra. Esperamos pela viragem." }]);
+    .concat([{ de: "Diretor", tom: "pergunta", texto: m.a_favor ? `${m.a_favor} de ${m.votantes} entravam. Só passa a sinal com o gatilho de um campeão e a minha revisão.` : "Ninguém entra. Esperamos pela viragem." }]).concat(lembra);
 }
 function placeDirBubble(dt) {
   if (!dirBub) { dirBub = document.createElement("div"); dirBub.className = "obub3"; dirBub.style.maxWidth = "calc(100% - 80px)"; overlay.appendChild(dirBub); }
