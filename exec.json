@@ -1,0 +1,330 @@
+{
+ "ops": {
+  "PUMP-BOUNCE_SQUEEZE-1792080015": {
+   "asset": "PUMP",
+   "symbol": "PUMPUSDC",
+   "status": "aberta",
+   "criado": 1792080201,
+   "stop": 0.004186514864684626,
+   "partes": [
+    {
+     "orderId": "2326531802229270784",
+     "usdc": 7.37,
+     "tp": 0.006042,
+     "preco": 0.004514,
+     "qty": 1615.65075,
+     "anexo": true,
+     "filho": "2326531802254436609"
+    }
+   ],
+   "t": 1792080201,
+   "emprestado": 0.0,
+   "entrada": 0.004514,
+   "qty": 1615.65075,
+   "usdc": 7.37
+  },
+  "ENA-BOUNCE_SQUEEZE-1792080015": {
+   "asset": "ENA",
+   "symbol": "ENAUSDC",
+   "status": "fechada",
+   "criado": 1792080263,
+   "stop": 0.18160126702685234,
+   "partes": [
+    {
+     "orderId": "2326532318447429888",
+     "usdc": 6.08,
+     "tp": 0.2474,
+     "preco": 0.19952,
+     "qty": 30.323999999999998,
+     "anexo": false,
+     "stopId": "2326532321735764224",
+     "filho": "2326532321735764224"
+    }
+   ],
+   "t": 1792080263,
+   "emprestado": 0.0,
+   "entrada": 0.19952,
+   "qty": 30.323999999999998,
+   "usdc": 6.08,
+   "fechado": 1792164203,
+   "motivo": "saída do plano"
+  }
+ },
+ "feitos": [
+  "manual-teste-1791927238",
+  "manual-diag-1791927334",
+  "manual-teste-1791927394",
+  "manual-limpar-1791927577",
+  "manual-teste-1791927643",
+  "manual-limpar-1791927719",
+  "manual-teste-1791927748",
+  "manual-teste2-1791927820",
+  "manual-teste-1791927913",
+  "manual-teste_margem-1791928323",
+  "manual-teste_alav-1791928585",
+  "manual-ordens-1791930041",
+  "comprar-PUMP-BOUNCE_SQUEEZE-1792080015-1792080186",
+  "comprar-ENA-BOUNCE_SQUEEZE-1792080015-1792080246",
+  "manual-ordens-1792080469",
+  "manual-ordens-1792100814",
+  "manual-teste_short-1792103912",
+  "manual-ordens-1792104015",
+  "manual-limpar_short-1792104206",
+  "manual-teste_short-1792104412",
+  "manual-ordens-1792104453",
+  "fechar-ENA-BOUNCE_SQUEEZE-1792080015-1792164186"
+ ],
+ "t": 1792164203,
+ "pronto": true,
+ "chave": "ok",
+ "permissoes": {
+  "ContractTrade": [],
+  "Spot": [
+   "SpotTrade"
+  ],
+  "Wallet": [],
+  "Options": [],
+  "Derivatives": [
+   "DerivativesTrade"
+  ],
+  "CopyTrading": [],
+  "BlockTrade": [],
+  "Exchange": [],
+  "NFT": [],
+  "Affiliate": [],
+  "Earn": [],
+  "FiatP2P": [],
+  "FiatConvertBroker": [],
+  "FiatBitPay": [],
+  "BitCard": [],
+  "ByXPost": [],
+  "Stocks": []
+ },
+ "ips_definidos": 1,
+ "teste": {
+  "t": 1791927913,
+  "passos": [
+   "compra 3.18 USDC: ok (TP/SL anexados: sim)",
+   "executada a 83373.30, 0.00003791 BTC líquidos",
+   "ordens TP/SL encontradas: 1 Order trig=0.0 tp=87541.9 sl=79204.6 qty=0.000037",
+   "cancelar 274305: ok",
+   "venda: 0.00003700 BTC a 83375.60 (resultado do teste ≈ -0.006 USDC)"
+  ]
+ },
+ "log": [
+  {
+   "t": 1791927238,
+   "id": "manual-teste-1791927238",
+   "acao": "teste",
+   "res": "ok"
+  },
+  {
+   "t": 1791927334,
+   "id": "manual-diag-1791927334",
+   "acao": "diag",
+   "res": "ok"
+  },
+  {
+   "t": 1791927394,
+   "id": "manual-teste-1791927394",
+   "acao": "teste",
+   "res": "ok"
+  },
+  {
+   "t": 1791927577,
+   "id": "manual-limpar-1791927577",
+   "acao": "limpar",
+   "res": "ok"
+  },
+  {
+   "t": 1791927643,
+   "id": "manual-teste-1791927643",
+   "acao": "teste",
+   "res": "ok"
+  },
+  {
+   "t": 1791927719,
+   "id": "manual-limpar-1791927719",
+   "acao": "limpar",
+   "res": "ok"
+  },
+  {
+   "t": 1791927748,
+   "id": "manual-teste-1791927748",
+   "acao": "teste",
+   "res": "ok"
+  },
+  {
+   "t": 1791927820,
+   "id": "manual-teste2-1791927820",
+   "acao": "teste2",
+   "res": "ok"
+  },
+  {
+   "t": 1791927913,
+   "id": "manual-teste-1791927913",
+   "acao": "teste",
+   "res": "ok"
+  },
+  {
+   "t": 1791928323,
+   "id": "manual-teste_margem-1791928323",
+   "acao": "teste_margem",
+   "res": "ok"
+  },
+  {
+   "t": 1791928585,
+   "id": "manual-teste_alav-1791928585",
+   "acao": "teste_alav",
+   "res": "ok"
+  },
+  {
+   "t": 1791930041,
+   "id": "manual-ordens-1791930041",
+   "acao": "ordens",
+   "res": "ok"
+  },
+  {
+   "t": 1792080201,
+   "id": "comprar-PUMP-BOUNCE_SQUEEZE-1792080015-1792080186",
+   "acao": "comprar",
+   "res": "ok"
+  },
+  {
+   "t": 1792080263,
+   "id": "comprar-ENA-BOUNCE_SQUEEZE-1792080015-1792080246",
+   "acao": "comprar",
+   "res": "ok"
+  },
+  {
+   "t": 1792080469,
+   "id": "manual-ordens-1792080469",
+   "acao": "ordens",
+   "res": "ok"
+  },
+  {
+   "t": 1792100814,
+   "id": "manual-ordens-1792100814",
+   "acao": "ordens",
+   "res": "ok"
+  },
+  {
+   "t": 1792103912,
+   "id": "manual-teste_short-1792103912",
+   "acao": "teste_short",
+   "res": "ok"
+  },
+  {
+   "t": 1792104015,
+   "id": "manual-ordens-1792104015",
+   "acao": "ordens",
+   "res": "ok"
+  },
+  {
+   "t": 1792104206,
+   "id": "manual-limpar_short-1792104206",
+   "acao": "limpar_short",
+   "res": "ok"
+  },
+  {
+   "t": 1792104412,
+   "id": "manual-teste_short-1792104412",
+   "acao": "teste_short",
+   "res": "ok"
+  },
+  {
+   "t": 1792104453,
+   "id": "manual-ordens-1792104453",
+   "acao": "ordens",
+   "res": "ok"
+  },
+  {
+   "t": 1792164203,
+   "id": "fechar-ENA-BOUNCE_SQUEEZE-1792080015-1792164186",
+   "acao": "fechar",
+   "res": "ok"
+  }
+ ],
+ "diag": {
+  "t": 1791927334,
+  "min_amt": 1.0,
+  "passos": [
+   "limite_tp_sl_mercado: ACEITE",
+   "limite_tp_sl_mercado: cancelada",
+   "limite_tp_sl_simples: recusada — /v5/order/create: 170141 Duplicate clientOrderId.",
+   "limite_so_sl: recusada — /v5/order/create: 170003 An unknown parameter was sent."
+  ]
+ },
+ "limpeza": {
+  "t": 1791927719,
+  "passos": [
+   "ordem 673473 filtro=Order tipo=BidirectionalTpslOrder lado=Sell trig=0.0 qty=0.000040 estado=Untriggered",
+   "  cancelada",
+   "ordens anteriores do Rui em BTCUSDC (não tocadas): 0",
+   "venda: 0.00004000 BTC a 83386.60"
+  ]
+ },
+ "teste2": {
+  "t": 1791927820,
+  "passos": [
+   "compra 3.26 USDC a 83373.30 (anexo: sim)",
+   "cancelar a proteção anexada (BidirectionalTpslOrder): ok",
+   "objetivo condicional: ACEITE",
+   "stop na entrada condicional: recusada — /v5/order/create: 170131 Insufficient balance.",
+   "cancelar 147136: ok",
+   "venda: 0.00003700 BTC a 83403.10"
+  ]
+ },
+ "teste_margem": {
+  "t": 1791928323,
+  "passos": [
+   "margem spot: modo=1 alavancagem=2",
+   "antes: USDC livre 3.44, dívida 0.0000 — {'walletBalance': '3.44237422', 'equity': '3.44237422', 'borrowAmount': '0.000000000000000000', 'spotBorrow': '0', 'accruedInterest': '0', 'availableToBorrow': '', 'locked': '0'}",
+   "compra com margem 5.44 USDC a 83373.30, 0.00006484 BTC (anexo: sim)",
+   "depois da compra: dívida 1.9769 — {'walletBalance': '-1.97689027', 'equity': '-1.97689027', 'borrowAmount': '1.976890278474423363', 'spotBorrow': '0', 'accruedInterest': '0.00001904', 'availableToBorrow': '', 'locked': '0'}",
+   "cancelar proteção (BidirectionalTpslOrder): ok",
+   "venda: 0.00006400 BTC a 83415.40",
+   "depois da venda: dívida 0.0000 — {'walletBalance': '3.34834885', 'equity': '3.34834885', 'borrowAmount': '0.000000000000000000', 'spotBorrow': '0', 'accruedInterest': '0', 'availableToBorrow': '', 'locked': '0'}",
+   "a Bybit abateu a dívida sozinha com o USDC da venda"
+  ]
+ },
+ "teste_alav": {
+  "t": 1791928585,
+  "res": "teto atual 2x; a chave pode alterá-lo: sim"
+ },
+ "ordens": {
+  "t": 1792104453,
+  "res": [
+   "SOLUSDC/-: 0 ",
+   "SOLUSDC/Order: 0 ",
+   "SOLUSDC/tpslOrder: 0 ",
+   "SOLUSDC/StopOrder: 0 ",
+   "XRPUSDC/-: 0 ",
+   "XRPUSDC/Order: 0 ",
+   "XRPUSDC/tpslOrder: 0 ",
+   "XRPUSDC/StopOrder: 0 ",
+   "todos/-: 2 ENAUSDC Sell f=None t=tpslOrder trig=0.19952 tp=0 sl=0 qty=30.3 lev=0; PUMPUSDC Sell f=None t=BidirectionalTpslOrder trig=0.000000 tp=0.006042 sl=0.004186 qty=1615.6 lev=0",
+   "todos/Order: 0 ",
+   "todos/tpslOrder: 1 ENAUSDC Sell f=None t=tpslOrder trig=0.19952 tp=0 sl=0 qty=30.3 lev=0",
+   "todos/StopOrder: 0 "
+  ]
+ },
+ "teste_short": {
+  "t": 1792104412,
+  "passos": [
+   "antes: USDC livre 66.09, dívida BTC 0.00000000",
+   "venda a descoberto 0.00007300 BTC a 82409.30 (anexo: sim)",
+   "empréstimo de BTC criado: 0.00007218",
+   "cancelar proteção (BidirectionalTpslOrder): ok",
+   "recompra 0.00007381 BTC a 82365.00",
+   "dívida de BTC no fim: 0.00000000"
+  ]
+ },
+ "limpeza_short": {
+  "t": 1792104206,
+  "passos": [
+   "ordem 700354 tipo=BidirectionalTpslOrder tp=78248.3 sl=86485 qty=5.9975988",
+   "  cancelada"
+  ]
+ }
+}
