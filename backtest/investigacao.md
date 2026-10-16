@@ -1,12 +1,12 @@
 # Diário de investigação
 
-**Hipóteses testadas contra esta reserva: 14** (10 neste diário: compra de
+**Hipóteses testadas contra esta reserva: 16** (11 neste diário: compra de
 quedas, compressão, oversold bounce 4H, day trade 1H, bounce com outras
 saídas, sweep a mercado, funding negativo, quebra com compradores,
-capitulação do mercado, atraso face ao BTC; mais 4 no diário de afinação,
-H1 a H4). Atualizado em 2026-10-15. Quanto maior este número, maior a
-probabilidade de uma hipótese passar por sorte: com 14 testes, a
-probabilidade de pelo menos um falso positivo a 5% já ronda os 51% (e as
+capitulação do mercado, atraso face ao BTC, resiliente; mais 5 no diário
+de afinação, H1 a H5). Atualizado em 2026-10-16. Quanto maior este número,
+maior a probabilidade de uma hipótese passar por sorte: com 16 testes, a
+probabilidade de pelo menos um falso positivo a 5% já ronda os 56% (e as
 várias configurações de cada grelha aumentam-na ainda mais).
 
 Uma hipótese por entrada, com o veredicto. Método: `tools/research.py`
@@ -898,3 +898,50 @@ hipótese nova.
   contra esta reserva no fim desta corrida (10 deste diário antes de hoje
   + 5 da afinação + esta), a probabilidade de pelo menos um falso positivo
   a 5% ronda os 56%; só o papel ao vivo pode provar algo.
+
+## 2026-10-16 — RESILIENTE: moedas que aguentam uma queda forte do BTC (hipótese nova)
+
+**Veredicto: AMOSTRA INSUFICIENTE** (5 operações no walk-forward, 19 fora
+da amostra com a reserva; mínimo 40). Na prática é uma rejeição: falha os
+7 critérios, nenhuma configuração ganha no desenho e é pior do que o acaso
+(percentil 11,4). Não vai para papel nem para o ringue.
+
+- **Regra e grelha**: as do pré-registo acima (commit 1ec4bb7, antes dos
+  testes). Grelha (4): X ∈ {1,5%; 2,5%} × H ∈ {1, 3} dias. Universo: 61
+  moedas (sem o BTC).
+- **Janela**: desenho 2024-10-11 a 2026-04-10; reserva 2026-04-11 a
+  2026-10-10 (última vela do histórico: 2026-10-11 08:00 UTC; histórico
+  com 5 dias de atraso, dentro do limite de 7). Walk-forward: treino 183
+  dias, teste 91, 4 dobras. Custos 0,25% + 0,1% por lado.
+- **Desenho**: 0 de 4 configurações positivas. X=1,5%: −18,7% (H=1, 158
+  op., 40,5% de acerto, −0,121R) e −24,2% (H=3, 145 op., 33,1%, −0,162R);
+  X=2,5%: −0,5% (H=1, 42 op., 45,2%, −0,054R) e −30,5% (H=3, 42 op.,
+  23,8%, −0,389R). Custo médio 0,10R a 0,11R por operação: mesmo sem
+  custos ficaria perto de zero ou negativo. Manter 3 dias é sempre pior do
+  que 1. Referência BTC>SMA200: +12,2%, Sharpe 0,40.
+- **Walk-forward fora da amostra** (364 dias): +2,5%, Sharpe 0,36, queda
+  máxima 4,2%, só 5 operações (60% de acerto, +0,101R). Dobras: +2,5% /
+  0,0% / 0,0% / 0,0% (três dobras sem operações: com X=2,5% e o BTC acima
+  da SMA200 quase não há quedas destas) = 1 de 4. Grandes moedas: −0,5%.
+  Referência nas mesmas datas: +7,0%, Sharpe 0,41.
+- **Configuração escolhida**: X=1,5%, H=3 (escolhida na última dobra).
+- **Reserva (uma avaliação)**: −9,1%, Sharpe −1,32, queda máxima 9,8%, 14
+  operações, 21,4% de acerto, −0,397R. Referência: +19,3%, Sharpe 1,66.
+  Grandes moedas: −1,2%.
+- **Contra o acaso** (1000 séries, ±90 velas, mesma geometria): fora da
+  amostra (19 op.) −0,266R contra mediana +0,011R e p95 +0,425R:
+  **percentil 11,4**. Só walk-forward (5): percentil 82,6; só reserva
+  (14): percentil 3,5.
+- **Critérios**: 1 NÃO; 2 NÃO (25%); 3 NÃO (0%); 4 NÃO; 5 NÃO; 6 NÃO; 7 NÃO.
+- **Período antigo (informativo, não conta)**: 2021-07-30 a 2024-10-10 a
+  mesma configuração daria −38,4% (Sharpe −0,33, 324 operações, 35,2% de
+  acerto, −0,13R) contra +57,4% da referência.
+- **Leitura**: a força relativa num instante de stress não continua a
+  4H. Junto com o ATRASO_BTC, fecha a família "reação da moeda a uma vela
+  forte do BTC": nem a que fica para trás numa subida recupera, nem a que
+  aguenta uma queda segue a subir. A assimetria que o diário encontrou
+  (fraqueza continua) não tem um lado comprador simétrico neste prazo.
+  Nada foi ligado ao vivo nem ao ringue.
+- Código: `tools/research_resiliente.py`; teste sem look-ahead:
+  `tests/test_research_resiliente.py`; números:
+  `backtest/research_resiliente.json`.
