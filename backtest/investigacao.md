@@ -854,3 +854,47 @@ no percentil 79,7 fora da amostra (abaixo do 95). Não vai para papel.
   `tests/test_research_atraso_btc.py`; números:
   `backtest/research_atraso_btc.json`.
 
+
+## 2026-10-16 — Pré-registo (escrito antes de qualquer teste desta corrida)
+
+A fila do Rui está vazia (hipóteses 1 a 5 testadas). Arena em 2026-10-16
+(scan.json do ramo `data`): 21 lutadores vivos, `recrutar` falso. Nenhum
+morto novo desde 2026-10-15: todos os mortos já têm linha na tabela dos
+sucessores (MOMENTUM e os shorts ficaram "sem sucessor por agora"; o
+MOMENTUM continua com 31 operações, pouco para autópsia). Uma vaga: uma
+hipótese nova.
+
+### Hipótese nova: RESILIENTE (moedas que aguentam uma queda forte do BTC)
+
+- **Lógica**: o diário mostra duas vezes que a fraqueza relativa de uma
+  moeda continua (capitulação isolada em 2026-10-15; moeda que não
+  acompanha a subida do BTC, ATRASO_BTC). A pergunta simétrica, com lógica
+  económica própria: quando o BTC cai forte numa vela de 4H, quase todas
+  as moedas caem com ele (vendas de cesto, liquidações, arbitragem); uma
+  moeda que quase não cai nessa vela tem compradores dispostos a absorver
+  a venda (procura própria). Quando a pressão do BTC passa, essa procura
+  continua a empurrar o preço. É uma entrada nova: não é sobrevenda, não é
+  quebra da própria moeda, e compra força relativa num instante de stress
+  (não a força relativa semanal já rejeitada). Riscos declarados: (1) a
+  hipótese nasceu depois de ver o ATRASO_BTC, que usou a mesma reserva;
+  (2) uma moeda pode "aguentar" por notícia própria já esgotada; (3) a 4H
+  o efeito pode já estar arbitrado; (4) com o BTC acima da SMA200, quedas
+  de 2,5% numa vela de 4H são raras e a amostra pode ser curta.
+- **Regra** (só compras; decisão no fecho da vela i de 4H, só velas
+  fechadas): BTC acima da SMA200 no último dia fechado; vela i do BTC com
+  fecho pelo menos X abaixo do fecho anterior; na mesma vela a moeda caiu
+  no máximo 1/4 do que o BTC caiu (retorno da moeda ≥ retorno do BTC × 1/4);
+  entrada na abertura seguinte; stop no fecho menos 1,5 ATR14; um objetivo
+  a 2R; sem stop na entrada; saída ao fim de H dias. Prioridade: maior
+  resiliência (retorno da moeda menos retorno do BTC).
+- **Grelha (4)**: X ∈ {1,5%; 2,5%} × H ∈ {1, 3} dias (a mesma forma da do
+  ATRASO_BTC, para não escolher parâmetros depois de ver dados).
+- Carteira 4 × 25%, uma por moeda; custos 0,25% + 0,1% por lado; janela de
+  24 meses até ao último dia completo do histórico de 4H (desenho 18,
+  reserva 6); walk-forward (treino 183, teste 91); os sete critérios;
+  contra o acaso com a mesma geometria (±90 velas). Universo: todas as
+  moedas com histórico, sem o BTC. Código: `tools/research_resiliente.py`.
+- Expectativa declarada: NÃO VALIDADA é o mais provável. Com 16 hipóteses
+  contra esta reserva no fim desta corrida (10 deste diário antes de hoje
+  + 5 da afinação + esta), a probabilidade de pelo menos um falso positivo
+  a 5% ronda os 56%; só o papel ao vivo pode provar algo.
