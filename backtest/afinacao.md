@@ -532,3 +532,51 @@ Notas para as próximas execuções:
 - Hipóteses testadas até agora: 4 neste diário (H1 a H4); 10 contra os
   mesmos dados contando o diário de investigação. Com 10 tentativas, a
   probabilidade de pelo menos um falso positivo a 5% ronda os 40%.
+
+### 2026-10-16 — H5: shorts da sobrecompra só em mercado de descida (SHORT_QUEDA)
+
+**Escrito antes de correr qualquer teste.**
+
+- Situação: regime atual (scan.json) **subida**. No ringue longo (365
+  dias, longo.json de 2026-10-15) os vivos são todos de compra (sobrevenda
+  + DIP_TREND) e ganham em subida e lateral; **na descida não há nenhum
+  campeão vivo** (as compras nem operam com o BTC abaixo da SMA200). Os
+  shorts morreram todos no combate de 90 dias, mas no ringue longo o
+  SHORT_X30 ganha na descida (113 op., +0,351R, p95 do acaso +0,094) e o
+  SHORT_ISOLADA também (96 op., +0,292R, p95 +0,113); perdem em subida e
+  lateral, e foi aí que morreram (o ringue corre os shorts sem filtro).
+- Hipótese (correção de um morto que ganha noutro regime): em mercado de
+  descida, os ressaltos que levam o RSI de 4H acima de 70 são alívio sem
+  compradores de fundo e falham; vender a viragem da sobrecompra só nesse
+  regime tem vantagem. É a H4 da H4 de outro ângulo? Não: H4 mexia na
+  saída do Xavier; aqui só se acrescenta um filtro de regime a um short
+  existente, sem mudar gatilho nem saídas (espelho de `sig_x30` /
+  `sig_short_isolada`, objetivos G0, stop na entrada depois do 1.º, 3 dias).
+- AVISO: a ideia nasce de ter visto a divisão por regime do ringue longo.
+  A janela de 365 dias está portanto VISTA e só conta como informação. O
+  teste que decide é fora dessa janela.
+- Grelha (4): sinal ∈ {SHORT_X30, SHORT_ISOLADA} × filtro ∈ {Q: regime do
+  BTC "queda" no último dia fechado (as regras de `regime_by_day`: fecho <
+  SMA50 < SMA200 e −8% em 30 dias); S: BTC abaixo da SMA200 no último dia
+  fechado}.
+- Método: `tools/arena_ringue.generic_trades` sobre as velas espelhadas
+  (exatamente como o ringue corre os shorts), uma operação de cada vez por
+  moeda, entrada na abertura seguinte, 0,25% de comissão + 0,1% de
+  slippage por lado; contra o acaso com `judge` (controlos na mesma moeda,
+  ±90 velas, mesma geometria, no espelho). Histórico do ramo `history`
+  (71 moedas, 4H desde 2021-01-01 até 2026-10-11). Juros da margem não
+  entram no R do ringue; reporto à parte o custo estimado.
+- Janelas: **B (decide, nunca vista com esta divisão)**: 2021-08-01 a
+  2025-10-10 (inclui a descida de 2022). **A (vista, informativa)**:
+  2025-10-11 a 2026-10-11. **C**: combate de 90 dias até 2026-10-11 (com
+  o regime de subida/lateral deve dar 0 operações: um lutador de descida
+  fica à espera do seu regime).
+- Escolha: entre as configurações que cumprirem todos os critérios em B,
+  a de maior R médio em B. Critérios (todos, em B): ≥ 40 operações; R
+  médio > 0; acima do percentil 95 do acaso; R médio > 0 sem a melhor
+  moeda; R médio > 0 em pelo menos metade dos anos civis com ≥ 10
+  operações; e R médio > 0 em A (coerência). Se passar, entra no ringue
+  como SHORT_QUEDA (chave nova, o ringue decide); REAL_OK não se mexe.
+- Hipóteses testadas até agora (com esta): 5 neste diário; 15 contra os
+  mesmos dados contando o diário de investigação (mas a janela B, com o
+  filtro de descida, é um período onde os shorts nunca foram afinados).
