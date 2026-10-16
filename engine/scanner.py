@@ -234,6 +234,8 @@ def losing_streak(led):
             continue
         if R > 0:
             break
+        if R >= -0.1:                  # saida na entrada: nao e perda (Rui, 2026-10-16)
+            continue
         n += 1
     return n
 

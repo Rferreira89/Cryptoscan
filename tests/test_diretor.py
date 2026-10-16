@@ -576,3 +576,27 @@ class ModoAutomatico(unittest.TestCase):
         self.assertIn("Modo automático", out[0][0])
         out = inbox.apply(st, [{"update_id": 2, "message": {"chat": {"id": 7}, "text": "/auto ligar", "date": NOW}}], "7")
         self.assertIn("Ainda não posso", out[0][0])
+
+
+class EntradaNaoEPerda(unittest.TestCase):
+    def test_breakeven_nao_conta_para_o_travao(self):
+        from engine import signals, scanner
+        cfg = {"max_daily_loss_r": 3.0, "max_weekly_loss_r": 6.0, "cooldown_after_losses": 3}
+        mk = lambda i, r: {"id": f"s{i}", "status": "CLOSED", "mode": "REAL", "closed_at": NOW - 7200 + i, "result_r": r}
+        sigs = {f"s{i}": mk(i, r) for i, r in enumerate([-1.0, -1.0, -0.05])}
+        self.assertIsNone(signals.trading_halt(sigs, cfg, NOW))
+        sigs["s3"] = mk(3, -0.9)
+        self.assertIn("perdas seguidas", signals.trading_halt(sigs, cfg, NOW))
+        led = [{"executed": True, "status": "CLOSED", "result_r": r, "closed_at": i}
+               for i, r in enumerate([0.8, -1.0, -0.05])]
+        self.assertEqual(scanner.losing_streak(led), 1)
+
+    def test_sem_divisao_vende_tudo_no_tp1(self):
+        from engine import promo, config
+        cfg = dict(config.DEFAULTS, capital_usdc=80, fixed_position_usdc=6, max_risk_usdc=1.0,
+                   swing_leverage=1.0, min_order_usdc=5.0)
+        sig = {"stop": 90.0, "tp": [104.0, 120.0], "partials": [50, 50], "breakeven": True, "hold_s": 1}
+        p, why = promo.plan_for(sig, 100.0, cfg)
+        self.assertIsNotNone(p, why)
+        self.assertEqual(p["partials"][0], 100)
+        self.assertEqual(p["tp"][0], 104.0)

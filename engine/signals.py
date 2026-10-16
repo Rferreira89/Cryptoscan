@@ -276,6 +276,9 @@ def explain(row):
                          "ou o preço afastar-se da zona de entrada sem a tocar")}
 
 
+SCRATCH_R = 0.1                 # |resultado| ate 0.1R abaixo de zero = saida na entrada
+
+
 def trading_halt(sigs, cfg, now, led=None):
     """Travao de perdas das operacoes reais. Devolve o motivo ou None.
 
@@ -300,8 +303,11 @@ def trading_halt(sigs, cfg, now, led=None):
     if week <= -cfg["max_weekly_loss_r"]:
         return f"perda semanal de {week:.1f}R atingiu o limite"
     n = cfg["cooldown_after_losses"]
-    last = closed[-n:]
-    if len(last) == n and all(s["result_r"] <= 0 for s in last) \
+    # saidas na entrada (stop no breakeven, -0.1R a 0R) protegem o capital:
+    # nao sao perdas nem ganhos e nao contam para a sequencia (Rui, 2026-10-16)
+    real = [s for s in closed if not -SCRATCH_R <= s["result_r"] <= 0]
+    last = real[-n:]
+    if len(last) == n and all(s["result_r"] < -SCRATCH_R for s in last) \
             and now - last[-1]["closed_at"] < 86400:
         return f"{n} perdas seguidas: pausa de 24 horas"
     return None

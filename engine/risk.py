@@ -93,7 +93,10 @@ def sizing(stop_pct, stop_frac, entry, cfg, short=False):
         elif 0.5 * pos_usdc >= mn:
             partials = [50, 50, 0]
         else:
-            partials = [0, 100, 0]
+            # nao da para dividir: vende tudo no 1.o objetivo (o de maior
+            # acerto) em vez de esperar pelo ultimo (Rui, 2026-10-16: a ENA
+            # chegou ao TP1 a +3,3% e saiu na entrada sem vender nada)
+            partials = [100, 0, 0]
         usdc = {"position_usdc": round(pos_usdc, 2),
                 "collateral_usdc": round(pos_usdc / lev["use"], 2),
                 "borrowed_usdc": round(pos_usdc - pos_usdc / lev["use"], 2),

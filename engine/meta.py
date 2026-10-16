@@ -41,6 +41,7 @@ def diretrizes(m):
         "No dinheiro real tem de continuar lucrativo: com 10 operações reais e resultado médio negativo, perde o lugar até provar de novo.",
         "Sem atalhos: nunca mais risco para chegar mais depressa. Uma perda grande atrasa o objetivo mais do que qualquer ganho o adianta.",
         "Cada entrada passa pelo Diretor de Trading, com evidência verificável.",
+        "Máximo empenho em cada operação: proteger o lucro logo que aparece (TP1) e nunca deixar um ganho virar perda.",
     ]
 
 
@@ -50,7 +51,8 @@ CODIGO = [
     ("Primeiro proteger, depois ganhar",
      "Stop antes de entrar, risco sempre igual e pequeno; depois do TP1 a operação já não pode dar perda."),
     ("Pensar em probabilidades, não em certezas",
-     "Uma operação não importa; contam 100. Uma perda com as regras cumpridas não é um erro."),
+     "Nem sempre se acerta, e isso faz parte; mas a missão é multiplicar o capital sem o perder: "
+     "perdas pequenas e raras, ganhos maiores e protegidos. Contam 100 operações, não uma."),
     ("Só entrar com vantagem provada",
      "Sem palpites: só campeões que batem o acaso, com evidência verificável e histórico positivo nesta fase do mercado."),
     ("Paciência: esperar pela bola certa",

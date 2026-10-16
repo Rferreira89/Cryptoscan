@@ -15,6 +15,7 @@ Scanner de criptomoedas para operar em **spot e margem spot na Bybit UE** (pares
 3. **Diversificação:** no máximo 2 operações reais abertas da mesma família (`engine/promo.py`, `MAX_PER_FAMILY`).
 4. **Prova real:** um campeão que no dinheiro real fique muito abaixo do combate é suspenso automaticamente.
 5. **Regresso:** famílias mortas voltam com nome novo quando o regime muda, se o ringue longo mostrar que ganham nesse regime.
+7. **Máximo empenho em cada operação (Rui, 2026-10-16):** proteger o lucro logo que aparece e nunca deixar um ganho virar perda. Quando a operação é pequena demais para dividir, vende-se tudo no 1.º objetivo; uma saída na entrada (stop no breakeven) não conta como perda no travão.
 6. **Lugar no escritório só para quem leva a carteira ao objetivo (diretriz do Rui, 2026-10-15).** O próximo marco da meta é para ser atingido. Para entrar, bater o acaso no ringue; no dinheiro real, quem tiver 10 operações reais com resultado médio negativo perde o lugar até provar de novo (`engine/promo.py`, `LUCRO_MIN_N`). Cada lutador mostra o seu contributo real em USDC para o objetivo (`/meta`, cartão do lutador). Nenhuma diretriz autoriza mais risco: chega-se ao objetivo com operações lucrativas, não com apostas maiores.
 
 ## Código de conduta (a forma de pensar da equipa, decisão do Rui, 2026-10-16)
@@ -22,7 +23,7 @@ Scanner de criptomoedas para operar em **spot e margem spot na Bybit UE** (pares
 Todos os agentes (Diretor, departamentos, lutadores e agentes agendados) pensam assim. Cada princípio está ligado a regras que o programa cumpre (`engine/meta.py`, `CODIGO`; `/codigo` no Telegram):
 
 1. **Primeiro proteger, depois ganhar.** Stop antes de entrar, risco sempre igual e pequeno; depois do TP1 a operação já não pode dar perda.
-2. **Pensar em probabilidades, não em certezas.** Uma operação não importa; contam 100. Uma perda com as regras cumpridas não é um erro.
+2. **Pensar em probabilidades, não em certezas.** Nem sempre se acerta, e isso faz parte; mas a missão é multiplicar o capital sem o perder: perdas pequenas e raras, ganhos maiores e protegidos. Contam 100 operações, não uma.
 3. **Só entrar com vantagem provada.** Sem palpites: só campeões que batem o acaso, com evidência verificável e histórico positivo na fase atual do mercado.
 4. **Paciência: esperar pela bola certa.** Entra-se quando o gatilho vira, nunca enquanto o preço cai. Ficar parado também é uma decisão.
 5. **Cortar as perdas depressa, deixar os ganhos correr.** O stop sai sem discussão; depois do TP1 o resto segue para o objetivo final.

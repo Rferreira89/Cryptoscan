@@ -221,7 +221,7 @@ class SmallCapital(unittest.TestCase):
         p, _ = self.plan(50)                       # 11.4 USDC: so 50/50
         self.assertEqual(p["partials"], [50, 50, 0])
         p, _ = self.plan(30)                       # 6.8 USDC: saida unica
-        self.assertEqual(p["partials"], [0, 100, 0])
+        self.assertEqual(p["partials"], [100, 0, 0])
         p, why = self.plan(19)                     # 4.3 USDC: nao executavel
         self.assertIsNone(p)
         self.assertIn("ordem mínima", why)
@@ -231,7 +231,7 @@ class SmallCapital(unittest.TestCase):
         p, _ = self.plan(21)
         self.assertEqual(p["position_usdc"], 5.0)
         self.assertLessEqual(p["risk_pct"], 0.5 * 1.1 + 0.01)
-        self.assertEqual(p["partials"], [0, 100, 0])
+        self.assertEqual(p["partials"], [100, 0, 0])
         self.assertIsNone(self.plan(19)[0])
 
     def test_usdc_amounts_with_leverage(self):

@@ -277,7 +277,7 @@ def plan_for(sig, px, cfg):
         tp3, parts = [tps[0]] * 3, [100, 0, 0]
     else:
         tp3 = [tps[0], tps[1], tps[1]]
-        parts = [50, 50, 0] if split[0] > 0 else [0, 100, 0]
+        parts = [50, 50, 0] if split[1] > 0 else [100, 0, 0]   # sem divisao: tudo no TP1
     net = lambda tp: (tp - entry - fee * (tp + entry)) / ru
     atr = sig.get("atr") or (entry - stop)
     return {"leverage": sz["leverage"], **sz["usdc"],
@@ -311,7 +311,7 @@ def short_plan_for(sig, px, cfg):
         tp3, parts = [tps[0]] * 3, [100, 0, 0]
     else:
         tp3 = [tps[0], tps[1], tps[1]]
-        parts = [50, 50, 0] if sz["partials"][0] > 0 else [0, 100, 0]
+        parts = [50, 50, 0] if sz["partials"][1] > 0 else [100, 0, 0]
     net = lambda tp: (entry - tp - fee * (tp + entry)) / ru
     return {"side": "SHORT", "leverage": sz["leverage"], **sz["usdc"],
             "entry_zone": [lo, hi], "entry_ref": entry, "stop": stop,
