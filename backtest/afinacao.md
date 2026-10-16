@@ -1,7 +1,7 @@
 # Diário de afinação dos sinais
 
 Hipóteses testadas sobre as estratégias que já estão ao vivo, uma por
-entrada, com o veredicto. Hipóteses testadas até agora: 4.
+entrada, com o veredicto. Hipóteses testadas até agora: 5.
 
 ## Decisões do Rui (valem para todas as execuções)
 
@@ -548,8 +548,7 @@ Notas para as próximas execuções:
 - Hipótese (correção de um morto que ganha noutro regime): em mercado de
   descida, os ressaltos que levam o RSI de 4H acima de 70 são alívio sem
   compradores de fundo e falham; vender a viragem da sobrecompra só nesse
-  regime tem vantagem. É a H4 da H4 de outro ângulo? Não: H4 mexia na
-  saída do Xavier; aqui só se acrescenta um filtro de regime a um short
+  regime tem vantagem. Só se acrescenta um filtro de regime a um short
   existente, sem mudar gatilho nem saídas (espelho de `sig_x30` /
   `sig_short_isolada`, objetivos G0, stop na entrada depois do 1.º, 3 dias).
 - AVISO: a ideia nasce de ter visto a divisão por regime do ringue longo.
@@ -580,3 +579,59 @@ Notas para as próximas execuções:
 - Hipóteses testadas até agora (com esta): 5 neste diário; 15 contra os
   mesmos dados contando o diário de investigação (mas a janela B, com o
   filtro de descida, é um período onde os shorts nunca foram afinados).
+
+**Resultados** (ramo `history`, velas de 4H até 2026-10-11; 68 moedas, ROBO
+de fora por histórico curto; `backtest/afinacao_h05_short_queda.json`;
+código `tools/afinacao_h05_short_queda.py`, teste sem look-ahead do filtro
+`tests/test_afinacao_h05.py`).
+
+| Config. | B: op. | B: R médio | B: acaso med./p95 | B: percentil | B: sem a melhor | A (vista): op., R, percentil |
+|---|---|---|---|---|---|---|
+| X30 + queda | 107 | −0,046 | −0,132 / +0,006 | 70,9 | −0,106 (ADA) | 110, +0,345, 100 |
+| X30 + BTC<SMA200 | 603 | −0,296 | −0,234 / −0,180 | 0,6 | −0,305 | 623, −0,094, 85,8 |
+| ISOLADA + queda | 77 | −0,118 | −0,137 / +0,019 | 43,3 | −0,157 (XRP) | 93, +0,283, 99,1 |
+| ISOLADA + BTC<SMA200 | 431 | −0,300 | −0,240 / −0,178 | 1,1 | −0,311 | 537, −0,138, 29,3 |
+
+- Por ano em B (X30 + queda): 2022 90 op. +0,093R; 2023 3 op. −0,84R;
+  2024 14 op. −0,77R. A única descida longa do período (2022) dá um
+  ganho pequeno, abaixo do p95 do acaso; as descidas curtas de 2023-2024
+  perdem quase tudo. ISOLADA + queda: 2022 +0,024R (64), 2023-2024 −0,8R.
+- "Abaixo da SMA200" é pior do que o acaso em todos os anos (percentil
+  0,6 e 1,1): vender sobrecompra só porque o BTC está abaixo da média longa
+  é vender os ressaltos que continuam.
+- A janela A (vista) reproduz o ringue longo (110 op., +0,345R contra 113
+  e +0,351R): o método é o mesmo e os números batem certo. Mas o ganho da
+  descida de 2025-2026 não aparece na descida de 2022 nem nas de 2023-2024.
+- Combate de 90 dias (C): 0 operações com o filtro de queda (não houve
+  regime de queda nos últimos 90 dias), 54 com BTC<SMA200.
+- Juros da margem não descontados: com saída em 3 dias no máximo custariam
+  perto de 0,01R a 0,03R por operação; não mudam nenhum veredicto.
+- Critérios em B (melhor configuração, X30 + queda): ≥ 40 op. sim (107);
+  R médio > 0 NÃO (−0,046); acima do p95 NÃO (percentil 70,9); sem a
+  melhor moeda NÃO (−0,106); anos positivos 1 de 3 NÃO; A > 0 sim.
+
+**Veredicto: REJEITADA.** Nenhuma das 4 configurações ganha fora da janela
+onde a ideia nasceu; a melhor fica no percentil 70,9 do acaso. A vantagem
+dos shorts na descida que o ringue longo mostra é de um só episódio (a
+descida de 2025-2026) e não se repete na de 2022. Nada entra no ringue.
+
+Notas para as próximas execuções:
+
+- Regimes sem campeão vivo: **descida** (nenhum lutador opera nela; as
+  compras estão bloqueadas pelo filtro do BTC e os shorts morreram). Na
+  subida e na lateral ganham os da sobrevenda e o DIP_TREND.
+- Lição de método: o ringue longo é UM ano, com UM episódio por regime.
+  Uma família que "ganha na descida" lá tem de ser confirmada noutra
+  descida (2022 no ramo `history`) antes de entrar no ringue. Vale para
+  qualquer proposta tirada do `por_regime`.
+- Próxima hipótese proposta (H6), família diferente e para o regime atual
+  (subida): TURTLE com outra saída. No ringue longo ganha +0,34R na subida
+  (55 op.) e +0,27R na lateral, mas perde para o acaso (p95 +0,85): a
+  geometria de 2R/5R com 20 dias é generosa para entradas ao acaso. Testar
+  saídas mais curtas (1.º objetivo a 1,5R, tempo máximo 5 ou 10 dias,
+  stop 1,5N) em B e confirmar em 2023-2024 (subidas) antes de olhar para
+  os últimos 12 meses. Alternativa: shorts com tendência de descida já
+  estabelecida E capitulação das compras (funding), se houver funding
+  histórico de 2022.
+- Hipóteses testadas até agora: 5 neste diário (H1 a H5); 15 contra os
+  mesmos dados contando o diário de investigação (14 até 2026-10-15 + esta).

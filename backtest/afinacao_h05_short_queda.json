@@ -1,0 +1,348 @@
+{
+ "moedas": 68,
+ "fora": {
+  "ROBO": "historico curto (1325 velas)"
+ },
+ "janelas": {
+  "X30_Q": {
+   "B": {
+    "n": 107,
+    "wins": 57,
+    "avg_r": -0.046,
+    "total_r": -4.95,
+    "ultimas": [
+     -1.03,
+     -1.02,
+     -0.09,
+     -1.02,
+     0.38,
+     -1.01,
+     -1.03,
+     -1.02,
+     -1.03,
+     -1.01
+    ],
+    "acaso_mediana": -0.132,
+    "acaso_p95": 0.006,
+    "veredicto": "MORTA",
+    "sem_melhor": "ADA",
+    "avg_sem_melhor": -0.106,
+    "anos": {
+     "2022": [
+      90,
+      0.093
+     ],
+     "2023": [
+      3,
+      -0.838
+     ],
+     "2024": [
+      14,
+      -0.772
+     ]
+    },
+    "dias_distintos": 51,
+    "avg_r_sem_custo_juros": -0.046,
+    "percentil_acaso": 70.9
+   },
+   "A": {
+    "n": 110,
+    "wins": 78,
+    "avg_r": 0.345,
+    "total_r": 37.91,
+    "ultimas": [
+     -1.0,
+     -1.01,
+     -1.0,
+     1.99,
+     -0.02,
+     1.41,
+     1.25,
+     0.27,
+     -0.37,
+     -1.02
+    ],
+    "acaso_mediana": -0.048,
+    "acaso_p95": 0.099,
+    "veredicto": "SOBE",
+    "sem_melhor": "AVAX",
+    "avg_sem_melhor": 0.307,
+    "anos": {
+     "2025": [
+      17,
+      0.394
+     ],
+     "2026": [
+      93,
+      0.336
+     ]
+    },
+    "dias_distintos": 35,
+    "avg_r_sem_custo_juros": 0.345,
+    "percentil_acaso": 100.0
+   },
+   "C90": {
+    "n": 0
+   }
+  },
+  "X30_S": {
+   "B": {
+    "n": 603,
+    "wins": 252,
+    "avg_r": -0.296,
+    "total_r": -178.4,
+    "ultimas": [
+     0.24,
+     0.11,
+     -1.02,
+     0.11,
+     -1.02,
+     0.02,
+     -1.02,
+     0.29,
+     0.04,
+     0.0
+    ],
+    "acaso_mediana": -0.234,
+    "acaso_p95": -0.18,
+    "veredicto": "MORTA",
+    "sem_melhor": "WLD",
+    "avg_sem_melhor": -0.305,
+    "anos": {
+     "2021": [
+      40,
+      -0.445
+     ],
+     "2022": [
+      311,
+      -0.141
+     ],
+     "2023": [
+      122,
+      -0.562
+     ],
+     "2024": [
+      98,
+      -0.394
+     ],
+     "2025": [
+      32,
+      -0.302
+     ]
+    },
+    "dias_distintos": 211,
+    "avg_r_sem_custo_juros": -0.296,
+    "percentil_acaso": 0.6
+   },
+   "A": {
+    "n": 623,
+    "wins": 319,
+    "avg_r": -0.094,
+    "total_r": -58.4,
+    "ultimas": [
+     0.45,
+     -1.01,
+     -0.02,
+     -0.05,
+     1.33,
+     -0.4,
+     0.29,
+     -1.07,
+     0.2,
+     -1.02
+    ],
+    "acaso_mediana": -0.167,
+    "acaso_p95": -0.115,
+    "veredicto": "MORTA",
+    "sem_melhor": "XRP",
+    "avg_sem_melhor": -0.101,
+    "anos": {
+     "2025": [
+      46,
+      0.111
+     ],
+     "2026": [
+      577,
+      -0.11
+     ]
+    },
+    "dias_distintos": 159,
+    "avg_r_sem_custo_juros": -0.094,
+    "percentil_acaso": 85.8
+   },
+   "C90": {
+    "n": 54
+   }
+  },
+  "ISOLADA_Q": {
+   "B": {
+    "n": 77,
+    "wins": 41,
+    "avg_r": -0.118,
+    "total_r": -9.09,
+    "ultimas": [
+     -1.06,
+     -1.02,
+     -1.02,
+     -1.03,
+     -1.02,
+     -0.09,
+     -1.03,
+     -1.02,
+     -1.03,
+     -1.01
+    ],
+    "acaso_mediana": -0.137,
+    "acaso_p95": 0.019,
+    "veredicto": "MORTA",
+    "sem_melhor": "XRP",
+    "avg_sem_melhor": -0.157,
+    "anos": {
+     "2022": [
+      64,
+      0.024
+     ],
+     "2023": [
+      2,
+      -0.743
+     ],
+     "2024": [
+      11,
+      -0.832
+     ]
+    },
+    "dias_distintos": 45,
+    "avg_r_sem_custo_juros": -0.118,
+    "percentil_acaso": 43.3
+   },
+   "A": {
+    "n": 93,
+    "wins": 65,
+    "avg_r": 0.283,
+    "total_r": 26.3,
+    "ultimas": [
+     1.59,
+     -1.0,
+     -1.01,
+     -1.0,
+     1.99,
+     -0.02,
+     1.41,
+     1.25,
+     0.27,
+     -0.37
+    ],
+    "acaso_mediana": -0.037,
+    "acaso_p95": 0.117,
+    "veredicto": "SOBE",
+    "sem_melhor": "AVAX",
+    "avg_sem_melhor": 0.248,
+    "anos": {
+     "2025": [
+      12,
+      0.092
+     ],
+     "2026": [
+      81,
+      0.311
+     ]
+    },
+    "dias_distintos": 32,
+    "avg_r_sem_custo_juros": 0.283,
+    "percentil_acaso": 99.1
+   },
+   "C90": {
+    "n": 0
+   }
+  },
+  "ISOLADA_S": {
+   "B": {
+    "n": 431,
+    "wins": 181,
+    "avg_r": -0.3,
+    "total_r": -129.25,
+    "ultimas": [
+     1.0,
+     0.11,
+     -1.02,
+     -1.02,
+     -1.03,
+     -1.02,
+     -1.02,
+     -1.03,
+     -1.02,
+     -1.01
+    ],
+    "acaso_mediana": -0.24,
+    "acaso_p95": -0.178,
+    "veredicto": "MORTA",
+    "sem_melhor": "WLD",
+    "avg_sem_melhor": -0.311,
+    "anos": {
+     "2021": [
+      30,
+      -0.4
+     ],
+     "2022": [
+      213,
+      -0.091
+     ],
+     "2023": [
+      95,
+      -0.605
+     ],
+     "2024": [
+      76,
+      -0.442
+     ],
+     "2025": [
+      17,
+      -0.399
+     ]
+    },
+    "dias_distintos": 174,
+    "avg_r_sem_custo_juros": -0.3,
+    "percentil_acaso": 1.1
+   },
+   "A": {
+    "n": 537,
+    "wins": 271,
+    "avg_r": -0.138,
+    "total_r": -74.04,
+    "ultimas": [
+     0.45,
+     -1.01,
+     -0.02,
+     -0.05,
+     1.33,
+     -0.4,
+     0.29,
+     -1.07,
+     0.2,
+     -1.02
+    ],
+    "acaso_mediana": -0.158,
+    "acaso_p95": -0.102,
+    "veredicto": "MORTA",
+    "sem_melhor": "XRP",
+    "avg_sem_melhor": -0.146,
+    "anos": {
+     "2025": [
+      40,
+      0.012
+     ],
+     "2026": [
+      497,
+      -0.15
+     ]
+    },
+    "dias_distintos": 147,
+    "avg_r_sem_custo_juros": -0.138,
+    "percentil_acaso": 29.3
+   },
+   "C90": {
+    "n": 53
+   }
+  }
+ }
+}
