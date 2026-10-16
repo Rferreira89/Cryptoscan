@@ -738,6 +738,41 @@ def sig_reteste(c4):
             "gatilho": f"reteste por cima do nível rompido {level:.6g} com vela de retoma"}
 
 
+# ---------- volume anormal antes do movimento (decisao do Rui, 2026-10-16) ----------
+# "Entrar antes de a moeda valorizar": volume muito acima do normal (>= 3x a
+# mediana das 30 velas anteriores) com compradores agressivos (>= 55% do
+# volume) enquanto o PRECO AINDA NAO SUBIU (variacao de 3 velas entre -3% e
+# +4%) e o fecho na metade de cima da vela: sinal de acumulacao. Diferente da
+# familia "comprar a quebra" (esgotada a 2026-10-14): aqui nao ha quebra.
+# Stop abaixo do minimo de 6 velas (1 a 3 ATR); objetivos 2R e 4R.
+def sig_volume(c4):
+    if len(c4) < 60:
+        return None
+    b = c4[-1]
+    vols = sorted(x["v"] for x in c4[-31:-1])
+    med = vols[len(vols) // 2]
+    if not med or not b.get("v") or b["v"] < 3 * med or not b.get("tb"):
+        return None
+    if b["tb"] / b["v"] < 0.55:
+        return None
+    chg = b["c"] / c4[-4]["c"] - 1
+    if not -0.03 <= chg <= 0.04:
+        return None
+    if b["h"] > b["l"] and (b["c"] - b["l"]) / (b["h"] - b["l"]) < 0.5:
+        return None
+    at = PB.atr(c4[-100:])[-1]
+    if not at:
+        return None
+    stop = min(x["l"] for x in c4[-6:]) - 0.2 * at
+    e = b["c"]
+    stop = min(stop, e - at)
+    if e - stop > 3 * at:
+        return None
+    return _trend_plan(c4, stop, r_mult=(2, 4), hold=5 * DAY, trail=None,
+                       gat=f"volume {b['v'] / med:.1f}x o normal com {b['tb'] / b['v']:.0%} de compradores, "
+                           f"preço ainda parado ({chg:+.1%}): acumulação")
+
+
 # ---------- reversao no intervalo (decisao do Rui, 2026-10-15) ----------
 # Mean reversion SO com o mercado realmente lateral: forca de tendencia baixa
 # (ADX 4H < 20), media de 50 velas plana e um intervalo claro (6% a 30% entre
@@ -822,7 +857,8 @@ NEW_SIGS = {"BRK_ESPACO": sig_breakout_espaco, "RETESTE": sig_reteste,
             "BOUNCE_SQUEEZE": sig_squeeze, "BOUNCE_ISOLADA": sig_isolada,
             "BOUNCE_X30_PAVIO": _stop_var(sig_x30, "pavio"),
             "BOUNCE_X30_LIQ": _stop_var(sig_x30, "liq"),
-            "REVERSAO_INTERVALO": sig_intervalo}
+            "REVERSAO_INTERVALO": sig_intervalo,
+            "VOLUME_ACUMULACAO": sig_volume}
 
 
 def fetch_funding(base, now, days):

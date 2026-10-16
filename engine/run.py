@@ -361,8 +361,11 @@ def alert_text(e, sigs, note):
                 f"Ordem limite perto de {_px(p['entry_zone'][1])} (já, na zona "
                 f"{_px(p['entry_zone'][0])} a {_px(p['entry_zone'][1])})\n"
                 f"{invest_line(p['position_pct'], p['risk_pct'], p.get('leverage'), p.get('position_usdc'))}\n"
-                + (f"🔗 Uma só aposta: {p['cluster']['n']} sinais da família «{p['cluster']['familia']}» "
-                   "nesta vela dividem o risco de uma operação.\n" if p.get("cluster") else "")
+                + ((f"🔗 Uma só aposta: {p['cluster']['n']} sinais da família «{p['cluster']['familia']}» "
+                    "nesta vela; ficou só este, o melhor, inteiro, para proteger o lucro no TP1.\n")
+                   if (p.get("cluster") or {}).get("melhor") else
+                   (f"🔗 Uma só aposta: {p['cluster']['n']} sinais da família «{p['cluster']['familia']}» "
+                    "nesta vela dividem o risco de uma operação.\n") if p.get("cluster") else "")
                 + f"Stop: {_px(p['stop'])} (-{p['stop_pct']}%)\n"
                 f"{targets_line(p)}\n"
                 + (f"Saída obrigatória ao fim de {hold // 86400:g} dia(s), se não "

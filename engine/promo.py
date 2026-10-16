@@ -48,7 +48,7 @@ REAL_OK = _RealOK({"BOUNCE_G0", "BOUNCE_V2", "BOUNCE_V3", "BOUNCE_X30", "DIP_TRE
                    "BOUNCE_ISOLADA", "BOUNCE_NOREACT", "BOUNCE_TRAIL", "BOUNCE_HORAS",
                    "BOUNCE_DESALAV", "BOUNCE_ABSORCAO", "BOUNCE_LSR", "BOUNCE_MACRO",
                    "BOUNCE_MEDO", "TURTLE", "SQUEEZE_BB", "MOMENTUM", "BRK_ESPACO", "RETESTE",
-                   "BOUNCE_X30_PAVIO", "BOUNCE_X30_LIQ", "REVERSAO_INTERVALO",
+                   "BOUNCE_X30_PAVIO", "BOUNCE_X30_LIQ", "REVERSAO_INTERVALO", "VOLUME_ACUMULACAO",
                    "SHORT_X30", "SHORT_FLUXO", "SHORT_TURTLE", "SHORT_SQUEEZE", "SHORT_ISOLADA"})
 
 
@@ -163,7 +163,7 @@ def growth(state, cfg):
 # juntos. No maximo MAX_PER_FAMILY operacoes reais abertas da mesma familia.
 MAX_PER_FAMILY = 2
 FAMILIAS = {"sobrevenda": "Sobrevenda a virar", "tendencia": "Tendência e rompimento",
-            "volatilidade": "Volatilidade", "capitulacao": "Capitulação", "short": "Venda a descoberto"}
+            "volatilidade": "Volatilidade", "volume": "Volume anormal (acumulação)", "capitulacao": "Capitulação", "short": "Venda a descoberto"}
 
 
 def family(k):
@@ -176,6 +176,8 @@ def family(k):
         return "tendencia"
     if b in ("SQUEEZE_BB",):
         return "volatilidade"
+    if b in ("VOLUME_ACUMULACAO",):
+        return "volume"
     if b in ("CAPITULACAO",):
         return "capitulacao"
     return "sobrevenda"
@@ -405,6 +407,20 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
                   max_risk_usdc=cfg.get("max_risk_usdc", float("inf")) / k)
         if c2.get("fixed_position_usdc"):
             c2["fixed_position_usdc"] = cfg["fixed_position_usdc"] / k
+        # metade pequena demais para vender parte no TP1 (16/10, ENA): fica so
+        # o melhor sinal, inteiro (continua a ser uma so aposta) e os outros saem
+        x0 = sorted(xs, key=lambda x: x[0])[0]
+        sh0 = x0[4].get("side") == "SHORT"
+        q0, _ = (short_plan_for if sh0 else plan_for)(x0[3], x0[4]["entry_ref"] / (0.998 if sh0 else 1.002), c2)
+        if bf[f] - len(xs) == 0 and x0[4].get("partials", [0, 0])[1] > 0 and \
+                (not q0 or q0.get("partials", [100, 0])[1] == 0):
+            for y in xs:
+                if y is not x0:
+                    lost(state, now, y[1], y[2], "uma só aposta: ficou só o melhor sinal da família nesta "
+                         "vela, inteiro, para poder proteger o lucro no TP1")
+            x0[4]["cluster"] = {"n": k, "familia": FAMILIAS.get(f, f), "melhor": True}
+            ok = [y for y in ok if (family(y[2]), y[3]["t_sig"]) != (f, t)] + [x0]
+            continue
         for i, (rank, a, champ, sig, p, d0) in enumerate(xs):
             short = p.get("side") == "SHORT"
             p2, _ = (short_plan_for if short else plan_for)(sig, sig.get("px") or p["entry_ref"] /

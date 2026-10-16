@@ -614,3 +614,55 @@ class MissaoEmCadaOperacao(unittest.TestCase):
         self.assertIn("-1.20 USDC", a)
         self.assertIn("lucro no bolso", run.autopsy(st, {"event": "TP1", "r": 0.4}, {"plan": {}}))
         self.assertIn("Não é perda", run.autopsy(st, {"event": "BREAKEVEN", "r": -0.05}, {"plan": {}}))
+
+
+class VolumeAnormal(unittest.TestCase):
+    def barras(self, n=80):
+        out = [{"t": NOW - (n - i) * H4, "o": 100, "h": 101, "l": 99, "c": 100, "v": 1000, "tb": 500}
+               for i in range(n)]
+        out[-1].update(o=100, h=101.5, l=99.6, c=101.2, v=4000, tb=2600)
+        return out
+
+    def test_entra_com_volume_e_preco_parado(self):
+        from tools import arena_ringue as AR
+        from engine import promo, arena
+        s = AR.sig_volume(self.barras())
+        self.assertIsNotNone(s)
+        self.assertIn("acumulação", s["gatilho"])
+        self.assertGreater(s["tp"][0], 101.2)
+        self.assertLess(s["stop"], 99.6)
+        self.assertEqual(promo.family("VOLUME_ACUMULACAO"), "volume")
+        self.assertIn("VOLUME_ACUMULACAO", promo.REAL_OK)
+        self.assertEqual(arena.persona("VOLUME_ACUMULACAO"), "Valter")
+
+    def test_nao_entra_sem_volume_ou_ja_subiu(self):
+        from tools import arena_ringue as AR
+        b = self.barras(); b[-1]["v"] = 2000; b[-1]["tb"] = 1300
+        self.assertIsNone(AR.sig_volume(b))                       # volume so 2x
+        b = self.barras(); b[-1]["tb"] = 1600
+        self.assertIsNone(AR.sig_volume(b))                       # compradores 40%
+        b = self.barras(); b[-4]["c"] = 90
+        self.assertIsNone(AR.sig_volume(b))                       # ja subiu 12%
+
+
+class MelhorSinalInteiro(unittest.TestCase):
+    def test_fica_so_o_melhor_quando_a_metade_nao_protege_o_lucro(self):
+        from unittest import mock
+        from engine import promo, config
+        cfg = dict(config.DEFAULTS, capital_usdc=80, fixed_position_usdc=12, max_risk_usdc=2.0,
+                   swing_leverage=1.0, min_order_usdc=5.0, risk_pct=1.0)
+        c = [{"t": NOW - (300 - i) * H4, "o": 100, "h": 101, "l": 99, "c": 100, "v": 1} for i in range(300)]
+        now = c[-1]["t"] + H4 + 60
+        sig = {"stop": 95.0, "tp": [104.0, 110.0], "partials": [50, 50], "breakeven": True,
+               "hold_s": 1, "t_sig": c[-1]["t"] + H4}
+        rows = [{"asset": a, "price": 100.0, "decision": {"decision": "NO TRADE", "venue": {"pair": a + "/USDC"}}}
+                for a in ("AAA", "BBB")]
+        st = {}
+        with mock.patch.object(promo, "registry", return_value={"BOUNCE_G0": lambda cc, px, cf: dict(sig)}):
+            d = promo.decisions(st, rows, {r["asset"]: c for r in rows}, cfg, now, ["BOUNCE_G0"], True,
+                                lambda a: None)
+        self.assertEqual(len(d), 1)
+        p = list(d.values())[0]["plan"]
+        self.assertTrue(p["cluster"]["melhor"])
+        self.assertEqual(p["partials"][:2], [50, 50])                     # inteiro: vende metade no TP1
+        self.assertIn("melhor sinal", st["promo_lost"][-1]["reason"])
