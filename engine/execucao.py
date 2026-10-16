@@ -46,6 +46,11 @@ def apply(state, ex):
         any(p.startswith("recompra") for p in ps) and \
         (not anexada or any(p.startswith("cancelar proteção") for p in ps))
     state["exec_ready_short"] = READY_SHORT
+    try:                                     # prova do modo automatico (engine/auto.py)
+        from . import auto
+        auto.observe(state, ex)
+    except Exception as e:
+        print("auto:", e)
     done = set(ex.get("feitos") or [])
     state["exec_req"] = [r for r in state.get("exec_req") or [] if r["id"] not in done]
     led = {r["id"]: r for r in state.get("ledger") or []}

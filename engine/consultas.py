@@ -404,6 +404,7 @@ HELP = "\n".join([
     "/ringue — classificação dos lutadores",
     "/debate MOEDA — o que cada lutador faria nessa moeda (/debate sozinho: as mais quentes)",
     "/diretor — últimas decisões do Diretor de Trading (/diretor SOL: o relatório de cada agente)",
+    "/auto — modo automático: critérios e estado (/auto ligar · /auto desligar)",
     "/codigo — o código de conduta da equipa (a forma de pensar de todos os agentes)",
     "/liga — liga semanal dos lutadores",
     "/oportunidades — moedas mais perto de dar sinal",

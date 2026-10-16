@@ -466,7 +466,7 @@ def markup_for(e, s, real):
     # um toque: compras com o teste da compra; vendas a descoberto so depois
     # do teste real da venda a descoberto (decisao do Rui, 2026-10-15)
     short = s.get("direction") == "SHORT" or (s.get("plan") or {}).get("side") == "SHORT"
-    if e.get("event") == "ISSUED" and (execucao.READY_SHORT if short else execucao.READY):
+    if e.get("event") == "ISSUED" and not e.get("auto") and (execucao.READY_SHORT if short else execucao.READY):
         m["inline_keyboard"].insert(0, [execucao.button(oid)])
     if e.get("asset"):
         m["inline_keyboard"].append(consultas.why_buttons(e["asset"]))
@@ -553,6 +553,9 @@ def deliver(cfg, state, events, extra=()):
         txt = alert_text(e, sigs, validation.note(s.get("strategy")))
         if not txt:
             continue
+        if e.get("auto") and e["event"] == "ISSUED":
+            txt = ("🤖 EXECUTADO AUTOMATICAMENTE (modo automático): o programa está a abrir esta operação "
+                   "na Bybit; confirmação em 1 a 2 minutos. /parar fecha tudo e desliga.\n\n" + txt)
         if (state.get("auto_ops") or {}).get(e.get("id")) == "aberta" and e["event"] in ("TP1", "BREAKEVEN") \
                 and "r" not in e:
             # operacao executada pelo programa: ele proprio sobe o stop na Bybit
@@ -663,6 +666,13 @@ def main():
     apply_admin(state, send=alerts.send if alerts.configured() else None)
     res, state, events = scanner.run(state=state, forma=load_forma(),
                                      eu=europa.load())
+    try:                                      # modo automatico (desligado ate a prova estar feita)
+        from . import auto
+        auto.observe(state, None, events)
+        auto.pick(state, events, res["generated_at"])
+        res["auto"] = auto.summary(state)
+    except Exception as e:
+        print("auto:", e)
     exec_after(state, events, res["generated_at"])
     res["execucao"] = {"pronto": execucao.READY, "pedidos": len(state.get("exec_req") or [])}
     extra = reports.due(res, state, res["generated_at"]) if res["universe"] else []

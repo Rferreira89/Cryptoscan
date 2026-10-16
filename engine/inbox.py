@@ -26,6 +26,7 @@ CLOSE = re.compile(r"^/?fechei\s+([A-Za-z0-9]+)\s+([0-9]+(?:[.,][0-9]+)?)\s*$",
 
 
 PARAR = re.compile(r"^/?parar\s*$", re.I)
+AUTO = re.compile(r"^/?auto(?:@\w+)?(?:\s+(ligar|desligar))?\s*$", re.I)
 
 
 CAP = re.compile(r"^/?capital\s+([0-9]+(?:[.,][0-9]+)?)\s*$", re.I)
@@ -203,10 +204,23 @@ def apply(state, updates, chat_id, res=None):
                 continue
             text = (msg.get("text") or "").strip()
             if PARAR.match(text):
-                from . import execucao
+                from . import execucao, auto
                 execucao.request(state, "parar", "", int(msg.get("date") or 0))
+                auto.turn(state, False, int(msg.get("date") or 0))
                 out.append(("⛔ Pedido de paragem recebido: o servidor europeu vai cancelar as "
-                            "ordens e vender o que o programa abriu (1 a 2 minutos).", None))
+                            "ordens e vender o que o programa abriu (1 a 2 minutos). "
+                            "Modo automático desligado.", None))
+                continue
+            am = AUTO.match(text)
+            if am:
+                from . import auto
+                op = (am.group(1) or "").lower()
+                if op == "ligar":
+                    out.append((auto.turn(state, True, int(msg.get("date") or 0)), None))
+                elif op == "desligar":
+                    out.append((auto.turn(state, False, int(msg.get("date") or 0)), None))
+                else:
+                    out.append((auto.text(state), None, True))
                 continue
             ans = consultas.answer(text, res, state)
             if ans:

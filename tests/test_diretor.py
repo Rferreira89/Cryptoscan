@@ -521,3 +521,58 @@ class CodigoDeConduta(unittest.TestCase):
         self.assertIn("Princípio: 1. Primeiro proteger", v["dialogo"][-1]["texto"])
         self.assertEqual(diretor.principle(["histórico contra: x"]), "3. Só entrar com vantagem provada")
         self.assertIn("Código de conduta", consultas.answer("/codigo", {}, {}))
+
+
+class ModoAutomatico(unittest.TestCase):
+    def prova(self, n=20, falha=False, r=0.8, travao=True, be=True):
+        ops = {f"A{i}-X-{i}": {"status": "fechada", "entrada": 1.0, "partes": [{}],
+                               **({"erro": "x"} if falha and i == 0 else {})} for i in range(n)}
+        st = {"ledger": [{"id": k, "auto_exec": True, "status": "CLOSED", "result_r": r} for k in ops]}
+        from engine import auto
+        auto.observe(st, {"ops": ops, "log": [{"acao": "breakeven", "res": "ok"}] if be else []},
+                     [{"event": "HALT"}] if travao else [])
+        return st
+
+    def test_so_liga_com_a_prova_e_o_ok(self):
+        from engine import auto
+        st = self.prova(n=12)
+        self.assertFalse(auto.ready(st))
+        self.assertIn("Falta", auto.turn(st, True, NOW))
+        self.assertFalse(auto.active(st))
+        for kw in ({"falha": True}, {"r": -0.2}, {"travao": False}, {"be": False}):
+            self.assertFalse(auto.ready(self.prova(**kw)), kw)
+        st = self.prova()
+        self.assertTrue(auto.ready(st))
+        self.assertFalse(auto.active(st))                           # falta o OK do Rui
+        self.assertIn("LIGADO", auto.turn(st, True, NOW))
+        self.assertTrue(auto.active(st))
+        auto.turn(st, False, NOW)
+        self.assertFalse(auto.active(st))
+
+    def test_escolhe_so_compras_autorizadas_e_ate_2_por_dia(self):
+        from engine import auto, execucao
+        st = self.prova()
+        auto.turn(st, True, NOW)
+        execucao.READY, execucao.READY_SHORT = True, True
+        try:
+            def sig(i, **kw):
+                s = {"mode": "REAL", "score_label": "campeão da arena", "direction": "LONG",
+                     "diretor": {"decisao": "AUTORIZADO"}, "plan": {}}
+                s.update(kw)
+                return {"event": "ISSUED", "id": f"S{i}", "signal": s}
+            ev = [sig(0, diretor={"decisao": "REJEITADO"}), sig(1, direction="SHORT"),
+                  sig(2, score_label="outro"), sig(3), sig(4), sig(5)]
+            self.assertEqual(auto.pick(st, ev, NOW), ["S3", "S4"])
+            self.assertTrue(ev[3]["auto"])
+            self.assertEqual(auto.pick(st, [sig(6)], NOW + 60), [])            # limite do dia
+            self.assertEqual(auto.pick(st, [sig(7)], NOW + 86400 + 60), ["S7"])
+        finally:
+            execucao.READY = execucao.READY_SHORT = False
+
+    def test_telegram(self):
+        from engine import inbox
+        st = {"ledger": []}
+        out = inbox.apply(st, [{"update_id": 1, "message": {"chat": {"id": 7}, "text": "/auto", "date": NOW}}], "7")
+        self.assertIn("Modo automático", out[0][0])
+        out = inbox.apply(st, [{"update_id": 2, "message": {"chat": {"id": 7}, "text": "/auto ligar", "date": NOW}}], "7")
+        self.assertIn("Ainda não posso", out[0][0])
