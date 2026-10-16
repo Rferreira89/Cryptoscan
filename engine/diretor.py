@@ -202,7 +202,8 @@ def conversation(asset, dec, reps, hist, motivos):
     else:
         inv = (reps[0].get("invalidacao") or [""])[0]
         L.append({"de": "Diretor", "tom": "autoriza",
-                  "texto": "Autorizado. Regras cumpridas" + (f"; sai se houver {inv}." if inv else ".")})
+                  "texto": "Autorizado. Regras cumpridas" + (f"; sai se houver {inv}." if inv else ".")
+                  + " Missão: proteger o lucro no TP1 e não deixar um ganho virar perda."})
     return L
 
 

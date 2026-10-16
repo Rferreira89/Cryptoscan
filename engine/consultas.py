@@ -211,6 +211,7 @@ def why(res, asset):
         L.append(f"{DOT[d['cor']]} <b>{d['dep']}</b>: {_esc(d['texto'])}")
     n = {c: sum(1 for d in deps if d["cor"] == c) for c in (G, Y, R)}
     L += ["", f"Balanço: {n[G]} 🟢 · {n[Y]} 🟡 · {n[R]} 🔴", _esc(_decision_line(row)),
+          "🎯 Missão: multiplicar o capital sem o perder — só se entra com vantagem provada e lucro protegido no TP1.",
           f'<a href="{PAGE}#moeda={asset}">📊 Ver gráfico e níveis</a>']
     return "\n".join(L)
 

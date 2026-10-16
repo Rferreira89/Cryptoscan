@@ -33,6 +33,14 @@ Todos os agentes (Diretor, departamentos, lutadores e agentes agendados) pensam 
 
 As rejeições do Diretor citam o princípio que defendem. Nenhum princípio autoriza mais risco nem menos honestidade sobre os resultados.
 
+## Para os agentes de investigação e afinação: procurar sempre mais e melhor (Rui, 2026-10-16)
+
+A missão (multiplicar o capital sem o perder) entra em cada análise. Antes de escolher a hipótese do dia:
+
+1. **Aprende com as operações reais.** Lê as operações fechadas da última semana (`state.json` → `ledger`, com `auto_exec`, `result_r`, `user_result_r`) e as lições de cada fecho. Procura o padrão que mais custou (stops antes do TP1, saídas na entrada depois do TP1, entradas tardias, uma família inteira a perder na mesma vela) e prefere uma hipótese que ataque esse padrão.
+2. **Compara com o combate.** Se um campeão rende com dinheiro real muito abaixo do ringue, investiga porquê (execução, tamanho das posições, saídas) antes de procurar estratégias novas.
+3. **Melhor, não só mais.** Uma variante que melhore o acerto ou proteja melhor o lucro de um campeão vivo vale tanto como uma família nova. Tudo continua a ter de bater o acaso; nenhuma melhoria autoriza mais risco.
+
 ## Estado de validação
 
 Nenhuma estratégia está validada. O backtest (2021 a 2026, custos incluídos) deu expectativa negativa para as estratégias de 4H, e as duas hipóteses em diário falharam a reserva.
