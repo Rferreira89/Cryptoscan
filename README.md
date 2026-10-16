@@ -20,7 +20,7 @@ Scanner de criptomoedas para operar em **spot e margem spot na Bybit UE** (pares
 
 ## Código de conduta (a forma de pensar da equipa, decisão do Rui, 2026-10-16)
 
-Todos os agentes (Diretor, departamentos, lutadores e agentes agendados) pensam assim. Cada princípio está ligado a regras que o programa cumpre (`engine/meta.py`, `CODIGO`; `/codigo` no Telegram):
+Todos os agentes (Diretor, departamentos, lutadores e agentes agendados) pensam assim, e trabalham como se a vida dependesse disso (Rui, 2026-10-16): rigor total em cada entrada, cada stop e cada saída, e por isso mesmo nunca uma aposta maior. Cada alerta de entrada lembra a missão (quanto arrisca, quanto pode ganhar, quanto falta para o objetivo) e cada operação fechada traz a sua lição. Cada princípio está ligado a regras que o programa cumpre (`engine/meta.py`, `CODIGO`; `/codigo` no Telegram):
 
 1. **Primeiro proteger, depois ganhar.** Stop antes de entrar, risco sempre igual e pequeno; depois do TP1 a operação já não pode dar perda.
 2. **Pensar em probabilidades, não em certezas.** Nem sempre se acerta, e isso faz parte; mas a missão é multiplicar o capital sem o perder: perdas pequenas e raras, ganhos maiores e protegidos. Contam 100 operações, não uma.

@@ -563,6 +563,13 @@ def deliver(cfg, state, events, extra=()):
                    "O programa está a mover o stop para a entrada na Bybit (1 a 2 minutos): "
                    "não precisas de fazer nada. Recebes a confirmação a seguir.")
         real = s.get("mode") != "PAPER" and e.get("real", True)
+        try:                                   # a missao em cada operacao (Rui, 2026-10-16)
+            if real and e["event"] == "ISSUED" and s.get("plan"):
+                txt += "\n" + mission_line(state, s["plan"])
+            elif real and "r" in e and e["event"] in CLOSE_EVENTS:
+                txt += "\n\n" + autopsy(state, e, s)
+        except Exception as err:
+            print("missao:", err)
         html_mode = False
         if real and e["event"] == "ISSUED" and s.get("plan"):
             txt = html.escape(txt) + "\n\n" + order_block(s)
@@ -574,6 +581,50 @@ def deliver(cfg, state, events, extra=()):
             alerts.send(txt, markup_for(e, s, real), html=html_mode)
         except alerts.AlertError as err:
             print("ALERTA FALHOU", err)
+
+
+CLOSE_EVENTS = ("STOP", "BREAKEVEN", "TP1", "TP2", "TP3", "TIME", "NOREACT")
+
+
+def _goal(state):
+    from . import meta
+    cap = state.get("capital") or config.load().get("capital_usdc")
+    return meta.progress(None, cap) if cap else None
+
+
+def mission_line(state, p):
+    """Cada entrada lembra a missao: quanto arrisca, quanto pode ganhar e
+    quanto falta para o objetivo. Multiplicar sem perder."""
+    risk = p.get("risk_usdc")
+    m = _goal(state)
+    L = "🎯 Missão: multiplicar o capital sem o perder."
+    if risk:
+        L += f" Esta operação arrisca {risk:.2f} USDC (stop) para ganhar até {risk * (p.get('rr') or 0):.2f} USDC."
+    if m:
+        L += f" Objetivo da equipa: {m['marco']:,} USDC (faltam {m['falta_marco']:.2f}).".replace(",", " ")
+    return L + " Lucro protegido no TP1."
+
+
+def autopsy(state, e, s):
+    """Licao de cada operacao fechada, tirada dos factos (sem desculpas)."""
+    r, k, p = e.get("r") or 0.0, e["event"], s.get("plan") or {}
+    usd = r * (p.get("risk_usdc") or 0)
+    tp1 = int(s.get("tp_hit") or 0) >= 1 or k in ("BREAKEVEN", "TP1", "TP2", "TP3")
+    if k in ("TP1", "TP2", "TP3"):
+        lic = "Plano cumprido: objetivo atingido e lucro no bolso."
+    elif k == "BREAKEVEN":
+        lic = ("Chegou ao TP1 e voltou: o stop na entrada protegeu o capital. "
+               "Não é perda; o lucro do TP1 fica quando a operação dá para dividir.")
+    elif k == "STOP" and not tp1:
+        lic = ("A entrada não confirmou e o stop cortou a perda como planeado (princípio 5). "
+               "Perda pequena, capital protegido; o ringue e a prova real contam esta operação.")
+    elif k == "STOP":
+        lic = "Stop depois do TP1: a parte vendida no objetivo reduziu a perda."
+    else:
+        lic = "Sem reação no tempo previsto: saída disciplinada em vez de esperar e arriscar mais."
+    m = _goal(state)
+    falta = f" Faltam {m['falta_marco']:.2f} USDC para {m['marco']:,} USDC.".replace(",", " ") if m else ""
+    return f"📓 Lição: {lic} Resultado {r:+.2f}R ({usd:+.2f} USDC).{falta}"
 
 
 def save(state, res, events):

@@ -600,3 +600,17 @@ class EntradaNaoEPerda(unittest.TestCase):
         self.assertIsNotNone(p, why)
         self.assertEqual(p["partials"][0], 100)
         self.assertEqual(p["tp"][0], 104.0)
+
+
+class MissaoEmCadaOperacao(unittest.TestCase):
+    def test_linha_da_missao_e_licao(self):
+        st = {"capital": 79.2}
+        L = run.mission_line(st, {"risk_usdc": 1.2, "rr": 2.5})
+        self.assertIn("arrisca 1.20 USDC", L)
+        self.assertIn("ganhar até 3.00 USDC", L)
+        self.assertIn("100 USDC", L)
+        a = run.autopsy(st, {"event": "STOP", "r": -1.0}, {"plan": {"risk_usdc": 1.2}})
+        self.assertIn("stop cortou a perda", a)
+        self.assertIn("-1.20 USDC", a)
+        self.assertIn("lucro no bolso", run.autopsy(st, {"event": "TP1", "r": 0.4}, {"plan": {}}))
+        self.assertIn("Não é perda", run.autopsy(st, {"event": "BREAKEVEN", "r": -0.05}, {"plan": {}}))
