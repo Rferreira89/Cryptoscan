@@ -4,7 +4,8 @@
 quedas, compressão, oversold bounce 4H, day trade 1H, bounce com outras
 saídas, sweep a mercado, funding negativo, quebra com compradores,
 capitulação do mercado, atraso face ao BTC, resiliente; mais 5 no diário
-de afinação, H1 a H5). Atualizado em 2026-10-16. Quanto maior este número,
+de afinação, H1 a H5). Atualizado em 2026-10-17 (nenhuma hipótese nova
+nesta corrida: só autópsias). Quanto maior este número,
 maior a probabilidade de uma hipótese passar por sorte: com 16 testes, a
 probabilidade de pelo menos um falso positivo a 5% já ronda os 56% (e as
 várias configurações de cada grelha aumentam-na ainda mais).
@@ -165,6 +166,8 @@ o Rui), e o morto fica registado. Um por corrida, na segunda vaga.
 | MOMENTUM, SHORT_X30, SHORT_FLUXO, SHORT_TURTLE, SHORT_ISOLADA | 2026-10-14 (forma recente) | MOMENTUM: 31 operações, pouco para autópsia; shorts fora desta investigação (só compras) | sem sucessor por agora | — |
 | RETESTE, BRK_ESPACO | 2026-10-14 (forma recente) | família "comprar a quebra em 4H", já esgotada (ver 2026-10-14) | sem sucessor | — |
 | CAPITULACAO | 2026-10-15 (forma recente; 20 op., −0,218R) | capitulação isolada numa moeda perde; só os colapsos do mercado inteiro recuperam, e o filtro BTC>SMA200 deita-os fora (ver entrada de 2026-10-15) | CAPITULACAO → CAP_MERCADO | AMOSTRA INSUFICIENTE (2026-10-15; 23 op. fora da amostra, percentil 36,4 contra o acaso; reserva 7 op., todas no stop) |
+| VOLUME_ACUMULACAO | 2026-10-16 (forma recente; 45 op., −0,064R) | sem causa clara: no desenho as entradas ficam no percentil 82 do acaso (sem vantagem provada) e é a geometria (2R/4R, 5 dias) que perde, também com entradas ao acaso (ver entrada de 2026-10-17) | sem sucessor | — |
+| FIBO_RECUO | 2026-10-17 (forma recente; 237 op., −0,095R) | o momento da entrada: no desenho −0,19R contra +0,01R ao acaso com a mesma geometria (percentil 0); os recuos de 50%–61,8% são impulsos a falhar (só 7% dos stops voltam ao objetivo); nenhum filtro único chega ao nível do acaso (ver entrada de 2026-10-17) | sem sucessor | — |
 
 ## Hipóteses anteriores a este diário (até 2026-10-02, período 2021-2026)
 
@@ -945,3 +948,74 @@ da amostra com a reserva; mínimo 40). Na prática é uma rejeição: falha os
 - Código: `tools/research_resiliente.py`; teste sem look-ahead:
   `tests/test_research_resiliente.py`; números:
   `backtest/research_resiliente.json`.
+
+## 2026-10-17 — Autópsia de VOLUME_ACUMULACAO e FIBO_RECUO (sem sucessor; sem hipótese nova)
+
+**Veredicto da corrida: nenhuma hipótese testada.** Os dois mortos novos
+foram autopsiados; nenhum tem uma correção única que possa bater o acaso,
+por isso não se inventa sucessor. A fila do Rui está vazia e não há hoje
+uma hipótese nova com lógica económica séria que não seja variante de uma
+já rejeitada. O contador fica em 16.
+
+- **Arena** (scan.json do ramo `data`, 2026-10-17): 21 lutadores vivos,
+  `recrutar` falso. Mortos novos sem sucessor: VOLUME_ACUMULACAO (Valter,
+  morto a 2026-10-16: 45 op., −0,064R, mediana ao acaso +0,044R) e
+  FIBO_RECUO (Fabio, morto a 2026-10-17, um dia depois de entrar: 237 op.,
+  −0,095R, mediana ao acaso +0,088R, p95 +0,227R).
+- **Método da autópsia** (novo, `tools/autopsia_arena.py`, teste sem
+  look-ahead em `tests/test_autopsia_arena.py`): a mesma função de sinal do
+  ringue vela a vela no histórico de 4H (ramo `history`, última vela
+  2026-10-11 08:00 UTC, 6 dias de atraso), BTC acima da SMA200, uma
+  operação de cada vez por moeda, custos 0,25% + 0,1% por lado, e SÓ a
+  janela de desenho (2024-10-11 a 2026-04-10), para não gastar a reserva
+  numa autópsia. Acaso: mesma moeda, ±90 velas, mesma geometria, 1000
+  séries. Números em `backtest/autopsia_2026-10-17.json`.
+- **VOLUME_ACUMULACAO** (desenho): 79 op., −0,026R, 43% de acerto; acaso
+  mediana −0,137R, p95 +0,060R: **percentil 82,1**. Saídas: 40 stops
+  (−1,02R), 24 por tempo (+0,62R), 8 no zero, 7 no 2.º objetivo. Custo
+  médio 0,16R por operação (risco médio 5,3%). Leitura: o momento de
+  entrada é um pouco melhor do que o acaso, mas sem significância (82 <
+  95), e a geometria (2R e 4R, stop na entrada, 5 dias) perde mesmo com
+  entradas ao acaso (−0,14R). Trocar a saída só levaria o resultado para o
+  nível do acaso. **Sem causa clara → sem sucessor.**
+- **FIBO_RECUO** (desenho): 506 op., −0,190R, 33% de acerto; acaso mediana
+  +0,012R, p95 +0,102R: **percentil 0,0** (com a mesma geometria, entrar
+  num dia qualquer na mesma moeda dá mais em todas as 1000 séries). Saídas:
+  266 stops (53%), 153 por tempo (+0,29R), 55 no 2.º objetivo, 32 no zero.
+  Só 23% chegam ao 1.º objetivo (o máximo do impulso). Os stops não são
+  varridos e devolvidos: só 7% voltam ao 1.º objetivo dentro do prazo, e
+  depois do stop o preço cai em mediana mais 1,1R. **Causa encontrada**:
+  neste mercado, um recuo de 4H até 50%–61,8% de um impulso recente é, na
+  maior parte das vezes, o impulso a falhar, e a vela que vira não marca o
+  fim da descida. Por quartis no desenho: recuos rápidos (mais curtos do
+  que o impulso) −0,38R e −0,30R contra −0,07R e −0,01R dos lentos; volume
+  do recuo acima do do impulso −0,32R contra −0,06R com volume baixo. A
+  leitura clássica ("recuo lento e sem volume é descanso; rápido e com
+  volume é distribuição") confirma-se na direção, mas **nenhum quartil
+  chega a zero nem à mediana ao acaso** (+0,01R), e o melhor filtro único
+  (recuo pelo menos tão longo como o impulso) fica em −0,02R com 228 op.
+  Como no BOUNCE_1H, nenhuma correção única chega ao nível do acaso:
+  **sem sucessor**.
+- **AVISO de contaminação** (registado por honestidade): durante a
+  exploração dos filtros do FIBO_RECUO imprimi por engano, além do
+  desenho, os mesmos subconjuntos na reserva (rapidez ≥ 1: 85 op.,
+  −0,02R; volume do recuo < 0,7 do impulso: 80 op., +0,06R). Não houve
+  teste nem escolha com base nisso, mas qualquer sucessor futuro do
+  FIBO_RECUO com estes filtros já não tem reserva limpa e só pode ser
+  julgado no papel ao vivo.
+- **Sem hipótese nova hoje**: as ideias de entrada que restam com dados
+  disponíveis são variantes do que já perdeu (recuos em tendência,
+  quebras, reação ao BTC, funding, fluxo comprador) ou já estão no ringue
+  (absorção, desalavancagem, funding com o gatilho do Bounce). Com 16
+  hipóteses contra esta reserva (probabilidade de pelo menos um falso
+  positivo a 5% perto de 56%), acrescentar uma fraca só aumenta o ruído.
+- **Leitura geral**: o ringue de 90 dias confirma o diário. Os únicos
+  lutadores acima do acaso são a família do Oversold Bounce (G0/V2/V3 +0,8R
+  em 26 op.; X30 +0,39R em 109 op. contra mediana ao acaso −0,24R) e o
+  DIP_TREND (+0,12R, também gatilho de sobrevenda); tudo o que compra força
+  ou recuos "técnicos" (Fibonacci, recuo, quebras) morre abaixo do acaso.
+  A prova continua a ter de vir do papel ao vivo, não de mais testes na
+  mesma reserva.
+- Proposta para a próxima corrida: o histórico de 4H terá 7 ou mais dias
+  de atraso: correr primeiro o workflow "Historico para backtest". Sem
+  mortos novos e sem hipótese séria, a corrida pode limitar-se a isso.

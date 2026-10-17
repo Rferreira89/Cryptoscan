@@ -1,0 +1,250 @@
+{
+ "data": "2026-10-17",
+ "nota": "so a janela de desenho (2024-10-11 a 2026-04-10); tools/autopsia_arena.py",
+ "FIBO_RECUO": {
+  "lutador": "FIBO_RECUO",
+  "janela": [
+   20008,
+   20554
+  ],
+  "reserva_incluida": false,
+  "todas": {
+   "n": 506,
+   "r_medio": -0.19,
+   "acerto_pct": 33.4
+  },
+  "acaso": {
+   "n": 506,
+   "r_real": -0.19,
+   "acaso_mediana": 0.012,
+   "acaso_p95": 0.102,
+   "percentil": 0.0
+  },
+  "saidas": {
+   "BREAKEVEN": {
+    "n": 32,
+    "r_medio": 0.617,
+    "acerto_pct": 100.0
+   },
+   "STOP": {
+    "n": 266,
+    "r_medio": -1.017,
+    "acerto_pct": 0.0
+   },
+   "TIME": {
+    "n": 153,
+    "r_medio": 0.285,
+    "acerto_pct": 53.6
+   },
+   "TP2": {
+    "n": 55,
+    "r_medio": 2.022,
+    "acerto_pct": 100.0
+   }
+  },
+  "risco_medio_pct": 7.1,
+  "custo_medio_r": 0.129,
+  "mfe_ate_tp1_pct": 22.9,
+  "stops_por_duracao": {
+   "0-12h": {
+    "n": 31,
+    "r_medio": -1.023,
+    "acerto_pct": 0.0
+   },
+   "12-48h": {
+    "n": 136,
+    "r_medio": -1.018,
+    "acerto_pct": 0.0
+   },
+   "48-1000000h": {
+    "n": 99,
+    "r_medio": -1.014,
+    "acerto_pct": 0.0
+   }
+  },
+  "por_hora": {
+   "0": {
+    "n": 105,
+    "r_medio": 0.09,
+    "acerto_pct": 44.8
+   },
+   "4": {
+    "n": 112,
+    "r_medio": -0.462,
+    "acerto_pct": 22.3
+   },
+   "8": {
+    "n": 90,
+    "r_medio": -0.272,
+    "acerto_pct": 31.1
+   },
+   "12": {
+    "n": 84,
+    "r_medio": -0.087,
+    "acerto_pct": 40.5
+   },
+   "16": {
+    "n": 82,
+    "r_medio": -0.158,
+    "acerto_pct": 31.7
+   },
+   "20": {
+    "n": 33,
+    "r_medio": -0.27,
+    "acerto_pct": 27.3
+   }
+  }
+ },
+ "VOLUME_ACUMULACAO": {
+  "lutador": "VOLUME_ACUMULACAO",
+  "janela": [
+   20008,
+   20554
+  ],
+  "reserva_incluida": false,
+  "todas": {
+   "n": 79,
+   "r_medio": -0.026,
+   "acerto_pct": 43.0
+  },
+  "acaso": {
+   "n": 79,
+   "r_real": -0.026,
+   "acaso_mediana": -0.137,
+   "acaso_p95": 0.06,
+   "percentil": 82.1
+  },
+  "saidas": {
+   "BREAKEVEN": {
+    "n": 8,
+    "r_medio": 0.707,
+    "acerto_pct": 100.0
+   },
+   "STOP": {
+    "n": 40,
+    "r_medio": -1.019,
+    "acerto_pct": 0.0
+   },
+   "TIME": {
+    "n": 24,
+    "r_medio": 0.622,
+    "acerto_pct": 79.2
+   },
+   "TP2": {
+    "n": 7,
+    "r_medio": 2.589,
+    "acerto_pct": 100.0
+   }
+  },
+  "risco_medio_pct": 5.29,
+  "custo_medio_r": 0.163,
+  "mfe_ate_tp1_pct": 30.4,
+  "stops_por_duracao": {
+   "0-12h": {
+    "n": 8,
+    "r_medio": -1.019,
+    "acerto_pct": 0.0
+   },
+   "12-48h": {
+    "n": 20,
+    "r_medio": -1.019,
+    "acerto_pct": 0.0
+   },
+   "48-1000000h": {
+    "n": 12,
+    "r_medio": -1.018,
+    "acerto_pct": 0.0
+   }
+  },
+  "por_hora": {
+   "0": {
+    "n": 13,
+    "r_medio": 0.679,
+    "acerto_pct": 69.2
+   },
+   "4": {
+    "n": 11,
+    "r_medio": -0.338,
+    "acerto_pct": 36.4
+   },
+   "8": {
+    "n": 13,
+    "r_medio": -0.091,
+    "acerto_pct": 46.2
+   },
+   "12": {
+    "n": 5,
+    "r_medio": -0.539,
+    "acerto_pct": 20.0
+   },
+   "16": {
+    "n": 29,
+    "r_medio": 0.016,
+    "acerto_pct": 37.9
+   },
+   "20": {
+    "n": 8,
+    "r_medio": -0.468,
+    "acerto_pct": 37.5
+   }
+  }
+ },
+ "FIBO_RECUO_por_quartil_desenho": {
+  "rapidez_do_recuo (velas do recuo / velas do impulso)": {
+   "<0,42": [
+    126,
+    -0.377
+   ],
+   "0,42-0,86": [
+    127,
+    -0.299
+   ],
+   "0,86-1,76": [
+    126,
+    -0.073
+   ],
+   ">=1,76": [
+    127,
+    -0.01
+   ]
+  },
+  "volume_do_recuo / volume_do_impulso": {
+   "<0,66": [
+    126,
+    -0.057
+   ],
+   "0,66-0,84": [
+    127,
+    -0.157
+   ],
+   "0,84-1,06": [
+    126,
+    -0.23
+   ],
+   ">=1,06": [
+    127,
+    -0.315
+   ]
+  },
+  "profundidade": {
+   "<0,46": [
+    126,
+    -0.206
+   ],
+   "0,46-0,51": [
+    127,
+    -0.218
+   ],
+   "0,51-0,57": [
+    126,
+    -0.009
+   ],
+   ">=0,57": [
+    127,
+    -0.324
+   ]
+  },
+  "stops_que_voltam_ao_tp1_no_prazo_pct": 7,
+  "queda_abaixo_do_stop_mediana_R": 1.09
+ }
+}
