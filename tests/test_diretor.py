@@ -666,3 +666,30 @@ class MelhorSinalInteiro(unittest.TestCase):
         self.assertTrue(p["cluster"]["melhor"])
         self.assertEqual(p["partials"][:2], [50, 50])                     # inteiro: vende metade no TP1
         self.assertIn("melhor sinal", st["promo_lost"][-1]["reason"])
+
+
+class RecuoFibonacci(unittest.TestCase):
+    def test_compra_na_zona_e_recusa_fora(self):
+        from tools import arena_ringue as AR
+        from engine import promo, arena
+        n = 360
+        c = [{"t": NOW - (n - i) * H4, "o": 50 + i * 0.1, "h": 50.5 + i * 0.1, "l": 49.5 + i * 0.1,
+              "c": 50 + i * 0.1, "v": 1, "tb": 0.5} for i in range(n)]       # tendencia de subida longa
+        base = c[-61]["c"]
+        lo, hi = base, base * 1.2
+        for k, i in enumerate(range(n - 60, n - 30)):             # impulso ate hi
+            px = lo + (hi - lo) * k / 29
+            c[i].update(o=px, h=px * 1.002, l=px * 0.998, c=px)
+        for k, i in enumerate(range(n - 30, n - 1)):              # recuo ate ~58%
+            px = hi - (hi - lo) * 0.58 * k / 28
+            c[i].update(o=px, h=px * 1.002, l=px * 0.998, c=px)
+        z = hi - 0.55 * (hi - lo)
+        c[-1].update(o=c[-2]["c"], l=c[-2]["c"] * 0.999, c=c[-2]["h"] * 1.004, h=c[-2]["h"] * 1.006)
+        s = AR.sig_fibo(c)
+        self.assertIsNotNone(s)
+        self.assertAlmostEqual(s["tp"][0], c[n - 31]["h"], delta=hi * 0.01)
+        self.assertLess(s["stop"], hi - 0.786 * (hi - lo) + 0.01)
+        self.assertEqual(promo.family("FIBO_RECUO"), "tendencia")
+        self.assertEqual(arena.persona("FIBO_RECUO"), "Fábio")
+        c[-1]["c"] = c[-2]["c"] * 0.999                            # sem viragem
+        self.assertIsNone(AR.sig_fibo(c))

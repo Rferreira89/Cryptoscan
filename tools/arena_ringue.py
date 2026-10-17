@@ -738,6 +738,45 @@ def sig_reteste(c4):
             "gatilho": f"reteste por cima do nível rompido {level:.6g} com vela de retoma"}
 
 
+# ---------- recuo de Fibonacci (decisao do Rui, 2026-10-17) ----------
+# Numa tendencia de subida (fecho diario acima da media de 50 dias), depois
+# de um impulso de pelo menos 10% (minimo -> maximo das ultimas 60 velas de
+# 4H, com o minimo antes do maximo), o preco recua para a zona 50%-61,8% do
+# impulso e vira (fecho acima do maximo da vela anterior). Stop abaixo do
+# nivel 78,6%; objetivos: o maximo do impulso e a extensao 127,2%.
+def sig_fibo(c4):
+    if len(c4) < 300:
+        return None
+    d = [x for x in B.daily(c4) if x["t"] + DAY <= c4[-1]["t"] + H4]
+    if len(d) < 50 or d[-1]["c"] <= sum(x["c"] for x in d[-50:]) / 50:
+        return None
+    w = c4[-61:-1]
+    ih = max(range(len(w)), key=lambda i: w[i]["h"])
+    if ih < 5:
+        return None
+    il = min(range(ih), key=lambda i: w[i]["l"])
+    hi, lo = w[ih]["h"], w[il]["l"]
+    if hi / lo - 1 < 0.10:
+        return None
+    rng = hi - lo
+    z_top, z_bot, f786 = hi - 0.5 * rng, hi - 0.618 * rng, hi - 0.786 * rng
+    b, p = c4[-1], c4[-2]
+    toque = min(p["l"], b["l"]) <= z_top and min(p["l"], b["l"]) >= f786
+    if not (toque and b["c"] > p["h"] and z_bot * 0.98 <= b["c"] <= z_top * 1.02):
+        return None
+    at = PB.atr(c4[-100:])[-1]
+    stop = f786 - 0.1 * (at or 0)
+    e = b["c"]
+    if not 0 < stop < e * 0.995:
+        return None
+    tp1, tp2 = hi, hi + 0.272 * rng
+    if tp1 <= e * 1.01:
+        return None
+    return {"stop": stop, "tp": [tp1, tp2], "partials": [50, 50], "breakeven": True,
+            "hold_s": 5 * DAY, "atr": at,
+            "gatilho": f"recuo de Fibonacci a {(hi - e) / rng:.0%} de um impulso de {hi / lo - 1:.0%}, a virar"}
+
+
 # ---------- volume anormal antes do movimento (decisao do Rui, 2026-10-16) ----------
 # "Entrar antes de a moeda valorizar": volume muito acima do normal (>= 3x a
 # mediana das 30 velas anteriores) com compradores agressivos (>= 55% do
@@ -858,7 +897,8 @@ NEW_SIGS = {"BRK_ESPACO": sig_breakout_espaco, "RETESTE": sig_reteste,
             "BOUNCE_X30_PAVIO": _stop_var(sig_x30, "pavio"),
             "BOUNCE_X30_LIQ": _stop_var(sig_x30, "liq"),
             "REVERSAO_INTERVALO": sig_intervalo,
-            "VOLUME_ACUMULACAO": sig_volume}
+            "VOLUME_ACUMULACAO": sig_volume,
+            "FIBO_RECUO": sig_fibo}
 
 
 def fetch_funding(base, now, days):
