@@ -1,0 +1,2554 @@
+{
+ "atualizado": 1792223993,
+ "janela_dias": 365,
+ "desde": 1760687993,
+ "moedas": 70,
+ "lutadores": {
+  "PULLBACK": {
+   "n": 47,
+   "wins": 23,
+   "avg_r": 0.013,
+   "total_r": 0.63,
+   "ultimas": [
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.0,
+    -1.01,
+    -1.01,
+    0.96,
+    -1.01,
+    -1.01
+   ],
+   "acaso_mediana": -0.005,
+   "acaso_p95": 0.28,
+   "veredicto": "A COMPETIR",
+   "por_regime": {
+    "subida": {
+     "n": 20,
+     "wins": 12,
+     "avg_r": 0.472,
+     "total_r": 9.44,
+     "ultimas": [
+      1.23,
+      -1.01,
+      0.62,
+      0.57,
+      1.26,
+      -1.01,
+      -1.01,
+      -1.01,
+      -1.01,
+      0.96
+     ],
+     "acaso_mediana": -0.151,
+     "acaso_p95": 0.237,
+     "veredicto": "A COMPETIR"
+    },
+    "lateral": {
+     "n": 27,
+     "wins": 11,
+     "avg_r": -0.326,
+     "total_r": -8.81,
+     "ultimas": [
+      0.64,
+      0.53,
+      0.52,
+      -1.01,
+      -1.01,
+      -1.0,
+      -1.01,
+      -1.01,
+      -1.01,
+      -1.01
+     ],
+     "acaso_mediana": 0.039,
+     "acaso_p95": 0.408,
+     "veredicto": "MORTA"
+    }
+   }
+  },
+  "BREAKOUT": {
+   "n": 40,
+   "wins": 8,
+   "avg_r": -0.493,
+   "total_r": -19.71,
+   "ultimas": [
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.01,
+    2.03,
+    1.76,
+    -1.01,
+    -1.01
+   ],
+   "acaso_mediana": 0.039,
+   "acaso_p95": 0.398,
+   "veredicto": "MORTA",
+   "por_regime": {
+    "subida": {
+     "n": 12,
+     "wins": 2,
+     "avg_r": -0.497,
+     "total_r": -5.97,
+     "ultimas": [
+      -1.01,
+      -1.01,
+      -1.01,
+      1.0,
+      3.15,
+      -1.0,
+      -1.01,
+      -1.01,
+      -1.01,
+      -1.01
+     ],
+     "acaso_mediana": 0.039,
+     "acaso_p95": 0.655,
+     "veredicto": "A COMPETIR"
+    },
+    "lateral": {
+     "n": 28,
+     "wins": 6,
+     "avg_r": -0.491,
+     "total_r": -13.74,
+     "ultimas": [
+      0.71,
+      -1.01,
+      0.64,
+      -1.01,
+      -1.01,
+      -1.01,
+      -1.01,
+      -1.01,
+      2.03,
+      1.76
+     ],
+     "acaso_mediana": 0.086,
+     "acaso_p95": 0.537,
+     "veredicto": "MORTA"
+    }
+   }
+  },
+  "LIQUIDITY_SWEEP": {
+   "n": 61,
+   "wins": 19,
+   "avg_r": -0.303,
+   "total_r": -18.5,
+   "ultimas": [
+    0.53,
+    -1.0,
+    0.45,
+    -1.0,
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.01
+   ],
+   "acaso_mediana": -0.113,
+   "acaso_p95": 0.123,
+   "veredicto": "MORTA",
+   "por_regime": {
+    "subida": {
+     "n": 19,
+     "wins": 10,
+     "avg_r": 0.5,
+     "total_r": 9.5,
+     "ultimas": [
+      2.15,
+      2.57,
+      2.26,
+      2.01,
+      2.2,
+      2.13,
+      2.13,
+      -1.01,
+      -1.01,
+      -1.01
+     ],
+     "acaso_mediana": 0.068,
+     "acaso_p95": 0.586,
+     "veredicto": "A COMPETIR"
+    },
+    "lateral": {
+     "n": 42,
+     "wins": 9,
+     "avg_r": -0.666,
+     "total_r": -27.99,
+     "ultimas": [
+      -1.0,
+      0.65,
+      -1.01,
+      0.53,
+      -1.0,
+      0.45,
+      -1.0,
+      -1.01,
+      -1.01,
+      -1.01
+     ],
+     "acaso_mediana": -0.211,
+     "acaso_p95": 0.093,
+     "veredicto": "MORTA"
+    }
+   }
+  },
+  "RANGE": {
+   "n": 0,
+   "wins": 0,
+   "avg_r": null,
+   "total_r": 0,
+   "ultimas": [],
+   "acaso_mediana": null,
+   "acaso_p95": null,
+   "veredicto": "A COMPETIR"
+  },
+  "REJEITADOS": {
+   "n": 90,
+   "wins": 29,
+   "avg_r": -0.2,
+   "total_r": -17.98,
+   "ultimas": [
+    2.24,
+    -1.01,
+    2.04,
+    0.46,
+    -1.01,
+    -1.02,
+    -1.01,
+    -1.01,
+    0.89,
+    -1.01
+   ],
+   "acaso_mediana": -0.041,
+   "acaso_p95": 0.182,
+   "veredicto": "MORTA",
+   "por_regime": {
+    "subida": {
+     "n": 16,
+     "wins": 8,
+     "avg_r": 0.437,
+     "total_r": 7.0,
+     "ultimas": [
+      3.23,
+      2.06,
+      3.08,
+      1.94,
+      2.84,
+      -1.01,
+      0.49,
+      -1.01,
+      -1.01,
+      -1.01
+     ],
+     "acaso_mediana": 0.012,
+     "acaso_p95": 0.543,
+     "veredicto": "A COMPETIR"
+    },
+    "lateral": {
+     "n": 74,
+     "wins": 21,
+     "avg_r": -0.338,
+     "total_r": -24.98,
+     "ultimas": [
+      2.24,
+      -1.01,
+      2.04,
+      0.46,
+      -1.01,
+      -1.02,
+      -1.01,
+      -1.01,
+      0.89,
+      -1.01
+     ],
+     "acaso_mediana": -0.058,
+     "acaso_p95": 0.179,
+     "veredicto": "MORTA"
+    }
+   }
+  },
+  "BOUNCE_G0": {
+   "n": 32,
+   "wins": 27,
+   "avg_r": 0.702,
+   "total_r": 22.45,
+   "ultimas": [
+    1.19,
+    1.44,
+    0.2,
+    0.96,
+    1.25,
+    0.28,
+    0.68,
+    0.27,
+    0.4,
+    0.13
+   ],
+   "acaso_mediana": -0.381,
+   "acaso_p95": -0.114,
+   "veredicto": "SOBE",
+   "por_regime": {
+    "subida": {
+     "n": 6,
+     "wins": 5,
+     "avg_r": 1.343,
+     "total_r": 8.06,
+     "ultimas": [
+      -1.02,
+      0.41,
+      2.22,
+      3.32,
+      0.22,
+      2.9
+     ],
+     "acaso_mediana": -0.07,
+     "acaso_p95": 0.709,
+     "veredicto": "A COMPETIR"
+    },
+    "lateral": {
+     "n": 26,
+     "wins": 22,
+     "avg_r": 0.554,
+     "total_r": 14.4,
+     "ultimas": [
+      1.19,
+      1.44,
+      0.2,
+      0.96,
+      1.25,
+      0.28,
+      0.68,
+      0.27,
+      0.4,
+      0.13
+     ],
+     "acaso_mediana": -0.453,
+     "acaso_p95": -0.193,
+     "veredicto": "A COMPETIR"
+    }
+   }
+  },
+  "BOUNCE_V1": {
+   "n": 12,
+   "wins": 6,
+   "avg_r": 0.026,
+   "total_r": 0.31,
+   "ultimas": [
+    -1.02,
+    3.58,
+    0.57,
+    -1.03,
+    -1.02,
+    -1.03,
+    0.51,
+    0.56,
+    -1.01,
+    -1.01
+   ],
+   "acaso_mediana": -0.745,
+   "acaso_p95": -0.243,
+   "veredicto": "A COMPETIR",
+   "por_regime": {
+    "subida": {
+     "n": 1,
+     "wins": 1,
+     "avg_r": 3.579,
+     "total_r": 3.58,
+     "ultimas": [
+      3.58
+     ],
+     "acaso_mediana": -1.03,
+     "acaso_p95": 3.579,
+     "veredicto": "A COMPETIR"
+    },
+    "lateral": {
+     "n": 11,
+     "wins": 5,
+     "avg_r": -0.297,
+     "total_r": -3.27,
+     "ultimas": [
+      0.59,
+      -1.02,
+      0.57,
+      -1.03,
+      -1.02,
+      -1.03,
+      0.51,
+      0.56,
+      -1.01,
+      -1.01
+     ],
+     "acaso_mediana": -0.734,
+     "acaso_p95": -0.39,
+     "veredicto": "A COMPETIR"
+    }
+   }
+  },
+  "BOUNCE_V2": {
+   "n": 32,
+   "wins": 27,
+   "avg_r": 0.716,
+   "total_r": 22.9,
+   "ultimas": [
+    1.52,
+    1.65,
+    0.26,
+    1.2,
+    1.56,
+    0.4,
+    0.76,
+    0.33,
+    0.49,
+    1.61
+   ],
+   "acaso_mediana": -0.34,
+   "acaso_p95": -0.044,
+   "veredicto": "SOBE",
+   "por_regime": {
+    "subida": {
+     "n": 6,
+     "wins": 5,
+     "avg_r": 0.981,
+     "total_r": 5.89,
+     "ultimas": [
+      -1.02,
+      0.53,
+      1.56,
+      1.66,
+      1.63,
+      1.53
+     ],
+     "acaso_mediana": 0.077,
+     "acaso_p95": 0.883,
+     "veredicto": "A COMPETIR"
+    },
+    "lateral": {
+     "n": 26,
+     "wins": 22,
+     "avg_r": 0.654,
+     "total_r": 17.02,
+     "ultimas": [
+      1.52,
+      1.65,
+      0.26,
+      1.2,
+      1.56,
+      0.4,
+      0.76,
+      0.33,
+      0.49,
+      1.61
+     ],
+     "acaso_mediana": -0.435,
+     "acaso_p95": -0.129,
+     "veredicto": "A COMPETIR"
+    }
+   }
+  },
+  "BOUNCE_V3": {
+   "n": 32,
+   "wins": 27,
+   "avg_r": 0.704,
+   "total_r": 22.54,
+   "ultimas": [
+    1.52,
+    1.69,
+    0.2,
+    1.07,
+    1.12,
+    0.28,
+    0.68,
+    0.27,
+    0.4,
+    1.71
+   ],
+   "acaso_mediana": -0.354,
+   "acaso_p95": -0.09,
+   "veredicto": "SOBE",
+   "por_regime": {
+    "subida": {
+     "n": 6,
+     "wins": 5,
+     "avg_r": 1.125,
+     "total_r": 6.75,
+     "ultimas": [
+      -1.02,
+      1.54,
+      1.53,
+      1.6,
+      1.65,
+      1.45
+     ],
+     "acaso_mediana": 0.054,
+     "acaso_p95": 0.883,
+     "veredicto": "A COMPETIR"
+    },
+    "lateral": {
+     "n": 26,
+     "wins": 22,
+     "avg_r": 0.607,
+     "total_r": 15.79,
+     "ultimas": [
+      1.52,
+      1.69,
+      0.2,
+      1.07,
+      1.12,
+      0.28,
+      0.68,
+      0.27,
+      0.4,
+      1.71
+     ],
+     "acaso_mediana": -0.466,
+     "acaso_p95": -0.179,
+     "veredicto": "A COMPETIR"
+    }
+   }
+  },
+  "TREND_DAILY": {
+   "n": 31,
+   "wins": 3,
+   "avg_r": -0.597,
+   "total_r": -18.51,
+   "ultimas": [
+    -0.03,
+    -1.01,
+    -1.02,
+    -1.01,
+    -0.56,
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.01
+   ],
+   "acaso_mediana": null,
+   "acaso_p95": null,
+   "veredicto": "MORTA",
+   "por_regime": {
+    "subida": {
+     "n": 10,
+     "wins": 0,
+     "avg_r": -0.964,
+     "total_r": -9.64,
+     "ultimas": [
+      -1.01,
+      -1.01,
+      -1.01,
+      -1.01,
+      -1.01,
+      -1.02,
+      -1.01,
+      -0.56,
+      -1.01,
+      -1.01
+     ],
+     "acaso_mediana": null,
+     "acaso_p95": null,
+     "veredicto": "MORTA"
+    },
+    "lateral": {
+     "n": 21,
+     "wins": 3,
+     "avg_r": -0.422,
+     "total_r": -8.87,
+     "ultimas": [
+      -1.04,
+      -1.01,
+      5.19,
+      -1.01,
+      -1.01,
+      -1.01,
+      -0.03,
+      -1.01,
+      -1.01,
+      -1.01
+     ],
+     "acaso_mediana": null,
+     "acaso_p95": null,
+     "veredicto": "MORTA"
+    }
+   }
+  },
+  "BOUNCE_1H": {
+   "n": 219,
+   "wins": 119,
+   "avg_r": -0.078,
+   "total_r": -17.06,
+   "ultimas": [
+    0.34,
+    0.14,
+    0.2,
+    0.49,
+    0.95,
+    0.1,
+    0.64,
+    0.4,
+    1.23,
+    -0.0
+   ],
+   "acaso_mediana": -0.361,
+   "acaso_p95": -0.277,
+   "veredicto": "MORTA",
+   "por_regime": {
+    "subida": {
+     "n": 34,
+     "wins": 12,
+     "avg_r": -0.364,
+     "total_r": -12.36,
+     "ultimas": [
+      -1.04,
+      -1.05,
+      -1.06,
+      -1.04,
+      -1.04,
+      -1.01,
+      -1.05,
+      -1.04,
+      -1.04,
+      -1.05
+     ],
+     "acaso_mediana": -0.222,
+     "acaso_p95": 0.064,
+     "veredicto": "MORTA"
+    },
+    "lateral": {
+     "n": 185,
+     "wins": 107,
+     "avg_r": -0.025,
+     "total_r": -4.7,
+     "ultimas": [
+      0.34,
+      0.14,
+      0.2,
+      0.49,
+      0.95,
+      0.1,
+      0.64,
+      0.4,
+      1.23,
+      -0.0
+     ],
+     "acaso_mediana": -0.387,
+     "acaso_p95": -0.297,
+     "veredicto": "MORTA"
+    }
+   }
+  },
+  "BRK_ESPACO": {
+   "n": 217,
+   "wins": 73,
+   "avg_r": -0.344,
+   "total_r": -74.73,
+   "ultimas": [
+    1.39,
+    1.21,
+    -1.01,
+    -1.02,
+    -1.02,
+    -1.01,
+    -1.02,
+    -1.02,
+    -1.01,
+    -1.01
+   ],
+   "acaso_mediana": -0.05,
+   "acaso_p95": 0.082,
+   "veredicto": "MORTA",
+   "por_regime": {
+    "subida": {
+     "n": 70,
+     "wins": 18,
+     "avg_r": -0.527,
+     "total_r": -36.92,
+     "ultimas": [
+      -1.05,
+      -1.04,
+      -1.03,
+      -1.01,
+      -1.02,
+      -1.02,
+      -1.01,
+      -1.02,
+      -1.02,
+      -1.01
+     ],
+     "acaso_mediana": -0.041,
+     "acaso_p95": 0.197,
+     "veredicto": "MORTA"
+    },
+    "lateral": {
+     "n": 147,
+     "wins": 55,
+     "avg_r": -0.257,
+     "total_r": -37.82,
+     "ultimas": [
+      -1.03,
+      -1.03,
+      -1.03,
+      0.87,
+      -1.04,
+      -1.02,
+      -1.02,
+      1.39,
+      1.21,
+      -1.01
+     ],
+     "acaso_mediana": -0.068,
+     "acaso_p95": 0.09,
+     "veredicto": "MORTA"
+    }
+   }
+  },
+  "RETESTE": {
+   "n": 272,
+   "wins": 131,
+   "avg_r": 0.077,
+   "total_r": 20.89,
+   "ultimas": [
+    0.63,
+    1.29,
+    -0.12,
+    -1.01,
+    -1.03,
+    0.7,
+    -1.01,
+    -1.0,
+    -1.0,
+    -1.0
+   ],
+   "acaso_mediana": 0.134,
+   "acaso_p95": 0.241,
+   "veredicto": "MORTA",
+   "por_regime": {
+    "subida": {
+     "n": 82,
+     "wins": 41,
+     "avg_r": 0.078,
+     "total_r": 6.39,
+     "ultimas": [
+      -1.01,
+      -1.01,
+      -0.12,
+      -1.01,
+      -1.03,
+      0.7,
+      -1.01,
+      -1.0,
+      -1.0,
+      -1.0
+     ],
+     "acaso_mediana": 0.089,
+     "acaso_p95": 0.265,
+     "veredicto": "MORTA"
+    },
+    "lateral": {
+     "n": 190,
+     "wins": 90,
+     "avg_r": 0.076,
+     "total_r": 14.49,
+     "ultimas": [
+      -1.02,
+      -1.02,
+      -1.02,
+      -1.02,
+      -0.69,
+      0.7,
+      2.18,
+      -1.01,
+      0.63,
+      1.29
+     ],
+     "acaso_mediana": 0.168,
+     "acaso_p95": 0.288,
+     "veredicto": "MORTA"
+    }
+   }
+  },
+  "TURTLE": {
+   "n": 206,
+   "wins": 99,
+   "avg_r": 0.292,
+   "total_r": 60.19,
+   "ultimas": [
+    -1.0,
+    -1.01,
+    1.42,
+    -1.01,
+    -1.0,
+    1.62,
+    -1.0,
+    -1.0,
+    -1.0,
+    -1.0
+   ],
+   "acaso_mediana": 0.681,
+   "acaso_p95": 0.834,
+   "veredicto": "MORTA",
+   "por_regime": {
+    "subida": {
+     "n": 55,
+     "wins": 28,
+     "avg_r": 0.386,
+     "total_r": 21.2,
+     "ultimas": [
+      -1.01,
+      -1.01,
+      -1.01,
+      -1.01,
+      3.36,
+      1.62,
+      -1.0,
+      -1.0,
+      -1.0,
+      -1.0
+     ],
+     "acaso_mediana": 0.556,
+     "acaso_p95": 0.851,
+     "veredicto": "MORTA"
+    },
+    "lateral": {
+     "n": 151,
+     "wins": 71,
+     "avg_r": 0.258,
+     "total_r": 38.98,
+     "ultimas": [
+      -1.01,
+      -1.01,
+      -1.0,
+      -1.0,
+      -1.01,
+      -1.0,
+      -1.01,
+      1.42,
+      -1.01,
+      -1.0
+     ],
+     "acaso_mediana": 0.728,
+     "acaso_p95": 0.897,
+     "veredicto": "MORTA"
+    }
+   }
+  },
+  "SQUEEZE_BB": {
+   "n": 116,
+   "wins": 22,
+   "avg_r": -0.611,
+   "total_r": -70.93,
+   "ultimas": [
+    0.81,
+    -1.02,
+    -1.02,
+    -0.1,
+    -1.01,
+    -1.02,
+    -1.02,
+    -1.03,
+    -1.02,
+    -1.01
+   ],
+   "acaso_mediana": -0.194,
+   "acaso_p95": -0.042,
+   "veredicto": "MORTA",
+   "por_regime": {
+    "subida": {
+     "n": 35,
+     "wins": 5,
+     "avg_r": -0.705,
+     "total_r": -24.66,
+     "ultimas": [
+      -1.01,
+      -1.01,
+      -1.02,
+      -1.01,
+      -1.01,
+      -1.02,
+      -1.02,
+      -1.03,
+      -1.02,
+      -1.01
+     ],
+     "acaso_mediana": -0.157,
+     "acaso_p95": 0.137,
+     "veredicto": "MORTA"
+    },
+    "lateral": {
+     "n": 81,
+     "wins": 17,
+     "avg_r": -0.571,
+     "total_r": -46.27,
+     "ultimas": [
+      -1.01,
+      1.8,
+      0.62,
+      -1.01,
+      -1.01,
+      -1.03,
+      0.81,
+      -1.02,
+      -1.02,
+      -0.1
+     ],
+     "acaso_mediana": -0.211,
+     "acaso_p95": -0.033,
+     "veredicto": "MORTA"
+    }
+   }
+  },
+  "MOMENTUM": {
+   "n": 37,
+   "wins": 11,
+   "avg_r": -0.269,
+   "total_r": -9.95,
+   "ultimas": [
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.0,
+    -1.01,
+    -1.0,
+    -1.01,
+    -1.0,
+    1.92
+   ],
+   "acaso_mediana": 0.397,
+   "acaso_p95": 0.693,
+   "veredicto": "MORTA",
+   "por_regime": {
+    "subida": {
+     "n": 17,
+     "wins": 5,
+     "avg_r": -0.138,
+     "total_r": -2.35,
+     "ultimas": [
+      -1.01,
+      -1.01,
+      -1.01,
+      -1.01,
+      -1.0,
+      -1.01,
+      -1.0,
+      -1.01,
+      -1.0,
+      1.92
+     ],
+     "acaso_mediana": 0.482,
+     "acaso_p95": 0.957,
+     "veredicto": "A COMPETIR"
+    },
+    "lateral": {
+     "n": 20,
+     "wins": 6,
+     "avg_r": -0.38,
+     "total_r": -7.6,
+     "ultimas": [
+      -1.0,
+      -1.01,
+      -1.01,
+      -0.98,
+      -1.01,
+      0.18,
+      1.88,
+      -1.01,
+      -1.0,
+      0.76
+     ],
+     "acaso_mediana": 0.31,
+     "acaso_p95": 0.726,
+     "veredicto": "MORTA"
+    }
+   }
+  },
+  "BOUNCE_ABSORCAO": {
+   "n": 40,
+   "wins": 29,
+   "avg_r": 0.367,
+   "total_r": 14.67,
+   "ultimas": [
+    0.93,
+    1.12,
+    0.33,
+    0.55,
+    0.09,
+    0.7,
+    0.01,
+    0.27,
+    -1.01,
+    -1.01
+   ],
+   "acaso_mediana": -0.266,
+   "acaso_p95": -0.043,
+   "veredicto": "SOBE",
+   "por_regime": {
+    "subida": {
+     "n": 15,
+     "wins": 9,
+     "avg_r": 0.279,
+     "total_r": 4.19,
+     "ultimas": [
+      -1.02,
+      0.18,
+      -1.02,
+      0.22,
+      2.9,
+      1.15,
+      1.6,
+      0.23,
+      1.08,
+      1.58
+     ],
+     "acaso_mediana": -0.064,
+     "acaso_p95": 0.315,
+     "veredicto": "A COMPETIR"
+    },
+    "lateral": {
+     "n": 25,
+     "wins": 20,
+     "avg_r": 0.419,
+     "total_r": 10.48,
+     "ultimas": [
+      0.93,
+      1.12,
+      0.33,
+      0.55,
+      0.09,
+      0.7,
+      0.01,
+      0.27,
+      -1.01,
+      -1.01
+     ],
+     "acaso_mediana": -0.345,
+     "acaso_p95": -0.069,
+     "veredicto": "A COMPETIR"
+    }
+   }
+  },
+  "BOUNCE_LSR": {
+   "n": 29,
+   "wins": 21,
+   "avg_r": 0.204,
+   "total_r": 5.91,
+   "ultimas": [
+    0.4,
+    0.42,
+    -1.01,
+    0.03,
+    -1.01,
+    -1.01,
+    -1.01,
+    0.09,
+    0.2,
+    0.03
+   ],
+   "acaso_mediana": -0.446,
+   "acaso_p95": -0.214,
+   "veredicto": "A COMPETIR",
+   "por_regime": {
+    "lateral": {
+     "n": 29,
+     "wins": 21,
+     "avg_r": 0.204,
+     "total_r": 5.91,
+     "ultimas": [
+      0.4,
+      0.42,
+      -1.01,
+      0.03,
+      -1.01,
+      -1.01,
+      -1.01,
+      0.09,
+      0.2,
+      0.03
+     ],
+     "acaso_mediana": -0.434,
+     "acaso_p95": -0.18,
+     "veredicto": "A COMPETIR"
+    }
+   }
+  },
+  "BOUNCE_MACRO": {
+   "n": 79,
+   "wins": 56,
+   "avg_r": 0.138,
+   "total_r": 10.92,
+   "ultimas": [
+    0.04,
+    0.15,
+    0.09,
+    0.09,
+    0.01,
+    0.2,
+    0.13,
+    0.06,
+    0.03,
+    0.02
+   ],
+   "acaso_mediana": -0.323,
+   "acaso_p95": -0.178,
+   "veredicto": "SOBE",
+   "por_regime": {
+    "subida": {
+     "n": 24,
+     "wins": 12,
+     "avg_r": -0.225,
+     "total_r": -5.39,
+     "ultimas": [
+      -0.06,
+      0.16,
+      0.19,
+      -1.02,
+      0.11,
+      0.45,
+      -0.03,
+      -1.02,
+      -1.02,
+      0.11
+     ],
+     "acaso_mediana": -0.114,
+     "acaso_p95": 0.218,
+     "veredicto": "MORTA"
+    },
+    "lateral": {
+     "n": 55,
+     "wins": 44,
+     "avg_r": 0.297,
+     "total_r": 16.31,
+     "ultimas": [
+      0.04,
+      0.15,
+      0.09,
+      0.09,
+      0.01,
+      0.2,
+      0.13,
+      0.06,
+      0.03,
+      0.02
+     ],
+     "acaso_mediana": -0.408,
+     "acaso_p95": -0.249,
+     "veredicto": "SOBE"
+    }
+   }
+  },
+  "BOUNCE_MEDO": {
+   "n": 0,
+   "wins": 0,
+   "avg_r": null,
+   "total_r": 0,
+   "ultimas": [],
+   "acaso_mediana": null,
+   "acaso_p95": null,
+   "veredicto": "A COMPETIR"
+  },
+  "BOUNCE_DESALAV": {
+   "n": 19,
+   "wins": 17,
+   "avg_r": 0.529,
+   "total_r": 10.04,
+   "ultimas": [
+    1.25,
+    0.28,
+    0.51,
+    0.55,
+    0.09,
+    0.27,
+    0.51,
+    0.4,
+    0.42,
+    0.09
+   ],
+   "acaso_mediana": -0.456,
+   "acaso_p95": -0.168,
+   "veredicto": "A COMPETIR",
+   "por_regime": {
+    "subida": {
+     "n": 1,
+     "wins": 1,
+     "avg_r": 2.405,
+     "total_r": 2.4,
+     "ultimas": [
+      2.4
+     ],
+     "acaso_mediana": 0.247,
+     "acaso_p95": 2.405,
+     "veredicto": "A COMPETIR"
+    },
+    "lateral": {
+     "n": 18,
+     "wins": 16,
+     "avg_r": 0.424,
+     "total_r": 7.64,
+     "ultimas": [
+      1.25,
+      0.28,
+      0.51,
+      0.55,
+      0.09,
+      0.27,
+      0.51,
+      0.4,
+      0.42,
+      0.09
+     ],
+     "acaso_mediana": -0.491,
+     "acaso_p95": -0.18,
+     "veredicto": "A COMPETIR"
+    }
+   }
+  },
+  "BOUNCE_NOREACT": {
+   "n": 143,
+   "wins": 79,
+   "avg_r": 0.313,
+   "total_r": 44.69,
+   "ultimas": [
+    0.2,
+    -0.16,
+    -0.07,
+    0.13,
+    -0.19,
+    -0.12,
+    0.03,
+    -0.21,
+    -0.24,
+    -0.13
+   ],
+   "acaso_mediana": -0.214,
+   "acaso_p95": -0.112,
+   "veredicto": "SOBE",
+   "por_regime": {
+    "subida": {
+     "n": 50,
+     "wins": 28,
+     "avg_r": 0.486,
+     "total_r": 24.29,
+     "ultimas": [
+      -0.33,
+      1.03,
+      0.09,
+      0.99,
+      0.12,
+      1.28,
+      0.83,
+      1.08,
+      -0.21,
+      1.56
+     ],
+     "acaso_mediana": -0.076,
+     "acaso_p95": 0.118,
+     "veredicto": "SOBE"
+    },
+    "lateral": {
+     "n": 93,
+     "wins": 51,
+     "avg_r": 0.219,
+     "total_r": 20.4,
+     "ultimas": [
+      0.2,
+      -0.16,
+      -0.07,
+      0.13,
+      -0.19,
+      -0.12,
+      0.03,
+      -0.21,
+      -0.24,
+      -0.13
+     ],
+     "acaso_mediana": -0.297,
+     "acaso_p95": -0.187,
+     "veredicto": "SOBE"
+    }
+   }
+  },
+  "BOUNCE_TRAIL": {
+   "n": 135,
+   "wins": 101,
+   "avg_r": 0.356,
+   "total_r": 48.11,
+   "ultimas": [
+    0.04,
+    0.15,
+    0.09,
+    0.09,
+    0.01,
+    0.2,
+    0.13,
+    0.06,
+    0.03,
+    0.02
+   ],
+   "acaso_mediana": -0.266,
+   "acaso_p95": -0.15,
+   "veredicto": "SOBE",
+   "por_regime": {
+    "subida": {
+     "n": 50,
+     "wins": 35,
+     "avg_r": 0.446,
+     "total_r": 22.3,
+     "ultimas": [
+      0.23,
+      1.03,
+      0.09,
+      0.99,
+      0.12,
+      0.64,
+      0.83,
+      1.08,
+      1.58,
+      1.56
+     ],
+     "acaso_mediana": -0.104,
+     "acaso_p95": 0.106,
+     "veredicto": "SOBE"
+    },
+    "lateral": {
+     "n": 85,
+     "wins": 66,
+     "avg_r": 0.304,
+     "total_r": 25.82,
+     "ultimas": [
+      0.04,
+      0.15,
+      0.09,
+      0.09,
+      0.01,
+      0.2,
+      0.13,
+      0.06,
+      0.03,
+      0.02
+     ],
+     "acaso_mediana": -0.384,
+     "acaso_p95": -0.249,
+     "veredicto": "SOBE"
+    }
+   }
+  },
+  "BOUNCE_HORAS": {
+   "n": 92,
+   "wins": 70,
+   "avg_r": 0.359,
+   "total_r": 33.01,
+   "ultimas": [
+    0.04,
+    0.15,
+    0.09,
+    0.09,
+    0.01,
+    0.2,
+    0.13,
+    0.06,
+    0.03,
+    0.02
+   ],
+   "acaso_mediana": -0.257,
+   "acaso_p95": -0.122,
+   "veredicto": "SOBE",
+   "por_regime": {
+    "subida": {
+     "n": 35,
+     "wins": 23,
+     "avg_r": 0.526,
+     "total_r": 18.4,
+     "ultimas": [
+      2.0,
+      -1.02,
+      2.22,
+      3.32,
+      0.22,
+      1.79,
+      2.57,
+      0.12,
+      2.9,
+      1.56
+     ],
+     "acaso_mediana": -0.09,
+     "acaso_p95": 0.192,
+     "veredicto": "SOBE"
+    },
+    "lateral": {
+     "n": 57,
+     "wins": 47,
+     "avg_r": 0.256,
+     "total_r": 14.61,
+     "ultimas": [
+      0.04,
+      0.15,
+      0.09,
+      0.09,
+      0.01,
+      0.2,
+      0.13,
+      0.06,
+      0.03,
+      0.02
+     ],
+     "acaso_mediana": -0.378,
+     "acaso_p95": -0.231,
+     "veredicto": "SOBE"
+    }
+   }
+  },
+  "BOUNCE_X30": {
+   "n": 135,
+   "wins": 101,
+   "avg_r": 0.387,
+   "total_r": 52.22,
+   "ultimas": [
+    0.04,
+    0.15,
+    0.09,
+    0.09,
+    0.01,
+    0.2,
+    0.13,
+    0.06,
+    0.03,
+    0.02
+   ],
+   "acaso_mediana": -0.267,
+   "acaso_p95": -0.154,
+   "veredicto": "SOBE",
+   "por_regime": {
+    "subida": {
+     "n": 50,
+     "wins": 35,
+     "avg_r": 0.529,
+     "total_r": 26.47,
+     "ultimas": [
+      0.23,
+      1.03,
+      0.09,
+      0.99,
+      0.12,
+      1.28,
+      0.83,
+      1.08,
+      1.58,
+      1.56
+     ],
+     "acaso_mediana": -0.05,
+     "acaso_p95": 0.157,
+     "veredicto": "SOBE"
+    },
+    "lateral": {
+     "n": 85,
+     "wins": 66,
+     "avg_r": 0.303,
+     "total_r": 25.74,
+     "ultimas": [
+      0.04,
+      0.15,
+      0.09,
+      0.09,
+      0.01,
+      0.2,
+      0.13,
+      0.06,
+      0.03,
+      0.02
+     ],
+     "acaso_mediana": -0.372,
+     "acaso_p95": -0.245,
+     "veredicto": "SOBE"
+    }
+   }
+  },
+  "DIP_TREND": {
+   "n": 79,
+   "wins": 54,
+   "avg_r": 0.123,
+   "total_r": 9.74,
+   "ultimas": [
+    -1.02,
+    -1.01,
+    -1.01,
+    -1.02,
+    0.15,
+    0.04,
+    0.09,
+    0.01,
+    0.13,
+    0.06
+   ],
+   "acaso_mediana": -0.23,
+   "acaso_p95": -0.078,
+   "veredicto": "SOBE",
+   "por_regime": {
+    "subida": {
+     "n": 20,
+     "wins": 14,
+     "avg_r": 0.408,
+     "total_r": 8.15,
+     "ultimas": [
+      1.46,
+      2.0,
+      2.57,
+      1.78,
+      1.15,
+      0.23,
+      1.25,
+      -1.02,
+      0.06,
+      0.21
+     ],
+     "acaso_mediana": -0.081,
+     "acaso_p95": 0.267,
+     "veredicto": "A COMPETIR"
+    },
+    "lateral": {
+     "n": 59,
+     "wins": 40,
+     "avg_r": 0.027,
+     "total_r": 1.59,
+     "ultimas": [
+      -1.02,
+      -1.01,
+      -1.01,
+      -1.02,
+      0.15,
+      0.04,
+      0.09,
+      0.01,
+      0.13,
+      0.06
+     ],
+     "acaso_mediana": -0.277,
+     "acaso_p95": -0.102,
+     "veredicto": "SOBE"
+    }
+   }
+  },
+  "CAPITULACAO": {
+   "n": 22,
+   "wins": 10,
+   "avg_r": -0.243,
+   "total_r": -5.34,
+   "ultimas": [
+    0.43,
+    2.36,
+    0.12,
+    -1.01,
+    -1.02,
+    -1.01,
+    0.01,
+    -1.02,
+    -1.01,
+    -1.01
+   ],
+   "acaso_mediana": -0.207,
+   "acaso_p95": 0.114,
+   "veredicto": "MORTA",
+   "por_regime": {
+    "subida": {
+     "n": 3,
+     "wins": 2,
+     "avg_r": 0.59,
+     "total_r": 1.77,
+     "ultimas": [
+      -1.02,
+      2.37,
+      0.43
+     ],
+     "acaso_mediana": -0.048,
+     "acaso_p95": 1.136,
+     "veredicto": "A COMPETIR"
+    },
+    "lateral": {
+     "n": 19,
+     "wins": 8,
+     "avg_r": -0.374,
+     "total_r": -7.11,
+     "ultimas": [
+      -1.01,
+      2.36,
+      0.12,
+      -1.01,
+      -1.02,
+      -1.01,
+      0.01,
+      -1.02,
+      -1.01,
+      -1.01
+     ],
+     "acaso_mediana": -0.258,
+     "acaso_p95": 0.068,
+     "veredicto": "A COMPETIR"
+    }
+   }
+  },
+  "BOUNCE_FLUXO": {
+   "n": 40,
+   "wins": 28,
+   "avg_r": 0.281,
+   "total_r": 11.24,
+   "ultimas": [
+    0.55,
+    0.09,
+    0.7,
+    0.13,
+    0.54,
+    0.37,
+    -1.01,
+    -1.01,
+    0.09,
+    0.02
+   ],
+   "acaso_mediana": -0.224,
+   "acaso_p95": 0.008,
+   "veredicto": "SOBE",
+   "por_regime": {
+    "subida": {
+     "n": 16,
+     "wins": 11,
+     "avg_r": 0.486,
+     "total_r": 7.77,
+     "ultimas": [
+      -1.02,
+      0.07,
+      0.22,
+      2.9,
+      1.67,
+      1.6,
+      0.23,
+      0.09,
+      1.08,
+      1.58
+     ],
+     "acaso_mediana": -0.078,
+     "acaso_p95": 0.343,
+     "veredicto": "A COMPETIR"
+    },
+    "lateral": {
+     "n": 24,
+     "wins": 17,
+     "avg_r": 0.145,
+     "total_r": 3.47,
+     "ultimas": [
+      0.55,
+      0.09,
+      0.7,
+      0.13,
+      0.54,
+      0.37,
+      -1.01,
+      -1.01,
+      0.09,
+      0.02
+     ],
+     "acaso_mediana": -0.327,
+     "acaso_p95": -0.049,
+     "veredicto": "A COMPETIR"
+    }
+   }
+  },
+  "BOUNCE_FORTE": {
+   "n": 33,
+   "wins": 24,
+   "avg_r": 0.302,
+   "total_r": 9.96,
+   "ultimas": [
+    0.27,
+    0.51,
+    0.4,
+    -1.01,
+    0.03,
+    -1.01,
+    -1.01,
+    0.09,
+    0.03,
+    0.02
+   ],
+   "acaso_mediana": -0.255,
+   "acaso_p95": -0.036,
+   "veredicto": "SOBE",
+   "por_regime": {
+    "subida": {
+     "n": 11,
+     "wins": 8,
+     "avg_r": 0.553,
+     "total_r": 6.08,
+     "ultimas": [
+      0.17,
+      0.2,
+      -1.03,
+      -0.06,
+      -1.02,
+      2.56,
+      2.57,
+      1.15,
+      0.23,
+      1.03
+     ],
+     "acaso_mediana": -0.107,
+     "acaso_p95": 0.407,
+     "veredicto": "A COMPETIR"
+    },
+    "lateral": {
+     "n": 22,
+     "wins": 16,
+     "avg_r": 0.177,
+     "total_r": 3.89,
+     "ultimas": [
+      0.27,
+      0.51,
+      0.4,
+      -1.01,
+      0.03,
+      -1.01,
+      -1.01,
+      0.09,
+      0.03,
+      0.02
+     ],
+     "acaso_mediana": -0.336,
+     "acaso_p95": -0.056,
+     "veredicto": "A COMPETIR"
+    }
+   }
+  },
+  "BOUNCE_SQUEEZE": {
+   "n": 53,
+   "wins": 40,
+   "avg_r": 0.609,
+   "total_r": 32.27,
+   "ultimas": [
+    0.09,
+    0.68,
+    0.31,
+    0.51,
+    0.4,
+    0.42,
+    -1.03,
+    -1.01,
+    -1.02,
+    0.09
+   ],
+   "acaso_mediana": -0.275,
+   "acaso_p95": -0.081,
+   "veredicto": "SOBE",
+   "por_regime": {
+    "subida": {
+     "n": 19,
+     "wins": 13,
+     "avg_r": 0.957,
+     "total_r": 18.19,
+     "ultimas": [
+      2.56,
+      3.31,
+      2.0,
+      2.22,
+      3.32,
+      0.22,
+      0.12,
+      2.9,
+      1.15,
+      1.67
+     ],
+     "acaso_mediana": -0.062,
+     "acaso_p95": 0.343,
+     "veredicto": "A COMPETIR"
+    },
+    "lateral": {
+     "n": 34,
+     "wins": 27,
+     "avg_r": 0.414,
+     "total_r": 14.09,
+     "ultimas": [
+      0.09,
+      0.68,
+      0.31,
+      0.51,
+      0.4,
+      0.42,
+      -1.03,
+      -1.01,
+      -1.02,
+      0.09
+     ],
+     "acaso_mediana": -0.401,
+     "acaso_p95": -0.174,
+     "veredicto": "SOBE"
+    }
+   }
+  },
+  "BOUNCE_ISOLADA": {
+   "n": 130,
+   "wins": 100,
+   "avg_r": 0.428,
+   "total_r": 55.61,
+   "ultimas": [
+    0.04,
+    0.15,
+    0.09,
+    0.09,
+    0.01,
+    0.2,
+    0.13,
+    0.06,
+    0.03,
+    0.02
+   ],
+   "acaso_mediana": -0.262,
+   "acaso_p95": -0.146,
+   "veredicto": "SOBE",
+   "por_regime": {
+    "subida": {
+     "n": 50,
+     "wins": 35,
+     "avg_r": 0.529,
+     "total_r": 26.47,
+     "ultimas": [
+      0.23,
+      1.03,
+      0.09,
+      0.99,
+      0.12,
+      1.28,
+      0.83,
+      1.08,
+      1.58,
+      1.56
+     ],
+     "acaso_mediana": -0.07,
+     "acaso_p95": 0.143,
+     "veredicto": "SOBE"
+    },
+    "lateral": {
+     "n": 80,
+     "wins": 65,
+     "avg_r": 0.364,
+     "total_r": 29.14,
+     "ultimas": [
+      0.04,
+      0.15,
+      0.09,
+      0.09,
+      0.01,
+      0.2,
+      0.13,
+      0.06,
+      0.03,
+      0.02
+     ],
+     "acaso_mediana": -0.397,
+     "acaso_p95": -0.253,
+     "veredicto": "SOBE"
+    }
+   }
+  },
+  "BOUNCE_X30_PAVIO": {
+   "n": 133,
+   "wins": 104,
+   "avg_r": 0.341,
+   "total_r": 45.39,
+   "ultimas": [
+    0.03,
+    0.13,
+    0.07,
+    0.07,
+    0.01,
+    0.15,
+    0.1,
+    0.05,
+    0.02,
+    0.02
+   ],
+   "acaso_mediana": -0.236,
+   "acaso_p95": -0.13,
+   "veredicto": "SOBE",
+   "por_regime": {
+    "subida": {
+     "n": 48,
+     "wins": 37,
+     "avg_r": 0.529,
+     "total_r": 25.39,
+     "ultimas": [
+      0.19,
+      0.84,
+      0.07,
+      0.8,
+      0.09,
+      0.99,
+      0.68,
+      0.88,
+      1.28,
+      1.22
+     ],
+     "acaso_mediana": -0.015,
+     "acaso_p95": 0.15,
+     "veredicto": "SOBE"
+    },
+    "lateral": {
+     "n": 85,
+     "wins": 67,
+     "avg_r": 0.235,
+     "total_r": 20.0,
+     "ultimas": [
+      0.03,
+      0.13,
+      0.07,
+      0.07,
+      0.01,
+      0.15,
+      0.1,
+      0.05,
+      0.02,
+      0.02
+     ],
+     "acaso_mediana": -0.361,
+     "acaso_p95": -0.244,
+     "veredicto": "SOBE"
+    }
+   }
+  },
+  "BOUNCE_X30_LIQ": {
+   "n": 131,
+   "wins": 100,
+   "avg_r": 0.407,
+   "total_r": 53.27,
+   "ultimas": [
+    0.03,
+    0.15,
+    0.08,
+    0.08,
+    0.01,
+    0.19,
+    0.12,
+    0.06,
+    0.03,
+    0.02
+   ],
+   "acaso_mediana": -0.265,
+   "acaso_p95": -0.134,
+   "veredicto": "SOBE",
+   "por_regime": {
+    "subida": {
+     "n": 49,
+     "wins": 35,
+     "avg_r": 0.554,
+     "total_r": 27.13,
+     "ultimas": [
+      0.22,
+      0.98,
+      0.07,
+      0.94,
+      0.11,
+      1.21,
+      0.79,
+      1.03,
+      1.51,
+      1.48
+     ],
+     "acaso_mediana": -0.056,
+     "acaso_p95": 0.171,
+     "veredicto": "SOBE"
+    },
+    "lateral": {
+     "n": 82,
+     "wins": 65,
+     "avg_r": 0.319,
+     "total_r": 26.13,
+     "ultimas": [
+      0.03,
+      0.15,
+      0.08,
+      0.08,
+      0.01,
+      0.19,
+      0.12,
+      0.06,
+      0.03,
+      0.02
+     ],
+     "acaso_mediana": -0.39,
+     "acaso_p95": -0.254,
+     "veredicto": "SOBE"
+    }
+   }
+  },
+  "REVERSAO_INTERVALO": {
+   "n": 25,
+   "wins": 15,
+   "avg_r": -0.04,
+   "total_r": -1.0,
+   "ultimas": [
+    0.11,
+    0.85,
+    -0.01,
+    -1.01,
+    -1.02,
+    -1.02,
+    0.17,
+    0.06,
+    0.9,
+    -1.01
+   ],
+   "acaso_mediana": -0.12,
+   "acaso_p95": 0.085,
+   "veredicto": "A COMPETIR",
+   "por_regime": {
+    "subida": {
+     "n": 7,
+     "wins": 5,
+     "avg_r": 0.211,
+     "total_r": 1.48,
+     "ultimas": [
+      0.21,
+      1.32,
+      -1.02,
+      -0.0,
+      0.01,
+      0.11,
+      0.85
+     ],
+     "acaso_mediana": -0.146,
+     "acaso_p95": 0.257,
+     "veredicto": "A COMPETIR"
+    },
+    "lateral": {
+     "n": 18,
+     "wins": 10,
+     "avg_r": -0.137,
+     "total_r": -2.47,
+     "ultimas": [
+      0.04,
+      -0.01,
+      -0.01,
+      -1.01,
+      -1.02,
+      -1.02,
+      0.17,
+      0.06,
+      0.9,
+      -1.01
+     ],
+     "acaso_mediana": -0.163,
+     "acaso_p95": 0.096,
+     "veredicto": "A COMPETIR"
+    }
+   }
+  },
+  "VOLUME_ACUMULACAO": {
+   "n": 46,
+   "wins": 17,
+   "avg_r": -0.085,
+   "total_r": -3.92,
+   "ultimas": [
+    -1.03,
+    -1.05,
+    -1.01,
+    -1.02,
+    -1.05,
+    2.62,
+    -1.02,
+    -1.02,
+    -1.01,
+    -1.01
+   ],
+   "acaso_mediana": 0.014,
+   "acaso_p95": 0.309,
+   "veredicto": "MORTA",
+   "por_regime": {
+    "subida": {
+     "n": 20,
+     "wins": 7,
+     "avg_r": 0.025,
+     "total_r": 0.51,
+     "ultimas": [
+      2.48,
+      2.42,
+      2.16,
+      2.67,
+      0.1,
+      -1.02,
+      -1.03,
+      -1.05,
+      -1.01,
+      -1.02
+     ],
+     "acaso_mediana": 0.02,
+     "acaso_p95": 0.468,
+     "veredicto": "A COMPETIR"
+    },
+    "lateral": {
+     "n": 26,
+     "wins": 10,
+     "avg_r": -0.17,
+     "total_r": -4.43,
+     "ultimas": [
+      -1.01,
+      -1.02,
+      -1.02,
+      -1.01,
+      -1.02,
+      -1.05,
+      2.62,
+      -1.02,
+      -1.01,
+      -1.01
+     ],
+     "acaso_mediana": 0.055,
+     "acaso_p95": 0.483,
+     "veredicto": "MORTA"
+    }
+   }
+  },
+  "FIBO_RECUO": {
+   "n": 242,
+   "wins": 94,
+   "avg_r": -0.102,
+   "total_r": -24.75,
+   "ultimas": [
+    0.62,
+    -1.03,
+    -1.01,
+    0.39,
+    -1.01,
+    -1.01,
+    -1.03,
+    -1.01,
+    -1.01,
+    -1.03
+   ],
+   "acaso_mediana": 0.079,
+   "acaso_p95": 0.204,
+   "veredicto": "MORTA",
+   "por_regime": {
+    "subida": {
+     "n": 93,
+     "wins": 28,
+     "avg_r": -0.291,
+     "total_r": -27.08,
+     "ultimas": [
+      -1.02,
+      -1.01,
+      -1.02,
+      -1.02,
+      0.62,
+      -1.03,
+      -1.01,
+      0.39,
+      -1.03,
+      -1.03
+     ],
+     "acaso_mediana": 0.066,
+     "acaso_p95": 0.285,
+     "veredicto": "MORTA"
+    },
+    "lateral": {
+     "n": 149,
+     "wins": 66,
+     "avg_r": 0.016,
+     "total_r": 2.33,
+     "ultimas": [
+      -1.01,
+      0.42,
+      -1.02,
+      0.41,
+      -1.02,
+      -1.01,
+      -1.01,
+      -1.01,
+      -1.01,
+      -1.01
+     ],
+     "acaso_mediana": 0.089,
+     "acaso_p95": 0.244,
+     "veredicto": "MORTA"
+    }
+   }
+  },
+  "SHORT_X30": {
+   "n": 925,
+   "wins": 455,
+   "avg_r": -0.138,
+   "total_r": -128.07,
+   "ultimas": [
+    1.57,
+    -1.01,
+    1.18,
+    2.06,
+    2.07,
+    1.34,
+    -1.0,
+    2.86,
+    0.15,
+    0.06
+   ],
+   "acaso_mediana": -0.187,
+   "acaso_p95": -0.145,
+   "veredicto": "MORTA",
+   "por_regime": {
+    "subida": {
+     "n": 119,
+     "wins": 49,
+     "avg_r": -0.284,
+     "total_r": -33.78,
+     "ultimas": [
+      -0.28,
+      -1.01,
+      -1.02,
+      2.06,
+      2.07,
+      1.34,
+      -1.0,
+      2.86,
+      0.15,
+      0.06
+     ],
+     "acaso_mediana": -0.246,
+     "acaso_p95": -0.129,
+     "veredicto": "MORTA"
+    },
+    "lateral": {
+     "n": 695,
+     "wins": 326,
+     "avg_r": -0.192,
+     "total_r": -133.65,
+     "ultimas": [
+      -0.32,
+      0.93,
+      -1.01,
+      0.29,
+      -1.01,
+      0.33,
+      -1.01,
+      1.57,
+      -1.01,
+      1.18
+     ],
+     "acaso_mediana": -0.2,
+     "acaso_p95": -0.148,
+     "veredicto": "MORTA"
+    },
+    "queda": {
+     "n": 111,
+     "wins": 80,
+     "avg_r": 0.355,
+     "total_r": 39.36,
+     "ultimas": [
+      -1.0,
+      -1.01,
+      -1.0,
+      1.99,
+      -0.02,
+      1.41,
+      1.25,
+      0.27,
+      -0.37,
+      -1.02
+     ],
+     "acaso_mediana": -0.052,
+     "acaso_p95": 0.095,
+     "veredicto": "SOBE"
+    }
+   }
+  },
+  "SHORT_FLUXO": {
+   "n": 360,
+   "wins": 172,
+   "avg_r": -0.198,
+   "total_r": -71.4,
+   "ultimas": [
+    -1.02,
+    0.72,
+    0.94,
+    -1.01,
+    0.79,
+    -1.01,
+    0.25,
+    0.29,
+    0.02,
+    2.07
+   ],
+   "acaso_mediana": -0.193,
+   "acaso_p95": -0.118,
+   "veredicto": "MORTA",
+   "por_regime": {
+    "subida": {
+     "n": 47,
+     "wins": 17,
+     "avg_r": -0.392,
+     "total_r": -18.42,
+     "ultimas": [
+      0.21,
+      0.25,
+      0.2,
+      -0.44,
+      0.12,
+      -0.65,
+      0.79,
+      -1.01,
+      0.02,
+      2.07
+     ],
+     "acaso_mediana": -0.269,
+     "acaso_p95": -0.069,
+     "veredicto": "MORTA"
+    },
+    "lateral": {
+     "n": 272,
+     "wins": 127,
+     "avg_r": -0.227,
+     "total_r": -61.72,
+     "ultimas": [
+      1.37,
+      -1.02,
+      -1.01,
+      -1.01,
+      -1.02,
+      0.72,
+      0.94,
+      -1.01,
+      0.25,
+      0.29
+     ],
+     "acaso_mediana": -0.209,
+     "acaso_p95": -0.123,
+     "veredicto": "MORTA"
+    },
+    "queda": {
+     "n": 41,
+     "wins": 28,
+     "avg_r": 0.213,
+     "total_r": 8.74,
+     "ultimas": [
+      1.15,
+      -1.01,
+      -1.01,
+      0.19,
+      -1.02,
+      0.26,
+      -1.01,
+      1.57,
+      -1.0,
+      0.27
+     ],
+     "acaso_mediana": 0.014,
+     "acaso_p95": 0.256,
+     "veredicto": "A COMPETIR"
+    }
+   }
+  },
+  "SHORT_TURTLE": {
+   "n": 663,
+   "wins": 326,
+   "avg_r": 0.218,
+   "total_r": 144.42,
+   "ultimas": [
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.04,
+    -1.01
+   ],
+   "acaso_mediana": 0.59,
+   "acaso_p95": 0.659,
+   "veredicto": "MORTA",
+   "por_regime": {
+    "subida": {
+     "n": 32,
+     "wins": 0,
+     "avg_r": -1.007,
+     "total_r": -32.23,
+     "ultimas": [
+      -1.01,
+      -1.01,
+      -1.01,
+      -1.01,
+      -1.01,
+      -1.01,
+      -1.01,
+      -1.01,
+      -1.01,
+      -1.01
+     ],
+     "acaso_mediana": -0.616,
+     "acaso_p95": -0.39,
+     "veredicto": "MORTA"
+    },
+    "lateral": {
+     "n": 404,
+     "wins": 213,
+     "avg_r": 0.383,
+     "total_r": 154.85,
+     "ultimas": [
+      -1.01,
+      -1.01,
+      -1.01,
+      -1.01,
+      -1.01,
+      -1.01,
+      -1.02,
+      -1.03,
+      -1.01,
+      -1.04
+     ],
+     "acaso_mediana": 0.673,
+     "acaso_p95": 0.767,
+     "veredicto": "MORTA"
+    },
+    "queda": {
+     "n": 227,
+     "wins": 113,
+     "avg_r": 0.096,
+     "total_r": 21.8,
+     "ultimas": [
+      0.82,
+      0.05,
+      -1.0,
+      -0.76,
+      -1.0,
+      -0.12,
+      0.67,
+      0.3,
+      -1.01,
+      -1.01
+     ],
+     "acaso_mediana": 0.624,
+     "acaso_p95": 0.738,
+     "veredicto": "MORTA"
+    }
+   }
+  },
+  "SHORT_SQUEEZE": {
+   "n": 0,
+   "wins": 0,
+   "avg_r": null,
+   "total_r": 0,
+   "ultimas": [],
+   "acaso_mediana": null,
+   "acaso_p95": null,
+   "veredicto": "A COMPETIR"
+  },
+  "SHORT_ISOLADA": {
+   "n": 774,
+   "wins": 399,
+   "avg_r": -0.122,
+   "total_r": -94.17,
+   "ultimas": [
+    1.57,
+    -1.01,
+    1.18,
+    2.06,
+    2.07,
+    1.34,
+    -1.0,
+    2.86,
+    0.15,
+    0.06
+   ],
+   "acaso_mediana": -0.179,
+   "acaso_p95": -0.133,
+   "veredicto": "MORTA",
+   "por_regime": {
+    "subida": {
+     "n": 85,
+     "wins": 46,
+     "avg_r": -0.083,
+     "total_r": -7.07,
+     "ultimas": [
+      -0.28,
+      -1.01,
+      -1.02,
+      2.06,
+      2.07,
+      1.34,
+      -1.0,
+      2.86,
+      0.15,
+      0.06
+     ],
+     "acaso_mediana": -0.247,
+     "acaso_p95": -0.107,
+     "veredicto": "MORTA"
+    },
+    "lateral": {
+     "n": 594,
+     "wins": 285,
+     "avg_r": -0.195,
+     "total_r": -116.12,
+     "ultimas": [
+      -0.32,
+      0.93,
+      -1.01,
+      0.29,
+      -1.01,
+      0.33,
+      -1.01,
+      1.57,
+      -1.01,
+      1.18
+     ],
+     "acaso_mediana": -0.194,
+     "acaso_p95": -0.141,
+     "veredicto": "MORTA"
+    },
+    "queda": {
+     "n": 95,
+     "wins": 68,
+     "avg_r": 0.305,
+     "total_r": 29.02,
+     "ultimas": [
+      1.59,
+      -1.0,
+      -1.01,
+      -1.0,
+      1.99,
+      -0.02,
+      1.41,
+      1.25,
+      0.27,
+      -0.37
+     ],
+     "acaso_mediana": -0.024,
+     "acaso_p95": 0.137,
+     "veredicto": "SOBE"
+    }
+   }
+  }
+ },
+ "macro_series": [
+  "DXY",
+  "SP",
+  "US10Y",
+  "VIX"
+ ],
+ "funding_moedas": 68,
+ "funding_fonte": {
+  "binance": 0,
+  "okx": 68
+ },
+ "oi_moedas": 55,
+ "segundos": 2041,
+ "falhas": [
+  "ARX: HTTPError: HTTP Error 400: Bad Request",
+  "DEEP: HTTPError: HTTP Error 400: Bad Request",
+  "EURC: HTTPError: HTTP Error 400: Bad Request",
+  "GRASS: HTTPError: HTTP Error 400: Bad Request",
+  "ICNT: HTTPError: HTTP Error 400: Bad Request",
+  "MNT: HTTPError: HTTP Error 400: Bad Request",
+  "POPCAT: HTTPError: HTTP Error 400: Bad Request",
+  "ZIG: HTTPError: HTTP Error 400: Bad Request"
+ ]
+}
