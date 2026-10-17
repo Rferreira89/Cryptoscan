@@ -1,0 +1,85 @@
+STATUS OK
+  binance  OK 766 pares
+  okx      OK 443 pares
+  kucoin   OK 813 pares
+  bybit-eu {'ok': True, 'pairs': 81}
+COUNTS {'pairs_seen': 968, 'eligible': 62, 'deep_checked': 62, 'data_valid': 52, 'data_invalid': 0, 'long': 0, 'short': 0, 'watch_short': 0, 'paper': 0, 'watchlist': 0, 'no_trade': 62}
+DERIVADOS {'ok': True, 'with_perp': 61, 'incomplete': 2, 'binance': 53}
+EUROPA {'ok': True, 't': 1792276163, 'moedas': 120} CONTA {'t': 1792276018, 'usdc_free': 105.18, 'equity': 112.19}
+REGIME BTC NEUTRAL
+  BTC      NO TRADE  -     NEUTRAL     -                -        score - | nenhuma estratégia aplicável em regime NEUTRAL
+  ETH      NO TRADE  -     NEUTRAL     -                -        score - | nenhuma estratégia aplicável em regime NEUTRAL
+  SOL      NO TRADE  -     NEUTRAL     -                -        score - | nenhuma estratégia aplicável em regime NEUTRAL
+  NEAR     NO TRADE  -     -           -                -        score - | spread elevado na Bybit UE
+  XRP      NO TRADE  -     NEUTRAL     -                -        score - | LIQUIDITY_SWEEP: estratégia desligada
+      rejeitado LIQUIDITY_SWEEP: estratégia desligada
+  DOGE     NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  BNB      NO TRADE  -     NEUTRAL     -                -        score - | nenhuma estratégia aplicável em regime NEUTRAL
+  SUI      NO TRADE  -     NEUTRAL     -                -        score - | LIQUIDITY_SWEEP: estratégia desligada
+      rejeitado LIQUIDITY_SWEEP: estratégia desligada
+  WLD      NO TRADE  -     NEUTRAL     -                -        score - | LIQUIDITY_SWEEP: estratégia desligada
+      rejeitado LIQUIDITY_SWEEP: estratégia desligada
+  UNI      NO TRADE  -     HIGH VOLATILITY -                -        score - | regime HIGH VOLATILITY: sem vantagem identificável
+  TIA      NO TRADE  -     STRONG BULL -                -        score - | nenhuma estratégia aplicável em regime STRONG BULL
+  AVAX     NO TRADE  -     HIGH VOLATILITY -                -        score - | regime HIGH VOLATILITY: sem vantagem identificável
+  HYPE     NO TRADE  -     -           -                -        score - | spread elevado na Bybit UE
+  FIL      NO TRADE  -     STRONG BULL -                -        score - | nenhuma estratégia aplicável em regime STRONG BULL
+  ASTER    NO TRADE  -     RANGE       -                -        score - | nenhuma estratégia aplicável em regime RANGE
+  STRK     NO TRADE  -     STRONG BULL -                -        score - | LIQUIDITY_SWEEP: estratégia desligada
+      rejeitado LIQUIDITY_SWEEP: estratégia desligada
+  LINK     NO TRADE  -     NEUTRAL     -                -        score - | nenhuma estratégia aplicável em regime NEUTRAL
+  DOT      NO TRADE  -     RANGE       -                -        score - | nenhuma estratégia aplicável em regime RANGE
+  TRX      NO TRADE  -     NEUTRAL     -                -        score - | BREAKOUT: FAKE BREAKOUT: preço voltou a fechar abaixo do nivel quebrado
+      rejeitado BREAKOUT: FAKE BREAKOUT: preço voltou a fechar abaixo do nivel quebrado
+  ENA      NO TRADE  -     NEUTRAL     -                -        score - | nenhuma estratégia aplicável em regime NEUTRAL
+  LTC      NO TRADE  -     -           -                -        score - | preço da Bybit UE desatualizado
+  AAVE     NO TRADE  -     STRONG BULL -                -        score - | nenhuma estratégia aplicável em regime STRONG BULL
+  PUMP     NO TRADE  -     HIGH VOLATILITY -                -        score - | regime HIGH VOLATILITY: sem vantagem identificável
+  INJ      NO TRADE  -     NEUTRAL     -                -        score - | LIQUIDITY_SWEEP: estratégia desligada
+      rejeitado LIQUIDITY_SWEEP: estratégia desligada
+  PEPE     NO TRADE  -     BULL        -                -        score - | nenhuma estratégia aplicável em regime BULL
+  SEI      NO TRADE  -     NEUTRAL     -                -        score - | nenhuma estratégia aplicável em regime NEUTRAL
+  ADA      NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  APT      NO TRADE  -     NEUTRAL     -                -        score - | nenhuma estratégia aplicável em regime NEUTRAL
+  ARB      NO TRADE  -     NEUTRAL     -                -        score - | nenhuma estratégia aplicável em regime NEUTRAL
+  TRUMP    NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  XLM      NO TRADE  -     NEUTRAL     -                -        score - | LIQUIDITY_SWEEP: estratégia desligada
+      rejeitado LIQUIDITY_SWEEP: estratégia desligada
+  HBAR     NO TRADE  -     BEAR        -                -        score - | LIQUIDITY_SWEEP: estratégia desligada
+      rejeitado LIQUIDITY_SWEEP: estratégia desligada
+  ONDO     NO TRADE  -     BULL        -                -        score - | nenhuma estratégia aplicável em regime BULL
+  EIGEN    NO TRADE  -     -           -                -        score - | spread elevado na Bybit UE
+  BCH      NO TRADE  -     -           -                -        score - | preço da Bybit UE desatualizado
+  OP       NO TRADE  -     -           -                -        score - | spread elevado na Bybit UE
+  PYTH     NO TRADE  -     -           -                -        score - | preço da Bybit UE desatualizado
+  ICP      NO TRADE  -     BULL        -                -        score - | nenhuma estratégia aplicável em regime BULL
+  ICNT     NO TRADE  -     -           -                -        score - | dados inválidos ou histórico insuficiente
+  XPL      NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  SHIB     NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+  ZK       NO TRADE  -     -           -                -        score - | spread elevado na Bybit UE
+  W        NO TRADE  -     HIGH VOLATILITY -                -        score - | regime HIGH VOLATILITY: sem vantagem identificável
+  WIF      NO TRADE  -     -           -                -        score - | spread elevado na Bybit UE
+  PENGU    NO TRADE  -     NEUTRAL     -                -        score - | LIQUIDITY_SWEEP: estratégia desligada
+      rejeitado LIQUIDITY_SWEEP: estratégia desligada
+  CRV      NO TRADE  -     -           -                -        score - | preço da Bybit UE desatualizado
+  POL      NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+  RENDER   NO TRADE  -     BULL        -                -        score - | nenhuma estratégia aplicável em regime BULL
+  S        NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+  WAL      NO TRADE  -     -           -                -        score - | preço da Bybit UE desatualizado
+  KAIA     NO TRADE  -     -           -                -        score - | preço da Bybit UE desatualizado
+  VIRTUAL  NO TRADE  -     NEUTRAL     -                -        score - | nenhuma estratégia aplicável em regime NEUTRAL
+  PENDLE   NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+  PLUME    NO TRADE  -     -           -                -        score - | preço da Bybit UE desatualizado
+  NXPC     NO TRADE  -     -           -                -        score - | spread elevado na Bybit UE
+  ALGO     NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+  APE      NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+  ATOM     NO TRADE  -     HIGH VOLATILITY -                -        score - | regime HIGH VOLATILITY: sem vantagem identificável
+  BONK     NO TRADE  -     -           -                -        score - | spread elevado na Bybit UE
+  HUMA     NO TRADE  -     -           -                -        score - | preço da Bybit UE desatualizado
+  GALA     NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+  SKY      NO TRADE  -     HIGH VOLATILITY -                -        score - | regime HIGH VOLATILITY: sem vantagem identificável
+FILTRO DE MERCADO {'btc_above_sma200': True, 'close': 81615.64, 'sma200': 72398.44, 'distance_pct': 12.7, 'since': 1790942427}
+PAPEL TENDENCIA capital -3.04% n 1 posicoes []
+REGISTO {'REAL:BREAKOUT': {'n': 4, 'wins': 0, 'sum_r': -4.243}, 'REAL:PULLBACK': {'n': 2, 'wins': 0, 'sum_r': -2.605}, 'REAL:LIQUIDITY_SWEEP': {'n': 3, 'wins': 1, 'sum_r': -1.438}, 'REAL:BOUNCE_X30': {'n': 4, 'wins': 0, 'sum_r': -4.0}, 'REAL:BOUNCE_SQUEEZE': {'n': 1, 'wins': 0, 'sum_r': -0.053}} TRAVAO None
+SINAIS ATIVOS 1
+  PUMP-BOUNCE_SQUEEZE-1792080015 TRIGGERED {'leverage': {'use': 1.0, 'max_safe': 4.0, 'needed': 1.0, 'collateral_pct': 9.3, 'borrowed_pct': 0.0, 'liquidation_est': None}, 'position_usdc': 7.37, 'collateral_usdc': 7.37, 'borrowed_usdc': 0.0, 'risk_usdc': 0.6, 'entry_zone': [0.004511425, 0.00453405], 'entry_ref': 0.00453405, 'stop': 0.004186514864684626, 'tp': [0.0048973, 0.006042, 0.006042], 'tp_projected': [], 'partials': [0, 100, 0], 'rr': 4.01, 'rr_tp1': 0.92, 'rr_tp3': 4.01, 'stop_pct': 8.15, 'stop_atr': 1.48, 'position_pct': 9.3, 'risk_pct': 0.75, 'breakeven': True, 'max_hold_s': 259200, 'no_react_s': None, 'trail_r': None, 'risk_reduced': True, 'cluster': {'n': 2, 'familia': 'Sobrevenda a virar'}}
