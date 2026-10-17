@@ -576,6 +576,40 @@ class ModoAutomatico(unittest.TestCase):
         self.assertIn("Modo automático", out[0][0])
         out = inbox.apply(st, [{"update_id": 2, "message": {"chat": {"id": 7}, "text": "/auto ligar", "date": NOW}}], "7")
         self.assertIn("Ainda não posso", out[0][0])
+        out = inbox.apply(st, [{"update_id": 3, "message": {"chat": {"id": 7}, "text": "/auto forçar", "date": NOW}}], "7")
+        self.assertIn("LIGADO por decisão tua", out[0][0])
+        from engine import auto
+        self.assertTrue(auto.active(st))
+
+    def test_forcado_liga_sem_prova_e_desliga_a_primeira_falha(self):
+        from engine import auto, execucao, run
+        st = {"ledger": []}
+        self.assertIn("nunca levanta", auto.force(st, NOW).lower())
+        self.assertTrue(auto.active(st) and auto.summary(st)["forcado"])
+        execucao.READY = True
+        try:
+            ev = [{"event": "ISSUED", "id": "S1", "signal": {
+                "mode": "REAL", "score_label": "campeão da arena", "direction": "LONG",
+                "diretor": {"decisao": "AUTORIZADO"}, "plan": {}}}]
+            self.assertEqual(auto.pick(st, ev, NOW), ["S1"])
+        finally:
+            execucao.READY = False
+        auto.observe(st, {"ops": {"OUTRA": {"status": "aberta", "entrada": 1, "erro": "x"}}})
+        self.assertTrue(auto.active(st))                           # falha numa op que nao e automatica
+        auto.observe(st, {"ops": {"S1": {"status": "aberta", "entrada": 1, "stop_erro": "rejeitado"}}})
+        self.assertFalse(auto.active(st))
+        self.assertIn("DESLIGADO sozinho", auto.pop_aviso(st))
+        self.assertIsNone(auto.pop_aviso(st))
+        self.assertIn("falha", auto.summary(st)["motivo"])
+        # e liga-se pelo admin.json da sessao
+        import json, tempfile, os
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
+            json.dump({"comandos": [{"id": "x", "texto": "/auto forcar"}]}, f)
+        try:
+            out = run.apply_admin(st, path=f.name, now=NOW)
+        finally:
+            os.unlink(f.name)
+        self.assertTrue(auto.active(st) and out)
 
 
 class EntradaNaoEPerda(unittest.TestCase):

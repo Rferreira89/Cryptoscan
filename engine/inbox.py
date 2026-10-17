@@ -26,7 +26,7 @@ CLOSE = re.compile(r"^/?fechei\s+([A-Za-z0-9]+)\s+([0-9]+(?:[.,][0-9]+)?)\s*$",
 
 
 PARAR = re.compile(r"^/?parar\s*$", re.I)
-AUTO = re.compile(r"^/?auto(?:@\w+)?(?:\s+(ligar|desligar))?\s*$", re.I)
+AUTO = re.compile(r"^/?auto(?:@\w+)?(?:\s+(ligar|desligar|for[cç]ar))?\s*$", re.I)
 
 
 CAP = re.compile(r"^/?capital\s+([0-9]+(?:[.,][0-9]+)?)\s*$", re.I)
@@ -217,6 +217,8 @@ def apply(state, updates, chat_id, res=None):
                 op = (am.group(1) or "").lower()
                 if op == "ligar":
                     out.append((auto.turn(state, True, int(msg.get("date") or 0)), None))
+                elif op in ("forcar", "forçar"):
+                    out.append((auto.force(state, int(msg.get("date") or 0)), None))
                 elif op == "desligar":
                     out.append((auto.turn(state, False, int(msg.get("date") or 0)), None))
                 else:

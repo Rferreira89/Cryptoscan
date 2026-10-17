@@ -17,6 +17,14 @@ Ligado, tem limites:
   - cada operacao automatica e avisada no Telegram;
   - /parar fecha tudo E desliga o modo automatico.
 A chave da Bybit so negoceia: nao pode levantar nem transferir.
+
+17/10/2026: o Rui pediu para o programa operar por ele ja (trabalha de noite,
+dorme de dia), antes de a prova estar completa. "/auto forcar" liga o modo
+automatico SEM os criterios (decisao dele, registada com data). Em troca da
+prova que falta, o modo forcado desliga-se sozinho e avisa no Telegram a
+primeira falha de execucao numa operacao automatica (erro na compra ou no
+stop). Limites de sempre: so campeoes, so com OK do Diretor, MAX_DIA por dia,
+travao, risco. Nunca levanta nem transfere: a chave nao tem essa permissao.
 """
 MIN_OPS = 20
 MAX_DIA = 2
@@ -39,6 +47,12 @@ def observe(state, ex=None, events=()):
         falha = bool(o.get("erro") or o.get("stop_erro") or
                      any(p.get("stop_erro") for p in o.get("partes") or []))
         ops[k] = {"falha": falha or bool((ops.get(k) or {}).get("falha"))}
+        if ops[k]["falha"] and a.get("ligado") and a.get("forcado") and k in (a.get("ids") or []):
+            a.update(ligado=False, forcado=False, desligado=int(o.get("t") or 0) or a.get("desligado"),
+                     motivo=f"falha de execução em {k}")
+            a["aviso"] = (f"🤖⚠️ Modo automático DESLIGADO sozinho: falha de execução em {k} "
+                          f"({o.get('erro') or o.get('stop_erro') or 'stop'}). Verifica a posição na "
+                          "Bybit. Para voltar a ligar: /auto forcar.")
     for x in (ex or {}).get("log") or []:
         if x.get("acao") == "breakeven" and str(x.get("res")).startswith(("ok", "stop já")):
             pv["breakeven"] = True
@@ -71,7 +85,23 @@ def ready(state):
 
 
 def active(state):
-    return bool(_st(state).get("ligado")) and ready(state)
+    a = _st(state)
+    return bool(a.get("ligado")) and (bool(a.get("forcado")) or ready(state))
+
+
+def force(state, now, quem="Rui"):
+    """Liga sem os criterios, por decisao explicita do Rui."""
+    a = _st(state)
+    a.update(ligado=True, forcado=True, ligado_t=a.get("ligado_t") if a.get("ligado") else int(now),
+             forcado_t=int(now), forcado_por=quem, motivo=None)
+    return ("🤖 Modo automático LIGADO por decisão tua (sem a prova completa). Opera sozinho: só "
+            f"campeões da arena com OK do Diretor, máximo {MAX_DIA} por dia, risco e travão de sempre, "
+            "stop e objetivos na Bybit. Desliga-se sozinho à primeira falha de execução. Nunca levanta "
+            "nem transfere (a chave não tem essa permissão). /parar fecha tudo; /auto desligar só desliga.")
+
+
+def pop_aviso(state):
+    return _st(state).pop("aviso", None)
 
 
 def turn(state, on, now):
@@ -79,7 +109,7 @@ def turn(state, on, now):
     a = _st(state)
     if not on:
         was = a.get("ligado")
-        a.update(ligado=False, desligado=int(now))
+        a.update(ligado=False, forcado=False, desligado=int(now))
         return "🤖 Modo automático desligado." if was else "🤖 O modo automático já estava desligado."
     falta = [f"{n} ({d})" for n, ok, d in criteria(state) if not ok]
     if falta:
@@ -115,6 +145,8 @@ def pick(state, events, now):
             hoje.append(now)
             out.append(e["id"])
             e["auto"] = True
+            a.setdefault("ids", []).append(e["id"])
+    del a.setdefault("ids", [])[:-100]
     a["feitos"] = hoje
     return out
 
@@ -126,6 +158,11 @@ def text(state):
     for n, ok, d in criteria(state):
         L.append(f"{'✅' if ok else '⬜'} {n}: {d}")
     L.append(f"{'✅' if a.get('ligado') else '⬜'} o teu OK (/auto ligar)")
+    if a.get("forcado"):
+        L += ["", "⚡ Ligado por decisão tua sem a prova completa (/auto forcar): desliga-se sozinho "
+              "à primeira falha de execução."]
+    elif a.get("motivo"):
+        L += ["", f"Desligou-se sozinho: {a['motivo']}."]
     L += ["", f"Ligado: só compras de campeões autorizadas pelo Diretor, máximo {MAX_DIA} por dia, risco e "
           "travão de sempre; vendas a descoberto automáticas só 2 semanas depois. A chave não pode "
           "levantar nem transferir. /auto desligar ou /parar desligam."]
@@ -133,5 +170,7 @@ def text(state):
 
 
 def summary(state):
-    return {"ligado": active(state), "pedido": bool(_st(state).get("ligado")),
+    a = _st(state)
+    return {"ligado": active(state), "pedido": bool(a.get("ligado")), "forcado": bool(a.get("forcado")),
+            "motivo": a.get("motivo"), "feitos_hoje": len(a.get("feitos") or []), "max_dia": MAX_DIA,
             "criterios": [{"nome": n, "ok": ok, "detalhe": d} for n, ok, d in criteria(state)]}

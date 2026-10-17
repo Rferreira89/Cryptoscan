@@ -517,7 +517,7 @@ def apply_admin(state, path=ADMIN, now=None, send=None):
         ups = [{"message": {"chat": {"id": "admin"}, "date": t, "text": c["texto"]}}]
         res = inbox.apply(state, ups, "admin")
         done.append(c["id"])
-        out += [txt for txt, _ in res]
+        out += [x[0] for x in res]
     del done[:-200]
     if send:
         for txt in out:
@@ -725,6 +725,9 @@ def main():
         auto.observe(state, None, events)
         auto.pick(state, events, res["generated_at"])
         res["auto"] = auto.summary(state)
+        aviso = auto.pop_aviso(state)
+        if aviso and alerts.configured():
+            alerts.send(aviso)
     except Exception as e:
         print("auto:", e)
     exec_after(state, events, res["generated_at"])

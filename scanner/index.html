@@ -867,7 +867,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261016c";
+const PAGE_V="20261017a";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -1309,7 +1309,7 @@ function renderGestor(){if(!D||!$("gestor"))return;const C=D.config||{},K=D.cont
   else if(free!=null&&free<need)todo=`💡 Tens ${num(free,2)} USDC livres: não chega para a margem de uma operação nova (≈ ${num(need,0)} USDC). Os próximos sinais vão chegar mas não os consegues abrir sem libertar capital.`;
   else if(!sig24)todo=`⏳ Sem sinais reais nas últimas 24h: o mercado está em ${RG[MK.regime]||"–"} e as moedas ainda não chegaram à sobrevenda que os campeões procuram.${mesa?" Mais perto: "+mesa+".":""}`;
   else todo=`✅ ${sig24} sinal${sig24>1?"is":""} real${sig24>1?"is":""} nas últimas 24h. Confirma os stops na Bybit e acompanha com /hoje.`;
-  const AU=D.auto,autoh=AU?`<details class="sec" style="margin:6px 0"><summary><span>🤖 Modo automático: <b>${AU.ligado?"LIGADO":"desligado"}</b> · ${AU.criterios.filter(c=>c.ok).length}/${AU.criterios.length} critérios</span></summary><ul style="font-size:12.5px;margin:4px 0 0 18px;padding:0">${AU.criterios.map(c=>`<li>${c.ok?"✅":"⬜"} ${esc(c.nome)}: ${esc(c.detalhe)}</li>`).join("")}<li>${AU.pedido?"✅":"⬜"} o teu OK (/auto ligar no Telegram)</li></ul><p class="note">Ligado: só compras de campeões autorizadas pelo Diretor, máximo 2 por dia, risco e travão de sempre. A chave não pode levantar nem transferir. /parar fecha tudo e desliga.</p></details>`:"";
+  const AU=D.auto,autoh=AU?`<details class="sec" style="margin:6px 0"><summary><span>🤖 Modo automático: <b>${AU.ligado?"LIGADO":"desligado"}</b>${AU.forcado?" (por decisão tua)":""} · ${AU.ligado?`${AU.feitos_hoje||0}/${AU.max_dia||2} hoje`:`${AU.criterios.filter(c=>c.ok).length}/${AU.criterios.length} critérios`}</span></summary><ul style="font-size:12.5px;margin:4px 0 0 18px;padding:0">${AU.criterios.map(c=>`<li>${c.ok?"✅":"⬜"} ${esc(c.nome)}: ${esc(c.detalhe)}</li>`).join("")}<li>${AU.pedido?"✅":"⬜"} o teu OK (/auto ligar no Telegram)</li></ul><p class="note">Ligado: só compras de campeões autorizadas pelo Diretor, máximo 2 por dia, risco e travão de sempre. A chave não pode levantar nem transferir. ${AU.forcado?"Ligado sem a prova completa: desliga-se sozinho à primeira falha de execução. ":""}${AU.motivo?`Desligou-se sozinho: ${esc(AU.motivo)}. `:""}/parar fecha tudo e desliga.</p></details>`:"";
   $("gestor").innerHTML=`<div class="todo">${todo}</div>${autoh}<div class="gst">
   <div><b>${eq!=null?num(eq,2):"–"}</b><span>Capital total (USDC)</span></div>
   <div><b>${free!=null?num(free,2):"–"}</b><span>USDC livre na Bybit</span></div>
