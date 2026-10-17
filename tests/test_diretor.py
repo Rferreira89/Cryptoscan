@@ -727,3 +727,31 @@ class RecuoFibonacci(unittest.TestCase):
         self.assertEqual(arena.persona("FIBO_RECUO"), "Fábio")
         c[-1]["c"] = c[-2]["c"] * 0.999                            # sem viragem
         self.assertIsNone(AR.sig_fibo(c))
+
+
+class DepositoNaFunding(unittest.TestCase):
+    def test_avisa_uma_vez_por_valor(self):
+        from engine import run
+        st = {}
+        self.assertIsNone(run.funding_alert(st, {"fundo": {}}, NOW))
+        self.assertIsNone(run.funding_alert(st, {"fundo": {"BTC": 0.5, "USDC": 0.5}}, NOW))
+        t = run.funding_alert(st, {"fundo": {"USDC": 50.0}}, NOW)
+        self.assertIn("50.00 USDC", t)
+        self.assertIn("Funding", t)
+        self.assertIsNone(run.funding_alert(st, {"fundo": {"USDC": 50.0}}, NOW + 60))
+        self.assertIsNotNone(run.funding_alert(st, {"fundo": {"USDC": 80.0}}, NOW + 120))
+        self.assertIsNotNone(run.funding_alert(st, {"fundo": {"USDC": 80.0}}, NOW + 13 * 3600))
+
+    def test_le_a_funding(self):
+        from engine import account
+        orig = account.get
+        try:
+            account.get = lambda path, params=None: {"balance": [
+                {"coin": "USDC", "walletBalance": "50"}, {"coin": "EUR", "walletBalance": "0"}]}
+            self.assertEqual(account.funding(), {"USDC": 50.0})
+            def boom(*a, **k):
+                raise account.AccountError("sem permissao")
+            account.get = boom
+            self.assertIsNone(account.funding())
+        finally:
+            account.get = orig

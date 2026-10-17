@@ -499,6 +499,31 @@ def process_inbox(state, res=None):
 ADMIN = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "admin.json")
 
 
+FIAT_OU_ESTAVEL = ("USDC", "USDT", "EUR", "USD", "FDUSD", "DAI")
+
+
+def funding_alert(state, conta, now):
+    """Deposito parado na conta Funding (18/10: "o programa nao esta a assumir
+    capital novo"): a Bybit poe os depositos na Funding e o programa so ve a
+    Conta Unificada. Avisa uma vez por valor novo (e de 12 em 12 horas)."""
+    fundo = (conta or {}).get("fundo") or {}
+    est = {k: v for k, v in fundo.items() if k in FIAT_OU_ESTAVEL and v >= 1}
+    a = state.setdefault("fundo_aviso", {})
+    if not est:
+        a.clear()
+        return None
+    chave = ",".join(f"{k}:{v:.2f}" for k, v in sorted(est.items()))
+    if a.get("chave") == chave and now - (a.get("t") or 0) < 12 * 3600:
+        return None
+    a.update(chave=chave, t=int(now))
+    tot = " + ".join(f"{v:.2f} {k}" for k, v in sorted(est.items()))
+    return (f"💶 Tens {tot} parado na conta <b>Funding</b> da Bybit. O programa só opera com a "
+            "<b>Conta Unificada (Trading)</b>, por isso ainda não conta como capital.\n\n"
+            "Na app da Bybit: Ativos → Transferir → de Funding para Conta Unificada. Em 15 minutos "
+            "o programa assume o novo capital sozinho.\n\nEu não consigo transferir por ti: a chave "
+            "não tem permissão de transferências nem de levantamentos, como pediste.")
+
+
 def apply_admin(state, path=ADMIN, now=None, send=None):
     """Comandos pedidos pelo Rui numa sessao (admin.json na raiz do main),
     com o mesmo texto e efeito dos comandos do Telegram (/capital,
@@ -730,6 +755,12 @@ def main():
             alerts.send(aviso)
     except Exception as e:
         print("auto:", e)
+    try:
+        fa = funding_alert(state, res.get("conta"), res["generated_at"])
+        if fa and alerts.configured():
+            alerts.send(fa, html=True)
+    except Exception as e:
+        print("fundo:", e)
     exec_after(state, events, res["generated_at"])
     res["execucao"] = {"pronto": execucao.READY, "pedidos": len(state.get("exec_req") or [])}
     extra = reports.due(res, state, res["generated_at"]) if res["universe"] else []

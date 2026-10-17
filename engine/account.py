@@ -229,6 +229,26 @@ def executions(symbols, since):
     return out
 
 
+def funding():
+    """Saldos na conta Funding (onde caem os depositos na Bybit). O programa
+    so negoceia com a Conta Unificada; o dinheiro aqui tem de ser transferido
+    pelo Rui (a chave nao tem permissao de transferencias, de proposito).
+    Devolve {moeda: quantidade} ou None se a chave nao puder ler."""
+    try:
+        res = get("/v5/asset/transfer/query-account-coins-balance", {"accountType": "FUND"})
+    except AccountError:
+        return None
+    out = {}
+    for c in res.get("balance") or []:
+        try:
+            q = float(c.get("walletBalance") or 0)
+        except (TypeError, ValueError):
+            continue
+        if q > 0.01:
+            out[c.get("coin")] = round(q, 4)
+    return out
+
+
 def snapshot(state, now=None):
     """Le a conta e devolve o resumo minimo para publicar. Nunca levanta:
     em caso de erro devolve {'ok': False, 'error': ...}."""
@@ -255,6 +275,7 @@ def snapshot(state, now=None):
         return {"ok": True, "t": int(now), "usdc_free": usdc_free(wallet),
                 "equity": equity(wallet),
                 "expires": info.get("expiredAt"),
+                "fundo": funding(),
                 "trades": check_trades(led, held, orders, execs, now)}
     except AccountError as e:
         return {"ok": False, "error": str(e)[:120], "t": int(now)}
