@@ -756,6 +756,13 @@ def main():
     except Exception as e:
         print("auto:", e)
     try:
+        from . import risco
+        ra = risco.aviso(state.get("risco") or {})
+        if ra and alerts.configured():
+            alerts.send(ra)
+    except Exception as e:
+        print("risco:", e)
+    try:
         fa = funding_alert(state, res.get("conta"), res["generated_at"])
         if fa and alerts.configured():
             alerts.send(fa, html=True)

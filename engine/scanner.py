@@ -275,13 +275,18 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
     cfg.update(compounding(cfg, state.get("ledger", []), since))
     # decisao do Rui (2026-10-13): depois de 2 perdas seguidas nas tuas
     # operacoes, o risco por operacao passa a metade ate haver um ganho
-    if losing_streak(state.get("ledger", [])) >= 2 and cfg.get("max_risk_usdc"):
+    # decisao do Rui (2026-10-18): risco normal so depois da prova de 5
+    # operacoes dos campeoes, com travao aos -10% desde o maximo (engine/risco.py)
+    from . import risco
+    rn = risco.nivel(state, cfg.get("capital_usdc"))
+    if (losing_streak(state.get("ledger", [])) >= 2 or rn["reduzido"]) and cfg.get("max_risk_usdc"):
         cfg["max_risk_usdc"] = round(cfg["max_risk_usdc"] / 2, 2)
         cfg["risk_reduced"] = True
     status, data = collect_tickers()
     live = [s for s in sources.ALL if status[s.name]["ok"]]
     result = {"generated_at": now, "phase": 4, "sources": status,
               "config": cfg, "conta": conta, "meta_base": state.get("meta_base"),
+              "risco": {k: v for k, v in rn.items() if k != "mudou"},
               "europa": {"ok": eu is not None,
                          "t": (eu or {}).get("t"),
                          "moedas": len((eu or {}).get("moedas") or {})},
