@@ -153,7 +153,12 @@ NAMES = {"PULLBACK": "Recuo (ao vivo)", "BREAKOUT": "Quebra (ao vivo)",
          "FIBO_RECUO": "Recuo de Fibonacci (50%–61,8%) numa tendência de subida",
          "SHORT_X30": "Short: sobrecompra a virar", "SHORT_FLUXO": "Short: vendedores agressivos",
          "SHORT_TURTLE": "Short: quebra do mínimo de 20 dias", "SHORT_SQUEEZE": "Short: compradores alavancados a pagar",
-         "SHORT_ISOLADA": "Short: subida isolada com o BTC parado"}
+         "SHORT_ISOLADA": "Short: subida isolada com o BTC parado",
+         "MAIORES_RECUO": "Maiores (BTC, ETH, SOL): recuo numa tendência de subida",
+         "MAIORES_TENDENCIA": "Maiores: rompimento de 20 dias com o diário em subida",
+         "MAIORES_FUNDING": "Maiores: funding negativo com o preço a aguentar",
+         "SHORT_MAIORES_RECUO": "Maiores, short: repique numa tendência de descida",
+         "SHORT_MAIORES_TENDENCIA": "Maiores, short: quebra de 20 dias com o diário em descida"}
 # cada concorrente e um analista com nome proprio (decisao do Rui)
 PERSONA = {"BREAKOUT": "Bruno", "PULLBACK": "Rita", "LIQUIDITY_SWEEP": "Simão",
            "RANGE": "Raquel", "TREND_DAILY": "Teodoro", "BOUNCE_G0": "Gaspar",
@@ -170,7 +175,9 @@ PERSONA = {"BREAKOUT": "Bruno", "PULLBACK": "Rita", "LIQUIDITY_SWEEP": "Simão",
            "BOUNCE_X30_PAVIO": "Paulina", "BOUNCE_X30_LIQ": "Lucas",
            "REVERSAO_INTERVALO": "Inês", "VOLUME_ACUMULACAO": "Valter", "FIBO_RECUO": "Fábio",
            "SHORT_X30": "Xénia", "SHORT_FLUXO": "Filipa", "SHORT_TURTLE": "Ramiro",
-           "SHORT_SQUEEZE": "Sara", "SHORT_ISOLADA": "Irene"}
+           "SHORT_SQUEEZE": "Sara", "SHORT_ISOLADA": "Irene",
+           "MAIORES_RECUO": "Miguel", "MAIORES_TENDENCIA": "Margarida", "MAIORES_FUNDING": "Gonçalo",
+           "SHORT_MAIORES_RECUO": "Marta", "SHORT_MAIORES_TENDENCIA": "Tomás"}
 POOL = ["Leonor", "Duarte", "Matilde", "Afonso", "Carolina", "Martim", "Beatriz",
         "Lourenço", "Mariana", "Salvador", "Francisca", "Henrique", "Clara",
         "Tomás", "Joana", "Miguel", "Catarina", "Diogo", "Lara", "Gonçalo"]

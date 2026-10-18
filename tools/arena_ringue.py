@@ -886,6 +886,97 @@ def _stop_var(fn, mode):
     return f
 
 
+# ---------- equipa das maiores: BTC, ETH e SOL (decisao do Rui, 2026-10-18) ----------
+# Estrategias proprias para as tres moedas com mais liquidez e menor spread.
+# So disparam nelas. Ganham lugar como qualquer lutador: bater o acaso,
+# pelo menos 0,15R e pagar as contas.
+MAIORES = ("BTC", "ETH", "SOL")
+
+
+def _maior():
+    return CTX.get("asset") in MAIORES
+
+
+def _diario(c4):
+    """Velas diarias fechadas ate a ultima vela de 4H: as do scanner ao vivo
+    (CTX["daily"], 500 dias) ou agregadas das de 4H (ringue)."""
+    fim = c4[-1]["t"] + H4
+    d = (CTX.get("daily") or {}).get(CTX.get("asset"))
+    return [x for x in (d or B.daily(c4)) if x["t"] + DAY <= fim]
+
+
+def _tendencia_diaria(d):
+    """Fecho acima da SMA50 diaria e SMA50 acima da SMA200 (tendencia de subida)."""
+    if len(d) < 200:
+        return False
+    c = [x["c"] for x in d]
+    s50, s200 = sum(c[-50:]) / 50, sum(c[-200:]) / 200
+    return c[-1] > s50 > s200
+
+
+def sig_maiores_recuo(c4):
+    """Recuo numa tendencia de subida: RSI de 4H abaixo de 40 numa das ultimas
+    3 velas e a virar (fecho acima do maximo anterior), com o diario em subida."""
+    if not _maior() or len(c4) < 300:
+        return None
+    if not _tendencia_diaria(_diario(c4)):
+        return None
+    c, rs, at, _ = _ind(c4[-300:])
+    k = len(c) - 1
+    if rs[k - 2] is None or at[k] is None:
+        return None
+    if min(rs[k - 2:k + 1]) >= 40 or not (c[k] > c4[-2]["h"] and rs[k] > rs[k - 1]):
+        return None
+    stop = min(x["l"] for x in c4[-6:]) - 0.1 * at[k]
+    return _trend_plan(c4, stop, r_mult=(1.5, 3), hold=5 * DAY,
+                       gat=f"recuo numa tendência de subida (RSI 4H a {min(rs[k - 2:k + 1]):.0f}) a virar")
+
+
+def sig_maiores_tendencia(c4):
+    """Rompimento do maximo de 20 dias so com o diario em tendencia de subida
+    (Tartarugas filtradas, so nas maiores)."""
+    if not _maior() or len(c4) < 300:
+        return None
+    d = _diario(c4)
+    if not _tendencia_diaria(d):
+        return None
+    hi20 = max(x["h"] for x in d[-21:-1])
+    if not (c4[-1]["c"] > hi20 >= c4[-2]["c"]):
+        return None
+    tr = [max(d[k]["h"], d[k - 1]["c"]) - min(d[k]["l"], d[k - 1]["c"]) for k in range(len(d) - 20, len(d))]
+    return _trend_plan(c4, c4[-1]["c"] - 2 * sum(tr) / 20,
+                       gat=f"rompimento do máximo de 20 dias ({hi20:.6g}) com o diário em subida")
+
+
+def sig_maiores_funding(c4):
+    """Funding negativo (vendedores alavancados a pagar) com o preco a aguentar:
+    fecho acima da media de 20 velas de 4H e acima do maximo anterior."""
+    import bisect
+    if not _maior() or len(c4) < 60:
+        return None
+    fr = (CTX.get("funding") or {}).get(CTX.get("asset")) or []
+    if not fr:
+        return None
+    t = c4[-1]["t"] + H4
+    j = bisect.bisect_right([x[0] for x in fr], t) - 1
+    if j < 0 or t - fr[j][0] > DAY or fr[j][1] >= 0:
+        return None
+    c, rs, at, ma = _ind(c4[-300:])
+    k = len(c) - 1
+    if ma[k] is None or at[k] is None or not (c[k] > ma[k] and c[k] > c4[-2]["h"]):
+        return None
+    stop = min(x["l"] for x in c4[-6:]) - 0.1 * at[k]
+    return _trend_plan(c4, stop, r_mult=(1.5, 3), hold=3 * DAY,
+                       gat=f"funding negativo ({fr[j][1] * 100:.3f}%) com o preço a aguentar")
+
+
+MAIORES_SIGS = {"MAIORES_RECUO": sig_maiores_recuo, "MAIORES_TENDENCIA": sig_maiores_tendencia,
+                "MAIORES_FUNDING": sig_maiores_funding}
+SHORT_SIGS.update({
+    "SHORT_MAIORES_RECUO": _shortify(sig_maiores_recuo, lambda s: "repique numa tendência de descida a virar para baixo (maiores)"),
+    "SHORT_MAIORES_TENDENCIA": _shortify(sig_maiores_tendencia, lambda s: "quebra do mínimo de 20 dias com o diário em descida (maiores)")})
+
+
 NEW_SIGS = {"BRK_ESPACO": sig_breakout_espaco, "RETESTE": sig_reteste,
             "TURTLE": sig_turtle, "SQUEEZE_BB": sig_squeeze_bb, "MOMENTUM": sig_momentum,
             "BOUNCE_ABSORCAO": sig_absorcao, "BOUNCE_LSR": sig_lsr,
@@ -898,7 +989,8 @@ NEW_SIGS = {"BRK_ESPACO": sig_breakout_espaco, "RETESTE": sig_reteste,
             "BOUNCE_X30_LIQ": _stop_var(sig_x30, "liq"),
             "REVERSAO_INTERVALO": sig_intervalo,
             "VOLUME_ACUMULACAO": sig_volume,
-            "FIBO_RECUO": sig_fibo}
+            "FIBO_RECUO": sig_fibo,
+            **MAIORES_SIGS}
 
 
 def fetch_funding(base, now, days):

@@ -338,6 +338,7 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
     result["market_regime"] = {"btc": btc_reg}
 
     daily = {r["asset"]: r.pop("_c1", None) for r in eligible}
+    promo.DAILY = daily
     result["market_filter"], events = paper_trend.market_filter(
         daily.get("BTC"), state, now)
     market_ok = bool(result["market_filter"]

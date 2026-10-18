@@ -49,10 +49,14 @@ REAL_OK = _RealOK({"BOUNCE_G0", "BOUNCE_V2", "BOUNCE_V3", "BOUNCE_X30", "DIP_TRE
                    "BOUNCE_DESALAV", "BOUNCE_ABSORCAO", "BOUNCE_LSR", "BOUNCE_MACRO",
                    "BOUNCE_MEDO", "TURTLE", "SQUEEZE_BB", "MOMENTUM", "BRK_ESPACO", "RETESTE",
                    "BOUNCE_X30_PAVIO", "BOUNCE_X30_LIQ", "REVERSAO_INTERVALO", "VOLUME_ACUMULACAO", "FIBO_RECUO",
-                   "SHORT_X30", "SHORT_FLUXO", "SHORT_TURTLE", "SHORT_SQUEEZE", "SHORT_ISOLADA"})
+                   "SHORT_X30", "SHORT_FLUXO", "SHORT_TURTLE", "SHORT_SQUEEZE", "SHORT_ISOLADA",
+                   # equipa das maiores (BTC, ETH, SOL), Rui 2026-10-18
+                   "MAIORES_RECUO", "MAIORES_TENDENCIA", "MAIORES_FUNDING",
+                   "SHORT_MAIORES_RECUO", "SHORT_MAIORES_TENDENCIA"})
 
 
 EU = None            # dados do servidor europeu (scanner.run preenche)
+DAILY = {}           # velas diarias do scanner por moeda (scanner.run preenche)
 
 
 def set_context(rows, bars):
@@ -63,6 +67,7 @@ def set_context(rows, bars):
     except Exception:
         return
     CTX["btc"] = bars.get("BTC")
+    CTX["daily"] = {a: c for a, c in (DAILY or {}).items() if c}
     CTX["bars"] = {a: c for a, c in bars.items() if c}    # rotacao: ranking ao vivo
     CTX["rank"] = {}
     # a taxa atual conta como a ultima liquidacao (ha menos de 4 horas)
@@ -162,7 +167,7 @@ def growth(state, cfg):
 # lutadores que reagem ao mesmo fenomeno de mercado e por isso ganham e perdem
 # juntos. No maximo MAX_PER_FAMILY operacoes reais abertas da mesma familia.
 MAX_PER_FAMILY = 2
-FAMILIAS = {"sobrevenda": "Sobrevenda a virar", "tendencia": "Tendência e rompimento",
+FAMILIAS = {"maiores": "Equipa das maiores (BTC, ETH, SOL)", "sobrevenda": "Sobrevenda a virar", "tendencia": "Tendência e rompimento",
             "volatilidade": "Volatilidade", "volume": "Volume anormal (acumulação)", "capitulacao": "Capitulação", "short": "Venda a descoberto"}
 
 
@@ -180,6 +185,8 @@ def family(k):
         return "volume"
     if b in ("CAPITULACAO",):
         return "capitulacao"
+    if b.startswith("MAIORES_"):
+        return "maiores"
     return "sobrevenda"
 
 
