@@ -64,6 +64,37 @@ def simulate(sig, c4, i):
     return round(pos["r"], 2), pos.get("closed_at")
 
 
+def metricas(sinais, days, risco_pct, seed=7, caminhos=2000, n_ops=100):
+    """Carteira inteira (so os sinais que passam todos os filtros): expectativa,
+    drawdown maximo, crescimento por mes e risco de ruina por Monte Carlo
+    (perder metade do capital em n_ops operacoes, com o risco atual)."""
+    import random
+    rs = [s["r"] for s in sinais if s.get("passa") and isinstance(s["r"], (int, float))]
+    if not rs:
+        return {"n": 0}
+    cum = peak = dd = 0.0
+    for r in rs:
+        cum += r
+        peak = max(peak, cum)
+        dd = max(dd, peak - cum)
+    rng = random.Random(seed)
+    f = risco_pct / 100
+    ruina = 0
+    for _ in range(caminhos):
+        eq = 1.0
+        for _ in range(n_ops):
+            eq *= 1 + f * rng.choice(rs)
+            if eq <= 0.5:
+                ruina += 1
+                break
+    ops_mes = len(rs) * 30 / days
+    exp = sum(rs) / len(rs)
+    return {"n": len(rs), "ganhos": sum(1 for r in rs if r > 0), "expectativa_r": round(exp, 3),
+            "total_r": round(sum(rs), 2), "drawdown_max_r": round(dd, 2),
+            "ops_mes": round(ops_mes, 1), "crescimento_mes_pct": round(ops_mes * exp * risco_pct, 2),
+            "risco_pct": round(risco_pct, 2), "ruina_50pct": round(ruina / caminhos, 3)}
+
+
 def main(dest, days=14):
     now = int(time.time())
     scan = json.load(open(os.environ.get("SCAN_JSON", "/tmp/scan.json")))
@@ -165,7 +196,9 @@ def main(dest, days=14):
         if isinstance(s["r"], (int, float)):
             b["r"] = round(b["r"] + s["r"], 2)
             b["fechados"] += 1
-    out = {"gerado": now, "dias": days, "moedas": len(bars), "campeoes": champs,
+    risco = 100 * (cfg.get("max_risk_usdc") or 0) / (cfg.get("capital_usdc") or 1)
+    out = {"gerado": now, "dias": days, "carteira": metricas(sinais, days, risco),
+           "nota": "campeões de hoje aplicados ao passado: dentro da amostra, otimista", "moedas": len(bars), "campeoes": champs,
            "desligadas": sorted(disabled), "sinais": sinais, "resumo": resumo,
            "rsi_min_4d": sorted([q for q in quase if q[0] is not None])[:20],
            "falhas": falhas[:20]}
@@ -179,6 +212,7 @@ def main(dest, days=14):
         print(time.strftime("%m-%d %H:%M", time.gmtime(s["t"])), f"{s['ativo']:8s} {s['campeao']:18s}",
               "PASSA" if s.get("passa") else s["filtro"], "R=", s["r"])
     print("RSI 4H mais baixo (4 dias):", out["rsi_min_4d"][:12])
+    print("carteira:", out["carteira"])
 
 
 if __name__ == "__main__":

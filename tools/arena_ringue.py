@@ -1077,6 +1077,40 @@ def judge(trs, bars, rng, bars1h=None):
             "veredicto": arena.verdict(len(rs), mean, med, p95, has_ctrl)}
 
 
+# ---------- validacao (Semana 1, decisao do Rui 2026-10-18) ----------
+# So mede: nao muda quem se qualifica. "fora" = ultimos FORA_DIAS dias, que a
+# escolha dos campeoes ainda nao "viu" separadamente; "liquido" = R medio
+# depois do spread real da Bybit UE acima do deslize ja simulado.
+FORA_DIAS = 30
+SLIP_SIM = 2 * 0.1          # deslize simulado ida e volta (%), PB.SLIP_PCT dos dois lados
+
+
+def custo_extra_r(t, spread):
+    """R a descontar a uma operacao pelo spread real da moeda."""
+    sp = spread.get(t["asset"])
+    stop = abs(((t.get("geo") or {}).get("stop")) or 0)
+    if sp is None or not stop:
+        return 0.0
+    return max(0.0, sp - SLIP_SIM) / 100 / stop
+
+
+def validacao(trs, now, spread=None):
+    spread = spread or {}
+    corte = now - FORA_DIAS * DAY
+    def res(xs):
+        if not xs:
+            return {"n": 0, "avg_r": None, "avg_r_liq": None}
+        rs = [t["r"] for t in xs]
+        liq = [t["r"] - custo_extra_r(t, spread) for t in xs]
+        return {"n": len(xs), "avg_r": round(sum(rs) / len(rs), 3),
+                "avg_r_liq": round(sum(liq) / len(liq), 3)}
+    dentro, fora = res([t for t in trs if t["t"] < corte]), res([t for t in trs if t["t"] >= corte])
+    tudo = res(trs)
+    ok = bool(dentro["n"] and dentro["avg_r_liq"] > 0 and fora["n"] >= 5 and fora["avg_r_liq"] > 0)
+    return {"dentro": dentro, "fora": fora, "avg_r_liq": tudo["avg_r_liq"],
+            "fora_dias": FORA_DIAS, "passa": ok}
+
+
 def regime_by_day(btc4):
     """{dia: 'subida'|'queda'|'lateral'} com o regime do BTC no fecho de cada dia
     (mesmas regras de engine/arena.market_regime, so com dias passados)."""
@@ -1144,6 +1178,8 @@ def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None, funding=None, oi=None,
         out[k] = judge(trs, jb, rng, bars1h) if trs else {
             "n": 0, "wins": 0, "avg_r": None, "total_r": 0, "ultimas": [],
             "acaso_mediana": None, "acaso_p95": None, "veredicto": "A COMPETIR"}
+        if trs:
+            out[k]["validacao"] = validacao(trs, now, CTX.get("spread"))
         if regimes and trs:                    # ringue longo: resultado por altura do mercado
             rmap = CTX.get("regmap") or {}
             out[k]["por_regime"] = {}
@@ -1180,7 +1216,9 @@ def main(dest, days=DAYS, state_path=None, longo=False):
     # auditoria): metade dos sinais do combate caia em moedas sem liquidez
     # (volume, spread, preco parado), que o sistema ao vivo nunca executa, e
     # isso inflava a frequencia e o crescimento estimado dos lutadores
-    listed, sem_liq = liquid(venue.fetch("USDC"), cfg)
+    ven = venue.fetch("USDC")
+    listed, sem_liq = liquid(ven, cfg)
+    CTX["spread"] = {b: v.get("spread_pct") for b, v in ven.items() if v.get("spread_pct") is not None}
     for base in listed:
         try:
             c = fetch(base, now, need)

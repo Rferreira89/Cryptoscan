@@ -341,3 +341,28 @@ class AuditoriaOutubro(unittest.TestCase):
                               "S": v(9e4, 0.05, True)}, cfg)
         self.assertEqual(ok, ["BTC", "ETH"])
         self.assertEqual(fora, ["FIL", "S", "WIF"])
+
+
+class Semana1Validacao(unittest.TestCase):
+    def test_fora_da_amostra_e_custo_real(self):
+        from tools import arena_ringue as AR
+        now = 100 * 86400
+        g = {"stop": -0.04}
+        trs = [{"asset": "A", "t": now - 60 * 86400, "r": 0.5, "geo": g} for _ in range(10)] + \
+              [{"asset": "A", "t": now - 5 * 86400, "r": -0.2, "geo": g} for _ in range(6)]
+        v = AR.validacao(trs, now, {"A": 0.6})
+        self.assertEqual(v["dentro"]["n"], 10)
+        self.assertEqual(v["fora"]["n"], 6)
+        self.assertAlmostEqual(v["dentro"]["avg_r_liq"], 0.5 - 0.004 / 0.04, places=3)
+        self.assertFalse(v["passa"])                      # fora da amostra perde
+        trs[-6:] = [dict(t, r=0.4) for t in trs[-6:]]
+        self.assertTrue(AR.validacao(trs, now, {"A": 0.2})["passa"])
+
+    def test_metricas_da_carteira(self):
+        from tools import auditoria_sinais as A
+        sig = [{"passa": True, "r": r} for r in (1.0, -1.0, -1.0, 2.0)] + [{"filtro": "x", "r": 5}]
+        m = A.metricas(sig, 30, 1.5)
+        self.assertEqual((m["n"], m["total_r"], m["drawdown_max_r"]), (4, 1.0, 2.0))
+        self.assertEqual(m["ops_mes"], 4.0)
+        self.assertLess(m["ruina_50pct"], 0.05)
+        self.assertEqual(A.metricas([], 30, 1.5), {"n": 0})
