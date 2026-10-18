@@ -347,9 +347,14 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
     for r in rows:
         a, c4 = r.get("asset"), bars.get(r.get("asset"))
         d0 = r.get("decision") or {}
-        if not c4 or not d0.get("venue") or d0.get("decision") in ("LONG", "SHORT"):
+        if not c4 or d0.get("decision") in ("LONG", "SHORT"):
             continue
+        # auditoria 18/10: os sinais em moedas sem liquidez na Bybit UE e os
+        # que nao dao plano eram descartados em silencio; agora ficam
+        # registados em promo_lost (continuam a nao ser executados)
+        illiquid = not d0.get("venue")
         CTX["asset"] = a
+        falhou = None                          # (campeao, t_sig, motivo) do 1.o plano recusado
         for rank, champ in enumerate(champs):
             try:
                 sig = registry()[champ](c4, r["price"], cfg)
@@ -357,6 +362,10 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
                 continue
             if not sig or now - sig["t_sig"] > TF or seen.get(a) == sig["t_sig"]:
                 continue
+            if illiquid:
+                seen[a] = sig["t_sig"]
+                lost(state, now, a, champ, "liquidez: " + (d0.get("reason") or "sem par negociável na Bybit UE"))
+                break
             why = block_for(a)
             if why:
                 seen[a] = sig["t_sig"]
@@ -369,9 +378,14 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
             else:
                 p, why = plan_for(sig, r["price"], cfg)
             if not p:
+                falhou = falhou or (champ, sig["t_sig"], why)
                 continue
             cands.append((rank, a, champ, sig, p, d0))
             break
+        else:
+            if falhou:                         # nenhum campeao conseguiu plano nesta moeda
+                seen[a] = falhou[1]
+                lost(state, now, a, falhou[0], f"plano: {falhou[2]}")
     out, ok = {}, []
     fam = family_open(state)
     for rank, a, champ, sig, p, d0 in sorted(cands, key=lambda x: x[0]):

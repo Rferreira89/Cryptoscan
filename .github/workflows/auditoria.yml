@@ -3,6 +3,8 @@ name: Auditoria de sinais (so leitura)
 # pelos filtros do sistema ao vivo (tools/auditoria_sinais.py). So le dados:
 # nao envia ordens nem mexe no estado. Resultado no ramo `auditoria`.
 on:
+  schedule:
+    - cron: "17 6 * * *"      # todos os dias: o que os campeoes viram e porque nao entrou
   workflow_dispatch:
     inputs:
       dias:

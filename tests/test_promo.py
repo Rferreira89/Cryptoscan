@@ -93,6 +93,34 @@ class Decisoes(unittest.TestCase):
             self.assertEqual(promo.decisions(st2, [row], {"AAA": c4}, CFG, now, "BOUNCE_G0",
                                              False, lambda a: None), {})
 
+    def test_sinal_sem_liquidez_ou_sem_plano_fica_registado(self):
+        c4 = bars()
+        now = c4[-1]["t"] + TF + 60
+        sig = {"stop": 80.0, "tp": [90.0, 95.0], "partials": [50, 50], "breakeven": True,
+               "hold_s": 3 * 86400, "t_sig": c4[-1]["t"] + TF, "atr": 1.5}
+        mau = dict(sig, stop=85.0)                       # stop acima do preco: sem plano
+        illiq = {"asset": "AAA", "price": 84.1,
+                 "decision": {"decision": "NO TRADE", "reason": "volume baixo na Bybit UE"}}
+        row = {"asset": "BBB", "price": 84.1,
+               "decision": {"decision": "NO TRADE", "venue": {"pair": "BBB/USDC"}}}
+        st = state_with({"BOUNCE_G0": f(26, 0.8, -0.2), "BOUNCE_V2": f(26, 0.7, -0.2)})
+        reg = {"BOUNCE_G0": lambda c, px, cfg: mau, "BOUNCE_V2": lambda c, px, cfg: mau}
+        with mock.patch.object(promo, "registry", return_value=reg):
+            d = promo.decisions(st, [illiq, row], {"AAA": c4, "BBB": c4}, CFG, now,
+                                ["BOUNCE_G0", "BOUNCE_V2"], True, lambda a: None)
+        self.assertEqual(d, {})
+        why = {x["asset"]: x["reason"] for x in st["promo_lost"]}
+        self.assertIn("liquidez: volume baixo", why["AAA"])
+        self.assertTrue(why["BBB"].startswith("plano:"))
+        self.assertEqual(len(st["promo_lost"]), 2)       # uma vez por moeda, nao por campeao
+        # se o 2.o campeao tiver plano, o sinal passa (o 1.o recusado nao bloqueia)
+        st = state_with({"BOUNCE_G0": f(26, 0.8, -0.2), "BOUNCE_V2": f(26, 0.7, -0.2)})
+        reg["BOUNCE_V2"] = lambda c, px, cfg: sig
+        with mock.patch.object(promo, "registry", return_value=reg):
+            d = promo.decisions(st, [row], {"BBB": c4}, CFG, now, ["BOUNCE_G0", "BOUNCE_V2"],
+                                True, lambda a: None)
+        self.assertEqual(d["BBB"]["strategy"], "BOUNCE_V2")
+
     def test_texto_do_alerta(self):
         p, _ = promo.plan_for({"stop": 95.0, "tp": [103.0, 108.0], "breakeven": True,
                                "hold_s": 3 * 86400, "atr": 2.0}, 100.0, CFG)
