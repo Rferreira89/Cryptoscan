@@ -970,6 +970,42 @@ def sig_maiores_funding(c4):
                        gat=f"funding negativo ({fr[j][1] * 100:.3f}%) com o preço a aguentar")
 
 
+# ---------- amplitude do mercado (Rui, 2026-10-18) ----------
+AMP_MIN = 0.25           # pelo menos 25% das moedas com RSI 4H abaixo de 30
+
+
+def amplitude_em(t):
+    """Fracao das moedas (CTX["bars"]) com RSI 4H abaixo de 30 na vela que
+    fecha em t. Calculada uma vez por conjunto de velas (so passado)."""
+    bars = CTX.get("bars") or {}
+    cache = CTX.get("_amp")
+    if not cache or cache[0] != id(bars):
+        cont = {}
+        for a, c4 in bars.items():
+            if not c4:
+                continue
+            rs = PB.rsi([x["c"] for x in c4])
+            for x, r in zip(c4, rs):
+                if r is not None:
+                    k = x["t"] + H4
+                    n, o = cont.get(k, (0, 0))
+                    cont[k] = (n + 1, o + (r < 30))
+        cache = (id(bars), {k: o / n for k, (n, o) in cont.items() if n >= 10})
+        CTX["_amp"] = cache
+    return cache[1].get(t)
+
+
+def sig_amplitude(c4):
+    """Sobrevenda a virar (Xavier) so numa capitulacao geral do mercado."""
+    s0 = sig_x30(c4)
+    if not s0:
+        return None
+    f = amplitude_em(c4[-1]["t"] + H4)
+    if f is None or f < AMP_MIN:
+        return None
+    return dict(s0, gatilho=f"sobrevenda a virar numa capitulação geral ({f:.0%} das moedas em sobrevenda)")
+
+
 MAIORES_SIGS = {"MAIORES_RECUO": sig_maiores_recuo, "MAIORES_TENDENCIA": sig_maiores_tendencia,
                 "MAIORES_FUNDING": sig_maiores_funding}
 SHORT_SIGS.update({
@@ -990,7 +1026,8 @@ NEW_SIGS = {"BRK_ESPACO": sig_breakout_espaco, "RETESTE": sig_reteste,
             "REVERSAO_INTERVALO": sig_intervalo,
             "VOLUME_ACUMULACAO": sig_volume,
             "FIBO_RECUO": sig_fibo,
-            **MAIORES_SIGS}
+            **MAIORES_SIGS,
+            "BOUNCE_AMPLITUDE": sig_amplitude}
 
 
 def fetch_funding(base, now, days):

@@ -158,7 +158,8 @@ NAMES = {"PULLBACK": "Recuo (ao vivo)", "BREAKOUT": "Quebra (ao vivo)",
          "MAIORES_TENDENCIA": "Maiores: rompimento de 20 dias com o diário em subida",
          "MAIORES_FUNDING": "Maiores: funding negativo com o preço a aguentar",
          "SHORT_MAIORES_RECUO": "Maiores, short: repique numa tendência de descida",
-         "SHORT_MAIORES_TENDENCIA": "Maiores, short: quebra de 20 dias com o diário em descida"}
+         "SHORT_MAIORES_TENDENCIA": "Maiores, short: quebra de 20 dias com o diário em descida",
+         "BOUNCE_AMPLITUDE": "Sobrevenda a virar numa capitulação geral do mercado"}
 # cada concorrente e um analista com nome proprio (decisao do Rui)
 PERSONA = {"BREAKOUT": "Bruno", "PULLBACK": "Rita", "LIQUIDITY_SWEEP": "Simão",
            "RANGE": "Raquel", "TREND_DAILY": "Teodoro", "BOUNCE_G0": "Gaspar",
@@ -177,7 +178,8 @@ PERSONA = {"BREAKOUT": "Bruno", "PULLBACK": "Rita", "LIQUIDITY_SWEEP": "Simão",
            "SHORT_X30": "Xénia", "SHORT_FLUXO": "Filipa", "SHORT_TURTLE": "Ramiro",
            "SHORT_SQUEEZE": "Sara", "SHORT_ISOLADA": "Irene",
            "MAIORES_RECUO": "Miguel", "MAIORES_TENDENCIA": "Margarida", "MAIORES_FUNDING": "Gonçalo",
-           "SHORT_MAIORES_RECUO": "Marta", "SHORT_MAIORES_TENDENCIA": "Tomás"}
+           "SHORT_MAIORES_RECUO": "Marta", "SHORT_MAIORES_TENDENCIA": "Tomás",
+           "BOUNCE_AMPLITUDE": "Amélia"}
 POOL = ["Leonor", "Duarte", "Matilde", "Afonso", "Carolina", "Martim", "Beatriz",
         "Lourenço", "Mariana", "Salvador", "Francisca", "Henrique", "Clara",
         "Tomás", "Joana", "Miguel", "Catarina", "Diogo", "Lara", "Gonçalo"]

@@ -756,6 +756,13 @@ def main():
     except Exception as e:
         print("auto:", e)
     try:
+        from . import amplitude
+        am = amplitude.aviso(res.get("amplitude"))
+        if am and alerts.configured():
+            alerts.send(am, html=True)
+    except Exception as e:
+        print("amplitude:", e)
+    try:
         from . import risco
         ra = risco.aviso(state.get("risco") or {})
         if ra and alerts.configured():

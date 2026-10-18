@@ -172,6 +172,9 @@ def principle(motivos):
     return None
 
 
+AMPLITUDE = None          # amplitude do mercado deste scan (engine/amplitude.py), so informa
+
+
 def conversation(asset, dec, reps, hist, motivos):
     """A reuniao do diretor com os agentes, em falas curtas, tirada so dos
     relatorios estruturados (nada inventado). [{de, texto, tom}]."""
@@ -193,6 +196,12 @@ def conversation(asset, dec, reps, hist, motivos):
             L.append({"de": r["agente"], "tom": "contra", "texto": f"Contra: {txt}"})
         elif r["a_favor"]:
             L.append({"de": r["agente"], "tom": "favor", "texto": f"A favor: {txt}"})
+    am = AMPLITUDE or {}
+    if am.get("estado") and am["estado"] != "normal":           # so informa, nao decide
+        bom = (side != "SHORT" and am["estado"] != "euforia") or (side == "SHORT" and am["estado"] == "euforia")
+        L.append({"de": "Amplitude", "tom": "favor" if bom else "contra",
+                  "texto": f"Mercado em {am['estado']}: {am['queda_forte_pct']:.0f}% das moedas a cair 5% ou mais, "
+                           f"RSI 4H mediano {am['rsi_mediano']:.0f}, {am['sobrevenda_pct']:.0f}% em sobrevenda."})
     if hist:
         L.append({"de": "Diretor", "tom": "pergunta", "texto": f"E o histórico? {hist[2][0].upper() + hist[2][1:]}."})
     if motivos:

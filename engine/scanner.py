@@ -419,6 +419,11 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
             promo_rows[a] = row
     except Exception as e:  # a promocao nunca pode parar o scan
         result["promo_erro"] = str(e)[:120]
+    try:                                      # amplitude do mercado (so informa)
+        from . import amplitude
+        result["amplitude"] = amplitude.atualizar(state, eligible, now)
+    except Exception as e:
+        result["amplitude_erro"] = str(e)[:120]
     try:                                      # mesa redonda (so mostra)
         result["mesa"] = debate.table(eligible, c4s, state)
     except Exception as e:
@@ -471,6 +476,7 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
         result["promo"]["prova_erro"] = str(e)[:120]
     # Diretor de Trading: nenhuma entrada real passa sem a sua autorizacao
     try:
+        diretor.AMPLITUDE = result.get("amplitude")
         diretor.gate(state, eligible, c4s, result["macro"], now)
         result["diretor"] = dict(diretor.summary(state, now), avaliacao=diretor.follow(state, c4s, now))
     except Exception as e:                  # falha fechada: sem diretor nao ha entradas
