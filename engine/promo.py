@@ -221,7 +221,30 @@ def suspended(state):
         # resultado medio negativo, perde o lugar ate provar de novo.
         elif n >= LUCRO_MIN_N and r is not None and r < 0:
             out[k] = f"não é lucrativo no dinheiro real: {r:+.2f}R em {n} operações (diretriz do objetivo)"
+        else:
+            conta = contas(f)
+            if conta:
+                out[k] = conta
     return out
+
+
+# Contas do mes (Rui, 2026-10-18: "tem que ganhar dinheiro para poder pagar as
+# contas; se nao conseguirem pagar as contas morrem"). As contas sao os custos
+# reais de operar: comissoes, deslize e o spread real da Bybit UE. Um lutador
+# que nos ultimos 30 dias do combate, depois de pagar tudo, fica no negativo
+# perde o lugar no dinheiro real ate voltar a pagar as contas. Se continuar
+# sem pagar, a arena acaba por mata-lo (veredicto MORTA).
+CONTAS_MIN_N = 5
+
+
+def contas(f):
+    """Motivo se o lutador nao pagou as contas do mes, senao None."""
+    fora = ((f or {}).get("validacao") or {}).get("fora") or {}
+    n, liq = fora.get("n") or 0, fora.get("avg_r_liq")
+    if n >= CONTAS_MIN_N and liq is not None and liq <= 0:
+        return (f"não pagou as contas do mês: {n} operações nos últimos 30 dias, "
+                f"{liq * n:+.2f}R depois de comissões e spread real")
+    return None
 
 
 LUCRO_MIN_N = 10

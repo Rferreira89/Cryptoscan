@@ -411,3 +411,18 @@ class CampeoesPorFase(unittest.TestCase):
         with mock.patch.object(promo, "registry", return_value={"BOUNCE_G0": lambda c, px, cfg: longo}):
             self.assertEqual(promo.decisions(st, [row], {"AAA": c4}, CFG, now, ["BOUNCE_G0"], False,
                                              lambda a: None), {})
+
+
+class ContasDoMes(unittest.TestCase):
+    def test_quem_nao_paga_as_contas_perde_o_lugar(self):
+        st = state_with({"BOUNCE_HORAS": f(44, 0.37, -0.0), "BOUNCE_X30": f(59, 0.42, -0.03)})
+        lut = st["arena"]["forma"]["lutadores"]
+        lut["BOUNCE_HORAS"]["validacao"] = {"fora": {"n": 20, "avg_r_liq": -0.171}}
+        lut["BOUNCE_X30"]["validacao"] = {"fora": {"n": 27, "avg_r_liq": 0.147}}
+        sus = promo.suspended(st)
+        self.assertIn("contas do mês", sus["BOUNCE_HORAS"])
+        self.assertNotIn("BOUNCE_X30", sus)
+        with mock.patch.object(promo, "registry", return_value={"BOUNCE_HORAS": 1, "BOUNCE_X30": 1}):
+            self.assertEqual(promo.champions(st), ["BOUNCE_X30"])
+        lut["BOUNCE_HORAS"]["validacao"] = {"fora": {"n": 3, "avg_r_liq": -1.0}}   # poucas: ainda nao se cobra
+        self.assertNotIn("BOUNCE_HORAS", promo.suspended(st))

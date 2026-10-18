@@ -40,6 +40,7 @@ def diretrizes(m):
         "Só tem lugar no escritório quem é lucrativo: para entrar, bater o acaso no ringue (20 ou mais operações, resultado positivo).",
         "No dinheiro real tem de continuar lucrativo: com 10 operações reais e resultado médio negativo, perde o lugar até provar de novo.",
         "Sem atalhos: nunca mais risco para chegar mais depressa. Uma perda grande atrasa o objetivo mais do que qualquer ganho o adianta.",
+        "Cada um paga as suas contas: comissões, deslize e spread real. Quem nos últimos 30 dias não as paga com o que ganha perde o lugar no dinheiro real; quem continua sem pagar morre na arena.",
         "Cada entrada passa pelo Diretor de Trading, com evidência verificável.",
         "Máximo empenho em cada operação: proteger o lucro logo que aparece (TP1) e nunca deixar um ganho virar perda.",
         "Trabalhar como se a vida dependesse disso: rigor total em cada entrada, cada stop e cada saída — e, por isso mesmo, nunca uma aposta maior. Sobrevive quem não perde o capital.",
