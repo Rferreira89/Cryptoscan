@@ -23,7 +23,8 @@ def prova(led):
     for r in led or []:
         quando = r.get("user_closed_at") or r.get("closed_at") or 0
         fechou = r.get("status") == "CLOSED" or ledger.user_closed(r)
-        if r.get("executed") is True and fechou and quando >= DESDE \
+        # so operacoes abertas depois da decisao (Rui, 18/10: "a da PUMP ja nao devia contar")
+        if r.get("executed") is True and fechou and (r.get("issued_at") or 0) >= DESDE \
                 and r.get("kind") == "4H" and r.get("strategy") not in CLASSICAS:
             R = ledger.user_r(r)
             if R is not None:

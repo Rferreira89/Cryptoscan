@@ -7,7 +7,7 @@ T = risco.DESDE + 100
 
 def op(i, r, strat="BOUNCE_X30", t=None):
     return {"id": f"o{i}", "kind": "4H", "strategy": strat, "executed": True, "status": "CLOSED",
-            "closed_at": (t or T) + i, "result_r": r, "stop": 1, "entry": 2}
+            "issued_at": (t or T) + i, "closed_at": (t or T) + i, "result_r": r, "stop": 1, "entry": 2}
 
 
 class NivelDeRisco(unittest.TestCase):
@@ -47,3 +47,18 @@ class NivelDeRisco(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Pedidos18Outubro(unittest.TestCase):
+    def test_operacao_aberta_antes_da_decisao_nao_conta(self):
+        pump = dict(op(1, -1.0), issued_at=risco.DESDE - 3 * 86400)   # aberta a 15/10, fechada depois
+        self.assertEqual(risco.prova([pump]), (0, 0))
+
+    def test_pausa_por_perdas_seguidas_desligada(self):
+        from engine import signals
+        mk = lambda i: {"id": f"s{i}", "status": "CLOSED", "mode": "REAL", "closed_at": 10**6 + i, "result_r": -1.0}
+        sigs = {f"s{i}": mk(i) for i in range(3)}
+        cfg = {"max_daily_loss_r": 9, "max_weekly_loss_r": 99, "cooldown_after_losses": 0}
+        self.assertIsNone(signals.trading_halt(sigs, cfg, 10**6 + 100))
+        self.assertIn("perdas seguidas", signals.trading_halt(sigs, dict(cfg, cooldown_after_losses=3), 10**6 + 100))
+        self.assertIn("diária", signals.trading_halt(sigs, dict(cfg, max_daily_loss_r=3), 10**6 + 100))

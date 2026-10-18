@@ -302,7 +302,9 @@ def trading_halt(sigs, cfg, now, led=None):
         return f"perda diária de {day:.1f}R atingiu o limite"
     if week <= -cfg["max_weekly_loss_r"]:
         return f"perda semanal de {week:.1f}R atingiu o limite"
-    n = cfg["cooldown_after_losses"]
+    n = cfg.get("cooldown_after_losses") or 0   # 0 = desligado (Rui, 2026-10-18)
+    if not n:
+        return None
     # saidas na entrada (stop no breakeven, -0.1R a 0R) protegem o capital:
     # nao sao perdas nem ganhos e nao contam para a sequencia (Rui, 2026-10-16)
     real = [s for s in closed if not -SCRATCH_R <= s["result_r"] <= 0]
