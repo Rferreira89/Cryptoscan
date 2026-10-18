@@ -1,7 +1,7 @@
 name: Auditoria de sinais (so leitura)
 # Repete os campeoes nos ultimos dias com dados reais e passa cada sinal
 # pelos filtros do sistema ao vivo (tools/auditoria_sinais.py). So le dados:
-# nao envia ordens nem mexe no estado. Resultado no log e como artefacto.
+# nao envia ordens nem mexe no estado. Resultado no ramo `auditoria`.
 on:
   workflow_dispatch:
     inputs:
@@ -9,7 +9,7 @@ on:
         description: "dias a repetir"
         default: "14"
 permissions:
-  contents: read
+  contents: write
 jobs:
   auditoria:
     runs-on: ubuntu-latest
@@ -23,7 +23,7 @@ jobs:
         run: |
           git fetch -q origin data && git show FETCH_HEAD:state.json > /tmp/state.json && git show FETCH_HEAD:scan.json > /tmp/scan.json
           python -m tools.auditoria_sinais out/auditoria.json "${{ github.event.inputs.dias || '14' }}"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: auditoria
-          path: out/auditoria.json
+          cd out && git init -q -b auditoria && git config user.name cryptoscan-bot \
+            && git config user.email bot@users.noreply.github.com \
+            && git add auditoria.json && git commit -q -m "auditoria $(date -u +%FT%TZ)" \
+            && git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" auditoria:auditoria
