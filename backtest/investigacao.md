@@ -4,8 +4,8 @@
 quedas, compressão, oversold bounce 4H, day trade 1H, bounce com outras
 saídas, sweep a mercado, funding negativo, quebra com compradores,
 capitulação do mercado, atraso face ao BTC, resiliente; mais 5 no diário
-de afinação, H1 a H5). Atualizado em 2026-10-17 (nenhuma hipótese nova
-nesta corrida: só autópsias). Quanto maior este número,
+de afinação, H1 a H5). Atualizado em 2026-10-18 (nenhuma hipótese nova
+em 2026-10-17 nem em 2026-10-18). Quanto maior este número,
 maior a probabilidade de uma hipótese passar por sorte: com 16 testes, a
 probabilidade de pelo menos um falso positivo a 5% já ronda os 56% (e as
 várias configurações de cada grelha aumentam-na ainda mais).
@@ -1019,3 +1019,28 @@ já rejeitada. O contador fica em 16.
 - Proposta para a próxima corrida: o histórico de 4H terá 7 ou mais dias
   de atraso: correr primeiro o workflow "Historico para backtest". Sem
   mortos novos e sem hipótese séria, a corrida pode limitar-se a isso.
+
+## 2026-10-18 — Sem hipótese nova hoje (histórico atualizado; sem mortos novos)
+
+**Veredicto da corrida: nenhuma hipótese testada.** O contador fica em 16.
+
+- **Histórico**: tinha 7 dias de atraso (última vela 2026-10-11 08:00
+  UTC); corri o workflow "Historico para backtest" (execução 39121039567,
+  sucesso). Última vela de 4H agora: 2026-10-18 08:00 UTC, 74 moedas.
+- **Arena** (scan.json do ramo `data`, 2026-10-18): 21 lutadores vivos,
+  `recrutar` falso. Nenhum morto novo desde FIBO_RECUO (2026-10-17): todos
+  os 18 mortos já têm linha na tabela dos sucessores. Fila do Rui vazia.
+- **Sem hipótese nova hoje**: mantém-se a leitura de 2026-10-17. As
+  entradas que restam com os dados disponíveis (velas, fluxo comprador,
+  funding) são variantes de famílias já rejeitadas (quebras, recuos,
+  reação ao BTC, funding negativo) ou já estão no ringue (absorção,
+  desalavancagem, fluxo, macro). Com 16 hipóteses contra a mesma reserva,
+  uma hipótese fraca só aumenta o risco de um falso positivo.
+- **Nota sobre a janela**: com o histórico atualizado, a janela de 24
+  meses avança uma semana; a reserva passa a incluir 7 dias que nenhum
+  teste viu. Isso não a "limpa": continua a ser quase toda a mesma reserva
+  já usada 16 vezes. A prova continua a ser o papel ao vivo e o combate de
+  hora a hora.
+- Proposta para a próxima corrida: só autópsia se morrer alguém; uma
+  hipótese nova só se trouxer uma fonte de informação ainda não usada (por
+  exemplo, se o histórico passar a ter interesse em aberto dos perpétuos).
