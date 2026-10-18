@@ -324,3 +324,20 @@ class ReduzirPerdas(unittest.TestCase):
         for k in ("BOUNCE_NOREACT", "BOUNCE_TRAIL", "BOUNCE_HORAS"):
             self.assertIn(k, AR.SINAIS)
             self.assertIn(k, promo.REAL_OK)
+
+
+class AuditoriaOutubro(unittest.TestCase):
+    def test_dinheiro_real_so_com_ganho_minimo(self):
+        st = state_with({"BOUNCE_G0": f(30, 0.40, -0.2), "DIP_TREND": f(80, 0.08, -0.1)})
+        with mock.patch.object(promo, "registry", return_value={"BOUNCE_G0": 1, "DIP_TREND": 1}):
+            self.assertEqual(promo.champions(st), ["BOUNCE_G0"])
+            self.assertIn("DIP_TREND", [k for k, _ in promo.qualified(st)])   # continua qualificado
+
+    def test_arena_so_em_moedas_negociaveis(self):
+        from tools import arena_ringue as AR
+        cfg = {"max_venue_spread_pct": 0.30, "min_venue_volume_usd": 5000}
+        v = lambda vol, sp, stale=False: {"last": 1.0, "volume_usd": vol, "spread_pct": sp, "stale": stale}
+        ok, fora = AR.liquid({"ETH": v(1e6, 0.02), "FIL": v(3000, 0.02), "WIF": v(9e4, 0.4),
+                              "S": v(9e4, 0.05, True)}, cfg)
+        self.assertEqual(ok, ["BTC", "ETH"])
+        self.assertEqual(fora, ["FIL", "S", "WIF"])

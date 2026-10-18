@@ -244,14 +244,20 @@ def contribution(state):
     return out
 
 
+# Ganho minimo no combate para operar com dinheiro real (decisao do Rui,
+# 2026-10-18, auditoria): abaixo disto o spread e o deslize reais da Bybit UE
+# comem a vantagem (DIP_TREND +0,08R deu -2,65R em 10 sinais repetidos).
+REAL_MIN_R = 0.15
+
+
 def champions(state, disabled=()):
     """Lutadores que dao sinais reais agora, melhor primeiro (decisao do
     Rui, 2026-10-13: "nao quero perder oportunidades"): TODOS os
-    qualificados com codigo revisto, nao so o primeiro."""
+    qualificados com codigo revisto e ganho medio de pelo menos REAL_MIN_R."""
     reg = registry()
     sus = suspended(state)
-    return [k for k, _ in qualified(state)
-            if k in reg and k in REAL_OK and k not in disabled and k not in sus]
+    return [k for k, r in qualified(state)
+            if r >= REAL_MIN_R and k in reg and k in REAL_OK and k not in disabled and k not in sus]
 
 
 def champion(state, disabled=()):

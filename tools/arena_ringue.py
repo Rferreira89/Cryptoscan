@@ -1158,13 +1158,29 @@ def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None, funding=None, oi=None,
 LONGO_1H_MAX = 40
 
 
+def liquid(ven, cfg):
+    """(moedas com par negociavel na Bybit UE + BTC, excluidas por liquidez)."""
+    from engine import venue
+    ok, fora = {"BTC"}, []
+    for base, v in ven.items():
+        if venue.check(v, None, cfg)[0]:
+            ok.add(base)
+        else:
+            fora.append(base)
+    return sorted(ok), sorted(fora)
+
+
 def main(dest, days=DAYS, state_path=None, longo=False):
     from engine import venue
     now = int(time.time())
     cfg = config.load()
     bars, bars1h, falhas = {}, {}, []
     need = 6 * (B.analysis.MIN_BARS + 15) + 6 * days
-    listed = sorted(set(venue.fetch("USDC")) | {"BTC"})
+    # so as moedas negociaveis na Bybit UE (decisao do Rui, 2026-10-18,
+    # auditoria): metade dos sinais do combate caia em moedas sem liquidez
+    # (volume, spread, preco parado), que o sistema ao vivo nunca executa, e
+    # isso inflava a frequencia e o crescimento estimado dos lutadores
+    listed, sem_liq = liquid(venue.fetch("USDC"), cfg)
     for base in listed:
         try:
             c = fetch(base, now, need)
@@ -1233,6 +1249,7 @@ def main(dest, days=DAYS, state_path=None, longo=False):
     res["oi_moedas"] = len(oi)
     res["segundos"] = round(time.time() - t)
     res["falhas"] = falhas[:20]
+    res["sem_liquidez"] = sem_liq
     os.makedirs(dest, exist_ok=True)
     with open(os.path.join(dest, "longo.json" if longo else "forma.json"), "w") as f:
         json.dump(res, f, ensure_ascii=False, indent=1)
