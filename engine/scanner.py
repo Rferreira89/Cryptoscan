@@ -396,7 +396,10 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
                     set(disabled))
     # campeao da arena: o lutador qualificado no combate com melhor R medio
     # da sinais reais pelo circuito normal (engine/promo.py)
-    champs = promo.champions(state, set(disabled))
+    # campeoes por fase do mercado (engine/promo.regime_qualified): so com o OK
+    # do Rui (config "campeoes_por_fase")
+    champs = promo.champions(state, set(disabled), (state.get("mercado") or {}).get("regime"),
+                             bool(cfg.get("campeoes_por_fase")))
     champ = champs[0] if champs else None
     promo_rows = {}
     try:

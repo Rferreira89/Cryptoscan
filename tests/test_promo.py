@@ -378,3 +378,36 @@ class Semana1Carteira(unittest.TestCase):
         self.assertEqual(len(A.carteira_com(cands, 1, 4, 4)), 2)
         v = A.comparar([dict(c, t=c["t"] + 10**6) for c in cands], 365, 1.5, 0)
         self.assertEqual(v["ultimos_90d"]["4/4/2"]["n"], 3)
+
+
+class CampeoesPorFase(unittest.TestCase):
+    def st(self):
+        lr = lambda n, r, p95, met: {"por_regime": {"queda": {"n": n, "avg_r": r, "acaso_p95": p95, "metades": met}}}
+        return {"arena": {"forma": {"lutadores": {}}, "longo": {"lutadores": {
+            "SHORT_X30": lr(113, 0.35, 0.10, [0.3, 0.4]),
+            "SHORT_ISOLADA": lr(96, 0.29, 0.12, [0.5, -0.1]),     # uma metade a perder
+            "SHORT_FLUXO": lr(42, 0.18, 0.24, [0.2, 0.2]),        # nao bate o acaso
+            "SHORT_TURTLE": lr(229, 0.10, 0.05, [0.1, 0.1])}}}}   # abaixo de 0,15R
+
+    def test_so_quem_prova_na_fase(self):
+        self.assertEqual([k for k, _ in promo.regime_qualified(self.st(), "queda")], ["SHORT_X30"])
+        self.assertEqual(promo.regime_qualified(self.st(), "subida"), [])
+        self.assertEqual(promo.regime_qualified(self.st(), None), [])
+        sem_metades = self.st()
+        del sem_metades["arena"]["longo"]["lutadores"]["SHORT_X30"]["por_regime"]["queda"]["metades"]
+        self.assertEqual(promo.regime_qualified(sem_metades, "queda"), [])
+
+    def test_so_com_o_ok_e_so_shorts_com_o_btc_em_baixa(self):
+        reg = {"SHORT_X30": 1, "BOUNCE_G0": 1}
+        with mock.patch.object(promo, "registry", return_value=reg):
+            self.assertEqual(promo.champions(self.st(), (), "queda"), [])
+            self.assertEqual(promo.champions(self.st(), (), "queda", True), ["SHORT_X30"])
+        c4 = bars()
+        now = c4[-1]["t"] + TF + 60
+        row = {"asset": "AAA", "price": 84.1,
+               "decision": {"decision": "NO TRADE", "venue": {"pair": "AAA/USDC"}}}
+        longo = {"stop": 80.0, "tp": [90.0], "partials": [100], "hold_s": 86400, "t_sig": c4[-1]["t"] + TF}
+        st = state_with({"BOUNCE_G0": f(26, 0.8, -0.2)})
+        with mock.patch.object(promo, "registry", return_value={"BOUNCE_G0": lambda c, px, cfg: longo}):
+            self.assertEqual(promo.decisions(st, [row], {"AAA": c4}, CFG, now, ["BOUNCE_G0"], False,
+                                             lambda a: None), {})

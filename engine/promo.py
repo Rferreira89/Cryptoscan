@@ -250,14 +250,47 @@ def contribution(state):
 REAL_MIN_R = 0.15
 
 
-def champions(state, disabled=()):
+def regime_qualified(state, fase):
+    """[(chave, R medio)] dos lutadores que provaram ganhar NESTA fase do mercado
+    no ringue de um ano: pelo menos MIN_N operacoes nessa fase, R medio de pelo
+    menos REAL_MIN_R e acima de 95% do acaso, as duas metades do ano a ganhar,
+    e sem estar a perder nos ultimos 30 dias do combate de 90 dias (se la operou)."""
+    if not fase:
+        return []
+    ar = state.get("arena") or {}
+    longo = (ar.get("longo") or {}).get("lutadores") or {}
+    forma = (ar.get("forma") or {}).get("lutadores") or {}
+    out = []
+    for k, v in longo.items():
+        f = (v.get("por_regime") or {}).get(fase) or {}
+        n, r, p95, met = f.get("n") or 0, f.get("avg_r"), f.get("acaso_p95"), f.get("metades")
+        if n < MIN_N or r is None or r < REAL_MIN_R or p95 is None or r <= p95:
+            continue
+        if not met or min(met) <= 0:
+            continue
+        fora = ((forma.get(k) or {}).get("validacao") or {}).get("fora") or {}
+        if (fora.get("n") or 0) >= 5 and (fora.get("avg_r_liq") or 0) <= 0:
+            continue
+        out.append((k, r))
+    return sorted(out, key=lambda x: -x[1])
+
+
+def champions(state, disabled=(), fase=None, por_fase=False):
     """Lutadores que dao sinais reais agora, melhor primeiro (decisao do
     Rui, 2026-10-13: "nao quero perder oportunidades"): TODOS os
-    qualificados com codigo revisto e ganho medio de pelo menos REAL_MIN_R."""
+    qualificados com codigo revisto e ganho medio de pelo menos REAL_MIN_R.
+    Com por_fase, tambem os campeoes da fase atual do mercado no ringue de
+    um ano (regime_qualified), mesmo que o combate de 90 dias os tenha
+    eliminado por terem sido testados noutra fase (ex.: shorts em subida)."""
     reg = registry()
     sus = suspended(state)
-    return [k for k, r in qualified(state)
-            if r >= REAL_MIN_R and k in reg and k in REAL_OK and k not in disabled and k not in sus]
+    out = [(k, r) for k, r in qualified(state)
+           if r >= REAL_MIN_R and k in reg and k in REAL_OK and k not in disabled and k not in sus]
+    if por_fase:
+        have = {k for k, _ in out}
+        out += [(k, r) for k, r in regime_qualified(state, fase)
+                if k not in have and k in reg and k in REAL_OK and k not in disabled and k not in sus]
+    return [k for k, _ in out]
 
 
 def champion(state, disabled=()):
@@ -340,7 +373,9 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
     if isinstance(champs, str):
         champs = [champs]
     champs = [k for k in (champs or []) if registry().get(k)]
-    if not champs or not market_ok:
+    if not market_ok:                         # BTC abaixo da SMA200: so vendas a descoberto
+        champs = [k for k in champs if arena_base(k).startswith("SHORT_")]
+    if not champs:
         return {}
     seen = state.setdefault("promo_last", {})
     bar = state.setdefault("promo_bar", {"t": 0, "n": 0})
@@ -474,6 +509,11 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
             "reason": "campeão da arena", "checks": d0.get("checks", []),
             "rejected": []}
     return out
+
+
+def arena_base(k):
+    import re
+    return re.sub(r"_R\d+$", "", k or "")
 
 
 def lost(state, now, asset, champ, why):

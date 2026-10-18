@@ -54,6 +54,8 @@ DEFAULTS = {
     # multiplicados por este valor, ate ao maximo que mantem a liquidacao
     # estimada a mais do dobro da distancia do stop. 1 = sem alavancagem.
     "swing_leverage": 10.0,
+    # campeoes por fase do mercado (ringue de um ano): desligado ate ao OK do Rui
+    "campeoes_por_fase": False,
     # Capital de trading em USDC (2026-10-02: 50). Atualiza-se pelo Telegram
     # com /capital <valor>. Serve para dar valores em USDC e para adaptar
     # as operacoes a ordem minima da Bybit UE.

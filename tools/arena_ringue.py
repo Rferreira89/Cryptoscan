@@ -1187,6 +1187,12 @@ def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None, funding=None, oi=None,
                 sub = [t for t in trs if rmap.get((t["t"] - DAY) // DAY) == rg]
                 if sub:
                     out[k]["por_regime"][rg] = judge(sub, jb, rng, bars1h)
+                    # robustez: as duas metades do ano (por tempo) tem de ganhar
+                    h = len(sub) // 2
+                    if h >= 5:
+                        out[k]["por_regime"][rg]["metades"] = [
+                            round(sum(t["r"] for t in sub[:h]) / h, 3),
+                            round(sum(t["r"] for t in sub[h:]) / (len(sub) - h), 3)]
     return {"atualizado": int(now), "janela_dias": days,
             "desde": int(t0), "moedas": len(bars), "lutadores": out}
 
