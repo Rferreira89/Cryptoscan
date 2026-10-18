@@ -366,3 +366,15 @@ class Semana1Validacao(unittest.TestCase):
         self.assertEqual(m["ops_mes"], 4.0)
         self.assertLess(m["ruina_50pct"], 0.05)
         self.assertEqual(A.metricas([], 30, 1.5), {"n": 0})
+
+
+class Semana1Carteira(unittest.TestCase):
+    def test_variantes_de_carteira(self):
+        from tools import auditoria_sinais as A
+        mk = lambda t, a, r: {"t": t, "ativo": a, "rank": 0, "familia": "sobrevenda", "r": r, "fim": t + 10}
+        cands = [mk(1, "A", 1.0), mk(1, "B", 1.0), mk(1, "C", -1.0), mk(20, "D", 0.5)]
+        self.assertEqual(len(A.carteira_com(cands, 4, 2, 1)), 2)
+        self.assertEqual(len(A.carteira_com(cands, 4, 4, 4)), 4)
+        self.assertEqual(len(A.carteira_com(cands, 1, 4, 4)), 2)
+        v = A.comparar([dict(c, t=c["t"] + 10**6) for c in cands], 365, 1.5, 0)
+        self.assertEqual(v["ultimos_90d"]["4/4/2"]["n"], 3)

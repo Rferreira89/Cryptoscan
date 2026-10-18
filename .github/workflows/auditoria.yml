@@ -10,18 +10,23 @@ on:
       dias:
         description: "dias a repetir"
         default: "30"
+      campeoes:
+        description: "lista de lutadores (vazio = campeoes de hoje)"
+        default: ""
 permissions:
   contents: write
 jobs:
   auditoria:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - name: Auditoria
+        env:
+          CAMPEOES: ${{ github.event.inputs.campeoes }}
         run: |
           git fetch -q origin data && git show FETCH_HEAD:state.json > /tmp/state.json && git show FETCH_HEAD:scan.json > /tmp/scan.json
           python -m tools.auditoria_sinais out/auditoria.json "${{ github.event.inputs.dias || '30' }}"

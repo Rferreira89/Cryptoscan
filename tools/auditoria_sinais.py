@@ -95,13 +95,44 @@ def metricas(sinais, days, risco_pct, seed=7, caminhos=2000, n_ops=100):
             "risco_pct": round(risco_pct, 2), "ruina_50pct": round(ruina / caminhos, 3)}
 
 
+VARIANTES = [(4, 2, 1), (4, 4, 1), (4, 4, 2), (6, 4, 2), (8, 8, 8)]   # (abertas, por familia, por vela)
+
+
+def carteira_com(cands, max_open, max_fam, per_bar):
+    """Aceita os candidatos por ordem cronologica com estas regras de carteira."""
+    abertas, por_vela, out = [], {}, []
+    for s in sorted(cands, key=lambda x: (x["t"], x["rank"])):
+        abertas = [x for x in abertas if x[0] is None or x[0] > s["t"]]
+        fam = sum(1 for x in abertas if x[1] == s["familia"])
+        n = por_vela.setdefault(s["t"], {})
+        if len(abertas) >= max_open or fam >= max_fam or n.get(s["familia"], 0) >= per_bar:
+            continue
+        n[s["familia"]] = n.get(s["familia"], 0) + 1
+        out.append(dict(s, passa=True))
+        abertas.append((s["fim"] if isinstance(s["r"], (int, float)) else None, s["familia"]))
+    return out
+
+
+def comparar(sinais, days, risco, corte):
+    """Metricas das variantes de carteira antes do corte (fora da amostra da
+    escolha dos campeoes, que usa os ultimos 90 dias) e depois."""
+    cands = [s for s in sinais if not str(s.get("filtro", "")).startswith(("mercado", "liquidez", "plano"))]
+    out = {}
+    for nome, sel, d in (("fora_amostra", lambda s: s["t"] < corte, max(1, days - 90)),
+                         ("ultimos_90d", lambda s: s["t"] >= corte, min(days, 90))):
+        sub = [s for s in cands if sel(s)]
+        out[nome] = {f"{a}/{b}/{c}": metricas(carteira_com(sub, a, b, c), d, risco)
+                     for a, b, c in VARIANTES}
+    return out
+
+
 def main(dest, days=14):
     now = int(time.time())
     scan = json.load(open(os.environ.get("SCAN_JSON", "/tmp/scan.json")))
     state = json.load(open(os.environ.get("STATE_JSON", "/tmp/state.json")))
     cfg = dict(config.DEFAULTS, **scan["config"])
     disabled = set(scan.get("disabled_strategies") or {})
-    champs = promo.champions(state, disabled)
+    champs = [k for k in os.environ.get("CAMPEOES", "").split(",") if k] or promo.champions(state, disabled)
     reg = AR.SINAIS
     ven = venue.fetch("USDC")
     need = 6 * (B.analysis.MIN_BARS + 15) + 6 * days
@@ -198,6 +229,7 @@ def main(dest, days=14):
             b["fechados"] += 1
     risco = 100 * (cfg.get("max_risk_usdc") or 0) / (cfg.get("capital_usdc") or 1)
     out = {"gerado": now, "dias": days, "carteira": metricas(sinais, days, risco),
+           "variantes": comparar(sinais, days, risco, now - 90 * DAY) if days > 90 else None,
            "nota": "campeões de hoje aplicados ao passado: dentro da amostra, otimista", "moedas": len(bars), "campeoes": champs,
            "desligadas": sorted(disabled), "sinais": sinais, "resumo": resumo,
            "rsi_min_4d": sorted([q for q in quase if q[0] is not None])[:20],
@@ -213,6 +245,9 @@ def main(dest, days=14):
               "PASSA" if s.get("passa") else s["filtro"], "R=", s["r"])
     print("RSI 4H mais baixo (4 dias):", out["rsi_min_4d"][:12])
     print("carteira:", out["carteira"])
+    for per, vs in (out["variantes"] or {}).items():
+        for k, m in vs.items():
+            print(per, k, m)
 
 
 if __name__ == "__main__":
