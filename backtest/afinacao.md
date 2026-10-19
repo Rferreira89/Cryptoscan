@@ -1,7 +1,7 @@
 # Diário de afinação dos sinais
 
 Hipóteses testadas sobre as estratégias que já estão ao vivo, uma por
-entrada, com o veredicto. Hipóteses testadas até agora: 5.
+entrada, com o veredicto. Hipóteses testadas até agora: 6.
 
 ## Decisões do Rui (valem para todas as execuções)
 
@@ -635,3 +635,110 @@ Notas para as próximas execuções:
   histórico de 2022.
 - Hipóteses testadas até agora: 5 neste diário (H1 a H5); 15 contra os
   mesmos dados contando o diário de investigação (14 até 2026-10-15 + esta).
+
+### 2026-10-19 — H6: Tartarugas com saídas curtas (TURTLE_CURTA)
+
+**Escrito antes de correr qualquer teste.**
+
+- Situação: regime atual (scan.json, `mercado`) **lateral** desde
+  2026-10-17. Ringue de 90 dias (forma.json de 2026-10-19): todos os vivos
+  com veredicto SOBE são da sobrevenda (BOUNCE_*) e o DIP_TREND (gatilho de
+  sobrevenda). Ringue longo (longo.json de 2026-10-18): a sobrevenda ganha
+  em subida e lateral; **na descida nenhum vivo opera**; fora da sobrevenda
+  ninguém bate o acaso em regime nenhum. O TURTLE (rompimento, família
+  diferente) tem R positivo em subida (56 op., +0,36R) e lateral (154 op.,
+  +0,25R), mas abaixo do p95 do acaso (+0,83 / +0,90): a geometria (stop
+  2N, 2R/5R, stop que segue a 1R, 20 dias) é tão generosa que entradas ao
+  acaso dão mais. A investigação (2026-10-14) já registou que, com ESSA
+  geometria, o momento de entrada fica no percentil 12,8.
+- Hipótese (correção de um morto de outra família, proposta na H5): o
+  rompimento do máximo de 20 dias em altcoins dá um impulso curto (dias)
+  que depois se devolve; uma saída curta (objetivos a 1–1,5R, tempo máximo
+  de 5–10 dias) captura o impulso e deixa de depender da tendência longa.
+  O gatilho NÃO muda (4H fecha acima do máximo dos 20 dias anteriores com
+  o fecho anterior abaixo; BTC acima da SMA200, como no ringue).
+- Previsão honesta: é mais provável falhar (o rompimento já perdeu para o
+  acaso em 4 lutadores e na QUEBRA_COMPRADORES); testa-se porque é a
+  única família não-sobrevenda com R bruto positivo nos dois regimes.
+- Grelha (6, stop em múltiplos de N = ATR diário de 20 dias; stop na
+  entrada depois do 1.º objetivo em todas):
+  T1 stop 2N, 100% a 1,5R, 5 dias; T2 stop 2N, 50/50 a 1R/2R, 5 dias;
+  T3 stop 1,5N, 50/50 a 1,5R/3R, stop que segue a 1R, 10 dias;
+  T4 stop 1,5N, 50/50 a 1R/2R, 5 dias; T5 stop 1N, 50/50 a 1,5R/3R, stop
+  que segue a 1R, 5 dias; T6 stop 2N, 2R/5R, stop que segue a 1R, 10 dias
+  (só o tempo encurta).
+- Método: `tools/arena_ringue.generic_trades` (vela a vela, só passado,
+  uma operação de cada vez por moeda, entrada na abertura seguinte, 0,25%
+  + 0,1% por lado) e `judge` contra o acaso (mesma moeda, ±90 velas,
+  mesma geometria). Histórico do ramo `history` (4H até 2026-10-18).
+- Janelas: **B (decide)** 2021-08-01 a 2024-10-10, antes da janela de 24
+  meses que a autópsia do TURTLE e a QUEBRA_COMPRADORES usaram. **A
+  (vista, informativa)** 2024-10-11 até ao fim do histórico. **C**:
+  últimos 90 dias (o combate do ringue). Cada janela também por regime do
+  BTC (`regime_by_day`).
+- Critérios (todos, em B): ≥ 40 operações; R médio > 0; acima do percentil
+  95 do acaso; R médio > 0 sem a melhor moeda; R médio > 0 em pelo menos
+  metade dos anos civis com ≥ 10 operações; R médio > 0 em A. Escolha: a
+  de maior R médio em B entre as que passam. Se passar, entra no ringue
+  como TURTLE_CURTA (o ringue decide); REAL_OK não se mexe.
+- Hipóteses testadas até agora (com esta): 6 neste diário; 17 contra os
+  mesmos dados contando o diário de investigação (16 até 2026-10-18).
+
+**Resultados** (ramo `history`, 4H até 2026-10-18 12:00 UTC; 71 moedas,
+ROBO de fora por histórico curto; BTC acima da SMA200 como no ringue, por
+isso 2022 não tem operações; `backtest/afinacao_h06_turtle_curta.json`;
+código `tools/afinacao_h06_turtle_curta.py`, teste do gatilho igual ao do
+ringue e sem look-ahead em `tests/test_afinacao_h06.py`).
+
+| Config. | B: op. | B: R médio | B: acaso med./p95 | B: percentil | B: subida / lateral (R) | A (vista): R, percentil | C 90 dias: op., R, percentil |
+|---|---|---|---|---|---|---|---|
+| T1 2N, 1,5R, 5d | 995 | −0,015 | +0,211 / +0,249 | 0,0 | −0,028 / +0,001 | +0,147, 0,0 | 255, +0,238, 50,8 |
+| T2 2N, 1R/2R, 5d | 987 | −0,033 | +0,181 / +0,215 | 0,0 | −0,038 / −0,027 | +0,088, 0,0 | 262, +0,142, 9,9 |
+| T3 1,5N, 1,5R/3R, trail, 10d | 943 | −0,102 | +0,303 / +0,360 | 0,0 | −0,114 / −0,088 | +0,058, 0,0 | 264, +0,179, 1,3 |
+| T4 1,5N, 1R/2R, 5d | 1075 | −0,095 | +0,154 / +0,195 | 0,0 | −0,122 / −0,061 | +0,021, 0,0 | 283, +0,070, 8,6 |
+| T5 1N, 1,5R/3R, trail, 5d | 1245 | −0,214 | +0,109 / +0,159 | 0,0 | −0,213 / −0,215 | −0,033, 0,0 | 309, +0,101, 74,1 |
+| T6 2N, 2R/5R, trail, 10d | 819 | +0,002 | +0,395 / +0,453 | 0,0 | −0,023 / +0,032 | +0,174, 0,0 | 220, +0,281, 0,0 |
+
+- Por ano em B: nenhuma configuração tem R médio positivo em mais de 2
+  dos 3 anos, e 2024 é negativo em todas (−0,08R a −0,24R).
+- O acaso com a MESMA geometria, na mesma moeda e ±15 dias à volta, dá
+  +0,11R a +0,40R; o rompimento fica no **percentil 0,0 em todas as
+  configurações, em B e em A, em subida e em lateral**. Encurtar as saídas
+  baixa o resultado do acaso, mas o do rompimento cai ao mesmo ritmo: o
+  problema não é a saída, é o momento de entrada. Comprar o fecho acima do
+  máximo de 20 dias é, nestas moedas, comprar quase sempre perto de um topo
+  local (confirma a autópsia de 2026-10-14 com outra janela e 6 geometrias).
+- Cautela sobre o acaso: as moedas do histórico são as que estão hoje
+  listadas (enviesamento de sobrevivência) e o filtro do BTC escolhe
+  períodos de subida, por isso o acaso tem deriva positiva. Isso pesa nos
+  dois lados por igual e não muda o percentil 0,0.
+- Critérios em B (melhor, T6): ≥ 40 op. sim (819); R > 0 sim por pouco
+  (+0,002); acima do p95 NÃO (percentil 0,0); sem a melhor moeda NÃO
+  (−0,011); anos positivos 2 de 3 sim; A > 0 sim. T1 a T5 falham já no
+  R médio.
+
+**Veredicto: REJEITADA.** Nenhuma saída salva o rompimento de 20 dias:
+todas as 6 ficam no percentil 0 do acaso. Nada entra no ringue;
+REAL_OK não se mexe.
+
+Notas para as próximas execuções:
+
+- Regime atual **lateral**. Regimes sem campeão vivo: **descida** (nenhum
+  lutador opera nela). Na subida e na lateral só ganha a sobrevenda (e o
+  DIP_TREND, também gatilho de sobrevenda). A família do rompimento está
+  esgotada: não voltar a afinar TURTLE, SQUEEZE_BB, BREAKOUT nem
+  BRK_ESPACO pela saída.
+- Pista que a H6 deixa (não é resultado, é hipótese): se o fecho acima do
+  máximo de 20 dias fica tão abaixo do acaso, o **rompimento falhado**
+  pode ter vantagem para o lado vendedor. Próxima hipótese proposta (H7,
+  família vendas, regime lateral e descida, onde não há campeão): short
+  quando uma vela de 4H rompe o máximo de 20 dias e a vela seguinte (ou
+  até 2 velas depois) fecha de novo abaixo desse máximo; stop acima do
+  máximo do rompimento, objetivos curtos (1R/2R), 3 a 5 dias. Decidir em
+  B (2021-08 a 2024-10, incluindo 2022 porque os shorts correm sem filtro
+  do BTC) e só depois olhar para os últimos 2 anos. Atenção: a ideia nasce
+  de ver a H6, por isso A está vista para ela.
+- Hipóteses testadas até agora: 6 neste diário (H1 a H6); 17 contra os
+  mesmos dados contando o diário de investigação (16 até 2026-10-18 +
+  esta). Com 17 tentativas a probabilidade de pelo menos um falso positivo
+  a 5% ronda os 58%.
