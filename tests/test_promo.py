@@ -426,3 +426,14 @@ class ContasDoMes(unittest.TestCase):
             self.assertEqual(promo.champions(st), ["BOUNCE_X30"])
         lut["BOUNCE_HORAS"]["validacao"] = {"fora": {"n": 3, "avg_r_liq": -1.0}}   # poucas: ainda nao se cobra
         self.assertNotIn("BOUNCE_HORAS", promo.suspended(st))
+
+
+class FaseNaoPagaContasDeOutraFase(unittest.TestCase):
+    def test_short_de_queda_nao_e_cortado_por_um_mes_de_subida(self):
+        st = CampeoesPorFase().st()
+        st["arena"]["forma"]["lutadores"]["SHORT_X30"] = {"n": 300, "avg_r": -0.24, "acaso_p95": -0.18,
+                                                         "validacao": {"fora": {"n": 78, "avg_r_liq": -0.27}}}
+        self.assertIn("SHORT_X30", promo.suspended(st))                    # contas do mes (subida)
+        with mock.patch.object(promo, "registry", return_value={"SHORT_X30": 1}):
+            self.assertEqual(promo.champions(st, (), "queda", True), ["SHORT_X30"])
+            self.assertEqual(promo.champions(st, (), "lateral", True), [])

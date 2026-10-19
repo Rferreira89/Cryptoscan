@@ -214,8 +214,9 @@ def live_record(state, k):
     return len(rs), (sum(rs) / len(rs) if rs else None)
 
 
-def suspended(state):
-    """{lutador: motivo} dos campeoes suspensos pela prova real."""
+def suspended(state, contas_mes=True):
+    """{lutador: motivo} dos campeoes suspensos pela prova real (e, com
+    contas_mes, pelas contas do mes no combate de 90 dias)."""
     out = {}
     lut = (((state.get("arena") or {}).get("forma") or {}).get("lutadores")) or {}
     for k, f in lut.items():
@@ -228,7 +229,7 @@ def suspended(state):
         # resultado medio negativo, perde o lugar ate provar de novo.
         elif n >= LUCRO_MIN_N and r is not None and r < 0:
             out[k] = f"não é lucrativo no dinheiro real: {r:+.2f}R em {n} operações (diretriz do objetivo)"
-        else:
+        elif contas_mes:
             conta = contas(f)
             if conta:
                 out[k] = conta
@@ -284,12 +285,11 @@ def regime_qualified(state, fase):
     """[(chave, R medio)] dos lutadores que provaram ganhar NESTA fase do mercado
     no ringue de um ano: pelo menos MIN_N operacoes nessa fase, R medio de pelo
     menos REAL_MIN_R e acima de 95% do acaso, as duas metades do ano a ganhar,
-    e sem estar a perder nos ultimos 30 dias do combate de 90 dias (se la operou)."""
+    e as duas metades do ano a ganhar, separadamente, nesta fase."""
     if not fase:
         return []
     ar = state.get("arena") or {}
     longo = (ar.get("longo") or {}).get("lutadores") or {}
-    forma = (ar.get("forma") or {}).get("lutadores") or {}
     out = []
     for k, v in longo.items():
         f = (v.get("por_regime") or {}).get(fase) or {}
@@ -298,9 +298,9 @@ def regime_qualified(state, fase):
             continue
         if not met or min(met) <= 0:
             continue
-        fora = ((forma.get(k) or {}).get("validacao") or {}).get("fora") or {}
-        if (fora.get("n") or 0) >= 5 and (fora.get("avg_r_liq") or 0) <= 0:
-            continue
+        # (19/10) sem o teste dos ultimos 30 dias: esses 30 dias podem ser de
+        # outra fase (shorts num mes de subida perdem, como devem); a prova
+        # fora da amostra aqui sao as duas metades do ano, nesta fase
         out.append((k, r))
     return sorted(out, key=lambda x: -x[1])
 
@@ -317,9 +317,12 @@ def champions(state, disabled=(), fase=None, por_fase=False):
     out = [(k, r) for k, r in qualified(state)
            if r >= REAL_MIN_R and k in reg and k in REAL_OK and k not in disabled and k not in sus]
     if por_fase:
+        # as contas do mes vem do combate de 90 dias, que pode ser de outra
+        # fase: aqui so contam as suspensoes pelo dinheiro real
+        sus_real = suspended(state, contas_mes=False)
         have = {k for k, _ in out}
         out += [(k, r) for k, r in regime_qualified(state, fase)
-                if k not in have and k in reg and k in REAL_OK and k not in disabled and k not in sus]
+                if k not in have and k in reg and k in REAL_OK and k not in disabled and k not in sus_real]
     return [k for k, _ in out]
 
 
