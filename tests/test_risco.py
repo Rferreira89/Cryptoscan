@@ -62,3 +62,12 @@ class Pedidos18Outubro(unittest.TestCase):
         self.assertIsNone(signals.trading_halt(sigs, cfg, 10**6 + 100))
         self.assertIn("perdas seguidas", signals.trading_halt(sigs, dict(cfg, cooldown_after_losses=3), 10**6 + 100))
         self.assertIn("diária", signals.trading_halt(sigs, dict(cfg, max_daily_loss_r=3), 10**6 + 100))
+
+
+class EtiquetasDasOrdens(unittest.TestCase):
+    def test_etiquetas_unicas_por_ativo(self):
+        from engine import executor
+        a = executor._tag("ENA-BOUNCE_SQUEEZE-1792368013")
+        b = executor._tag("XPL-BOUNCE_SQUEEZE-1792368013")
+        self.assertNotEqual(a, b)
+        self.assertLessEqual(len(executor.LINK + a + "-s0b"), 36)

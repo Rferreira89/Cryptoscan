@@ -42,6 +42,13 @@ TEST_USDC = 5.0
 LINK = "cs-"                    # prefixo das ordens do programa
 
 
+def _tag(op):
+    """Identificador curto e unico por operacao: ativo + instante do sinal.
+    (19/10: com op[-20:] a ENA e a XPL do mesmo sinal ficavam com o mesmo
+    orderLinkId e a Bybit recusou o anexo da XPL: "Duplicate clientOrderId".)"""
+    return f"{op.split('-')[0][:10]}{op[-11:]}"
+
+
 class ExecError(Exception):
     pass
 
@@ -444,7 +451,7 @@ def do_buy(state, req, ex, now, send):
          "stop": plan["stop"], "partes": [], "t": now}
     for i, (q, tp) in enumerate(parts):
         try:
-            oid, attached = place_part(symbol, q, tp, plan["stop"], inst, f"{op[-20:]}-{i}",
+            oid, attached = place_part(symbol, q, tp, plan["stop"], inst, f"{_tag(op)}-{i}",
                                        margin=margin)
         except ExecError as e:
             o["erro"] = str(e)[:120]
@@ -456,7 +463,7 @@ def do_buy(state, req, ex, now, send):
             part["anexo_erro"] = LAST_ATTACH_ERR          # porque a Bybit recusou (diagnostico)
         if not attached:                     # sem anexo: pelo menos o stop
             try:
-                part["stopId"] = stop_order(symbol, qty, plan["stop"], inst, f"{op[-18:]}-s{i}")
+                part["stopId"] = stop_order(symbol, qty, plan["stop"], inst, f"{_tag(op)}-s{i}")
             except ExecError as e:
                 part["stop_erro"] = str(e)[:100]
         o["partes"].append(part)
@@ -627,7 +634,7 @@ def do_short(state, req, ex, now, send):
          "stop": plan["stop"], "partes": [], "t": now}
     for i, (q, tp) in enumerate(parts):
         try:
-            oid, attached = place_short_part(symbol, q, tp, plan["stop"], inst, f"{op[-20:]}-v{i}", px=px)
+            oid, attached = place_short_part(symbol, q, tp, plan["stop"], inst, f"{_tag(op)}-v{i}", px=px)
         except ExecError as e:
             o["erro"] = str(e)[:120]
             break
@@ -636,7 +643,7 @@ def do_short(state, req, ex, now, send):
         if not attached:
             part["anexo_erro"] = LAST_ATTACH_ERR
             try:
-                part["stopId"] = stop_order_buy(symbol, qty * 1.002, plan["stop"], inst, f"{op[-18:]}-s{i}")
+                part["stopId"] = stop_order_buy(symbol, qty * 1.002, plan["stop"], inst, f"{_tag(op)}-s{i}")
             except ExecError as e:
                 part["stop_erro"] = str(e)[:100]
         o["partes"].append(part)
