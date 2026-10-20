@@ -867,6 +867,14 @@ def main():
         res["nucleo"] = nucleo.resumo(state)
     except Exception as e:
         print("nucleo:", e)
+    try:                                     # historico de derivados (engine/derivhist.py)
+        from . import derivhist
+        dh = derivhist.atualizar(_load("derivados.json", {}), res.get("universe"), res["generated_at"])
+        with open(os.path.join(OUT, "derivados.json"), "w") as f:
+            json.dump(dh, f, separators=(",", ":"))
+        res["derivados_hist"] = derivhist.resumo(dh)
+    except Exception as e:
+        print("derivados:", e)
     try:                                     # evolucao real da carteira (engine/evolucao.py)
         from . import evolucao
         c = res.get("conta") or {}
