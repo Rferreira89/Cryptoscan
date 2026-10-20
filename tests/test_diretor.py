@@ -693,7 +693,8 @@ class MelhorSinalInteiro(unittest.TestCase):
         rows = [{"asset": a, "price": 100.0, "decision": {"decision": "NO TRADE", "venue": {"pair": a + "/USDC"}}}
                 for a in ("AAA", "BBB")]
         st = {}
-        with mock.patch.object(promo, "registry", return_value={"BOUNCE_G0": lambda cc, px, cf: dict(sig)}):
+        with mock.patch.object(promo, "registry", return_value={"BOUNCE_G0": lambda cc, px, cf: dict(sig)}), \
+                mock.patch.object(promo, "MAX_PER_FAMILY", 2):
             d = promo.decisions(st, rows, {r["asset"]: c for r in rows}, cfg, now, ["BOUNCE_G0"], True,
                                 lambda a: None)
         self.assertEqual(len(d), 1)

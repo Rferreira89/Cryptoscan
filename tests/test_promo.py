@@ -245,7 +245,8 @@ class CadeiaDeQuedas(unittest.TestCase):
                  "decision": {"decision": "NO TRADE", "venue": {"pair": a + "/USDC"}}}
                 for a in ("AAA", "BBB", "CCC", "DDD")]
         st = {}
-        with mock.patch.object(promo, "registry", return_value={"BOUNCE_G0": lambda c, px, cfg: sig}):
+        with mock.patch.object(promo, "registry", return_value={"BOUNCE_G0": lambda c, px, cfg: sig}), \
+                mock.patch.object(promo, "MAX_PER_FAMILY", 2):
             d = promo.decisions(st, rows, {r["asset"]: c4 for r in rows}, CFG, now,
                                 ["BOUNCE_G0"], True, lambda a: None)
             self.assertEqual(len(d), 2)
@@ -411,6 +412,33 @@ class CampeoesPorFase(unittest.TestCase):
         with mock.patch.object(promo, "registry", return_value={"BOUNCE_G0": lambda c, px, cfg: longo}):
             self.assertEqual(promo.decisions(st, [row], {"AAA": c4}, CFG, now, ["BOUNCE_G0"], False,
                                              lambda a: None), {})
+
+
+class ProvaDupla(unittest.TestCase):
+    """Rui, 20/10: com a fase conhecida so opera quem provou nessa fase; uma
+    operacao de cada familia de cada vez."""
+    def test_combate_de_90_dias_sozinho_ja_nao_chega(self):
+        st = state_with({"BOUNCE_X30": f(59, 0.42, -0.03), "BOUNCE_SQUEEZE": f(40, 0.47, -0.1)})
+        lr = lambda r, met: {"por_regime": {"lateral": {"n": 30, "avg_r": r, "acaso_p95": -0.2, "metades": met}}}
+        st["arena"]["longo"] = {"lutadores": {"BOUNCE_SQUEEZE": lr(0.355, [0.56, 0.16]),
+                                              "BOUNCE_X30": lr(0.039, [0.05, 0.02])}}
+        reg = {"BOUNCE_X30": 1, "BOUNCE_SQUEEZE": 1}
+        with mock.patch.object(promo, "registry", return_value=reg):
+            self.assertEqual(promo.champions(st, (), "lateral", True), ["BOUNCE_SQUEEZE"])
+            self.assertEqual(set(promo.champions(st, (), None, True)), set(reg))   # fase desconhecida
+            self.assertEqual(promo.champions(st, {"BOUNCE_SQUEEZE"}, "lateral", True), [])
+
+    def test_uma_de_cada_familia(self):
+        self.assertEqual(promo.MAX_PER_FAMILY, 1)
+        st = {"ledger": [{"mode": "REAL", "status": "OPEN", "strategy": "BOUNCE_X30"}]}
+        c4 = bars()
+        now = c4[-1]["t"] + TF + 60
+        sig = {"stop": 80.0, "tp": [90.0], "partials": [100], "hold_s": 86400, "t_sig": c4[-1]["t"] + TF}
+        row = {"asset": "AAA", "price": 84.1, "decision": {"decision": "NO TRADE", "venue": {"pair": "AAA/USDC"}}}
+        with mock.patch.object(promo, "registry", return_value={"BOUNCE_SQUEEZE": lambda c, px, cfg: sig}):
+            d = promo.decisions(st, [row], {"AAA": c4}, CFG, now, ["BOUNCE_SQUEEZE"], True, lambda a: None)
+        self.assertEqual(d, {})
+        self.assertIn("diversificação", st["promo_lost"][-1]["reason"])
 
 
 class ContasDoMes(unittest.TestCase):

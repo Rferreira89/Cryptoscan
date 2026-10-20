@@ -166,7 +166,7 @@ def growth(state, cfg):
 # "Nao quero todos os analistas numa estrategia so": as familias agrupam os
 # lutadores que reagem ao mesmo fenomeno de mercado e por isso ganham e perdem
 # juntos. No maximo MAX_PER_FAMILY operacoes reais abertas da mesma familia.
-MAX_PER_FAMILY = 2
+MAX_PER_FAMILY = 1     # Rui, 20/10: uma de cada familia (as copias contam uma vez)
 FAMILIAS = {"maiores": "Equipa das maiores (BTC, ETH, SOL)", "sobrevenda": "Sobrevenda a virar", "tendencia": "Tendência e rompimento",
             "volatilidade": "Volatilidade", "volume": "Volume anormal (acumulação)", "capitulacao": "Capitulação", "short": "Venda a descoberto"}
 
@@ -313,6 +313,15 @@ def champions(state, disabled=(), fase=None, por_fase=False):
     um ano (regime_qualified), mesmo que o combate de 90 dias os tenha
     eliminado por terem sido testados noutra fase (ex.: shorts em subida)."""
     reg = registry()
+    if por_fase and fase:
+        # prova dupla (Rui, 20/10): com a fase do mercado conhecida, so opera
+        # com dinheiro real quem provou ganhar NESTA fase no ringue de um ano
+        # (R >= REAL_MIN_R, acima do acaso, as duas metades a ganhar). O
+        # combate de 90 dias sozinho deixava entrar 8 copias da sobrevenda
+        # que na fase lateral ficam perto de zero.
+        sus_real = suspended(state, contas_mes=False)
+        return [k for k, _ in regime_qualified(state, fase)
+                if k in reg and k in REAL_OK and k not in disabled and k not in sus_real]
     sus = suspended(state)
     out = [(k, r) for k, r in qualified(state)
            if r >= REAL_MIN_R and k in reg and k in REAL_OK and k not in disabled and k not in sus]
