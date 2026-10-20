@@ -123,6 +123,11 @@ def weekly(state, now, arena_summary=None, res=None):
             L.append("As tuas operações: nenhuma fechada esta semana.")
         L.append(f"Desde o início: {mt['closed']} fechadas, "
                  f"{mt['total_r']:+.2f}R; {mt['open']} em curso.")
+    rv = (res or {}).get("reais") or {}
+    if rv.get("n"):
+        L.append(f"🧾 Resultado REAL na Bybit (execuções e comissões): {rv['n']} operações, "
+                 f"{rv['pnl_usdc']:+.2f} USDC ({rv['real_r']:+.2f}R reais contra {rv['sinal_r']:+.2f}R do sinal; "
+                 f"comissões {rv['comissoes_usdc']:.2f} USDC).")
     if not s["closed"]:
         L.append("Sinais: nenhum fechado esta semana.")
     else:

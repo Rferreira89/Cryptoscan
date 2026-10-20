@@ -255,7 +255,7 @@ def apply_account(state, eu, now):
     state["conta_livre"] = {"t": acc["t"], "usdc": acc.get("usdc_free")}
     return {"t": acc["t"], "usdc_free": acc.get("usdc_free"),
             "equity": acc.get("equity"), "trades": acc.get("trades") or {},
-            "fundo": acc.get("fundo")}
+            "fundo": acc.get("fundo"), "reais": acc.get("reais") or {}}
 
 
 def run(now=None, state=None, cfg=None, forma=None, eu=None):
@@ -265,6 +265,7 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
     cfg = dict(cfg or config.load())
     ledger.fix_stop_exits(state)
     conta = apply_account(state, eu, now)
+    real_view = ledger.apply_real(state.get("ledger", []), (conta or {}).get("reais"))
     state.setdefault("meta_base", {"t": int(now), "capital": (conta or {}).get("equity")
                                    or state.get("capital") or cfg.get("capital_usdc")})
     promo.EU = eu
@@ -287,6 +288,7 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
     result = {"generated_at": now, "phase": 4, "sources": status,
               "config": cfg, "conta": conta, "meta_base": state.get("meta_base"),
               "risco": {k: v for k, v in rn.items() if k != "mudou"},
+              "reais": real_view,
               "europa": {"ok": eu is not None,
                          "t": (eu or {}).get("t"),
                          "moedas": len((eu or {}).get("moedas") or {})},

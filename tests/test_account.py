@@ -71,3 +71,43 @@ class Account(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ResultadoReal(unittest.TestCase):
+    """Fase 1 (20/10): o resultado real vem das execucoes da Bybit."""
+    def test_long_fechado_com_comissoes(self):
+        from engine import account, ledger
+        T = 1_800_000_000
+        led = [{"id": "ENA-X-1", "kind": "4H", "asset": "ENA", "pair": "ENA/USDC", "issued_at": T,
+                "status": "CLOSED", "closed_at": T + 7200, "result_r": 0.15, "risk_usdc": 1.66}]
+        ex = lambda side, q, px, fee, cur, dt: {"symbol": "ENAUSDC", "side": side, "execQty": str(q),
+                                               "execPrice": str(px), "execFee": str(fee),
+                                               "feeCurrency": cur, "execTime": str((T + dt) * 1000)}
+        execs = [ex("Buy", 100, 0.1882, 0.1, "ENA", 60),                 # comissao paga em ENA
+                 ex("Sell", 49.95, 0.195, 0.0097, "USDC", 3600),
+                 ex("Sell", 49.95, 0.1882, 0.0094, "USDC", 7000),
+                 ex("Buy", 50, 0.2, 0, "USDC", 9 * 3600)]                 # fora da janela
+        r = account.real_results(led, execs, T + 8000)["ENA-X-1"]
+        self.assertTrue(r["fechada"])
+        self.assertEqual(r["n"], 3)
+        esperado = 49.95 * 0.195 + 49.95 * 0.1882 - 100 * 0.1882 - 0.0191
+        self.assertAlmostEqual(r["pnl_usdc"], round(esperado, 4), places=4)
+        self.assertAlmostEqual(r["comissoes_usdc"], 0.0191 + 0.1 * 0.1882, places=4)
+        v = ledger.apply_real(led, {"ENA-X-1": r})
+        self.assertEqual(v["n"], 1)
+        self.assertAlmostEqual(led[0]["real_r"], round(r["pnl_usdc"] / 1.66, 2))
+        # uma leitura parcial mais tarde nao apaga o resultado ja fechado
+        ledger.apply_real(led, {"ENA-X-1": dict(r, fechada=False, pnl_usdc=None)})
+        self.assertTrue(led[0]["real"]["fechada"])
+
+    def test_aberta_sem_resultado_e_sem_execucao_ignorada(self):
+        from engine import account
+        T = 1_800_000_000
+        led = [{"id": "XPL-X-1", "kind": "4H", "asset": "XPL", "pair": "XPL/USDC", "issued_at": T, "status": "OPEN"},
+               {"id": "SOL-X-1", "kind": "4H", "asset": "SOL", "pair": "SOL/USDC", "issued_at": T, "status": "OPEN"}]
+        execs = [{"symbol": "XPLUSDC", "side": "Buy", "execQty": "300", "execPrice": "0.0768", "execFee": "0.3",
+                  "feeCurrency": "XPL", "execTime": str((T + 60) * 1000)}]
+        out = account.real_results(led, execs, T + 3600)
+        self.assertFalse(out["XPL-X-1"]["fechada"])
+        self.assertIsNone(out["XPL-X-1"]["pnl_usdc"])
+        self.assertNotIn("SOL-X-1", out)

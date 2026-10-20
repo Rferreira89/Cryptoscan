@@ -77,6 +77,34 @@ def apply(state, events):
     return led
 
 
+def apply_real(led, reais):
+    """Guarda no registo o resultado real lido das execucoes da Bybit
+    (account.real_results) e devolve o resumo real vs sinal. So mede: nao
+    muda o travao, a prova do risco nem as estatisticas das estrategias."""
+    by = {r["id"]: r for r in led or []}
+    for k, v in (reais or {}).items():
+        r = by.get(k)
+        if not r or not isinstance(v, dict):
+            continue
+        if (r.get("real") or {}).get("fechada") and not v.get("fechada"):
+            continue                          # ja fechada antes: nao estragar com uma leitura parcial
+        r["real"] = v
+        if v.get("fechada") and v.get("pnl_usdc") is not None and r.get("risk_usdc"):
+            r["real_r"] = round(v["pnl_usdc"] / r["risk_usdc"], 2)
+    feitas = [r for r in led or [] if r.get("real_r") is not None]
+    if not feitas:
+        return {"n": 0}
+    sinal = [r.get("result_r") for r in feitas if r.get("result_r") is not None]
+    dif = [r["real_r"] - r["result_r"] for r in feitas if r.get("result_r") is not None]
+    return {"n": len(feitas), "real_r": round(sum(r["real_r"] for r in feitas), 2),
+            "sinal_r": round(sum(sinal), 2),
+            "diferenca_media_r": round(sum(dif) / len(dif), 3) if dif else None,
+            "pnl_usdc": round(sum(r["real"]["pnl_usdc"] for r in feitas), 2),
+            "comissoes_usdc": round(sum(r["real"].get("comissoes_usdc") or 0 for r in feitas), 2),
+            "ultimas": [{"id": r["id"], "ativo": r["asset"], "real_r": r["real_r"], "sinal_r": r.get("result_r"),
+                         "pnl_usdc": r["real"]["pnl_usdc"]} for r in feitas[-10:]]}
+
+
 def user_close_r(r, px, partials, fee_pct=0.25):
     """R do Rui quando fecha a operacao a mao ao preco px: as vendas parciais
     ja feitas nos objetivos atingidos e o resto a px, com o preco de entrada

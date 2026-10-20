@@ -229,6 +229,62 @@ def executions(symbols, since):
     return out
 
 
+def real_results(led, execs, now):
+    """Fase 1 da contra-auditoria (Rui, 20/10): o resultado REAL de cada
+    operacao do programa, a partir das execucoes da Bybit (precos e comissoes
+    efetivos), e nao do preco teorico do sinal. So os ultimos 6,5 dias (o
+    limite da Bybit); o scanner guarda o que ja fechou no registo.
+    Devolve {id: {compra_usdc, venda_usdc, comissoes_usdc, pnl_usdc, fechada, n}}.
+    O juro de um short em margem nao aparece nas execucoes (fica de fora)."""
+    rows = sorted((r for r in led or [] if r.get("kind") == "4H" and r.get("executed") is not False
+                   and (r.get("issued_at") or 0) >= now - 6.5 * 86400),
+                  key=lambda r: r.get("issued_at") or 0)
+    out = {}
+    for i, r in enumerate(rows):
+        sym = symbol_of(r)
+        t0 = (r.get("issued_at") or now) - 600
+        t1 = (r.get("user_closed_at") or r.get("closed_at") or now) + 6 * 3600
+        nxt = [x.get("issued_at") for x in rows[i + 1:] if symbol_of(x) == sym and x.get("issued_at")]
+        if nxt:
+            t1 = min(t1, nxt[0] - 600)
+        short = r.get("side") == "SHORT"
+        op_side, back_side = ("Sell", "Buy") if short else ("Buy", "Sell")
+        q_in = v_in = q_out = v_out = fee_usdc = fee_base_q = 0.0
+        n = 0
+        for e in execs:
+            if e.get("symbol") != sym:
+                continue
+            t = (_f(e.get("execTime")) or 0) / 1000
+            if not t0 <= t <= t1:
+                continue
+            q, px, fee = _f(e.get("execQty")) or 0, _f(e.get("execPrice")) or 0, _f(e.get("execFee")) or 0
+            base_fee = (e.get("feeCurrency") or "").upper() == (r.get("asset") or "").upper()
+            if base_fee:
+                fee_base_q += fee
+            else:
+                fee_usdc += fee
+            if e.get("side") == op_side:
+                q_in, v_in = q_in + q, v_in + q * px
+            elif e.get("side") == back_side:
+                q_out, v_out = q_out + q, v_out + q * px
+            n += 1
+        if not q_in:
+            continue
+        px_in = v_in / q_in
+        net_in = q_in - (fee_base_q if not short else 0)
+        fechada = q_out >= 0.98 * net_in
+        if short:
+            pnl = v_in - v_out - fee_usdc - fee_base_q * px_in
+        else:
+            pnl = v_out - v_in - fee_usdc     # comissao paga na moeda ja reduziu o que se vendeu
+        out[r["id"]] = {"compra_usdc": round(v_in, 4), "venda_usdc": round(v_out, 4),
+                        "comissoes_usdc": round(fee_usdc + fee_base_q * px_in, 4),
+                        "pnl_usdc": round(pnl, 4) if fechada else None,
+                        "fechada": fechada, "n": n, "preco_entrada": round(px_in, 10),
+                        "preco_saida": round(v_out / q_out, 10) if q_out else None}
+    return out
+
+
 def funding():
     """Saldos na conta Funding (onde caem os depositos na Bybit). O programa
     so negoceia com a Conta Unificada; o dinheiro aqui tem de ser transferido
@@ -272,7 +328,14 @@ def snapshot(state, now=None):
         orders = open_orders()
         since = min([r.get("issued_at") or now for r in opened] or [now])
         execs = executions([symbol_of(r) for r in opened], since - 600)
-        return {"ok": True, "t": int(now), "usdc_free": usdc_free(wallet),
+        try:                                 # resultado real (fase 1): ultimos 6,5 dias
+            recent = [r for r in led if r.get("kind") == "4H" and r.get("executed") is not False
+                      and (r.get("issued_at") or 0) >= now - 6.5 * 86400]
+            reais = real_results(recent, executions([symbol_of(r) for r in recent],
+                                                    now - 6.5 * 86400), now)
+        except Exception as e:
+            reais = {"erro": str(e)[:100]}
+        return {"ok": True, "t": int(now), "usdc_free": usdc_free(wallet), "reais": reais,
                 "equity": equity(wallet),
                 "expires": info.get("expiredAt"),
                 "fundo": funding(),
