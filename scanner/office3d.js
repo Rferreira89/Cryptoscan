@@ -1221,7 +1221,9 @@ function decide(p) {
   if (p.mode === "work" || (!p.path.length && p.wait <= 0)) {
     // 24/7 (decisao do Rui): entre corridas cada agente fica sobretudo na sua
     // secretaria, a acompanhar os dados ao vivo; pausas curtas no cafe
-    if (true) {                            // 24/7: sempre a secretaria
+    // (20/10) pausas: de vez em quando vao ao cafe, ao sofa ou a sala de
+    // reuniao; a maior parte do tempo continuam a secretaria
+    if (p.mode !== "desk" || Math.random() < .72) {
       p.mode = "desk"; p.spot = null; p.sit = false; p.path = route(p, p.seat, DESK[p.a.id].z); p.dest = DESK[p.a.id].z;
       p.wait = 60 + Math.random() * 90; return;
     }
@@ -1301,6 +1303,10 @@ function drawMission(g) {
     g.strokeStyle = "#2b2470"; g.lineWidth = 1; g.font = "600 15px system-ui"; g.fillStyle = "#8aa0b4"; g.textAlign = "right";
     [hi - pad, (hi + lo) / 2, lo + pad].forEach(v => { g.beginPath(); g.moveTo(X0, yp(v)); g.lineTo(X1, yp(v)); g.stroke(); g.fillText(sg(v), X0 - 6, yp(v) + 5); });
     g.textAlign = "left"; g.strokeStyle = "#cfc8ff66"; g.setLineDash([6, 6]); g.beginPath(); g.moveTo(X0, yp(0)); g.lineTo(X1, yp(0)); g.stroke(); g.setLineDash([]);
+    // depositos marcados no grafico (nao contam como ganho)
+    (EV.fluxos || []).filter(fx => fx[0] >= t0 && fx[0] <= t1).forEach(fx => { const x = xp(fx[0]);
+      g.strokeStyle = "#63B3EDaa"; g.setLineDash([4, 5]); g.beginPath(); g.moveTo(x, Y0); g.lineTo(x, Y1); g.stroke(); g.setLineDash([]);
+      g.fillStyle = "#63B3ED"; g.font = "700 15px system-ui"; g.textAlign = x > X1 - 90 ? "right" : "left"; g.fillText(`${fx[1] >= 0 ? "+" : "−"}${Math.round(Math.abs(fx[1]))} depósito`, x + (x > X1 - 90 ? -5 : 5), Y1 - 8); g.textAlign = "left"; });
     const last = vs[vs.length - 1], c = cl(last);
     g.beginPath(); g.moveTo(xp(ts[0]), yp(0)); S.forEach(([t, v]) => g.lineTo(xp(t), yp(v))); g.lineTo(xp(ts[ts.length - 1]), yp(0)); g.closePath(); g.fillStyle = c + "33"; g.fill();
     g.beginPath(); S.forEach(([t, v], k) => k ? g.lineTo(xp(t), yp(v)) : g.moveTo(xp(t), yp(v))); g.strokeStyle = c; g.lineWidth = 3.5; g.stroke();
@@ -1308,6 +1314,7 @@ function drawMission(g) {
     const dt = t => new Date(t * 1000).toLocaleDateString("pt-PT", { day: "2-digit", month: "2-digit" });
     g.fillStyle = "#8aa0b4"; g.font = "600 15px system-ui"; g.fillText(dt(t0), X0, Y1 + 24); g.textAlign = "right"; g.fillText("agora", X1, Y1 + 24); g.textAlign = "left";
     g.fillStyle = c; g.font = "800 22px system-ui"; g.fillText(`Ganho real: ${sg(EV.g_usdc)} USDC`, X0 + 8, Y0 + 20);
+    g.fillStyle = "#9fb3c8"; g.font = "600 17px system-ui"; g.textAlign = "right"; g.fillText(`puseste ${f2(EV.investido)} · vale ${f2(M.capital)}`, X1 - 6, Y0 + 20); g.textAlign = "left";
   } else { g.fillStyle = "#9fb3c8"; g.font = "600 20px system-ui"; g.fillText("O gráfico real começa com a primeira amostra da conta.", 48, 320); }
   // caixas
   let nv = 0, nr = 0; Object.entries(N.plano || {}).forEach(([k, p]) => { if (N.pos && N.pos[k]) { nv += p.valor_usdc || 0; nr += p.resultado_usdc || 0; } });
@@ -1316,7 +1323,7 @@ function drawMission(g) {
   box(269, "🧾 Ativas (real)", RE.n ? `${sg(RE.pnl_usdc)} · ${RE.n} op.` : "sem fechos", cl(RE.pnl_usdc || 0));
   box(510, AU.ligado ? "🤖 Auto ligado" : "🤖 Auto desligado", "Risco " + (RK.reduzido ? "½" : "normal"), RK.reduzido ? "#F6C453" : UP);
   g.fillStyle = "#8aa0b4"; g.font = "600 15px system-ui";
-  g.fillText(`Ganho sem contar depósitos · dinheiro posto ${EV ? f2(EV.investido) : "–"} USDC · campeão: ${((D.promo || {}).campeoes || []).join(", ") || "nenhum"}`.slice(0, 92), 28, 576);
+  g.fillText(`Ganho sem contar depósitos (linhas azuis) · campeão: ${((D.promo || {}).campeoes || []).join(", ") || "nenhum"} · toca para ampliar`.slice(0, 96), 28, 576);
 }
 function buildMission() {
   misTex = canvasTex(768, 600, drawMission);
@@ -1327,7 +1334,7 @@ function buildMission() {
 }
 // toque no painel: abre-o em grande, por cima do escritorio
 function showMission() {
-  updateMission(); let el = document.getElementById("misbig");
+  updateMission(); updateCofre(); let el = document.getElementById("misbig");
   if (!el) { el = document.createElement("div"); el.id = "misbig"; el.style.cssText = "position:fixed;inset:0;z-index:70;background:#05041acc;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px";
     el.innerHTML = '<img alt="Painel da missão" style="width:min(100%,760px);border-radius:14px;box-shadow:0 0 40px #B794F466"><div style="display:flex;gap:8px"><button data-k="g" style="font:700 14px system-ui;padding:10px 16px;border-radius:99px;border:1px solid #B794F4;background:#2a1d5e;color:#fff">Abrir o gestor</button><button data-k="x" style="font:700 14px system-ui;padding:10px 16px;border-radius:99px;border:1px solid #555;background:#111;color:#fff">Fechar</button></div>';
     el.addEventListener("click", e => { const k = e.target.dataset && e.target.dataset.k; el.style.display = "none"; if (k === "g") API().openZone("ops"); });
@@ -1335,6 +1342,51 @@ function showMission() {
   el.querySelector("img").src = misTex.userData.c.toDataURL(); el.style.display = "flex";
 }
 function updateMission() { if (misTex) { drawMission(misTex.userData.c.getContext("2d")); misTex.needsUpdate = true; } }
+
+// ---------- cofre do nucleo (fundo sul do corredor): o valor de cada moeda e
+// quanto falta para o ponto de saida (fecho diario abaixo da media de 200 dias) ----------
+let cofreTex = null, cofreScr = null;
+function drawCofre(g) {
+  const N = (API().D() || {}).nucleo || {}, W = 768, H = 470, cor = { BTC: "#F7931A", ETH: "#8C8CF7", SOL: "#14F195" };
+  g.fillStyle = "#0d0b06"; g.fillRect(0, 0, W, H); g.strokeStyle = "#F6C453"; g.lineWidth = 5; g.strokeRect(3, 3, W - 6, H - 6);
+  const f2 = v => Number(v).toFixed(2).replace(".", ","), sg = v => (v >= 0 ? "+" : "−") + f2(Math.abs(v)), px = v => v >= 100 ? Math.round(v).toLocaleString("pt-PT") : Number(v).toFixed(2).replace(".", ",");
+  let tv = 0, tr = 0; const P = N.plano || {};
+  Object.entries(P).forEach(([a, p]) => { if (N.pos && N.pos[a]) { tv += p.valor_usdc || 0; tr += p.resultado_usdc || 0; } });
+  g.fillStyle = "#F6C453"; g.font = "800 28px system-ui"; g.fillText("🧱 COFRE DO NÚCLEO", 26, 48);
+  g.textAlign = "right"; g.fillStyle = "#fff"; g.font = "800 34px system-ui"; g.fillText(f2(tv) + " USDC", W - 26, 48);
+  g.fillStyle = tr >= 0 ? "#68D391" : "#FF8A80"; g.font = "700 22px system-ui"; g.fillText(sg(tr) + " USDC", W - 26, 78); g.textAlign = "left";
+  g.fillStyle = "#b8a77a"; g.font = "600 17px system-ui"; g.fillText("Spot, sem alavancagem · sai para USDC se o fecho diário ficar abaixo da média de 200 dias", 26, 78 + 22);
+  ["BTC", "ETH", "SOL"].forEach((a, i) => { const p = P[a] || {}, pos = (N.pos || {})[a], y = 126 + i * 108, c = cor[a];
+    g.fillStyle = "#1a160c"; g.fillRect(26, y, W - 52, 96); g.fillStyle = c; g.fillRect(26, y, 8, 96);
+    g.fillStyle = c; g.font = "800 30px system-ui"; g.fillText(a, 48, y + 40);
+    g.fillStyle = "#fff"; g.font = "700 24px system-ui"; g.fillText(pos ? f2(p.valor_usdc || 0) + " USDC" : (p.acima ? "à espera de compra" : "em USDC"), 140, y + 40);
+    if (pos) { g.fillStyle = (p.resultado_usdc || 0) >= 0 ? "#68D391" : "#FF8A80"; g.fillText(sg(p.resultado_usdc || 0), 380, y + 40); }
+    const dist = p.preco && p.media ? (p.media / p.preco - 1) * 100 : null;
+    g.fillStyle = "#b8a77a"; g.font = "600 18px system-ui";
+    g.fillText(p.preco ? `preço ${px(p.preco)} · média 200d ${p.media ? px(p.media) : "–"}${pos ? " · entrada " + px(pos.entrada) : ""}` : "sem preço", 48, y + 74);
+    if (dist != null) { const ok = dist < 0; g.textAlign = "right"; g.fillStyle = ok ? "#68D391" : "#FF8A80"; g.font = "800 24px system-ui";
+      g.fillText(ok ? `saída a ${Math.abs(dist).toFixed(1).replace(".", ",")}%` : "abaixo da média", W - 46, y + 40);
+      g.font = "600 16px system-ui"; g.fillStyle = "#b8a77a"; g.fillText(ok ? "do preço atual" : "vende no fecho diário", W - 46, y + 66); g.textAlign = "left";
+      // barra: quanto espaco ha ate a media (0 a 40%)
+      const w = Math.max(0, Math.min(1, Math.abs(dist) / 40)); g.fillStyle = "#2a2412"; g.fillRect(48, y + 84, W - 120, 6); g.fillStyle = ok ? "#68D391" : "#FF8A80"; g.fillRect(48, y + 84, (W - 120) * w, 6); } });
+}
+function buildCofre() {
+  cofreTex = canvasTex(768, 470, drawCofre);
+  cofreScr = new THREE.Mesh(new THREE.PlaneGeometry(4.6, 2.82), new THREE.MeshBasicMaterial({ map: cofreTex, toneMapped: false, side: THREE.DoubleSide }));
+  cofreScr.position.set(0, 3.3, 10.4); scene.add(cofreScr);
+  const gold = mat("#F6C453", .35);
+  [["BTC", "#F7931A", -1.3], ["ETH", "#8C8CF7", 0], ["SOL", "#14F195", 1.3]].forEach(([a, c, x]) => {
+    const b = boxM(.8, .8, .7, mat("#3a3220"), x, .4, 11.1); boxM(.82, .06, .72, gold, x, .82, 11.1);
+    const dial = new THREE.Mesh(new THREE.CylinderGeometry(.16, .16, .05, 20), mat(c, .8)); dial.rotation.x = Math.PI / 2; dial.position.set(x, .45, 10.73); scene.add(dial); });
+  const lt = new THREE.PointLight(0xF6C453, 7, 7); lt.position.set(0, 2.6, 9.6); scene.add(lt);
+}
+function updateCofre() { if (cofreTex) { drawCofre(cofreTex.userData.c.getContext("2d")); cofreTex.needsUpdate = true; } }
+function showCofre() {
+  updateCofre(); let el = document.getElementById("cofrebig");
+  if (!el) { el = document.createElement("div"); el.id = "cofrebig"; el.style.cssText = "position:fixed;inset:0;z-index:70;background:#05041acc;display:flex;align-items:center;justify-content:center;padding:16px";
+    el.innerHTML = '<img alt="Cofre do núcleo" style="width:min(100%,760px);border-radius:14px;box-shadow:0 0 40px #F6C45366">'; el.addEventListener("click", () => el.style.display = "none"); document.body.appendChild(el); }
+  el.querySelector("img").src = cofreTex.userData.c.toDataURL(); el.style.display = "flex";
+}
 
 // ---------- 2.o piso: Laboratorio de Estrategias ----------
 // Um piso inteiro so de pesquisa. Seis departamentos em fila, pela ordem em
@@ -1354,7 +1406,12 @@ const P2R = {
   custos: { n: "Custos reais", c: "#FFA94D", x: [7, 19], z: [3, 12] },
   comite: { n: "Comité da prova dupla", c: "#68D391", x: [-6, 6], z: [3, 12] },
   real: { n: "Prova real (Bybit)", c: "#4FD1C5", x: [-19, -7], z: [3, 12] },
+  dados: { n: "Recolha de dados (H4)", c: "#9AE6B4", x: [19.5, 24.5], z: [-12, -3] },
+  lounge: { n: "Lounge e café", c: "#FF6FB5", x: [19.5, 24.5], z: [3, 12] },
 };
+// lounge: lugares no sofa (de frente para a TV com a missao), no balcao do cafe e a mesa alta
+const P2LOUNGE = [{ p: V(20.8, 9.2), sit: 1, r: 0 }, { p: V(21.9, 9.2), sit: 1, r: 0 }, { p: V(23.0, 9.2), sit: 1, r: 0 },
+  { p: V(23.5, 5.2), r: Math.PI / 2 }, { p: V(23.5, 6.4), r: Math.PI / 2 }, { p: V(20.4, 5.6), r: Math.PI / 2 }, { p: V(21.6, 5.6), r: -Math.PI / 2 }];
 const P2ORD = ["ideias", "backtest", "acaso", "custos", "comite", "real"];
 const P2MIN_N = 20, P2MIN_R = 0.15;
 // estudos feitos fora do programa, com historico desde 2021 (resultados reais)
@@ -1429,6 +1486,10 @@ function p2Draw(room, g) {
       rows.push([(fz === f ? "▶ " : "") + "Fase " + (P2FASE[fz] || fz), ok.length ? ok.length + " aprovado" + (ok.length > 1 ? "s" : "") : "ninguém — trabalha o núcleo", fz === f ? "#fff" : "#9fb3c8"]);
       ok.slice(0, 2).forEach(e => rows.push(["   " + e.persona + " (" + e.k + ")", p2n(e.r) + "R", "#68D391"])); });
     p2Rows(g, rows); return; }
+  if (room === "dados") { p2Frame(g, "🔬 Dados de derivados para o H4", R.c); const DH = p2Data().derivados_hist || {}, dias = DH.desde ? (Date.now() / 1000 - DH.desde) / 86400 : 0, alvo = 60;
+    p2Rows(g, [["Moedas a gravar (mais dinheiro aberto)", DH.moedas || 0, "#fff"], ["Amostras horárias", DH.amostras || 0], ["A gravar desde", DH.desde ? new Date(DH.desde * 1000).toLocaleString("pt-PT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "–"],
+      ["Dias de dados", dias.toFixed(1).replace(".", ",") + " de " + alvo, dias >= alvo ? "#68D391" : "#F6C453"], ["À espera destes dados:", "", "#fff"], ["  H4 liquidações em massa", "a gravar"], ["  Funding extremo + dinheiro aberto", "a gravar"], ["  Rácio long/short no extremo", "a gravar"]], 72, 26);
+    g.fillStyle = "#1d2a24"; g.fillRect(14, 290, 484, 14); g.fillStyle = R.c; g.fillRect(14, 290, 484 * Math.min(1, dias / alvo), 14); return; }
   if (room === "real") { p2Frame(g, "🧾 Dinheiro real na Bybit", R.c); const RE = p2Data().reais || {}, N = p2Data().nucleo || {};
     const nv = Object.entries(N.plano || {}).reduce((a, [k, p]) => a + (N.pos && N.pos[k] ? p.valor_usdc || 0 : 0), 0), nr = Object.entries(N.plano || {}).reduce((a, [k, p]) => a + (N.pos && N.pos[k] ? p.resultado_usdc || 0 : 0), 0);
     p2Rows(g, [["Campeões agora", [...p2Champs()].map(p2Persona).join(", ") || "nenhum", "#fff"], ["Operações medidas", RE.n || 0], ["Resultado real", p2n(RE.pnl_usdc) + " USDC", (RE.pnl_usdc || 0) >= 0 ? "#68D391" : "#FF8A80"],
@@ -1448,10 +1509,10 @@ function p2DrawFunnel(g) {
 // ---------- construcao ----------
 function p2Seats(room) {
   const R = P2R[room], cx = (R.x[0] + R.x[1]) / 2, north = R.z[0] < 0, zb = north ? -8.4 : 8.4;
-  return [-3.6, 0, 3.6].map(dx => ({ desk: V(cx + dx, zb), seat: V(cx + dx, zb + (north ? .95 : -.95)), face: north ? Math.PI : 0 }));
+  return (R.x[1] - R.x[0] < 8 ? [0] : [-3.6, 0, 3.6]).map(dx => ({ desk: V(cx + dx, zb), seat: V(cx + dx, zb + (north ? .95 : -.95)), face: north ? Math.PI : 0 }));
 }
 function p2Door(room, inside) { const R = P2R[room], cx = (R.x[0] + R.x[1]) / 2, north = R.z[0] < 0; return V(cx, (north ? -1 : 1) * (inside ? 4.2 : 1.9)); }
-function p2Stand(room, i) { const R = P2R[room], cx = (R.x[0] + R.x[1]) / 2, north = R.z[0] < 0; return V(cx - 4 + (i % 4) * 2.6, north ? -5.4 : 5.4); }
+function p2Stand(room, i) { const R = P2R[room], w = R.x[1] - R.x[0], north = R.z[0] < 0; return V(R.x[0] + 1 + (i % 4) * (w - 2) / 3, north ? -5.4 : 5.4); }
 function p2Label(text, c, p, cls) {
   const el = document.createElement("div"); el.textContent = text;
   el.style.cssText = `position:absolute;transform:translate(-50%,-100%);pointer-events:none;white-space:nowrap;font:700 11px system-ui,sans-serif;color:${c};padding:2px 8px;border-radius:99px;background:#0c0a24c8;border:1px solid ${c}66;display:none`;
@@ -1498,6 +1559,34 @@ function buildFloor2() {
     const p = p2Person("p2h_" + room, nm, { skin: SKINS[hh % 5], hair: HAIRS[(hh >> 2) % 6], hs: fem ? (hh % 2 ? "long" : "bun") : ["short", "buzz", "curly"][hh % 3], top: R.c, jacket: room === "comite" ? "#2d3b55" : null, legs: "#22223a", glasses: hh % 3 === 0 ? 1 : 0, beard: !fem && hh % 2 ? 1 : 0 }, R.c);
     p.g.position.copy(s0.seat); p.mode = "desk"; p.sit = true; p.face = s0.face; p.room = room; P2.heads.push(p);
   });
+  ["dados", "lounge"].forEach(room => {
+    const R = P2R[room], w = R.x[1] - R.x[0], d = R.z[1] - R.z[0], cx = (R.x[0] + R.x[1]) / 2, cz = (R.z[0] + R.z[1]) / 2, north = R.z[0] < 0, zc = north ? R.z[1] : R.z[0], zf = north ? R.z[0] : R.z[1];
+    const rug = new THREE.Mesh(new THREE.PlaneGeometry(w - .4, d - .4), mat(new THREE.Color(R.c).multiplyScalar(.28).getStyle())); rug.rotation.x = -Math.PI / 2; rug.position.set(cx, .015, cz); G.add(rug);
+    const glass = mat(R.c, .15, .08), h = 1.25, sw = (w - 2.2) / 2;
+    boxM(w, h, .05, glass, cx, h / 2, zf, G); boxM(.05, h, d, glass, R.x[0], h / 2, cz, G); boxM(.05, h, d, glass, R.x[1], h / 2, cz, G);
+    boxM(sw, h, .05, glass, R.x[0] + sw / 2, h / 2, zc, G); boxM(sw, h, .05, glass, R.x[1] - sw / 2, h / 2, zc, G);
+    const c4 = [V(R.x[0], R.z[0]), V(R.x[1], R.z[0]), V(R.x[1], R.z[1]), V(R.x[0], R.z[1]), V(R.x[0], R.z[0])];
+    line(c4.map(p => p.clone().setY(h)), new THREE.Color(R.c), G); line(c4.map(p => p.clone().setY(.03)), new THREE.Color(R.c), G);
+    const lt = new THREE.PointLight(new THREE.Color(R.c), 9, 9); lt.position.set(cx, 3, cz); G.add(lt);
+    p2Label(R.n, R.c, new THREE.Vector3(cx, P2H + 1.6, zc), "room");
+    if (room === "dados") {
+      const s0 = p2Seats(room)[0], g = new THREE.Group(); g.position.copy(s0.desk); g.rotation.y = s0.face + Math.PI; G.add(g);
+      boxM(1.7, .06, .85, mat("#8b6a4c"), 0, .75, 0, g); boxM(.9, .55, .05, mat("#111"), 0, 1.15, -.2, g);
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(.82, .47), new THREE.MeshBasicMaterial({ color: R.c, toneMapped: false })); m.position.set(0, 1.15, -.17); g.add(m);
+      for (let k = 0; k < 4; k++) { boxM(.7, 2.1, .8, mat("#0d1224"), 20.2 + k * 1.1, 1.05, -11.3, G); boxM(.5, 1.8, .02, mat("#9AE6B4", .9), 20.2 + k * 1.1, 1.05, -10.89, G); }   // servidores a gravar
+      const tx = canvasTex(512, 320, gg => p2Draw("dados", gg)); P2.tex.dados = tx;
+      const scr = new THREE.Mesh(new THREE.PlaneGeometry(4, 2.5), new THREE.MeshBasicMaterial({ map: tx, toneMapped: false, side: THREE.DoubleSide })); scr.position.set(cx, 3.6, -8.6); G.add(scr); P2.scr.push(scr);
+      const hh = hsh("Leonor"), p = p2Person("p2h_dados", "Leonor", { skin: SKINS[hh % 5], hair: HAIRS[(hh >> 2) % 6], hs: "long", top: R.c, legs: "#22223a", glasses: 1 }, R.c);
+      p.g.position.copy(s0.seat); p.mode = "desk"; p.sit = true; p.face = s0.face; p.room = room; P2.heads.push(p);
+    } else {
+      boxM(3.6, .45, .9, mat("#6e3b6a"), 21.9, .25, 8.7, G); boxM(3.6, .7, .25, mat("#80447b"), 21.9, .6, 8.25, G);           // sofa
+      boxM(.9, 1, 3, mat("#3a2b20"), 24, .5, 5.8, G); boxM(.95, .06, 3.1, mat("#c08a5a"), 24, 1.02, 5.8, G);                  // balcao
+      boxM(.45, .55, .4, mat("#888"), 24, 1.33, 4.9, G); boxM(.1, .1, .05, mat("#ff4d4d", 2), 23.76, 1.42, 4.9, G);             // maquina de cafe
+      const mt = new THREE.Mesh(new THREE.CylinderGeometry(.5, .5, .06, 20), mat("#c08a5a")); mt.position.set(21, 1.05, 5.6); G.add(mt); boxM(.08, 1, .08, mat("#222"), 21, .5, 5.6, G);
+      [[19.9, 11.5], [24.1, 11.5], [19.9, 3.5]].forEach(([x, z]) => { boxM(.45, .45, .45, mat("#7a4b2a"), x, .22, z, G); const sp = new THREE.Mesh(new THREE.SphereGeometry(.45, 12, 10), mat("#38d6b5", .25)); sp.position.set(x, .9, z); G.add(sp); });
+      if (misTex) { const tv = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 2.5), new THREE.MeshBasicMaterial({ map: misTex, toneMapped: false, side: THREE.DoubleSide })); tv.position.set(21.9, 2.6, 11.4); G.add(tv); P2.scr.push(tv); }
+    }
+  });
   // funil da pesquisa (topo leste do corredor)
   const ft = canvasTex(512, 420, p2DrawFunnel); P2.tex.funil = ft;
   const fs = new THREE.Mesh(new THREE.PlaneGeometry(4.4, 3.6), new THREE.MeshBasicMaterial({ map: ft, toneMapped: false, side: THREE.DoubleSide })); fs.position.set(22.6, 2.6, 0); G.add(fs); P2.scr.push(fs);
@@ -1530,19 +1619,44 @@ function p2Seat(room, p) {
   return null;
 }
 function p2Say(p, html, secs = 5) { P2.talk = P2.talk.filter(t => !t.who.includes(p)); P2.talk.push({ who: [p], html, t: secs, el: null }); }
+function p2LoungeSpot(p) { const used = new Set(P2.people.filter(q => q !== p && q.lspot).map(q => q.lspot)); const free = P2LOUNGE.filter(x => !used.has(x)); return free[Math.floor(Math.random() * free.length)] || null; }
 function p2Go(p) {
-  // proximo passo do plano do investigador
-  if (!p.doss || p.step >= p.plan.length) {
-    if (p.doss && p.room !== "ideias") { p.doss = null; p.plan = ["ideias"]; p.step = 0; }   // volta as ideias para buscar outro dossier
-    else { const e = p2Pick(); if (!e) { p.wait = 5; return; } p.doss = e; p.plan = P2ORD.slice(0, Math.min(6, e.stop + 1)); p.step = 0; p.folder.material.color.set("#e8eef7"); p.folder.material.emissive.set("#e8eef7"); }
+  p.coffee = false; p.lspot = null;
+  if (!p.plan || p.step >= p.plan.length) {
+    if (p.doss) {                         // dossier terminado: pausa no lounge, ver os dados ou outro dossier
+      p.doss = null; const r = Math.random();
+      p.plan = r < .38 ? ["lounge", "ideias"] : r < .5 ? ["dados", "ideias"] : ["ideias"]; p.step = 0;
+    } else { const e = p2Pick(); if (!e) { p.wait = 5; return; } p.doss = e; p.plan = P2ORD.slice(0, Math.min(6, e.stop + 1)); p.step = 0; p.folder.material.color.set("#e8eef7"); p.folder.material.emissive.set("#e8eef7"); }
   }
-  const room = p.plan[p.step], st = p2Seat(room, p); p.seatKey = st ? st.key : null;
+  const room = p.plan[p.step];
+  p.folder.visible = !!p.doss;
+  if (room === "lounge") { const sp = p2LoungeSpot(p); if (!sp) { p.step++; p.wait = .5; return; } p.lspot = sp; p.seatKey = null;
+    p.path = p2Route(p, room, sp.p.clone()); p.dest = room; p.mode = "stand"; p.sit = false; p.arrive = true; return; }
+  const st = p2Seat(room, p); p.seatKey = st ? st.key : null;
   const target = st ? st.s.seat : p2Stand(room, P2.people.indexOf(p));
   p.path = p2Route(p, room, target); p.dest = room; p.mode = st ? "desk" : "stand"; p.face = st ? st.s.face : 0; p.sit = false; p.arrive = true;
 }
+function p2SmallTalk(a, b) {
+  const D = p2Data(), M = D.meta || {}, N = D.nucleo || {}, EV = D.evolucao || {}, all = p2All(p2Fase());
+  const nr = Object.entries(N.plano || {}).reduce((s, [k, x]) => s + (N.pos && N.pos[k] ? x.resultado_usdc || 0 : 0), 0);
+  const mk = (M.marcos || []).find(x => !x.feito), DH = D.derivados_hist || {};
+  const L = [[`Viste o núcleo? Vai ${p2n(nr)} USDC.`, `E a conta está em ${(M.capital || 0).toFixed(2).replace(".", ",")} USDC${mk ? `, faltam ${(mk.valor - M.capital).toFixed(2).replace(".", ",")} para o marco de ${mk.valor}` : ""}.`],
+    [`Do funil, só ${all.filter(e => e.stop >= 5).length} de ${all.length} chegam ao dinheiro real.`, `É assim que tem de ser: quem não prova, não mexe no dinheiro do Rui.`],
+    [`Já temos ${DH.amostras || 0} amostras de derivados para o H4.`, `Com 60 dias de dados já dá para testar as liquidações a sério.`],
+    [`Últimas 24 h: ${EV.periodos && EV.periodos.dia != null ? p2n(EV.periodos.dia) + "%" : "ainda a gravar"}.`, `Sem contar depósitos. Só conta o que o mercado nos dá.`]];
+  const [x, y] = L[Math.floor(Math.random() * L.length)];
+  P2.talk = P2.talk.filter(t => !t.who.includes(a) && !t.who.includes(b));
+  P2.talk.push({ who: [a, b], html: `☕ <b>${a.nm}</b>: ${esc3(x)}<br><b>${b.nm}</b>: ${esc3(y)}`, t: 7, el: null });
+}
 function p2Arrive(p) {
   p.room = p.dest; p.arrive = false; const room = p.room, e = p.doss; p.wait = 3.5 + Math.random() * 3;
-  if (!e) { p.wait = 1.5; return; }
+  if (!e) {
+    if (room === "lounge" && p.lspot) { p.wait = 12 + Math.random() * 10; p.sit = !!p.lspot.sit; p.coffee = !p.lspot.sit;
+      const q = P2.people.find(o => o !== p && o.room === "lounge" && o.lspot && !o.path.length); if (q && Math.random() < .8) p2SmallTalk(p, q); }
+    else if (room === "dados") { p.wait = 6; if (Math.random() < .6) { const DH = p2Data().derivados_hist || {}; p2Say(p, `<b>${p.nm}</b> · Recolha de dados<br>Já há ${DH.amostras || 0} amostras de ${DH.moedas || 0} moedas para testar o H4.`, 4); } }
+    else p.wait = 1.2;
+    p.step++; return;
+  }
   const last = p.step === p.plan.length - 1;
   if (last && room !== "ideias") {
     const ok = e.stop === 5, col = ok ? "#F6C453" : "#FF8A80"; p.folder.material.color.set(col); p.folder.material.emissive.set(col);
@@ -1559,6 +1673,7 @@ function p2Tick(dt, t) {
     if (!p.talking && !p.path.length) { if (p.arrive) p2Arrive(p); else { p.wait -= dt; if (p.wait <= 0) p2Go(p); } }
     animate(p, dt, t); if (p.cool > 0) p.cool -= dt;
     if (p.talking) { const o = p.partner.g.position; p.g.rotation.y = Math.atan2(o.x - p.g.position.x, o.z - p.g.position.z); }
+    else if (!p.path.length && p.lspot) { p.g.rotation.y = p.lspot.r; if (p.coffee) { p.rig.cup.visible = true; p.rig.AR.sh.rotation.x = -.45; p.rig.AR.el.rotation.x = -1.35; } }
     else if (!p.path.length && p.mode === "stand") p.g.rotation.y = P2R[p.room] && P2R[p.room].z[0] < 0 ? Math.PI : 0;
   });
   // encontros no corredor: param, viram-se um para o outro e trocam o que sabem
@@ -1600,8 +1715,8 @@ function goFloor(n) {
   if (!P2.g) buildFloor2();
   P2.on = n === 2; P2.g.visible = P2.on;
   if (!P2.on) { p2HideOverlays(); resize.done = false; ctl.target.set(0, 0, 0); resize(); ctl.update(); }
-  else { updateFloor2(); const T = new THREE.Vector3(2, P2H, 0); ctl.target.copy(T);
-    if (cam.aspect < .8) cam.position.set(T.x - 50, T.y + 50, 0); else cam.position.set(T.x + 1, T.y + 27, 31); ctl.update(); }
+  else { updateFloor2(); const T = new THREE.Vector3(cam.aspect < .8 ? 2 : 3.5, P2H, 0); ctl.target.copy(T);
+    if (cam.aspect < .8) cam.position.set(T.x - 50, T.y + 50, 0); else cam.position.set(T.x + 1, T.y + 30, 35); ctl.update(); }
   try { window.dispatchEvent(new CustomEvent("piso", { detail: P2.on ? 2 : 1 })); } catch (_) { }
   return P2.on;
 }
@@ -1653,6 +1768,7 @@ function frame() {
   if (nowMs - (frame.tvAt || -1e9) > 30000 || tvT <= 0) { frame.tvAt = nowMs; tvT = 30; drawTV(tvTex.userData.c.getContext("2d")); tvTex.needsUpdate = true; if (mesaTex) { mesaI++; drawMesa(mesaTex.userData.c.getContext("2d")); mesaTex.needsUpdate = true; } updateRadar(); updateArena(); updateRewards(); updateSectors(); updateStrategyRoom(); updateStaff(); updateDirector(); updateAcademy(); updateMoney(); updateFloor2(); updateMission(); drawBoard(board.userData.c.getContext("2d")); board.needsUpdate = true; }
   if (radar) { radar.sweep.rotation.z -= dt * 1.4; radar.blips.children.forEach((b, i) => { if (b.geometry.type === "SphereGeometry") b.scale.setScalar(1 + Math.sin(t * 4 + i) * .15); }); }
   if (P2.on) p2Tick(dt, t);
+  if (cofreScr) { cofreScr.visible = !P2.on; cofreScr.quaternion.copy(cam.quaternion); cofreScr.scale.setScalar(cam.aspect < .8 ? 1.4 : 1); }
   if (misScr) { misScr.visible = !P2.on; misScr.quaternion.copy(cam.quaternion); misScr.scale.setScalar(cam.aspect < .8 ? 1.5 : 1); }
   animateArena(dt, t); animateRewards(dt, t); secPeople.forEach(p => animate(p, dt, t)); stPeople.forEach(p => animate(p, dt, t)); staffPeople.forEach(p => animate(p, dt, t)); dirPeople.forEach(p => animate(p, dt, t)); acPeople.forEach(p => animate(p, dt, t));
   ctl.update(); if (composer) composer.render(); else R.render(scene, cam); placeOverlays(dt);
@@ -1705,7 +1821,7 @@ function init(container) {
     bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), .28, .4, .92); composer.addPass(bloom); composer.addPass(new OutputPass());
   } catch (e) { composer = null; }
   monTex = canvasTex(256, 160, drawMon);
-  buildRoom(); buildAccessories(); Object.keys(DESK).forEach(buildDesk); buildRadar(); buildBoard(); updateRadar(); buildArena(); buildRewards(); buildSectors(); buildStrategyRoom(); buildStaff(); buildDirector(); buildMemorial(); buildAcademy(); buildOpsMoney(); updateMoney(); buildMission(); arenaSig = ""; updateArena();
+  buildRoom(); buildAccessories(); Object.keys(DESK).forEach(buildDesk); buildRadar(); buildBoard(); updateRadar(); buildArena(); buildRewards(); buildSectors(); buildStrategyRoom(); buildStaff(); buildDirector(); buildMemorial(); buildAcademy(); buildOpsMoney(); updateMoney(); buildMission(); buildCofre(); arenaSig = ""; updateArena();
   people = API().agents.map(makePerson);
   // ao abrir: quem esta em pausa ja esta num sitio de descanso (sem marcha em
   // grupo pelo corredor), cada um com a sua faixa e o seu ritmo
@@ -1727,6 +1843,7 @@ function init(container) {
     const r = R.domElement.getBoundingClientRect(); m.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1);
     ray.setFromCamera(m, cam);
     if (!P2.on && misScr && ray.intersectObject(misScr, false)[0]) { showMission(); return; }
+    if (!P2.on && cofreScr && ray.intersectObject(cofreScr, false)[0]) { showCofre(); return; }
     if (P2.on) { const h2 = ray.intersectObjects(P2.people.concat(P2.heads).map(p => p.g), true)[0]; if (h2) p2Click(h2); return; }
     const hit = ray.intersectObjects(people.map(p => p.g), true)[0];
     if (hit) { API().select(hit.object.userData.agent); bubAt = 0; return; }
@@ -1756,4 +1873,4 @@ function goStrategy() { p2Leave(); const T = V(ST_WALL + stLen / 2 + .6, 0), dx 
   const d = cam.position.clone().sub(ctl.target), want = 17 + stLen * .35; cam.position.copy(ctl.target.clone().add(d.setLength(want))); ctl.update(); }
 function goTo(x, z, want = 14) { p2Leave(); const T = V(x, z), dx = T.x - ctl.target.x, dz = T.z - ctl.target.z; ctl.target.copy(T); cam.position.x += dx; cam.position.z += dz;
   const d = cam.position.clone().sub(ctl.target); cam.position.copy(ctl.target.clone().add(d.setLength(want))); ctl.update(); }
-window.Office3D = { init, supported, refresh: () => { tvT = 0; }, resetView, goArena, goRewards, goSectors, goStrategy, goMemorial, goAcademy, goDirector, goTo, goFloor, floor: () => P2.on ? 2 : 1, showMission };
+window.Office3D = { init, supported, refresh: () => { tvT = 0; }, resetView, goArena, goRewards, goSectors, goStrategy, goMemorial, goAcademy, goDirector, goTo, goFloor, floor: () => P2.on ? 2 : 1, showMission, showCofre };

@@ -88,6 +88,7 @@ def sync(state, ex):
     st = _st(state)
     st["pos"] = dict((ex or {}).get("nucleo") or {})
     st["historico"] = list((ex or {}).get("nucleo_hist") or [])[-50:]
+    st["log"] = list((ex or {}).get("nucleo_log") or [])[-30:]
 
 
 def resumo(state):
@@ -99,4 +100,6 @@ def resumo(state):
     fechado = sum(h.get("pnl_usdc") or 0 for h in st.get("historico") or [])
     return {"ligado": bool(st.get("ligado")), "plano": plano, "pos": pos,
             "valor_usdc": round(val, 2), "resultado_aberto_usdc": round(res, 2),
-            "resultado_fechado_usdc": round(fechado, 2)}
+            "resultado_fechado_usdc": round(fechado, 2),
+            "log": (st.get("log") or [])[-15:] + [{"moeda": h.get("moeda"), "acao": "venda", "usdc": round((h.get("qty") or 0) * (h.get("saida") or 0), 2),
+                                                   "pnl_usdc": h.get("pnl_usdc"), "t": h.get("t_saida")} for h in (st.get("historico") or [])[-5:]]}

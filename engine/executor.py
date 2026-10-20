@@ -1286,6 +1286,9 @@ def do_nucleo_comprar(state, req, ex, now, send, junta=None):
         send(f"🚨 Núcleo: a compra de {a} foi enviada mas não confirmei a execução ({str(e)[:60]}). Verifica na app.")
         nuc[a] = {"qty": 0.0, "entrada": px, "t": now, "verificar": True}
         return "sem execução confirmada"
+    ex.setdefault("nucleo_log", []).append({"moeda": a, "acao": "reforço" if junta else "compra", "usdc": round(avg * q, 2),
+                                            "preco": avg, "t": now})
+    ex["nucleo_log"] = ex["nucleo_log"][-60:]
     if junta:
         q0, e0 = float(junta.get("qty") or 0), float(junta.get("entrada") or avg)
         tq = q0 + q

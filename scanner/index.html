@@ -144,6 +144,16 @@ button:focus-visible,summary:focus-visible,.steps li:focus-visible{outline:2px s
 @media (prefers-reduced-motion:reduce){#toast{transition:none}}
 a{color:inherit}
 
+#hoje{position:fixed;inset:0;z-index:70;background:#05041acc;display:flex;align-items:center;justify-content:center;padding:16px}
+#hoje[hidden]{display:none}
+#hoje .hj{width:min(100%,520px);max-height:84vh;overflow:auto;background:#0c0a24;border:1px solid #B794F4;border-radius:16px;padding:14px 16px;box-shadow:0 0 40px #B794F466;font-size:13.5px}
+#hoje h3{margin:0 0 8px;font-size:17px;display:flex;justify-content:space-between;align-items:center}
+#hoje h3 button{background:none;border:0;color:var(--mut);font-size:20px;cursor:pointer}
+#hoje .it{display:flex;gap:10px;padding:7px 0;border-top:1px solid #221c5a}
+#hoje .it i{font-style:normal;width:22px;flex:none;text-align:center}
+#hoje .it span{flex:1}
+#hoje .it small{color:var(--mut)}
+.al.hoje{background:#B794F4;color:#0a0820;box-shadow:0 0 14px #B794F4aa}
 /* navegacao */
 #floorbtn{position:absolute;left:12px;bottom:calc(64px + env(safe-area-inset-bottom));border:1px solid #B794F4;background:linear-gradient(135deg,#2a1d5ef0,#0c0a24f0);color:#E9DDFF;font:700 13px/1 system-ui,sans-serif;padding:10px 14px;border-radius:99px;cursor:pointer;box-shadow:0 0 18px #B794F466;z-index:4}
 #floorbtn.on{border-color:#4FD1C5;color:#CFFAF5;box-shadow:0 0 18px #4FD1C566}
@@ -267,7 +277,7 @@ body.sheet-open #sheet{transform:none}
 @media (prefers-reduced-motion:reduce){.typing i,.bot .eye{animation:none}.bub{transition:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module" src="office3d.js?v=20261020m2"></script>
+<script type="module" src="office3d.js?v=20261020v1"></script>
 </head>
 <body class="w3d">
 <div id="world">
@@ -295,6 +305,7 @@ body.sheet-open #sheet{transform:none}
 <span id="n-esc" hidden></span>
 </div>
 <div id="fcard" hidden></div>
+<div id="hoje" hidden><div class="hj" role="dialog" aria-label="O que aconteceu hoje"></div></div>
 <div id="sheet" aria-hidden="true">
 <div class="sh-head"><span class="grip"></span><b id="sh-title">Centro de comando</b><button id="sh-close" aria-label="Fechar">✕</button></div>
 <nav class="sh-idx" id="shidx" aria-label="Secções"><button data-p="ops">Operações</button><button data-p="meet">Resultado</button><button data-p="lab">Pesquisa</button><button data-p="srv">Ativos</button><button data-p="ctrl">Sistema</button></nav>
@@ -871,7 +882,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261020f";
+const PAGE_V="20261020g";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -1061,7 +1072,7 @@ function renderHud(){if(!D)return;const C=D.config||{},J=(D.journal||{}).rows||[
   const mine=J.filter(r=>r.executed===true&&r.status==="CLOSED"),R=r=>r.user_r!=null?r.user_r:r.result_r,w=mine.filter(r=>R(r)>0).length;
   const btc=(D.universe||[]).find(r=>r.asset==="BTC")||{};
   $("hudstats").innerHTML=[["Capital USDC",C.capital_usdc!=null?num(C.capital_usdc,2):"–"],["Abertas",(open.length+tro.length)+"/"+(C.max_open_positions||2)],["Ganhas/perdidas",`<span class="up">${w}</span> / <span class="dn">${mine.length-w}</span>`],[`BTC <span class="${btc.chg_24h>=0?"up":"dn"}">${btc.chg_24h>=0?"+":""}${num(btc.chg_24h,1)}%</span>`,btc.price?Math.round(btc.price).toLocaleString("pt-PT"):"–"]].map(([k,v])=>`<div class="hs">${k}<b>${v}</b></div>`).join("");
-  const chips=[];
+  const chips=[`<button class="al hoje" data-hoje="1">📋 Hoje</button>`];
   if(D.halt)chips.push(`<button class="al stop" data-go="ctrl">⛔ Travão ativo</button>`);
   wait.forEach(s=>chips.push(`<button class="al buy" data-go="ops" data-id="${esc(s.id)}">${s.direction==="SHORT"?"🔻 SHORT":"🟢 COMPRA"} ${esc(s.asset)} · à espera de entrada</button>`));
   open.forEach(s=>{const cur=curPrice(s.asset),p=s.position||{},pl=cur&&p.entry?(cur/p.entry-1)*100*(s.direction==="SHORT"?-1:1):null;chips.push(`<button class="al open" data-go="ops" data-id="${esc(s.id)}">● ${esc(s.asset)} ${pl==null?"aberta":(pl>0?"+":"")+num(pl,1)+"%"}</button>`)});
@@ -1072,7 +1083,29 @@ function renderHud(){if(!D)return;const C=D.config||{},J=(D.journal||{}).rows||[
   const age=Math.round((Date.now()/1000-D.generated_at)/60),src=D.sources||{};
   $("sysstate").innerHTML=`<div class="banner"><b>Estado do sistema</b>Último scan: ${hm(D.generated_at)} (há ${age} min) · ${(D.counts||{}).pairs_seen||"–"} pares vistos, ${(D.counts||{}).deep_checked||"–"} analisados a fundo.<br>Fontes de preços: ${Object.entries(src).map(([k,v])=>`${esc(k)} ${v.ok?"✅":"❌"}`).join(" · ")}<br>${D.halt?`<span class="dn">Travão ativo: ${esc(D.halt)}</span>`:"Sem travões ativos."} ${D.next_event?`<br>Próximo evento: ${esc(D.next_event.name)}, ${hm(D.next_event.t)}.`:""}</div>`;
 }
-$("alerts").addEventListener("click",e=>{const b=e.target.closest(".al");if(!b)return;openPanel(b.dataset.go,b.dataset.id?`.op[data-id="${b.dataset.id}"]`:null)});
+function hojeItems(){const it=[],d0=new Date();d0.setHours(0,0,0,0);const T0=d0.getTime()/1000,hoje=t=>t&&t>=T0,hh=t=>new Date(t*1000).toLocaleTimeString("pt-PT",{hour:"2-digit",minute:"2-digit"});
+  const EV=D.evolucao||{},P=EV.periodos||{},sg=(v,d=2)=>(v>=0?"+":"−")+Math.abs(v).toFixed(d).replace(".",",");
+  if(P.dia!=null)it.push(["📈",`Últimas 24 h: <b class="${P.dia>=0?"up":"dn"}">${sg(P.dia)}%</b> (sem contar depósitos)`,`ganho total ${sg(EV.g_usdc||0)} USDC · ${sg(EV.pct||0)}%`]);
+  (EV.fluxos||[]).filter(f=>hoje(f[0])).forEach(f=>it.push(["💶",`${f[1]>=0?"Depósito":"Saída"} de <b>${num(Math.abs(f[1]),2)} USDC</b> detetado`,"às "+hh(f[0])+" · não conta como ganho"]));
+  const N=D.nucleo||{},LG=(N.log||[]).filter(x=>hoje(x.t));
+  if(LG.length)LG.forEach(x=>it.push(["🧱",`Núcleo: ${x.acao} de ${esc(x.moeda)} · ${num(x.usdc,2)} USDC${x.pnl_usdc!=null?` (resultado ${sg(x.pnl_usdc)})`:""}`,"às "+hh(x.t)]));
+  else Object.entries(N.pos||{}).filter(([a,p])=>hoje(p.t)).forEach(([a,p])=>it.push(["🧱",`Núcleo: compra de ${esc(a)}`,"às "+hh(p.t)]));
+  const nr=Object.entries(N.plano||{}).reduce((s,[a,p])=>s+(N.pos&&N.pos[a]?p.resultado_usdc||0:0),0),nv=Object.entries(N.plano||{}).reduce((s,[a,p])=>s+(N.pos&&N.pos[a]?p.valor_usdc||0:0),0);
+  if(nv)it.push(["🧱",`Núcleo vale <b>${num(nv,2)} USDC</b> · resultado <b class="${nr>=0?"up":"dn"}">${sg(nr)}</b>`,Object.entries(N.plano||{}).map(([a,p])=>`${a} ${p.acima?"acima":"abaixo"} da média de 200 dias`).join(" · ")]);
+  const J=(D.journal||{}).rows||[],R=r=>r.real_r!=null?r.real_r:r.user_r!=null?r.user_r:r.result_r;
+  J.filter(r=>r.executed===true&&hoje(r.opened_at||r.issued_at)).forEach(r=>it.push(["🟢",`Entrada real: ${esc(r.asset)} (${esc(personaOf?personaOf(r.strategy):r.strategy)})`,"às "+hh(r.opened_at||r.issued_at)+(r.risk_usdc?` · risco ${num(r.risk_usdc,2)} USDC`:"")]));
+  J.filter(r=>r.executed===true&&r.status==="CLOSED"&&hoje(r.closed_at)).forEach(r=>{const x=R(r);it.push(["🏁",`Fechou ${esc(r.asset)}: <b class="${x>=0?"up":"dn"}">${x==null?"–":sg(x)}R</b>`,"às "+hh(r.closed_at)])});
+  const DC=((D.diretor||{}).decisoes||[]).filter(x=>hoje(x.t));
+  if(DC.length)it.push(["🧭",`Diretor: ${DC.filter(x=>x.decisao==="AUTORIZADO").length} autorizadas, ${DC.filter(x=>x.decisao!=="AUTORIZADO").length} recusadas`,DC.slice(-3).map(x=>`${esc(x.ativo)} ${x.decisao==="AUTORIZADO"?"✅":"❌"}`).join(" · ")]);
+  else it.push(["🧭","Diretor: nenhuma entrada real hoje","só entra quem passa a prova dupla"]);
+  it.push(["🏆",`Campeões agora: <b>${((D.promo||{}).campeoes||[]).map(k=>esc(personaOf?personaOf(k):k)).join(", ")||"nenhum"}</b>`,"fase do mercado: "+esc((D.mercado||{}).regime||"–")]);
+  if(D.risco)it.push(["🛡️",`Risco ${D.risco.reduzido?"a metade":"normal"}`,esc(D.risco.motivo||"")]);
+  if(D.halt)it.push(["⛔","Travão ativo",esc(D.halt)]);
+  const DH=D.derivados_hist;if(DH&&DH.desde)it.push(["🔬",`Dados para o H4: ${DH.moedas} moedas, ${DH.amostras} amostras`,"a gravar desde "+new Date(DH.desde*1000).toLocaleString("pt-PT",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})]);
+  return it}
+function openHoje(){const el=$("hoje");el.querySelector(".hj").innerHTML=`<h3>📋 O que aconteceu hoje<button aria-label="Fechar">✕</button></h3>${hojeItems().map(([i,t,s])=>`<div class="it"><i>${i}</i><span>${t}${s?`<br><small>${s}</small>`:""}</span></div>`).join("")}`;el.hidden=false}
+$("hoje").addEventListener("click",e=>{if(e.target.id==="hoje"||e.target.closest("h3 button"))$("hoje").hidden=true});
+$("alerts").addEventListener("click",e=>{const b=e.target.closest(".al");if(!b)return;if(b.dataset.hoje){openHoje();return}openPanel(b.dataset.go,b.dataset.id?`.op[data-id="${b.dataset.id}"]`:null)});
 window.OFAPI_openZone=k=>openPanel(k);
 if(/^#(ops|meet|lab|srv|ctrl)$/.test(location.hash))openPanel(location.hash.slice(1));
 addEventListener("hashchange",()=>{const m=location.hash.match(/^#moeda=([A-Za-z0-9]+)/);if(m&&D){XA=m[1].toUpperCase();openPanel("srv","#s-explorar");$("xq").value=XA;renderExplorer(XA)}});
