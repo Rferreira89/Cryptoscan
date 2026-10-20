@@ -1044,3 +1044,53 @@ já rejeitada. O contador fica em 16.
 - Proposta para a próxima corrida: só autópsia se morrer alguém; uma
   hipótese nova só se trouxer uma fonte de informação ainda não usada (por
   exemplo, se o histórico passar a ter interesse em aberto dos perpétuos).
+
+## 2026-10-20 — Pré-registo (escrito antes de qualquer teste desta corrida)
+
+- **Arena** (scan.json do ramo `data`, 2026-10-20): 24 lutadores vivos
+  (mínimo 5), `recrutar` falso. Mortos novos sem sucessor: MAIORES_FUNDING
+  (Gonçalo, morto a 2026-10-18 por morte rápida: 10 op., −0,676R, 2
+  ganhadoras) e BOUNCE_MACRO (Mário, morto a 2026-10-19: 51 op., −0,011R,
+  abaixo da mediana ao acaso nessa altura). Fila do Rui vazia. Histórico de
+  4H até 2026-10-18 08:00 UTC (2 dias de atraso); funding até 2026-10-01.
+- Autópsias abaixo (só janela de desenho, 2024-10-19 a 2026-04-18). Um
+  sucessor no máximo; se nenhum tiver causa clara, a vaga vai para uma
+  hipótese nova (escrita aqui antes de testar).
+
+### Hipótese nova: IMPULSO_AMPLITUDE (impulso de amplitude do mercado, 4H, só compras)
+
+- **Lógica**: o "breadth thrust" de Zweig (bolsa americana, 1986):
+  quando o mercado passa em poucos dias de quase todas as ações fracas
+  para quase todas fortes, é dinheiro novo a entrar em todo o lado e não
+  uma história de uma moeda; costuma marcar o início de uma subida de
+  semanas. É uma família diferente das dos campeões (tendência/amplitude,
+  não sobrevenda) e usa informação ainda não usada para comprar força: a
+  amplitude do mercado inteiro (o BOUNCE_AMPLITUDE usa-a só para a
+  sobrevenda). Riscos declarados: acontecimentos raros (amostra curta, é
+  provável dar AMOSTRA INSUFICIENTE); operações agrupadas nos mesmos dias
+  (correlação alta entre elas); a família "comprar força" perdeu sempre
+  neste projeto (quebras, TURTLE), por isso o mais provável é NÃO
+  VALIDADA.
+- **Regras** (decisão no fecho da vela i de 4H, só velas fechadas):
+  - amplitude A(i) = fração das moedas (pelo menos 20 com vela nesse
+    instante) com fecho acima da sua média de 20 velas de 4H;
+  - impulso: A(i) ≥ U, A(i−1) < U, e o mínimo de A nas 60 velas
+    anteriores (10 dias) ≤ 0,30;
+  - moedas compradas: as que fecham a vela i acima da sua média de 20
+    (participam no impulso); carteira 4 × 25%, uma por moeda, primeiro a
+    MENOS esticada (menor (fecho − SMA20) / ATR14);
+  - entrada na abertura da vela i+1; stop no fecho menos 2 ATR14 de 4H;
+    um objetivo a 3R; sem stop na entrada; saída ao fim de H dias;
+  - filtro do BTC acima da SMA200 diária (último dia fechado) conforme a
+    grelha.
+- **Grelha (6)**: U ∈ {0,75; 0,85} × H ∈ {5, 10} dias com o filtro do
+  BTC; mais U = 0,75 × H ∈ {5, 10} sem o filtro do BTC.
+- **Método**: `tools/research_rlib.evaluate` (o de `tools/research.py`):
+  custos 0,25% + 0,1% por lado, walk-forward no desenho (treino 183 dias,
+  teste 91), grandes moedas, referência BTC>SMA200, reserva avaliada uma
+  vez só para a configuração escolhida, contra o acaso (mesma moeda, ±90
+  velas, mesma geometria, 1000 séries) acima do percentil 95. Menos de 40
+  operações fora da amostra = AMOSTRA INSUFICIENTE.
+- Contador depois desta corrida: 18 (11 neste diário antes de hoje + 6 da
+  afinação + esta). Com 18 testes a probabilidade de pelo menos um falso
+  positivo a 5% ronda os 60%.
