@@ -867,6 +867,14 @@ def main():
         res["nucleo"] = nucleo.resumo(state)
     except Exception as e:
         print("nucleo:", e)
+    try:                                     # evolucao real da carteira (engine/evolucao.py)
+        from . import evolucao
+        c = res.get("conta") or {}
+        if c.get("equity"):
+            evolucao.atualizar(state, c["equity"], res["generated_at"], state.get("ledger"), res.get("nucleo"))
+        res["evolucao"] = evolucao.resumo(state.get("evolucao"), c.get("equity"), res["generated_at"])
+    except Exception as e:
+        print("evolucao:", e)
     exec_after(state, events, res["generated_at"])
     res["execucao"] = {"pronto": execucao.READY, "pedidos": len(state.get("exec_req") or [])}
     extra = reports.due(res, state, res["generated_at"]) if res["universe"] else []

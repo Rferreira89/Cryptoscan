@@ -1275,33 +1275,64 @@ function animate(p, dt, t) {
 // resultado real, risco e modo automatico, com os dados do ultimo scan ----------
 let misTex = null, misScr = null;
 function drawMission(g) {
-  const D = API().D() || {}, M = D.meta, W = 768, H = 440;
+  const D = API().D() || {}, M = D.meta, EV = D.evolucao, W = 768, H = 600;
   g.fillStyle = "#0b0a24"; g.fillRect(0, 0, W, H); g.strokeStyle = "#B794F4"; g.lineWidth = 5; g.strokeRect(3, 3, W - 6, H - 6);
   if (!M) { g.fillStyle = "#fff"; g.font = "700 30px system-ui"; g.fillText("Missão 1M · a carregar…", 30, 60); return; }
   const mk = M.marcos || [], i = mk.findIndex(x => !x.feito), prev = i > 0 ? mk[i - 1].valor : 0, nxt = i >= 0 ? mk[i].valor : 1e6;
-  const pr = Math.max(.02, Math.min(1, (M.capital - prev) / (nxt - prev))), N = D.nucleo || {}, RE = D.reais || {}, RK = D.risco || {}, AU = D.auto || {}, AM = D.amplitude || {};
-  const f2 = v => Number(v).toFixed(2).replace(".", ","), sg = v => (v >= 0 ? "+" : "−") + f2(Math.abs(v));
+  const pr = Math.max(.02, Math.min(1, (M.capital - prev) / (nxt - prev))), N = D.nucleo || {}, RE = D.reais || {}, RK = D.risco || {}, AU = D.auto || {};
+  const f2 = v => Number(v).toFixed(2).replace(".", ","), sg = v => (v >= 0 ? "+" : "−") + f2(Math.abs(v)), UP = "#68D391", DN = "#FF8A80", cl = v => v >= 0 ? UP : DN;
+  // cabecalho: capital e percentagem ganha (sem contar depositos)
+  g.fillStyle = "#cfc8ff"; g.font = "700 24px system-ui"; g.fillText("🏁 MISSÃO 1M", 28, 46);
+  g.fillStyle = "#9fb3c8"; g.font = "600 19px system-ui"; g.fillText(`${M.pct.toFixed(3).replace(".", ",")}% do milhão · marco ${nxt.toLocaleString("pt-PT")} USDC (${Math.round(pr * 100)}%)`, 28, 74);
+  g.textAlign = "right"; g.fillStyle = "#fff"; g.font = "800 56px system-ui"; g.fillText(f2(M.capital), W - 96, 72); g.font = "700 20px system-ui"; g.fillStyle = "#9fb3c8"; g.fillText("USDC", W - 28, 72); g.textAlign = "left";
+  g.fillStyle = "#221c5a"; g.fillRect(28, 88, W - 56, 10); const gr = g.createLinearGradient(28, 0, W - 28, 0); gr.addColorStop(0, "#4FD1C5"); gr.addColorStop(1, "#B794F4"); g.fillStyle = gr; g.fillRect(28, 88, (W - 56) * pr, 10);
+  // percentagens por periodo
+  const P = (EV && EV.periodos) || {}, chips = [["24 h", P.dia], ["7 dias", P.semana], ["30 dias", P.mes], ["Total", EV ? EV.pct : null]];
+  chips.forEach(([t, v], k) => { const x = 28 + k * 180; g.fillStyle = "#14123a"; g.fillRect(x, 112, 168, 74);
+    g.fillStyle = "#9fb3c8"; g.font = "600 18px system-ui"; g.fillText(t, x + 12, 138);
+    g.fillStyle = v == null ? "#6b7a90" : cl(v); g.font = "800 30px system-ui"; g.fillText(v == null ? "a gravar" : (v >= 0 ? "+" : "−") + Math.abs(v).toFixed(2).replace(".", ",") + "%", x + 12, 174); });
+  // grafico real: ganho acumulado em USDC (operacoes fechadas + valor horario da conta, sem depositos)
+  const S = (EV && EV.serie) || [], X0 = 70, X1 = W - 28, Y0 = 210, Y1 = 420;
+  g.fillStyle = "#0f0d2e"; g.fillRect(28, Y0 - 8, W - 56, Y1 - Y0 + 40);
+  if (S.length >= 2) {
+    const ts = S.map(p => p[0]), vs = S.map(p => p[1]), t0 = ts[0], t1 = Math.max(ts[ts.length - 1], t0 + 1);
+    let lo = Math.min(0, ...vs), hi = Math.max(0, ...vs); if (hi - lo < 1) { hi += .5; lo -= .5; } const pad = (hi - lo) * .1; lo -= pad; hi += pad;
+    const xp = t => X0 + (t - t0) / (t1 - t0) * (X1 - X0), yp = v => Y1 - (v - lo) / (hi - lo) * (Y1 - Y0);
+    g.strokeStyle = "#2b2470"; g.lineWidth = 1; g.font = "600 15px system-ui"; g.fillStyle = "#8aa0b4"; g.textAlign = "right";
+    [hi - pad, (hi + lo) / 2, lo + pad].forEach(v => { g.beginPath(); g.moveTo(X0, yp(v)); g.lineTo(X1, yp(v)); g.stroke(); g.fillText(sg(v), X0 - 6, yp(v) + 5); });
+    g.textAlign = "left"; g.strokeStyle = "#cfc8ff66"; g.setLineDash([6, 6]); g.beginPath(); g.moveTo(X0, yp(0)); g.lineTo(X1, yp(0)); g.stroke(); g.setLineDash([]);
+    const last = vs[vs.length - 1], c = cl(last);
+    g.beginPath(); g.moveTo(xp(ts[0]), yp(0)); S.forEach(([t, v]) => g.lineTo(xp(t), yp(v))); g.lineTo(xp(ts[ts.length - 1]), yp(0)); g.closePath(); g.fillStyle = c + "33"; g.fill();
+    g.beginPath(); S.forEach(([t, v], k) => k ? g.lineTo(xp(t), yp(v)) : g.moveTo(xp(t), yp(v))); g.strokeStyle = c; g.lineWidth = 3.5; g.stroke();
+    g.fillStyle = c; g.beginPath(); g.arc(xp(ts[ts.length - 1]), yp(last), 6, 0, 7); g.fill();
+    const dt = t => new Date(t * 1000).toLocaleDateString("pt-PT", { day: "2-digit", month: "2-digit" });
+    g.fillStyle = "#8aa0b4"; g.font = "600 15px system-ui"; g.fillText(dt(t0), X0, Y1 + 24); g.textAlign = "right"; g.fillText("agora", X1, Y1 + 24); g.textAlign = "left";
+    g.fillStyle = c; g.font = "800 22px system-ui"; g.fillText(`Ganho real: ${sg(EV.g_usdc)} USDC`, X0 + 8, Y0 + 20);
+  } else { g.fillStyle = "#9fb3c8"; g.font = "600 20px system-ui"; g.fillText("O gráfico real começa com a primeira amostra da conta.", 48, 320); }
+  // caixas
   let nv = 0, nr = 0; Object.entries(N.plano || {}).forEach(([k, p]) => { if (N.pos && N.pos[k]) { nv += p.valor_usdc || 0; nr += p.resultado_usdc || 0; } });
-  g.fillStyle = "#cfc8ff"; g.font = "700 26px system-ui"; g.fillText("🏁 MISSÃO 1M", 30, 52);
-  g.fillStyle = "#9fb3c8"; g.font = "600 22px system-ui"; g.fillText(`${String(M.pct.toFixed(3)).replace(".", ",")}% do milhão`, 30, 84);
-  g.textAlign = "right"; g.fillStyle = "#fff"; g.font = "800 64px system-ui"; g.fillText(f2(M.capital), W - 110, 86); g.font = "700 24px system-ui"; g.fillStyle = "#9fb3c8"; g.fillText("USDC", W - 30, 86); g.textAlign = "left";
-  g.fillStyle = "#221c5a"; g.fillRect(30, 112, W - 60, 22); const gr = g.createLinearGradient(30, 0, W - 30, 0); gr.addColorStop(0, "#4FD1C5"); gr.addColorStop(1, "#B794F4"); g.fillStyle = gr; g.fillRect(30, 112, (W - 60) * pr, 22);
-  g.fillStyle = "#dfe6f0"; g.font = "600 22px system-ui"; g.fillText(`Próximo marco ${nxt.toLocaleString("pt-PT")} USDC · faltam ${f2(nxt - M.capital)} (${Math.round(pr * 100)}%)`, 30, 170);
-  const box = (x, t, v, c) => { g.fillStyle = "#14123a"; g.fillRect(x, 200, 226, 110); g.fillStyle = "#9fb3c8"; g.font = "600 21px system-ui"; g.fillText(t, x + 14, 236); g.fillStyle = c || "#fff"; g.font = "800 30px system-ui"; g.fillText(v, x + 14, 284); };
-  box(30, "🧱 Núcleo", nv ? `${Math.round(nv)} · ${sg(nr)}` : (N.ligado ? "à espera" : "desligado"), nr >= 0 ? "#68D391" : "#FF8A80");
-  box(271, "🧾 Ativas (real)", RE.n ? `${sg(RE.pnl_usdc)} · ${RE.n} op.` : "sem fechos", (RE.pnl_usdc || 0) >= 0 ? "#68D391" : "#FF8A80");
-  box(512, AU.ligado ? "🤖 Auto ligado" : "🤖 Auto desligado", "Risco " + (RK.reduzido ? "½" : "normal"), RK.reduzido ? "#F6C453" : "#68D391");
-  g.fillStyle = "#9fb3c8"; g.font = "600 20px system-ui";
-  const camp = ((D.promo || {}).campeoes || []).join(", ") || "nenhum";
-  g.fillText(`Campeão agora: ${camp.slice(0, 40)} · fase ${((D.mercado || {}).regime) || "–"}${AM.estado && AM.estado !== "normal" ? " · 🌊 " + AM.estado : ""}`, 30, 350);
-  g.fillText(`${(mk.filter(x => x.feito).length)} de ${mk.length} marcos · toca para abrir o gestor`, 30, 390);
+  const box = (x, t, v, c) => { g.fillStyle = "#14123a"; g.fillRect(x, 462, 230, 84); g.fillStyle = "#9fb3c8"; g.font = "600 18px system-ui"; g.fillText(t, x + 12, 490); g.fillStyle = c || "#fff"; g.font = "800 26px system-ui"; g.fillText(v, x + 12, 530); };
+  box(28, "🧱 Núcleo", nv ? `${Math.round(nv)} · ${sg(nr)}` : (N.ligado ? "à espera" : "desligado"), cl(nr));
+  box(269, "🧾 Ativas (real)", RE.n ? `${sg(RE.pnl_usdc)} · ${RE.n} op.` : "sem fechos", cl(RE.pnl_usdc || 0));
+  box(510, AU.ligado ? "🤖 Auto ligado" : "🤖 Auto desligado", "Risco " + (RK.reduzido ? "½" : "normal"), RK.reduzido ? "#F6C453" : UP);
+  g.fillStyle = "#8aa0b4"; g.font = "600 15px system-ui";
+  g.fillText(`Ganho sem contar depósitos · dinheiro posto ${EV ? f2(EV.investido) : "–"} USDC · campeão: ${((D.promo || {}).campeoes || []).join(", ") || "nenhum"}`.slice(0, 92), 28, 576);
 }
 function buildMission() {
-  misTex = canvasTex(768, 440, drawMission);
-  misScr = new THREE.Mesh(new THREE.PlaneGeometry(5.6, 3.2), new THREE.MeshBasicMaterial({ map: misTex, toneMapped: false, side: THREE.DoubleSide }));
-  misScr.position.set(0, 4.6, 0); misScr.userData.zone = "ops"; scene.add(misScr); zoneHits.push(misScr);
+  misTex = canvasTex(768, 600, drawMission);
+  misScr = new THREE.Mesh(new THREE.PlaneGeometry(5.6, 4.375), new THREE.MeshBasicMaterial({ map: misTex, toneMapped: false, side: THREE.DoubleSide }));
+  misScr.position.set(0, 4.0, 0); scene.add(misScr);
   const ring = new THREE.Mesh(new THREE.RingGeometry(1.1, 1.3, 40), new THREE.MeshBasicMaterial({ color: 0xB794F4, transparent: true, opacity: .55, toneMapped: false })); ring.rotation.x = -Math.PI / 2; ring.position.set(0, .03, 0); scene.add(ring);
-  boxM(.06, 3, .06, mat("#B794F4", .8, .5), 0, 1.5, 0);
+  boxM(.06, 2, .06, mat("#B794F4", .8, .5), 0, 1, 0);
+}
+// toque no painel: abre-o em grande, por cima do escritorio
+function showMission() {
+  updateMission(); let el = document.getElementById("misbig");
+  if (!el) { el = document.createElement("div"); el.id = "misbig"; el.style.cssText = "position:fixed;inset:0;z-index:70;background:#05041acc;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px";
+    el.innerHTML = '<img alt="Painel da missão" style="width:min(100%,760px);border-radius:14px;box-shadow:0 0 40px #B794F466"><div style="display:flex;gap:8px"><button data-k="g" style="font:700 14px system-ui;padding:10px 16px;border-radius:99px;border:1px solid #B794F4;background:#2a1d5e;color:#fff">Abrir o gestor</button><button data-k="x" style="font:700 14px system-ui;padding:10px 16px;border-radius:99px;border:1px solid #555;background:#111;color:#fff">Fechar</button></div>';
+    el.addEventListener("click", e => { const k = e.target.dataset && e.target.dataset.k; el.style.display = "none"; if (k === "g") API().openZone("ops"); });
+    document.body.appendChild(el); }
+  el.querySelector("img").src = misTex.userData.c.toDataURL(); el.style.display = "flex";
 }
 function updateMission() { if (misTex) { drawMission(misTex.userData.c.getContext("2d")); misTex.needsUpdate = true; } }
 
@@ -1622,7 +1653,7 @@ function frame() {
   if (nowMs - (frame.tvAt || -1e9) > 30000 || tvT <= 0) { frame.tvAt = nowMs; tvT = 30; drawTV(tvTex.userData.c.getContext("2d")); tvTex.needsUpdate = true; if (mesaTex) { mesaI++; drawMesa(mesaTex.userData.c.getContext("2d")); mesaTex.needsUpdate = true; } updateRadar(); updateArena(); updateRewards(); updateSectors(); updateStrategyRoom(); updateStaff(); updateDirector(); updateAcademy(); updateMoney(); updateFloor2(); updateMission(); drawBoard(board.userData.c.getContext("2d")); board.needsUpdate = true; }
   if (radar) { radar.sweep.rotation.z -= dt * 1.4; radar.blips.children.forEach((b, i) => { if (b.geometry.type === "SphereGeometry") b.scale.setScalar(1 + Math.sin(t * 4 + i) * .15); }); }
   if (P2.on) p2Tick(dt, t);
-  if (misScr) { misScr.quaternion.copy(cam.quaternion); misScr.scale.setScalar(cam.aspect < .8 ? 1.5 : 1); }
+  if (misScr) { misScr.visible = !P2.on; misScr.quaternion.copy(cam.quaternion); misScr.scale.setScalar(cam.aspect < .8 ? 1.5 : 1); }
   animateArena(dt, t); animateRewards(dt, t); secPeople.forEach(p => animate(p, dt, t)); stPeople.forEach(p => animate(p, dt, t)); staffPeople.forEach(p => animate(p, dt, t)); dirPeople.forEach(p => animate(p, dt, t)); acPeople.forEach(p => animate(p, dt, t));
   ctl.update(); if (composer) composer.render(); else R.render(scene, cam); placeOverlays(dt);
 }
@@ -1695,6 +1726,7 @@ function init(container) {
     if (!down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 8) return;
     const r = R.domElement.getBoundingClientRect(); m.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1);
     ray.setFromCamera(m, cam);
+    if (!P2.on && misScr && ray.intersectObject(misScr, false)[0]) { showMission(); return; }
     if (P2.on) { const h2 = ray.intersectObjects(P2.people.concat(P2.heads).map(p => p.g), true)[0]; if (h2) p2Click(h2); return; }
     const hit = ray.intersectObjects(people.map(p => p.g), true)[0];
     if (hit) { API().select(hit.object.userData.agent); bubAt = 0; return; }
@@ -1724,4 +1756,4 @@ function goStrategy() { p2Leave(); const T = V(ST_WALL + stLen / 2 + .6, 0), dx 
   const d = cam.position.clone().sub(ctl.target), want = 17 + stLen * .35; cam.position.copy(ctl.target.clone().add(d.setLength(want))); ctl.update(); }
 function goTo(x, z, want = 14) { p2Leave(); const T = V(x, z), dx = T.x - ctl.target.x, dz = T.z - ctl.target.z; ctl.target.copy(T); cam.position.x += dx; cam.position.z += dz;
   const d = cam.position.clone().sub(ctl.target); cam.position.copy(ctl.target.clone().add(d.setLength(want))); ctl.update(); }
-window.Office3D = { init, supported, refresh: () => { tvT = 0; }, resetView, goArena, goRewards, goSectors, goStrategy, goMemorial, goAcademy, goDirector, goTo, goFloor, floor: () => P2.on ? 2 : 1 };
+window.Office3D = { init, supported, refresh: () => { tvT = 0; }, resetView, goArena, goRewards, goSectors, goStrategy, goMemorial, goAcademy, goDirector, goTo, goFloor, floor: () => P2.on ? 2 : 1, showMission };
