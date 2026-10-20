@@ -155,6 +155,15 @@ a{color:inherit}
 #hoje .it small{color:var(--mut)}
 .al.hoje{background:#B794F4;color:#0a0820;box-shadow:0 0 14px #B794F4aa}
 /* navegacao */
+#homeview,#arenaview,#rewview,#secview,#stview,#memview,#acview,#dirview{display:none!important}
+#gomenu{position:absolute;right:12px;bottom:calc(64px + env(safe-area-inset-bottom));height:46px;padding:0 16px;border-radius:99px;background:#0c0a24e6;border:1px solid #4FD1C5;color:#CFFAF5;font:700 14px system-ui,sans-serif;cursor:pointer;box-shadow:0 0 14px #4FD1C544;z-index:5}
+#golist{position:absolute;right:12px;bottom:calc(118px + env(safe-area-inset-bottom));width:min(250px,calc(100vw - 24px));max-height:calc(100vh - 260px);overflow:auto;background:#0c0a24f5;border:1px solid #2b2470;border-radius:14px;padding:6px;z-index:6;box-shadow:0 10px 30px #0009}
+#golist[hidden]{display:none}
+#golist button{display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;color:var(--ink);font:600 14px system-ui,sans-serif;padding:10px;border-radius:10px;cursor:pointer}
+#golist button:hover,#golist button:focus-visible{background:#1a1640}
+#golist small{display:block;color:var(--mut);font-weight:500;font-size:11.5px}
+#golist hr{border:0;border-top:1px solid #221c5a;margin:4px 6px}
+
 #floorbtn{position:absolute;left:12px;bottom:calc(64px + env(safe-area-inset-bottom));border:1px solid #B794F4;background:linear-gradient(135deg,#2a1d5ef0,#0c0a24f0);color:#E9DDFF;font:700 13px/1 system-ui,sans-serif;padding:10px 14px;border-radius:99px;cursor:pointer;box-shadow:0 0 18px #B794F466;z-index:4}
 #floorbtn.on{border-color:#4FD1C5;color:#CFFAF5;box-shadow:0 0 18px #4FD1C566}
 #floorbtn[hidden]{display:none}
@@ -277,7 +286,7 @@ body.sheet-open #sheet{transform:none}
 @media (prefers-reduced-motion:reduce){.typing i,.bot .eye{animation:none}.bub{transition:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module" src="office3d.js?v=20261020v1"></script>
+<script type="module" src="office3d.js?v=20261020w1"></script>
 </head>
 <body class="w3d">
 <div id="world">
@@ -293,6 +302,8 @@ body.sheet-open #sheet{transform:none}
 <button data-p="ops" class="cmd"><i style="background:#4FD1C5"></i>Centro de comando<span id="zb-ops"></span></button>
 </nav>
 <button id="floorbtn" aria-label="Subir ao 2.º piso: Laboratório de Estratégias">🔬 2.º piso · Laboratório</button>
+<button id="gomenu" aria-haspopup="true" aria-expanded="false">🧭 Ir para…</button>
+<div id="golist" hidden role="menu"></div>
 <button id="homeview" aria-label="Voltar à vista inicial" title="Vista inicial">⌂</button>
 <button id="arenaview" aria-label="Ir para a arena" title="Arena">⚔️</button>
 <button id="rewview" aria-label="Ver as recompensas" title="Recompensas">🏆</button>
@@ -882,7 +893,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261020g";
+const PAGE_V="20261020h";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -1225,6 +1236,12 @@ document.addEventListener("click",e=>{const tr=e.target.closest("tr.rp");if(tr)o
     el.querySelector("button").addEventListener("click",()=>{el.hidden=true;$("homeview").hidden=false;$("arenaview").hidden=false;$("rewview").hidden=false;$("secview").hidden=false;$("stview").hidden=false;$("memview").hidden=false;$("acview").hidden=false;$("dirview").hidden=false;try{localStorage.setItem("installHint","1")}catch(_){}})}})();
 
 // ===== Navegacao no escritorio: botao de vista inicial e dica (uma vez) =====
+const GOTO=[["🏢","Vista inicial","escritório principal",O=>O.resetView()],["🏁","Painel da missão","capital, gráfico e percentagens",O=>O.showMission()],["🧱","Cofre do núcleo","BTC, ETH e SOL",O=>O.showCofre()],["📋","O que aconteceu hoje","resumo do dia",()=>openHoje()],null,
+  ["🔬","2.º piso · Laboratório","pesquisa de estratégias",O=>O.goFloor(2)],["🧭","Diretor de Trading","decisões de entrada",O=>O.goDirector()],["⚔️","Arena","as estratégias a lutar",O=>O.goArena()],["💼","Sala de estratégia","quem provou no combate",O=>O.goStrategy()],
+  ["🎓","Academia","quem ainda está a aprender",O=>O.goAcademy()],["📊","Setores","moedas por setor",O=>O.goSectors()],["🏆","Recompensas","conquistas reais",O=>O.goRewards()],["🕯️","Memorial","quem morreu na arena",O=>O.goMemorial()]];
+$("golist").innerHTML=GOTO.map((g,i)=>g?`<button role="menuitem" data-i="${i}"><span style="font-size:18px">${g[0]}</span><span>${g[1]}<small>${g[2]}</small></span></button>`:"<hr>").join("");
+$("gomenu").addEventListener("click",()=>{const l=$("golist"),open=l.hidden;l.hidden=!open;$("gomenu").setAttribute("aria-expanded",open)});
+$("golist").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const O=window.Office3D,g=GOTO[+b.dataset.i];$("golist").hidden=true;$("gomenu").setAttribute("aria-expanded","false");try{g[3](O||{})}catch(_){}});
 $("floorbtn").addEventListener("click",()=>{const O=window.Office3D;if(O&&O.goFloor)O.goFloor(O.floor()===2?1:2)});
 addEventListener("piso",e=>{const b=$("floorbtn"),up=e.detail===2;b.classList.toggle("on",up);b.textContent=up?"⬇️ Voltar ao 1.º piso":"🔬 2.º piso · Laboratório"});
 $("homeview").addEventListener("click",()=>{if(window.Office3D&&window.Office3D.resetView)window.Office3D.resetView()});

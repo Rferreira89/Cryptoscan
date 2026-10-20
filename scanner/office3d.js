@@ -1409,6 +1409,21 @@ const P2R = {
   dados: { n: "Recolha de dados (H4)", c: "#9AE6B4", x: [19.5, 24.5], z: [-12, -3] },
   lounge: { n: "Lounge e café", c: "#FF6FB5", x: [19.5, 24.5], z: [3, 12] },
 };
+// ala oeste: uma sala por familia de estrategias, com o melhor lutador de cada uma
+const P2FAM = ["fam_sobre", "fam_tend", "fam_vol", "fam_short"];
+Object.assign(P2R, {
+  fam_sobre: { n: "Família: sobrevenda", c: "#F687B3", x: [-45, -34], z: [-12, -3], fam: ["sobrevenda", "capitulacao"] },
+  fam_tend: { n: "Família: tendência e maiores", c: "#7F9CF5", x: [-33, -22], z: [-12, -3], fam: ["tendencia", "maiores"] },
+  fam_vol: { n: "Família: volatilidade e volume", c: "#F6E05E", x: [-45, -34], z: [3, 12], fam: ["volatilidade", "volume"] },
+  fam_short: { n: "Família: shorts", c: "#FC8181", x: [-33, -22], z: [3, 12], fam: ["short"] },
+});
+// mesma classificacao do motor (engine/promo.family)
+function p2Family(k) { const b = String(k || "").replace(/_R\d+$/, "");
+  if (b.startsWith("SHORT_")) return "short";
+  if (["DIP_TREND", "TURTLE", "MOMENTUM", "TREND_DAILY", "BREAKOUT", "PULLBACK", "BRK_ESPACO", "RETESTE", "FIBO_RECUO"].includes(b)) return "tendencia";
+  if (b === "SQUEEZE_BB") return "volatilidade"; if (b === "VOLUME_ACUMULACAO") return "volume"; if (b === "CAPITULACAO") return "capitulacao";
+  if (b.startsWith("MAIORES_")) return "maiores"; return "sobrevenda"; }
+function p2FamRoom(k) { const f = p2Family(k); return P2FAM.find(r => P2R[r].fam.includes(f)) || "fam_sobre"; }
 // lounge: lugares no sofa (de frente para a TV com a missao), no balcao do cafe e a mesa alta
 const P2LOUNGE = [{ p: V(20.8, 9.2), sit: 1, r: 0 }, { p: V(21.9, 9.2), sit: 1, r: 0 }, { p: V(23.0, 9.2), sit: 1, r: 0 },
   { p: V(23.5, 5.2), r: Math.PI / 2 }, { p: V(23.5, 6.4), r: Math.PI / 2 }, { p: V(20.4, 5.6), r: Math.PI / 2 }, { p: V(21.6, 5.6), r: -Math.PI / 2 }];
@@ -1451,6 +1466,7 @@ function p2Eval(k, f) {
 // um short eliminado no combate de 90 dias (mes de subida) volta se provar na fase
 function p2All(f) { return Object.keys((p2Data().arena_longo || {}).lutadores || {}).map(k => p2Eval(k, f)); }
 function p2Fact(e, room) {
+  if (P2R[room] && P2R[room].fam) return `vou buscar o dossier de ${e.persona} à ${P2R[room].n.toLowerCase()}`;
   if (room === "ideias") return `abro o dossier de ${e.persona} (${e.k})`;
   if (room === "backtest") return `${e.n} operações na fase ${e.fase}, ${p2n(e.r)}R de média`;
   if (room === "acaso") return `acaso ${p2n(e.p95)}R · metades ${e.met ? e.met.map(v => p2n(v)).join(" / ") : "–"}`;
@@ -1486,6 +1502,10 @@ function p2Draw(room, g) {
       rows.push([(fz === f ? "▶ " : "") + "Fase " + (P2FASE[fz] || fz), ok.length ? ok.length + " aprovado" + (ok.length > 1 ? "s" : "") : "ninguém — trabalha o núcleo", fz === f ? "#fff" : "#9fb3c8"]);
       ok.slice(0, 2).forEach(e => rows.push(["   " + e.persona + " (" + e.k + ")", p2n(e.r) + "R", "#68D391"])); });
     p2Rows(g, rows); return; }
+  if (P2R[room] && P2R[room].fam) { const rs = all.filter(e => P2R[room].fam.includes(p2Family(e.k))).sort((a, b) => (b.r == null ? -9 : b.r) - (a.r == null ? -9 : a.r));
+    const best = rs.find(e => e.stop >= 4) || rs[0];
+    p2Frame(g, `📊 ${R.n.replace("Família: ", "")} · fase ${F}`, R.c);
+    p2Rows(g, [[best ? `Melhor: ${best.persona}` : "Sem lutadores", best ? (best.stop >= 4 ? "✅ " : "") + p2n(best.r) + "R" : "", "#fff"]].concat(rs.map(e => [`${e.persona} · ${e.n} op.`, (e.stop >= 4 ? "✅ " : e.stop >= 2 ? "· " : "❌ ") + p2n(e.r) + "R", e.stop >= 4 ? "#68D391" : e.r > 0 ? "#F6C453" : "#FF8A80"]))); return; }
   if (room === "dados") { p2Frame(g, "🔬 Dados de derivados para o H4", R.c); const DH = p2Data().derivados_hist || {}, dias = DH.desde ? (Date.now() / 1000 - DH.desde) / 86400 : 0, alvo = 60;
     p2Rows(g, [["Moedas a gravar (mais dinheiro aberto)", DH.moedas || 0, "#fff"], ["Amostras horárias", DH.amostras || 0], ["A gravar desde", DH.desde ? new Date(DH.desde * 1000).toLocaleString("pt-PT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "–"],
       ["Dias de dados", dias.toFixed(1).replace(".", ",") + " de " + alvo, dias >= alvo ? "#68D391" : "#F6C453"], ["À espera destes dados:", "", "#fff"], ["  H4 liquidações em massa", "a gravar"], ["  Funding extremo + dinheiro aberto", "a gravar"], ["  Rácio long/short no extremo", "a gravar"]], 72, 26);
@@ -1526,15 +1546,15 @@ function p2Person(key, nm, st, col) {
 function buildFloor2() {
   P2.g = new THREE.Group(); P2.g.position.y = P2H; P2.g.visible = false; scene.add(P2.g); const G = P2.g;
   // laje, chao, corredor com neon e varandim de vidro
-  boxM(46, .3, 27, mat("#2b2f38"), 2, -.16, 0, G);
-  const fl = new THREE.Mesh(new THREE.PlaneGeometry(46, 27), mat("#4a4f5a")); fl.rotation.x = -Math.PI / 2; fl.position.set(2, .005, 0); fl.receiveShadow = true; G.add(fl);
-  const cor = new THREE.Mesh(new THREE.PlaneGeometry(44, 5.4), mat("#3a3550")); cor.rotation.x = -Math.PI / 2; cor.position.set(2, .012, 0); G.add(cor);
-  [-2.7, 2.7].forEach(z => boxM(44, .02, .06, mat("#B794F4", 1.2), 2, .02, z, G));
-  const rail = mat("#9fd3ff", .05, .1); boxM(46, 1, .04, rail, 2, .5, -13.5, G); boxM(46, 1, .04, rail, 2, .5, 13.5, G); boxM(.04, 1, 27, rail, -21, .5, 0, G); boxM(.04, 1, 27, rail, 25, .5, 0, G);
+  boxM(72, .3, 27, mat("#2b2f38"), -11, -.16, 0, G);
+  const fl = new THREE.Mesh(new THREE.PlaneGeometry(72, 27), mat("#4a4f5a")); fl.rotation.x = -Math.PI / 2; fl.position.set(-11, .005, 0); fl.receiveShadow = true; G.add(fl);
+  const cor = new THREE.Mesh(new THREE.PlaneGeometry(70, 5.4), mat("#3a3550")); cor.rotation.x = -Math.PI / 2; cor.position.set(-11, .012, 0); G.add(cor);
+  [-2.7, 2.7].forEach(z => boxM(70, .02, .06, mat("#B794F4", 1.2), -11, .02, z, G));
+  const rail = mat("#9fd3ff", .05, .1); boxM(72, 1, .04, rail, -11, .5, -13.5, G); boxM(72, 1, .04, rail, -11, .5, 13.5, G); boxM(.04, 1, 27, rail, -47, .5, 0, G); boxM(.04, 1, 27, rail, 25, .5, 0, G);
   // escadas a descer para o 1.o piso (lado oeste)
-  for (let i = 0; i < 9; i++) boxM(1.8, .12, .5, mat("#6b6f7a"), -20, -i * .7, -1.5 + i * .5, G);
+  for (let i = 0; i < 9; i++) boxM(1.8, .12, .5, mat("#6b6f7a"), -46, -i * .7, -1.5 + i * .5, G);
   // salas
-  P2ORD.forEach((room, ri) => {
+  P2ORD.concat(P2FAM).forEach((room, ri) => {
     const R = P2R[room], w = R.x[1] - R.x[0], d = R.z[1] - R.z[0], cx = (R.x[0] + R.x[1]) / 2, cz = (R.z[0] + R.z[1]) / 2, north = R.z[0] < 0, zc = north ? R.z[1] : R.z[0], zf = north ? R.z[0] : R.z[1];
     const rug = new THREE.Mesh(new THREE.PlaneGeometry(w - .4, d - .4), mat(new THREE.Color(R.c).multiplyScalar(.28).getStyle())); rug.rotation.x = -Math.PI / 2; rug.position.set(cx, .015, cz); G.add(rug);
     const glass = mat(R.c, .15, .08), h = 1.25;
@@ -1552,13 +1572,16 @@ function buildFloor2() {
     const scr = new THREE.Mesh(new THREE.PlaneGeometry(4.6, 2.88), new THREE.MeshBasicMaterial({ map: tx, toneMapped: false, side: THREE.DoubleSide }));
     scr.position.set(cx, 3.3, north ? R.z[0] + 1.6 : R.z[1] - 1.6); G.add(scr); P2.scr.push(scr);
     const lt = new THREE.PointLight(new THREE.Color(R.c), 10, 10); lt.position.set(cx, 3, cz); G.add(lt);
-    p2Label(`${ri + 1}. ${R.n}`, R.c, new THREE.Vector3(cx, P2H + 1.6, zc), "room");
+    p2Label(ri < 6 ? `${ri + 1}. ${R.n}` : R.n, R.c, new THREE.Vector3(cx, P2H + 1.6, zc), "room");
     // chefe do departamento, sempre a trabalhar
-    const HEADS = { ideias: ["Íris", 1], backtest: ["Tomás", 0], acaso: ["Sara", 1], custos: ["Rodrigo", 0], comite: ["Beatriz", 1], real: ["Hugo", 0] };
+    const HEADS = { ideias: ["Íris", 1], backtest: ["Tomás", 0], acaso: ["Sara", 1], custos: ["Rodrigo", 0], comite: ["Beatriz", 1], real: ["Hugo", 0],
+      fam_sobre: ["Gonçalo", 0], fam_tend: ["Rafael", 0], fam_vol: ["Joana", 1], fam_short: ["Vasco", 0] };
     const [nm, fem] = HEADS[room], hh = hsh(nm), s0 = p2Seats(room)[0];
     const p = p2Person("p2h_" + room, nm, { skin: SKINS[hh % 5], hair: HAIRS[(hh >> 2) % 6], hs: fem ? (hh % 2 ? "long" : "bun") : ["short", "buzz", "curly"][hh % 3], top: R.c, jacket: room === "comite" ? "#2d3b55" : null, legs: "#22223a", glasses: hh % 3 === 0 ? 1 : 0, beard: !fem && hh % 2 ? 1 : 0 }, R.c);
     p.g.position.copy(s0.seat); p.mode = "desk"; p.sit = true; p.face = s0.face; p.room = room; P2.heads.push(p);
   });
+  { const t = new THREE.Mesh(new THREE.CylinderGeometry(1.15, 1.15, .07, 32), mat("#2f4a3a")); t.position.set(0, .78, 5.4); G.add(t); boxM(.25, .74, .25, mat("#222"), 0, .37, 5.4, G);
+    const hol = new THREE.Mesh(new THREE.TorusGeometry(.5, .03, 8, 32), new THREE.MeshBasicMaterial({ color: 0x68D391, toneMapped: false })); hol.rotation.x = Math.PI / 2; hol.position.set(0, 1.3, 5.4); G.add(hol); P2.holo = hol; }
   ["dados", "lounge"].forEach(room => {
     const R = P2R[room], w = R.x[1] - R.x[0], d = R.z[1] - R.z[0], cx = (R.x[0] + R.x[1]) / 2, cz = (R.z[0] + R.z[1]) / 2, north = R.z[0] < 0, zc = north ? R.z[1] : R.z[0], zf = north ? R.z[0] : R.z[1];
     const rug = new THREE.Mesh(new THREE.PlaneGeometry(w - .4, d - .4), mat(new THREE.Color(R.c).multiplyScalar(.28).getStyle())); rug.rotation.x = -Math.PI / 2; rug.position.set(cx, .015, cz); G.add(rug);
@@ -1626,7 +1649,7 @@ function p2Go(p) {
     if (p.doss) {                         // dossier terminado: pausa no lounge, ver os dados ou outro dossier
       p.doss = null; const r = Math.random();
       p.plan = r < .38 ? ["lounge", "ideias"] : r < .5 ? ["dados", "ideias"] : ["ideias"]; p.step = 0;
-    } else { const e = p2Pick(); if (!e) { p.wait = 5; return; } p.doss = e; p.plan = P2ORD.slice(0, Math.min(6, e.stop + 1)); p.step = 0; p.folder.material.color.set("#e8eef7"); p.folder.material.emissive.set("#e8eef7"); }
+    } else { const e = p2Pick(); if (!e) { p.wait = 5; return; } p.doss = e; p.plan = [p2FamRoom(e.k)].concat(P2ORD.slice(0, Math.min(6, e.stop + 1))); p.step = 0; p.folder.material.color.set("#e8eef7"); p.folder.material.emissive.set("#e8eef7"); }
   }
   const room = p.plan[p.step];
   p.folder.visible = !!p.doss;
@@ -1667,7 +1690,9 @@ function p2Arrive(p) {
 const esc3 = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 function p2Tick(dt, t) {
   if (!P2.g) return;
-  P2.heads.forEach(p => animate(p, dt, t));
+  p2MeetTick(dt);
+  P2.heads.forEach(p => { animate(p, dt, t); if (!p.path.length && p.pend) { p.room = p.pend; p.pend = null; } if (!p.path.length && p.meet) p.g.rotation.y = p.meet.r; });
+  if (P2.holo) { P2.holo.rotation.z += dt * (P2MEET.st === "talk" ? 2 : .4); P2.holo.material.color.set(P2MEET.st === "talk" ? 0xF6C453 : 0x68D391); }
   P2.people.forEach(p => {
     if (p.talking) { p.talking -= dt; if (p.talking <= 0) { p.talking = 0; p.path = p.saved || []; p.saved = null; p.mode = p.savedMode; } }
     if (!p.talking && !p.path.length) { if (p.arrive) p2Arrive(p); else { p.wait -= dt; if (p.wait <= 0) p2Go(p); } }
@@ -1687,6 +1712,43 @@ function p2Tick(dt, t) {
     P2.talk.push({ who: [a, b], html: `<b>${a.nm}</b>: levo o ${esc3(ea.persona)} para ${esc3(nxt(a))} — ${esc3(p2Fact(ea, a.plan[Math.min(a.step, a.plan.length - 1)]))}<br><b>${b.nm}</b>: ${reply}`, t: 5, el: null });
   }
   P2.scr.forEach(s => { s.quaternion.copy(cam.quaternion); });
+}
+
+// ---------- reunioes do comite: os chefes juntam-se a mesa e dizem os numeros ----------
+const P2MEET = { st: "idle", next: 25, t: 0, i: 0, lines: [], who: [] };
+function p2MeetSpot(k, n) { const a = (k + .5) / n * Math.PI * 2; return { p: V(Math.sin(a) * 1.85, 5.4 + Math.cos(a) * 1.85), r: a + Math.PI }; }
+function p2MeetLines() {
+  const D = p2Data(), f = p2Fase(), F = P2FASE[f] || f, all = p2All(f), H = id => P2.heads.find(h => h.a.id === "p2h_" + id);
+  const RE = D.reais || {}, N = D.nucleo || {}, DH = D.derivados_hist || {}, desde = (D.mercado || {}).desde;
+  const nr = Object.entries(N.plano || {}).reduce((s, [k, x]) => s + (N.pos && N.pos[k] ? x.resultado_usdc || 0 : 0), 0);
+  const recente = desde && Date.now() / 1000 - desde < 86400;
+  const champs = all.filter(e => e.stop >= 5).map(e => e.persona), queda = p2All("queda").filter(e => e.stop >= 4).map(e => e.persona), subida = p2All("subida").filter(e => e.stop >= 4).map(e => e.persona);
+  const dias = DH.desde ? (Date.now() / 1000 - DH.desde) / 86400 : 0;
+  return [[H("comite"), recente ? `O mercado mudou para a fase ${F}. Revemos já quem opera com dinheiro real.` : `Reunião do comité. Fase ${F}${desde ? " desde " + new Date(desde * 1000).toLocaleDateString("pt-PT", { day: "2-digit", month: "2-digit" }) : ""}.`],
+    [H("backtest"), `No último ano, ${all.filter(e => e.stop >= 2).length} de ${all.length} estratégias ganham na fase ${F}.`],
+    [H("acaso"), `Dessas, ${all.filter(e => e.stop >= 3).length} batem as entradas ao acaso nas duas metades do ano.`],
+    [H("custos"), (n4 => n4 === 1 ? "E só 1 paga spread e comissões reais (mínimo +0,15R)." : `E só ${n4} pagam spread e comissões reais (mínimo +0,15R).`)(all.filter(e => e.stop >= 4).length)],
+    [H("real"), `No dinheiro real: ${RE.n || 0} operações medidas, ${p2n(RE.pnl_usdc || 0)} USDC. O núcleo vai ${p2n(nr)} USDC.`],
+    [H("dados"), `Dados para o H4: ${DH.amostras || 0} amostras, ${dias.toFixed(1).replace(".", ",")} de 60 dias.`],
+    [H("ideias"), `Em estudo: liquidações em massa. ${PESQUISA.filter(x => x[0] === "❌").length} hipóteses já chumbadas, nenhuma entra sem prova.`],
+    [H("comite"), `Decisão: com dinheiro real ${champs.length ? champs.join(", ") : "só o núcleo"}. Se o mercado cair, entram ${queda.join(", ") || "ninguém"}; se subir, ${subida.join(", ") || "trabalha o núcleo"}.`]].filter(x => x[0]);
+}
+function p2MeetTick(dt) {
+  const M = P2MEET; M.t += dt;
+  const desde = (p2Data().mercado || {}).desde; let seen = 0; try { seen = +localStorage.getItem("p2fase") || 0; } catch (_) { }
+  if (M.st === "idle") { M.next -= dt; if (desde && desde > seen && M.next > 8) M.next = 8;
+    if (M.next > 0) return;
+    try { if (desde) localStorage.setItem("p2fase", desde); } catch (_) { }
+    M.who = ["comite", "backtest", "acaso", "custos", "real", "dados", "ideias"].map(id => P2.heads.find(h => h.a.id === "p2h_" + id)).filter(Boolean);
+    M.who.forEach((h, k) => { const sp = p2MeetSpot(k, M.who.length); h.home = { room: h.room, p: h.g.position.clone(), face: h.face }; h.meet = sp; h.lane = (k - 3) * .3;
+      h.path = p2Route(h, "comite", sp.p.clone()); h.pend = "comite"; h.mode = "stand"; h.sit = false; });
+    M.st = "going"; M.t = 0; return; }
+  if (M.st === "going") { if (M.who.every(h => !h.path.length) || M.t > 40) { M.st = "talk"; M.t = 0; M.i = 0; M.lines = p2MeetLines(); M.at = 0; } return; }
+  if (M.st === "talk") { M.at -= dt; if (M.at > 0) return;
+    if (M.i >= M.lines.length) { M.who.forEach(h => { h.meet = null; h.path = p2Route(h, h.home.room, h.home.p.clone()); h.pend = h.home.room; h.mode = "desk"; h.face = h.home.face; });
+      M.st = "back"; M.t = 0; return; }
+    const [h, txt] = M.lines[M.i++]; P2.talk.push({ who: [h], html: `⚖️ <b>${h.nm}</b> · ${esc3(P2R[h.home.room].n)}<br>${esc3(txt)}`, t: 5, el: null }); M.at = 5; return; }
+  if (M.st === "back") { if (M.who.every(h => !h.path.length) || M.t > 40) { M.st = "idle"; M.next = 240; } }
 }
 function p2Overlays(dt) {
   const W = R.domElement.clientWidth, hud = document.getElementById("hud"), top = hud ? hud.offsetHeight + 4 : 4, wp = new THREE.Vector3();
@@ -1803,7 +1865,7 @@ function init(container) {
   ctl.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_ROTATE };
   ctl.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
   // nao sair do escritorio: o ponto para onde se olha fica dentro das paredes
-  ctl.addEventListener("change", () => { if (P2.on) { const t = ctl.target, cx = Math.max(-19, Math.min(23, t.x)), cz = Math.max(-11, Math.min(11, t.z));
+  ctl.addEventListener("change", () => { if (P2.on) { const t = ctl.target, cx = Math.max(-44, Math.min(23, t.x)), cz = Math.max(-11, Math.min(11, t.z));
       if (cx !== t.x || cz !== t.z || t.y !== P2H) { const dx = cx - t.x, dz = cz - t.z, dy = P2H - t.y; t.set(cx, P2H, cz); cam.position.x += dx; cam.position.z += dz; cam.position.y += dy; } return; }
     const t = ctl.target, cx = Math.max(-28.5, Math.min(Math.max(48, ST_WALL + stLen + 2, acEnd + 1), t.x)), cz = t.x < -19.5 ? Math.max(-5, Math.min(5, t.z)) : Math.max(t.x > 19 ? -14 : -8.5, Math.min(t.x > 19 ? 14 : 11.5, t.z));
     if (cx !== t.x || cz !== t.z || t.y !== 0) { const dx = cx - t.x, dz = cz - t.z, dy = -t.y; t.set(cx, 0, cz); cam.position.x += dx; cam.position.z += dz; cam.position.y += dy; } });
@@ -1873,4 +1935,4 @@ function goStrategy() { p2Leave(); const T = V(ST_WALL + stLen / 2 + .6, 0), dx 
   const d = cam.position.clone().sub(ctl.target), want = 17 + stLen * .35; cam.position.copy(ctl.target.clone().add(d.setLength(want))); ctl.update(); }
 function goTo(x, z, want = 14) { p2Leave(); const T = V(x, z), dx = T.x - ctl.target.x, dz = T.z - ctl.target.z; ctl.target.copy(T); cam.position.x += dx; cam.position.z += dz;
   const d = cam.position.clone().sub(ctl.target); cam.position.copy(ctl.target.clone().add(d.setLength(want))); ctl.update(); }
-window.Office3D = { init, supported, refresh: () => { tvT = 0; }, resetView, goArena, goRewards, goSectors, goStrategy, goMemorial, goAcademy, goDirector, goTo, goFloor, floor: () => P2.on ? 2 : 1, showMission, showCofre };
+window.Office3D = { init, supported, refresh: () => { tvT = 0; }, resetView, goArena, goRewards, goSectors, goStrategy, goMemorial, goAcademy, goDirector, goTo, goFloor, floor: () => P2.on ? 2 : 1, showMission, showCofre, meetNow: () => { P2MEET.next = 0; } };
