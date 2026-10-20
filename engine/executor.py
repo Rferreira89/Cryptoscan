@@ -1247,10 +1247,20 @@ def do_orders(state, req, ex, now, send):
 # ---------- nucleo da carteira (Rui, 2026-10-20; engine/nucleo.py) ----------
 # Spot, sem alavancagem e sem emprestimo: compra e vende a propria moeda.
 
-def do_nucleo_comprar(state, req, ex, now, send):
+def do_nucleo_reforcar(state, req, ex, now, send):
+    """Reforco do nucleo depois de um deposito: compra a diferenca para a sua
+    parte do capital e junta a posicao (preco medio)."""
+    a = req["op"].split("-", 1)[1]
+    pos = (ex.get("nucleo") or {}).get(a)
+    if not pos or pos.get("verificar"):
+        return "sem posição no núcleo"
+    return do_nucleo_comprar(state, req, ex, now, send, junta=pos)
+
+
+def do_nucleo_comprar(state, req, ex, now, send, junta=None):
     a = req["op"].split("-", 1)[1]
     nuc = ex.setdefault("nucleo", {})
-    if nuc.get(a):
+    if nuc.get(a) and junta is None:
         return "já está no núcleo"
     plano = (((state.get("nucleo") or {}).get("plano") or {}).get(a)) or {}
     usdc = float(plano.get("comprar_usdc") or 0)
@@ -1276,6 +1286,13 @@ def do_nucleo_comprar(state, req, ex, now, send):
         send(f"🚨 Núcleo: a compra de {a} foi enviada mas não confirmei a execução ({str(e)[:60]}). Verifica na app.")
         nuc[a] = {"qty": 0.0, "entrada": px, "t": now, "verificar": True}
         return "sem execução confirmada"
+    if junta:
+        q0, e0 = float(junta.get("qty") or 0), float(junta.get("entrada") or avg)
+        tq = q0 + q
+        nuc[a] = {"qty": tq, "entrada": round((q0 * e0 + q * avg) / tq, 8), "usdc": round((q0 * e0 + q * avg), 2), "t": junta.get("t") or now}
+        send(f"🧱 <b>Núcleo: reforcei {a}</b> — mais {avg * q:.2f} USDC a {avg:.6g}, para voltar à sua parte do capital "
+             f"(agora {tq:.6g} {a}). Spot, sem alavancagem.", html=True)
+        return "ok"
     nuc[a] = {"qty": q, "entrada": avg, "usdc": round(avg * q, 2), "t": now}
     send(f"🧱 <b>Núcleo: comprei {a}</b> — {avg * q:.2f} USDC a {avg:.6g} ({q:.6g} {a}). Spot, sem alavancagem. "
          f"Fica enquanto o fecho diário estiver acima da média de 200 dias ({plano.get('media'):.6g}).", html=True)
@@ -1305,7 +1322,8 @@ def do_nucleo_vender(state, req, ex, now, send):
 
 ACTIONS = {"vender": do_short, "teste_short": do_test_short, "limpar_short": do_clean_short, "ordens": do_orders, "teste_alav": do_test_lev, "teste_margem": do_test_margin, "teste2": do_test2, "limpar": do_clean, "diag": do_diag, "comprar": do_buy, "breakeven": do_breakeven, "fechar": do_close,
            "parar": do_stop_all, "teste": do_test,
-           "nucleo_comprar": do_nucleo_comprar, "nucleo_vender": do_nucleo_vender}
+           "nucleo_comprar": do_nucleo_comprar, "nucleo_vender": do_nucleo_vender,
+           "nucleo_reforcar": do_nucleo_reforcar}
 
 
 def main(state_path, ex_in, out):

@@ -36,6 +36,35 @@ class Decisao(unittest.TestCase):
         self.assertIsNone(nucleo.sinal(velas(120, n=50)))
 
 
+class Reforco(unittest.TestCase):
+    def test_depois_de_um_deposito_volta_aos_70(self):
+        pos = {"BTC": {"qty": 0.5, "entrada": 100}}
+        cfg = {"nucleo_ligado": True, "nucleo_moedas": ["BTC"]}
+        st = {"nucleo": {"pos": dict(pos), "plano": {}, "pedidos": {}}}
+        self.assertEqual(nucleo.decidir(st, {"BTC": velas(120)}, {"BTC": 120}, 333.8, 151, cfg, NOW), [])  # sem o OK
+        p = nucleo.decidir(st, {"BTC": velas(120)}, {"BTC": 120}, 333.8, 151, dict(cfg, nucleo_reforcar=True), NOW)
+        self.assertEqual(p, [("nucleo_reforcar", "NUCLEO-BTC")])
+        self.assertEqual(st["nucleo"]["plano"]["BTC"]["comprar_usdc"], 147.98)   # limitado ao USDC livre (151 x 0,98)
+        st2 = {"nucleo": {"pos": {"BTC": {"qty": 1.9, "entrada": 100}}, "plano": {}, "pedidos": {}}}
+        self.assertEqual(nucleo.decidir(st2, {"BTC": velas(120)}, {"BTC": 120}, 333.8, 151,
+                                        dict(cfg, nucleo_reforcar=True), NOW), [])     # falta pouca: nao mexe
+
+    def test_executor_junta_a_posicao(self):
+        ex = {"nucleo": {"BTC": {"qty": 0.0006, "entrada": 80000, "t": 1}}}
+        st = {"nucleo": {"plano": {"BTC": {"acima": True, "comprar_usdc": 26.0, "media": 72000}}}}
+        msgs = []
+        with mock.patch.object(X, "instrument", return_value={"tick": "0.01", "base_step": "0.000001", "min_amt": 5}), \
+                mock.patch.object(X, "wallet", return_value={}), mock.patch.object(X, "usdc_free", return_value=150), \
+                mock.patch.object(X, "last_price", return_value=82000.0), \
+                mock.patch.object(X, "post", return_value={"orderId": "o"}), \
+                mock.patch.object(X, "fills", return_value=(82000.0, 0.0003)):
+            self.assertEqual(X.do_nucleo_reforcar(st, {"op": "NUCLEO-BTC"}, ex, NOW, lambda t, html=False: msgs.append(t)), "ok")
+        self.assertAlmostEqual(ex["nucleo"]["BTC"]["qty"], 0.0009)
+        self.assertAlmostEqual(ex["nucleo"]["BTC"]["entrada"], (0.0006 * 80000 + 0.0003 * 82000) / 0.0009, 2)
+        self.assertIn("reforcei", msgs[0])
+        self.assertEqual(X.do_nucleo_reforcar(st, {"op": "NUCLEO-ETH"}, ex, NOW, msgs.append), "sem posição no núcleo")
+
+
 class Execucao(unittest.TestCase):
     def test_compra_spot_sem_alavancagem_e_venda(self):
         posts, msgs = [], []

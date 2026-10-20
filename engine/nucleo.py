@@ -32,6 +32,9 @@ def sinal(daily):
     return c[-1] > m, c[-1], m
 
 
+REFORCO_MIN, REFORCO_PCT = 10.0, 0.15
+
+
 def decidir(state, daily, precos, capital, livre, cfg, now):
     """Atualiza o plano e devolve os pedidos [(acao, op)] para o executor.
     Sem "nucleo_ligado" so calcula (para o painel), nao pede nada."""
@@ -63,6 +66,16 @@ def decidir(state, daily, precos, capital, livre, cfg, now):
                 livre_rest -= usdc
                 st["pedidos"][a] = int(now)
                 pedidos.append(("nucleo_comprar", f"NUCLEO-{a}"))
+        elif s[0] and pos and cfg.get("nucleo_reforcar") and precos.get(a) and not pos.get("verificar"):
+            # reforco (Rui, 20/10): depois de um deposito o nucleo volta a ter
+            # a sua parte do capital; so com falta de pelo menos REFORCO_MIN
+            falta = alvo - float(pos.get("qty") or 0) * precos[a]
+            usdc = round(min(falta, livre_rest), 2)
+            if falta >= max(REFORCO_MIN, REFORCO_PCT * alvo) and usdc >= MIN_USDC:
+                p["comprar_usdc"] = usdc
+                livre_rest -= usdc
+                st["pedidos"][a] = int(now)
+                pedidos.append(("nucleo_reforcar", f"NUCLEO-{a}"))
         elif not s[0] and pos:
             st["pedidos"][a] = int(now)
             pedidos.append(("nucleo_vender", f"NUCLEO-{a}"))
