@@ -569,6 +569,8 @@ def key_alert(state, keys, now, dias=14):
             t = _dt.datetime.fromisoformat(str(exp).replace("Z", "+00:00")).timestamp()
         except ValueError:
             continue
+        if t < 946684800:            # 1970-01-01 = a Bybit diz "sem validade" (chave com IP fixo)
+            continue
         falta = (t - now) / 86400
         if falta > dias or now - (st.get(nome) or 0) < 86400:
             continue

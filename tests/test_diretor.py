@@ -872,3 +872,5 @@ class ShortsEPrecoDaBybit(unittest.TestCase):
         self.assertEqual(run.key_alert(st, {"de leitura": exp}, NOW + 3600), [])      # uma vez por dia
         longe = dt.datetime.fromtimestamp(NOW + 60 * 86400, dt.timezone.utc).isoformat()
         self.assertEqual(run.key_alert({}, {"de leitura": longe}, NOW), [])
+        # a Bybit devolve 1970-01-01 para chaves sem validade (IP fixo): nunca avisar (20/10)
+        self.assertEqual(run.key_alert({}, {"de negociação": "1970-01-01T00:00:00Z"}, NOW), [])
