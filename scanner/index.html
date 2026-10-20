@@ -189,7 +189,15 @@ body.w3d{background:#0a0820;overflow:hidden;height:100dvh}
 #hud>*{pointer-events:auto}
 .hud-top{display:flex;align-items:baseline;justify-content:space-between}
 .hud-top h1{font-size:24px;text-shadow:0 0 12px #B794F4aa}
-#hudstats{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:6px}
+#mission{margin-top:6px;background:linear-gradient(135deg,#120e36f5,#0c0a24f5);border:1px solid #3a2f8f;border-radius:12px;padding:8px 10px;font-size:11px;color:var(--mut);cursor:pointer}
+#mission .mtop{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+#mission .mcap{font-size:20px;font-weight:700;color:var(--ink)}
+#mission .mbar{height:6px;background:#221c5a;border-radius:9px;overflow:hidden;margin:5px 0 6px}
+#mission .mbar i{display:block;height:100%;background:linear-gradient(90deg,#4FD1C5,#B794F4);border-radius:9px}
+#mission .mrow{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+#mission .mrow div{background:#0a082099;border-radius:8px;padding:3px 6px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#mission .mrow b{display:block;color:var(--ink);font-size:12px}
+#hudstats{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:6px}
 .hs{background:#0c0a24f5;border:1px solid #2b2470;border-radius:9px;padding:4px 7px;font-size:10px;color:var(--mut);line-height:1.2;white-space:nowrap;overflow:hidden}
 .hs b{display:block;color:var(--ink);font-size:13px}
 #alerts{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
@@ -271,6 +279,7 @@ body.sheet-open #sheet{transform:none}
 <div id="office"></div>
 <div id="hud">
 <div class="hud-top"><h1>Cryptoscan</h1><button id="sub" title="Atualizar agora">A carregar…</button></div>
+<div id="mission" hidden role="button" aria-label="Ver a missão do primeiro milhão"></div>
 <div id="hudstats"></div>
 <div id="alerts"></div>
 </div>
@@ -867,7 +876,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261020b";
+const PAGE_V="20261020c";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -1056,7 +1065,8 @@ function renderHud(){if(!D)return;const C=D.config||{},J=(D.journal||{}).rows||[
   const open=act.filter(s=>s.status==="TRIGGERED"),wait=act.filter(s=>s.status!=="TRIGGERED"),tro=trendOps();
   const mine=J.filter(r=>r.executed===true&&r.status==="CLOSED"),R=r=>r.user_r!=null?r.user_r:r.result_r,w=mine.filter(r=>R(r)>0).length;
   const btc=(D.universe||[]).find(r=>r.asset==="BTC")||{};
-  $("hudstats").innerHTML=[["Capital USDC",C.capital_usdc!=null?num(C.capital_usdc,2):"–"],["Abertas",(open.length+tro.length)+"/"+(C.max_open_positions||2)],["Ganhas/perdidas",`<span class="up">${w}</span> / <span class="dn">${mine.length-w}</span>`],[`BTC <span class="${btc.chg_24h>=0?"up":"dn"}">${btc.chg_24h>=0?"+":""}${num(btc.chg_24h,1)}%</span>`,btc.price?Math.round(btc.price).toLocaleString("pt-PT"):"–"]].map(([k,v])=>`<div class="hs">${k}<b>${v}</b></div>`).join("");
+  $("hudstats").innerHTML=[["Abertas",(open.length+tro.length)+"/"+(C.max_open_positions||2)],["Ganhas/perdidas",`<span class="up">${w}</span> / <span class="dn">${mine.length-w}</span>`],[`BTC <span class="${btc.chg_24h>=0?"up":"dn"}">${btc.chg_24h>=0?"+":""}${num(btc.chg_24h,1)}%</span>`,btc.price?Math.round(btc.price).toLocaleString("pt-PT"):"–"]].map(([k,v])=>`<div class="hs">${k}<b>${v}</b></div>`).join("");
+  renderMission();
   const chips=[];
   if(D.halt)chips.push(`<button class="al stop" data-go="ctrl">⛔ Travão ativo</button>`);
   wait.forEach(s=>chips.push(`<button class="al buy" data-go="ops" data-id="${esc(s.id)}">${s.direction==="SHORT"?"🔻 SHORT":"🟢 COMPRA"} ${esc(s.asset)} · à espera de entrada</button>`));
@@ -1068,6 +1078,17 @@ function renderHud(){if(!D)return;const C=D.config||{},J=(D.journal||{}).rows||[
   const age=Math.round((Date.now()/1000-D.generated_at)/60),src=D.sources||{};
   $("sysstate").innerHTML=`<div class="banner"><b>Estado do sistema</b>Último scan: ${hm(D.generated_at)} (há ${age} min) · ${(D.counts||{}).pairs_seen||"–"} pares vistos, ${(D.counts||{}).deep_checked||"–"} analisados a fundo.<br>Fontes de preços: ${Object.entries(src).map(([k,v])=>`${esc(k)} ${v.ok?"✅":"❌"}`).join(" · ")}<br>${D.halt?`<span class="dn">Travão ativo: ${esc(D.halt)}</span>`:"Sem travões ativos."} ${D.next_event?`<br>Próximo evento: ${esc(D.next_event.name)}, ${hm(D.next_event.t)}.`:""}</div>`;
 }
+function renderMission(){const M=D.meta,el=$("mission");if(!M||!el){if(el)el.hidden=true;return}
+  const mk=M.marcos||[],i=mk.findIndex(x=>!x.feito),prev=i>0?mk[i-1].valor:0,nxt=i>=0?mk[i].valor:1e6;
+  const pr=Math.max(2,Math.min(100,(M.capital-prev)/(nxt-prev)*100)),N=D.nucleo||{},RE=D.reais||{},RK=D.risco||{},AU=D.auto||{},AM=D.amplitude||{};
+  const nv=Object.values(N.plano||{}).reduce((a,p)=>a+(N.pos&&p.valor_usdc?p.valor_usdc:0),0),nr=Object.entries(N.plano||{}).reduce((a,[k,p])=>a+(N.pos&&N.pos[k]?p.resultado_usdc||0:0),0);
+  const sg=x=>`<span class="${x>=0?"up":"dn"}">${x>=0?"+":""}${num(x,2)}</span>`;
+  el.hidden=false;
+  el.innerHTML=`<div class="mtop"><span>🏁 Missão 1M · <b style="color:var(--ink)">${num(M.pct,3)}%</b> do milhão</span><span class="mcap">${num(M.capital,2)} <small style="font-size:11px;color:var(--mut)">USDC</small></span></div>
+  <div class="mbar"><i style="width:${pr}%"></i></div>
+  <div style="margin:-2px 0 6px">Próximo marco <b style="color:var(--ink)">${num(nxt,0)} USDC</b> · faltam ${num(nxt-M.capital,2)} (${num(pr,0)}% do caminho)</div>
+  <div class="mrow"><div>🧱 Núcleo<b>${nv?num(nv,0)+" · "+sg(nr):(N.ligado?"à espera":"desligado")}</b></div><div>🧾 Ativas (real)<b>${RE.n?sg(RE.pnl_usdc)+" · "+RE.n+" op.":"sem fechos"}</b></div><div>🛡️ ${AU.ligado?"Auto ligado":"Auto desligado"}<b>Risco ${RK.reduzido?"½":"normal"}${AM.estado&&AM.estado!=="normal"?" · 🌊 "+esc(AM.estado):""}</b></div></div>`}
+$("mission").addEventListener("click",()=>openPanel("ops","#gestor"));
 $("alerts").addEventListener("click",e=>{const b=e.target.closest(".al");if(!b)return;openPanel(b.dataset.go,b.dataset.id?`.op[data-id="${b.dataset.id}"]`:null)});
 window.OFAPI_openZone=k=>openPanel(k);
 if(/^#(ops|meet|lab|srv|ctrl)$/.test(location.hash))openPanel(location.hash.slice(1));
