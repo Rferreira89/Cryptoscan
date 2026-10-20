@@ -1,14 +1,14 @@
 # Diário de investigação
 
-**Hipóteses testadas contra esta reserva: 16** (11 neste diário: compra de
+**Hipóteses testadas contra esta reserva: 18** (12 neste diário: compra de
 quedas, compressão, oversold bounce 4H, day trade 1H, bounce com outras
 saídas, sweep a mercado, funding negativo, quebra com compradores,
-capitulação do mercado, atraso face ao BTC, resiliente; mais 5 no diário
-de afinação, H1 a H5). Atualizado em 2026-10-18 (nenhuma hipótese nova
-em 2026-10-17 nem em 2026-10-18). Quanto maior este número,
-maior a probabilidade de uma hipótese passar por sorte: com 16 testes, a
-probabilidade de pelo menos um falso positivo a 5% já ronda os 56% (e as
-várias configurações de cada grelha aumentam-na ainda mais).
+capitulação do mercado, atraso face ao BTC, resiliente, impulso de
+amplitude; mais 6 no diário de afinação, H1 a H6). Atualizado em
+2026-10-20. Quanto maior este número, maior a probabilidade de uma
+hipótese passar por sorte: com 18 testes, a probabilidade de pelo menos um
+falso positivo a 5% já ronda os 60% (e as várias configurações de cada
+grelha aumentam-na ainda mais).
 
 Uma hipótese por entrada, com o veredicto. Método: `tools/research.py`
 (decisão no fecho, execução na abertura seguinte, 0,25% de comissão + 0,1% de
@@ -168,6 +168,8 @@ o Rui), e o morto fica registado. Um por corrida, na segunda vaga.
 | CAPITULACAO | 2026-10-15 (forma recente; 20 op., −0,218R) | capitulação isolada numa moeda perde; só os colapsos do mercado inteiro recuperam, e o filtro BTC>SMA200 deita-os fora (ver entrada de 2026-10-15) | CAPITULACAO → CAP_MERCADO | AMOSTRA INSUFICIENTE (2026-10-15; 23 op. fora da amostra, percentil 36,4 contra o acaso; reserva 7 op., todas no stop) |
 | VOLUME_ACUMULACAO | 2026-10-16 (forma recente; 45 op., −0,064R) | sem causa clara: no desenho as entradas ficam no percentil 82 do acaso (sem vantagem provada) e é a geometria (2R/4R, 5 dias) que perde, também com entradas ao acaso (ver entrada de 2026-10-17) | sem sucessor | — |
 | FIBO_RECUO | 2026-10-17 (forma recente; 237 op., −0,095R) | o momento da entrada: no desenho −0,19R contra +0,01R ao acaso com a mesma geometria (percentil 0); os recuos de 50%–61,8% são impulsos a falhar (só 7% dos stops voltam ao objetivo); nenhum filtro único chega ao nível do acaso (ver entrada de 2026-10-17) | sem sucessor | — |
+| MAIORES_FUNDING | 2026-10-18 (forma recente, morte rápida; 10 op., −0,676R) | o funding negativo nas maiores é sinal de fraqueza que continua, não de aperto: no desenho o gatilho com funding dá −0,32R (percentil 14 do acaso) e o mesmo gatilho sem funding −0,13R (percentil 43, igual ao acaso); a geometria (1,5R/3R em 3 dias) também perde com entradas ao acaso (ver entrada de 2026-10-20) | sem sucessor (tirar o filtro só leva ao nível do acaso; confirma a hipótese 4 da fila) | — |
+| BOUNCE_MACRO | 2026-10-19 (forma recente; 51 op., −0,011R) | o próprio filtro macro: nos últimos 90 dias tirou ao BOUNCE_X30 (vivo, +0,28R) cerca de 16 operações que valeram em média +1,2R; as melhores sobrevendas acontecem quando a macro NÃO está calma (ver entrada de 2026-10-20) | sem sucessor (a correção é tirar o filtro, e isso é o BOUNCE_X30, já vivo; o contrário, BOUNCE_MEDO, já existe) | — |
 
 ## Hipóteses anteriores a este diário (até 2026-10-02, período 2021-2026)
 
@@ -1094,3 +1096,97 @@ já rejeitada. O contador fica em 16.
 - Contador depois desta corrida: 18 (11 neste diário antes de hoje + 6 da
   afinação + esta). Com 18 testes a probabilidade de pelo menos um falso
   positivo a 5% ronda os 60%.
+
+### Autópsias (2026-10-20)
+
+- **MAIORES_FUNDING** (Gonçalo; BTC, ETH e SOL; funding negativo na
+  última liquidação, fecho acima da média de 20 velas e do máximo
+  anterior; stop no mínimo de 6 velas; 50% a 1,5R e 50% a 3R; 3 dias).
+  No ringue: 10 op., 2 ganhadoras, −0,676R (acaso: mediana −0,391R).
+  Desenho (2024-10-19 a 2026-04-18, `tools/autopsia_arena.walk` com a
+  função do ringue e o funding da Binance do ramo `history`; o ringue usa
+  o da OKX): 68 op., 32,4% de acerto, **−0,318R**; acaso com a mesma
+  geometria: mediana −0,205R, p95 −0,017R, **percentil 14,1**. Saídas: 31
+  stops (−1,03R), 28 por tempo (+0,03R), 5 no zero, 4 no 2.º objetivo; só
+  19% chegam ao 1.º objetivo; custo 0,21R por operação. Por moeda: BTC
+  −0,45R (16), ETH −0,65R (13), SOL −0,15R (39). **Controlo**: o mesmo
+  gatilho e o mesmo plano SEM a condição do funding dão 288 op., −0,126R,
+  percentil 42,8 (igual ao acaso). **Causa**: o funding negativo
+  seleciona os piores momentos (os vendidos têm razão mais vezes do que
+  são apertados), e a geometria perde até com entradas ao acaso. Tirar o
+  filtro só leva ao nível do acaso; não há uma correção única que crie
+  vantagem. Junta-se à hipótese 4 da fila (funding muito negativo, todas
+  as moedas, NÃO VALIDADA em 2026-10-14): a família "funding negativo
+  → aperto" fica esgotada com estes dados. **Sem sucessor.**
+- **BOUNCE_MACRO** (Mário; gatilho do BOUNCE_X30 só com a macro
+  "favorável": VIX abaixo de 20, S&P 500 estável, dólar calmo). Não há
+  histórico macro no ramo `history` nem rede para o Yahoo nesta corrida,
+  por isso a autópsia usa o combate de 90 dias (`forma.json` do ramo
+  `arena`, 2026-10-20) e compara com o pai: BOUNCE_X30 64 op., +0,283R
+  (acaso: mediana −0,263R, p95 −0,087R); BOUNCE_MACRO 48 op., −0,031R
+  (mediana −0,355R). Nos últimos 30 dias são as mesmas 33 operações
+  (+0,073R): a macro esteve sempre favorável. Nos 60 dias antes, o X30 tem
+  31 op. a +0,506R e o MACRO 15 a −0,261R: o filtro tirou cerca de 16
+  operações que valeram em média cerca de +1,2R (conta aproximada, pela
+  diferença dos totais). **Causa**: o filtro deita fora exatamente as
+  sobrevendas em dias de medo ou neutros, que são as que mais recuperam.
+  A correção é tirar o filtro, e isso é o BOUNCE_X30, já vivo; a variante
+  contrária (BOUNCE_MEDO) já existe no código. **Sem sucessor.** Morreu
+  com −0,011R e hoje teria a forma acima do p95 do acaso (−0,17R): a
+  morte é definitiva e a amostra é curta, por isso não se lê nada a favor.
+- Números: `backtest/autopsia_2026-10-20.json`.
+
+## 2026-10-20 — IMPULSO_AMPLITUDE: impulso de amplitude do mercado (hipótese nova)
+
+**Veredicto: NÃO VALIDADA.** Falha os 7 critérios. Perde em todas as
+configurações e não bate o acaso (percentil 86,2 fora da amostra; o
+mínimo é 95). Não vai para papel nem para o ringue.
+
+- **Regra e grelha**: as do pré-registo acima (commit f5c237b, antes dos
+  testes). Universo: 74 moedas.
+- **Janela**: desenho 2024-10-18 a 2026-04-17; reserva 2026-04-18 a
+  2026-10-17 (última vela 2026-10-18 08:00 UTC). Walk-forward: treino 183
+  dias, teste 91, 4 dobras. Custos 0,25% + 0,1% por lado.
+- **Nota de implementação** (registada por honestidade): com a amplitude
+  medida em velas de 4H e a média de 20 velas, a amplitude oscila depressa
+  e a regra dispara muito mais do que um "breadth thrust" clássico: 171
+  impulsos no desenho e 58 na reserva (com U = 0,75). A regra testada foi
+  a pré-registada, sem mudanças depois de ver os números; uma versão
+  diária mais rara seria outra hipótese, contra a mesma reserva.
+- **Desenho**: 0 de 6 configurações positivas. Com o filtro do BTC:
+  U=0,75 −35,9% (H=5, 228 op., 34,6% de acerto, −0,05R) e −44,2% (H=10,
+  202 op., −0,04R); U=0,85 −63,5% (H=5, −0,19R) e −62,5% (H=10, −0,20R).
+  Sem o filtro: −59,9% e −67,4%. Quedas máximas de 66% a 86%. Custo médio
+  0,12R a 0,13R por operação (risco médio 6,9%). Referência BTC>SMA200 no
+  desenho: +8,7%, Sharpe 0,33, queda máxima 33,4%.
+- **Walk-forward fora da amostra** (364 dias): **−45,5%**, Sharpe −1,13,
+  queda máxima 57,4%, 160 operações, 32,5% de acerto, −0,138R. Dobras:
+  +7,1% / −31,4% / −25,8% / 0,0% (sem operações) = 1 de 4. Grandes
+  moedas: −53,0%. Referência nas mesmas datas: +5,0%, Sharpe 0,33.
+- **Configuração escolhida**: U=0,75, H=10, com o filtro do BTC.
+- **Reserva (uma avaliação)**: −1,9%, Sharpe −0,01, queda máxima 14,4%,
+  32 op., 31,2% de acerto, +0,109R (o retorno médio por operação é
+  −0,03%: o R positivo vem de stops curtos). Referência: +17,1%, Sharpe
+  1,47. Grandes moedas: −14,1%.
+- **Contra o acaso** (1000 séries, ±90 velas, mesma geometria): fora da
+  amostra (192 op.) −0,097R contra mediana −0,194R e p95 −0,055R:
+  **percentil 86,2**. Só walk-forward: percentis 77,7 (H=5, 118 op.) e
+  75,2 (H=10, 42 op.); só reserva (32): percentil 64,2.
+- **Critérios**: 1 NÃO; 2 NÃO (25%); 3 NÃO (0%); 4 NÃO; 5 NÃO; 6 NÃO; 7 NÃO.
+- **Período antigo (informativo, não conta)**: 2021-07-30 a 2024-10-17 a
+  mesma configuração daria −72,3% (Sharpe −0,82, 349 op., 25,2% de
+  acerto, −0,20R) contra +60,0% da referência.
+- **Leitura**: comprar as moedas que participam num salto de amplitude é,
+  a 4H, comprar força depois de um repique do mercado inteiro, e perde
+  como as quebras. O momento é um pouco melhor do que o acaso (percentil
+  86), mas longe da significância, e a geometria (stop a 2 ATR, objetivo a
+  3R) perde mesmo com entradas ao acaso (−0,19R). Mais uma confirmação de
+  que, neste mercado, as entradas em força a 4H não têm vantagem; só a
+  sobrevenda a virar a tem. Nada foi ligado ao vivo nem ao ringue.
+- Código: `tools/research_impulso.py`; teste sem look-ahead:
+  `tests/test_research_impulso.py`; números: `backtest/research_impulso.json`.
+- Proposta para a próxima corrida: autópsia só se morrer alguém; hipótese
+  nova só com uma fonte de informação nova (interesse em aberto ou rácio
+  long/short com histórico no ramo `history`), ou uma família para o
+  regime de descida que não seja venda a descoberto (por exemplo, ficar
+  em USDC é a resposta certa e não precisa de teste).

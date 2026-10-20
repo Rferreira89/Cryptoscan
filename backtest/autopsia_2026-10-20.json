@@ -1,0 +1,230 @@
+{
+ "gerado": "2026-10-20",
+ "lutador": "MAIORES_FUNDING",
+ "janela_desenho": [
+  "2024-10-19",
+  "2026-04-18"
+ ],
+ "moedas": [
+  "BTC",
+  "ETH",
+  "SOL"
+ ],
+ "funding": "Binance (ramo history, pasta funding/); o ringue usa OKX",
+ "metodo": "tools.autopsia_arena.walk com a funcao do ringue; SEM_FUNDING = mesmo gatilho e plano sem a condicao do funding",
+ "BOUNCE_MACRO": "sem historico macro no ramo history (e sem rede para o Yahoo): autopsia feita com forma.json do ramo arena (BOUNCE_MACRO contra BOUNCE_X30)",
+ "MAIORES_FUNDING": {
+  "todas": {
+   "n": 68,
+   "r_medio": -0.318,
+   "acerto_pct": 32.4
+  },
+  "acaso": {
+   "n": 68,
+   "r_real": -0.318,
+   "acaso_mediana": -0.205,
+   "acaso_p95": -0.017,
+   "percentil": 14.1
+  },
+  "saidas": {
+   "BREAKEVEN": {
+    "n": 5,
+    "r_medio": 0.546,
+    "acerto_pct": 100.0
+   },
+   "STOP": {
+    "n": 31,
+    "r_medio": -1.027,
+    "acerto_pct": 0.0
+   },
+   "TIME": {
+    "n": 28,
+    "r_medio": 0.025,
+    "acerto_pct": 46.4
+   },
+   "TP2": {
+    "n": 4,
+    "r_medio": 1.705,
+    "acerto_pct": 100.0
+   }
+  },
+  "risco_medio_pct": 4.87,
+  "custo_medio_r": 0.21,
+  "mfe_ate_tp1_pct": 19.1,
+  "stops_por_duracao": {
+   "0-12h": {
+    "n": 8,
+    "r_medio": -1.035,
+    "acerto_pct": 0.0
+   },
+   "12-48h": {
+    "n": 16,
+    "r_medio": -1.025,
+    "acerto_pct": 0.0
+   },
+   "48-1000000h": {
+    "n": 7,
+    "r_medio": -1.024,
+    "acerto_pct": 0.0
+   }
+  },
+  "por_hora": {
+   "0": {
+    "n": 13,
+    "r_medio": -0.267,
+    "acerto_pct": 38.5
+   },
+   "4": {
+    "n": 13,
+    "r_medio": -0.575,
+    "acerto_pct": 23.1
+   },
+   "8": {
+    "n": 6,
+    "r_medio": -0.362,
+    "acerto_pct": 16.7
+   },
+   "12": {
+    "n": 12,
+    "r_medio": -0.308,
+    "acerto_pct": 33.3
+   },
+   "16": {
+    "n": 14,
+    "r_medio": -0.045,
+    "acerto_pct": 42.9
+   },
+   "20": {
+    "n": 10,
+    "r_medio": -0.414,
+    "acerto_pct": 30.0
+   }
+  },
+  "por_moeda": {
+   "BTC": {
+    "n": 16,
+    "r_medio": -0.446,
+    "acerto_pct": 31.2
+   },
+   "ETH": {
+    "n": 13,
+    "r_medio": -0.651,
+    "acerto_pct": 15.4
+   },
+   "SOL": {
+    "n": 39,
+    "r_medio": -0.154,
+    "acerto_pct": 38.5
+   }
+  },
+  "tp1_r_medio": 1.5,
+  "mfe_mediana": 0.642
+ },
+ "SEM_FUNDING": {
+  "todas": {
+   "n": 288,
+   "r_medio": -0.126,
+   "acerto_pct": 41.3
+  },
+  "acaso": {
+   "n": 288,
+   "r_real": -0.126,
+   "acaso_mediana": -0.117,
+   "acaso_p95": -0.033,
+   "percentil": 42.8
+  },
+  "saidas": {
+   "BREAKEVEN": {
+    "n": 44,
+    "r_medio": 0.734,
+    "acerto_pct": 95.5
+   },
+   "STOP": {
+    "n": 104,
+    "r_medio": -1.028,
+    "acerto_pct": 0.0
+   },
+   "TIME": {
+    "n": 124,
+    "r_medio": 0.107,
+    "acerto_pct": 49.2
+   },
+   "TP2": {
+    "n": 16,
+    "r_medio": 1.568,
+    "acerto_pct": 100.0
+   }
+  },
+  "risco_medio_pct": 4.47,
+  "custo_medio_r": 0.232,
+  "mfe_ate_tp1_pct": 27.4,
+  "stops_por_duracao": {
+   "0-12h": {
+    "n": 14,
+    "r_medio": -1.038,
+    "acerto_pct": 0.0
+   },
+   "12-48h": {
+    "n": 66,
+    "r_medio": -1.028,
+    "acerto_pct": 0.0
+   },
+   "48-1000000h": {
+    "n": 24,
+    "r_medio": -1.021,
+    "acerto_pct": 0.0
+   }
+  },
+  "por_hora": {
+   "0": {
+    "n": 52,
+    "r_medio": -0.083,
+    "acerto_pct": 46.2
+   },
+   "4": {
+    "n": 47,
+    "r_medio": -0.283,
+    "acerto_pct": 36.2
+   },
+   "8": {
+    "n": 39,
+    "r_medio": -0.058,
+    "acerto_pct": 46.2
+   },
+   "12": {
+    "n": 50,
+    "r_medio": -0.217,
+    "acerto_pct": 34.0
+   },
+   "16": {
+    "n": 59,
+    "r_medio": -0.084,
+    "acerto_pct": 42.4
+   },
+   "20": {
+    "n": 41,
+    "r_medio": -0.013,
+    "acerto_pct": 43.9
+   }
+  },
+  "por_moeda": {
+   "BTC": {
+    "n": 101,
+    "r_medio": -0.21,
+    "acerto_pct": 38.6
+   },
+   "ETH": {
+    "n": 97,
+    "r_medio": -0.111,
+    "acerto_pct": 41.2
+   },
+   "SOL": {
+    "n": 90,
+    "r_medio": -0.048,
+    "acerto_pct": 44.4
+   }
+  },
+  "tp1_r_medio": 1.5,
+  "mfe_mediana": 0.699
+ }
+}
