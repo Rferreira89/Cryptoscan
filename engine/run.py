@@ -867,6 +867,16 @@ def main():
         res["nucleo"] = nucleo.resumo(state)
     except Exception as e:
         print("nucleo:", e)
+    try:                                     # pos-morte das operacoes reais (engine/posmortem.py)
+        from . import posmortem
+        rel = posmortem.relatorio(state.get("ledger"), ((state.get("arena") or {}).get("longo") or {}).get("lutadores"),
+                                  (res.get("promo") or {}).get("campeoes") or ())
+        res["posmortem"] = rel
+        for m in posmortem.novos(state, rel):
+            if alerts.configured():
+                alerts.send(m, html=True)
+    except Exception as e:
+        print("posmortem:", e)
     try:                                     # historico de derivados (engine/derivhist.py)
         from . import derivhist
         dh = derivhist.atualizar(_load("derivados.json", {}), res.get("universe"), res["generated_at"])

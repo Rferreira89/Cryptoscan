@@ -903,7 +903,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261020i";
+const PAGE_V="20261020j";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -1115,7 +1115,7 @@ function hojeItems(){const it=[],d0=new Date();d0.setHours(0,0,0,0);const T0=d0.
   if(nv)it.push(["🧱",`Núcleo vale <b>${num(nv,2)} USDC</b> · resultado <b class="${nr>=0?"up":"dn"}">${sg(nr)}</b>`,Object.entries(N.plano||{}).map(([a,p])=>`${a} ${p.acima?"acima":"abaixo"} da média de 200 dias`).join(" · ")]);
   const J=(D.journal||{}).rows||[],R=r=>r.real_r!=null?r.real_r:r.user_r!=null?r.user_r:r.result_r;
   J.filter(r=>r.executed===true&&hoje(r.opened_at||r.issued_at)).forEach(r=>it.push(["🟢",`Entrada real: ${esc(r.asset)} (${esc(personaOf?personaOf(r.strategy):r.strategy)})`,"às "+hh(r.opened_at||r.issued_at)+(r.risk_usdc?` · risco ${num(r.risk_usdc,2)} USDC`:"")]));
-  J.filter(r=>r.executed===true&&r.status==="CLOSED"&&hoje(r.closed_at)).forEach(r=>{const x=R(r);it.push(["🏁",`Fechou ${esc(r.asset)}: <b class="${x>=0?"up":"dn"}">${x==null?"–":sg(x)}R</b>`,"às "+hh(r.closed_at)])});
+  J.filter(r=>r.executed===true&&r.status==="CLOSED"&&hoje(r.closed_at)).forEach(r=>{const x=R(r),pm=((D.posmortem||{}).ops||[]).find(o=>o.id===r.id);it.push(["🏁",`Fechou ${esc(r.asset)}: <b class="${x>=0?"up":"dn"}">${x==null?"–":sg(x)}R</b>`,"às "+hh(r.closed_at)+(pm?` · pós-morte: ${esc(PMCAUSA[pm.causa]||pm.causa)}${pm.licoes.length?" — "+esc(pm.licoes[0]):""}`:"")])});
   const DC=((D.diretor||{}).decisoes||[]).filter(x=>hoje(x.t));
   if(DC.length)it.push(["🧭",`Diretor: ${DC.filter(x=>x.decisao==="AUTORIZADO").length} autorizadas, ${DC.filter(x=>x.decisao!=="AUTORIZADO").length} recusadas`,DC.slice(-3).map(x=>`${esc(x.ativo)} ${x.decisao==="AUTORIZADO"?"✅":"❌"}`).join(" · ")]);
   else it.push(["🧭","Diretor: nenhuma entrada real hoje","só entra quem passa a prova dupla"]);
@@ -1279,7 +1279,16 @@ async function drawGraf(){const el=$("gchart"),L=window.LightweightCharts;if(!L)
 async function openGraf(a){if(a)GR.a=a;$("graf").hidden=false;try{await lwLoad()}catch(_){$("glegend").textContent="Não consegui carregar os gráficos.";return}drawGraf()}
 $("graf").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.id==="gclose"){$("graf").hidden=true;if(GR.chart){GR.chart.remove();GR.chart=null}return}
   if(b.dataset.a){GR.a=b.dataset.a;drawGraf()}else if(b.dataset.tf){GR.tf=b.dataset.tf;drawGraf()}});
-const GOTO=[["🏢","Vista inicial","escritório principal",O=>O.resetView()],["🏁","Painel da missão","capital, gráfico e percentagens",O=>O.showMission()],["🧱","Cofre do núcleo","BTC, ETH e SOL",O=>O.showCofre()],["📋","O que aconteceu hoje","resumo do dia",()=>openHoje()],["📈","Gráficos","velas interativas com o núcleo e as operações",()=>openGraf()],null,
+const PMCAUSA={execucao:"perdeu na execução",sinal:"o sinal falhou",fase:"fase errada",ganhou:"ganhou",empate:"saiu perto da entrada"};
+function openPM(){const P=D&&D.posmortem,el=$("hoje"),sg=v=>v==null?"–":(v>=0?"+":"−")+Math.abs(v).toFixed(2).replace(".",",");let h=`<h3>🔍 Pós-morte das operações reais<button aria-label="Fechar">✕</button></h3>`;
+  if(!P||!P.n)h+=`<div class="it"><i>·</i><span>Ainda não há operações reais fechadas.</span></div>`;
+  else{h+=`<div class="it"><i>📊</i><span><b>${P.n} operações</b> · ${sg(P.r_total)}R no total (${sg(P.usdc)} USDC) · acerto ${P.acerto}%<br><small>média ${sg(P.r_medio)}R por operação${P.gap_execucao_r!=null?` · execução ${sg(P.gap_execucao_r)}R face ao sinal (${P.medidas} medidas na Bybit)`:""}</small></span></div>`;
+    (P.padroes||[]).forEach(x=>h+=`<div class="it"><i>🔁</i><span>${esc(x)}</span></div>`);
+    (P.licoes||[]).forEach(x=>h+=`<div class="it"><i>💡</i><span>${esc(x)}</span></div>`);
+    h+=`<div class="it"><i>🧩</i><span><b>Por estratégia</b><br><small>${Object.entries(P.por_estrategia||{}).sort((a,b)=>a[1].total-b[1].total).map(([k,v])=>`${esc(personaOf(k))} (${esc(k)}): ${v.n} op., ${sg(v.r)}R`).join(" · ")}</small></span></div>`;
+    (P.ops||[]).slice().reverse().forEach(o=>h+=`<div class="it"><i>${o.r>0?"✅":o.causa==="empate"?"➖":"❌"}</i><span><b>${esc(o.ativo)}</b> · ${esc(personaOf(o.estrategia))} · <b class="${o.r>=0?"up":"dn"}">${sg(o.r)}R</b> — ${esc(PMCAUSA[o.causa]||o.causa)}<br><small>${o.t?new Date(o.t*1000).toLocaleDateString("pt-PT",{day:"2-digit",month:"2-digit"})+" · ":""}${(o.licoes||[]).map(esc).join("; ")||"nada a apontar"}</small></span></div>`)}
+  el.querySelector(".hj").innerHTML=h;el.hidden=false}
+const GOTO=[["🏢","Vista inicial","escritório principal",O=>O.resetView()],["🏁","Painel da missão","capital, gráfico e percentagens",O=>O.showMission()],["🧱","Cofre do núcleo","BTC, ETH e SOL",O=>O.showCofre()],["📋","O que aconteceu hoje","resumo do dia",()=>openHoje()],["📈","Gráficos","velas interativas com o núcleo e as operações",()=>openGraf()],["🔍","Pós-morte","o que as operações reais ensinam",()=>openPM()],null,
   ["🔬","2.º piso · Laboratório","pesquisa de estratégias",O=>O.goFloor(2)],["🧭","Diretor de Trading","decisões de entrada",O=>O.goDirector()],["⚔️","Arena","as estratégias a lutar",O=>O.goArena()],["💼","Sala de estratégia","quem provou no combate",O=>O.goStrategy()],
   ["🎓","Academia","quem ainda está a aprender",O=>O.goAcademy()],["📊","Setores","moedas por setor",O=>O.goSectors()],["🏆","Recompensas","conquistas reais",O=>O.goRewards()],["🕯️","Memorial","quem morreu na arena",O=>O.goMemorial()]];
 $("golist").innerHTML=GOTO.map((g,i)=>g?`<button role="menuitem" data-i="${i}"><span style="font-size:18px">${g[0]}</span><span>${g[1]}<small>${g[2]}</small></span></button>`:"<hr>").join("");

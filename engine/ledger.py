@@ -37,6 +37,7 @@ def apply(state, events):
                    "risk_usdc": p.get("risk_usdc"),
                    "partials": p.get("partials"),
                    "deps": (s.get("diretor") or {}).get("deps"),
+                   "fase": (state.get("mercado") or {}).get("regime"),   # para o pos-morte
                    "status": "WAITING", "tp_hit": 0}
             led.append(rec)
             by_id[rec["id"]] = rec
