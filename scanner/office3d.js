@@ -1271,6 +1271,40 @@ function animate(p, dt, t) {
   k.head.rotation.y = !walking && !typing && !sleep ? Math.sin(t * .35 + p.ph) * .35 : 0;
 }
 
+// ---------- painel da missao (holograma no centro do corredor): capital, marco, nucleo,
+// resultado real, risco e modo automatico, com os dados do ultimo scan ----------
+let misTex = null, misScr = null;
+function drawMission(g) {
+  const D = API().D() || {}, M = D.meta, W = 768, H = 440;
+  g.fillStyle = "#0b0a24"; g.fillRect(0, 0, W, H); g.strokeStyle = "#B794F4"; g.lineWidth = 5; g.strokeRect(3, 3, W - 6, H - 6);
+  if (!M) { g.fillStyle = "#fff"; g.font = "700 30px system-ui"; g.fillText("Missão 1M · a carregar…", 30, 60); return; }
+  const mk = M.marcos || [], i = mk.findIndex(x => !x.feito), prev = i > 0 ? mk[i - 1].valor : 0, nxt = i >= 0 ? mk[i].valor : 1e6;
+  const pr = Math.max(.02, Math.min(1, (M.capital - prev) / (nxt - prev))), N = D.nucleo || {}, RE = D.reais || {}, RK = D.risco || {}, AU = D.auto || {}, AM = D.amplitude || {};
+  const f2 = v => Number(v).toFixed(2).replace(".", ","), sg = v => (v >= 0 ? "+" : "−") + f2(Math.abs(v));
+  let nv = 0, nr = 0; Object.entries(N.plano || {}).forEach(([k, p]) => { if (N.pos && N.pos[k]) { nv += p.valor_usdc || 0; nr += p.resultado_usdc || 0; } });
+  g.fillStyle = "#cfc8ff"; g.font = "700 26px system-ui"; g.fillText("🏁 MISSÃO 1M", 30, 52);
+  g.fillStyle = "#9fb3c8"; g.font = "600 22px system-ui"; g.fillText(`${String(M.pct.toFixed(3)).replace(".", ",")}% do milhão`, 30, 84);
+  g.textAlign = "right"; g.fillStyle = "#fff"; g.font = "800 64px system-ui"; g.fillText(f2(M.capital), W - 110, 86); g.font = "700 24px system-ui"; g.fillStyle = "#9fb3c8"; g.fillText("USDC", W - 30, 86); g.textAlign = "left";
+  g.fillStyle = "#221c5a"; g.fillRect(30, 112, W - 60, 22); const gr = g.createLinearGradient(30, 0, W - 30, 0); gr.addColorStop(0, "#4FD1C5"); gr.addColorStop(1, "#B794F4"); g.fillStyle = gr; g.fillRect(30, 112, (W - 60) * pr, 22);
+  g.fillStyle = "#dfe6f0"; g.font = "600 22px system-ui"; g.fillText(`Próximo marco ${nxt.toLocaleString("pt-PT")} USDC · faltam ${f2(nxt - M.capital)} (${Math.round(pr * 100)}%)`, 30, 170);
+  const box = (x, t, v, c) => { g.fillStyle = "#14123a"; g.fillRect(x, 200, 226, 110); g.fillStyle = "#9fb3c8"; g.font = "600 21px system-ui"; g.fillText(t, x + 14, 236); g.fillStyle = c || "#fff"; g.font = "800 30px system-ui"; g.fillText(v, x + 14, 284); };
+  box(30, "🧱 Núcleo", nv ? `${Math.round(nv)} · ${sg(nr)}` : (N.ligado ? "à espera" : "desligado"), nr >= 0 ? "#68D391" : "#FF8A80");
+  box(271, "🧾 Ativas (real)", RE.n ? `${sg(RE.pnl_usdc)} · ${RE.n} op.` : "sem fechos", (RE.pnl_usdc || 0) >= 0 ? "#68D391" : "#FF8A80");
+  box(512, AU.ligado ? "🤖 Auto ligado" : "🤖 Auto desligado", "Risco " + (RK.reduzido ? "½" : "normal"), RK.reduzido ? "#F6C453" : "#68D391");
+  g.fillStyle = "#9fb3c8"; g.font = "600 20px system-ui";
+  const camp = ((D.promo || {}).campeoes || []).join(", ") || "nenhum";
+  g.fillText(`Campeão agora: ${camp.slice(0, 40)} · fase ${((D.mercado || {}).regime) || "–"}${AM.estado && AM.estado !== "normal" ? " · 🌊 " + AM.estado : ""}`, 30, 350);
+  g.fillText(`${(mk.filter(x => x.feito).length)} de ${mk.length} marcos · toca para abrir o gestor`, 30, 390);
+}
+function buildMission() {
+  misTex = canvasTex(768, 440, drawMission);
+  misScr = new THREE.Mesh(new THREE.PlaneGeometry(5.6, 3.2), new THREE.MeshBasicMaterial({ map: misTex, toneMapped: false, side: THREE.DoubleSide }));
+  misScr.position.set(0, 4.6, 0); misScr.userData.zone = "ops"; scene.add(misScr); zoneHits.push(misScr);
+  const ring = new THREE.Mesh(new THREE.RingGeometry(1.1, 1.3, 40), new THREE.MeshBasicMaterial({ color: 0xB794F4, transparent: true, opacity: .55, toneMapped: false })); ring.rotation.x = -Math.PI / 2; ring.position.set(0, .03, 0); scene.add(ring);
+  boxM(.06, 3, .06, mat("#B794F4", .8, .5), 0, 1.5, 0);
+}
+function updateMission() { if (misTex) { drawMission(misTex.userData.c.getContext("2d")); misTex.needsUpdate = true; } }
+
 // ---------- 2.o piso: Laboratorio de Estrategias ----------
 // Um piso inteiro so de pesquisa. Seis departamentos em fila, pela ordem em
 // que uma estrategia tem de passar para chegar ao dinheiro real: ideias ->
@@ -1585,9 +1619,10 @@ function frame() {
       if (it) window.drawCandles(g, 512, 256, it.cs, it.lv, { title: it.asset, axis: false, n: 40 }); tx.needsUpdate = true; }
     if (clock3d) { drawClock(clock3d.userData.c.getContext("2d")); clock3d.needsUpdate = true; }
     if (dataTex) { dataI++; drawDataWall(dataTex.userData.c.getContext("2d")); dataTex.needsUpdate = true; } }
-  if (nowMs - (frame.tvAt || -1e9) > 30000 || tvT <= 0) { frame.tvAt = nowMs; tvT = 30; drawTV(tvTex.userData.c.getContext("2d")); tvTex.needsUpdate = true; if (mesaTex) { mesaI++; drawMesa(mesaTex.userData.c.getContext("2d")); mesaTex.needsUpdate = true; } updateRadar(); updateArena(); updateRewards(); updateSectors(); updateStrategyRoom(); updateStaff(); updateDirector(); updateAcademy(); updateMoney(); updateFloor2(); drawBoard(board.userData.c.getContext("2d")); board.needsUpdate = true; }
+  if (nowMs - (frame.tvAt || -1e9) > 30000 || tvT <= 0) { frame.tvAt = nowMs; tvT = 30; drawTV(tvTex.userData.c.getContext("2d")); tvTex.needsUpdate = true; if (mesaTex) { mesaI++; drawMesa(mesaTex.userData.c.getContext("2d")); mesaTex.needsUpdate = true; } updateRadar(); updateArena(); updateRewards(); updateSectors(); updateStrategyRoom(); updateStaff(); updateDirector(); updateAcademy(); updateMoney(); updateFloor2(); updateMission(); drawBoard(board.userData.c.getContext("2d")); board.needsUpdate = true; }
   if (radar) { radar.sweep.rotation.z -= dt * 1.4; radar.blips.children.forEach((b, i) => { if (b.geometry.type === "SphereGeometry") b.scale.setScalar(1 + Math.sin(t * 4 + i) * .15); }); }
   if (P2.on) p2Tick(dt, t);
+  if (misScr) { misScr.quaternion.copy(cam.quaternion); misScr.scale.setScalar(cam.aspect < .8 ? 1.5 : 1); }
   animateArena(dt, t); animateRewards(dt, t); secPeople.forEach(p => animate(p, dt, t)); stPeople.forEach(p => animate(p, dt, t)); staffPeople.forEach(p => animate(p, dt, t)); dirPeople.forEach(p => animate(p, dt, t)); acPeople.forEach(p => animate(p, dt, t));
   ctl.update(); if (composer) composer.render(); else R.render(scene, cam); placeOverlays(dt);
 }
@@ -1639,7 +1674,7 @@ function init(container) {
     bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), .28, .4, .92); composer.addPass(bloom); composer.addPass(new OutputPass());
   } catch (e) { composer = null; }
   monTex = canvasTex(256, 160, drawMon);
-  buildRoom(); buildAccessories(); Object.keys(DESK).forEach(buildDesk); buildRadar(); buildBoard(); updateRadar(); buildArena(); buildRewards(); buildSectors(); buildStrategyRoom(); buildStaff(); buildDirector(); buildMemorial(); buildAcademy(); buildOpsMoney(); updateMoney(); arenaSig = ""; updateArena();
+  buildRoom(); buildAccessories(); Object.keys(DESK).forEach(buildDesk); buildRadar(); buildBoard(); updateRadar(); buildArena(); buildRewards(); buildSectors(); buildStrategyRoom(); buildStaff(); buildDirector(); buildMemorial(); buildAcademy(); buildOpsMoney(); updateMoney(); buildMission(); arenaSig = ""; updateArena();
   people = API().agents.map(makePerson);
   // ao abrir: quem esta em pausa ja esta num sitio de descanso (sem marcha em
   // grupo pelo corredor), cada um com a sua faixa e o seu ritmo
