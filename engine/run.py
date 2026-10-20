@@ -524,6 +524,37 @@ def funding_alert(state, conta, now):
             "não tem permissão de transferências nem de levantamentos, como pediste.")
 
 
+def stop_watch(state, conta, now):
+    """Fase 0 da contra-auditoria (Rui, 20/10): a conta e lida a cada 15
+    minutos e diz se cada posicao do programa tem stop na Bybit
+    (account.check_trades, stop_found). Ate aqui ninguem olhava para isso.
+    Posicao com moedas e sem stop: aviso imediato (repetido de hora a hora
+    enquanto durar) e o modo automatico desliga-se. Devolve os avisos."""
+    from . import auto
+    if not conta:
+        return []
+    vistos = state.setdefault("stop_watch", {})
+    sem = [t for t in conta.get("trades") or [] if t.get("held") and not t.get("stop_found")]
+    ids = {t["id"] for t in sem}
+    for k in list(vistos):
+        if k not in ids:
+            vistos.pop(k)
+    out = []
+    for t in sem:
+        if now - (vistos.get(t["id"]) or 0) < 3600:
+            continue
+        vistos[t["id"]] = int(now)
+        txt = (f"🚨 <b>{t['asset']} SEM STOP na Bybit.</b> Tens moedas mas não encontrei a ordem de stop "
+               f"(plano: {t.get('plan_stop'):.6g}). Põe o stop na app da Bybit agora ou fecha a posição.")
+        a = state.get("auto") or {}
+        if a.get("ligado"):
+            auto.turn(state, False, now)
+            (state.get("auto") or {})["motivo"] = f"posição sem stop em {t['asset']}"
+            txt += " O modo automático foi desligado; volta a ligar com /auto forcar quando estiver resolvido."
+        out.append(txt)
+    return out
+
+
 def apply_admin(state, path=ADMIN, now=None, send=None):
     """Comandos pedidos pelo Rui numa sessao (admin.json na raiz do main),
     com o mesmo texto e efeito dos comandos do Telegram (/capital,
@@ -755,6 +786,12 @@ def main():
             alerts.send(aviso)
     except Exception as e:
         print("auto:", e)
+    try:
+        for txt in stop_watch(state, res.get("conta"), res["generated_at"]):
+            if alerts.configured():
+                alerts.send(txt, html=True)
+    except Exception as e:
+        print("stop_watch:", e)
     try:
         from . import amplitude
         am = amplitude.aviso(res.get("amplitude"))

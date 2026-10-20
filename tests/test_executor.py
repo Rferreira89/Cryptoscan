@@ -217,3 +217,108 @@ class AvisoCapital(unittest.TestCase):
         self.assertIn("3.86", run.capital_warning(st, {"collateral_usdc": 18.2}))
         self.assertIsNone(run.capital_warning({"conta_livre": {"usdc": 50}}, {"collateral_usdc": 18.2}))
         self.assertIsNone(run.capital_warning({}, {"collateral_usdc": 18.2}))
+
+
+class Fase0ContraAuditoria(unittest.TestCase):
+    """20/10: stop em falta avisado, compra parcial guardada, nunca comprar duas vezes."""
+    free = "100"
+
+    def fake_get(self, exec_ok=True):
+        def g(path, params=None):
+            if "tickers" in path:
+                return {"list": [{"lastPrice": "99.5"}]}
+            if "instruments" in path:
+                return {"list": [{"lotSizeFilter": {"basePrecision": "0.001", "quotePrecision": "0.01",
+                                                    "minOrderAmt": "5"}, "priceFilter": {"tickSize": "0.01"}}]}
+            if "wallet" in path:
+                return {"list": [{"coin": [{"coin": "USDC", "walletBalance": self.free}]}]}
+            if "spot-margin" in path:
+                return {"spotLeverage": "2", "spotMarginMode": "1"}
+            if "execution" in path:
+                ok = exec_ok(params) if callable(exec_ok) else exec_ok
+                return {"list": [{"execQty": "0.1", "execPrice": "99.6", "execFee": "0",
+                                  "feeCurrency": "USDC"}]} if ok else {"list": []}
+            return {}
+        return g
+
+    def test_stop_que_falha_e_dito_claramente(self):
+        msgs = []
+
+        def post(path, params):
+            if "takeProfit" in params:
+                raise X.ExecError("170000 anexo recusado")
+            if params.get("orderFilter") == "tpslOrder" or params.get("triggerPrice"):
+                raise X.ExecError("stop recusado")
+            return {"orderId": "o1"}
+        ex = {"ops": {}, "feitos": []}
+        with mock.patch.object(X, "get", self.fake_get()), mock.patch.object(X, "post", post), \
+                mock.patch.object(X.time, "sleep", lambda s: None):
+            X.do_buy(state(), {"op": "SOL-BOUNCE_X30-1"}, ex, NOW, lambda t, html=False: msgs.append(t))
+        o = ex["ops"]["SOL-BOUNCE_X30-1"]
+        self.assertTrue(all(p.get("stop_erro") for p in o["partes"]))
+        self.assertIn("NÃO FICOU", msgs[-1])
+        self.assertNotIn("fica na Bybit até ao fim", msgs[-1])
+
+    def test_parte_sem_execucao_guarda_o_que_foi_comprado(self):
+        n = {"c": 0}
+
+        def post(path, params):
+            n["c"] += 1
+            return {"orderId": f"o{n['c']}"}
+        ex = {"ops": {}, "feitos": []}
+        with mock.patch.object(X, "get", self.fake_get(lambda p: p.get("orderId") == "o1")), \
+                mock.patch.object(X, "post", post), mock.patch.object(X.time, "sleep", lambda s: None):
+            X.do_buy(state(), {"op": "SOL-BOUNCE_X30-1"}, ex, NOW, lambda t, html=False: None)
+        o = ex["ops"]["SOL-BOUNCE_X30-1"]
+        self.assertEqual(o["status"], "aberta")
+        self.assertEqual(len(o["partes"]), 1)
+        self.assertIn("sem execução confirmada", o["erro"])
+
+    def test_identificador_repetido_nunca_compra_outra_vez(self):
+        posts = []
+
+        def post(path, params):
+            posts.append(params)
+            raise X.ExecError("/v5/order/create: 170141 Duplicate clientOrderId.")
+        inst = {"tick": "0.01", "base_step": "0.001", "min_amt": 5}
+        with mock.patch.object(X, "post", post):
+            with self.assertRaises(X.ExecError):
+                X.place_part("SOLUSDC", 10, 105, 95, inst, "SOL1", px=99.5)
+        self.assertEqual(len(posts), 1)                      # sem a segunda tentativa com sufixo "b"
+
+    def test_erro_inesperado_marca_o_pedido_como_feito(self):
+        import json, os, tempfile
+        d = tempfile.mkdtemp()
+        st = dict(state(), exec_req=[{"id": "r1", "acao": "comprar", "op": "SOL-BOUNCE_X30-1", "t": NOW}])
+        json.dump(st, open(os.path.join(d, "s.json"), "w"))
+        info = {"readOnly": 0, "permissions": {"Spot": ["SpotTrade"], "Wallet": []}, "ips": ["1.2.3.4"]}
+
+        def boom(*a, **k):
+            raise ValueError("inesperado")
+        with mock.patch.object(X, "configured", lambda: True), \
+                mock.patch.object(X, "get", lambda p, q=None: info), \
+                mock.patch.dict(X.ACTIONS, {"comprar": boom}), \
+                mock.patch.object(X.time, "time", lambda: NOW), \
+                mock.patch("engine.alerts.send", lambda *a, **k: None):
+            X.main(os.path.join(d, "s.json"), os.path.join(d, "nada.json"), os.path.join(d, "out.json"))
+        out = json.load(open(os.path.join(d, "out.json")))
+        self.assertIn("r1", out["feitos"])
+        self.assertIn("inesperado", out["log"][-1]["res"])
+
+
+class VigiaDeStops(unittest.TestCase):
+    def test_posicao_sem_stop_avisa_e_desliga_o_automatico(self):
+        st = {"auto": {"ligado": True, "forcado": True}}
+        conta = {"trades": [{"id": "XPL-1", "asset": "XPL", "held": True, "stop_found": False, "plan_stop": 0.0725},
+                            {"id": "ENA-1", "asset": "ENA", "held": True, "stop_found": True}]}
+        out = run.stop_watch(st, conta, NOW)
+        self.assertEqual(len(out), 1)
+        self.assertIn("XPL SEM STOP", out[0])
+        self.assertFalse(st["auto"]["ligado"])
+        self.assertIn("sem stop", st["auto"]["motivo"])
+        self.assertEqual(run.stop_watch(st, conta, NOW + 600), [])          # nao repete dentro da hora
+        self.assertEqual(len(run.stop_watch(st, conta, NOW + 3700)), 1)     # lembra de hora a hora
+        conta["trades"][0]["stop_found"] = True
+        self.assertEqual(run.stop_watch(st, conta, NOW + 8000), [])
+        self.assertEqual(st["stop_watch"], {})
+        self.assertEqual(run.stop_watch(st, None, NOW), [])

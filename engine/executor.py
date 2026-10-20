@@ -346,6 +346,8 @@ def place_part(symbol, quote, tp, stop, inst, tag, px=None, margin=False):
         LAST_ATTACH_ERR = str(e)[:160]
         if "insufficient" in str(e).lower() or "balance" in str(e).lower():
             raise
+        if "duplicate" in str(e).lower():       # este pedido ja foi enviado: nunca duas vezes
+            raise
         r = post("/v5/order/create", dict(base, orderLinkId=f"{LINK}{tag}b"[:36]))
         return r["orderId"], False
 
@@ -456,7 +458,11 @@ def do_buy(state, req, ex, now, send):
         except ExecError as e:
             o["erro"] = str(e)[:120]
             break
-        avg, qty = fills(oid, symbol, rec["asset"])
+        try:
+            avg, qty = fills(oid, symbol, rec["asset"])
+        except ExecError as e:               # ordem sem execucao vista: para aqui, guarda o resto
+            o["erro"] = f"parte {i + 1} sem execução confirmada ({str(e)[:80]}); verifica na app"
+            break
         part = {"orderId": oid, "usdc": round(q, 2), "tp": tp, "preco": avg,
                 "qty": qty, "anexo": attached}
         if not attached:
@@ -469,7 +475,12 @@ def do_buy(state, req, ex, now, send):
         o["partes"].append(part)
     if not o["partes"]:
         o["status"] = "recusada"
-        send(f"⚠️ A compra de {rec['asset']} falhou na Bybit: {o.get('erro')}. Nada foi comprado.")
+        if "sem execução confirmada" in str(o.get("erro")):
+            o["status"] = "verificar"
+            send(f"🚨 A compra de {rec['asset']} foi enviada mas não confirmei a execução. Verifica na app "
+                 f"da Bybit: se houver moedas, põe o stop em {plan['stop']:g}.")
+        else:
+            send(f"⚠️ A compra de {rec['asset']} falhou na Bybit: {o.get('erro')}. Nada foi comprado.")
         ex["ops"][op] = o
         return o.get("erro")
     for _ in range(6):                       # a protecao aparece segundos depois
@@ -493,7 +504,10 @@ def do_buy(state, req, ex, now, send):
     L = [f"⚡ <b>Executado: {rec['asset']}</b>",
          f"Compra de {o['usdc']:.2f} USDC a {o['entrada']:.6g} ({q_tot:.6g} {rec['asset']}), "
          f"em {len(o['partes'])} parte{'s' if len(o['partes']) > 1 else ''}.",
-         f"Stop em {plan['stop']:g} em todas as partes (fica na Bybit até ao fim)."]
+         (f"Stop em {plan['stop']:g} em todas as partes (fica na Bybit até ao fim)."
+          if not any(p.get("stop_erro") for p in o["partes"]) else
+          f"🚨 O STOP NÃO FICOU na Bybit em {sum(1 for p in o['partes'] if p.get('stop_erro'))} parte(s): "
+          f"põe o stop em {plan['stop']:g} na app agora.")]
     L += [f"• Parte {i + 1}: {p['usdc']:.2f} USDC → objetivo {p['tp']:g}"
           for i, p in enumerate(o["partes"])]
     if o.get("emprestado"):
@@ -504,6 +518,7 @@ def do_buy(state, req, ex, now, send):
                  f"da conta ({lev_acct:g}x) permitem.")
     if o.get("erro"):
         L.append(f"⚠️ Uma parte falhou: {o['erro']}")
+    miss = [p for p in miss if not p.get("stop_erro")]
     if miss:
         L.append("⚠️ A Bybit não aceitou o objetivo anexado em "
                  f"{len(miss)} parte(s). O stop ficou na Bybit como ordem condicional (na app: "
@@ -563,6 +578,8 @@ def place_short_part(symbol, quote, tp, stop, inst, tag, px=None):
         global LAST_ATTACH_ERR
         LAST_ATTACH_ERR = str(e)[:160]
         if "insufficient" in str(e).lower() or "balance" in str(e).lower():
+            raise
+        if "duplicate" in str(e).lower():       # este pedido ja foi enviado: nunca duas vezes
             raise
         r = post("/v5/order/create", dict(base, orderLinkId=f"{LINK}{tag}b"[:36]))
         return r["orderId"], False
@@ -1246,6 +1263,10 @@ def main(state_path, ex_in, out):
             except ExecError as e:
                 res = f"erro: {e}"
                 send(f"⚠️ Erro na Bybit ao {r['acao']} {r.get('op', '')[:30]}: {str(e)[:120]}")
+            except Exception as e:           # erro inesperado: o pedido fica feito, nunca se repete
+                res = f"erro inesperado: {type(e).__name__}: {e}"
+                send(f"🚨 Erro inesperado ao {r['acao']} {r.get('op', '')[:30]}: {type(e).__name__}. "
+                     "O pedido não será repetido; confirma na app da Bybit se houve compra e se tem stop.")
         ex["feitos"] = (ex["feitos"] + [r["id"]])[-300:]
         ex.setdefault("log", []).append({"t": now, "id": r["id"], "acao": r.get("acao"), "res": str(res)[:160]})
         ex["log"] = ex["log"][-100:]
