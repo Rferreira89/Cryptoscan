@@ -145,6 +145,9 @@ button:focus-visible,summary:focus-visible,.steps li:focus-visible{outline:2px s
 a{color:inherit}
 
 /* navegacao */
+#floorbtn{position:absolute;left:12px;bottom:calc(64px + env(safe-area-inset-bottom));border:1px solid #B794F4;background:linear-gradient(135deg,#2a1d5ef0,#0c0a24f0);color:#E9DDFF;font:700 13px/1 system-ui,sans-serif;padding:10px 14px;border-radius:99px;cursor:pointer;box-shadow:0 0 18px #B794F466;z-index:4}
+#floorbtn.on{border-color:#4FD1C5;color:#CFFAF5;box-shadow:0 0 18px #4FD1C566}
+#floorbtn[hidden]{display:none}
 #homeview[hidden],#arenaview[hidden],#rewview[hidden],#secview[hidden],#stview[hidden],#memview[hidden],#acview[hidden],#dirview[hidden]{display:none}
 #dirview{position:absolute;right:12px;bottom:calc(468px + env(safe-area-inset-bottom));width:46px;height:46px;border-radius:50%;background:#0c0a24e6;border:1px solid #F6C453;color:#F6C453;font-size:20px;cursor:pointer;box-shadow:0 0 14px #F6C45344;z-index:4}
 #acview{position:absolute;right:12px;bottom:calc(412px + env(safe-area-inset-bottom));width:46px;height:46px;border-radius:50%;background:#0c0a24e6;border:1px solid #9AE6B4;color:#9AE6B4;font-size:20px;cursor:pointer;box-shadow:0 0 14px #9AE6B444;z-index:4}
@@ -272,7 +275,7 @@ body.sheet-open #sheet{transform:none}
 @media (prefers-reduced-motion:reduce){.typing i,.bot .eye{animation:none}.bub{transition:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module" src="office3d.js?v=20261016a"></script>
+<script type="module" src="office3d.js?v=20261020p2"></script>
 </head>
 <body class="w3d">
 <div id="world">
@@ -288,6 +291,7 @@ body.sheet-open #sheet{transform:none}
 <nav id="zonebar" aria-label="Centro de comando">
 <button data-p="ops" class="cmd"><i style="background:#4FD1C5"></i>Centro de comando<span id="zb-ops"></span></button>
 </nav>
+<button id="floorbtn" aria-label="Subir ao 2.º piso: Laboratório de Estratégias">🔬 2.º piso · Laboratório</button>
 <button id="homeview" aria-label="Voltar à vista inicial" title="Vista inicial">⌂</button>
 <button id="arenaview" aria-label="Ir para a arena" title="Arena">⚔️</button>
 <button id="rewview" aria-label="Ver as recompensas" title="Recompensas">🏆</button>
@@ -876,7 +880,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261020c";
+const PAGE_V="20261020d";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -1209,6 +1213,8 @@ document.addEventListener("click",e=>{const tr=e.target.closest("tr.rp");if(tr)o
     el.querySelector("button").addEventListener("click",()=>{el.hidden=true;$("homeview").hidden=false;$("arenaview").hidden=false;$("rewview").hidden=false;$("secview").hidden=false;$("stview").hidden=false;$("memview").hidden=false;$("acview").hidden=false;$("dirview").hidden=false;try{localStorage.setItem("installHint","1")}catch(_){}})}})();
 
 // ===== Navegacao no escritorio: botao de vista inicial e dica (uma vez) =====
+$("floorbtn").addEventListener("click",()=>{const O=window.Office3D;if(O&&O.goFloor)O.goFloor(O.floor()===2?1:2)});
+addEventListener("piso",e=>{const b=$("floorbtn"),up=e.detail===2;b.classList.toggle("on",up);b.textContent=up?"⬇️ Voltar ao 1.º piso":"🔬 2.º piso · Laboratório"});
 $("homeview").addEventListener("click",()=>{if(window.Office3D&&window.Office3D.resetView)window.Office3D.resetView()});
 $("arenaview").addEventListener("click",()=>{if(window.Office3D&&window.Office3D.goArena)window.Office3D.goArena()});
 $("rewview").addEventListener("click",()=>{if(window.Office3D&&window.Office3D.goRewards)window.Office3D.goRewards()});

@@ -827,7 +827,7 @@ function updateMemorial(dead) {
     [-.1, .05, .2].forEach((dz, k) => { const fw = new THREE.Mesh(new THREE.SphereGeometry(.07, 8, 6), mat(["#FC8181", "#F6C453", "#B794F4"][k])); fw.position.set(-.42, .08, .35 + dz); g.add(fw); });
   });
 }
-function goMemorial() { const n = Math.max(1, Math.ceil(arenaRows().filter(b => b.estado === "MORTA").length / MEM_Z.length)), len = 1.6 + n * MEM_DX;
+function goMemorial() { p2Leave(); const n = Math.max(1, Math.ceil(arenaRows().filter(b => b.estado === "MORTA").length / MEM_Z.length)), len = 1.6 + n * MEM_DX;
   const T = V(MEM_X0 - 1 + len / 2, 10.45), dx = T.x - ctl.target.x, dz = T.z - ctl.target.z; ctl.target.copy(T); cam.position.x += dx; cam.position.z += dz;
   const d = cam.position.clone().sub(ctl.target); cam.position.copy(ctl.target.clone().add(d.setLength(14 + len * .5))); ctl.update(); }
 
@@ -929,7 +929,7 @@ function updateAcademy() {
     const p = makePerson({ id: key, nm, c: col }); p.mode = "work"; p.sit = true; p.path = []; p.name.style.display = "none"; acPeople.push(p);
   });
 }
-function goAcademy() { const len = acEnd - (AC_X0 - 1), T = V(AC_X0 - 1 + len / 2 + 1.2, AC_ZC + .35), dx = T.x - ctl.target.x, dz = T.z - ctl.target.z; ctl.target.copy(T); cam.position.x += dx; cam.position.z += dz;
+function goAcademy() { p2Leave(); const len = acEnd - (AC_X0 - 1), T = V(AC_X0 - 1 + len / 2 + 1.2, AC_ZC + .35), dx = T.x - ctl.target.x, dz = T.z - ctl.target.z; ctl.target.copy(T); cam.position.x += dx; cam.position.z += dz;
   const d = cam.position.clone().sub(ctl.target); cam.position.copy(ctl.target.clone().add(d.setLength(15 + len * .5))); ctl.update(); }
 
 // ---------- equipa permanente: trabalho que corre em CADA scan de 5 min ----------
@@ -1125,7 +1125,7 @@ function placeDirBubble(dt) {
   const hud = document.getElementById("hud"), top = hud ? hud.offsetHeight + 4 : 4;
   dirBub.style.left = Math.max(4, Math.min(W - w - 66, s.x - w / 2)) + "px"; dirBub.style.top = Math.max(top, s.y - dirBub.offsetHeight) + "px";
 }
-function goDirector() {                 // de frente para o ecra grande da parede do fundo
+function goDirector() { p2Leave();                 // de frente para o ecra grande da parede do fundo
   const T = V(DIR_C.x + .4, DIR_C.z - 2.4); ctl.target.copy(T); const tall = innerHeight > innerWidth;
   cam.position.set(T.x + 1.6, tall ? 10.5 : 8, T.z + (tall ? 12.5 : 10)); ctl.update(); }
 
@@ -1271,9 +1271,281 @@ function animate(p, dt, t) {
   k.head.rotation.y = !walking && !typing && !sleep ? Math.sin(t * .35 + p.ph) * .35 : 0;
 }
 
+// ---------- 2.o piso: Laboratorio de Estrategias ----------
+// Um piso inteiro so de pesquisa. Seis departamentos em fila, pela ordem em
+// que uma estrategia tem de passar para chegar ao dinheiro real: ideias ->
+// backtest de 1 ano -> teste do acaso -> custos reais -> comite da prova dupla
+// -> prova real na Bybit. Cada investigador leva o dossier de um lutador real
+// (dados do ringue de um ano, D.arena_longo) de sala em sala; onde o lutador
+// chumba, o dossier fica vermelho e volta as ideias; os campeoes chegam a
+// prova real com o dossier dourado. No corredor cruzam-se e trocam o que
+// descobriram (os numeros sao os do ultimo scan, nada inventado).
+const P2H = 6.4;
+const P2 = { on: false, g: null, people: [], heads: [], labels: [], tex: {}, scr: [], talk: [], tags: [], focus: null, focusAt: 0, queue: [] };
+const P2R = {
+  ideias: { n: "Ideias e hipóteses", c: "#B794F4", x: [-19, -7], z: [-12, -3] },
+  backtest: { n: "Backtest de 1 ano", c: "#63B3ED", x: [-6, 6], z: [-12, -3] },
+  acaso: { n: "Teste do acaso", c: "#F6C453", x: [7, 19], z: [-12, -3] },
+  custos: { n: "Custos reais", c: "#FFA94D", x: [7, 19], z: [3, 12] },
+  comite: { n: "Comité da prova dupla", c: "#68D391", x: [-6, 6], z: [3, 12] },
+  real: { n: "Prova real (Bybit)", c: "#4FD1C5", x: [-19, -7], z: [3, 12] },
+};
+const P2ORD = ["ideias", "backtest", "acaso", "custos", "comite", "real"];
+const P2MIN_N = 20, P2MIN_R = 0.15;
+// estudos feitos fora do programa, com historico desde 2021 (resultados reais)
+const PESQUISA = [
+  ["✅", "Núcleo BTC/ETH/SOL acima da média de 200 dias", "passa nos dois períodos"],
+  ["✅", "Shorts na fase de descida (SHORT_X30, ISOLADA)", "provam na queda"],
+  ["❌", "Sobrevenda 4H em 2021-24", "falha fora da amostra"],
+  ["❌", "Tendência diária contra entradas ao acaso", "não bate o acaso"],
+  ["❌", "Estratégias diárias D1 a D4", "chumbaram"],
+  ["❌", "Alavancagem no núcleo", "pior na maioria"],
+  ["❌", "Vol-target, top 10, ETH/BTC, momentum duplo", "não melhoram"],
+  ["❌", "H3: comprar o núcleo no recuo", "pior em 5 de 6"],
+  ["➖", "Funding carry", "~5% ao ano: pouco"],
+  ["🔬", "H4: liquidações em massa", "em estudo"],
+];
+const p2n = (x, d = 2) => x == null || isNaN(x) ? "–" : (x > 0 ? "+" : "") + Number(x).toFixed(d).replace(".", ",");
+const P2FASE = { subida: "subida", lateral: "lateral", queda: "descida" };
+function p2Data() { return API().D() || {}; }
+function p2Fase() { return (p2Data().mercado || {}).regime || "lateral"; }
+function p2Dead() { return new Set(((p2Data().arena || {}).classificacao || []).filter(b => b.estado === "MORTA").map(b => b.id)); }
+function p2Persona(k) { const b = ((p2Data().arena || {}).classificacao || []).find(x => x.id === k); return ((b && b.persona) || k).replace(" Jr.", ""); }
+function p2Champs() { return new Set((p2Data().promo || {}).campeoes || []); }
+// ate onde chega o lutador k na fase f: indice da sala onde chumba (ou 5 = campeao)
+function p2Eval(k, f) {
+  const L = ((p2Data().arena_longo || {}).lutadores || {})[k] || {}, x = (L.por_regime || {})[f] || {};
+  const n = x.n || 0, r = x.avg_r, p95 = x.acaso_p95, met = x.metades, F = P2FASE[f] || f;
+  const o = { k, persona: p2Persona(k), n, r, p95, met, fase: F };
+  if (n < P2MIN_N) return Object.assign(o, { stop: 1, why: `só ${n} operações na fase ${F} (precisa de ${P2MIN_N})` });
+  if (r == null || r <= 0) return Object.assign(o, { stop: 1, why: `perde na fase ${F}: ${p2n(r)}R por operação` });
+  if (p95 == null || r <= p95) return Object.assign(o, { stop: 2, why: `não bate o acaso: ${p2n(r)}R contra ${p2n(p95)}R de entradas ao calhas` });
+  if (!met || Math.min(...met) <= 0) return Object.assign(o, { stop: 2, why: `uma metade do ano perde (${met ? met.map(v => p2n(v)).join(" / ") : "–"})` });
+  if (r < P2MIN_R) return Object.assign(o, { stop: 3, why: `${p2n(r)}R não paga spread e comissões reais (mínimo +0,15R)` });
+  if (!p2Champs().has(k)) return Object.assign(o, { stop: 4, why: `passa nos números (${p2n(r)}R) mas está fora do dinheiro real (suspenso ou sem código revisto)` });
+  return Object.assign(o, { stop: 5, why: `campeão na fase ${F}: ${p2n(r)}R em ${n} operações, as duas metades a ganhar` });
+}
+// todos os lutadores do ringue de um ano, como o motor (promo.regime_qualified):
+// um short eliminado no combate de 90 dias (mes de subida) volta se provar na fase
+function p2All(f) { return Object.keys((p2Data().arena_longo || {}).lutadores || {}).map(k => p2Eval(k, f)); }
+function p2Fact(e, room) {
+  if (room === "ideias") return `abro o dossier de ${e.persona} (${e.k})`;
+  if (room === "backtest") return `${e.n} operações na fase ${e.fase}, ${p2n(e.r)}R de média`;
+  if (room === "acaso") return `acaso ${p2n(e.p95)}R · metades ${e.met ? e.met.map(v => p2n(v)).join(" / ") : "–"}`;
+  if (room === "custos") return `${p2n(e.r)}R chega para pagar os custos reais`;
+  if (room === "comite") return `as três provas estão cumpridas`;
+  return e.why;
+}
+
+// ---------- texturas dos ecras ----------
+function p2Frame(g, title, c) {
+  g.fillStyle = "#0b1020"; g.fillRect(0, 0, 512, 320); g.strokeStyle = c; g.lineWidth = 4; g.strokeRect(2, 2, 508, 316);
+  g.fillStyle = c; g.fillRect(0, 0, 512, 44); g.fillStyle = "#0b1020"; g.font = "800 22px system-ui"; g.fillText(title, 14, 30);
+}
+function p2Rows(g, rows, y0 = 72, lh = 25) {
+  rows.slice(0, 10).forEach(([a, b, col], i) => { const y = y0 + i * lh; g.font = "600 17px system-ui"; g.fillStyle = "#dfe6f0"; g.fillText(String(a).slice(0, 34), 14, y);
+    g.textAlign = "right"; g.fillStyle = col || "#9fb3c8"; g.fillText(String(b), 498, y); g.textAlign = "left"; });
+}
+function p2Draw(room, g) {
+  const R = P2R[room], f = p2Fase(), F = P2FASE[f] || f, all = p2All(f);
+  if (room === "ideias") { p2Frame(g, "💡 Hipóteses testadas", R.c); p2Rows(g, PESQUISA.map(([s, t, v]) => [s + " " + t, v, s === "✅" ? "#68D391" : s === "❌" ? "#FF8A80" : "#F6C453"]), 70, 24.5); return; }
+  if (room === "backtest") { p2Frame(g, `📈 Último ano · fase ${F}`, R.c);
+    const rs = all.filter(e => e.n).sort((a, b) => (b.r || -9) - (a.r || -9));
+    p2Rows(g, [[`${rs.filter(e => e.stop > 1).length} de ${all.length} ganham nesta fase`, "", "#fff"]].concat(rs.map(e => [e.persona + " · " + e.n + " op.", p2n(e.r) + "R", e.r > 0 ? "#68D391" : "#FF8A80"]))); return; }
+  if (room === "acaso") { p2Frame(g, "🎲 Bate as entradas ao acaso?", R.c);
+    const rs = all.filter(e => e.stop >= 2).sort((a, b) => b.r - a.r);
+    p2Rows(g, [[`${all.filter(e => e.stop >= 3).length} de ${rs.length} batem o acaso nas 2 metades`, "", "#fff"]].concat(rs.map(e => [e.persona, e.stop >= 3 ? "✅ " + p2n(e.r) + " > " + p2n(e.p95) : "❌", e.stop >= 3 ? "#68D391" : "#FF8A80"]))); return; }
+  if (room === "custos") { p2Frame(g, "💸 Paga as contas? (mín. +0,15R)", R.c);
+    const rs = all.filter(e => e.stop >= 3).sort((a, b) => b.r - a.r);
+    p2Rows(g, [["spread, comissões e deslize da Bybit UE", "", "#fff"]].concat(rs.map(e => [e.persona, p2n(e.r) + "R " + (e.stop >= 4 ? "✅" : "❌"), e.stop >= 4 ? "#68D391" : "#FF8A80"]))); return; }
+  if (room === "comite") { p2Frame(g, "⚖️ Aprovados por fase do mercado", R.c);
+    const rows = [];
+    ["lateral", "subida", "queda"].forEach(fz => { const ok = p2All(fz).filter(e => e.stop >= 4);
+      rows.push([(fz === f ? "▶ " : "") + "Fase " + (P2FASE[fz] || fz), ok.length ? ok.length + " aprovado" + (ok.length > 1 ? "s" : "") : "ninguém — trabalha o núcleo", fz === f ? "#fff" : "#9fb3c8"]);
+      ok.slice(0, 2).forEach(e => rows.push(["   " + e.persona + " (" + e.k + ")", p2n(e.r) + "R", "#68D391"])); });
+    p2Rows(g, rows); return; }
+  if (room === "real") { p2Frame(g, "🧾 Dinheiro real na Bybit", R.c); const RE = p2Data().reais || {}, N = p2Data().nucleo || {};
+    const nv = Object.entries(N.plano || {}).reduce((a, [k, p]) => a + (N.pos && N.pos[k] ? p.valor_usdc || 0 : 0), 0), nr = Object.entries(N.plano || {}).reduce((a, [k, p]) => a + (N.pos && N.pos[k] ? p.resultado_usdc || 0 : 0), 0);
+    p2Rows(g, [["Campeões agora", [...p2Champs()].map(p2Persona).join(", ") || "nenhum", "#fff"], ["Operações medidas", RE.n || 0], ["Resultado real", p2n(RE.pnl_usdc) + " USDC", (RE.pnl_usdc || 0) >= 0 ? "#68D391" : "#FF8A80"],
+      ["R real vs sinal", p2n(RE.real_r) + " / " + p2n(RE.sinal_r)], ["Comissões", p2n(RE.comissoes_usdc) + " USDC"], ["Núcleo em carteira", nv ? nv.toFixed(0) + " USDC (" + p2n(nr) + ")" : "–", nr >= 0 ? "#68D391" : "#FF8A80"]]
+      .concat((RE.ultimas || []).slice(-3).reverse().map(u => ["  " + u.ativo + " · " + (u.id || "").split("-")[1], p2n(u.real_r) + "R", u.real_r >= 0 ? "#68D391" : "#FF8A80"]))); return; }
+}
+function p2DrawFunnel(g) {
+  const f = p2Fase(), all = p2All(f), st = [all.length, all.filter(e => e.stop >= 2).length, all.filter(e => e.stop >= 3).length, all.filter(e => e.stop >= 4).length, all.filter(e => e.stop >= 5).length];
+  g.fillStyle = "#0b1020"; g.fillRect(0, 0, 512, 420); g.strokeStyle = "#B794F4"; g.lineWidth = 4; g.strokeRect(2, 2, 508, 416);
+  g.fillStyle = "#fff"; g.font = "800 24px system-ui"; g.fillText("🔬 Funil da pesquisa", 16, 36); g.font = "600 16px system-ui"; g.fillStyle = "#9fb3c8"; g.fillText(`fase do mercado: ${P2FASE[f] || f} · ringue de 1 ano`, 16, 60);
+  const lab = ["Estratégias vivas", "Ganham no backtest", "Batem o acaso (2 metades)", "Pagam os custos reais", "Dinheiro real"], col = ["#B794F4", "#63B3ED", "#F6C453", "#FFA94D", "#4FD1C5"];
+  st.forEach((v, i) => { const y = 84 + i * 64, w = Math.max(40, 470 * v / Math.max(1, st[0])); g.fillStyle = col[i] + "33"; g.fillRect(16, y, 480, 50); g.fillStyle = col[i]; g.fillRect(16, y, w, 50);
+    g.fillStyle = "#0b1020"; g.font = "800 26px system-ui"; g.fillText(v, 26, y + 35); g.fillStyle = "#fff"; g.font = "700 18px system-ui"; g.fillText(lab[i], Math.max(80, Math.min(w + 26, 300)), y + 32); });
+  g.fillStyle = "#9fb3c8"; g.font = "600 15px system-ui"; g.fillText("Só passa quem prova. Os outros voltam às ideias.", 16, 408);
+}
+
+// ---------- construcao ----------
+function p2Seats(room) {
+  const R = P2R[room], cx = (R.x[0] + R.x[1]) / 2, north = R.z[0] < 0, zb = north ? -8.4 : 8.4;
+  return [-3.6, 0, 3.6].map(dx => ({ desk: V(cx + dx, zb), seat: V(cx + dx, zb + (north ? .95 : -.95)), face: north ? Math.PI : 0 }));
+}
+function p2Door(room, inside) { const R = P2R[room], cx = (R.x[0] + R.x[1]) / 2, north = R.z[0] < 0; return V(cx, (north ? -1 : 1) * (inside ? 4.2 : 1.9)); }
+function p2Stand(room, i) { const R = P2R[room], cx = (R.x[0] + R.x[1]) / 2, north = R.z[0] < 0; return V(cx - 4 + (i % 4) * 2.6, north ? -5.4 : 5.4); }
+function p2Label(text, c, p, cls) {
+  const el = document.createElement("div"); el.textContent = text;
+  el.style.cssText = `position:absolute;transform:translate(-50%,-100%);pointer-events:none;white-space:nowrap;font:700 11px system-ui,sans-serif;color:${c};padding:2px 8px;border-radius:99px;background:#0c0a24c8;border:1px solid ${c}66;display:none`;
+  overlay.appendChild(el); const l = { el, p, cls }; P2.labels.push(l); return l;
+}
+function p2Person(key, nm, st, col) {
+  STYLE[key] = st; DESK[key] = { z: "srv", p: V(0, 0), f: 1 };
+  const p = makePerson({ id: key, nm, c: col }); scene.remove(p.g); p.name.remove(); P2.g.add(p.g);
+  p.g.traverse(o => { if (o.isMesh) o.castShadow = false; }); p.path = []; p.nm = nm; return p;
+}
+function buildFloor2() {
+  P2.g = new THREE.Group(); P2.g.position.y = P2H; P2.g.visible = false; scene.add(P2.g); const G = P2.g;
+  // laje, chao, corredor com neon e varandim de vidro
+  boxM(46, .3, 27, mat("#2b2f38"), 2, -.16, 0, G);
+  const fl = new THREE.Mesh(new THREE.PlaneGeometry(46, 27), mat("#4a4f5a")); fl.rotation.x = -Math.PI / 2; fl.position.set(2, .005, 0); fl.receiveShadow = true; G.add(fl);
+  const cor = new THREE.Mesh(new THREE.PlaneGeometry(44, 5.4), mat("#3a3550")); cor.rotation.x = -Math.PI / 2; cor.position.set(2, .012, 0); G.add(cor);
+  [-2.7, 2.7].forEach(z => boxM(44, .02, .06, mat("#B794F4", 1.2), 2, .02, z, G));
+  const rail = mat("#9fd3ff", .05, .1); boxM(46, 1, .04, rail, 2, .5, -13.5, G); boxM(46, 1, .04, rail, 2, .5, 13.5, G); boxM(.04, 1, 27, rail, -21, .5, 0, G); boxM(.04, 1, 27, rail, 25, .5, 0, G);
+  // escadas a descer para o 1.o piso (lado oeste)
+  for (let i = 0; i < 9; i++) boxM(1.8, .12, .5, mat("#6b6f7a"), -20, -i * .7, -1.5 + i * .5, G);
+  // salas
+  P2ORD.forEach((room, ri) => {
+    const R = P2R[room], w = R.x[1] - R.x[0], d = R.z[1] - R.z[0], cx = (R.x[0] + R.x[1]) / 2, cz = (R.z[0] + R.z[1]) / 2, north = R.z[0] < 0, zc = north ? R.z[1] : R.z[0], zf = north ? R.z[0] : R.z[1];
+    const rug = new THREE.Mesh(new THREE.PlaneGeometry(w - .4, d - .4), mat(new THREE.Color(R.c).multiplyScalar(.28).getStyle())); rug.rotation.x = -Math.PI / 2; rug.position.set(cx, .015, cz); G.add(rug);
+    const glass = mat(R.c, .15, .08), h = 1.25;
+    boxM(w, h, .05, glass, cx, h / 2, zf, G); boxM(.05, h, d, glass, R.x[0], h / 2, cz, G); boxM(.05, h, d, glass, R.x[1], h / 2, cz, G);
+    boxM(w / 2 - 1.1, h, .05, glass, R.x[0] + (w / 2 - 1.1) / 2, h / 2, zc, G); boxM(w / 2 - 1.1, h, .05, glass, R.x[1] - (w / 2 - 1.1) / 2, h / 2, zc, G);   // porta no meio
+    const c4 = [V(R.x[0], R.z[0]), V(R.x[1], R.z[0]), V(R.x[1], R.z[1]), V(R.x[0], R.z[1]), V(R.x[0], R.z[0])];
+    line(c4.map(p => p.clone().setY(h)), new THREE.Color(R.c), G); line(c4.map(p => p.clone().setY(.03)), new THREE.Color(R.c), G);
+    // secretarias com monitor
+    p2Seats(room).forEach((s, i) => { const g = new THREE.Group(); g.position.copy(s.desk); g.rotation.y = s.face + Math.PI; G.add(g);
+      boxM(1.7, .06, .85, mat("#8b6a4c"), 0, .75, 0, g); [[-.75, -.35], [.75, -.35], [-.75, .35], [.75, .35]].forEach(([a, b]) => boxM(.06, .72, .06, mat("#2a2a2a"), a, .36, b, g));
+      boxM(.9, .55, .05, mat("#111"), 0, 1.15, -.2, g); const m = new THREE.Mesh(new THREE.PlaneGeometry(.82, .47), new THREE.MeshBasicMaterial({ color: R.c, toneMapped: false })); m.position.set(0, 1.15, -.17); g.add(m);
+      const ch = new THREE.Group(); ch.position.set(0, 0, .95); g.add(ch); boxM(.55, .08, .55, mat("#2b2b40"), 0, .48, 0, ch); boxM(.55, .6, .08, mat("#2b2b40"), 0, .8, .27, ch); });
+    // ecra grande do departamento (vira-se sempre para quem esta a ver)
+    const tx = canvasTex(512, 320, gg => p2Draw(room, gg)); P2.tex[room] = tx;
+    const scr = new THREE.Mesh(new THREE.PlaneGeometry(4.6, 2.88), new THREE.MeshBasicMaterial({ map: tx, toneMapped: false, side: THREE.DoubleSide }));
+    scr.position.set(cx, 3.3, north ? R.z[0] + 1.6 : R.z[1] - 1.6); G.add(scr); P2.scr.push(scr);
+    const lt = new THREE.PointLight(new THREE.Color(R.c), 10, 10); lt.position.set(cx, 3, cz); G.add(lt);
+    p2Label(`${ri + 1}. ${R.n}`, R.c, new THREE.Vector3(cx, P2H + 1.6, zc), "room");
+    // chefe do departamento, sempre a trabalhar
+    const HEADS = { ideias: ["Íris", 1], backtest: ["Tomás", 0], acaso: ["Sara", 1], custos: ["Rodrigo", 0], comite: ["Beatriz", 1], real: ["Hugo", 0] };
+    const [nm, fem] = HEADS[room], hh = hsh(nm), s0 = p2Seats(room)[0];
+    const p = p2Person("p2h_" + room, nm, { skin: SKINS[hh % 5], hair: HAIRS[(hh >> 2) % 6], hs: fem ? (hh % 2 ? "long" : "bun") : ["short", "buzz", "curly"][hh % 3], top: R.c, jacket: room === "comite" ? "#2d3b55" : null, legs: "#22223a", glasses: hh % 3 === 0 ? 1 : 0, beard: !fem && hh % 2 ? 1 : 0 }, R.c);
+    p.g.position.copy(s0.seat); p.mode = "desk"; p.sit = true; p.face = s0.face; p.room = room; P2.heads.push(p);
+  });
+  // funil da pesquisa (topo leste do corredor)
+  const ft = canvasTex(512, 420, p2DrawFunnel); P2.tex.funil = ft;
+  const fs = new THREE.Mesh(new THREE.PlaneGeometry(4.4, 3.6), new THREE.MeshBasicMaterial({ map: ft, toneMapped: false, side: THREE.DoubleSide })); fs.position.set(22.6, 2.6, 0); G.add(fs); P2.scr.push(fs);
+  boxM(.2, 2.2, .2, mat("#222"), 22.6, 1.1, 0, G);
+  p2Label("🔬 Laboratório de Estratégias · 2.º piso", "#B794F4", new THREE.Vector3(22.6, P2H + 4.8, 0), "room");
+  // investigadores
+  const TEAM = [["Ana", 1], ["Bruno", 0], ["Carla", 1], ["Duarte", 0], ["Eva", 1], ["Filipe", 0], ["Gil", 0], ["Helena", 1]];
+  TEAM.forEach(([nm, fem], i) => { const hh = hsh(nm + "lab"), col = FCOL[(i * 3) % FCOL.length];
+    const p = p2Person("p2r_" + nm, nm, { skin: SKINS[hh % 5], hair: HAIRS[(hh >> 1) % 6], hs: fem ? (hh % 2 ? "long" : "bun") : ["short", "buzz", "curly"][hh % 3], top: col, legs: "#1d1b2e", glasses: i % 3 === 1 ? 1 : 0, beard: !fem && i % 2 ? 1 : 0 }, col);
+    const folder = new THREE.Mesh(new THREE.BoxGeometry(.22, .3, .04), new THREE.MeshStandardMaterial({ color: "#e8eef7", emissive: "#e8eef7", emissiveIntensity: .25 })); folder.position.set(0, -.32, .08); p.rig.AR.el.add(folder); p.folder = folder;
+    p.room = P2ORD[i % 6]; p.g.position.copy(p2Stand(p.room, i)); p.mode = "stand"; p.wait = 1 + i * 1.3; p.cool = 4 + i;
+    p.tag = p2Label("", col, new THREE.Vector3(), "tag"); p.lane = (i - 3.5) * .35; P2.people.push(p); });
+}
+function p2Pick() {
+  const f = p2Fase(), all = p2All(f); if (!all.length) return null;
+  const ch = all.filter(e => e.stop === 5);
+  if (ch.length && Math.random() < .3) return ch[Math.floor(Math.random() * ch.length)];
+  if (!P2.queue.length) P2.queue = all.map(e => e.k).sort(() => Math.random() - .5);
+  const k = P2.queue.shift(); return all.find(e => e.k === k) || all[0];
+}
+function p2Route(p, room, target) {
+  const pts = [], cur = p.room;
+  if (cur !== room) { const a = p2Door(cur, true), b = p2Door(cur, false), c = p2Door(room, false), d = p2Door(room, true);
+    pts.push(a, b.clone().setZ(b.z > 0 ? .3 + p.lane * .3 : -.3 + p.lane * .3), c.clone().setZ(c.z > 0 ? .3 + p.lane * .3 : -.3 + p.lane * .3), c, d); }
+  pts.push(target); return pts;
+}
+function p2Seat(room, p) {
+  const used = new Set(P2.people.filter(q => q !== p && q.seatKey).map(q => q.seatKey)), seats = p2Seats(room);
+  for (let i = 1; i < seats.length; i++) { const key = room + i; if (!used.has(key)) return { key, s: seats[i] }; }
+  return null;
+}
+function p2Say(p, html, secs = 5) { P2.talk = P2.talk.filter(t => !t.who.includes(p)); P2.talk.push({ who: [p], html, t: secs, el: null }); }
+function p2Go(p) {
+  // proximo passo do plano do investigador
+  if (!p.doss || p.step >= p.plan.length) {
+    if (p.doss && p.room !== "ideias") { p.doss = null; p.plan = ["ideias"]; p.step = 0; }   // volta as ideias para buscar outro dossier
+    else { const e = p2Pick(); if (!e) { p.wait = 5; return; } p.doss = e; p.plan = P2ORD.slice(0, Math.min(6, e.stop + 1)); p.step = 0; p.folder.material.color.set("#e8eef7"); p.folder.material.emissive.set("#e8eef7"); }
+  }
+  const room = p.plan[p.step], st = p2Seat(room, p); p.seatKey = st ? st.key : null;
+  const target = st ? st.s.seat : p2Stand(room, P2.people.indexOf(p));
+  p.path = p2Route(p, room, target); p.dest = room; p.mode = st ? "desk" : "stand"; p.face = st ? st.s.face : 0; p.sit = false; p.arrive = true;
+}
+function p2Arrive(p) {
+  p.room = p.dest; p.arrive = false; const room = p.room, e = p.doss; p.wait = 3.5 + Math.random() * 3;
+  if (!e) { p.wait = 1.5; return; }
+  const last = p.step === p.plan.length - 1;
+  if (last && room !== "ideias") {
+    const ok = e.stop === 5, col = ok ? "#F6C453" : "#FF8A80"; p.folder.material.color.set(col); p.folder.material.emissive.set(col);
+    p2Say(p, `<b>${p.nm}</b> · ${esc3(P2R[room].n)}<br>${ok ? "✅" : "❌"} <b>${esc3(e.persona)}</b>: ${esc3(e.why)}`, 6); p.wait = 6;
+  } else if (Math.random() < .45) p2Say(p, `<b>${p.nm}</b> · ${esc3(P2R[room].n)}<br>${esc3(e.persona)}: ${esc3(p2Fact(e, room))}`, 4);
+  p.step++;
+}
+const esc3 = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+function p2Tick(dt, t) {
+  if (!P2.g) return;
+  P2.heads.forEach(p => animate(p, dt, t));
+  P2.people.forEach(p => {
+    if (p.talking) { p.talking -= dt; if (p.talking <= 0) { p.talking = 0; p.path = p.saved || []; p.saved = null; p.mode = p.savedMode; } }
+    if (!p.talking && !p.path.length) { if (p.arrive) p2Arrive(p); else { p.wait -= dt; if (p.wait <= 0) p2Go(p); } }
+    animate(p, dt, t); if (p.cool > 0) p.cool -= dt;
+    if (p.talking) { const o = p.partner.g.position; p.g.rotation.y = Math.atan2(o.x - p.g.position.x, o.z - p.g.position.z); }
+    else if (!p.path.length && p.mode === "stand") p.g.rotation.y = P2R[p.room] && P2R[p.room].z[0] < 0 ? Math.PI : 0;
+  });
+  // encontros no corredor: param, viram-se um para o outro e trocam o que sabem
+  const walkers = P2.people.filter(p => p.path.length && !p.talking && p.cool <= 0 && Math.abs(p.g.position.z) < 2.6 && p.doss);
+  for (let i = 0; i < walkers.length; i++) for (let j = i + 1; j < walkers.length; j++) {
+    const a = walkers[i], b = walkers[j]; if (a.talking || b.talking || a.g.position.distanceTo(b.g.position) > 1.5) continue;
+    [a, b].forEach((p, k) => { p.saved = p.path; p.savedMode = p.mode; p.path = []; p.mode = "stand"; p.talking = 5; p.cool = 16; p.partner = k ? a : b; });
+    const ea = a.doss, eb = b.doss, nxt = x => P2R[x.plan[Math.min(x.step, x.plan.length - 1)]].n.toLowerCase();
+    const reply = eb.stop < ea.stop ? `O meu ${esc3(eb.persona)} vai chumbar: ${esc3(eb.why)}` : eb.stop === 5 ? `Eu levo o ${esc3(eb.persona)}: ${esc3(eb.why)} 🏆` : `Eu levo o ${esc3(eb.persona)} para ${esc3(nxt(b))}: ${esc3(p2Fact(eb, b.plan[Math.min(b.step, b.plan.length - 1)]))}`;
+    P2.talk = P2.talk.filter(x => !x.who.includes(a) && !x.who.includes(b));
+    P2.talk.push({ who: [a, b], html: `<b>${a.nm}</b>: levo o ${esc3(ea.persona)} para ${esc3(nxt(a))} — ${esc3(p2Fact(ea, a.plan[Math.min(a.step, a.plan.length - 1)]))}<br><b>${b.nm}</b>: ${reply}`, t: 5, el: null });
+  }
+  P2.scr.forEach(s => { s.quaternion.copy(cam.quaternion); });
+}
+function p2Overlays(dt) {
+  const W = R.domElement.clientWidth, hud = document.getElementById("hud"), top = hud ? hud.offsetHeight + 4 : 4, wp = new THREE.Vector3();
+  P2.labels.forEach(l => { let pos = l.p;
+    if (l.cls === "tag") { const p = P2.people.find(q => q.tag === l); if (!p || !p.doss) { l.el.style.display = "none"; return; } p.g.getWorldPosition(wp); pos = wp.clone().setY(wp.y + 2.55);
+      if (cam.position.distanceTo(wp) > 60) { l.el.style.display = "none"; return; }
+      l.el.textContent = `${p.nm} · 📁 ${p.doss.persona}`; }
+    const s = project(pos); l.el.style.left = s.x + "px"; l.el.style.top = s.y + "px"; l.el.style.display = s.ok ? "" : "none"; });
+  // baloes (no maximo 3 ao mesmo tempo, os mais recentes)
+  P2.talk.forEach(x => x.t -= dt); P2.talk.filter(x => x.t <= 0 && x.el).forEach(x => x.el.remove()); P2.talk = P2.talk.filter(x => x.t > 0);
+  P2.talk.forEach((x, i) => { const show = i >= P2.talk.length - 3;
+    if (!x.el) { x.el = document.createElement("div"); x.el.className = "obub3"; x.el.style.maxWidth = "min(70%, 300px)"; x.el.innerHTML = x.html; x.el.style.borderColor = x.who[0].a.c; overlay.appendChild(x.el); }
+    const c = new THREE.Vector3(); x.who.forEach(p => { p.g.getWorldPosition(wp); c.add(wp); }); c.multiplyScalar(1 / x.who.length).setY(c.y + 2.7);
+    const s = project(c), w = x.el.offsetWidth; x.el.style.display = show && s.ok ? "" : "none";
+    x.el.style.left = Math.max(4, Math.min(W - w - 4, s.x - w / 2)) + "px"; x.el.style.top = Math.max(top, s.y - x.el.offsetHeight) + "px"; });
+}
+function p2HideOverlays() { P2.labels.forEach(l => l.el.style.display = "none"); P2.talk.forEach(x => x.el && (x.el.style.display = "none")); }
+function updateFloor2() { if (!P2.g) return; Object.entries(P2.tex).forEach(([k, tx]) => { const g = tx.userData.c.getContext("2d"); if (k === "funil") p2DrawFunnel(g); else p2Draw(k, g); tx.needsUpdate = true; }); }
+function p2Click(hit) {
+  let o = hit.object; while (o && !o.userData.agent) o = o.parent; const key = o && o.userData.agent, p = P2.people.find(q => q.a.id === key) || P2.heads.find(q => q.a.id === key);
+  if (!p) return;
+  if (p.doss) p2Say(p, `<b>${p.nm}</b> · dossier de <b>${esc3(p.doss.persona)}</b> (${esc3(p.doss.k)})<br>Fase ${esc3(p.doss.fase)}: ${p.doss.n} op., ${p2n(p.doss.r)}R, acaso ${p2n(p.doss.p95)}R<br>${p.doss.stop === 5 ? "✅" : "❌"} ${esc3(p.doss.why)}`, 7);
+  else if (p.room) p2Say(p, `<b>${p.nm}</b> · chefe de ${esc3(P2R[p.room].n)}<br>${esc3({ ideias: "Aqui nascem e morrem as hipóteses. Só passa ao backtest o que tem lógica de mercado.", backtest: "Testo cada estratégia no último ano, só nas alturas iguais à de agora.", acaso: "Se entradas ao calhas dão o mesmo, não há vantagem nenhuma.", custos: "Spread, comissões e deslize da Bybit UE: abaixo de +0,15R não paga as contas.", comite: "Só aprovo quem ganha nas duas metades do ano e bate o acaso.", real: "Aqui só conta o dinheiro que entrou mesmo na conta." }[p.room])}`, 6);
+}
+function goFloor(n) {
+  if (!P2.g) buildFloor2();
+  P2.on = n === 2; P2.g.visible = P2.on;
+  if (!P2.on) { p2HideOverlays(); resize.done = false; ctl.target.set(0, 0, 0); resize(); ctl.update(); }
+  else { updateFloor2(); const T = new THREE.Vector3(2, P2H, 0); ctl.target.copy(T);
+    if (cam.aspect < .8) cam.position.set(T.x - 50, T.y + 50, 0); else cam.position.set(T.x + 1, T.y + 27, 31); ctl.update(); }
+  try { window.dispatchEvent(new CustomEvent("piso", { detail: P2.on ? 2 : 1 })); } catch (_) { }
+  return P2.on;
+}
+function p2Leave() { if (!P2.on) return; P2.on = false; P2.g.visible = false; p2HideOverlays(); try { window.dispatchEvent(new CustomEvent("piso", { detail: 1 })); } catch (_) { } }
+
 // ---------- ciclo ----------
 function project(v) { const p = v.clone().project(cam), r = R.domElement; return { x: (p.x + 1) / 2 * r.clientWidth, y: (1 - p.y) / 2 * r.clientHeight, ok: p.z < 1 }; }
 function placeOverlays(dt) {
+  if (P2.on) { labels.forEach(l => l.el.style.display = "none"); people.forEach(p => p.name.style.display = "none"); bubble.style.display = "none"; if (dirBub) dirBub.style.display = "none"; p2Overlays(dt); return; }
   labels.forEach(l => { const s = project(l.p); l.el.style.left = s.x + "px"; l.el.style.top = s.y + "px";
     l.el.style.display = s.ok && !(l.maxD && cam.position.distanceTo(l.near) > l.maxD) ? "" : "none"; });
   people.forEach(p => { const s = project(p.g.position.clone().setY(p.g.position.y + 2.5)); p.name.style.left = s.x + "px"; p.name.style.top = s.y + "px"; p.name.style.display = API().sel() === p.a.id ? "" : "none";
@@ -1313,8 +1585,9 @@ function frame() {
       if (it) window.drawCandles(g, 512, 256, it.cs, it.lv, { title: it.asset, axis: false, n: 40 }); tx.needsUpdate = true; }
     if (clock3d) { drawClock(clock3d.userData.c.getContext("2d")); clock3d.needsUpdate = true; }
     if (dataTex) { dataI++; drawDataWall(dataTex.userData.c.getContext("2d")); dataTex.needsUpdate = true; } }
-  if (nowMs - (frame.tvAt || -1e9) > 30000 || tvT <= 0) { frame.tvAt = nowMs; tvT = 30; drawTV(tvTex.userData.c.getContext("2d")); tvTex.needsUpdate = true; if (mesaTex) { mesaI++; drawMesa(mesaTex.userData.c.getContext("2d")); mesaTex.needsUpdate = true; } updateRadar(); updateArena(); updateRewards(); updateSectors(); updateStrategyRoom(); updateStaff(); updateDirector(); updateAcademy(); updateMoney(); drawBoard(board.userData.c.getContext("2d")); board.needsUpdate = true; }
+  if (nowMs - (frame.tvAt || -1e9) > 30000 || tvT <= 0) { frame.tvAt = nowMs; tvT = 30; drawTV(tvTex.userData.c.getContext("2d")); tvTex.needsUpdate = true; if (mesaTex) { mesaI++; drawMesa(mesaTex.userData.c.getContext("2d")); mesaTex.needsUpdate = true; } updateRadar(); updateArena(); updateRewards(); updateSectors(); updateStrategyRoom(); updateStaff(); updateDirector(); updateAcademy(); updateMoney(); updateFloor2(); drawBoard(board.userData.c.getContext("2d")); board.needsUpdate = true; }
   if (radar) { radar.sweep.rotation.z -= dt * 1.4; radar.blips.children.forEach((b, i) => { if (b.geometry.type === "SphereGeometry") b.scale.setScalar(1 + Math.sin(t * 4 + i) * .15); }); }
+  if (P2.on) p2Tick(dt, t);
   animateArena(dt, t); animateRewards(dt, t); secPeople.forEach(p => animate(p, dt, t)); stPeople.forEach(p => animate(p, dt, t)); staffPeople.forEach(p => animate(p, dt, t)); dirPeople.forEach(p => animate(p, dt, t)); acPeople.forEach(p => animate(p, dt, t));
   ctl.update(); if (composer) composer.render(); else R.render(scene, cam); placeOverlays(dt);
 }
@@ -1348,7 +1621,9 @@ function init(container) {
   ctl.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_ROTATE };
   ctl.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
   // nao sair do escritorio: o ponto para onde se olha fica dentro das paredes
-  ctl.addEventListener("change", () => { const t = ctl.target, cx = Math.max(-28.5, Math.min(Math.max(48, ST_WALL + stLen + 2, acEnd + 1), t.x)), cz = t.x < -19.5 ? Math.max(-5, Math.min(5, t.z)) : Math.max(t.x > 19 ? -14 : -8.5, Math.min(t.x > 19 ? 14 : 11.5, t.z));
+  ctl.addEventListener("change", () => { if (P2.on) { const t = ctl.target, cx = Math.max(-19, Math.min(23, t.x)), cz = Math.max(-11, Math.min(11, t.z));
+      if (cx !== t.x || cz !== t.z || t.y !== P2H) { const dx = cx - t.x, dz = cz - t.z, dy = P2H - t.y; t.set(cx, P2H, cz); cam.position.x += dx; cam.position.z += dz; cam.position.y += dy; } return; }
+    const t = ctl.target, cx = Math.max(-28.5, Math.min(Math.max(48, ST_WALL + stLen + 2, acEnd + 1), t.x)), cz = t.x < -19.5 ? Math.max(-5, Math.min(5, t.z)) : Math.max(t.x > 19 ? -14 : -8.5, Math.min(t.x > 19 ? 14 : 11.5, t.z));
     if (cx !== t.x || cz !== t.z || t.y !== 0) { const dx = cx - t.x, dz = cz - t.z, dy = -t.y; t.set(cx, 0, cz); cam.position.x += dx; cam.position.z += dz; cam.position.y += dy; } });
   scene.add(new THREE.HemisphereLight(0xffffff, 0x6b6f78, 1.75));
   const dl = new THREE.DirectionalLight(0xfff4e8, 1.35); dl.position.set(8, 20, 10); scene.add(dl);
@@ -1384,7 +1659,9 @@ function init(container) {
   R.domElement.addEventListener("pointerup", e => {
     if (!down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 8) return;
     const r = R.domElement.getBoundingClientRect(); m.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1);
-    ray.setFromCamera(m, cam); const hit = ray.intersectObjects(people.map(p => p.g), true)[0];
+    ray.setFromCamera(m, cam);
+    if (P2.on) { const h2 = ray.intersectObjects(P2.people.concat(P2.heads).map(p => p.g), true)[0]; if (h2) p2Click(h2); return; }
+    const hit = ray.intersectObjects(people.map(p => p.g), true)[0];
     if (hit) { API().select(hit.object.userData.agent); bubAt = 0; return; }
     const sh = ray.intersectObjects(secPeople.map(p => p.g), true)[0]; if (sh) { API().openZone("sectors"); return; }
     // lutadores (arena, sala de estrategia, academia): cartao com o combate e o que fazem agora
@@ -1401,15 +1678,15 @@ function init(container) {
   return true;
 }
 // voltar a vista inicial (botao no ecra)
-function resetView() { resize.done = false; ctl.target.set(0, 0, 0); resize(); ctl.update(); }
-function goArena() { const tx = ARENA_C.x + 2, dx = tx - ctl.target.x, dz = ARENA_C.z - ctl.target.z; ctl.target.set(tx, 0, ARENA_C.z); cam.position.x += dx; cam.position.z += dz;
+function resetView() { p2Leave(); resize.done = false; ctl.target.set(0, 0, 0); resize(); ctl.update(); }
+function goArena() { p2Leave(); const tx = ARENA_C.x + 2, dx = tx - ctl.target.x, dz = ARENA_C.z - ctl.target.z; ctl.target.set(tx, 0, ARENA_C.z); cam.position.x += dx; cam.position.z += dz;
   const d = cam.position.clone().sub(ctl.target), want = 30; if (d.length() > want) cam.position.copy(ctl.target.clone().add(d.setLength(want))); ctl.update(); }
-function goRewards() { const T = V(TRO_X0 + TRO_LEN / 2, TRO_ZC + .35), dx = T.x - ctl.target.x, dz = T.z - ctl.target.z; ctl.target.copy(T); cam.position.x += dx; cam.position.z += dz;
+function goRewards() { p2Leave(); const T = V(TRO_X0 + TRO_LEN / 2, TRO_ZC + .35), dx = T.x - ctl.target.x, dz = T.z - ctl.target.z; ctl.target.copy(T); cam.position.x += dx; cam.position.z += dz;
   const d = cam.position.clone().sub(ctl.target); cam.position.copy(ctl.target.clone().add(d.setLength(14 + TRO_LEN * .5))); ctl.update(); }
-function goSectors() { const T = V(23.8, 10.9), dx = T.x - ctl.target.x, dz = T.z - ctl.target.z; ctl.target.copy(T); cam.position.x += dx; cam.position.z += dz;
+function goSectors() { p2Leave(); const T = V(23.8, 10.9), dx = T.x - ctl.target.x, dz = T.z - ctl.target.z; ctl.target.copy(T); cam.position.x += dx; cam.position.z += dz;
   const d = cam.position.clone().sub(ctl.target), want = 18; if (d.length() > want) cam.position.copy(ctl.target.clone().add(d.setLength(want))); ctl.update(); }
-function goStrategy() { const T = V(ST_WALL + stLen / 2 + .6, 0), dx = T.x - ctl.target.x, dz = T.z - ctl.target.z; ctl.target.copy(T); cam.position.x += dx; cam.position.z += dz;
+function goStrategy() { p2Leave(); const T = V(ST_WALL + stLen / 2 + .6, 0), dx = T.x - ctl.target.x, dz = T.z - ctl.target.z; ctl.target.copy(T); cam.position.x += dx; cam.position.z += dz;
   const d = cam.position.clone().sub(ctl.target), want = 17 + stLen * .35; cam.position.copy(ctl.target.clone().add(d.setLength(want))); ctl.update(); }
-function goTo(x, z, want = 14) { const T = V(x, z), dx = T.x - ctl.target.x, dz = T.z - ctl.target.z; ctl.target.copy(T); cam.position.x += dx; cam.position.z += dz;
+function goTo(x, z, want = 14) { p2Leave(); const T = V(x, z), dx = T.x - ctl.target.x, dz = T.z - ctl.target.z; ctl.target.copy(T); cam.position.x += dx; cam.position.z += dz;
   const d = cam.position.clone().sub(ctl.target); cam.position.copy(ctl.target.clone().add(d.setLength(want))); ctl.update(); }
-window.Office3D = { init, supported, refresh: () => { tvT = 0; }, resetView, goArena, goRewards, goSectors, goStrategy, goMemorial, goAcademy, goDirector, goTo };
+window.Office3D = { init, supported, refresh: () => { tvT = 0; }, resetView, goArena, goRewards, goSectors, goStrategy, goMemorial, goAcademy, goDirector, goTo, goFloor, floor: () => P2.on ? 2 : 1 };
