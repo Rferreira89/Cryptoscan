@@ -39,6 +39,7 @@ jobs:
               && { [ -f resumo.txt ] && git add resumo.txt || true; } \
               && { [ -f audit.jsonl ] && git add audit.jsonl || true; } \
               && { [ -f erros.txt ] && git add erros.txt || true; } \
+              && { [ -f liquidez.json ] && git add liquidez.json || true; } \
               && git commit -q -m "$1 $(date -u +%FT%TZ)" \
               && git push -q -f "$PUSH_URL" data:data ) || echo "publicacao falhou"
           }
@@ -57,7 +58,7 @@ jobs:
             # estado anterior (sinais ativos, registo, ultimo scan)
             if git ls-remote --exit-code -q origin refs/heads/data >/dev/null 2>&1; then
               if git fetch -q origin data; then
-                for f in state.json audit.jsonl scan.json resumo.txt erros.txt; do
+                for f in state.json audit.jsonl scan.json resumo.txt erros.txt liquidez.json; do
                   git show "FETCH_HEAD:$f" > "out/$f" 2>/dev/null || rm -f "out/$f"
                 done
               else

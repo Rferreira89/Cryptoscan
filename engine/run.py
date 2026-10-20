@@ -834,6 +834,13 @@ def main():
             alerts.send(am, html=True)
     except Exception as e:
         print("amplitude:", e)
+    try:                                     # historico diario da liquidez da Bybit UE
+        from . import liquidez
+        lq = liquidez.atualizar(_load("liquidez.json", {}), res.pop("liquidez_bybit", None), res["generated_at"])
+        with open(os.path.join(OUT, "liquidez.json"), "w") as f:
+            json.dump(lq, f, separators=(",", ":"))
+    except Exception as e:
+        print("liquidez:", e)
     try:
         from . import risco
         ra = risco.aviso(state.get("risco") or {})

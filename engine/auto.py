@@ -1,5 +1,6 @@
-"""Modo automatico (fase 3, decisao do Rui em 2026-10-16): construido mas
-DESLIGADO ate a prova estar feita.
+"""Modo automatico (fase 3, decisao do Rui em 2026-10-16). Desde 17/10 esta
+LIGADO a forca por decisao do Rui (/auto forcar), sem a prova abaixo; ver o
+paragrafo de 17/10 no fim deste texto.
 
 Liga-se so quando TODOS os criterios estiverem cumpridos E o Rui disser
 "/auto ligar" no Telegram:

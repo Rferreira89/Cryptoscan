@@ -146,9 +146,9 @@ def growth(state, cfg):
     import math
     from . import arena
     cap = cfg.get("capital_usdc") or 0
+    # max_risk_usdc ja vem dividido por dois quando o risco esta reduzido
+    # (engine/scanner.py): nao dividir outra vez (contra-auditoria, 20/10)
     risk = (cfg.get("max_risk_usdc") or 0) / cap * 100 if cap else cfg.get("risk_pct", 1.0)
-    if cfg.get("risk_reduced"):
-        risk /= 2
     lut = ((state.get("arena") or {}).get("forma") or {}).get("lutadores") or {}
     out = []
     for k, r in qualified(state):

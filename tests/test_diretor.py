@@ -262,7 +262,8 @@ class MetaMilhao(unittest.TestCase):
         g = promo.growth(st, {"capital_usdc": 100, "max_risk_usdc": 2, "risk_reduced": True})
         self.assertEqual(g[0]["id"], "B")
         self.assertEqual(g[0]["r_mes"], 4.2)
-        self.assertEqual(g[0]["pct_mes"], 4.2)                      # 1% de risco por operacao
+        # max_risk_usdc ja e o valor reduzido (2 USDC = 2%): nao divide outra vez (20/10)
+        self.assertEqual(g[0]["pct_mes"], 8.4)
         self.assertTrue(g[0]["anos"] > 0)
 
     def test_depositos_encurtam(self):

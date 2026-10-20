@@ -76,7 +76,7 @@ DEFAULTS = {
     # Travao de perdas (em R, soma das operacoes fechadas)
     "max_daily_loss_r": 3.0,
     "max_weekly_loss_r": 6.0,
-    "cooldown_after_losses": 3,     # perdas seguidas -> pausa de 24h
+    "cooldown_after_losses": 3,     # perdas seguidas -> pausa de 24h (0 = desligado; config.json tem 0 desde 18/10)
 }
 
 

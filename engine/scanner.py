@@ -303,6 +303,9 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
     try:
         ven = venue.fetch(cfg["quote"])
         result["venue_source"] = {"ok": True, "pairs": len(ven)}
+        # liquidez de todos os pares USDC da Bybit UE (historico diario, Rui 20/10)
+        result["liquidez_bybit"] = {b: [v.get("volume_usd"), v.get("spread_pct"), bool(v.get("stale"))]
+                                    for b, v in ven.items()}
     except (sources.SourceError, KeyError, TypeError) as e:
         ven = None
         result["venue_source"] = {"ok": False, "error": str(e)[:200]}
