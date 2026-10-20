@@ -829,3 +829,45 @@ class ProvaComResultadoReal(unittest.TestCase):
         cfg = {"max_daily_loss_r": 0.5, "max_weekly_loss_r": 9, "cooldown_after_losses": 0}
         self.assertIsNone(signals.trading_halt(sigs, cfg, NOW, [dict(r, real_r=-0.06)]))
         self.assertIsNotNone(signals.trading_halt(sigs, cfg, NOW, [dict(r, real_r=None)]))
+
+
+class ShortsEPrecoDaBybit(unittest.TestCase):
+    def test_short_tp1_por_recomprar_nao_mexe(self):
+        from unittest import mock
+        from engine import executor as X
+        op = {"status": "aberta", "lado": "SHORT", "symbol": "ENAUSDC", "asset": "ENA", "entrada": 0.2,
+              "qty": 100.0, "partes": [{"qty": 50.0}, {"qty": 50.0}]}
+        ex, sent, calls = {"ops": {"op1": op}}, [], []
+        with mock.patch.object(X, "instrument", return_value={"tick": 0.0001, "base_step": 0.01}), \
+                mock.patch.object(X, "wallet", return_value={}), \
+                mock.patch.object(X, "coin_debt", return_value=100.2), mock.patch.object(X, "held", return_value=0.0), \
+                mock.patch.object(X, "tpsl_orders", return_value=[]), \
+                mock.patch.object(X, "post", side_effect=lambda p, b: calls.append(p) or {"orderId": "n"}):
+            r = X.do_breakeven({}, {"op": "op1"}, ex, NOW, sent.append)
+        self.assertIn("à espera", r)
+        self.assertEqual(calls, [])
+        self.assertTrue(op["be_pendente"])
+
+    def test_posicoes_reais_seguem_o_preco_da_bybit(self):
+        from engine import signals
+        st = {"ledger": [{"asset": "ENA", "status": "OPEN", "auto_exec": True},
+                         {"asset": "SOL", "status": "OPEN", "executed": False}]}
+        rows = [{"asset": "ENA", "price": 0.1950, "venue": {"last": 0.1938, "stale": False}},
+                {"asset": "SOL", "price": 150.0, "venue": {"last": 149.0, "stale": False}},
+                {"asset": "XPL", "price": 0.08, "venue": {"last": 0.079, "stale": True}}]
+        px = signals.tracking_prices(st, rows)
+        self.assertEqual(px["ENA"], 0.1938)                       # posicao real: Bybit
+        self.assertEqual(px["SOL"], 150.0)                        # nao executada: referencia
+        self.assertEqual(px["XPL"], 0.08)
+
+    def test_aviso_de_chave_a_expirar(self):
+        from engine import run
+        import datetime as dt
+        st = {}
+        exp = dt.datetime.fromtimestamp(NOW + 10 * 86400, dt.timezone.utc).isoformat()
+        out = run.key_alert(st, {"de leitura": exp, "de negociação": ""}, NOW)
+        self.assertEqual(len(out), 1)
+        self.assertIn("10 dias", out[0])
+        self.assertEqual(run.key_alert(st, {"de leitura": exp}, NOW + 3600), [])      # uma vez por dia
+        longe = dt.datetime.fromtimestamp(NOW + 60 * 86400, dt.timezone.utc).isoformat()
+        self.assertEqual(run.key_alert({}, {"de leitura": longe}, NOW), [])

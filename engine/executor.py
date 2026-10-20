@@ -735,6 +735,21 @@ def close_short(state, req, ex, now, send, why):
 def breakeven_short(state, req, ex, now, send):
     op = ex["ops"][req["op"]]
     inst = instrument(op["symbol"])
+    # (20/10) igual as compras: so depois de a Bybit recomprar a parte do TP1.
+    # Exposicao a descoberto = moeda devida menos moeda ja recomprada na conta.
+    w = wallet()
+    net = coin_debt(w, op["asset"]) - held(w, op["asset"])
+    partes = op.get("partes") or []
+    if net <= 0.02 * (op.get("qty") or 0):
+        op.update(status="fechada", fechado=now, motivo="fechada na Bybit (stop ou objetivos)", be_pendente=False)
+        return "já fechada na Bybit"
+    if len(partes) > 1 and net > (op.get("qty") or 0) - 0.5 * (partes[0].get("qty") or 0):
+        if not op.get("be_pendente"):
+            send(f"⏳ {op['asset']} (venda a descoberto): o sinal viu o TP1, mas na Bybit a parte do TP1 ainda "
+                 "não foi recomprada. Mantenho as ordens originais; desço o stop para a entrada quando recomprar.")
+        op["be_pendente"] = True
+        return "à espera da recompra do TP1 na Bybit"
+    op["be_pendente"] = False
     new = float(fmt(op["entrada"] * 0.999, inst["tick"]))
     olds = ours(tpsl_orders(op["symbol"]), op)
     if any(0 < float(o.get("triggerPrice") or 0) <= new * 1.001 for o in olds):
@@ -1257,6 +1272,7 @@ def main(state_path, ex_in, out):
             # so nomes de permissoes e se ha IP (nada secreto)
             ex["permissoes"] = info.get("permissions")
             ex["ips_definidos"] = len([x for x in info.get("ips") or [] if x and x != "*"])
+            ex["expira"] = info.get("expiredAt")             # validade da chave (aviso 14 dias antes)
         except ExecError as e:
             ok, why = False, str(e)[:120]
         ex.update(pronto=ok, chave=why)

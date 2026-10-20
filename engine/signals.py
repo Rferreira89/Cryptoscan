@@ -429,10 +429,25 @@ def track(state, prices, cfg, now, ranges=None):
     return events
 
 
+def tracking_prices(state, rows):
+    """Preco para acompanhar cada sinal. Posicoes reais (executadas pelo
+    programa ou por ti) usam o preco da Bybit UE, onde estao o stop e os
+    objetivos (Rui, 20/10: a ENA perdeu o TP1 porque o TP1 foi visto no preco
+    da Binance e nao no da Bybit). Os outros sinais usam o preco de referencia."""
+    px = {r["asset"]: r["price"] for r in rows}
+    reais = {r["asset"] for r in state.get("ledger") or []
+             if r.get("status") in ("OPEN", "WAITING") and (r.get("executed") is True or r.get("auto_exec"))}
+    for r in rows:
+        v = r.get("venue") or {}
+        if r["asset"] in reais and v.get("last") and not v.get("stale"):
+            px[r["asset"]] = v["last"]
+    return px
+
+
 def update_state(state, rows, cfg, now, daily=None):
     """Acompanha, expira, invalida e emite sinais. Devolve eventos."""
     sigs = state.setdefault("signals", {})
-    events = track(state, {r["asset"]: r["price"] for r in rows}, cfg, now)
+    events = track(state, tracking_prices(state, rows), cfg, now)
     live = {s["asset"] for s in sigs.values()
             if s["status"] in ("ACTIVE", "TRIGGERED")}
     halt = trading_halt(sigs, cfg, now, state.get("ledger"))

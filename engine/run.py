@@ -555,6 +555,31 @@ def stop_watch(state, conta, now):
     return out
 
 
+def key_alert(state, keys, now, dias=14):
+    """Aviso quando uma chave da Bybit esta a menos de `dias` de expirar
+    (Rui, 20/10). keys = {nome: expiredAt da Bybit}. Uma vez por dia por chave.
+    Sem data (chave com IP fixo nao expira) = nada a avisar."""
+    import datetime as _dt
+    st = state.setdefault("chave_aviso", {})
+    out = []
+    for nome, exp in (keys or {}).items():
+        if not exp:
+            continue
+        try:
+            t = _dt.datetime.fromisoformat(str(exp).replace("Z", "+00:00")).timestamp()
+        except ValueError:
+            continue
+        falta = (t - now) / 86400
+        if falta > dias or now - (st.get(nome) or 0) < 86400:
+            continue
+        st[nome] = int(now)
+        out.append(f"🔑 A chave {nome} da Bybit expira {'HOJE' if falta < 1 else f'daqui a {falta:.0f} dias'} "
+                   f"({str(exp)[:10]}). Sem ela, " + ("o programa deixa de ler a conta (stops, resultado real)."
+                   if nome == "de leitura" else "o programa deixa de executar operações.") +
+                   " Renova-a na Bybit e atualiza o segredo no GitHub.")
+    return out
+
+
 def apply_admin(state, path=ADMIN, now=None, send=None):
     """Comandos pedidos pelo Rui numa sessao (admin.json na raiz do main),
     com o mesmo texto e efeito dos comandos do Telegram (/capital,
@@ -767,7 +792,9 @@ def keep_longo(state, lg):
 def main():
     os.makedirs(OUT, exist_ok=True)
     state = _load("state.json", {})
-    execucao.apply(state, execucao.load())
+    ex_now = execucao.load()
+    state["chave_negociacao_expira"] = (ex_now or {}).get("expira")
+    execucao.apply(state, ex_now)
     try:
         keep_longo(state, load_longo())
     except Exception as e:
@@ -786,6 +813,14 @@ def main():
             alerts.send(aviso)
     except Exception as e:
         print("auto:", e)
+    try:
+        for txt in key_alert(state, {"de leitura": (res.get("conta") or {}).get("expira"),
+                                     "de negociação": state.get("chave_negociacao_expira")},
+                             res["generated_at"]):
+            if alerts.configured():
+                alerts.send(txt)
+    except Exception as e:
+        print("chave:", e)
     try:
         for txt in stop_watch(state, res.get("conta"), res["generated_at"]):
             if alerts.configured():

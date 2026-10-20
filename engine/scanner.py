@@ -255,7 +255,7 @@ def apply_account(state, eu, now):
     state["conta_livre"] = {"t": acc["t"], "usdc": acc.get("usdc_free")}
     return {"t": acc["t"], "usdc_free": acc.get("usdc_free"),
             "equity": acc.get("equity"), "trades": acc.get("trades") or {},
-            "fundo": acc.get("fundo"), "reais": acc.get("reais") or {}}
+            "fundo": acc.get("fundo"), "reais": acc.get("reais") or {}, "expira": acc.get("expires")}
 
 
 def run(now=None, state=None, cfg=None, forma=None, eu=None):
