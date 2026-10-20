@@ -738,7 +738,8 @@ def breakeven_short(state, req, ex, now, send):
     # (20/10) igual as compras: so depois de a Bybit recomprar a parte do TP1.
     # Exposicao a descoberto = moeda devida menos moeda ja recomprada na conta.
     w = wallet()
-    net = coin_debt(w, op["asset"]) - held(w, op["asset"])
+    nucleo_q = float(((ex.get("nucleo") or {}).get(op["asset"]) or {}).get("qty") or 0)
+    net = coin_debt(w, op["asset"]) - max(0.0, held(w, op["asset"]) - nucleo_q)
     partes = op.get("partes") or []
     if net <= 0.02 * (op.get("qty") or 0):
         op.update(status="fechada", fechado=now, motivo="fechada na Bybit (stop ou objetivos)", be_pendente=False)
@@ -847,7 +848,8 @@ def _breakeven_long(state, req, ex, now, send):
     # TP1 pode ainda nao ter vendido. So se mexe no stop depois de a Bybit a
     # vender: ate la a ordem do TP1 fica, e volta-se a ver de 15 em 15 minutos.
     partes = op.get("partes") or []
-    have = held(wallet(), op["asset"])
+    nucleo_q = float(((ex.get("nucleo") or {}).get(op["asset"]) or {}).get("qty") or 0)
+    have = max(0.0, held(wallet(), op["asset"]) - nucleo_q)      # as moedas do nucleo nao contam
     if have <= 0.02 * (op.get("qty") or 0):
         op.update(status="fechada", fechado=now, motivo="fechada na Bybit (stop ou objetivos)", be_pendente=False)
         return "já fechada na Bybit"
@@ -918,7 +920,8 @@ def do_close(state, req, ex, now, send, why="saída do plano"):
         sold_tp = sum(float(e["execQty"]) for e in r.get("list") or [] if e.get("side") == "Sell")
     except ExecError:
         sold_tp = 0.0
-    have = held(wallet(), op["asset"])
+    nucleo_q = float(((ex.get("nucleo") or {}).get(op["asset"]) or {}).get("qty") or 0)
+    have = max(0.0, held(wallet(), op["asset"]) - nucleo_q)      # nunca vende o nucleo
     qty = max(0.0, min(have, op["qty"] - sold_tp))
     oid = sell_all(op["symbol"], qty, inst, f"{_tag(req['op'])}-f")
     op.update(status="fechada", fechado=now, motivo=why)
@@ -1241,8 +1244,68 @@ def do_orders(state, req, ex, now, send):
     return "ok"
 
 
+# ---------- nucleo da carteira (Rui, 2026-10-20; engine/nucleo.py) ----------
+# Spot, sem alavancagem e sem emprestimo: compra e vende a propria moeda.
+
+def do_nucleo_comprar(state, req, ex, now, send):
+    a = req["op"].split("-", 1)[1]
+    nuc = ex.setdefault("nucleo", {})
+    if nuc.get(a):
+        return "já está no núcleo"
+    plano = (((state.get("nucleo") or {}).get("plano") or {}).get(a)) or {}
+    usdc = float(plano.get("comprar_usdc") or 0)
+    if not plano.get("acima") or usdc <= 0:
+        return "sem plano de compra"
+    sym = f"{a}USDC"
+    inst = instrument(sym)
+    free = usdc_free(wallet())
+    usdc = min(usdc, free * 0.98)
+    if usdc < max(inst["min_amt"], 5.0):
+        send(f"⚠️ Núcleo: não comprei {a}, USDC livre insuficiente ({free:.2f}).")
+        return "USDC insuficiente"
+    px = last_price(sym)
+    lim = float(fmt(px * (1 + LIMIT_SLIP), inst["tick"]))
+    qty = floor_to(usdc / lim, inst["base_step"])
+    r = post("/v5/order/create", {"category": "spot", "symbol": sym, "side": "Buy", "orderType": "Limit",
+                                  "timeInForce": "IOC", "price": fmt(lim, inst["tick"]),
+                                  "qty": fmt(qty, inst["base_step"]),
+                                  "orderLinkId": f"{LINK}nb{a}{now % 1000000}"[:36]})
+    try:
+        avg, q = fills(r["orderId"], sym, a)
+    except ExecError as e:
+        send(f"🚨 Núcleo: a compra de {a} foi enviada mas não confirmei a execução ({str(e)[:60]}). Verifica na app.")
+        nuc[a] = {"qty": 0.0, "entrada": px, "t": now, "verificar": True}
+        return "sem execução confirmada"
+    nuc[a] = {"qty": q, "entrada": avg, "usdc": round(avg * q, 2), "t": now}
+    send(f"🧱 <b>Núcleo: comprei {a}</b> — {avg * q:.2f} USDC a {avg:.6g} ({q:.6g} {a}). Spot, sem alavancagem. "
+         f"Fica enquanto o fecho diário estiver acima da média de 200 dias ({plano.get('media'):.6g}).", html=True)
+    return "ok"
+
+
+def do_nucleo_vender(state, req, ex, now, send):
+    a = req["op"].split("-", 1)[1]
+    nuc = ex.setdefault("nucleo", {})
+    pos = nuc.get(a)
+    if not pos:
+        return "sem posição no núcleo"
+    sym = f"{a}USDC"
+    inst = instrument(sym)
+    q = min(held(wallet(), a), pos.get("qty") or 0)
+    oid = sell_all(sym, q, inst, f"ns{a}{now % 1000000}")
+    avg, sold = (fills(oid, sym, a, side="Sell") if oid else (None, 0.0))
+    pnl = round(sold * (avg - pos["entrada"]), 2) if avg else None
+    ex.setdefault("nucleo_hist", []).append({"moeda": a, "entrada": pos["entrada"], "saida": avg, "qty": sold,
+                                             "t_entrada": pos.get("t"), "t_saida": now, "pnl_usdc": pnl})
+    ex["nucleo_hist"] = ex["nucleo_hist"][-100:]
+    nuc.pop(a, None)
+    send(f"🧱 Núcleo: vendi {a} para USDC — o fecho diário ficou abaixo da média de 200 dias. "
+         + (f"Venda a {avg:.6g}, resultado {pnl:+.2f} USDC." if avg else "Já não havia moedas para vender."))
+    return "ok"
+
+
 ACTIONS = {"vender": do_short, "teste_short": do_test_short, "limpar_short": do_clean_short, "ordens": do_orders, "teste_alav": do_test_lev, "teste_margem": do_test_margin, "teste2": do_test2, "limpar": do_clean, "diag": do_diag, "comprar": do_buy, "breakeven": do_breakeven, "fechar": do_close,
-           "parar": do_stop_all, "teste": do_test}
+           "parar": do_stop_all, "teste": do_test,
+           "nucleo_comprar": do_nucleo_comprar, "nucleo_vender": do_nucleo_vender}
 
 
 def main(state_path, ex_in, out):

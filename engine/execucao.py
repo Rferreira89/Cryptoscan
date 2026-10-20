@@ -51,6 +51,11 @@ def apply(state, ex):
         auto.observe(state, ex)
     except Exception as e:
         print("auto:", e)
+    try:                                     # nucleo da carteira (engine/nucleo.py)
+        from . import nucleo
+        nucleo.sync(state, ex)
+    except Exception as e:
+        print("nucleo:", e)
     done = set(ex.get("feitos") or [])
     state["exec_req"] = [r for r in state.get("exec_req") or [] if r["id"] not in done]
     led = {r["id"]: r for r in state.get("ledger") or []}

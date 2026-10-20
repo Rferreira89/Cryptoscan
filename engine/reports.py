@@ -123,6 +123,10 @@ def weekly(state, now, arena_summary=None, res=None):
             L.append("As tuas operações: nenhuma fechada esta semana.")
         L.append(f"Desde o início: {mt['closed']} fechadas, "
                  f"{mt['total_r']:+.2f}R; {mt['open']} em curso.")
+    nu = (res or {}).get("nucleo") or {}
+    if nu.get("pos") or nu.get("resultado_fechado_usdc"):
+        L.append(f"🧱 Núcleo (BTC/ETH/SOL com a média de 200 dias): {nu.get('valor_usdc', 0):.2f} USDC em carteira, "
+                 f"{nu.get('resultado_aberto_usdc', 0):+.2f} USDC em aberto, {nu.get('resultado_fechado_usdc', 0):+.2f} USDC fechados.")
     rv = (res or {}).get("reais") or {}
     if rv.get("n"):
         L.append(f"🧾 Resultado REAL na Bybit (execuções e comissões): {rv['n']} operações, "

@@ -56,6 +56,10 @@ DEFAULTS = {
     "swing_leverage": 10.0,
     # campeoes por fase do mercado (ringue de um ano): desligado ate ao OK do Rui
     "campeoes_por_fase": False,
+    # nucleo da carteira (engine/nucleo.py): so envia ordens com o OK final do Rui
+    "nucleo_ligado": False,
+    "nucleo_fracao": 0.70,
+    "nucleo_moedas": ["BTC", "ETH", "SOL"],
     # Capital de trading em USDC (2026-10-02: 50). Atualiza-se pelo Telegram
     # com /capital <valor>. Serve para dar valores em USDC e para adaptar
     # as operacoes a ordem minima da Bybit UE.

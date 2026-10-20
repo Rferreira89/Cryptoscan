@@ -854,6 +854,17 @@ def main():
             alerts.send(fa, html=True)
     except Exception as e:
         print("fundo:", e)
+    try:                                     # nucleo da carteira (engine/nucleo.py)
+        from . import nucleo, promo
+        conta = res.get("conta") or {}
+        precos = {r["asset"]: ((r.get("venue") or {}).get("last") or r.get("price")) for r in res.get("universe") or []}
+        cfg_n = dict(config.load(), **{k: v for k, v in (res.get("config") or {}).items() if k.startswith("nucleo")})
+        for acao, op in nucleo.decidir(state, promo.DAILY or {}, precos, conta.get("equity") or (res.get("config") or {}).get("capital_usdc"),
+                                       conta.get("usdc_free"), cfg_n, res["generated_at"]):
+            execucao.request(state, acao, op, res["generated_at"])
+        res["nucleo"] = nucleo.resumo(state)
+    except Exception as e:
+        print("nucleo:", e)
     exec_after(state, events, res["generated_at"])
     res["execucao"] = {"pronto": execucao.READY, "pedidos": len(state.get("exec_req") or [])}
     extra = reports.due(res, state, res["generated_at"]) if res["universe"] else []
