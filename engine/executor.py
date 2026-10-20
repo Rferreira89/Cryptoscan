@@ -711,7 +711,7 @@ def close_short(state, req, ex, now, send, why):
     time.sleep(1)
     debt = coin_debt(wallet(), op["asset"])
     owe = min(debt, (op.get("emprestado_moeda") or op["qty"]) * 1.01) if debt else 0.0
-    oid = buy_back(op["symbol"], owe * 1.002, inst, f"{req['op'][-20:]}-r") if owe > 0 else None
+    oid = buy_back(op["symbol"], owe * 1.002, inst, f"{_tag(req['op'])}-r") if owe > 0 else None
     time.sleep(2)
     try:                                       # devolve o que ainda faltar com as moedas compradas
         left = coin_debt(wallet(), op["asset"])
@@ -747,7 +747,7 @@ def breakeven_short(state, req, ex, now, send):
     time.sleep(1)
     owe = coin_debt(wallet(), op["asset"])
     try:
-        sid = stop_order_buy(op["symbol"], owe * 1.002, new, inst, f"{req['op'][-18:]}-be")
+        sid = stop_order_buy(op["symbol"], owe * 1.002, new, inst, f"{_tag(req['op'])}-be")
         for p in op.get("partes") or []:
             p.update(stopId=sid, filho=sid, anexo=False)
     except ExecError as e:
@@ -828,6 +828,21 @@ def _breakeven_long(state, req, ex, now, send):
     if op.get("status") != "aberta":
         return "sem operação aberta do programa"
     inst = instrument(op["symbol"])
+    # (20/10, ENA) o TP1 do sinal vem do preco da Binance; na Bybit a parte do
+    # TP1 pode ainda nao ter vendido. So se mexe no stop depois de a Bybit a
+    # vender: ate la a ordem do TP1 fica, e volta-se a ver de 15 em 15 minutos.
+    partes = op.get("partes") or []
+    have = held(wallet(), op["asset"])
+    if have <= 0.02 * (op.get("qty") or 0):
+        op.update(status="fechada", fechado=now, motivo="fechada na Bybit (stop ou objetivos)", be_pendente=False)
+        return "já fechada na Bybit"
+    if len(partes) > 1 and have > (op.get("qty") or 0) - 0.5 * (partes[0].get("qty") or 0):
+        if not op.get("be_pendente"):
+            send(f"⏳ {op['asset']}: o sinal viu o TP1, mas na Bybit a parte do TP1 ainda não vendeu. "
+                 "Mantenho a ordem do TP1 e o stop original; subo o stop para a entrada assim que vender.")
+        op["be_pendente"] = True
+        return "à espera da venda do TP1 na Bybit"
+    op["be_pendente"] = False
     new = float(fmt(op["entrada"] * 1.001, inst["tick"]))      # entrada + comissao
     olds = ours(tpsl_orders(op["symbol"]), op)
     if any(float(o.get("triggerPrice") or 0) >= new * 0.999 for o in olds):
@@ -853,7 +868,7 @@ def _breakeven_long(state, req, ex, now, send):
         qty = floor_to(min(have, op["qty"]), inst["base_step"])
         if qty > 0:
             try:
-                sid = stop_order(op["symbol"], qty, new, inst, f"{req['op'][-18:]}-be")
+                sid = stop_order(op["symbol"], qty, new, inst, f"{_tag(req['op'])}-be")
                 for p in op.get("partes") or []:
                     p.update(stopId=sid, filho=sid, anexo=False)
                 moved += 1
@@ -890,7 +905,7 @@ def do_close(state, req, ex, now, send, why="saída do plano"):
         sold_tp = 0.0
     have = held(wallet(), op["asset"])
     qty = max(0.0, min(have, op["qty"] - sold_tp))
-    oid = sell_all(op["symbol"], qty, inst, f"{req['op'][-20:]}-f")
+    oid = sell_all(op["symbol"], qty, inst, f"{_tag(req['op'])}-f")
     op.update(status="fechada", fechado=now, motivo=why)
     if op.get("emprestado"):                 # a venda abate a divida; confirma
         try:

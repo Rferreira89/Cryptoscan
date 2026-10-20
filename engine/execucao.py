@@ -55,9 +55,27 @@ def apply(state, ex):
     state["exec_req"] = [r for r in state.get("exec_req") or [] if r["id"] not in done]
     led = {r["id"]: r for r in state.get("ledger") or []}
     auto = state.setdefault("auto_ops", {})
+    pend = state.setdefault("auto_be", {})
+    import time as _t
+    now = max(int(_t.time()), int(ex.get("t") or 0))   # hora atual (o "t" do ficheiro e o da ultima corrida)
     for k, o in (ex.get("ops") or {}).items():
         auto[k] = o.get("status")
         rec = led.get(k)
+        state.setdefault("auto_be_flag", {})[k] = bool(o.get("be_pendente")) and o.get("status") == "aberta"
+        if o.get("status") == "aberta":
+            # TP1 do sinal sem venda na Bybit: volta a pedir de 15 em 15 minutos (20/10)
+            if o.get("be_pendente"):
+                if now - (pend.get(k) or 0) >= 900:
+                    pend[k] = now
+                    request(state, "breakeven", k, now)
+            # o sinal ja fechou (stop, tempo...) e a operacao continua "aberta" no
+            # registo da Europa (a PUMP de 18/10): o fecho limpa as ordens e o estado
+            elif rec and rec.get("status") in ("CLOSED", "CANCELLED") and now - (pend.get("f" + k) or 0) >= 900:
+                pend["f" + k] = now
+                request(state, "fechar", k, now)
+        else:
+            pend.pop(k, None)
+            pend.pop("f" + k, None)
         if rec and o.get("status") in ("aberta", "fechada") and o.get("entrada"):
             if not rec.get("auto_exec"):
                 rec.update(executed=True, exec_price=round(o["entrada"], 10), auto_exec=True)
@@ -93,6 +111,8 @@ def hooks(state, events, now):
         # como rede de seguranca; o "stop na entrada" depois do TP1 (e o stop
         # que sobe da Tania) e feito pelo programa: quando o acompanhamento ve
         # o preco voltar a entrada, vende o resto. Idem tempo / sem reacao.
+        if e["event"] == "BREAKEVEN" and (state.get("auto_be_flag") or {}).get(e["id"]):
+            continue                          # o TP1 ainda nao vendeu na Bybit: ficam as ordens da Bybit
         if e["event"] in ("BREAKEVEN", "NOREACT", "TIME"):
             request(state, "fechar", e["id"], now)
         # objetivo final atingido: se a Bybit nao aceitou o TP anexado (15/10,

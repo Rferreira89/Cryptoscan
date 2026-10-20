@@ -755,3 +755,77 @@ class DepositoNaFunding(unittest.TestCase):
             self.assertIsNone(account.funding())
         finally:
             account.get = orig
+
+
+class TP1SoComVendaNaBybit(unittest.TestCase):
+    """20/10 (ENA): o TP1 do sinal (Binance) nao vendeu na Bybit; o stop nao pode
+    subir nem a ordem do TP1 ser cancelada antes de a Bybit vender."""
+    def op(self):
+        return {"status": "aberta", "symbol": "ENAUSDC", "asset": "ENA", "entrada": 0.1882, "qty": 103.9,
+                "partes": [{"qty": 51.95, "anexo": True}, {"qty": 51.95, "anexo": True}]}
+
+    def run_be(self, op, have):
+        from unittest import mock
+        from engine import executor as X
+        ex, sent, calls = {"ops": {"op1": op}}, [], []
+        with mock.patch.object(X, "instrument", return_value={"tick": 0.0001, "base_step": 0.01}), \
+                mock.patch.object(X, "tpsl_orders", return_value=[]), \
+                mock.patch.object(X, "post", side_effect=lambda p, b: calls.append(p) or {"orderId": "n"}), \
+                mock.patch.object(X, "wallet", return_value={}), mock.patch.object(X, "held", return_value=have), \
+                mock.patch.object(X.time, "sleep"):
+            r = X.do_breakeven({}, {"op": "op1"}, ex, NOW, sent.append)
+        return r, sent, calls
+
+    def test_tp1_por_vender_nao_mexe_em_nada(self):
+        op = self.op()
+        r, sent, calls = self.run_be(op, 103.8)
+        self.assertIn("à espera", r)
+        self.assertEqual(calls, [])                                     # nada cancelado, nada criado
+        self.assertTrue(op["be_pendente"])
+        self.assertIn("ainda não vendeu", sent[0])
+        r, sent, calls = self.run_be(op, 103.8)
+        self.assertEqual(sent, [])                                      # avisa so uma vez
+
+    def test_tp1_vendido_sobe_o_stop(self):
+        op = self.op()
+        r, sent, calls = self.run_be(op, 51.9)
+        self.assertEqual(r, "ok")
+        self.assertFalse(op["be_pendente"])
+        self.assertIn("/v5/order/create", calls)
+
+    def test_posicao_ja_fechada_na_bybit(self):
+        op = self.op()
+        r, _, calls = self.run_be(op, 0.0)
+        self.assertEqual(op["status"], "fechada")
+        self.assertEqual(calls, [])
+
+    def test_volta_a_pedir_e_nao_fecha_na_entrada_enquanto_pendente(self):
+        from engine import execucao
+        st = {"ledger": [{"id": "op1", "status": "CLOSED"}], "auto_ops": {}}
+        ex = {"t": NOW, "ops": {"op1": dict(self.op(), be_pendente=True)}, "feitos": []}
+        execucao.READY = False
+        execucao.apply(st, ex) if hasattr(execucao, "apply") else None
+        self.assertEqual([r["acao"] for r in st.get("exec_req") or []], ["breakeven"])
+        execucao.hooks(st, [{"event": "BREAKEVEN", "id": "op1", "r": -0.05, "price": 0.1882}], NOW)
+        self.assertNotIn("fechar", [r["acao"] for r in st["exec_req"]])
+
+    def test_operacao_esquecida_aberta_e_limpa(self):
+        from engine import execucao
+        st = {"ledger": [{"id": "PUMP-1", "status": "CLOSED"}]}
+        ex = {"t": NOW, "ops": {"PUMP-1": {"status": "aberta", "entrada": 0.0045}}, "feitos": []}
+        execucao.apply(st, ex)
+        self.assertEqual([r["acao"] for r in st["exec_req"]], ["fechar"])
+
+
+class ProvaComResultadoReal(unittest.TestCase):
+    def test_resultado_real_manda(self):
+        from engine import ledger, risco, signals
+        r = {"id": "e1", "kind": "4H", "strategy": "BOUNCE_SQUEEZE", "executed": True, "status": "CLOSED",
+             "issued_at": risco.DESDE + 10, "closed_at": risco.DESDE + 100, "result_r": 0.15, "real_r": -0.06,
+             "stop": 1, "entry": 2}
+        self.assertEqual(ledger.user_r(r), -0.06)
+        self.assertEqual(risco.prova([r]), (1, -0.06))
+        sigs = {"e1": {"id": "e1", "status": "CLOSED", "mode": "REAL", "closed_at": NOW - 100, "result_r": -1.0}}
+        cfg = {"max_daily_loss_r": 0.5, "max_weekly_loss_r": 9, "cooldown_after_losses": 0}
+        self.assertIsNone(signals.trading_halt(sigs, cfg, NOW, [dict(r, real_r=-0.06)]))
+        self.assertIsNotNone(signals.trading_halt(sigs, cfg, NOW, [dict(r, real_r=None)]))

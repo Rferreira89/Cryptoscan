@@ -293,7 +293,9 @@ def trading_halt(sigs, cfg, now, led=None):
         r = by.get(s.get("id")) or {}
         if r.get("executed") is False:
             continue
-        res = r["user_result_r"] if r.get("user_result_r") is not None else s["result_r"]
+        # resultado real da Bybit primeiro (Rui, 20/10), depois o fecho a mao, depois o sinal
+        res = r["real_r"] if r.get("real_r") is not None else \
+            r["user_result_r"] if r.get("user_result_r") is not None else s["result_r"]
         closed.append(dict(s, result_r=res))
     closed.sort(key=lambda s: s["closed_at"])
     day = sum(s["result_r"] for s in closed if now - s["closed_at"] < 86400)
@@ -334,7 +336,9 @@ def real_loss(sigs, now, led=None):
         r = by.get(s.get("id")) or {}
         if r.get("executed") is False:
             continue
-        res = r["user_result_r"] if r.get("user_result_r") is not None else s["result_r"]
+        # resultado real da Bybit primeiro (Rui, 20/10), depois o fecho a mao, depois o sinal
+        res = r["real_r"] if r.get("real_r") is not None else \
+            r["user_result_r"] if r.get("user_result_r") is not None else s["result_r"]
         if now - s["closed_at"] < 86400:
             day += res
         if now - s["closed_at"] < 7 * 86400:

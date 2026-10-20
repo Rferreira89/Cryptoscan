@@ -134,7 +134,11 @@ def user_closed(r):
 
 
 def user_r(r):
-    """Resultado ajustado ao preco de entrada real (estimativa)."""
+    """Resultado das tuas operacoes: o REAL lido das execucoes da Bybit quando
+    existe (Rui, 20/10); senao o fecho a mao; senao o sinal ajustado ao preco
+    de entrada real (estimativa)."""
+    if r.get("real_r") is not None:
+        return r["real_r"]
     if r.get("user_result_r") is not None:
         return r["user_result_r"]
     ep, entry = r.get("exec_price"), r.get("entry")
