@@ -1440,6 +1440,7 @@ const PESQUISA = [
   ["❌", "Vol-target, top 10, ETH/BTC, momentum duplo", "não melhoram"],
   ["❌", "H3: comprar o núcleo no recuo", "pior em 5 de 6"],
   ["➖", "Funding carry", "~5% ao ano: pouco"],
+  ["❌", "H5: modelo que aprende (scikit-learn)", "só 15 dias reais: ilusão"],
   ["🔬", "H4: liquidações em massa", "em estudo"],
 ];
 const p2n = (x, d = 2) => x == null || isNaN(x) ? "–" : (x > 0 ? "+" : "") + Number(x).toFixed(d).replace(".", ",");

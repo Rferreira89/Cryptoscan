@@ -155,6 +155,15 @@ a{color:inherit}
 #hoje .it small{color:var(--mut)}
 .al.hoje{background:#B794F4;color:#0a0820;box-shadow:0 0 14px #B794F4aa}
 /* navegacao */
+#graf{position:fixed;inset:0;z-index:70;background:#05041af2;display:flex;flex-direction:column;padding:calc(10px + env(safe-area-inset-top)) 12px calc(10px + env(safe-area-inset-bottom))}
+#graf[hidden]{display:none}
+#graf .gh{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+#graf .gh b{font-size:16px;margin-right:auto}
+#graf .gh button{font:700 13px system-ui;padding:7px 11px;border-radius:99px;border:1px solid #2b2470;background:#0c0a24;color:var(--ink);cursor:pointer}
+#graf .gh button.on{background:#4FD1C5;color:#0a0820;border-color:#4FD1C5}
+#graf #gchart{flex:1;min-height:240px;border-radius:12px;overflow:hidden;border:1px solid #2b2470}
+#graf .gl{font-size:12px;color:var(--mut);margin-top:6px;line-height:1.4}
+
 #homeview,#arenaview,#rewview,#secview,#stview,#memview,#acview,#dirview{display:none!important}
 #gomenu{position:absolute;right:12px;bottom:calc(64px + env(safe-area-inset-bottom));height:46px;padding:0 16px;border-radius:99px;background:#0c0a24e6;border:1px solid #4FD1C5;color:#CFFAF5;font:700 14px system-ui,sans-serif;cursor:pointer;box-shadow:0 0 14px #4FD1C544;z-index:5}
 #golist{position:absolute;right:12px;bottom:calc(118px + env(safe-area-inset-bottom));width:min(250px,calc(100vw - 24px));max-height:calc(100vh - 260px);overflow:auto;background:#0c0a24f5;border:1px solid #2b2470;border-radius:14px;padding:6px;z-index:6;box-shadow:0 10px 30px #0009}
@@ -286,7 +295,7 @@ body.sheet-open #sheet{transform:none}
 @media (prefers-reduced-motion:reduce){.typing i,.bot .eye{animation:none}.bub{transition:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module" src="office3d.js?v=20261020w1"></script>
+<script type="module" src="office3d.js?v=20261020g1"></script>
 </head>
 <body class="w3d">
 <div id="world">
@@ -316,6 +325,7 @@ body.sheet-open #sheet{transform:none}
 <span id="n-esc" hidden></span>
 </div>
 <div id="fcard" hidden></div>
+<div id="graf" hidden><div class="gh"><b>📈 Gráficos</b><span id="gcoins"></span><span id="gtf"><button data-tf="240" class="on">4H</button><button data-tf="D">1D</button></span><button id="gclose" aria-label="Fechar">✕</button></div><div id="gchart"></div><div class="gl" id="glegend"></div></div>
 <div id="hoje" hidden><div class="hj" role="dialog" aria-label="O que aconteceu hoje"></div></div>
 <div id="sheet" aria-hidden="true">
 <div class="sh-head"><span class="grip"></span><b id="sh-title">Centro de comando</b><button id="sh-close" aria-label="Fechar">✕</button></div>
@@ -893,7 +903,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261020h";
+const PAGE_V="20261020i";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -1236,7 +1246,40 @@ document.addEventListener("click",e=>{const tr=e.target.closest("tr.rp");if(tr)o
     el.querySelector("button").addEventListener("click",()=>{el.hidden=true;$("homeview").hidden=false;$("arenaview").hidden=false;$("rewview").hidden=false;$("secview").hidden=false;$("stview").hidden=false;$("memview").hidden=false;$("acview").hidden=false;$("dirview").hidden=false;try{localStorage.setItem("installHint","1")}catch(_){}})}})();
 
 // ===== Navegacao no escritorio: botao de vista inicial e dica (uma vez) =====
-const GOTO=[["🏢","Vista inicial","escritório principal",O=>O.resetView()],["🏁","Painel da missão","capital, gráfico e percentagens",O=>O.showMission()],["🧱","Cofre do núcleo","BTC, ETH e SOL",O=>O.showCofre()],["📋","O que aconteceu hoje","resumo do dia",()=>openHoje()],null,
+// ===== Graficos de velas interativos (TradingView Lightweight Charts) =====
+const GR={a:"BTC",tf:"240",chart:null};
+function lwLoad(){if(window.LightweightCharts)return Promise.resolve();return new Promise((ok,ko)=>{const sc=document.createElement("script");sc.src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js";sc.onload=ok;sc.onerror=ko;document.head.appendChild(sc)})}
+async function klines(asset,tf,n){const sym=asset+"USDC";let cs=null;
+  try{const r=await fetch(BYURL+`kline?category=spot&interval=${tf}&limit=${n}&symbol=${sym}`);const j=await r.json();if(j.retCode===0&&j.result.list.length)cs=j.result.list.map(x=>({t:+x[0]/1000,o:+x[1],h:+x[2],l:+x[3],c:+x[4],v:+x[5]})).reverse()}catch(_){}
+  if(!cs){try{const r=await fetch(`https://data-api.binance.vision/api/v3/klines?interval=${tf==="D"?"1d":"4h"}&limit=${n}&symbol=${asset}USDT`);const j=await r.json();if(Array.isArray(j)&&j.length)cs=j.map(x=>({t:x[0]/1000,o:+x[1],h:+x[2],l:+x[3],c:+x[4],v:+x[5]}))}catch(_){}}
+  return cs}
+function grafCoins(){const J=(D&&D.journal||{}).rows||[],act=(D&&D.active_signals||[]).filter(x=>x.mode!=="PAPER").map(x=>x.asset);
+  return [...new Set(["BTC","ETH","SOL"].concat(act,J.filter(r=>r.executed===true).slice(-6).map(r=>r.asset)))]}
+async function drawGraf(){const el=$("gchart"),L=window.LightweightCharts;if(!L)return;
+  $("gcoins").innerHTML=grafCoins().map(a=>`<button data-a="${esc(a)}" class="${a===GR.a?"on":""}">${esc(a)}</button>`).join(" ");
+  [...$("gtf").children].forEach(b=>b.classList.toggle("on",b.dataset.tf===GR.tf));
+  if(GR.chart){GR.chart.remove();GR.chart=null}
+  const ch=L.createChart(el,{autoSize:true,layout:{background:{color:"#07142a"},textColor:"#9fb3c8"},grid:{vertLines:{color:"#12233a"},horzLines:{color:"#12233a"}},timeScale:{timeVisible:GR.tf!=="D",borderColor:"#1E3A52"},rightPriceScale:{borderColor:"#1E3A52"},crosshair:{mode:0},localization:{locale:"pt-PT"}});GR.chart=ch;
+  const cs=await klines(GR.a,GR.tf,GR.tf==="D"?400:300);if(!cs){$("glegend").textContent="Sem velas para "+GR.a+" agora.";return}
+  const cdl=ch.addCandlestickSeries({upColor:"#4FD1C5",downColor:"#FF8A80",borderVisible:false,wickUpColor:"#4FD1C5",wickDownColor:"#FF8A80"});
+  cdl.setData(cs.map(x=>({time:x.t,open:x.o,high:x.h,low:x.l,close:x.c})));
+  const vol=ch.addHistogramSeries({priceFormat:{type:"volume"},priceScaleId:"v"});ch.priceScale("v").applyOptions({scaleMargins:{top:.82,bottom:0}});
+  vol.setData(cs.map(x=>({time:x.t,value:x.v,color:x.c>=x.o?"#4FD1C544":"#FF8A8044"})));
+  const n=GR.tf==="D"?200:50,ma=[];for(let i=n-1;i<cs.length;i++){let sm=0;for(let k=i-n+1;k<=i;k++)sm+=cs[k].c;ma.push({time:cs[i].t,value:sm/n})}
+  ch.addLineSeries({color:"#F6C453",lineWidth:2,priceLineVisible:false,lastValueVisible:false}).setData(ma);
+  const leg=[`<b style="color:#F6C453">—</b> média de ${n} ${GR.tf==="D"?"dias (a linha de saída do núcleo)":"velas de 4H"}`];
+  const N=(D.nucleo||{}).pos||{};if(N[GR.a]){cdl.createPriceLine({price:N[GR.a].entrada,color:"#B794F4",lineWidth:1,lineStyle:2,title:"núcleo"});leg.push(`<b style="color:#B794F4">- -</b> entrada do núcleo ${num(N[GR.a].entrada,2)}`)}
+  (D.active_signals||[]).filter(x=>x.asset===GR.a&&x.mode!=="PAPER").forEach(x=>{sigLevels(x).forEach(l=>{if(l.v)cdl.createPriceLine({price:l.v,color:l.c,lineWidth:1,lineStyle:l.label==="Entrada"?0:2,title:l.label})});leg.push(`linhas da operação ${esc(x.asset)} (entrada, stop e objetivos)`)});
+  const J=((D.journal||{}).rows||[]).filter(r=>r.executed===true&&r.asset===GR.a),t0=cs[0].t,mk=[];
+  J.forEach(r=>{const te=r.opened_at||r.issued_at,R=r.real_r!=null?r.real_r:r.user_r!=null?r.user_r:r.result_r;
+    if(te>=t0)mk.push({time:cs.reduce((b,x)=>x.t<=te?x.t:b,t0),position:"belowBar",color:"#B794F4",shape:"arrowUp",text:"entrada"});
+    if(r.closed_at&&r.closed_at>=t0)mk.push({time:cs.reduce((b,x)=>x.t<=r.closed_at?x.t:b,t0),position:"aboveBar",color:R>=0?"#4FD1C5":"#FF8A80",shape:"arrowDown",text:R==null?"saída":(R>=0?"+":"")+R.toFixed(2)+"R"})});
+  if(mk.length){mk.sort((a,b)=>a.time-b.time);cdl.setMarkers(mk);leg.push(`setas: as tuas operações reais em ${esc(GR.a)}`)}
+  ch.timeScale().fitContent();$("glegend").innerHTML=leg.join(" · ")+" · arrasta e aproxima com os dedos"}
+async function openGraf(a){if(a)GR.a=a;$("graf").hidden=false;try{await lwLoad()}catch(_){$("glegend").textContent="Não consegui carregar os gráficos.";return}drawGraf()}
+$("graf").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.id==="gclose"){$("graf").hidden=true;if(GR.chart){GR.chart.remove();GR.chart=null}return}
+  if(b.dataset.a){GR.a=b.dataset.a;drawGraf()}else if(b.dataset.tf){GR.tf=b.dataset.tf;drawGraf()}});
+const GOTO=[["🏢","Vista inicial","escritório principal",O=>O.resetView()],["🏁","Painel da missão","capital, gráfico e percentagens",O=>O.showMission()],["🧱","Cofre do núcleo","BTC, ETH e SOL",O=>O.showCofre()],["📋","O que aconteceu hoje","resumo do dia",()=>openHoje()],["📈","Gráficos","velas interativas com o núcleo e as operações",()=>openGraf()],null,
   ["🔬","2.º piso · Laboratório","pesquisa de estratégias",O=>O.goFloor(2)],["🧭","Diretor de Trading","decisões de entrada",O=>O.goDirector()],["⚔️","Arena","as estratégias a lutar",O=>O.goArena()],["💼","Sala de estratégia","quem provou no combate",O=>O.goStrategy()],
   ["🎓","Academia","quem ainda está a aprender",O=>O.goAcademy()],["📊","Setores","moedas por setor",O=>O.goSectors()],["🏆","Recompensas","conquistas reais",O=>O.goRewards()],["🕯️","Memorial","quem morreu na arena",O=>O.goMemorial()]];
 $("golist").innerHTML=GOTO.map((g,i)=>g?`<button role="menuitem" data-i="${i}"><span style="font-size:18px">${g[0]}</span><span>${g[1]}<small>${g[2]}</small></span></button>`:"<hr>").join("");
