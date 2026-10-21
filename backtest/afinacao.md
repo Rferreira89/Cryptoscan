@@ -742,3 +742,127 @@ Notas para as próximas execuções:
   mesmos dados contando o diário de investigação (16 até 2026-10-18 +
   esta). Com 17 tentativas a probabilidade de pelo menos um falso positivo
   a 5% ronda os 58%.
+
+### 2026-10-21 — H7: short do rompimento falhado (SHORT_FALHADO)
+
+**Escrito antes de correr qualquer teste.**
+
+- Situação: regime atual (scan.json, `mercado`) **lateral** desde
+  2026-10-17. Ringue de 90 dias (forma.json de 2026-10-21): os 11 vivos com
+  veredicto SOBE são todos da sobrevenda a virar (BOUNCE_* e DIP_TREND).
+  Ringue longo (longo.json de 2026-10-20): a sobrevenda ganha na subida e,
+  mais fraca, na lateral; **na descida nenhum vivo opera** (só shorts
+  mortos e dois shorts dos maiores com poucas operações). Fora da
+  sobrevenda nenhum lutador bate o acaso em regime nenhum.
+- Hipótese (família **vendas a descoberto / armadilha de compradores**,
+  pista deixada pela H6): o fecho de 4H acima do máximo de 20 dias fica no
+  percentil 0 do acaso em todas as geometrias (H6), isto é, compra-se quase
+  sempre perto de um topo local. Se o rompimento **falha** (o preço volta a
+  fechar abaixo do nível pouco depois), os compradores do rompimento ficam
+  presos e as suas saídas empurram o preço para baixo: um short curto
+  captura essa descida. Não é a sobrevenda espelhada (não usa RSI) e não
+  depende do BTC abaixo da SMA200.
+- Regra (preços reais; o ringue corre-a nas velas espelhadas como todos os
+  shorts): hi20 = máximo dos 20 dias completos anteriores ao rompimento.
+  Rompimento na vela b: fecho de b acima de hi20 com o fecho de b−1 abaixo
+  ou igual (o gatilho do TURTLE). Falha na vela i (b < i ≤ b+K): é o
+  PRIMEIRO fecho de novo abaixo de hi20 depois de b. Entrada na abertura
+  seguinte. Stop: máximo das velas b..i + 0,1 ATR(4H, 14). Stop na entrada
+  depois do 1.º objetivo. Sem filtro do BTC (como os shorts do ringue).
+  Distância do stop entre 0,5% e 15%.
+- Grelha (6, escrita antes de testar):
+  F1 K=1, 50/50 a 1R/2R, 3 dias; F2 K=2, 50/50 a 1R/2R, 3 dias;
+  F3 K=3, 50/50 a 1R/2R, 5 dias; F4 K=2, 100% a 1,5R, 3 dias;
+  F5 K=2, 50/50 a 1,5R/3R, 5 dias; F6 K=6 (um dia), 50/50 a 1R/2R, 5 dias.
+- Método: `tools/arena_ringue.generic_trades` sobre as velas espelhadas
+  (vela a vela, só passado, uma operação de cada vez por moeda, entrada na
+  abertura seguinte, 0,25% + 0,1% por lado) e `judge` contra o acaso no
+  espelho (mesma moeda, ±90 velas, mesma geometria). Histórico do ramo
+  `history` (4H até 2026-10-18).
+- Janelas: **B (decide)** 2021-08-01 a 2024-10-10 (inclui a descida de
+  2022, porque os shorts correm sem filtro do BTC). **A** 2024-10-11 até
+  ao fim (vista em parte: a ideia nasce dos números da H6 nessa janela, por
+  isso só informa). **C**: últimos 90 dias (o combate). Cada janela também
+  por regime do BTC (`regime_by_day`).
+- Critérios (todos, em B): ≥ 40 operações; R médio > 0; acima do percentil
+  95 do acaso; R médio > 0 sem a melhor moeda; R médio > 0 em pelo menos
+  metade dos anos civis com ≥ 10 operações; e R médio > 0 acima do p95 do
+  acaso em pelo menos um dos regimes **lateral** ou **descida** com ≥ 20
+  operações (o objetivo é cobrir onde não há campeão). A > 0 como
+  confirmação. Escolha: a de maior R médio em B entre as que passam. Se
+  passar, entra no ringue como SHORT_FALHADO em SHORT_SIGS (o ringue
+  decide); REAL_OK não se mexe.
+- Previsão honesta: mais provável falhar. Os shorts morreram todos no
+  ringue e a H5 mostrou que a vantagem dos shorts na descida era de um só
+  episódio; o percentil 0 da H6 pode ser só a deriva positiva do acaso
+  (moedas sobreviventes) e não um sinal para o lado vendedor.
+- Hipóteses testadas até agora (com esta): 7 neste diário; 19 contra os
+  mesmos dados contando o diário de investigação (18 até 2026-10-20).
+
+**Resultados** (ramo `history`, 4H até 2026-10-18 12:00 UTC; 71 moedas,
+ROBO de fora por histórico curto; shorts sem filtro do BTC, por isso 2022
+entra; `backtest/afinacao_h07_falhado.json`; código
+`tools/afinacao_h07_falhado.py`; teste do gatilho, do plano no espelho e
+sem look-ahead em `tests/test_afinacao_h07.py`).
+
+| Config. | B: op. | B: R médio | B: acaso med./p95 | B: percentil | B: subida / lateral / descida (op., R, percentil) | A: R, percentil | C 90 dias: op., R, percentil |
+|---|---|---|---|---|---|---|---|
+| F1 K=1, 1R/2R, 3d | 750 | −0,223 | −0,333 / −0,286 | 100,0 | −0,23 (98,7) / −0,22 (99,9) / 25, −0,30 (53,7) | −0,151, 100,0 | 119, −0,168, 99,2 |
+| F2 K=2, 1R/2R, 3d | 1007 | −0,207 | −0,319 / −0,281 | 100,0 | −0,21 (99,8) / −0,21 (99,9) / 39, −0,09 (89,7) | −0,165, 100,0 | 157, −0,193, 96,1 |
+| F3 K=3, 1R/2R, 5d | 1148 | −0,199 | −0,322 / −0,285 | 100,0 | −0,21 (99,6) / −0,20 (100) / 47, −0,05 (90,2) | −0,138, 100,0 | 183, −0,166, 98,5 |
+| F4 K=2, 1,5R, 3d | 1000 | −0,141 | −0,260 / −0,212 | 100,0 | −0,12 (100) / −0,17 (99,9) / 39, +0,08 (92,8) | −0,084, 100,0 | 157, −0,118, 97,0 |
+| F5 K=2, 1,5R/3R, 5d | 1000 | −0,199 | −0,335 / −0,289 | 100,0 | −0,20 (100) / −0,22 (99,9) / 39, +0,11 (97,2) | −0,081, 100,0 | 157, −0,120, 99,6 |
+| F6 K=6, 1R/2R, 5d | 1366 | −0,205 | −0,315 / −0,282 | 100,0 | −0,22 (99,5) / −0,21 (100) / 52, +0,00 (97,6) | −0,132, 100,0 | 218, −0,141, 99,2 |
+
+- Por ano em B: todas as configurações negativas em todos os anos
+  (2021 a 2024); 2023 é o pior (−0,27R a −0,35R).
+- **O momento de entrada tem informação**: percentil 100 do acaso em B, em
+  A e quase sempre no combate de 90 dias, nas 6 configurações, em subida e
+  em lateral. É o espelho do que a H6 viu (o rompimento de 20 dias é um mau
+  momento para comprar, por isso é um momento menos mau para vender).
+- **Mas não dá dinheiro**: o acaso dos shorts com esta geometria perde
+  −0,26R a −0,34R por operação (custos de 0,7% ida e volta sobre stops
+  curtos, e moedas que hoje estão listadas, ou seja, que subiram). O
+  rompimento falhado só reduz a perda para −0,14R a −0,22R. Bater um acaso
+  que perde não chega: o critério é R médio > 0.
+- Descida: R positivo em F4/F5/F6 (39 a 52 op. em B, 26 a 33 em A), com F5
+  acima do p95 nas duas janelas (B +0,111, percentil 97,2; A +0,233,
+  percentil 98,5). Amostra pequena, um só grande episódio de descida em B
+  (2022) e escolhida depois de ver os números: não conta como prova.
+- Critérios em B (melhor, F4): ≥ 40 op. sim (1000); R > 0 NÃO (−0,141);
+  acima do p95 sim (percentil 100); sem a melhor moeda NÃO (−0,149); anos
+  positivos 0 de 4 NÃO; lateral/descida com R > 0 acima do p95 NÃO em F4
+  (descida percentil 92,8; só F5 passa este ponto, e F5 falha o R médio);
+  A > 0 NÃO (−0,084).
+
+**Veredicto: REJEITADA.** O rompimento falhado é o melhor momento de venda
+que este diário já mediu face ao acaso (percentil 100 em todo o lado), mas
+todas as 6 configurações perdem dinheiro em todos os anos. Nada entra no
+ringue (morreria logo: o ringue exige R médio > 0); REAL_OK não se mexe.
+
+Notas para as próximas execuções:
+
+- Regime atual **lateral**. Regime sem campeão vivo: **descida**. Na
+  subida e na lateral só ganha a sobrevenda (e o DIP_TREND).
+- Lição: com 0,25% + 0,1% por lado, shorts de stop curto em altcoins
+  partem de −0,3R por operação ao acaso. Qualquer short novo precisa de um
+  momento muito melhor do que o acaso OU de uma geometria que custe menos
+  (stops mais largos, objetivos maiores), e o rompimento falhado só tem o
+  primeiro.
+- Pista (não é resultado): **F5 só na descida** (rompimento falhado, K=2,
+  1,5R/3R, 5 dias, só com o regime do BTC em descida) deu +0,11R (39 op.,
+  p97) em B e +0,23R (26 op., p98,5) em A. Foi escolhido depois de ver os
+  números e tem 65 operações em dois episódios: não há dados novos para o
+  confirmar fora da amostra (o histórico começa em 2021). Proposta para a
+  próxima execução (H8): pré-registar SHORT_FALHADO_QUEDA com a regra
+  exata da F5 e um teste novo que não use os mesmos dados — por exemplo
+  velas de 1H (ramo `history`, pasta `1h`) com os mesmos níveis diários,
+  onde a entrada e o stop mudam; se passar, entra no ringue, onde só vai
+  operar quando o regime virar para descida. Alternativa: usar o
+  rompimento falhado como **saída antecipada** das compras abertas (fechar
+  uma compra quando o preço rompe o máximo de 20 dias e volta a fechar
+  abaixo dele), que ataca o lado "proteger o lucro" sem abrir shorts.
+- Hipóteses testadas até agora: 7 neste diário (H1 a H7); 19 contra os
+  mesmos dados contando o diário de investigação (18 até 2026-10-20 +
+  esta). Com 19 tentativas a probabilidade de pelo menos um falso positivo
+  a 5% ronda os 62%.
