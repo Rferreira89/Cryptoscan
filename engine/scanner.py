@@ -404,6 +404,7 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
     # da sinais reais pelo circuito normal (engine/promo.py)
     # campeoes por fase do mercado (engine/promo.regime_qualified): so com o OK
     # do Rui (config "campeoes_por_fase")
+    promo.CONFIG_ESTUDO = dict(cfg.get("campeoes_estudo") or {})
     champs = promo.champions(state, set(disabled), (state.get("mercado") or {}).get("regime"),
                              bool(cfg.get("campeoes_por_fase")))
     champ = champs[0] if champs else None

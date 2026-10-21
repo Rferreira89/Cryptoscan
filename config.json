@@ -12,5 +12,10 @@
   "campeoes_por_fase": true,
   "cooldown_after_losses": 0,
   "nucleo_ligado": true,
-  "nucleo_reforcar": true
+  "nucleo_reforcar": true,
+  "campeoes_estudo": {
+    "lateral": [
+      "SHORT_TURTLE"
+    ]
+  }
 }

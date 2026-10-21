@@ -62,6 +62,8 @@ DEFAULTS = {
     "nucleo_moedas": ["BTC", "ETH", "SOL"],
     # reforco do nucleo depois de depositos (engine/nucleo.py): so com o OK do Rui
     "nucleo_reforcar": False,
+    # campeoes aprovados por estudo de dois periodos (engine/promo.champions): so com o OK do Rui
+    "campeoes_estudo": {},
     # Capital de trading em USDC (2026-10-02: 50). Atualiza-se pelo Telegram
     # com /capital <valor>. Serve para dar valores em USDC e para adaptar
     # as operacoes a ordem minima da Bybit UE.

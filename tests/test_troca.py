@@ -48,3 +48,14 @@ class TrocaAutomatica(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class CampeoesPorEstudo(unittest.TestCase):
+    def test_short_turtle_na_lateral_pelo_estudo(self):
+        from unittest import mock
+        st = {"arena": {"longo": {"lutadores": {}}}, "ledger": []}
+        with mock.patch.object(promo, "registry", return_value={"SHORT_TURTLE": 1}), \
+                mock.patch.object(promo, "CONFIG_ESTUDO", {"lateral": ["SHORT_TURTLE"]}):
+            self.assertEqual(promo.champions(st, (), "lateral", True), ["SHORT_TURTLE"])
+            self.assertEqual(promo.champions(st, (), "subida", True), [])
+            self.assertEqual(promo.champions(st, {"SHORT_TURTLE"}, "lateral", True), [])

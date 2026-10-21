@@ -310,6 +310,9 @@ def regime_qualified(state, fase):
     return sorted(out, key=lambda x: -x[1])
 
 
+CONFIG_ESTUDO = {}          # {fase: [lutadores]} de config "campeoes_estudo" (scanner preenche)
+
+
 def champions(state, disabled=(), fase=None, por_fase=False):
     """Lutadores que dao sinais reais agora, melhor primeiro (decisao do
     Rui, 2026-10-13: "nao quero perder oportunidades"): TODOS os
@@ -325,8 +328,16 @@ def champions(state, disabled=(), fase=None, por_fase=False):
         # combate de 90 dias sozinho deixava entrar 8 copias da sobrevenda
         # que na fase lateral ficam perto de zero.
         sus_real = suspended(state, contas_mes=False)
-        return [k for k, _ in regime_qualified(state, fase)
-                if k in reg and k in REAL_OK and k not in disabled and k not in sus_real]
+        out = [k for k, _ in regime_qualified(state, fase)
+               if k in reg and k in REAL_OK and k not in disabled and k not in sus_real]
+        # (21/10, OK do Rui) aprovados pelo estudo de dois periodos (H10/H10b):
+        # SHORT_TURTLE na lateral ganha em 2021-24 e 2024-26, ja com o juro do
+        # emprestimo; a vantagem e a queda das altcoins, nao o momento, por isso
+        # nao bate o acaso do ringue. Mesma suspensao pela prova real.
+        for k in (CONFIG_ESTUDO.get(fase) or []):
+            if k not in out and k in reg and k in REAL_OK and k not in disabled and k not in sus_real:
+                out.append(k)
+        return out
     sus = suspended(state)
     out = [(k, r) for k, r in qualified(state)
            if r >= REAL_MIN_R and k in reg and k in REAL_OK and k not in disabled and k not in sus]
