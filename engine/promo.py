@@ -301,6 +301,8 @@ def regime_qualified(state, fase):
             continue
         if not met or min(met) <= 0:
             continue
+        if (state.get("troca_filtro") or {}).get("ativo") == "novo" and not f.get("passa_novo"):
+            continue                           # (21/10) filtro novo ativo pela troca automatica (engine/troca.py)
         # (19/10) sem o teste dos ultimos 30 dias: esses 30 dias podem ser de
         # outra fase (shorts num mes de subida perdem, como devem); a prova
         # fora da amostra aqui sao as duas metades do ano, nesta fase

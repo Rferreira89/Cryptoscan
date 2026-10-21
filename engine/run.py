@@ -855,7 +855,8 @@ def keep_longo(state, lg):
         comp[k] = {"n": v.get("n"), "avg_r": v.get("avg_r"),
                    "por_regime": {rg: {x: r.get(x) for x in ("n", "avg_r", "acaso_p95", "veredicto", "metades",
                                                              "qualidade", "passa_atual", "passa_novo", "acaso_pk")}
-                                  for rg, r in (v.get("por_regime") or {}).items()}}
+                                  for rg, r in (v.get("por_regime") or {}).items()},
+                   "recentes": v.get("recentes") or []}
     state.setdefault("arena", {})["longo"] = {"atualizado": lg.get("atualizado"), "lutadores": comp,
                                               "clones": lg.get("clones") or {}, "acaso_filtro": lg.get("acaso_filtro") or {},
                                               "hipoteses": lg.get("hipoteses") or {}}
@@ -899,6 +900,18 @@ def main():
                 alerts.send(txt, html=True)
     except Exception as e:
         print("stop_watch:", e)
+    try:                                     # (21/10) troca automatica do filtro (engine/troca.py)
+        from . import troca
+        troca.registar(state, res.get("filtro_novo"), (state.get("mercado") or {}).get("regime"), res["generated_at"])
+        msg = troca.decidir(state, res["generated_at"])
+        if msg and alerts.configured():
+            alerts.send(msg, html=True)
+        tf = state.get("troca_filtro") or {}
+        res["troca_filtro"] = {"ativo": tf.get("ativo"), "desde": tf.get("desde"), "dias": len(tf.get("dias") or {}),
+                               "medicao": tf.get("medicao"), "regra": {"min_dias": troca.MIN_DIAS, "min_ops": troca.MIN_OPS,
+                                                                        "margem_r": troca.MARGEM_R}}
+    except Exception as e:
+        print("troca:", e)
     try:                                     # (21/10) aviso quando um campeao entra ou sai
         for txt in campeoes_aviso(state, (res.get("promo") or {}).get("campeoes"), res["generated_at"]):
             if alerts.configured():

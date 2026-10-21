@@ -1468,6 +1468,8 @@ def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None, funding=None, oi=None,
                     tst, pa, pn = acaso_teste(pares, pr["acaso_p95"], now, rng, pk=pr["acaso_pk"])
                     a = ACASO.setdefault(rg, {"testes": 0, "passam_atual": 0, "passam_novo": 0})
                     a["testes"] += tst; a["passam_atual"] += pa; a["passam_novo"] += pn
+            # (21/10) operacoes dos ultimos 45 dias: para medir para a frente quem cada filtro aprovou
+            out[k]["recentes"] = [[int(t["t"]), round(t["r"], 3)] for t in trs if t["t"] >= now - 45 * DAY]
     res = {"atualizado": int(now), "janela_dias": days,
            "desde": int(t0), "moedas": len(bars), "lutadores": out}
     if regimes:
