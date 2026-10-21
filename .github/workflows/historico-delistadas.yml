@@ -1,0 +1,27 @@
+name: Historico das moedas delistadas
+# D5 da auditoria (Rui, 21/10): velas de 4H desde 2021 das moedas que deixaram
+# de negociar na Binance, para testes sem vies de sobrevivencia. Corre a pedido
+# e no dia 2 de cada mes. So dados: nao mexe em nada do que opera.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 4 2 * *"
+permissions:
+  contents: write
+concurrency:
+  group: historico-delistadas
+  cancel-in-progress: false
+jobs:
+  delistadas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: |
+          python -m tools.fetch_delistadas delistadas
+          cd delistadas && git init -q -b history-delistadas && git config user.name cryptoscan-bot && git config user.email bot@users.noreply.github.com
+          git add . && git commit -q -m "delistadas $(date -u +%F)"
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" history-delistadas:history-delistadas
