@@ -1246,7 +1246,12 @@ def validacao(trs, now, spread=None):
 # ---------- filtro novo, clones e lutadores ao acaso (OK do Rui, 21/10) ----------
 # So medem e mostram: nao mudam quem opera (excepto os clones, que morrem).
 ACASO = {}
-RESERVA_DIAS = 60          # ultimos 60 dias do ano: nunca usados para escolher
+try:
+    from engine import hipoteses as _hip
+    HIP = _hip.contar()
+except Exception:                               # o ringue nunca para por isto
+    HIP = {"total": 0, "quantil": 0.95}
+RESERVA_FRAC = 0.25        # ultimos 25% das operacoes de cada fase: nunca usados para escolher
 MIN_DIAS = 30              # dias distintos com entradas (operacoes do mesmo dia contam uma vez)
 CLONE_CORR = 0.7           # resultados diarios mais correlacionados do que isto = a mesma aposta
 ACASO_POR_TESTE = 5        # lutadores ao acaso por lutador e por fase
@@ -1270,8 +1275,12 @@ def qualidade(sub, now, rmin=0.15):
     mu = sum(m) / len(m)
     sd = (sum((x - mu) ** 2 for x in m) / (len(m) - 1)) ** .5 if len(m) > 1 else 0.0
     ic = mu - 1.645 * sd / len(m) ** .5 if len(m) > 1 else None
-    corte = now - RESERVA_DIAS * DAY
-    antes, res = [t["r"] for t in sub if t["t"] < corte], [t["r"] for t in sub if t["t"] >= corte]
+    # (21/10, F1) reservado = as ultimas RESERVA_FRAC das operacoes DESTA fase,
+    # por ordem de tempo; com 60 dias de calendario, uma fase que nao fosse a
+    # dos ultimos 60 dias nunca podia passar
+    ordem = sorted(sub, key=lambda t: t["t"])
+    k = len(ordem) - max(1, int(round(len(ordem) * RESERVA_FRAC)))
+    antes, res = [t["r"] for t in ordem[:k]], [t["r"] for t in ordem[k:]]
     por_moeda = {}
     for t in sub:
         por_moeda.setdefault(t["asset"], []).append(t["r"])
@@ -1288,6 +1297,15 @@ def passa_atual(n, r, p95, met, rmin=0.15):
     return n >= 20 and r is not None and r >= rmin and p95 is not None and r > p95 and bool(met) and min(met) > 0
 
 
+def quantil_acaso(lists, rng, q, reps=1000):
+    """Percentil q do R medio ao acaso (uma operacao de controlo por operacao real)."""
+    ls = [c for c in lists if c]
+    if not ls:
+        return None
+    means = sorted(sum(rng.choice(c) for c in ls) / len(ls) for _ in range(reps))
+    return means[min(len(means) - 1, int(q * (len(means) - 1)))]
+
+
 def passa_novo(n, r, p95, met, q, rmin=0.15):
     """Filtro novo (modo relatorio): o atual + 30 dias distintos + intervalo
     por dia acima de zero + ganha antes do periodo reservado e dentro dele +
@@ -1301,21 +1319,29 @@ def passa_novo(n, r, p95, met, q, rmin=0.15):
             and (q.get("sem_melhor_moeda") or -1) > 0)
 
 
-def acaso_teste(pares, p95, now, rng, reps=ACASO_POR_TESTE):
+def acaso_teste(pares, p95, now, rng, reps=ACASO_POR_TESTE, pk=None):
     """Lutadores ao acaso: cada um troca cada operacao por uma entrada ao calhas
-    na mesma moeda, com a mesma gestao. Quantos passam o filtro atual e o novo?"""
-    pares = [(t, c) for t, c in pares if c]
+    na mesma moeda, com a mesma gestao. Quantos passam o filtro atual e o novo?
+    (21/10, F3) As operacoes do mesmo dia sao sorteadas juntas (o mesmo quantil
+    do acaso para todas), como no mercado, onde caem e sobem ao mesmo tempo."""
+    pares = [(t, sorted(c)) for t, c in pares if c]
     if len(pares) < 20 or p95 is None:
         return 0, 0, 0
     pa = pn = 0
     for _ in range(reps):
-        fake = [dict(t, r=rng.choice(c)) for t, c in pares]
+        u = {}
+        fake = []
+        for t, c in pares:
+            d = t["t"] // DAY
+            if d not in u:
+                u[d] = rng.random()
+            fake.append(dict(t, r=c[min(len(c) - 1, int(u[d] * len(c)))]))
         rs = [t["r"] for t in fake]
         h = len(rs) // 2
         met = [sum(rs[:h]) / h, sum(rs[h:]) / (len(rs) - h)]
         r = sum(rs) / len(rs)
         pa += passa_atual(len(rs), r, p95, met)
-        pn += passa_novo(len(rs), r, p95, met, qualidade(fake, now))
+        pn += passa_novo(len(rs), r, pk if pk is not None else p95, met, qualidade(fake, now))
     return reps, pa, pn
 
 
@@ -1434,14 +1460,18 @@ def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None, funding=None, oi=None,
                             round(sum(t["r"] for t in sub[h:]) / (len(sub) - h), 3)]
                     pr = out[k]["por_regime"][rg]
                     pr["qualidade"] = qualidade(sub, now)
+                    # filtro novo: o limiar do acaso sobe com o numero de hipoteses ja testadas
+                    pr["acaso_q"] = HIP["quantil"]
+                    pr["acaso_pk"] = quantil_acaso([c for _, c in pares], rng, HIP["quantil"])
                     pr["passa_atual"] = passa_atual(pr["n"], pr["avg_r"], pr["acaso_p95"], pr.get("metades"))
-                    pr["passa_novo"] = passa_novo(pr["n"], pr["avg_r"], pr["acaso_p95"], pr.get("metades"), pr["qualidade"])
-                    tst, pa, pn = acaso_teste(pares, pr["acaso_p95"], now, rng)
+                    pr["passa_novo"] = passa_novo(pr["n"], pr["avg_r"], pr["acaso_pk"], pr.get("metades"), pr["qualidade"])
+                    tst, pa, pn = acaso_teste(pares, pr["acaso_p95"], now, rng, pk=pr["acaso_pk"])
                     a = ACASO.setdefault(rg, {"testes": 0, "passam_atual": 0, "passam_novo": 0})
                     a["testes"] += tst; a["passam_atual"] += pa; a["passam_novo"] += pn
     res = {"atualizado": int(now), "janela_dias": days,
            "desde": int(t0), "moedas": len(bars), "lutadores": out}
     if regimes:
+        res["hipoteses"] = HIP
         res["acaso_filtro"] = {rg: dict(v, taxa_atual=round(v["passam_atual"] / v["testes"] * 100, 1) if v["testes"] else None,
                                          taxa_novo=round(v["passam_novo"] / v["testes"] * 100, 1) if v["testes"] else None)
                                for rg, v in ACASO.items()}

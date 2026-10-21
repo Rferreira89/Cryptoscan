@@ -574,7 +574,8 @@ def filtro_novo(state):
     passam cada um. Nao muda quem opera."""
     lg = ((state.get("arena") or {}).get("longo") or {})
     lut, cl = lg.get("lutadores") or {}, lg.get("clones") or {}
-    out = {"acaso": lg.get("acaso_filtro") or {}, "clones": len(cl), "fases": {}}
+    out = {"acaso": lg.get("acaso_filtro") or {}, "clones": len(cl), "fases": {}, "hipoteses": lg.get("hipoteses") or {},
+           "lista_clones": cl}
     for rg in ("subida", "lateral", "queda"):
         atual, novo, quase = [], [], []
         for k, v in lut.items():

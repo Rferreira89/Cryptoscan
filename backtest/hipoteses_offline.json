@@ -1,0 +1,12 @@
+{"nota": "Estudos feitos fora do programa (sessão de 19 a 21/10), contra os mesmos dados de 2021-2026. Contam para o contador global de hipóteses (engine/hipoteses.py).",
+ "estudos": [
+  {"id": "OOS-SOBREVENDA", "resultado": "rejeitada: falha 2021-24"},
+  {"id": "TREND_DAILY-ACASO", "resultado": "rejeitada: não bate o acaso"},
+  {"id": "D1", "resultado": "rejeitada"}, {"id": "D2", "resultado": "rejeitada"},
+  {"id": "D3", "resultado": "rejeitada"}, {"id": "D4", "resultado": "rejeitada"},
+  {"id": "NUCLEO-SMA200", "resultado": "aceite: passa 2021-24 e 2024-26"},
+  {"id": "NUCLEO-ALAVANCADO", "resultado": "rejeitada"},
+  {"id": "VOL-TARGET", "resultado": "rejeitada"}, {"id": "TOP10", "resultado": "rejeitada"},
+  {"id": "ETH-BTC", "resultado": "rejeitada"}, {"id": "DUAL-MOMENTUM", "resultado": "rejeitada"},
+  {"id": "H3-RECUO-NUCLEO", "resultado": "rejeitada"}, {"id": "FUNDING-CARRY", "resultado": "fraca: ~5%/ano"},
+  {"id": "H5-ML", "resultado": "rejeitada: 15 dias reais"}]}

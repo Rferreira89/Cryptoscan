@@ -588,6 +588,40 @@ def ordens_watch(state, conta, ex, now):
     return out
 
 
+def campeoes_aviso(state, campeoes, now):
+    """(21/10) Aviso quando um campeao sai do dinheiro real, com o motivo:
+    clone de outro lutador, suspensao pelo resultado real ou mudanca de fase.
+    Guarda a lista anterior em state["campeoes_ant"]. Devolve os avisos."""
+    from . import promo, arena
+    ant = state.get("campeoes_ant")
+    atual = list(campeoes or [])
+    state["campeoes_ant"] = atual
+    if ant is None:
+        return []
+    lg = ((state.get("arena") or {}).get("longo") or {})
+    cl, sus = lg.get("clones") or {}, promo.suspended(state, contas_mes=False)
+    fase = (state.get("mercado") or {}).get("regime")
+    out = []
+    for k in ant:
+        if k in atual:
+            continue
+        nome = arena.persona(k)
+        if k in cl:
+            de = cl[k]
+            motivo = (f"é clone de {arena.persona(de['de'])} ({de['de']}, resultados diários correlacionados "
+                      f"{de['corr']:.2f}); fica {arena.persona(de['de'])}")
+        elif k in sus:
+            motivo = sus[k]
+        else:
+            motivo = f"deixou de provar na fase atual ({fase or '–'}) no ringue de 1 ano"
+        out.append(f"🔁 <b>Campeão saiu do dinheiro real: {nome} ({k})</b> — {motivo}. "
+                   f"Agora operam: {', '.join(atual) or 'só o núcleo'}.")
+    for k in atual:
+        if k not in ant:
+            out.append(f"🏆 <b>Novo campeão no dinheiro real: {arena.persona(k)} ({k})</b> — provou na fase {fase or '–'} no ringue de 1 ano.")
+    return out
+
+
 def key_alert(state, keys, now, dias=14):
     """Aviso quando uma chave da Bybit esta a menos de `dias` de expirar
     (Rui, 20/10). keys = {nome: expiredAt da Bybit}. Uma vez por dia por chave.
@@ -820,10 +854,11 @@ def keep_longo(state, lg):
     for k, v in lg["lutadores"].items():
         comp[k] = {"n": v.get("n"), "avg_r": v.get("avg_r"),
                    "por_regime": {rg: {x: r.get(x) for x in ("n", "avg_r", "acaso_p95", "veredicto", "metades",
-                                                             "qualidade", "passa_atual", "passa_novo")}
+                                                             "qualidade", "passa_atual", "passa_novo", "acaso_pk")}
                                   for rg, r in (v.get("por_regime") or {}).items()}}
     state.setdefault("arena", {})["longo"] = {"atualizado": lg.get("atualizado"), "lutadores": comp,
-                                              "clones": lg.get("clones") or {}, "acaso_filtro": lg.get("acaso_filtro") or {}}
+                                              "clones": lg.get("clones") or {}, "acaso_filtro": lg.get("acaso_filtro") or {},
+                                              "hipoteses": lg.get("hipoteses") or {}}
 
 
 def main():
@@ -864,6 +899,12 @@ def main():
                 alerts.send(txt, html=True)
     except Exception as e:
         print("stop_watch:", e)
+    try:                                     # (21/10) aviso quando um campeao entra ou sai
+        for txt in campeoes_aviso(state, (res.get("promo") or {}).get("campeoes"), res["generated_at"]):
+            if alerts.configured():
+                alerts.send(txt, html=True)
+    except Exception as e:
+        print("campeoes_aviso:", e)
     try:                                     # D1: verificacao diaria das ordens (stop e objetivo)
         for txt in ordens_watch(state, res.get("conta"), ex_now, res["generated_at"]):
             if alerts.configured():

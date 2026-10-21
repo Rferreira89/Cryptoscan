@@ -66,3 +66,34 @@ class FiltroNovo(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class CorrecoesAuditoria(unittest.TestCase):
+    def test_reservado_por_fase_mesmo_sem_os_ultimos_60_dias(self):
+        antigas = trs([0.5, -0.1] * 20, step_days=2, t0=NOW - 300 * DAY)      # tudo antes dos ultimos 60 dias
+        q = AR.qualidade(antigas, NOW)
+        self.assertEqual(q["reservado"]["n"], 10)                             # 25% de 40
+        self.assertEqual(q["antes"]["n"], 30)
+
+    def test_acaso_em_blocos_por_dia_e_limiar_bonferroni(self):
+        from engine import hipoteses
+        self.assertEqual(hipoteses.quantil(1), 0.95)
+        self.assertEqual(hipoteses.quantil(34), round(1 - 0.05 / 34, 4))
+        self.assertEqual(hipoteses.quantil(10 ** 6), hipoteses.Q_MAX)
+        c = hipoteses.contar()
+        self.assertGreaterEqual(c["total"], c["offline"])
+        rng = random.Random(3)
+        pares = [(t, [rng.gauss(0, 1) for _ in range(200)]) for t in trs([0] * 60, step_days=0.25)]   # 4 por dia
+        tst, pa, pn = AR.acaso_teste(pares, 0.25, NOW, rng, reps=100, pk=0.6)
+        self.assertEqual(tst, 100)
+        self.assertLessEqual(pn, pa)
+
+    def test_aviso_quando_um_campeao_sai(self):
+        from engine import run as RUN
+        st = {"arena": {"longo": {"clones": {"BOUNCE_SQUEEZE": {"de": "BOUNCE_X30", "corr": 0.82}}}}, "ledger": []}
+        self.assertEqual(RUN.campeoes_aviso(st, ["BOUNCE_SQUEEZE"], NOW), [])          # primeira vez: so guarda
+        m = RUN.campeoes_aviso(st, ["BOUNCE_X30"], NOW)
+        self.assertEqual(len(m), 2)
+        self.assertIn("clone de", m[0])
+        self.assertIn("Novo campeão", m[1])
+        self.assertEqual(RUN.campeoes_aviso(st, ["BOUNCE_X30"], NOW), [])
