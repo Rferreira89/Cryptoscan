@@ -1,0 +1,53 @@
+moedas: BTC, ETH, SOL, XRP, BNB, NEAR, DOGE, SUI, WLD, TRX, UNI, ADA, ENA, PEPE, XLM, LINK, AVAX, PUMP, ONDO, XPL, LTC, TRUMP, AAVE, BCH, ARB
+
+=== Fase subida ===
+BOUNCE_X30               A {'n': 54, 'r': -0.196, 'dias': 23, 'r_dia': -0.235} | B {'n': 118, 'r': 0.049, 'dias': 21, 'r_dia': 0.091}
+BOUNCE_ISOLADA           A {'n': 34, 'r': -0.222, 'dias': 18, 'r_dia': -0.348} | B {'n': 84, 'r': 0.22, 'dias': 14, 'r_dia': 0.314}
+REVERSAO_INTERVALO       A {'n': 17, 'r': -0.45, 'dias': 15, 'r_dia': -0.374} | B {'n': 15, 'r': -0.382, 'dias': 10, 'r_dia': -0.459}
+SQUEEZE_BB               A {'n': 152, 'r': -0.122, 'dias': 73, 'r_dia': -0.318} | B {'n': 76, 'r': -0.411, 'dias': 37, 'r_dia': -0.251}
+TURTLE                   A {'n': 193, 'r': -0.006, 'dias': 118, 'r_dia': 0.116} | B {'n': 98, 'r': 0.417, 'dias': 52, 'r_dia': 0.294}
+BRK_ESPACO               A {'n': 252, 'r': -0.39, 'dias': 120, 'r_dia': -0.408} | B {'n': 180, 'r': -0.26, 'dias': 64, 'r_dia': -0.208}
+RETESTE                  A {'n': 283, 'r': -0.154, 'dias': 127, 'r_dia': -0.177} | B {'n': 171, 'r': 0.194, 'dias': 63, 'r_dia': -0.025}
+VOLUME_ACUMULACAO        A {'n': 17, 'r': 0.099, 'dias': 15, 'r_dia': 0.046} | B {'n': 13, 'r': 0.2, 'dias': 13, 'r_dia': 0.2}
+CAPITULACAO              A {'n': 13, 'r': 0.036, 'dias': 4, 'r_dia': 0.152} | B {'n': 10, 'r': 0.526, 'dias': 6, 'r_dia': 0.559}
+DIP_TREND                A {'n': 83, 'r': -0.354, 'dias': 35, 'r_dia': -0.404} | B {'n': 81, 'r': -0.063, 'dias': 30, 'r_dia': -0.17}
+FIBO_RECUO               A {'n': 222, 'r': -0.092, 'dias': 112, 'r_dia': -0.178} | B {'n': 149, 'r': -0.208, 'dias': 69, 'r_dia': -0.089}
+MAIORES_RECUO            A {'n': 52, 'r': -0.013, 'dias': 35, 'r_dia': -0.102} | B {'n': 46, 'r': -0.22, 'dias': 30, 'r_dia': -0.269}
+MAIORES_TENDENCIA        A {'n': 35, 'r': -0.238, 'dias': 31, 'r_dia': -0.138} | B {'n': 12, 'r': -0.31, 'dias': 10, 'r_dia': -0.443}
+SHORT_X30                A {'n': 304, 'r': -0.205, 'dias': 126, 'r_dia': -0.18} | B {'n': 227, 'r': -0.305, 'dias': 61, 'r_dia': -0.153}
+SHORT_ISOLADA            A {'n': 229, 'r': -0.278, 'dias': 113, 'r_dia': -0.252} | B {'n': 189, 'r': -0.26, 'dias': 53, 'r_dia': -0.119}
+SHORT_TURTLE             A {'n': 27, 'r': -0.621, 'dias': 15, 'r_dia': -0.42} | B {'n': 77, 'r': 0.417, 'dias': 24, 'r_dia': 0.414}
+SHORT_FLUXO              A {'n': 85, 'r': -0.149, 'dias': 59, 'r_dia': -0.049} | B {'n': 90, 'r': -0.405, 'dias': 39, 'r_dia': -0.302}
+SHORT_MAIORES_RECUO      A {'n': 1, 'r': -1.012, 'dias': 1, 'r_dia': -1.012} | B {'n': 0, 'dias': 0}
+SHORT_MAIORES_TENDENCIA  A {'n': 0, 'dias': 0} | B {'n': 1, 'r': -1.009, 'dias': 1, 'r_dia': -1.009}
+
+=== Fase lateral ===
+BOUNCE_X30               A {'n': 267, 'r': -0.213, 'dias': 71, 'r_dia': -0.277} | B {'n': 354, 'r': -0.053, 'dias': 69, 'r_dia': -0.262}
+BOUNCE_ISOLADA           A {'n': 191, 'r': -0.305, 'dias': 59, 'r_dia': -0.305} | B {'n': 280, 'r': 0.078, 'dias': 56, 'r_dia': -0.184}
+REVERSAO_INTERVALO       A {'n': 18, 'r': -0.253, 'dias': 14, 'r_dia': -0.323} | B {'n': 42, 'r': -0.216, 'dias': 24, 'r_dia': -0.085}
+SQUEEZE_BB               A {'n': 147, 'r': -0.313, 'dias': 79, 'r_dia': -0.351} | B {'n': 204, 'r': -0.085, 'dias': 74, 'r_dia': -0.264}
+TURTLE                   A {'n': 133, 'r': 0.262, 'dias': 75, 'r_dia': 0.085} | B {'n': 208, 'r': 0.051, 'dias': 101, 'r_dia': -0.234}
+BRK_ESPACO               A {'n': 131, 'r': -0.36, 'dias': 70, 'r_dia': -0.355} | B {'n': 194, 'r': -0.218, 'dias': 96, 'r_dia': -0.285}
+RETESTE                  A {'n': 206, 'r': -0.12, 'dias': 91, 'r_dia': -0.176} | B {'n': 334, 'r': -0.113, 'dias': 118, 'r_dia': -0.259}
+VOLUME_ACUMULACAO        A {'n': 27, 'r': -0.164, 'dias': 25, 'r_dia': -0.269} | B {'n': 38, 'r': 0.069, 'dias': 30, 'r_dia': 0.034}
+CAPITULACAO              A {'n': 62, 'r': -0.275, 'dias': 20, 'r_dia': -0.227} | B {'n': 52, 'r': -0.199, 'dias': 19, 'r_dia': -0.233}
+DIP_TREND                A {'n': 89, 'r': -0.303, 'dias': 47, 'r_dia': -0.242} | B {'n': 92, 'r': -0.087, 'dias': 38, 'r_dia': -0.182}
+FIBO_RECUO               A {'n': 136, 'r': -0.299, 'dias': 90, 'r_dia': -0.308} | B {'n': 177, 'r': -0.177, 'dias': 95, 'r_dia': -0.167}
+MAIORES_RECUO            A {'n': 49, 'r': -0.285, 'dias': 37, 'r_dia': -0.313} | B {'n': 35, 'r': -0.237, 'dias': 25, 'r_dia': -0.202}
+MAIORES_TENDENCIA        A {'n': 17, 'r': 0.799, 'dias': 16, 'r_dia': 0.742} | B {'n': 13, 'r': 0.002, 'dias': 11, 'r_dia': 0.186}
+SHORT_X30                A {'n': 501, 'r': -0.265, 'dias': 214, 'r_dia': -0.249} | B {'n': 625, 'r': -0.158, 'dias': 218, 'r_dia': -0.131}
+SHORT_ISOLADA            A {'n': 357, 'r': -0.27, 'dias': 177, 'r_dia': -0.231} | B {'n': 504, 'r': -0.159, 'dias': 185, 'r_dia': -0.114}
+SHORT_TURTLE             A {'n': 274, 'r': 0.255, 'dias': 113, 'r_dia': 0.241} | B {'n': 367, 'r': 0.175, 'dias': 131, 'r_dia': 0.198}  <== APTA
+SHORT_FLUXO              A {'n': 119, 'r': -0.257, 'dias': 73, 'r_dia': -0.2} | B {'n': 282, 'r': -0.146, 'dias': 137, 'r_dia': -0.138}
+SHORT_MAIORES_RECUO      A {'n': 37, 'r': -0.431, 'dias': 31, 'r_dia': -0.426} | B {'n': 50, 'r': -0.199, 'dias': 37, 'r_dia': -0.204}
+SHORT_MAIORES_TENDENCIA  A {'n': 13, 'r': -0.442, 'dias': 13, 'r_dia': -0.442} | B {'n': 16, 'r': 0.491, 'dias': 15, 'r_dia': 0.504}
+
+=== Fase queda ===
+SHORT_X30                A {'n': 61, 'r': 0.173, 'dias': 34, 'r_dia': 0.2} | B {'n': 60, 'r': 0.224, 'dias': 26, 'r_dia': -0.027}
+SHORT_ISOLADA            A {'n': 44, 'r': 0.119, 'dias': 28, 'r_dia': 0.14} | B {'n': 50, 'r': 0.184, 'dias': 23, 'r_dia': -0.053}
+SHORT_TURTLE             A {'n': 101, 'r': 0.279, 'dias': 36, 'r_dia': 0.239} | B {'n': 76, 'r': 0.069, 'dias': 31, 'r_dia': 0.092}
+SHORT_FLUXO              A {'n': 17, 'r': -0.127, 'dias': 13, 'r_dia': -0.181} | B {'n': 21, 'r': -0.027, 'dias': 13, 'r_dia': -0.273}
+SHORT_MAIORES_RECUO      A {'n': 44, 'r': 0.024, 'dias': 28, 'r_dia': -0.003} | B {'n': 28, 'r': 0.175, 'dias': 17, 'r_dia': 0.038}
+SHORT_MAIORES_TENDENCIA  A {'n': 18, 'r': 0.559, 'dias': 14, 'r_dia': 0.478} | B {'n': 5, 'r': 1.67, 'dias': 5, 'r_dia': 1.67}
+
+APTAS: {"lateral": ["SHORT_TURTLE"]}

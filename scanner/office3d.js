@@ -1443,6 +1443,7 @@ const PESQUISA = [
   ["❌", "H5: modelo que aprende (scikit-learn)", "só 15 dias reais: ilusão"],
   ["❌", "H8: só entrar com TP1 ≥ 3× custo", "quase não muda"],
   ["❌", "H9: sobrevenda com moedas delistadas", "perde por dia nos 2 períodos"],
+  ["✅", "H10: SHORT_TURTLE na fase lateral", "passa nos 2 períodos"],
   ["🔬", "H4: liquidações em massa", "em estudo"],
 ];
 const p2n = (x, d = 2) => x == null || isNaN(x) ? "–" : (x > 0 ? "+" : "") + Number(x).toFixed(d).replace(".", ",");
