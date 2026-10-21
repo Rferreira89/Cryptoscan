@@ -81,6 +81,11 @@ def base_key(k):
     return re.sub(r"_R\d+$", "", k)
 
 
+def clones_de(ar):
+    """{lutador: {de, corr}} dos clones do ringue longo (tools/arena_ringue.clones)."""
+    return ((ar or {}).get("longo") or {}).get("clones") or {}
+
+
 def rebirth(state, now, regime):
     """Regresso dos mortos (decisao do Rui, 2026-10-14: "se for preciso voltar
     a combater com um nome novo, voltam"): quando o regime de mercado muda e
@@ -97,8 +102,8 @@ def rebirth(state, now, regime):
     out = []
     for k, m in (ar.get("mortos") or {}).items():
         m.setdefault("regime", regime)        # morreu no regime em que o vimos morrer
-        if m.get("renasceu") or now - mk["desde"] < REGIME_STABLE:
-            continue
+        if m.get("renasceu") or m.get("clone") or now - mk["desde"] < REGIME_STABLE:
+            continue                           # clones nao regressam: a aposta ja esta no ringue
         b = base_key(k)
         # o ringue longo (365 dias por regime) diz se a familia presta neste regime
         lg = (((ar.get("longo") or {}).get("lutadores") or {}).get(b) or {}).get("por_regime") or {}
@@ -365,6 +370,10 @@ def update(state, bars, now, seed=None, forma=None):
         if vf == "MORTA" and v != "MORTA":       # a forma recente so mata
             v, motivo = "MORTA", f"forma recente ({fm.get('janela_dias', 90)} dias)"
         prev = ar["status"].get(k)
+        cl = clones_de(ar).get(k)
+        if cl and k not in mortos:               # (21/10, OK do Rui) clone de um lutador melhor: sai
+            mortos[k] = {"t": int(now), "motivo": f"clone de {persona(cl['de'])} (resultados diários correlacionados {cl['corr']:.2f})",
+                         "n": len(rs), "avg_r": None if mean is None else round(mean, 3), "clone": cl["de"]}
         if k in mortos:                          # a morte e definitiva
             v, motivo = "MORTA", mortos[k].get("motivo")
         elif v == "MORTA":

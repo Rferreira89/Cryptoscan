@@ -1186,8 +1186,9 @@ def trend_trades(asset, c4, above, cfg, t0):
 
 # ---------- juntar tudo ----------
 
-def judge(trs, bars, rng, bars1h=None):
-    """Resumo de um lutador com o teste contra o acaso."""
+def judge(trs, bars, rng, bars1h=None, pares=None):
+    """Resumo de um lutador com o teste contra o acaso. Com `pares` (lista),
+    junta-lhe (operacao, controlos ao acaso) para os testes do filtro."""
     rs = [t["r"] for t in trs]
     lists = []
     for t in trs:
@@ -1195,6 +1196,8 @@ def judge(trs, bars, rng, bars1h=None):
         if t.get("geo") and src.get(t["asset"]):
             lists.append(arena.control_rs(src[t["asset"]], t["t"], t["geo"],
                                           "LONG", rng, reps=REPS))
+            if pares is not None:
+                pares.append((t, lists[-1]))
     has_ctrl = bool(lists) and sum(1 for c in lists if c) >= max(1, len(rs) // 2)
     med, p95 = arena._dist(lists, rng) if has_ctrl else (None, None)
     mean = sum(rs) / len(rs)
@@ -1238,6 +1241,111 @@ def validacao(trs, now, spread=None):
     ok = bool(dentro["n"] and dentro["avg_r_liq"] > 0 and fora["n"] >= 5 and fora["avg_r_liq"] > 0)
     return {"dentro": dentro, "fora": fora, "avg_r_liq": tudo["avg_r_liq"],
             "fora_dias": FORA_DIAS, "passa": ok}
+
+
+# ---------- filtro novo, clones e lutadores ao acaso (OK do Rui, 21/10) ----------
+# So medem e mostram: nao mudam quem opera (excepto os clones, que morrem).
+ACASO = {}
+RESERVA_DIAS = 60          # ultimos 60 dias do ano: nunca usados para escolher
+MIN_DIAS = 30              # dias distintos com entradas (operacoes do mesmo dia contam uma vez)
+CLONE_CORR = 0.7           # resultados diarios mais correlacionados do que isto = a mesma aposta
+ACASO_POR_TESTE = 5        # lutadores ao acaso por lutador e por fase
+
+
+def _por_dia(trs):
+    d = {}
+    for t in trs:
+        d.setdefault(t["t"] // DAY, []).append(t["r"])
+    return d
+
+
+def qualidade(sub, now, rmin=0.15):
+    """Medidas do filtro novo para as operacoes de uma fase: dias distintos,
+    limite inferior do intervalo de 90% do R por dia (cada dia conta uma vez),
+    o periodo reservado (ultimos RESERVA_DIAS) e o resultado sem a melhor moeda."""
+    if not sub:
+        return {}
+    dias = _por_dia(sub)
+    m = [sum(v) / len(v) for v in dias.values()]
+    mu = sum(m) / len(m)
+    sd = (sum((x - mu) ** 2 for x in m) / (len(m) - 1)) ** .5 if len(m) > 1 else 0.0
+    ic = mu - 1.645 * sd / len(m) ** .5 if len(m) > 1 else None
+    corte = now - RESERVA_DIAS * DAY
+    antes, res = [t["r"] for t in sub if t["t"] < corte], [t["r"] for t in sub if t["t"] >= corte]
+    por_moeda = {}
+    for t in sub:
+        por_moeda.setdefault(t["asset"], []).append(t["r"])
+    melhor = max(por_moeda, key=lambda a: sum(por_moeda[a])) if por_moeda else None
+    resto = [t["r"] for t in sub if t["asset"] != melhor]
+    return {"dias": len(dias), "r_dia": round(mu, 3), "ic_inf": None if ic is None else round(ic, 3),
+            "antes": {"n": len(antes), "avg_r": round(sum(antes) / len(antes), 3) if antes else None},
+            "reservado": {"n": len(res), "avg_r": round(sum(res) / len(res), 3) if res else None},
+            "sem_melhor_moeda": round(sum(resto) / len(resto), 3) if resto else None, "melhor_moeda": melhor}
+
+
+def passa_atual(n, r, p95, met, rmin=0.15):
+    """O filtro de producao (engine/promo.regime_qualified)."""
+    return n >= 20 and r is not None and r >= rmin and p95 is not None and r > p95 and bool(met) and min(met) > 0
+
+
+def passa_novo(n, r, p95, met, q, rmin=0.15):
+    """Filtro novo (modo relatorio): o atual + 30 dias distintos + intervalo
+    por dia acima de zero + ganha antes do periodo reservado e dentro dele +
+    nao depende da melhor moeda. (A robustez a +-20% nos parametros ainda nao:
+    os parametros estao fixos dentro de cada sinal.)"""
+    if not passa_atual(n, r, p95, met, rmin) or not q:
+        return False
+    a, rs = q.get("antes") or {}, q.get("reservado") or {}
+    return (q.get("dias", 0) >= MIN_DIAS and (q.get("ic_inf") or -1) > 0
+            and (a.get("avg_r") or -1) >= rmin and rs.get("n", 0) >= 5 and (rs.get("avg_r") or -1) > 0
+            and (q.get("sem_melhor_moeda") or -1) > 0)
+
+
+def acaso_teste(pares, p95, now, rng, reps=ACASO_POR_TESTE):
+    """Lutadores ao acaso: cada um troca cada operacao por uma entrada ao calhas
+    na mesma moeda, com a mesma gestao. Quantos passam o filtro atual e o novo?"""
+    pares = [(t, c) for t, c in pares if c]
+    if len(pares) < 20 or p95 is None:
+        return 0, 0, 0
+    pa = pn = 0
+    for _ in range(reps):
+        fake = [dict(t, r=rng.choice(c)) for t, c in pares]
+        rs = [t["r"] for t in fake]
+        h = len(rs) // 2
+        met = [sum(rs[:h]) / h, sum(rs[h:]) / (len(rs) - h)]
+        r = sum(rs) / len(rs)
+        pa += passa_atual(len(rs), r, p95, met)
+        pn += passa_novo(len(rs), r, p95, met, qualidade(fake, now))
+    return reps, pa, pn
+
+
+def clones(groups, out, t0, now, lim=CLONE_CORR, min_n=20):
+    """{lutador: {de, corr}}: quem tem resultados diarios correlacionados acima
+    de lim com um lutador melhor (o melhor de cada grupo fica)."""
+    dias = range(t0 // DAY, now // DAY + 1)
+    def score(k):                       # fica quem passa o filtro em mais fases, depois o melhor R
+        rgs = ((out.get(k) or {}).get("por_regime") or {}).values()
+        ok = sum(1 for r in rgs if r.get("passa_atual"))
+        pr = [r.get("avg_r") for r in rgs if (r.get("n") or 0) >= min_n and r.get("avg_r") is not None]
+        return (ok, max(pr) if pr else ((out.get(k) or {}).get("avg_r") or -9))
+    cand = sorted((k for k, trs in groups.items() if len(trs) >= min_n and k != "REJEITADOS"),
+                  key=score, reverse=True)
+    ser = {k: {d: sum(v) for d, v in _por_dia(groups[k]).items()} for k in cand}
+    def corr(a, b):
+        xs, ys = [a.get(d, 0.0) for d in dias], [b.get(d, 0.0) for d in dias]
+        n = len(xs); mx, my = sum(xs) / n, sum(ys) / n
+        vx, vy = sum((x - mx) ** 2 for x in xs), sum((y - my) ** 2 for y in ys)
+        if not vx or not vy:
+            return 0.0
+        return sum((x - mx) * (y - my) for x, y in zip(xs, ys)) / (vx * vy) ** .5
+    reps, res = [], {}
+    for k in cand:
+        best = max(((r, corr(ser[k], ser[r])) for r in reps), key=lambda x: x[1], default=None)
+        if best and best[1] > lim:
+            res[k] = {"de": best[0], "corr": round(best[1], 2)}
+        else:
+            reps.append(k)
+    return res
 
 
 def regime_by_day(btc4):
@@ -1299,6 +1407,7 @@ def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None, funding=None, oi=None,
                       if t["t"] >= (info.get("desde") or 0)]
     if regimes:
         CTX["regmap"] = regime_by_day(btc)
+    ACASO.clear()
     rng = random.Random(seed)
     out = {}
     for k, trs in groups.items():
@@ -1315,15 +1424,29 @@ def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None, funding=None, oi=None,
             for rg in ("subida", "lateral", "queda"):
                 sub = [t for t in trs if rmap.get((t["t"] - DAY) // DAY) == rg]
                 if sub:
-                    out[k]["por_regime"][rg] = judge(sub, jb, rng, bars1h)
+                    pares = []
+                    out[k]["por_regime"][rg] = judge(sub, jb, rng, bars1h, pares)
                     # robustez: as duas metades do ano (por tempo) tem de ganhar
                     h = len(sub) // 2
                     if h >= 5:
                         out[k]["por_regime"][rg]["metades"] = [
                             round(sum(t["r"] for t in sub[:h]) / h, 3),
                             round(sum(t["r"] for t in sub[h:]) / (len(sub) - h), 3)]
-    return {"atualizado": int(now), "janela_dias": days,
-            "desde": int(t0), "moedas": len(bars), "lutadores": out}
+                    pr = out[k]["por_regime"][rg]
+                    pr["qualidade"] = qualidade(sub, now)
+                    pr["passa_atual"] = passa_atual(pr["n"], pr["avg_r"], pr["acaso_p95"], pr.get("metades"))
+                    pr["passa_novo"] = passa_novo(pr["n"], pr["avg_r"], pr["acaso_p95"], pr.get("metades"), pr["qualidade"])
+                    tst, pa, pn = acaso_teste(pares, pr["acaso_p95"], now, rng)
+                    a = ACASO.setdefault(rg, {"testes": 0, "passam_atual": 0, "passam_novo": 0})
+                    a["testes"] += tst; a["passam_atual"] += pa; a["passam_novo"] += pn
+    res = {"atualizado": int(now), "janela_dias": days,
+           "desde": int(t0), "moedas": len(bars), "lutadores": out}
+    if regimes:
+        res["acaso_filtro"] = {rg: dict(v, taxa_atual=round(v["passam_atual"] / v["testes"] * 100, 1) if v["testes"] else None,
+                                         taxa_novo=round(v["passam_novo"] / v["testes"] * 100, 1) if v["testes"] else None)
+                               for rg, v in ACASO.items()}
+        res["clones"] = clones(groups, out, t0, now)
+    return res
 
 
 LONGO_1H_MAX = 40

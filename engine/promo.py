@@ -290,8 +290,11 @@ def regime_qualified(state, fase):
         return []
     ar = state.get("arena") or {}
     longo = (ar.get("longo") or {}).get("lutadores") or {}
+    cl = (ar.get("longo") or {}).get("clones") or {}
     out = []
     for k, v in longo.items():
+        if k in cl:                            # clone de um lutador melhor (21/10): so conta o original
+            continue
         f = (v.get("por_regime") or {}).get(fase) or {}
         n, r, p95, met = f.get("n") or 0, f.get("avg_r"), f.get("acaso_p95"), f.get("metades")
         if n < MIN_N or r is None or r < REAL_MIN_R or p95 is None or r <= p95:
@@ -563,3 +566,26 @@ def lost(state, now, asset, champ, why):
     lst = state.setdefault("promo_lost", [])
     lst.append({"t": int(now), "asset": asset, "strategy": champ, "reason": why})
     del lst[:-100]
+
+
+def filtro_novo(state):
+    """Relatorio do filtro novo (modo relatorio, OK do Rui 21/10): por fase, quem
+    o filtro atual aprova, quem o novo aprovaria, e quantos lutadores ao acaso
+    passam cada um. Nao muda quem opera."""
+    lg = ((state.get("arena") or {}).get("longo") or {})
+    lut, cl = lg.get("lutadores") or {}, lg.get("clones") or {}
+    out = {"acaso": lg.get("acaso_filtro") or {}, "clones": len(cl), "fases": {}}
+    for rg in ("subida", "lateral", "queda"):
+        atual, novo, quase = [], [], []
+        for k, v in lut.items():
+            if k in cl:
+                continue
+            r = (v.get("por_regime") or {}).get(rg) or {}
+            q = r.get("qualidade") or {}
+            if r.get("passa_atual"):
+                atual.append(k)
+                (novo if r.get("passa_novo") else quase).append(
+                    {"id": k, "dias": q.get("dias"), "ic_inf": q.get("ic_inf"),
+                     "reservado": q.get("reservado"), "sem_melhor_moeda": q.get("sem_melhor_moeda")})
+        out["fases"][rg] = {"atual": atual, "novo": [x["id"] for x in novo], "detalhe": novo + quase}
+    return out

@@ -786,9 +786,11 @@ def keep_longo(state, lg):
     comp = {}
     for k, v in lg["lutadores"].items():
         comp[k] = {"n": v.get("n"), "avg_r": v.get("avg_r"),
-                   "por_regime": {rg: {x: r.get(x) for x in ("n", "avg_r", "acaso_p95", "veredicto", "metades")}
+                   "por_regime": {rg: {x: r.get(x) for x in ("n", "avg_r", "acaso_p95", "veredicto", "metades",
+                                                             "qualidade", "passa_atual", "passa_novo")}
                                   for rg, r in (v.get("por_regime") or {}).items()}}
-    state.setdefault("arena", {})["longo"] = {"atualizado": lg.get("atualizado"), "lutadores": comp}
+    state.setdefault("arena", {})["longo"] = {"atualizado": lg.get("atualizado"), "lutadores": comp,
+                                              "clones": lg.get("clones") or {}, "acaso_filtro": lg.get("acaso_filtro") or {}}
 
 
 def main():

@@ -457,6 +457,10 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
                 r, result["macro"], c4s.get("BTC"), c4s.get(r["asset"]))
         except Exception:
             r["departamentos"] = []
+    try:                                     # filtro novo em modo relatorio (OK do Rui, 21/10)
+        result["filtro_novo"] = promo.filtro_novo(state)
+    except Exception as e:
+        result["filtro_novo"] = {"erro": str(e)[:120]}
     result["promo"] = {"campeao": champ, "campeoes": champs, "qualificados": [
         {"id": k, "avg_r": r} for k, r in promo.qualified(state)]}
     try:                                      # contributo de cada campeao para a meta
