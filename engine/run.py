@@ -555,6 +555,39 @@ def stop_watch(state, conta, now):
     return out
 
 
+def ordens_watch(state, conta, ex, now):
+    """D1 da auditoria (Rui, 21/10; caso XPL): uma vez por dia, cada posicao
+    real tem de ter stop E objetivo. Objetivo na Bybit (tp_n) ou, quando a
+    Bybit recusou o anexo, o programa sabe que e ele a vender (partes com
+    anexo False no exec.json). Devolve os avisos (um por posicao por dia)."""
+    if not conta:
+        return []
+    ops = (ex or {}).get("ops") or {}
+    vistos = state.setdefault("ordens_watch", {})
+    out = []
+    for t in conta.get("trades") or []:
+        if not t.get("held"):
+            continue
+        op = ops.get(t["id"]) or {}
+        partes = op.get("partes") or []
+        prog = op.get("status") == "aberta" and partes and all(not p.get("anexo") for p in partes)
+        falta = []
+        if not t.get("stop_found"):
+            falta.append("stop")
+        if not t.get("tp_n") and not prog:
+            falta.append("objetivo")
+        if not falta or (t["id"] in vistos and now - vistos[t["id"]] < 86400):
+            continue
+        vistos[t["id"]] = int(now)
+        quem = ("o programa não tem registo desta operação" if not op else
+                "a Bybit devia ter o objetivo anexado e não o encontro")
+        out.append(f"🔎 <b>Verificação das ordens: {t['asset']}</b> sem {' nem '.join(falta)} na Bybit ({quem}). "
+                   "Confirma na app (Ordens → TP/SL).")
+    state["ordens_ok"] = {"t": int(now), "posicoes": sum(1 for t in conta.get("trades") or [] if t.get("held")),
+                          "avisos": len(out)}
+    return out
+
+
 def key_alert(state, keys, now, dias=14):
     """Aviso quando uma chave da Bybit esta a menos de `dias` de expirar
     (Rui, 20/10). keys = {nome: expiredAt da Bybit}. Uma vez por dia por chave.
@@ -831,6 +864,13 @@ def main():
                 alerts.send(txt, html=True)
     except Exception as e:
         print("stop_watch:", e)
+    try:                                     # D1: verificacao diaria das ordens (stop e objetivo)
+        for txt in ordens_watch(state, res.get("conta"), ex_now, res["generated_at"]):
+            if alerts.configured():
+                alerts.send(txt, html=True)
+        res["ordens_ok"] = state.get("ordens_ok")
+    except Exception as e:
+        print("ordens_watch:", e)
     try:
         from . import amplitude
         am = amplitude.aviso(res.get("amplitude"))

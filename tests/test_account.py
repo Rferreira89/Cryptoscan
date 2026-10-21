@@ -111,3 +111,45 @@ class ResultadoReal(unittest.TestCase):
         self.assertFalse(out["XPL-X-1"]["fechada"])
         self.assertIsNone(out["XPL-X-1"]["pnl_usdc"])
         self.assertNotIn("SOL-X-1", out)
+
+
+class RecuperarAntigas(unittest.TestCase):
+    def test_le_as_execucoes_da_altura_em_janelas_de_7_dias(self):
+        from unittest import mock
+        from engine import account as A
+        now = 1_800_000_000
+        r = {"id": "PUMP-1", "kind": "4H", "executed": True, "mode": "REAL", "status": "CLOSED", "asset": "PUMP",
+             "pair": "PUMP/USDC", "issued_at": now - 20 * 86400, "closed_at": now - 11 * 86400, "risk_usdc": 2.5}
+        pedidos = []
+        def get(path, prm):
+            pedidos.append(prm)
+            if prm["startTime"] // 1000 < r["issued_at"] + 3600:
+                return {"list": [{"symbol": "PUMPUSDC", "side": "Buy", "execQty": "1000", "execPrice": "0.0062",
+                                  "execFee": "0.006", "feeCurrency": "USDC", "execTime": str((r["issued_at"] + 60) * 1000)}]}
+            return {"list": [{"symbol": "PUMPUSDC", "side": "Sell", "execQty": "1000", "execPrice": "0.0050",
+                              "execFee": "0.005", "feeCurrency": "USDC", "execTime": str((r["closed_at"]) * 1000)}]}
+        with mock.patch.object(A, "get", get):
+            out = A.recuperar([r, dict(r, id="X", real={"fechada": True})], now)
+        self.assertEqual(list(out), ["PUMP-1"])
+        self.assertEqual(len(pedidos), 2)                       # 9 dias = 2 janelas
+        self.assertTrue(out["PUMP-1"]["fechada"])
+        self.assertAlmostEqual(out["PUMP-1"]["pnl_usdc"], 5.0 - 6.2 - 0.011, 3)
+
+
+class VerificacaoOrdens(unittest.TestCase):
+    def test_tp_e_aviso_diario(self):
+        from engine import account as A, run as RUN
+        orders = [{"symbol": "XPLUSDC", "side": "Sell", "triggerPrice": "0.0725"},
+                  {"symbol": "XPLUSDC", "side": "Sell", "takeProfit": "0.0813", "stopLoss": "0.0725", "triggerPrice": "0"}]
+        self.assertEqual(A.tp_for(orders, "XPLUSDC", "LONG", 0.0768), 1)
+        self.assertEqual(A.tp_for(orders[:1], "XPLUSDC", "LONG", 0.0768), 0)    # o stop nao conta como objetivo
+        conta = {"trades": [{"id": "XPL-1", "asset": "XPL", "held": True, "stop_found": True, "tp_n": 0}]}
+        st = {}
+        ex_prog = {"ops": {"XPL-1": {"status": "aberta", "partes": [{"anexo": False}, {"anexo": False}]}}}
+        self.assertEqual(RUN.ordens_watch(st, conta, ex_prog, 1000), [])      # o programa sabe que vende
+        ex_anexo = {"ops": {"XPL-1": {"status": "aberta", "partes": [{"anexo": True}]}}}
+        m = RUN.ordens_watch(st, conta, ex_anexo, 1000)
+        self.assertEqual(len(m), 1)
+        self.assertIn("sem objetivo", m[0])
+        self.assertEqual(RUN.ordens_watch(st, conta, ex_anexo, 2000), [])     # uma vez por dia
+        self.assertEqual(st["ordens_ok"]["posicoes"], 1)

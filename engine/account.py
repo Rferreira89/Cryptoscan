@@ -153,6 +153,23 @@ def stop_for(orders, symbol, side="LONG"):
     return max(trig) if side == "LONG" else min(trig)
 
 
+def tp_for(orders, symbol, side, entry):
+    """Ordens de objetivo (TP) de uma operacao: TP anexado (takeProfit) ou
+    ordens de venda (LONG) / compra (SHORT) pelo menos 1% para o lado do lucro."""
+    if not entry:
+        return 0
+    want = "Sell" if side == "LONG" else "Buy"
+    ok = lambda px: px > entry * 1.01 if side == "LONG" else 0 < px < entry * 0.99
+    n = 0
+    for o in orders:
+        if o.get("symbol") != symbol or o.get("side") != want:
+            continue
+        tp, trig, px = _f(o.get("takeProfit")), _f(o.get("triggerPrice")), _f(o.get("price"))
+        if (tp and ok(tp)) or (trig and ok(trig)) or (not trig and px and ok(px)):
+            n += 1
+    return n
+
+
 def fill_for(execs, symbol, since, side="LONG"):
     """Preco medio e quantidade das compras (LONG) desde 'since' (s)."""
     want = "Buy" if side == "LONG" else "Sell"
@@ -187,6 +204,7 @@ def check_trades(ledger, held, orders, execs, now):
         row = {"id": r["id"], "asset": r["asset"], "symbol": sym,
                "held": held.get(r["asset"].upper(), 0.0) > 0,
                "stop_found": stop is not None,
+               "tp_n": tp_for(orders, sym, side, r.get("exec_price") or r.get("entry")),
                "stop_px": stop, "plan_stop": r.get("stop"),
                "fill_px": round(fill[0], 10) if fill else None}
         if stop is not None and r.get("stop"):
@@ -229,7 +247,7 @@ def executions(symbols, since):
     return out
 
 
-def real_results(led, execs, now):
+def real_results(led, execs, now, janela=6.5 * 86400):
     """Fase 1 da contra-auditoria (Rui, 20/10): o resultado REAL de cada
     operacao do programa, a partir das execucoes da Bybit (precos e comissoes
     efetivos), e nao do preco teorico do sinal. So os ultimos 6,5 dias (o
@@ -237,7 +255,7 @@ def real_results(led, execs, now):
     Devolve {id: {compra_usdc, venda_usdc, comissoes_usdc, pnl_usdc, fechada, n}}.
     O juro de um short em margem nao aparece nas execucoes (fica de fora)."""
     rows = sorted((r for r in led or [] if r.get("kind") == "4H" and r.get("executed") is not False
-                   and (r.get("issued_at") or 0) >= now - 6.5 * 86400),
+                   and (janela is None or (r.get("issued_at") or 0) >= now - janela)),
                   key=lambda r: r.get("issued_at") or 0)
     out = {}
     for i, r in enumerate(rows):
@@ -282,6 +300,42 @@ def real_results(led, execs, now):
                         "pnl_usdc": round(pnl, 4) if fechada else None,
                         "fechada": fechada, "n": n, "preco_entrada": round(px_in, 10),
                         "preco_saida": round(v_out / q_out, 10) if q_out else None}
+    return out
+
+
+RECUPERAR_MAX = 5           # operacoes antigas recuperadas por leitura da conta
+
+
+def executions_range(symbol, t0, t1):
+    """Execucoes de um par entre t0 e t1 (s), em janelas de 7 dias (limite da Bybit)."""
+    out, a = [], t0
+    while a < t1:
+        b = min(t1, a + 7 * 86400 - 60)
+        try:
+            res = get("/v5/execution/list", {"category": "spot", "symbol": symbol, "limit": 100,
+                                             "startTime": int(a * 1000), "endTime": int(b * 1000)})
+            out += res.get("list") or []
+        except AccountError:
+            pass
+        a = b
+    return out
+
+
+def recuperar(led, now, maximo=RECUPERAR_MAX):
+    """D1 da auditoria (Rui, 21/10): o resultado real das operacoes antigas
+    (fechadas ha mais de 6,5 dias e ainda sem resultado da Bybit), lendo as
+    execucoes da propria altura em janelas de 7 dias. Poucas de cada vez."""
+    falta = [r for r in led or [] if r.get("kind") == "4H" and r.get("executed") is True
+             and r.get("mode") == "REAL" and r.get("status") == "CLOSED" and r.get("real_r") is None
+             and not r.get("real") and (r.get("issued_at") or 0) < now - 6.5 * 86400]
+    falta = sorted(falta, key=lambda r: r.get("issued_at") or 0)[:maximo]
+    out = {}
+    for r in falta:
+        t0 = (r.get("issued_at") or now) - 600
+        t1 = (r.get("user_closed_at") or r.get("closed_at") or now) + 6 * 3600
+        ex = executions_range(symbol_of(r), t0, t1)
+        res = real_results([r], ex, now, janela=None)
+        out[r["id"]] = res.get(r["id"]) or {"sem_dados": True}
     return out
 
 
@@ -335,6 +389,11 @@ def snapshot(state, now=None):
                                                     now - 6.5 * 86400), now)
         except Exception as e:
             reais = {"erro": str(e)[:100]}
+        try:                                 # D1 (21/10): as operacoes antigas, poucas de cada vez
+            if isinstance(reais, dict) and "erro" not in reais:
+                reais.update(recuperar(led, now))
+        except Exception as e:
+            print("recuperar:", e)
         return {"ok": True, "t": int(now), "usdc_free": usdc_free(wallet), "reais": reais,
                 "equity": equity(wallet),
                 "expires": info.get("expiredAt"),
