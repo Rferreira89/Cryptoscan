@@ -853,6 +853,35 @@ def _breakeven_long(state, req, ex, now, send):
     if have <= 0.02 * (op.get("qty") or 0):
         op.update(status="fechada", fechado=now, motivo="fechada na Bybit (stop ou objetivos)", be_pendente=False)
         return "já fechada na Bybit"
+    p0 = partes[0] if partes else {}
+    if len(partes) > 1 and not p0.get("anexo") and have > (op.get("qty") or 0) - 0.5 * (p0.get("qty") or 0):
+        # (21/10, XPL) a Bybit recusou o objetivo anexado: nao ha ordem do TP1 na
+        # Bybit e ela nunca vendia. E o programa que vende a parte do TP1 (se o
+        # preco estiver no objetivo) e depois sobe o stop do resto para a entrada.
+        tp1, px = float(p0.get("tp") or 0), last_price(op["symbol"])
+        if tp1 and px >= tp1 * 0.995:
+            for o in ours(tpsl_orders(op["symbol"]), op):      # liberta as moedas presas nos stops
+                try:
+                    cancel(op["symbol"], o)
+                except ExecError as e:
+                    op.setdefault("avisos", []).append(f"cancelar: {str(e)[:80]}")
+            time.sleep(1)
+            q1 = min(float(p0.get("qty") or 0), max(0.0, held(wallet(), op["asset"]) - nucleo_q))
+            try:
+                oid = sell_all(op["symbol"], q1, inst, f"{_tag(req['op'])}-tp1")
+                avg, sold = fills(oid, op["symbol"], op["asset"], side="Sell") if oid else (None, 0.0)
+            except ExecError as e:
+                avg, sold = None, 0.0
+                op.setdefault("avisos", []).append(f"venda TP1: {str(e)[:80]}")
+            if sold:
+                p0["vendida"] = {"preco": avg, "qty": sold, "t": now}
+                op["qty"] = max(0.0, (op.get("qty") or 0) - sold)
+                send(f"💰 <b>{op['asset']}: TP1 vendido pelo programa</b> — {sold:.6g} {op['asset']} a {avg:.6g} "
+                     f"(entrada {op['entrada']:.6g}, {((avg / op['entrada']) - 1) * 100:+.1f}%). "
+                     "A Bybit não tinha aceitado o objetivo anexado.", html=True)
+            else:
+                send(f"⚠️ {op['asset']}: não consegui vender a parte do TP1. Ponho na mesma o stop na entrada.")
+        have = -1                                                # segue para o stop na entrada
     if len(partes) > 1 and have > (op.get("qty") or 0) - 0.5 * (partes[0].get("qty") or 0):
         if not op.get("be_pendente"):
             send(f"⏳ {op['asset']}: o sinal viu o TP1, mas na Bybit a parte do TP1 ainda não vendeu. "

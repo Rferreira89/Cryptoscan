@@ -795,6 +795,30 @@ class TP1SoComVendaNaBybit(unittest.TestCase):
         self.assertFalse(op["be_pendente"])
         self.assertIn("/v5/order/create", calls)
 
+    def test_sem_tp_anexado_o_programa_vende_o_tp1(self):
+        from unittest import mock
+        from engine import executor as X
+        op = {"status": "aberta", "symbol": "XPLUSDC", "asset": "XPL", "entrada": 0.07681, "qty": 347.928,
+              "partes": [{"qty": 173.86, "anexo": False, "tp": 0.0813, "stopId": "s1"}, {"qty": 174.06, "anexo": False, "tp": 0.0894, "stopId": "s2"}]}
+        ex, sent, calls = {"ops": {"op1": op}}, [], []
+        saldo = [347.9]
+        with mock.patch.object(X, "instrument", return_value={"tick": 0.00001, "base_step": 0.01}), \
+                mock.patch.object(X, "tpsl_orders", return_value=[]), mock.patch.object(X, "last_price", return_value=0.0817), \
+                mock.patch.object(X, "ours", side_effect=[[{"orderId": "s1"}, {"orderId": "s2"}], []]), \
+                mock.patch.object(X, "cancel", side_effect=lambda s, o: calls.append(("cancel", o["orderId"]))), \
+                mock.patch.object(X, "post", side_effect=lambda p, b: calls.append((p, b.get("side"), b.get("qty"))) or {"orderId": "n"}), \
+                mock.patch.object(X, "fills", side_effect=lambda *a, **k: saldo.__setitem__(0, 174.04) or (0.0816, 173.86)), \
+                mock.patch.object(X, "wallet", return_value={}), mock.patch.object(X, "held", side_effect=lambda w, a: saldo[0]), \
+                mock.patch.object(X.time, "sleep"):
+            r = X.do_breakeven({}, {"op": "op1"}, ex, NOW, lambda t, html=False: sent.append(t))
+        self.assertEqual(r, "ok")
+        self.assertEqual(calls[:2], [("cancel", "s1"), ("cancel", "s2")])
+        self.assertEqual(calls[2][1], "Sell")                                  # vendeu a parte do TP1
+        self.assertAlmostEqual(op["qty"], 347.928 - 173.86, 2)
+        self.assertIn("TP1 vendido", sent[0])
+        self.assertIn("stop subiu para a entrada", sent[-1])
+        self.assertFalse(op["be_pendente"])
+
     def test_posicao_ja_fechada_na_bybit(self):
         op = self.op()
         r, _, calls = self.run_be(op, 0.0)
