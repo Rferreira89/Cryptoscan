@@ -1,0 +1,22 @@
+=== H8: TP1 >= 3x custo (0,70%) ===
+A 2021-24 sem filtro {'n': 2721, 'r': -0.258, 'dias': 462, 'r_dia': -0.297} | com filtro {'n': 2555, 'r': -0.258, 'dias': 453, 'r_dia': -0.292} | falha
+    BOUNCE_X30 {'n': 656, 'r': -0.21, 'dias': 134, 'r_dia': -0.273} -> {'n': 586, 'r': -0.207, 'dias': 118, 'r_dia': -0.254}
+    BOUNCE_ISOLADA {'n': 450, 'r': -0.246, 'dias': 114, 'r_dia': -0.275} -> {'n': 384, 'r': -0.249, 'dias': 95, 'r_dia': -0.262}
+    BOUNCE_SQUEEZE {'n': 0} -> {'n': 0}
+    BRK_ESPACO {'n': 687, 'r': -0.421, 'dias': 269, 'r_dia': -0.422} -> {'n': 659, 'r': -0.419, 'dias': 266, 'r_dia': -0.41}
+    RETESTE {'n': 928, 'r': -0.177, 'dias': 314, 'r_dia': -0.224} -> {'n': 926, 'r': -0.179, 'dias': 314, 'r_dia': -0.224}
+B 2024-26 sem filtro {'n': 4193, 'r': -0.074, 'dias': 371, 'r_dia': -0.298} | com filtro {'n': 3991, 'r': -0.064, 'dias': 363, 'r_dia': -0.29} | falha
+    BOUNCE_X30 {'n': 1131, 'r': -0.036, 'dias': 133, 'r_dia': -0.218} -> {'n': 1062, 'r': -0.023, 'dias': 125, 'r_dia': -0.201}
+    BOUNCE_ISOLADA {'n': 905, 'r': 0.069, 'dias': 111, 'r_dia': -0.18} -> {'n': 829, 'r': 0.099, 'dias': 104, 'r_dia': -0.155}
+    BOUNCE_SQUEEZE {'n': 452, 'r': 0.021, 'dias': 70, 'r_dia': -0.033} -> {'n': 429, 'r': 0.028, 'dias': 68, 'r_dia': -0.027}
+    BRK_ESPACO {'n': 660, 'r': -0.312, 'dias': 199, 'r_dia': -0.359} -> {'n': 631, 'r': -0.3, 'dias': 192, 'r_dia': -0.332}
+    RETESTE {'n': 1045, 'r': -0.13, 'dias': 233, 'r_dia': -0.279} -> {'n': 1040, 'r': -0.129, 'dias': 232, 'r_dia': -0.28}
+H8: CHUMBA
+=== H9: sobrevenda com as moedas delistadas ===
+A 2021-24 so atuais {'n': 1106, 'r': -0.225, 'dias': 137, 'r_dia': -0.284} | todas {'n': 2358, 'r': -0.205, 'dias': 192, 'r_dia': -0.314} | so delistadas {'n': 1252, 'r': -0.188, 'dias': 149, 'r_dia': -0.283}
+    BOUNCE_X30 atuais {'n': 656, 'r': -0.21, 'dias': 134, 'r_dia': -0.273} todas {'n': 1400, 'r': -0.194, 'dias': 190, 'r_dia': -0.304}
+    BOUNCE_ISOLADA atuais {'n': 450, 'r': -0.246, 'dias': 114, 'r_dia': -0.275} todas {'n': 958, 'r': -0.221, 'dias': 163, 'r_dia': -0.325}
+B 2024-26 so atuais {'n': 2036, 'r': 0.011, 'dias': 133, 'r_dia': -0.221} | todas {'n': 2546, 'r': 0.005, 'dias': 160, 'r_dia': -0.261} | so delistadas {'n': 510, 'r': -0.017, 'dias': 88, 'r_dia': -0.269}
+    BOUNCE_X30 atuais {'n': 1131, 'r': -0.036, 'dias': 133, 'r_dia': -0.218} todas {'n': 1422, 'r': -0.045, 'dias': 160, 'r_dia': -0.258}
+    BOUNCE_ISOLADA atuais {'n': 905, 'r': 0.069, 'dias': 111, 'r_dia': -0.18} todas {'n': 1124, 'r': 0.069, 'dias': 134, 'r_dia': -0.219}
+H9: vies de sobrevivencia pequeno | sobrevenda NAO SOBREVIVE com o universo completo
