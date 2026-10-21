@@ -1,13 +1,13 @@
 # Diário de investigação
 
-**Hipóteses testadas contra esta reserva: 18** (12 neste diário: compra de
+**Hipóteses testadas contra esta reserva: 19** (12 neste diário: compra de
 quedas, compressão, oversold bounce 4H, day trade 1H, bounce com outras
 saídas, sweep a mercado, funding negativo, quebra com compradores,
 capitulação do mercado, atraso face ao BTC, resiliente, impulso de
-amplitude; mais 6 no diário de afinação, H1 a H6). Atualizado em
-2026-10-20. Quanto maior este número, maior a probabilidade de uma
-hipótese passar por sorte: com 18 testes, a probabilidade de pelo menos um
-falso positivo a 5% já ronda os 60% (e as várias configurações de cada
+amplitude; mais 7 no diário de afinação, H1 a H7). Atualizado em
+2026-10-21. Quanto maior este número, maior a probabilidade de uma
+hipótese passar por sorte: com 19 testes, a probabilidade de pelo menos um
+falso positivo a 5% já ronda os 62% (e as várias configurações de cada
 grelha aumentam-na ainda mais).
 
 Uma hipótese por entrada, com o veredicto. Método: `tools/research.py`
@@ -1190,3 +1190,41 @@ mínimo é 95). Não vai para papel nem para o ringue.
   long/short com histórico no ramo `history`), ou uma família para o
   regime de descida que não seja venda a descoberto (por exemplo, ficar
   em USDC é a resposta certa e não precisa de teste).
+
+## 2026-10-21 — Sem hipótese nova hoje (sem mortos novos; fila vazia)
+
+**Veredicto da corrida: nenhuma hipótese testada.** O contador passa a 19
+só pela H7 da afinação (SHORT_FALHADO, REJEITADA em 2026-10-21).
+
+- **Histórico** (ramo `history`): última atualização 2026-10-18, 3 dias de
+  atraso (abaixo dos 7), 74 moedas em 4H, 72 em 1H, 69 com funding. Não foi
+  preciso correr o workflow.
+- **Arena** (scan.json do ramo `data`, 2026-10-21): 24 lutadores vivos
+  (mínimo 5), `recrutar` falso. Nenhum morto novo desde MAIORES_FUNDING e
+  BOUNCE_MACRO (autopsiados em 2026-10-20): os 20 mortos têm todos linha na
+  tabela dos sucessores. Fila do Rui vazia.
+- **Combate de 90 dias** (`forma.json` do ramo `arena`, 2026-10-21 10:23
+  UTC, 38 moedas): os lutadores acima do p95 do acaso continuam a ser só a
+  família do Oversold Bounce (G0 +0,91R em 15 op.; X30 +0,37R em 65 op.,
+  mediana ao acaso −0,26R; SQUEEZE +0,47R em 41 op.) e o DIP_TREND (+0,13R
+  em 65 op., p95 −0,12R). Os vivos fora desta família (REVERSAO_INTERVALO,
+  MAIORES_RECUO, MAIORES_TENDENCIA e os dois shorts das maiores) têm menos
+  de 20 operações ou estão abaixo do acaso.
+- **Porque não há hipótese nova**: as entradas de compra que restam com os
+  dados do histórico (velas de 4H e 1H, fluxo comprador, funding) são
+  variantes de famílias já rejeitadas (quebras, recuos técnicos, amplitude,
+  reação ao BTC, funding negativo) ou já estão no ringue como variantes do
+  Bounce (absorção, desalavancagem, fluxo, pavio, horas, rácio long/short).
+  O ringue já mede o interesse em aberto ao vivo (36 moedas), mas o ramo
+  `history` não tem histórico de interesse em aberto, por isso uma
+  hipótese com ele não pode ser testada na janela de 24 meses. Com 19
+  hipóteses contra a mesma reserva (cerca de 62% de probabilidade de pelo
+  menos um falso positivo), mais uma hipótese fraca só aumenta o ruído; a
+  prova útil é a que o papel ao vivo e o combate de hora a hora estão a
+  juntar.
+- Proposta para a próxima corrida: autópsia se morrer alguém; uma hipótese
+  nova só com uma fonte de informação ainda não usada (interesse em aberto
+  com histórico, se o ramo `history` o passar a guardar) ou uma ideia de
+  entrada que não seja variante das famílias acima. Na corrida de
+  2026-10-25 o histórico já terá 7 dias de atraso: correr primeiro o
+  workflow "Historico para backtest".
