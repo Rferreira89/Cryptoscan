@@ -295,7 +295,7 @@ body.sheet-open #sheet{transform:none}
 @media (prefers-reduced-motion:reduce){.typing i,.bot .eye{animation:none}.bub{transition:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module" src="office3d.js?v=20261022i"></script>
+<script type="module" src="office3d.js?v=20261022j"></script>
 </head>
 <body class="w3d">
 <div id="world">
@@ -828,7 +828,7 @@ function openIndice(){const I=D&&D.indice,R=(D&&D.radar)||{},el=$("hoje"),hh=t=>
     h+=`<div class="it"><i>🧩</i><span><b>De onde vem o número</b><br><small>tendência do BTC ${C.tendencia}/100 (40%) · momento a 30 dias ${C.momento}/100 (30%) · amplitude ${C.amplitude??"–"}% das ${C.moedas} moedas acima da média de 50 dias (30%)</small></span></div>`;
     if(I.hist&&I.hist.length>2)h+=`<div class="it"><i>📈</i><span style="flex:1"><b>Últimos dias</b>${idxSpark(I.hist)}</span></div>`;
     ["subida","queda"].forEach(f=>{const L=(I.falta||{})[f]||[],ok=L.filter(x=>x.ok).length;h+=`<div class="it"><i>${f==="subida"?"📈":"📉"}</i><span><b>Para a fase de ${FN[f]}: ${ok}/3 condições</b><br><small>${L.map(x=>`${x.ok?"✅":"⬜"} ${esc(x.regra)}${x.ok?"":` (falta ${num(Math.abs(x.dist_pct),1)}%)`}`).join("<br>")}</small></span></div>`})}
-  const lin=(L,txt)=>L&&L.length?L.map(q=>`<b>${esc(q.asset)}</b> ${price(q.preco)} · nível ${price(q.nivel)} · ${num(q.dist_pct,1)}% · ${esc(q.estado)}${q.ok?"":" (fora da Bybit UE)"}`).join("<br>"):txt;
+  const lin=(L,txt)=>L&&L.length?L.map(q=>`<b>${esc(q.asset)}</b> ${price(q.preco)} · nível ${price(q.nivel)} · ${num(q.dist_pct,1)}% · ${esc(q.estado)}${q.margem===false?" (sem margem na Bybit: não dá short)":q.ok?"":" (fora da Bybit UE)"}`).join("<br>"):txt;
   h+=`<div class="it"><i>🎯</i><span><b>Radar do Ramiro (short na quebra do mínimo de 20 dias)</b><br><small>próximo fecho de 4H às ${hh(R.proximo_fecho)}</small><br><small>${lin(R.quebras,"nenhuma moeda a menos de 8% do mínimo")}</small></span></div>`;
   h+=`<div class="it"><i>🚀</i><span><b>Radar do Teodoro (rompimento do máximo, só em papel e só na subida)</b><br><small>${lin(R.rompimentos,"nenhuma moeda a menos de 8% do máximo")}</small></span></div>`;
   el.querySelector(".hj").innerHTML=h;el.hidden=false}
@@ -1131,7 +1131,7 @@ function hojeItems(){const it=[],d0=new Date();d0.setHours(0,0,0,0);const T0=d0.
   const EV=D.evolucao||{},P=EV.periodos||{},sg=(v,d=2)=>(v>=0?"+":"−")+Math.abs(v).toFixed(d).replace(".",",");
   if(D.indice)it.push(["🌡️",`Índice do mercado: <b style="color:${IDXC(D.indice.valor)}">${D.indice.valor}/100 (${esc(D.indice.rotulo)})</b>`,`fase pela regra: ${esc(D.indice.fase_regra)} · toca em "Ir para… → Índice e radar"`]);
   ((D.auto||{}).nao_entrou||[]).filter(x=>hoje(x.t)).forEach(x=>it.push(["⚠️",`Não entrou em <b>${esc(x.asset)}</b> (${esc(personaOf?personaOf(x.estrategia):x.estrategia)})`,"às "+hh(x.t)+" · "+esc(x.motivo)]));
-  {const q=((D.radar||{}).quebras||[]).filter(x=>!/^já/.test(x.estado)).slice(0,3);if(q.length)it.push(["🎯",`Radar do Ramiro: ${q.map(x=>`<b>${esc(x.asset)}</b> a ${num(x.dist_pct,1)}%`).join(", ")} do mínimo de 20 dias`,"um fecho de 4H abaixo do mínimo dá sinal de short"])}
+  {const q=((D.radar||{}).quebras||[]).filter(x=>x.ok&&!/^já/.test(x.estado)).slice(0,3);if(q.length)it.push(["🎯",`Radar do Ramiro: ${q.map(x=>`<b>${esc(x.asset)}</b> a ${num(x.dist_pct,1)}%`).join(", ")} do mínimo de 20 dias`,"um fecho de 4H abaixo do mínimo dá sinal de short"])}
   if(P.dia!=null)it.push(["📈",`Últimas 24 h: <b class="${P.dia>=0?"up":"dn"}">${sg(P.dia)}%</b> (sem contar depósitos)`,`ganho total ${sg(EV.g_usdc||0)} USDC · ${sg(EV.pct||0)}%`]);
   (EV.fluxos||[]).filter(f=>hoje(f[0])).forEach(f=>it.push(["💶",`${f[1]>=0?"Depósito":"Saída"} de <b>${num(Math.abs(f[1]),2)} USDC</b> detetado`,"às "+hh(f[0])+" · não conta como ganho"]));
   const N=D.nucleo||{},LG=(N.log||[]).filter(x=>hoje(x.t));

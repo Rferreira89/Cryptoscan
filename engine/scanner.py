@@ -429,7 +429,8 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
         result["promo_erro"] = str(e)[:120]
     try:                                      # (22/10) radar de quebras e indice do mercado (so informam)
         from . import radar, indice
-        result["radar"] = radar.calcular(eligible, c4s, now, (state.get("mercado") or {}).get("regime"))
+        result["radar"] = radar.calcular(eligible, c4s, now, (state.get("mercado") or {}).get("regime"),
+                                         (state.get("margem_bybit") or {}).get("moedas"))
         ind = indice.calcular((promo.DAILY or {}).get("BTC"), promo.DAILY)
         if ind:
             ind["hist"] = indice.historico(state, ind, now)[-24 * 30:]

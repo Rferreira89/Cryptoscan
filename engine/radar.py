@@ -38,7 +38,7 @@ def niveis(c4):
     return min(x["l"] for x in w), max(x["h"] for x in w)
 
 
-def calcular(rows, c4s, now, fase=None):
+def calcular(rows, c4s, now, fase=None, margem=None):
     out = {"quebras": [], "rompimentos": [], "proximo_fecho": None}
     for r in rows or []:
         a, c4, px = r.get("asset"), (c4s or {}).get(r.get("asset")), r.get("price")
@@ -57,7 +57,9 @@ def calcular(rows, c4s, now, fase=None):
             estado = ("já quebrou antes (sem sinal)" if ult < lo else
                       "abaixo do mínimo: sinal se fechar assim" if px < lo else "a aproximar-se")
             out["quebras"].append({"asset": a, "preco": px, "nivel": lo, "dist_pct": round(d_lo, 2),
-                                   "estado": estado, "fecho": fecho, "ok": ok_venue})
+                                   "estado": estado, "fecho": fecho,
+                                   "ok": ok_venue and (not margem or a in margem),
+                                   "margem": None if not margem else a in margem})
         d_hi = (hi / px - 1) * 100
         if d_hi < 8:
             estado = ("já rompeu antes (sem sinal)" if ult > hi else
@@ -65,7 +67,7 @@ def calcular(rows, c4s, now, fase=None):
             out["rompimentos"].append({"asset": a, "preco": px, "nivel": hi, "dist_pct": round(d_hi, 2),
                                        "estado": estado, "fecho": fecho, "ok": ok_venue,
                                        "ativo": fase == "subida"})
-    rank = lambda x: (x["estado"].startswith("já"), x["dist_pct"])
+    rank = lambda x: (not x["ok"], x["estado"].startswith("já"), x["dist_pct"])
     out["quebras"] = sorted(out["quebras"], key=rank)[:MAX]
     out["rompimentos"] = sorted(out["rompimentos"], key=rank)[:MAX]
     return out

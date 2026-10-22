@@ -1832,7 +1832,7 @@ function p3Draw(k, g) {
       rows.push([`${p3Persona("TURTLE_FORTES")} · em papel na subida`, `${pv.n}/${pv.n_min || 20} op. ${pv.r != null ? p3n(pv.r) + "R" : ""}`, "#cbd5e0"], ["Regra: ≥ +0,15R e 2 metades a ganhar", pv.estado || "a medir", "#b8a77a"]); }
     if (!L.length && f !== "subida") rows.push(["Sem aprovados no ringue de um ano", "", "#b8a77a"]);
     const RD = D.radar || {}, rl = f === "subida" ? RD.rompimentos : f === "lateral" ? RD.quebras : null;
-    if (rl) rl.filter(x => !/^já/.test(x.estado)).slice(0, 2).forEach(x => rows.push([`🎯 ${x.asset}: ${f === "subida" ? "máximo" : "mínimo"} de 20 dias`, `a ${p3n(x.dist_pct, 1).replace("+", "")}%`, x.dist_pct < 1 ? "#FFA94D" : "#b8a77a"]));
+    if (rl) rl.filter(x => x.ok && !/^já/.test(x.estado)).slice(0, 2).forEach(x => rows.push([`🎯 ${x.asset}: ${f === "subida" ? "máximo" : "mínimo"} de 20 dias`, `a ${p3n(x.dist_pct, 1).replace("+", "")}%`, x.dist_pct < 1 ? "#FFA94D" : "#b8a77a"]));
     const nv = (FN[f] || {}).novo || []; rows.push(["Filtro novo aprova", nv.length ? nv.map(p3Persona).join(", ") : "ninguém", nv.length ? up : "#b8a77a"]);
     rows.push([`Fase do mercado agora: ${E.fase || "–"}`, on ? "● ativa" : "", on ? o.c : "#b8a77a"]); p3Rows(g, rows); return; }
   if (k === "pos") { p3Frame(g, "💼 Posições com dinheiro real", P3C); const rows = [];
@@ -2021,7 +2021,7 @@ function p3Click(hit) { let o = hit.object; while (o && !o.userData.agent) o = o
   const f = p3Falas().find(x => x[0] === p); if (f) { P3.talk = { p, txt: f[1] }; P3.talkAt = 7; }
   // (22/10) tocar num agente abre o grafico da operacao dele (ou da moeda mais perto do gatilho)
   const D = p3Data(), coin = p.coin || (p.k ? (((D.active_signals || []).find(s => s.strategy === p.k) || {}).asset ||
-    (p.k === "SHORT_TURTLE" ? ((((D.radar || {}).quebras || []).find(x => !/^já/.test(x.estado))) || {}).asset :
+    (p.k === "SHORT_TURTLE" ? ((((D.radar || {}).quebras || []).find(x => x.ok && !/^já/.test(x.estado))) || {}).asset :
      p.k === "TURTLE_FORTES" ? ((((D.radar || {}).rompimentos || [])[0]) || {}).asset : null)) : null);
   if (coin && typeof window.openGraf === "function") setTimeout(() => window.openGraf(coin), 900); }
 

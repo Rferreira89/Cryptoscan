@@ -39,6 +39,9 @@ class Radar(unittest.TestCase):
         r = radar.calcular([{"asset": "AAA", "price": lo * 1.03}], {"AAA": c4}, 0)
         self.assertEqual(r["quebras"][0]["estado"], "a aproximar-se")
         self.assertEqual(radar.calcular([{"asset": "AAA", "price": lo * 1.5}], {"AAA": c4}, 0)["quebras"], [])
+        r = radar.calcular([{"asset": "AAA", "price": lo * 1.01}], {"AAA": c4}, 0, margem=["BTC"])
+        self.assertFalse(r["quebras"][0]["ok"])
+        self.assertFalse(r["quebras"][0]["margem"])
 
 
 class Indice(unittest.TestCase):
