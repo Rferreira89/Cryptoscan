@@ -425,6 +425,15 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
             promo_rows[a] = row
     except Exception as e:  # a promocao nunca pode parar o scan
         result["promo_erro"] = str(e)[:120]
+    try:                                      # (22/10) radar de quebras e indice do mercado (so informam)
+        from . import radar, indice
+        result["radar"] = radar.calcular(eligible, c4s, now, (state.get("mercado") or {}).get("regime"))
+        ind = indice.calcular((promo.DAILY or {}).get("BTC"), promo.DAILY)
+        if ind:
+            ind["hist"] = indice.historico(state, ind, now)[-24 * 30:]
+        result["indice"] = ind
+    except Exception as e:
+        result["radar_erro"] = str(e)[:120]
     try:                                      # amplitude do mercado (so informa)
         from . import amplitude
         result["amplitude"] = amplitude.atualizar(state, eligible, now)

@@ -573,6 +573,27 @@ class ModoAutomatico(unittest.TestCase):
         finally:
             execucao.READY = execucao.READY_SHORT = False
 
+    def test_avisa_quando_nao_entra(self):
+        from engine import auto, execucao
+        st = self.prova()
+        sig = {"mode": "REAL", "score_label": "campeão da arena", "direction": "SHORT", "asset": "AVAX",
+               "strategy": "SHORT_TURTLE", "diretor": {"decisao": "AUTORIZADO"}, "plan": {}}
+        ev = [{"event": "ISSUED", "id": "AVAX-SHORT_TURTLE-1", "signal": sig}]
+        self.assertEqual(auto.pick(st, ev, NOW), [])                    # automatico desligado
+        m = auto.pop_nao_entrou(st)
+        self.assertEqual(len(m), 1)
+        self.assertIn("Não entrei em AVAX", m[0])
+        self.assertIn("desligado", m[0])
+        self.assertEqual(auto.pop_nao_entrou(st), [])                   # so uma vez
+        auto.turn(st, True, NOW)
+        execucao.READY, execucao.READY_SHORT = True, False
+        try:
+            ev[0]["id"] = "AVAX-SHORT_TURTLE-2"
+            auto.pick(st, ev, NOW)
+            self.assertIn("teste real", auto.pop_nao_entrou(st)[0])
+        finally:
+            execucao.READY = execucao.READY_SHORT = False
+
     def test_telegram(self):
         from engine import inbox
         st = {"ledger": []}

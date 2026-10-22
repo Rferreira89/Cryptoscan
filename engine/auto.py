@@ -123,33 +123,67 @@ def turn(state, on, now):
 
 def pick(state, events, now):
     """Pede a execucao automatica dos sinais elegiveis. Devolve os ids."""
-    if not active(state):
-        return []
     from . import execucao
     a = _st(state)
+    on = active(state)
     hoje = [t for t in a.get("feitos") or [] if now - t < 86400]
-    out = []
+    out, nao = [], a.setdefault("nao_entrou", [])
     sigs = state.get("signals") or {}
+
+    def falhou(e, s, motivo):
+        # (22/10, pedido do Rui) sinal real de campeao em que o programa nao entrou: avisa com o motivo
+        nao.append({"id": e["id"], "asset": s.get("asset") or e["id"].split("-")[0],
+                    "estrategia": s.get("strategy"), "motivo": motivo, "t": int(now)})
     for e in events:
-        if e.get("event") != "ISSUED" or len(hoje) >= MAX_DIA:
+        if e.get("event") != "ISSUED":
             continue
         s = sigs.get(e["id"]) or e.get("signal") or {}
+        if s.get("mode") == "PAPER" or s.get("score_label") != "campeão da arena":
+            continue
         short = s.get("direction") == "SHORT" or (s.get("plan") or {}).get("side") == "SHORT"
-        if s.get("mode") == "PAPER" or (s.get("diretor") or {}).get("decisao") != "AUTORIZADO":
+        if not on:
+            falhou(e, s, "o modo automático está desligado" + (f" ({a['motivo']})" if a.get("motivo") else ""))
             continue
-        if s.get("score_label") != "campeão da arena":
+        if (s.get("diretor") or {}).get("decisao") != "AUTORIZADO":
+            falhou(e, s, "o Diretor não autorizou: " + ("; ".join((s.get("diretor") or {}).get("motivos") or []) or "sem motivo registado"))
             continue
-        if short and (now - (a.get("ligado_t") or now) < SHORT_APOS_S or not execucao.READY_SHORT):
+        if len(hoje) >= MAX_DIA:
+            falhou(e, s, f"já houve {MAX_DIA} entradas automáticas nas últimas 24 horas (limite do dia)")
+            continue
+        if short and now - (a.get("ligado_t") or now) < SHORT_APOS_S:
+            falhou(e, s, "os shorts automáticos ainda estão em espera")
+            continue
+        if short and not execucao.READY_SHORT:
+            falhou(e, s, "a venda a descoberto automática não está pronta (falta o teste real)")
             continue
         if not short and not execucao.READY:
+            falhou(e, s, "a execução não está ligada (chave de negociação)")
             continue
-        if execucao.request(state, "vender" if short else "comprar", e["id"], now):
-            hoje.append(now)
-            out.append(e["id"])
-            e["auto"] = True
-            a.setdefault("ids", []).append(e["id"])
+        if not execucao.request(state, "vender" if short else "comprar", e["id"], now):
+            falhou(e, s, "já havia um pedido de execução em curso para esta operação")
+            continue
+        hoje.append(now)
+        out.append(e["id"])
+        e["auto"] = True
+        a.setdefault("ids", []).append(e["id"])
     del a.setdefault("ids", [])[:-100]
+    del nao[:-30]
     a["feitos"] = hoje
+    return out
+
+
+def pop_nao_entrou(state):
+    """Mensagens para o Telegram dos sinais reais em que o programa nao entrou."""
+    a = _st(state)
+    vistos = a.setdefault("nao_avisados", [])
+    out = []
+    for x in a.get("nao_entrou") or []:
+        if x["id"] in vistos:
+            continue
+        vistos.append(x["id"])
+        out.append(f"⚠️ <b>Não entrei em {x['asset']}</b> ({x.get('estrategia') or '–'}): {x['motivo']}. "
+                   "Se quiseres entrar, usa o botão Executar da mensagem do sinal.")
+    del vistos[:-60]
     return out
 
 
@@ -175,4 +209,5 @@ def summary(state):
     a = _st(state)
     return {"ligado": active(state), "pedido": bool(a.get("ligado")), "forcado": bool(a.get("forcado")),
             "motivo": a.get("motivo"), "feitos_hoje": len(a.get("feitos") or []), "max_dia": MAX_DIA,
-            "criterios": [{"nome": n, "ok": ok, "detalhe": d} for n, ok, d in criteria(state)]}
+            "criterios": [{"nome": n, "ok": ok, "detalhe": d} for n, ok, d in criteria(state)],
+            "nao_entrou": (a.get("nao_entrou") or [])[-10:]}

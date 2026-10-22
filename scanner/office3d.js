@@ -1829,6 +1829,8 @@ function p3Draw(k, g) {
     if (f === "subida") { const pv = (((D.paper_ring || {}).TURTLE_FORTES) || {}).prova || { n: 0, n_min: 20, estado: "a medir" };
       rows.push([`${p3Persona("TURTLE_FORTES")} · em papel na subida`, `${pv.n}/${pv.n_min || 20} op. ${pv.r != null ? p3n(pv.r) + "R" : ""}`, "#cbd5e0"], ["Regra: ≥ +0,15R e 2 metades a ganhar", pv.estado || "a medir", "#b8a77a"]); }
     if (!L.length && f !== "subida") rows.push(["Sem aprovados no ringue de um ano", "", "#b8a77a"]);
+    const RD = D.radar || {}, rl = f === "subida" ? RD.rompimentos : f === "lateral" ? RD.quebras : null;
+    if (rl) rl.filter(x => !/^já/.test(x.estado)).slice(0, 2).forEach(x => rows.push([`🎯 ${x.asset}: ${f === "subida" ? "máximo" : "mínimo"} de 20 dias`, `a ${p3n(x.dist_pct, 1).replace("+", "")}%`, x.dist_pct < 1 ? "#FFA94D" : "#b8a77a"]));
     const nv = (FN[f] || {}).novo || []; rows.push(["Filtro novo aprova", nv.length ? nv.map(p3Persona).join(", ") : "ninguém", nv.length ? up : "#b8a77a"]);
     rows.push([`Fase do mercado agora: ${E.fase || "–"}`, on ? "● ativa" : "", on ? o.c : "#b8a77a"]); p3Rows(g, rows); return; }
   if (k === "pos") { p3Frame(g, "💼 Posições com dinheiro real", P3C); const rows = [];
@@ -1837,7 +1839,7 @@ function p3Draw(k, g) {
     if (!rows.length) rows.push(["Sem posições abertas", "", "#b8a77a"]);
     rows.push(["Conta", `${Number((D.conta || {}).equity || 0).toFixed(2).replace(".", ",")} USDC`, "#fff"]); p3Rows(g, rows); return; }
   if (k === "camp") { p3Frame(g, "🏆 Campeões a operar agora", P3C); const C = (D.promo || {}).campeoes || [], fase = (D.mercado || {}).regime || "–";
-    const rows = [[`Fase do mercado: ${fase}`, "", "#fff"]].concat(C.map(c => [`${p3Persona(c)} · ${c}`, c.startsWith("SHORT") ? "venda" : "compra", c.startsWith("SHORT") ? dn : up]));
+    const IX = D.indice, rows = [[`Fase do mercado: ${fase}`, IX ? `índice ${IX.valor}/100 · ${IX.rotulo}` : "", "#fff"]].concat(C.map(c => [`${p3Persona(c)} · ${c}`, c.startsWith("SHORT") ? "venda" : "compra", c.startsWith("SHORT") ? dn : up]));
     if (!C.length) rows.push(["Nenhum campeão: só o núcleo", "", "#b8a77a"]);
     rows.push([`Filtro a decidir: ${TF.ativo === "novo" ? "novo" : "atual"}`, `${TF.dias || 0} dias de registo`]); p3Rows(g, rows); return; }
   if (k === "risco") { p3Frame(g, "🛡️ Risco e proteção", P3C);
@@ -1947,6 +1949,7 @@ function p3Clear() {
 }
 function updateFloor3(force) {
   if (!P3.g) return;
+  try { const ev = p3Eventos(); if (ev.length && P3.on) p3Reagir(ev); } catch (_) { }
   Object.entries(P3.tex).forEach(([k, tx]) => { p3Draw(k, tx.userData.c.getContext("2d")); tx.needsUpdate = true; });
   const E = p3Equipas(), sig = JSON.stringify(E);
   Object.entries(P3.rooms || {}).forEach(([f, r]) => { const on = f === E.fase; r.sign.material.emissiveIntensity = on ? 1.6 : .35; r.lt.intensity = on ? 16 : 6; });
@@ -1968,9 +1971,34 @@ function updateFloor3(force) {
     if (f !== "subida" && !lista.length) { const l = p3Label("Sem aprovados nesta fase", "#a0aec0", new THREE.Vector3(o.x, P3H + 1.6, -7.6)); P3.dyn.push(l); }
   });
 }
+// (22/10) o escritorio reage: entrada real (alerta e som), fecho a ganhar (festa), fecho a perder (pos-morte)
+function p3Beep(f = 880) { try { const A = P3.ac || (P3.ac = new (window.AudioContext || window.webkitAudioContext)()), o = A.createOscillator(), g = A.createGain();
+  o.frequency.value = f; g.gain.setValueAtTime(.08, A.currentTime); g.gain.exponentialRampToValueAtTime(.001, A.currentTime + .35); o.connect(g); g.connect(A.destination); o.start(); o.stop(A.currentTime + .36); } catch (_) { } }
+function p3Eventos() {
+  const J = ((p3Data().journal || {}).rows || []).filter(r => r.mode === "REAL" && r.executed === true), ev = [];
+  const abertos = new Set(J.filter(r => r.status === "OPEN").map(r => r.id)), fechados = new Set(J.filter(r => r.status === "CLOSED").map(r => r.id));
+  if (P3.vAb) { J.forEach(r => { if (abertos.has(r.id) && !P3.vAb.has(r.id)) ev.push(["entrada", r]); if (fechados.has(r.id) && !P3.vFe.has(r.id)) ev.push([((r.real_r ?? r.user_result_r ?? r.result_r) || 0) > 0 ? "ganho" : "perda", r]); }); }
+  P3.vAb = abertos; P3.vFe = fechados; return ev;
+}
+function p3Reagir(ev) {
+  const role = r => P3.people.find(q => q.role === r), quem = r => P3.champ.find(q => q.k === r.strategy);
+  ev.forEach(([tipo, r]) => {
+    const R = r.real_r ?? r.user_result_r ?? r.result_r;
+    if (tipo === "entrada") { P3.flash = { c: "#4FD1C5", ate: 3 }; p3Beep(988); setTimeout(() => p3Beep(1318), 180);
+      P3.talk = { p: role("exec") || P3.people[0], txt: `Entrei em ${r.asset} (${p3Persona(r.strategy)}): ${r.side === "SHORT" ? "venda a descoberto" : "compra"} a ${r.exec_price || r.entry}, stop ${Number(r.stop).toPrecision(4)}.` }; P3.talkAt = 8; }
+    else if (tipo === "ganho") { P3.festa = 6; P3.flash = { c: "#68D391", ate: 4 }; p3Beep(1046); setTimeout(() => p3Beep(1318), 160); setTimeout(() => p3Beep(1568), 320);
+      P3.talk = { p: quem(r) || role("risco") || P3.people[0], txt: `Fechou ${r.asset} a ganhar: ${p3n(R)}R! 🎉` }; P3.talkAt = 8; }
+    else { P3.flash = { c: "#FC8181", ate: 4 }; p3Beep(330);
+      const pm = (((p3Data().posmortem || {}).ops) || []).find(o => o.id === r.id);
+      P3.talk = { p: role("risco") || P3.people[0], txt: `${r.asset} fechou em ${p3n(R)}R. Pós-morte na sala de comando: ${pm && pm.licoes.length ? pm.licoes[0] : "a analisar"}.` }; P3.talkAt = 9; }
+  });
+}
 function p3Tick(dt, t) {
   if (!P3.g) return;
   P3.people.forEach(p => animate(p, dt, t));
+  if (P3.festa > 0) { P3.festa -= dt; P3.people.forEach((p, i) => { p.g.position.y = Math.max(0, Math.sin(t * 9 + i) * .35) * Math.min(1, P3.festa); }); if (P3.festa <= 0) P3.people.forEach(p => p.g.position.y = 0); }
+  if (P3.flash) { P3.flash.ate -= dt; const L = P3.flashL || (P3.flashL = (() => { const l = new THREE.PointLight(0xffffff, 0, 60); l.position.set(2, 6, 0); P3.g.add(l); return l; })());
+    L.color.set(P3.flash.c); L.intensity = P3.flash.ate > 0 ? 40 * (0.5 + 0.5 * Math.sin(t * 10)) : 0; if (P3.flash.ate <= 0) P3.flash = null; }
   P3.scr.forEach(s => s.quaternion.copy(cam.quaternion));
   P3.talkAt -= dt;
   if (P3.talkAt <= 0) { const f = p3Falas(); if (f.length) { const [p, txt] = f[(P3.i++) % f.length]; P3.talk = { p, txt }; } P3.talkAt = 5; }
@@ -1988,7 +2016,12 @@ function p3Overlays() {
 }
 function p3Hide() { P3.labels.forEach(l => l.el.style.display = "none"); if (P3.bub) P3.bub.style.display = "none"; }
 function p3Click(hit) { let o = hit.object; while (o && !o.userData.agent) o = o.parent; const p = P3.people.find(q => q.a.id === (o && o.userData.agent)); if (!p) return;
-  const f = p3Falas().find(x => x[0] === p); if (f) { P3.talk = { p, txt: f[1] }; P3.talkAt = 7; } }
+  const f = p3Falas().find(x => x[0] === p); if (f) { P3.talk = { p, txt: f[1] }; P3.talkAt = 7; }
+  // (22/10) tocar num agente abre o grafico da operacao dele (ou da moeda mais perto do gatilho)
+  const D = p3Data(), coin = p.coin || (p.k ? (((D.active_signals || []).find(s => s.strategy === p.k) || {}).asset ||
+    (p.k === "SHORT_TURTLE" ? ((((D.radar || {}).quebras || []).find(x => !/^já/.test(x.estado))) || {}).asset :
+     p.k === "TURTLE_FORTES" ? ((((D.radar || {}).rompimentos || [])[0]) || {}).asset : null)) : null);
+  if (coin && typeof window.openGraf === "function") setTimeout(() => window.openGraf(coin), 900); }
 
 // ---------- ciclo ----------
 function project(v) { const p = v.clone().project(cam), r = R.domElement; return { x: (p.x + 1) / 2 * r.clientWidth, y: (1 - p.y) / 2 * r.clientHeight, ok: p.z < 1 }; }

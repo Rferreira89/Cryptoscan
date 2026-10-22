@@ -943,6 +943,9 @@ def main():
         aviso = auto.pop_aviso(state)
         if aviso and alerts.configured():
             alerts.send(aviso)
+        for txt in auto.pop_nao_entrou(state):
+            if alerts.configured():
+                alerts.send(txt, html=True)
     except Exception as e:
         print("auto:", e)
     try:
