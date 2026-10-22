@@ -594,6 +594,23 @@ class ModoAutomatico(unittest.TestCase):
         finally:
             execucao.READY = execucao.READY_SHORT = False
 
+    def test_recusa_da_bybit_nao_gasta_o_limite(self):
+        from engine import auto, execucao
+        st = self.prova()
+        auto.turn(st, True, NOW)
+        execucao.READY, execucao.READY_SHORT = True, True
+        try:
+            sig = {"mode": "REAL", "score_label": "campeão da arena", "direction": "SHORT", "asset": "ICP",
+                   "diretor": {"decisao": "AUTORIZADO"}, "plan": {}}
+            self.assertEqual(auto.pick(st, [{"event": "ISSUED", "id": "ICP-SHORT_TURTLE-1", "signal": sig}], NOW), ["ICP-SHORT_TURTLE-1"])
+            self.assertEqual(len(st["auto"]["feitos"]), 1)
+            auto.observe(st, {"ops": {"ICP-SHORT_TURTLE-1": {"asset": "ICP", "status": "recusada", "erro": "170344 Symbol is not supported on Margin Trading.", "t": NOW}}})
+            self.assertEqual(st["auto"]["feitos"], [])
+            self.assertIn("Bybit recusou", st["auto"]["nao_entrou"][-1]["motivo"])
+            self.assertEqual(auto.pop_nao_entrou(st), [])            # o executor ja avisou
+        finally:
+            execucao.READY = execucao.READY_SHORT = False
+
     def test_telegram(self):
         from engine import inbox
         st = {"ledger": []}

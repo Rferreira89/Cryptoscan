@@ -253,6 +253,8 @@ def apply_account(state, eu, now):
         state["capital_t"] = int(acc["t"])   # o composto conta a partir daqui
         state["capital_auto"] = True
     state["conta_livre"] = {"t": acc["t"], "usdc": acc.get("usdc_free")}
+    if acc.get("margem"):                    # (22/10) moedas que a Bybit UE deixa vender a descoberto
+        state["margem_bybit"] = {"t": acc["t"], "moedas": list(acc["margem"])}
     return {"t": acc["t"], "usdc_free": acc.get("usdc_free"),
             "equity": acc.get("equity"), "trades": acc.get("trades") or {},
             "fundo": acc.get("fundo"), "reais": acc.get("reais") or {}, "expira": acc.get("expires")}

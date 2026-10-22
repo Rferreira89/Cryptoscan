@@ -414,6 +414,20 @@ class CampeoesPorFase(unittest.TestCase):
                                              lambda a: None), {})
 
 
+class MargemBybit(unittest.TestCase):
+    def test_short_so_em_moedas_com_margem(self):
+        c4 = bars()
+        now = c4[-1]["t"] + TF + 60
+        sig = {"side": "SHORT", "stop": 90.0, "tp": [80.0], "partials": [100], "hold_s": 86400, "t_sig": c4[-1]["t"] + TF}
+        row = {"asset": "ICP", "price": 84.1, "decision": {"decision": "NO TRADE", "venue": {"pair": "ICP/USDC"}}}
+        st = {"ledger": [], "margem_bybit": {"t": now, "moedas": ["BTC", "ETH"]}}
+        cfg = dict(CFG, shorts=True)
+        with mock.patch.object(promo, "registry", return_value={"SHORT_TURTLE": lambda c, px, cfg: sig}):
+            d = promo.decisions(st, [row], {"ICP": c4}, cfg, now, ["SHORT_TURTLE"], True, lambda a: None)
+        self.assertEqual(d, {})
+        self.assertIn("sem margem", str(st.get("promo_lost") or st))
+
+
 class ProvaDupla(unittest.TestCase):
     """Rui, 20/10: com a fase conhecida so opera quem provou nessa fase; uma
     operacao de cada familia de cada vez."""

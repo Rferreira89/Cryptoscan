@@ -55,6 +55,17 @@ def observe(state, ex=None, events=()):
             a["aviso"] = (f"🤖⚠️ Modo automático DESLIGADO sozinho: falha de execução em {k} "
                           f"({o.get('erro') or o.get('stop_erro') or 'stop'}). Verifica a posição na "
                           "Bybit. Para voltar a ligar: /auto forcar.")
+    fid = a.setdefault("feitos_id", {})
+    for k, o in ((ex or {}).get("ops") or {}).items():
+        if o.get("status") == "recusada" and k in fid:
+            t = fid.pop(k)
+            if t in (a.get("feitos") or []):
+                a["feitos"].remove(t)           # (22/10) recusada pela Bybit: nao conta para o limite do dia
+            a.setdefault("nao_entrou", []).append({"id": k, "asset": o.get("asset") or k.split("-")[0],
+                                                   "estrategia": k.split("-")[1] if "-" in k else None,
+                                                   "motivo": "a Bybit recusou: " + str(o.get("motivo") or o.get("erro") or "–")[:140],
+                                                   "t": int(o.get("t") or 0)})
+            a.setdefault("nao_avisados", []).append(k)     # o executor ja avisou no Telegram
     for x in (ex or {}).get("log") or []:
         if x.get("acao") == "breakeven" and str(x.get("res")).startswith(("ok", "stop já")):
             pv["breakeven"] = True
@@ -163,6 +174,7 @@ def pick(state, events, now):
             falhou(e, s, "já havia um pedido de execução em curso para esta operação")
             continue
         hoje.append(now)
+        a.setdefault("feitos_id", {})[e["id"]] = now
         out.append(e["id"])
         e["auto"] = True
         a.setdefault("ids", []).append(e["id"])

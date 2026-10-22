@@ -359,6 +359,27 @@ def funding():
     return out
 
 
+def _margem_ou_none():
+    try:
+        m = margem()
+        return m or None
+    except Exception as e:
+        print("margem:", e)
+        return None
+
+
+def margem():
+    """(22/10) Moedas com par em USDC que aceitam margem spot na Bybit UE (para vender a
+    descoberto). A ICP de 22/10 foi recusada: 'Symbol is not supported on Margin Trading'."""
+    d = get("/v5/market/instruments-info", {"category": "spot"})
+    out = set()
+    for x in d.get("list") or []:
+        if x.get("quoteCoin") == "USDC" and str(x.get("marginTrading") or "none").lower() in ("both", "utaonly") \
+                and x.get("status") == "Trading":
+            out.add(x.get("baseCoin"))
+    return sorted(out)
+
+
 def snapshot(state, now=None):
     """Le a conta e devolve o resumo minimo para publicar. Nunca levanta:
     em caso de erro devolve {'ok': False, 'error': ...}."""
@@ -398,6 +419,7 @@ def snapshot(state, now=None):
                 "equity": equity(wallet),
                 "expires": info.get("expiredAt"),
                 "fundo": funding(),
+                "margem": _margem_ou_none(),
                 "trades": check_trades(led, held, orders, execs, now)}
     except AccountError as e:
         return {"ok": False, "error": str(e)[:120], "t": int(now)}

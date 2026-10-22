@@ -473,6 +473,10 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
             if sig.get("side") == "SHORT":
                 if not cfg.get("shorts"):
                     continue
+                mg = (state.get("margem_bybit") or {}).get("moedas")
+                if mg and a not in mg:            # (22/10) a Bybit UE nao empresta esta moeda
+                    falhou = falhou or (champ, sig["t_sig"], "sem margem na Bybit UE: a moeda não se pode vender a descoberto")
+                    continue
                 p, why = short_plan_for(sig, r["price"], cfg)
             else:
                 p, why = plan_for(sig, r["price"], cfg)
