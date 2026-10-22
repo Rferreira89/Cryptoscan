@@ -5,7 +5,10 @@ quedas, compressão, oversold bounce 4H, day trade 1H, bounce com outras
 saídas, sweep a mercado, funding negativo, quebra com compradores,
 capitulação do mercado, atraso face ao BTC, resiliente, impulso de
 amplitude; mais 7 no diário de afinação, H1 a H7). Atualizado em
-2026-10-21. Quanto maior este número, maior a probabilidade de uma
+2026-10-22 (sem hipótese nova nesta corrida). O contador global do
+programa (`engine/hipoteses.py`, com os estudos fora do programa em
+`backtest/hipoteses_offline.json`, contra dados que incluem esta reserva)
+já vai em 41. Quanto maior este número, maior a probabilidade de uma
 hipótese passar por sorte: com 19 testes, a probabilidade de pelo menos um
 falso positivo a 5% já ronda os 62% (e as várias configurações de cada
 grelha aumentam-na ainda mais).
@@ -170,6 +173,8 @@ o Rui), e o morto fica registado. Um por corrida, na segunda vaga.
 | FIBO_RECUO | 2026-10-17 (forma recente; 237 op., −0,095R) | o momento da entrada: no desenho −0,19R contra +0,01R ao acaso com a mesma geometria (percentil 0); os recuos de 50%–61,8% são impulsos a falhar (só 7% dos stops voltam ao objetivo); nenhum filtro único chega ao nível do acaso (ver entrada de 2026-10-17) | sem sucessor | — |
 | MAIORES_FUNDING | 2026-10-18 (forma recente, morte rápida; 10 op., −0,676R) | o funding negativo nas maiores é sinal de fraqueza que continua, não de aperto: no desenho o gatilho com funding dá −0,32R (percentil 14 do acaso) e o mesmo gatilho sem funding −0,13R (percentil 43, igual ao acaso); a geometria (1,5R/3R em 3 dias) também perde com entradas ao acaso (ver entrada de 2026-10-20) | sem sucessor (tirar o filtro só leva ao nível do acaso; confirma a hipótese 4 da fila) | — |
 | BOUNCE_MACRO | 2026-10-19 (forma recente; 51 op., −0,011R) | o próprio filtro macro: nos últimos 90 dias tirou ao BOUNCE_X30 (vivo, +0,28R) cerca de 16 operações que valeram em média +1,2R; as melhores sobrevendas acontecem quando a macro NÃO está calma (ver entrada de 2026-10-20) | sem sucessor (a correção é tirar o filtro, e isso é o BOUNCE_X30, já vivo; o contrário, BOUNCE_MEDO, já existe) | — |
+| TURTLE_FORTES | 2026-10-22 06:35 UTC (forma recente; 35 op., +0,19R) | a mesma da TURTLE: com esta saída, entradas ao acaso dão +0,56R (p95 +0,93R), logo o momento de comprar o rompimento é pior do que o acaso; +0,78R nos primeiros 60 dias (subida), −0,51R nos últimos 30 (lateral); no estudo H11d falha 2021-24 (ver entrada de 2026-10-22) | sem sucessor (família das quebras esgotada; ver 2026-10-14) | — |
+| BOUNCE_X30, BOUNCE_X30_LIQ, BOUNCE_X30_PAVIO, BOUNCE_ISOLADA, BOUNCE_SQUEEZE, BOUNCE_TRAIL, BOUNCE_NOREACT, BOUNCE_FLUXO, BOUNCE_FORTE, BOUNCE_HORAS, BOUNCE_ABSORCAO, BOUNCE_G0, BOUNCE_V2, BOUNCE_V3, DIP_TREND | 2026-10-22 (corte dos clones, 04:50 e 09:25 UTC) | não é desempenho: morreram como clones (resultados diários correlacionados 0,75 a 1,00). Defeito encontrado: o representante do grupo também morreu (PAVIO como clone da ISOLADA às 04:50, ISOLADA como clone da PAVIO, já morta, às 09:25), por isso a família inteira do Oversold Bounce, a única acima do acaso, ficou sem ninguém (ver entrada de 2026-10-22) | sem sucessor (um sucessor seria outro clone; a correção é no corte dos clones, numa sessão com o Rui) | — |
 
 ## Hipóteses anteriores a este diário (até 2026-10-02, período 2021-2026)
 
@@ -1228,3 +1233,76 @@ só pela H7 da afinação (SHORT_FALHADO, REJEITADA em 2026-10-21).
   entrada que não seja variante das famílias acima. Na corrida de
   2026-10-25 o histórico já terá 7 dias de atraso: correr primeiro o
   workflow "Historico para backtest".
+
+## 2026-10-22 — Sem hipótese nova hoje; autópsias de TURTLE_FORTES e dos clones (sem sucessor)
+
+**Veredicto da corrida: nenhuma hipótese testada.** O contador desta
+reserva fica em 19 (nenhuma hipótese nova aqui nem na afinação desde a H7).
+O contador global do programa vai em 41 (estudos H8 a H11 de 21 e 22/10).
+
+- **Histórico** (ramo `history`): última atualização 2026-10-18, 4 dias de
+  atraso (abaixo dos 7), 74 moedas em 4H, 72 em 1H, 69 com funding. O
+  histórico de derivados (`derivados.json`, ramo `data`) só é recolhido
+  desde 2026-10-20 e as moedas delistadas (ramo `history-delistadas`) só
+  servem para testes sem viés de sobrevivência: nenhum dos dois dá uma
+  fonte nova com 24 meses de dados.
+- **Arena** (scan.json do ramo `data`, 2026-10-22 10:50 UTC): **9
+  lutadores vivos** (mínimo 5), `recrutar` falso. Fila do Rui vazia.
+  Mortos novos desde ontem: TURTLE_FORTES (forma recente) e 15 lutadores
+  pelo corte dos clones (regra nova de 21/10, OK do Rui).
+
+### Autópsia de TURTLE_FORTES (sem sucessor)
+
+- Combate de 90 dias (`forma.json`, ramo `arena`): 35 op., 15 ganhadoras,
+  +0,19R; com a mesma saída e entradas ao acaso: mediana **+0,56R**, p95
+  +0,93R. Primeiros 60 dias (fase de subida): 19 op. a +0,78R; últimos 30
+  dias (lateral): 16 op. a −0,51R. Estudo H11d (2021-24 e 2024-26, fase de
+  subida): −0,00R e +0,42R, falha 2021-24.
+- **Causa**: a mesma da TURTLE (2026-10-14): a saída larga em tendência
+  ganha com quase qualquer entrada numa moeda que sobe; comprar o
+  rompimento é pior do que entrar ao acaso nessa mesma moeda. Quando a
+  fase passou a lateral, os rompimentos falharam. A família "comprar a
+  quebra em 4H" já está esgotada (TURTLE, SQUEEZE_BB, RETESTE,
+  BRK_ESPACO, QUEBRA_COMPRADORES): **sem sucessor**. Nota para o Rui:
+  morreu às 06:35 UTC, minutos depois do commit que a deixava em papel na
+  fase de subida (d30c1f2).
+
+### Mortes pelo corte dos clones: defeito no corte (sem sucessor)
+
+- Às 04:50 UTC o ringue longo escolheu BOUNCE_ISOLADA como representante
+  do grupo do Oversold Bounce e matou BOUNCE_X30_PAVIO, BOUNCE_X30,
+  BOUNCE_X30_LIQ, BOUNCE_SQUEEZE, BOUNCE_TRAIL, BOUNCE_NOREACT,
+  BOUNCE_FLUXO, BOUNCE_FORTE, BOUNCE_HORAS, BOUNCE_ABSORCAO e DIP_TREND
+  como clones dela. Às 09:25 UTC o ringue longo voltou a ordenar o grupo,
+  agora com BOUNCE_X30_PAVIO (já morta) como representante, e matou
+  BOUNCE_ISOLADA, BOUNCE_G0, BOUNCE_V2 e BOUNCE_V3 como clones dela.
+- **Resultado**: o grupo inteiro morreu, incluindo o lutador que devia
+  ficar ("o melhor de cada grupo fica", `tools/arena_ringue.clones`). No
+  combate de 90 dias, ISOLADA (63 op., +0,26R, p95 do acaso −0,05R) e
+  PAVIO (64 op., +0,29R, p95 −0,04R) estavam ambas acima do p95 do acaso:
+  eram a única família com vantagem medida. Da família só restam vivos
+  BOUNCE_LSR, BOUNCE_DESALAV, BOUNCE_AMPLITUDE e BOUNCE_V1 (todos com
+  menos de 25 operações no combate).
+- **Causa técnica** (leitura do código, sem mexer): `clones()` ordena os
+  candidatos sem excluir os já mortos e escolhe o representante de novo
+  em cada corrida; `engine/arena.py` mata um clone mesmo quando o
+  representante já está morto. A correção (só contar representantes
+  vivos, ou fixar o representante enquanto viver, e decidir se a ISOLADA
+  ou a PAVIO renasce) é em `engine/` e na regra de morte: fica para uma
+  sessão com o Rui. Um sucessor seria outra variante do Bounce e seria
+  cortado como clone outra vez: **sem sucessor**.
+
+### Porque não há hipótese nova
+
+As ideias de compra que restam com os dados do histórico são variantes de
+famílias já rejeitadas (quebras, recuos técnicos, amplitude, reação ao
+BTC, funding negativo) ou do Bounce que já está no ringue. Com 19
+hipóteses contra esta reserva (cerca de 62% de probabilidade de pelo menos
+um falso positivo a 5%) e 41 no contador global, mais uma hipótese fraca
+só aumenta o ruído.
+
+- Proposta para a próxima corrida: autópsia se morrer alguém; uma
+  hipótese nova só quando `derivados.json` tiver histórico suficiente ou
+  com uma ideia de entrada que não seja variante das famílias acima. Na
+  corrida de 2026-10-25 o histórico terá 7 dias de atraso: correr primeiro
+  o workflow "Historico para backtest".
