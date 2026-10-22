@@ -1006,6 +1006,41 @@ def sig_amplitude(c4):
     return dict(s0, gatilho=f"sobrevenda a virar numa capitulação geral ({f:.0%} das moedas em sobrevenda)")
 
 
+_FASE_CACHE = {}
+
+
+def _fase_btc(t):
+    """Fase do mercado (engine/arena.market_regime) com o BTC diario fechado ate t."""
+    src = (CTX.get("daily") or {}).get("BTC") or CTX.get("btc") or []
+    key = (id(src), len(src), t // DAY)
+    if key not in _FASE_CACHE:
+        if len(_FASE_CACHE) > 5000:
+            _FASE_CACHE.clear()
+        d = src if (CTX.get("daily") or {}).get("BTC") else B.daily(src)
+        d = [x for x in d if x["t"] + DAY <= t]
+        _FASE_CACHE[key] = arena.market_regime(btc1d=d)
+    return _FASE_CACHE[key]
+
+
+def sig_turtle_fortes(c4):
+    """(22/10, OK do Rui; so em papel) TURTLE de 20 dias so na fase de subida e
+    so em moedas mais fortes que o BTC a 30 dias. Estudo H11: +0,42R por operacao
+    em 2024-26, mas 0,00R em 2021-24, por isso nao entra no dinheiro real.
+    Regra fixada antes de ver resultados ao vivo: com >= 20 operacoes em papel na
+    subida, R medio >= +0,15 e as duas metades a ganhar, pode ir a dinheiro real,
+    sempre com o OK do Rui; abaixo de 0 ao fim de 20 operacoes, sai."""
+    t = c4[-1]["t"] + H4
+    if len(c4) < 182 or _fase_btc(t) != "subida":
+        return None
+    mine, btc = c4[-1]["c"] / c4[-181]["c"] - 1, _btc_ret(t, 180)
+    if btc is None or mine <= max(btc, 0):
+        return None
+    sig = sig_turtle(c4)
+    return sig and dict(sig, gatilho=sig["gatilho"] + f", moeda mais forte que o BTC a 30 dias ({mine:+.0%})")
+
+
+PAPEL_ESTUDO = ("TURTLE_FORTES",)       # so em papel: fora de promo.REAL_OK
+
 MAIORES_SIGS = {"MAIORES_RECUO": sig_maiores_recuo, "MAIORES_TENDENCIA": sig_maiores_tendencia,
                 "MAIORES_FUNDING": sig_maiores_funding}
 SHORT_SIGS.update({
@@ -1027,7 +1062,8 @@ NEW_SIGS = {"BRK_ESPACO": sig_breakout_espaco, "RETESTE": sig_reteste,
             "VOLUME_ACUMULACAO": sig_volume,
             "FIBO_RECUO": sig_fibo,
             **MAIORES_SIGS,
-            "BOUNCE_AMPLITUDE": sig_amplitude}
+            "BOUNCE_AMPLITUDE": sig_amplitude,
+            "TURTLE_FORTES": sig_turtle_fortes}
 
 
 def fetch_funding(base, now, days):

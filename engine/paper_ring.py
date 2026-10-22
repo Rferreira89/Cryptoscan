@@ -19,6 +19,13 @@ def update(state, rows, bars, now, market_ok=True):
     # os qualificados com codigo revisto ja operam a dinheiro real (registo)
     active = [k for k, _ in promo.qualified(state)
               if k in reg and k not in OWN_PAPER and k not in promo.REAL_OK]
+    # (22/10, OK do Rui) estudos que operam sempre em papel, qualificados ou nao
+    try:
+        from tools.arena_ringue import PAPEL_ESTUDO
+    except Exception:
+        PAPEL_ESTUDO = ()
+    active += [k for k in PAPEL_ESTUDO if k in reg and k not in active and k not in promo.REAL_OK]
+    fase = (state.get("mercado") or {}).get("regime")
     for k in set(st) | set(active):
         b = st.setdefault(k, {"open": {}, "closed": [], "last": {}})
         for a in list(b["open"]):
@@ -37,7 +44,7 @@ def update(state, rows, bars, now, market_ok=True):
                     "reason": pos["exit_reason"], "entry": pos["entry"],
                     "stop": pos["stop0"], "tp": list(pos["tps"]),
                     "partials": list(pos["partials"]),
-                    "breakeven": pos.get("breakeven", True)}])[-300:]
+                    "breakeven": pos.get("breakeven", True), "fase": pos.get("fase")}])[-300:]
                 del b["open"][a]
         if k not in active or not market_ok:
             continue
@@ -63,7 +70,32 @@ def update(state, rows, bars, now, market_ok=True):
             pos = trade.open_position(sig, r["price"], sig["t_sig"], FEE_PCT, SLIP_PCT,
                                       breakeven=sig.get("breakeven", True))
             pos["next_t"] = c4[-1]["t"] + TF
+            pos["fase"] = fase
             if sig.get("hold_s"):
                 pos["max_hold"] = sig["hold_s"]
             b["open"][a] = pos
-    return {k: {"n": len(v["closed"]), "open": sorted(v["open"])} for k, v in st.items()}
+    out = {k: {"n": len(v["closed"]), "open": sorted(v["open"])} for k, v in st.items()}
+    for k in PAPEL_ESTUDO:
+        if k in out:
+            out[k]["prova"] = prova_estudo(st[k]["closed"])
+    return out
+
+
+def prova_estudo(closed, fase="subida", n_min=20, r_min=0.15):
+    """Regra fixada a 22/10 (antes de haver resultados): com n_min operacoes em
+    papel na fase, R medio >= r_min e as duas metades a ganhar -> pode ir a
+    dinheiro real com o OK do Rui; R medio < 0 -> sai; senao, continua."""
+    rs = [c["r"] for c in closed if c.get("fase") == fase and c.get("r") is not None]
+    n = len(rs)
+    r = round(sum(rs) / n, 3) if n else None
+    h = n // 2
+    met = [round(sum(rs[:h]) / h, 3), round(sum(rs[h:]) / (n - h), 3)] if h else None
+    if n < n_min:
+        estado = "a medir"
+    elif r >= r_min and met and min(met) > 0:
+        estado = "aprovado: pede o OK do Rui"
+    elif r < 0:
+        estado = "chumbado"
+    else:
+        estado = "a medir"
+    return {"fase": fase, "n": n, "n_min": n_min, "r": r, "metades": met, "estado": estado}

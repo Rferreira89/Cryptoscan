@@ -588,6 +588,28 @@ def ordens_watch(state, conta, ex, now):
     return out
 
 
+def estudo_aviso(state, paper):
+    """(22/10) Aviso quando um lutador em papel de estudo muda de estado pela
+    regra fixada (aprovado: pede o OK do Rui / chumbado). Nao mexe em dinheiro."""
+    from . import arena
+    vis = state.setdefault("estudo_estado", {})
+    out = []
+    for k, v in (paper or {}).items():
+        pv = v.get("prova") if isinstance(v, dict) else None
+        if not pv:
+            continue
+        e, ant = pv.get("estado"), vis.get(k)
+        vis[k] = e
+        if ant is None or e == ant or e == "a medir":
+            continue
+        if e.startswith("aprovado"):
+            out.append(f"🧪 <b>{arena.persona(k)} ({k})</b> passou a regra em papel na {pv['fase']}: {pv['n']} operações, "
+                       f"{pv['r']:+.2f}R de média, metades {pv['metades']}. Só vai a dinheiro real com o teu OK.")
+        else:
+            out.append(f"🧪 <b>{arena.persona(k)} ({k})</b> chumbou em papel na {pv['fase']}: {pv['n']} operações, {pv['r']:+.2f}R de média. Sai do estudo.")
+    return out
+
+
 def campeoes_aviso(state, campeoes, now):
     """(21/10) Aviso quando um campeao sai do dinheiro real, com o motivo:
     clone de outro lutador, suspensao pelo resultado real ou mudanca de fase.
@@ -960,6 +982,12 @@ def main():
                 alerts.send(txt, html=True)
     except Exception as e:
         print("campeoes_aviso:", e)
+    try:                                     # (22/10) estudo em papel (TURTLE_FORTES na subida)
+        for txt in estudo_aviso(state, res.get("paper_ring")):
+            if alerts.configured():
+                alerts.send(txt, html=True)
+    except Exception as e:
+        print("estudo_aviso:", e)
     try:                                     # D1: verificacao diaria das ordens (stop e objetivo)
         for txt in ordens_watch(state, res.get("conta"), ex_now, res["generated_at"]):
             if alerts.configured():

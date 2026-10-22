@@ -176,7 +176,7 @@ def family(k):
     b = re.sub(r"_R\d+$", "", k or "")
     if b.startswith("SHORT_"):
         return "short"
-    if b in ("DIP_TREND", "TURTLE", "MOMENTUM", "TREND_DAILY", "BREAKOUT", "PULLBACK",
+    if b in ("DIP_TREND", "TURTLE", "TURTLE_FORTES", "MOMENTUM", "TREND_DAILY", "BREAKOUT", "PULLBACK",
              "BRK_ESPACO", "RETESTE", "FIBO_RECUO"):
         return "tendencia"
     if b in ("SQUEEZE_BB",):
