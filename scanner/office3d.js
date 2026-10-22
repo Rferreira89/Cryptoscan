@@ -1450,6 +1450,7 @@ const PESQUISA = [
   ["❌", "H13: entrar mais cedo pelo índice", "perde: a regra de fase protege"],
   ["✅", "H14: núcleo reforça nas quedas", "fica: ajuda em 2021-24, neutro depois"],
   ["❌", "H15: núcleo a 85% na subida", "não melhora"],
+  ["❌", "H16: só BTC, 50/25/25, 3 fechos", "nenhuma bate o núcleo de hoje"],
   ["🔬", "H4: liquidações em massa", "em estudo"],
 ];
 const p2n = (x, d = 2) => x == null || isNaN(x) ? "–" : (x > 0 ? "+" : "") + Number(x).toFixed(d).replace(".", ",");
