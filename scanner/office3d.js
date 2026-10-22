@@ -1444,6 +1444,7 @@ const PESQUISA = [
   ["❌", "H8: só entrar com TP1 ≥ 3× custo", "quase não muda"],
   ["❌", "H9: sobrevenda com moedas delistadas", "perde por dia nos 2 períodos"],
   ["✅", "H10: SHORT_TURTLE na fase lateral", "passa nos 2 períodos"],
+  ["❌", "H11: 4 estratégias de tendência na subida", "falham 2021-24"],
   ["🔬", "H4: liquidações em massa", "em estudo"],
 ];
 const p2n = (x, d = 2) => x == null || isNaN(x) ? "–" : (x > 0 ? "+" : "") + Number(x).toFixed(d).replace(".", ",");
@@ -1782,12 +1783,13 @@ function goFloor(n) {
     if (P2.g) { P2.on = false; P2.g.visible = false; p2HideOverlays(); }
     if (!P3.g) buildFloor3();
     P3.on = true; P3.g.visible = true; updateFloor3(true);
-    const T = new THREE.Vector3(2.5, P3H, 0); ctl.target.copy(T);
-    if (cam.aspect < .8) cam.position.set(T.x - 34, T.y + 30, 0); else cam.position.set(T.x + 1, T.y + 19, 22); ctl.update();
+    const T = new THREE.Vector3(2, P3H, 0); ctl.target.copy(T); ctl.maxDistance = 95;
+    if (cam.aspect < .8) cam.position.set(T.x - 50, T.y + 50, 0); else cam.position.set(T.x - .5, T.y + 30, 27); ctl.update();
     try { window.dispatchEvent(new CustomEvent("piso", { detail: 3 })); } catch (_) { }
     return true;
   }
   if (P3.g) { P3.on = false; P3.g.visible = false; p3Hide(); }
+  ctl.maxDistance = 70;
   if (!P2.g) buildFloor2();
   P2.on = n === 2; P2.g.visible = P2.on;
   if (!P2.on) { p2HideOverlays(); resize.done = false; ctl.target.set(0, 0, 0); resize(); ctl.update(); }
@@ -1796,7 +1798,7 @@ function goFloor(n) {
   try { window.dispatchEvent(new CustomEvent("piso", { detail: P2.on ? 2 : 1 })); } catch (_) { }
   return P2.on;
 }
-function p2Leave() { if (P3.on) { P3.on = false; P3.g.visible = false; p3Hide(); try { window.dispatchEvent(new CustomEvent("piso", { detail: 1 })); } catch (_) { } }
+function p2Leave() { if (P3.on) { ctl.maxDistance = 70; P3.on = false; P3.g.visible = false; p3Hide(); try { window.dispatchEvent(new CustomEvent("piso", { detail: 1 })); } catch (_) { } }
   if (!P2.on) return; P2.on = false; P2.g.visible = false; p2HideOverlays(); try { window.dispatchEvent(new CustomEvent("piso", { detail: 1 })); } catch (_) { } }
 
 // ---------- 3.o piso: Mesa de Elite (so quem opera dinheiro real) ----------
@@ -1818,9 +1820,17 @@ function p3Rows(g, rows, y0 = 92, lh = 30) { rows.slice(0, 10).forEach(([a, b, c
 function p3Draw(k, g) {
   const D = p3Data(), N = D.nucleo || {}, RE = D.reais || {}, RK = D.risco || {}, AU = D.auto || {}, OK = D.ordens_ok || {}, TF = D.troca_filtro || {};
   const up = "#68D391", dn = "#FF8A80";
+  if (k.startsWith("f_")) { const f = k.slice(2), o = P3F[f], E = p3Equipas(), on = E.fase === f, L = E.out[f] || [], FN = (D.filtro_novo || {}).fases || {};
+    p3Frame(g, `Gabinete ${o.n} ${on ? "· FASE ATUAL" : "· de reserva"}`, on ? o.c : "#718096");
+    const rows = [];
+    if (f === "subida") { const pos = Object.keys(N.pos || {}); rows.push(["Núcleo BTC · ETH · SOL", pos.length ? `${pos.length} em carteira` : "em USDC", pos.length ? up : "#b8a77a"], ["Regra: acima da média de 200 dias", "70% do capital"]); }
+    L.forEach(x => rows.push([`${p3Persona(x.k)} · ${x.k}`, x.ativo ? "a operar" : "reserva", x.ativo ? (x.k.startsWith("SHORT") ? dn : up) : "#b8a77a"]));
+    if (!L.length) rows.push([f === "subida" ? "Campeão tático: lugar vago (em estudo)" : "Sem aprovados no ringue de um ano", "", "#b8a77a"]);
+    const nv = (FN[f] || {}).novo || []; rows.push(["Filtro novo aprova", nv.length ? nv.map(p3Persona).join(", ") : "ninguém", nv.length ? up : "#b8a77a"]);
+    rows.push([`Fase do mercado agora: ${E.fase || "–"}`, on ? "● ativa" : "", on ? o.c : "#b8a77a"]); p3Rows(g, rows); return; }
   if (k === "pos") { p3Frame(g, "💼 Posições com dinheiro real", P3C); const rows = [];
     Object.entries(N.plano || {}).forEach(([a, p]) => { if (N.pos && N.pos[a]) rows.push([`Núcleo ${a} · ${Math.round(p.valor_usdc || 0)} USDC`, p3n(p.resultado_usdc) + " USDC", (p.resultado_usdc || 0) >= 0 ? up : dn]); });
-    ((D.conta || {}).trades || []).filter(t => t.held).forEach(t => rows.push([`${t.asset} · ${p3Persona((t.id || "").split("-")[1])}`, `stop ${t.stop_px ?? "–"}`, "#efe6cf"]));
+    (t0 => Array.isArray(t0) ? t0 : Object.values(t0 || {}))((D.conta || {}).trades).filter(t => t && t.held).forEach(t => rows.push([`${t.asset} · ${p3Persona((t.id || "").split("-")[1])}`, `stop ${t.stop_px ?? "–"}`, "#efe6cf"]));
     if (!rows.length) rows.push(["Sem posições abertas", "", "#b8a77a"]);
     rows.push(["Conta", `${Number((D.conta || {}).equity || 0).toFixed(2).replace(".", ",")} USDC`, "#fff"]); p3Rows(g, rows); return; }
   if (k === "camp") { p3Frame(g, "🏆 Campeões a operar agora", P3C); const C = (D.promo || {}).campeoes || [], fase = (D.mercado || {}).regime || "–";
@@ -1838,7 +1848,7 @@ function p3Falas() {
   ["BTC", "ETH", "SOL"].forEach(a => { const p = (N.plano || {})[a] || {}, op = P3.people.find(q => q.coin === a); if (!op) return;
     const dist = p.preco && p.media ? (1 - p.media / p.preco) * 100 : null;
     out.push([op, N.pos && N.pos[a] ? `${a}: ${Math.round(p.valor_usdc || 0)} USDC, ${p3n(p.resultado_usdc)} USDC. Saída se fechar abaixo da média de 200 dias${dist != null ? `, a ${dist.toFixed(1).replace(".", ",")}%` : ""}.` : `${a}: em USDC, à espera do fecho acima da média de 200 dias.`]); });
-  P3.champ.forEach(op => { const k = op.k; out.push([op, k.startsWith("SHORT_TURTLE") ? "Procuro altcoins a quebrar o mínimo de 20 dias para vender a descoberto." :
+  P3.champ.forEach(op => { const k = op.k; if (!op.ativo) { out.push([op, `Estou de reserva no gabinete ${P3F[op.fase].n.toLowerCase()}: provei ganhar nessa fase e entro sozinho quando o mercado lá chegar.`]); return; } out.push([op, k.startsWith("SHORT_TURTLE") ? "Procuro altcoins a quebrar o mínimo de 20 dias para vender a descoberto." :
     k.startsWith("BOUNCE") ? `Espero sobrevenda forte: hoje ${Number(AM.sobrevenda_pct || 0).toFixed(0)}% das moedas estão em sobrevenda.` : "À espera do meu sinal, com a prova da fase."]); });
   const role = r => P3.people.find(q => q.role === r);
   if (role("risco")) out.push([role("risco"), `Risco ${RK.reduzido ? "a metade" : "normal"}: ${RK.motivo || ""}`.slice(0, 120)]);
@@ -1858,39 +1868,99 @@ function p3Person(key, nm, st, col, x, z) { STYLE[key] = st; DESK[key] = { z: "s
   const p = makePerson({ id: key, nm, c: col }); scene.remove(p.g); p.name.remove(); P3.g.add(p.g);
   p.g.traverse(o => { if (o.isMesh) o.castShadow = false; }); p.g.position.set(x, 0, z + .95); p.mode = "desk"; p.sit = true; p.face = Math.PI; p.path = []; p.nm = nm;
   p.tag = p3Label(nm, col, new THREE.Vector3()); return p; }
-const P3SEATS = [-13.5, -9.5, -5.5, -1.5, 2.5, 6.5, 10.5, 14.5, 18.5];
+// (22/10, pedido do Rui) o 3.o piso passa a ter escritorios: um gabinete por
+// fase do mercado (subida, lateral, queda), a sala de risco e execucao, a sala
+// de comando e o lounge. No gabinete da fase atual sentam-se os campeoes que
+// operam agora; nos outros, os aprovados no ringue de um ano para essa fase,
+// de reserva, que entram sozinhos quando o mercado mudar de fase.
+const P3F = { subida: { n: "Subida", c: "#68D391", x: -13.33 }, lateral: { n: "Lateral", c: "#63B3ED", x: 2 }, queda: { n: "Queda", c: "#FC8181", x: 17.33 } };
+const P3ROW = [-9.6, -5.6], P3COL = [-5.25, -1.75, 1.75, 5.25];
+function p3Room(x0, x1, z0, z1, col, porta, nome) {
+  const G = P3.g, cx = (x0 + x1) / 2, cz = (z0 + z1) / 2, w = x1 - x0, d = z1 - z0, glass = mat(col, .2, .13), frame = mat(P3C, .35);
+  const fl = new THREE.Mesh(new THREE.PlaneGeometry(w - .2, d - .2), mat(col, .05, .1)); fl.rotation.x = -Math.PI / 2; fl.position.set(cx, .02, cz); G.add(fl);
+  const H = 2.8;
+  [z0, z1].forEach(z => { if (z === porta) { const g = 1.2; boxM(w / 2 - g, H, .05, glass, x0 + (w / 2 - g) / 2, H / 2, z, G); boxM(w / 2 - g, H, .05, glass, x1 - (w / 2 - g) / 2, H / 2, z, G); boxM(2 * g, .5, .05, glass, cx, H - .25, z, G); }
+    else boxM(w, H, .05, glass, cx, H / 2, z, G); });
+  [x0, x1].forEach(x => boxM(.05, H, d, glass, x, H / 2, cz, G));
+  [[x0, z0], [x0, z1], [x1, z0], [x1, z1]].forEach(([x, z]) => boxM(.12, H, .12, frame, x, H / 2, z, G));
+  boxM(w, .07, .07, frame, cx, H, porta, G);
+  const sign = boxM(3.6, .42, .08, mat(col, .6), cx, H + .3, porta, G);
+  p3Label(nome, col, new THREE.Vector3(cx, P3H + H + .9, cz + (porta > 0 ? 3.2 : -3.2)));
+  const lt = new THREE.PointLight(new THREE.Color(col), 9, 14); lt.position.set(cx, 3.4, cz); G.add(lt);
+  return { sign, lt, cx, cz };
+}
+function p3Screen(k, x, z, s = 1) { const tx = canvasTex(640, 400, g => p3Draw(k, g)); P3.tex[k] = tx;
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(4.2 * s, 2.62 * s), new THREE.MeshBasicMaterial({ map: tx, toneMapped: false, side: THREE.DoubleSide })); m.position.set(x, 3.0 + .8 * s, z); P3.g.add(m); P3.scr.push(m); return m; }
+function p3Plant(x, z) { const g = P3.g; const v = new THREE.Mesh(new THREE.CylinderGeometry(.28, .22, .5, 12), mat("#5b4636")); v.position.set(x, .25, z); g.add(v);
+  const f = new THREE.Mesh(new THREE.SphereGeometry(.55, 12, 10), mat("#2f7d4f")); f.position.set(x, 1, z); g.add(f); }
+function p3Equipas() {
+  const D = p3Data(), fase = (D.mercado || {}).regime, FN = D.filtro_novo || {}, C = (D.promo || {}).campeoes || [], out = {};
+  Object.keys(P3F).forEach(f => { const l = f === fase ? C : [...new Set([...(((FN.fases || {})[f] || {}).atual || []), ...((FN.estudo || {})[f] || [])])];
+    out[f] = l.slice(0, f === "subida" ? 4 : 8).map(k => ({ k, ativo: f === fase })); });
+  return { fase, out };
+}
 function buildFloor3() {
   P3.g = new THREE.Group(); P3.g.position.y = P3H; P3.g.visible = false; scene.add(P3.g); const G = P3.g;
+  P3.dyn = []; P3.rooms = {};
   boxM(46, .3, 27, mat("#1c1812"), 2, -.16, 0, G);
   const fl = new THREE.Mesh(new THREE.PlaneGeometry(46, 27), mat("#4d4433")); fl.rotation.x = -Math.PI / 2; fl.position.set(2, .005, 0); G.add(fl);
-  const rug = new THREE.Mesh(new THREE.PlaneGeometry(38, 14), mat("#6a5532")); rug.rotation.x = -Math.PI / 2; rug.position.set(2.5, .012, 0); G.add(rug);
-  [[-17, -7], [22, -7], [-17, 7], [22, 7]].forEach(([x, z]) => { const lt = new THREE.PointLight(0xFFE2A8, 22, 20); lt.position.set(x, 4, z); G.add(lt); });
-  const top = new THREE.PointLight(0xffffff, 26, 30); top.position.set(2.5, 6, 0); G.add(top);
-  const glass = mat(P3C, .15, .08); boxM(46, 1.2, .05, glass, 2, .6, -13.5, G); boxM(46, 1.2, .05, glass, 2, .6, 13.5, G); boxM(.05, 1.2, 27, glass, -21, .6, 0, G); boxM(.05, 1.2, 27, glass, 25, .6, 0, G);
-  // parede de ecras (viram-se para quem ve)
-  [["pos", -10], ["camp", 2.5], ["risco", 15]].forEach(([k, x]) => { const tx = canvasTex(640, 400, g => p3Draw(k, g)); P3.tex[k] = tx;
-    const s = new THREE.Mesh(new THREE.PlaneGeometry(6, 3.75), new THREE.MeshBasicMaterial({ map: tx, toneMapped: false, side: THREE.DoubleSide })); s.position.set(x, 3.6, -9.5); G.add(s); P3.scr.push(s); });
-  p3Label("🏆 3.º piso · Mesa de elite — só quem opera dinheiro real", P3C, new THREE.Vector3(2.5, P3H + 6.4, -9.5));
-  // fila da frente: nucleo e protecao; fila de tras: campeoes
-  const base = [["BTC", "Bento", 0, "#F7931A"], ["ETH", "Edite", 1, "#8C8CF7"], ["SOL", "Salomé", 1, "#14F195"]];
-  base.forEach(([coin, nm, fem, col], i) => { const x = P3SEATS[i], hh = hsh(nm); p3Desk(x, -3, col);
-    const p = p3Person("p3_" + coin, `${nm} · núcleo ${coin}`, { skin: SKINS[hh % 5], hair: HAIRS[(hh >> 2) % 6], hs: fem ? "long" : "short", top: col, jacket: "#1f1a12", legs: "#1d1b2e", glasses: i === 0 ? 1 : 0 }, col, x, -3); p.coin = coin; P3.people.push(p); });
+  const rug = new THREE.Mesh(new THREE.PlaneGeometry(44, 2.6), mat("#7a2e2e")); rug.rotation.x = -Math.PI / 2; rug.position.set(2, .015, 0); G.add(rug);
+  [-18, -6, 6, 18].forEach(x => { const lt = new THREE.PointLight(0xFFE2A8, 10, 14); lt.position.set(x, 3.6, 0); G.add(lt); });
+  const top = new THREE.PointLight(0xffffff, 16, 34); top.position.set(2.5, 7, 0); G.add(top);
+  const outer = mat(P3C, .15, .08); boxM(46, 1.2, .05, outer, 2, .6, -13.5, G); boxM(46, 1.2, .05, outer, 2, .6, 13.5, G); boxM(.05, 1.2, 27, outer, -21, .6, 0, G); boxM(.05, 1.2, 27, outer, 25, .6, 0, G);
+  p3Label("🏆 3.º piso · Escritórios da elite — só quem opera dinheiro real", P3C, new THREE.Vector3(2, P3H + 6.2, -13.4));
+  // fila norte: um gabinete por fase do mercado
+  Object.entries(P3F).forEach(([f, o]) => { const x0 = o.x - 7.66, x1 = o.x + 7.66;
+    P3.rooms[f] = p3Room(x0, x1, -13.4, -1.4, o.c, -1.4, `${{ subida: "📈", lateral: "↔️", queda: "📉" }[f]} Gabinete ${o.n}`);
+    p3Screen("f_" + f, o.x, -12.4, .9); });
+  // fila sul: risco e execucao, sala de comando, lounge
+  p3Room(-21, -5.67, 1.4, 13.4, "#B794F4", 1.4, "🛡️ Risco e execução");
+  p3Room(-5.67, 9.67, 1.4, 13.4, P3C, 1.4, "🎯 Sala de comando");
+  p3Room(9.67, 25, 1.4, 13.4, "#4FD1C5", 1.4, "☕ Lounge");
+  p3Screen("pos", -16.5, 11.6, .85); p3Screen("risco", -10, 11.6, .85); p3Screen("camp", 2, 11.6, 1.05);
+  // sala de comando: mesa de reunioes
+  boxM(7, .08, 2.4, mat("#3a2b1a"), 2, .76, 6.8, G); boxM(7.04, .02, 2.44, mat(P3C, .25), 2, .81, 6.8, G);
+  [[-1.2, 5.6], [1.2, 5.6], [-1.2, 8], [1.2, 8]].forEach(([a, b]) => boxM(.1, .74, .1, mat("#1a1a1a"), 2 + a * 2.4, .37, b, G));
+  [-1, 0, 1].forEach(i => [5.1, 8.5].forEach(z => { const c = new THREE.Group(); c.position.set(2 + i * 2.2, 0, z); G.add(c); boxM(.55, .08, .55, mat("#222"), 0, .48, 0, c); boxM(.55, .6, .08, mat("#222"), 0, .8, z > 7 ? .27 : -.27, c); }));
+  // lounge: sofas, mesa baixa, maquina do cafe, plantas
+  boxM(4.2, .45, 1.1, mat("#6b3f2a"), 15.5, .23, 10.8, G); boxM(4.2, .7, .25, mat("#6b3f2a"), 15.5, .6, 11.3, G);
+  boxM(1.1, .45, 3.2, mat("#6b3f2a"), 12, .23, 8.2, G); boxM(.25, .7, 3.2, mat("#6b3f2a"), 11.5, .6, 8.2, G);
+  boxM(2.2, .35, 1.2, mat("#3a2b1a"), 15.5, .18, 8.2, G);
+  boxM(1, 1.6, .7, mat("#2d2d2d"), 23.4, .8, 10.5, G); boxM(.5, .2, .05, mat("#E53E3E", .9), 23.4, 1.3, 10.13, G);
+  [[10.5, 12.6], [24.2, 2.4], [-20.2, 2.4], [-6.5, 12.6], [24.2, -12.6], [-20.2, -12.6]].forEach(([x, z]) => p3Plant(x, z));
+  // risco e execucao: Rosa, Ivo e Olga
   [["risco", "Rosa · gestora de risco", 1, "#FF8A80"], ["exec", "Ivo · executor Bybit", 0, "#4FD1C5"], ["ordens", "Olga · verifica as ordens", 1, "#B794F4"]].forEach(([role, nm, fem, col], j) => {
-    const x = P3SEATS[j + 4], hh = hsh(nm); p3Desk(x, -3, col);
-    const p = p3Person("p3_" + role, nm, { skin: SKINS[hh % 5], hair: HAIRS[(hh >> 1) % 6], hs: fem ? "bun" : "buzz", top: col, jacket: "#1f1a12", legs: "#22223a", beard: fem ? 0 : 1 }, col, x, -3); p.role = role; P3.people.push(p); });
+    const x = -17.5 + j * 4, hh = hsh(nm); p3Desk(x, 6.2, col);
+    const p = p3Person("p3_" + role, nm, { skin: SKINS[hh % 5], hair: HAIRS[(hh >> 1) % 6], hs: fem ? "bun" : "buzz", top: col, jacket: "#1f1a12", legs: "#22223a", beard: fem ? 0 : 1 }, col, x, 6.2); p.role = role; P3.people.push(p); });
+  // gabinete da subida: o nucleo (BTC/ETH/SOL) e quem ganha com a subida
+  const S = P3F.subida.x;
+  [["BTC", "Bento", 0, "#F7931A"], ["ETH", "Edite", 1, "#8C8CF7"], ["SOL", "Salomé", 1, "#14F195"]].forEach(([coin, nm, fem, col], i) => { const x = S + P3COL[i], hh = hsh(nm); p3Desk(x, P3ROW[0], col);
+    const p = p3Person("p3_" + coin, `${nm} · núcleo ${coin}`, { skin: SKINS[hh % 5], hair: HAIRS[(hh >> 2) % 6], hs: fem ? "long" : "short", top: col, jacket: "#1f1a12", legs: "#1d1b2e", glasses: i === 0 ? 1 : 0 }, col, x, P3ROW[0]); p.coin = coin; P3.people.push(p); });
   updateFloor3(true);
+}
+function p3Clear() {
+  P3.champ.forEach(p => { P3.g.remove(p.g); p.tag.el.remove(); P3.labels.splice(P3.labels.indexOf(p.tag), 1); P3.people.splice(P3.people.indexOf(p), 1); }); P3.champ = [];
+  (P3.dyn || []).forEach(o => { if (o.el) { o.el.remove(); P3.labels.splice(P3.labels.indexOf(o), 1); } else P3.g.remove(o); }); P3.dyn = [];
 }
 function updateFloor3(force) {
   if (!P3.g) return;
   Object.entries(P3.tex).forEach(([k, tx]) => { p3Draw(k, tx.userData.c.getContext("2d")); tx.needsUpdate = true; });
-  const C = ((p3Data().promo || {}).campeoes || []).slice(0, 9), sig = C.join(",");
+  const E = p3Equipas(), sig = JSON.stringify(E);
+  Object.entries(P3.rooms || {}).forEach(([f, r]) => { const on = f === E.fase; r.sign.material.emissiveIntensity = on ? 1.6 : .35; r.lt.intensity = on ? 16 : 6; });
   if (sig === P3.sig && !force) return; P3.sig = sig;
-  P3.champ.forEach(p => { P3.g.remove(p.g); if (p.desk) P3.g.remove(p.desk); p.tag.el.remove(); P3.labels.splice(P3.labels.indexOf(p.tag), 1); P3.people.splice(P3.people.indexOf(p), 1); }); P3.champ = [];
-  C.forEach((k, i) => { const x = P3SEATS[i], nm = p3Persona(k), hh = hsh(k), col = k.startsWith("SHORT") ? "#FC8181" : "#68D391", fem = FEM.has(nm);
-    const desk = p3Desk(x, 4, col);
-    const p = p3Person("p3c_" + k, `${nm} · campeão ${k.startsWith("SHORT") ? "(venda)" : "(compra)"}`, { skin: SKINS[hh % 5], hair: HAIRS[(hh >> 2) % 6], hs: fem ? (hh % 2 ? "long" : "bun") : ["short", "buzz", "curly"][hh % 3], top: col, jacket: "#1f1a12", legs: "#1d1b2e" }, col, x, 4);
-    const cup = new THREE.Mesh(new THREE.CylinderGeometry(.13, .07, .28, 16), mat(P3C, 1.1)); cup.position.set(.6, .95, 0); desk.add(cup);
-    p.k = k; p.desk = desk; P3.champ.push(p); P3.people.push(p); });
+  p3Clear();
+  Object.entries(E.out).forEach(([f, lista]) => {
+    const o = P3F[f], seats = f === "subida" ? [[3, 0], [0, 1], [1, 1], [2, 1]] : [[0, 0], [1, 0], [2, 0], [3, 0], [0, 1], [1, 1], [2, 1], [3, 1]];
+    lista.forEach(({ k, ativo }, i) => { const [ci, ri] = seats[i], x = o.x + P3COL[ci], z = P3ROW[ri], nm = p3Persona(k), hh = hsh(k), col = k.startsWith("SHORT") ? "#FC8181" : "#68D391", fem = FEM.has(nm);
+      const desk = p3Desk(x, z, col); P3.dyn.push(desk);
+      const p = p3Person("p3c_" + f + "_" + k, `${nm} · ${ativo ? "a operar" : "de reserva"} ${k.startsWith("SHORT") ? "(venda)" : "(compra)"}`, { skin: SKINS[hh % 5], hair: HAIRS[(hh >> 2) % 6], hs: fem ? (hh % 2 ? "long" : "bun") : ["short", "buzz", "curly"][hh % 3], top: col, jacket: "#1f1a12", legs: "#1d1b2e" }, ativo ? col : "#a0aec0", x, z);
+      if (ativo) { const cup = new THREE.Mesh(new THREE.CylinderGeometry(.13, .07, .28, 16), mat(P3C, 1.1)); cup.position.set(.6, .95, 0); desk.add(cup); }
+      p.k = k; p.fase = f; p.ativo = ativo; P3.champ.push(p); P3.people.push(p); });
+    if (f === "subida" && !lista.length) {            // lugar vago para um campeao tatico de subida
+      const x = o.x + P3COL[1], z = P3ROW[1], desk = p3Desk(x, z, "#4a5568"); P3.dyn.push(desk);
+      const l = p3Label("🪑 Lugar vago: campeão de subida em estudo", "#a0aec0", new THREE.Vector3(x + 1.75, P3H + 1.9, z + .6)); P3.dyn.push(l); }
+    if (f !== "subida" && !lista.length) { const l = p3Label("Sem aprovados nesta fase", "#a0aec0", new THREE.Vector3(o.x, P3H + 1.6, -7.6)); P3.dyn.push(l); }
+  });
 }
 function p3Tick(dt, t) {
   if (!P3.g) return;

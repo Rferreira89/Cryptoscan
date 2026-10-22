@@ -62,6 +62,11 @@ class FiltroNovo(unittest.TestCase):
             "passa_atual": True, "passa_novo": False, "qualidade": {"dias": 12}}}}})}})
         self.assertEqual(r["fases"]["lateral"]["atual"], ["BOUNCE_X30"])
         self.assertEqual(r["fases"]["lateral"]["novo"], [])
+        old, promo.CONFIG_ESTUDO = promo.CONFIG_ESTUDO, {"lateral": ["SHORT_TURTLE"]}
+        try:
+            self.assertEqual(promo.filtro_novo({"arena": {"longo": lg}})["estudo"], {"lateral": ["SHORT_TURTLE"]})
+        finally:
+            promo.CONFIG_ESTUDO = old
 
 
 if __name__ == "__main__":

@@ -588,7 +588,7 @@ def filtro_novo(state):
     lg = ((state.get("arena") or {}).get("longo") or {})
     lut, cl = lg.get("lutadores") or {}, lg.get("clones") or {}
     out = {"acaso": lg.get("acaso_filtro") or {}, "clones": len(cl), "fases": {}, "hipoteses": lg.get("hipoteses") or {},
-           "lista_clones": cl}
+           "lista_clones": cl, "estudo": {f: list(v) for f, v in CONFIG_ESTUDO.items()}}
     for rg in ("subida", "lateral", "queda"):
         atual, novo, quase = [], [], []
         for k, v in lut.items():
