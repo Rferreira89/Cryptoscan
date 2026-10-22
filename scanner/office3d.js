@@ -1446,6 +1446,8 @@ const PESQUISA = [
   ["✅", "H10: SHORT_TURTLE na fase lateral", "passa nos 2 períodos"],
   ["❌", "H11: 4 estratégias de tendência na subida", "falham 2021-24"],
   ["🧪", "TURTLE_FORTES em papel na subida", "regra: 20 op. ≥ +0,15R"],
+  ["❌", "H12: outras saídas para o Ramiro", "a atual é a melhor"],
+  ["❌", "H13: entrar mais cedo pelo índice", "perde: a regra de fase protege"],
   ["🔬", "H4: liquidações em massa", "em estudo"],
 ];
 const p2n = (x, d = 2) => x == null || isNaN(x) ? "–" : (x > 0 ? "+" : "") + Number(x).toFixed(d).replace(".", ",");
