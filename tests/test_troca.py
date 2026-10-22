@@ -59,3 +59,17 @@ class CampeoesPorEstudo(unittest.TestCase):
             self.assertEqual(promo.champions(st, (), "lateral", True), ["SHORT_TURTLE"])
             self.assertEqual(promo.champions(st, (), "subida", True), [])
             self.assertEqual(promo.champions(st, {"SHORT_TURTLE"}, "lateral", True), [])
+
+
+class DisparoDoRingue(unittest.TestCase):
+    def test_lanca_uma_vez_por_dia_depois_das_4h_utc(self):
+        from engine import run as RUN
+        dia = 1_800_000_000 // 86400 * 86400
+        cmds = []
+        st = {"arena": {"longo": {"atualizado": dia - 3600}}}
+        self.assertFalse(RUN.longo_disparo(st, dia + 3 * 3600, cmds.append))      # antes das 4h
+        self.assertTrue(RUN.longo_disparo(st, dia + 5 * 3600, cmds.append))
+        self.assertIn("arena-longo.yml", cmds[0])
+        self.assertFalse(RUN.longo_disparo(st, dia + 6 * 3600, cmds.append))      # ja lancou hoje
+        st2 = {"arena": {"longo": {"atualizado": dia + 3600}}}
+        self.assertFalse(RUN.longo_disparo(st2, dia + 5 * 3600, cmds.append))     # ja houve ronda hoje

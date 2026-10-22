@@ -622,6 +622,43 @@ def campeoes_aviso(state, campeoes, now):
     return out
 
 
+LONGO_HORA_UTC = 4                # a partir das 4h UTC (5h de Lisboa no inverno)
+
+
+def longo_disparo(state, now, correr=None):
+    """(22/10, OK do Rui) A agenda do GitHub tem lancado o ringue de 1 ano com
+    5 a 6 horas de atraso. Se a partir das LONGO_HORA_UTC ainda nao houve ronda
+    nesse dia (UTC), o scanner lanca-a uma vez (gh workflow run). Devolve True
+    se lancou."""
+    import subprocess, time as _t
+    dia = int(now) // 86400
+    feito = ((state.get("arena") or {}).get("longo") or {}).get("atualizado") or 0
+    if int(feito) // 86400 >= dia or state.get("longo_disparo") == dia:
+        return False
+    if _t.gmtime(now).tm_hour < LONGO_HORA_UTC:
+        return False
+    repo = os.environ.get("GITHUB_REPOSITORY")
+    if not repo and correr is None:
+        return False
+    state["longo_disparo"] = dia
+    if correr is None:                       # ja ha uma ronda a correr ou na fila: nao lanca outra
+        for st_ in ("in_progress", "queued"):
+            try:
+                r = subprocess.run(["gh", "run", "list", "--repo", repo, "--workflow", "arena-longo.yml", "--status", st_,
+                                    "-L", "1", "--json", "databaseId"], capture_output=True, text=True, timeout=30)
+                if "databaseId" in (r.stdout or ""):
+                    return False
+            except Exception:
+                pass
+    cmd = ["gh", "workflow", "run", "arena-longo.yml", "--repo", repo or "", "--ref", "main"]
+    try:
+        (correr or (lambda c: subprocess.run(c, timeout=30, check=False)))(cmd)
+        return True
+    except Exception as e:
+        print("longo_disparo:", e)
+        return False
+
+
 def key_alert(state, keys, now, dias=14):
     """Aviso quando uma chave da Bybit esta a menos de `dias` de expirar
     (Rui, 20/10). keys = {nome: expiredAt da Bybit}. Uma vez por dia por chave.
@@ -900,6 +937,11 @@ def main():
                 alerts.send(txt, html=True)
     except Exception as e:
         print("stop_watch:", e)
+    try:                                     # (22/10) ringue de 1 ano sem esperar pela agenda do GitHub
+        if longo_disparo(state, res["generated_at"]):
+            print("ringue longo lançado pelo scanner")
+    except Exception as e:
+        print("longo_disparo:", e)
     try:                                     # (21/10) troca automatica do filtro (engine/troca.py)
         from . import troca
         troca.registar(state, res.get("filtro_novo"), (state.get("mercado") or {}).get("regime"), res["generated_at"])
