@@ -1448,6 +1448,8 @@ const PESQUISA = [
   ["🧪", "TURTLE_FORTES em papel na subida", "regra: 20 op. ≥ +0,15R"],
   ["❌", "H12: outras saídas para o Ramiro", "a atual é a melhor"],
   ["❌", "H13: entrar mais cedo pelo índice", "perde: a regra de fase protege"],
+  ["✅", "H14: núcleo reforça nas quedas", "fica: ajuda em 2021-24, neutro depois"],
+  ["❌", "H15: núcleo a 85% na subida", "não melhora"],
   ["🔬", "H4: liquidações em massa", "em estudo"],
 ];
 const p2n = (x, d = 2) => x == null || isNaN(x) ? "–" : (x > 0 ? "+" : "") + Number(x).toFixed(d).replace(".", ",");
