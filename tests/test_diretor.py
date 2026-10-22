@@ -563,8 +563,11 @@ class ModoAutomatico(unittest.TestCase):
                 return {"event": "ISSUED", "id": f"S{i}", "signal": s}
             ev = [sig(0, diretor={"decisao": "REJEITADO"}), sig(1, direction="SHORT"),
                   sig(2, score_label="outro"), sig(3), sig(4), sig(5)]
-            self.assertEqual(auto.pick(st, ev, NOW), ["S3", "S4"])
-            self.assertTrue(ev[3]["auto"])
+            # (22/10, pedido do Rui) os shorts de campeoes tambem sao automaticos desde ja
+            self.assertEqual(auto.pick(st, ev, NOW), ["S1", "S3"])
+            self.assertTrue(ev[1]["auto"])
+            execucao.READY_SHORT = False                                   # sem o teste real do short, nao
+            self.assertEqual(auto.pick(dict(self.prova(), auto=dict(st["auto"], feitos=[])), [sig(8, direction="SHORT")], NOW), [])
             self.assertEqual(auto.pick(st, [sig(6)], NOW + 60), [])            # limite do dia
             self.assertEqual(auto.pick(st, [sig(7)], NOW + 86400 + 60), ["S7"])
         finally:

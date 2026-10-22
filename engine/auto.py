@@ -29,7 +29,8 @@ travao, risco. Nunca levanta nem transfere: a chave nao tem essa permissao.
 """
 MIN_OPS = 20
 MAX_DIA = 2
-SHORT_APOS_S = 14 * 86400        # vendas a descoberto automaticas so 2 semanas depois de ligar
+SHORT_APOS_S = 0                 # (22/10, pedido do Rui: perdeu a entrada em AVAX a dormir) vendas a descoberto
+                                 # automaticas ja, como as compras (antes: 2 semanas depois de ligar)
 
 
 def _st(state):
@@ -116,7 +117,7 @@ def turn(state, on, now):
     if falta:
         return "🤖 Ainda não posso ligar o modo automático. Falta: " + "; ".join(falta) + "."
     a.update(ligado=True, ligado_t=int(now))
-    return ("🤖 Modo automático LIGADO. Só compras de campeões autorizadas pelo Diretor, no máximo "
+    return ("🤖 Modo automático LIGADO. Só compras e vendas a descoberto de campeões autorizadas pelo Diretor, no máximo "
             f"{MAX_DIA} por dia, com o risco e o travão de sempre. /parar fecha tudo e desliga.")
 
 
@@ -165,7 +166,7 @@ def text(state):
     elif a.get("motivo"):
         L += ["", f"Desligou-se sozinho: {a['motivo']}."]
     L += ["", f"Ligado: só compras de campeões autorizadas pelo Diretor, máximo {MAX_DIA} por dia, risco e "
-          "travão de sempre; vendas a descoberto automáticas só 2 semanas depois. A chave não pode "
+          "travão de sempre; vendas a descoberto de campeões também automáticas. A chave não pode "
           "levantar nem transferir. /auto desligar ou /parar desligam."]
     return "\n".join(L)
 

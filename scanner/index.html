@@ -401,7 +401,7 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const num=(v,d)=>v==null?"–":Number(v).toLocaleString("pt-PT",{maximumFractionDigits:d,minimumFractionDigits:0});
 // operacoes que o Rui fechou a mao (/fechei): contam como fechadas para ele
-function normUserClosed(D){((D&&D.journal&&D.journal.rows)||[]).forEach(r=>{if(r.user_result_r!=null){r.status="CLOSED";r.user_r=r.user_result_r;r.closed_at=r.user_closed_at||r.closed_at;r.user_closed_flag=true;if(r.user_exit)r.exit=r.user_exit}})}
+function normUserClosed(D){{const no=new Set(((D&&D.journal&&D.journal.rows)||[]).filter(r=>r.executed===false||r.user_result_r!=null).map(r=>r.id));if(D&&D.active_signals)D.active_signals=D.active_signals.filter(s=>!no.has(s.id))}((D&&D.journal&&D.journal.rows)||[]).forEach(r=>{if(r.user_result_r!=null){r.status="CLOSED";r.user_r=r.user_result_r;r.closed_at=r.user_closed_at||r.closed_at;r.user_closed_flag=true;if(r.user_exit)r.exit=r.user_exit}})}
 // equipa por setor: cada analista acompanha um grupo de moedas (a analise e
 // a mesma para todas; aqui ve-se por setor onde o mercado mexe)
 window.SECTORS=[
