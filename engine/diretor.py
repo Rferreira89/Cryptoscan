@@ -36,6 +36,8 @@ o diretor tambem e avaliado (quantas vezes rejeitar evitou uma perda).
 """
 import time
 
+from . import venue
+
 H4 = 14400
 MAX_CONTRA = 3
 MIN_RR = 1.2
@@ -71,7 +73,7 @@ def data_state(row, c4, now):
         why.append(f"última vela de 4H fechou há {age / 3600:.1f}h")
     if (row.get("divergence_pct") or 0) > 1.0:
         why.append(f"fontes de preço divergem {row['divergence_pct']:.2f}%")
-    if (row.get("venue") or {}).get("stale"):
+    if (row.get("venue") or {}).get("stale") and venue.parado(row.get("venue"), row.get("price")):
         why.append("preço da Bybit UE parado")
     if not why:
         return "valido", []
@@ -178,7 +180,7 @@ AMPLITUDE = None          # amplitude do mercado deste scan (engine/amplitude.py
 def conversation(asset, dec, reps, hist, motivos):
     """A reuniao do diretor com os agentes, em falas curtas, tirada so dos
     relatorios estruturados (nada inventado). [{de, texto, tom}]."""
-    from . import arena
+    from . import venue, arena
     p, side = dec.get("plan") or {}, dec.get("decision")
     k = str(dec.get("strategy") or "")
     quem = arena.persona(k) if k else "Lutador"

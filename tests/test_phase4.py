@@ -248,7 +248,9 @@ class Venue(unittest.TestCase):
         self.assertTrue(venue.check(V, 100.2, CFG)[0])
         self.assertFalse(venue.check(dict(V, spread_pct=0.9), 100, CFG)[0])
         self.assertFalse(venue.check(dict(V, volume_usd=10), 100, CFG)[0])
-        self.assertFalse(venue.check(dict(V, stale=True), 100, CFG)[0])
+        self.assertTrue(venue.check(dict(V, stale=True), 100, CFG)[0])     # (22/10) aviso da CoinGecko com preco certo
+        self.assertFalse(venue.check(dict(V, stale=True), 101.5, CFG)[0])  # aviso e preco a mais de 1%
+        self.assertFalse(venue.check(dict(V, last=None), 100, CFG)[0])
         self.assertFalse(venue.check(V, 103.0, CFG)[0])     # preco diverge
 
 

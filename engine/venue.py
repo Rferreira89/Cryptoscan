@@ -34,12 +34,24 @@ def fetch(quote="USDC", max_pages=4):
     return out
 
 
+def parado(v, global_price=None):
+    """(22/10, OK do Rui) O aviso "is_stale" da CoinGecko marca muitas moedas
+    liquidas da Bybit UE (AVAX, LTC...) com o preco certo. So conta como parado
+    se nao houver preco, ou se o aviso vier com o preco a mais de 1% do mercado
+    (a verificacao de divergencia continua a recusar isso de qualquer forma)."""
+    if not v or not v.get("last"):
+        return True
+    if not v.get("stale"):
+        return False
+    return not global_price or abs(v["last"] / global_price - 1) > 0.01
+
+
 def check(v, global_price, cfg):
     """Devolve (ok, motivos) para executar neste par."""
     if v is None:
         return False, ["não listado na Bybit UE"]
     why = []
-    if v["stale"] or not v["last"]:
+    if parado(v, global_price):
         why.append("preço da Bybit UE desatualizado")
     if v["spread_pct"] is None or v["spread_pct"] > cfg["max_venue_spread_pct"]:
         why.append("spread elevado na Bybit UE")
