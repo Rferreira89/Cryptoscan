@@ -41,7 +41,10 @@ class Espelho(unittest.TestCase):
     def test_lutadores_no_registo(self):
         for k in AR.SHORT_SIGS:
             self.assertIn(k, AR.SINAIS)
-            self.assertIn(k, promo.REAL_OK)
+            if k in AR.PAPEL_ESTUDO:                     # (22/10) estudos so em papel: nunca dinheiro real
+                self.assertNotIn(k, promo.REAL_OK)
+            else:
+                self.assertIn(k, promo.REAL_OK)
         out = AR.run({"BTC": bars(10)}, CFG, NOW, days=1)
         self.assertIn("SHORT_X30", out["lutadores"])
 

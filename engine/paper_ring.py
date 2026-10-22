@@ -21,9 +21,9 @@ def update(state, rows, bars, now, market_ok=True):
               if k in reg and k not in OWN_PAPER and k not in promo.REAL_OK]
     # (22/10, OK do Rui) estudos que operam sempre em papel, qualificados ou nao
     try:
-        from tools.arena_ringue import PAPEL_ESTUDO
+        from tools.arena_ringue import PAPEL_ESTUDO, PAPEL_FASE
     except Exception:
-        PAPEL_ESTUDO = ()
+        PAPEL_ESTUDO, PAPEL_FASE = (), {}
     active += [k for k in PAPEL_ESTUDO if k in reg and k not in active and k not in promo.REAL_OK]
     fase = (state.get("mercado") or {}).get("regime")
     for k in set(st) | set(active):
@@ -46,7 +46,8 @@ def update(state, rows, bars, now, market_ok=True):
                     "partials": list(pos["partials"]),
                     "breakeven": pos.get("breakeven", True), "fase": pos.get("fase")}])[-300:]
                 del b["open"][a]
-        if k not in active or not market_ok:
+        short_k = k.startswith("SHORT_")
+        if k not in active or (not market_ok and not short_k):    # os shorts nao dependem do filtro de compras
             continue
         promo.set_context(rows, bars)
         try:
@@ -65,10 +66,12 @@ def update(state, rows, bars, now, market_ok=True):
             if not sig or now - sig["t_sig"] > TF or b["last"].get(a) == sig["t_sig"]:
                 continue
             b["last"][a] = sig["t_sig"]
-            if not (sig["stop"] < r["price"] < sig["tp"][0]):
+            lado = "SHORT" if sig.get("side") == "SHORT" else "LONG"
+            ok = (sig["tp"][0] < r["price"] < sig["stop"]) if lado == "SHORT" else (sig["stop"] < r["price"] < sig["tp"][0])
+            if not ok:
                 continue
             pos = trade.open_position(sig, r["price"], sig["t_sig"], FEE_PCT, SLIP_PCT,
-                                      breakeven=sig.get("breakeven", True))
+                                      breakeven=sig.get("breakeven", True), side=lado)
             pos["next_t"] = c4[-1]["t"] + TF
             pos["fase"] = fase
             if sig.get("hold_s"):
@@ -77,7 +80,7 @@ def update(state, rows, bars, now, market_ok=True):
     out = {k: {"n": len(v["closed"]), "open": sorted(v["open"])} for k, v in st.items()}
     for k in PAPEL_ESTUDO:
         if k in out:
-            out[k]["prova"] = prova_estudo(st[k]["closed"])
+            out[k]["prova"] = prova_estudo(st[k]["closed"], PAPEL_FASE.get(k, "subida"))
     return out
 
 

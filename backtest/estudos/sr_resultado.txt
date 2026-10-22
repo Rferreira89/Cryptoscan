@@ -1,0 +1,173 @@
+
+== BRK_ESPACO
+  subida   A {'n': 252, 'acerto': 31, 'pf': 0.46, 'r': -0.39, 'r_dia': -0.408, 'dias': 120, 'ganho_med': 1.07, 'perda_med': -1.03, 'dias_aberta': 0.7, 'total_r': -98.4, 'dd_r': 98.4}
+           B {'n': 180, 'acerto': 36, 'pf': 0.6, 'r': -0.26, 'r_dia': -0.208, 'dias': 64, 'ganho_med': 1.09, 'perda_med': -1.02, 'dias_aberta': 0.7, 'total_r': -46.7, 'dd_r': 55.5}
+  lateral  A {'n': 131, 'acerto': 30, 'pf': 0.5, 'r': -0.36, 'r_dia': -0.355, 'dias': 70, 'ganho_med': 1.2, 'perda_med': -1.02, 'dias_aberta': 0.7, 'total_r': -47.2, 'dd_r': 51.3}
+           B {'n': 194, 'acerto': 38, 'pf': 0.66, 'r': -0.218, 'r_dia': -0.285, 'dias': 96, 'ganho_med': 1.1, 'perda_med': -1.03, 'dias_aberta': 0.6, 'total_r': -42.3, 'dd_r': 46.9}
+  queda    A {'n': 0}
+           B {'n': 0}
+  todas    A {'n': 383, 'acerto': 30, 'pf': 0.47, 'r': -0.38, 'r_dia': -0.388, 'dias': 190, 'ganho_med': 1.11, 'perda_med': -1.03, 'dias_aberta': 0.7, 'total_r': -145.6, 'dd_r': 146.6}
+           B {'n': 374, 'acerto': 37, 'pf': 0.63, 'r': -0.238, 'r_dia': -0.254, 'dias': 160, 'ganho_med': 1.1, 'perda_med': -1.03, 'dias_aberta': 0.7, 'total_r': -89.0, 'dd_r': 93.6}
+
+== BRK_ESPACO_S
+  subida   A {'n': 8, 'acerto': 50, 'pf': 0.72, 'r': -0.154, 'r_dia': -0.111, 'dias': 6, 'ganho_med': 0.78, 'perda_med': -1.08, 'dias_aberta': 0.8, 'total_r': -1.2, 'dd_r': 4.2}
+           B {'n': 36, 'acerto': 36, 'pf': 0.48, 'r': -0.344, 'r_dia': -0.413, 'dias': 12, 'ganho_med': 0.9, 'perda_med': -1.05, 'dias_aberta': 0.7, 'total_r': -12.4, 'dd_r': 13.9}
+  lateral  A {'n': 221, 'acerto': 38, 'pf': 0.49, 'r': -0.336, 'r_dia': -0.4, 'dias': 89, 'ganho_med': 0.85, 'perda_med': -1.05, 'dias_aberta': 0.6, 'total_r': -74.3, 'dd_r': 77.4}
+           B {'n': 368, 'acerto': 35, 'pf': 0.49, 'r': -0.34, 'r_dia': -0.374, 'dias': 107, 'ganho_med': 0.94, 'perda_med': -1.03, 'dias_aberta': 0.7, 'total_r': -125.0, 'dd_r': 125.0}
+  queda    A {'n': 113, 'acerto': 50, 'pf': 1.07, 'r': 0.036, 'r_dia': 0.019, 'dias': 30, 'ganho_med': 1.13, 'perda_med': -1.04, 'dias_aberta': 0.5, 'total_r': 4.0, 'dd_r': 14.9}
+           B {'n': 141, 'acerto': 40, 'pf': 0.73, 'r': -0.163, 'r_dia': -0.437, 'dias': 30, 'ganho_med': 1.11, 'perda_med': -1.03, 'dias_aberta': 0.6, 'total_r': -23.0, 'dd_r': 40.0}
+  todas    A {'n': 343, 'acerto': 42, 'pf': 0.65, 'r': -0.212, 'r_dia': -0.292, 'dias': 126, 'ganho_med': 0.96, 'perda_med': -1.05, 'dias_aberta': 0.6, 'total_r': -72.6, 'dd_r': 74.6}
+           B {'n': 545, 'acerto': 37, 'pf': 0.55, 'r': -0.294, 'r_dia': -0.389, 'dias': 149, 'ganho_med': 0.99, 'perda_med': -1.03, 'dias_aberta': 0.7, 'total_r': -160.5, 'dd_r': 160.5}
+
+== RETESTE
+  subida   A {'n': 283, 'acerto': 40, 'pf': 0.71, 'r': -0.154, 'r_dia': -0.177, 'dias': 127, 'ganho_med': 0.94, 'perda_med': -0.89, 'dias_aberta': 2.9, 'total_r': -43.7, 'dd_r': 54.2}
+           B {'n': 171, 'acerto': 53, 'pf': 1.48, 'r': 0.194, 'r_dia': -0.025, 'dias': 63, 'ganho_med': 1.14, 'perda_med': -0.85, 'dias_aberta': 2.7, 'total_r': 33.2, 'dd_r': 14.2}
+  lateral  A {'n': 206, 'acerto': 41, 'pf': 0.77, 'r': -0.12, 'r_dia': -0.176, 'dias': 91, 'ganho_med': 0.98, 'perda_med': -0.88, 'dias_aberta': 2.8, 'total_r': -24.7, 'dd_r': 42.6}
+           B {'n': 334, 'acerto': 41, 'pf': 0.78, 'r': -0.113, 'r_dia': -0.259, 'dias': 118, 'ganho_med': 0.99, 'perda_med': -0.89, 'dias_aberta': 3.0, 'total_r': -37.8, 'dd_r': 60.3}
+  queda    A {'n': 0}
+           B {'n': 0}
+  todas    A {'n': 489, 'acerto': 40, 'pf': 0.73, 'r': -0.14, 'r_dia': -0.176, 'dias': 218, 'ganho_med': 0.96, 'perda_med': -0.89, 'dias_aberta': 2.9, 'total_r': -68.3, 'dd_r': 86.1}
+           B {'n': 505, 'acerto': 45, 'pf': 0.98, 'r': -0.009, 'r_dia': -0.177, 'dias': 181, 'ganho_med': 1.05, 'perda_med': -0.88, 'dias_aberta': 2.9, 'total_r': -4.6, 'dd_r': 39.2}
+
+== RETESTE_S
+  subida   A {'n': 56, 'acerto': 30, 'pf': 0.48, 'r': -0.316, 'r_dia': -0.304, 'dias': 28, 'ganho_med': 0.95, 'perda_med': -0.87, 'dias_aberta': 2.6, 'total_r': -17.7, 'dd_r': 20.8}
+           B {'n': 100, 'acerto': 38, 'pf': 0.54, 'r': -0.242, 'r_dia': -0.264, 'dias': 39, 'ganho_med': 0.74, 'perda_med': -0.84, 'dias_aberta': 2.4, 'total_r': -24.2, 'dd_r': 28.2}
+  lateral  A {'n': 403, 'acerto': 41, 'pf': 0.73, 'r': -0.138, 'r_dia': -0.238, 'dias': 168, 'ganho_med': 0.92, 'perda_med': -0.88, 'dias_aberta': 2.7, 'total_r': -55.6, 'dd_r': 60.3}
+           B {'n': 611, 'acerto': 43, 'pf': 0.77, 'r': -0.115, 'r_dia': -0.242, 'dias': 191, 'ganho_med': 0.9, 'perda_med': -0.87, 'dias_aberta': 2.8, 'total_r': -70.4, 'dd_r': 108.2}
+  queda    A {'n': 135, 'acerto': 44, 'pf': 1.13, 'r': 0.066, 'r_dia': -0.096, 'dias': 54, 'ganho_med': 1.26, 'perda_med': -0.89, 'dias_aberta': 2.5, 'total_r': 8.9, 'dd_r': 40.5}
+           B {'n': 158, 'acerto': 51, 'pf': 1.09, 'r': 0.036, 'r_dia': 0.006, 'dias': 40, 'ganho_med': 0.91, 'perda_med': -0.86, 'dias_aberta': 2.8, 'total_r': 5.7, 'dd_r': 20.0}
+  todas    A {'n': 599, 'acerto': 41, 'pf': 0.78, 'r': -0.113, 'r_dia': -0.217, 'dias': 251, 'ganho_med': 1.0, 'perda_med': -0.88, 'dias_aberta': 2.6, 'total_r': -68.0, 'dd_r': 104.0}
+           B {'n': 869, 'acerto': 44, 'pf': 0.79, 'r': -0.102, 'r_dia': -0.208, 'dias': 270, 'ganho_med': 0.88, 'perda_med': -0.87, 'dias_aberta': 2.7, 'total_r': -89.0, 'dd_r': 128.0}
+
+== FIBO_RECUO
+  subida   A {'n': 222, 'acerto': 38, 'pf': 0.83, 'r': -0.092, 'r_dia': -0.178, 'dias': 112, 'ganho_med': 1.16, 'perda_med': -0.85, 'dias_aberta': 3.1, 'total_r': -20.3, 'dd_r': 45.0}
+           B {'n': 149, 'acerto': 32, 'pf': 0.66, 'r': -0.208, 'r_dia': -0.089, 'dias': 69, 'ganho_med': 1.27, 'perda_med': -0.91, 'dias_aberta': 2.7, 'total_r': -31.0, 'dd_r': 52.2}
+  lateral  A {'n': 136, 'acerto': 34, 'pf': 0.52, 'r': -0.299, 'r_dia': -0.308, 'dias': 90, 'ganho_med': 0.97, 'perda_med': -0.95, 'dias_aberta': 2.8, 'total_r': -40.7, 'dd_r': 41.6}
+           B {'n': 177, 'acerto': 34, 'pf': 0.66, 'r': -0.177, 'r_dia': -0.167, 'dias': 95, 'ganho_med': 1.02, 'perda_med': -0.81, 'dias_aberta': 3.3, 'total_r': -31.4, 'dd_r': 38.4}
+  queda    A {'n': 0}
+           B {'n': 0}
+  todas    A {'n': 358, 'acerto': 36, 'pf': 0.7, 'r': -0.17, 'r_dia': -0.236, 'dias': 202, 'ganho_med': 1.09, 'perda_med': -0.89, 'dias_aberta': 3.0, 'total_r': -61.0, 'dd_r': 61.9}
+           B {'n': 326, 'acerto': 33, 'pf': 0.66, 'r': -0.191, 'r_dia': -0.134, 'dias': 164, 'ganho_med': 1.13, 'perda_med': -0.86, 'dias_aberta': 3.0, 'total_r': -62.4, 'dd_r': 77.9}
+
+== FIBO_RECUO_S
+  subida   A {'n': 42, 'acerto': 29, 'pf': 0.22, 'r': -0.51, 'r_dia': -0.566, 'dias': 31, 'ganho_med': 0.49, 'perda_med': -0.91, 'dias_aberta': 3.2, 'total_r': -21.4, 'dd_r': 22.6}
+           B {'n': 31, 'acerto': 77, 'pf': 6.01, 'r': 1.038, 'r_dia': 0.894, 'dias': 17, 'ganho_med': 1.61, 'perda_med': -0.92, 'dias_aberta': 3.1, 'total_r': 32.2, 'dd_r': 2.2}
+  lateral  A {'n': 390, 'acerto': 39, 'pf': 0.67, 'r': -0.178, 'r_dia': -0.1, 'dias': 178, 'ganho_med': 0.92, 'perda_med': -0.87, 'dias_aberta': 3.0, 'total_r': -69.4, 'dd_r': 71.5}
+           B {'n': 500, 'acerto': 40, 'pf': 0.84, 'r': -0.08, 'r_dia': -0.069, 'dias': 204, 'ganho_med': 1.04, 'perda_med': -0.82, 'dias_aberta': 3.3, 'total_r': -40.1, 'dd_r': 65.1}
+  queda    A {'n': 138, 'acerto': 41, 'pf': 0.81, 'r': -0.093, 'r_dia': -0.071, 'dias': 68, 'ganho_med': 0.96, 'perda_med': -0.81, 'dias_aberta': 3.5, 'total_r': -12.8, 'dd_r': 39.2}
+           B {'n': 143, 'acerto': 36, 'pf': 0.49, 'r': -0.3, 'r_dia': -0.266, 'dias': 51, 'ganho_med': 0.8, 'perda_med': -0.91, 'dias_aberta': 3.2, 'total_r': -42.9, 'dd_r': 42.9}
+  todas    A {'n': 570, 'acerto': 38, 'pf': 0.66, 'r': -0.182, 'r_dia': -0.145, 'dias': 277, 'ganho_med': 0.9, 'perda_med': -0.86, 'dias_aberta': 3.2, 'total_r': -103.7, 'dd_r': 116.2}
+           B {'n': 674, 'acerto': 41, 'pf': 0.85, 'r': -0.075, 'r_dia': -0.046, 'dias': 272, 'ganho_med': 1.04, 'perda_med': -0.84, 'dias_aberta': 3.3, 'total_r': -50.8, 'dd_r': 91.6}
+
+== REVERSAO_INTERVALO
+  subida   A {'n': 17, 'acerto': 41, 'pf': 0.11, 'r': -0.45, 'r_dia': -0.374, 'dias': 15, 'ganho_med': 0.14, 'perda_med': -0.86, 'dias_aberta': 1.1, 'total_r': -7.7, 'dd_r': 7.7}
+           B {'n': 15, 'acerto': 47, 'pf': 0.3, 'r': -0.382, 'r_dia': -0.459, 'dias': 10, 'ganho_med': 0.34, 'perda_med': -1.02, 'dias_aberta': 1.2, 'total_r': -5.7, 'dd_r': 6.0}
+  lateral  A {'n': 18, 'acerto': 50, 'pf': 0.3, 'r': -0.253, 'r_dia': -0.323, 'dias': 14, 'ganho_med': 0.21, 'perda_med': -0.72, 'dias_aberta': 1.8, 'total_r': -4.5, 'dd_r': 5.4}
+           B {'n': 42, 'acerto': 50, 'pf': 0.38, 'r': -0.216, 'r_dia': -0.085, 'dias': 24, 'ganho_med': 0.27, 'perda_med': -0.7, 'dias_aberta': 1.2, 'total_r': -9.1, 'dd_r': 12.2}
+  queda    A {'n': 0}
+           B {'n': 0}
+  todas    A {'n': 35, 'acerto': 46, 'pf': 0.19, 'r': -0.349, 'r_dia': -0.35, 'dias': 29, 'ganho_med': 0.18, 'perda_med': -0.79, 'dias_aberta': 1.4, 'total_r': -12.2, 'dd_r': 12.2}
+           B {'n': 57, 'acerto': 49, 'pf': 0.35, 'r': -0.259, 'r_dia': -0.195, 'dias': 34, 'ganho_med': 0.29, 'perda_med': -0.79, 'dias_aberta': 1.2, 'total_r': -14.8, 'dd_r': 17.1}
+
+== REVERSAO_INTERVALO_S
+  subida   A {'n': 28, 'acerto': 68, 'pf': 0.46, 'r': -0.16, 'r_dia': -0.209, 'dias': 20, 'ganho_med': 0.2, 'perda_med': -0.92, 'dias_aberta': 1.2, 'total_r': -4.5, 'dd_r': 6.2}
+           B {'n': 10, 'acerto': 80, 'pf': 2.07, 'r': 0.224, 'r_dia': 0.1, 'dias': 7, 'ganho_med': 0.54, 'perda_med': -1.04, 'dias_aberta': 1.0, 'total_r': 2.2, 'dd_r': 1.0}
+  lateral  A {'n': 51, 'acerto': 59, 'pf': 0.58, 'r': -0.145, 'r_dia': -0.14, 'dias': 41, 'ganho_med': 0.34, 'perda_med': -0.84, 'dias_aberta': 0.9, 'total_r': -7.4, 'dd_r': 8.8}
+           B {'n': 92, 'acerto': 48, 'pf': 0.33, 'r': -0.309, 'r_dia': -0.323, 'dias': 60, 'ganho_med': 0.33, 'perda_med': -0.89, 'dias_aberta': 1.1, 'total_r': -28.5, 'dd_r': 29.2}
+  queda    A {'n': 17, 'acerto': 47, 'pf': 0.37, 'r': -0.31, 'r_dia': -0.25, 'dias': 13, 'ganho_med': 0.39, 'perda_med': -0.93, 'dias_aberta': 1.5, 'total_r': -5.3, 'dd_r': 8.3}
+           B {'n': 23, 'acerto': 78, 'pf': 1.07, 'r': 0.015, 'r_dia': 0.049, 'dias': 11, 'ganho_med': 0.31, 'perda_med': -1.03, 'dias_aberta': 1.3, 'total_r': 0.3, 'dd_r': 4.8}
+  todas    A {'n': 96, 'acerto': 59, 'pf': 0.5, 'r': -0.178, 'r_dia': -0.178, 'dias': 74, 'ganho_med': 0.3, 'perda_med': -0.88, 'dias_aberta': 1.1, 'total_r': -17.1, 'dd_r': 17.1}
+           B {'n': 125, 'acerto': 56, 'pf': 0.48, 'r': -0.207, 'r_dia': -0.232, 'dias': 78, 'ganho_med': 0.34, 'perda_med': -0.91, 'dias_aberta': 1.1, 'total_r': -25.9, 'dd_r': 28.6}
+
+== TURTLE
+  subida   A {'n': 193, 'acerto': 37, 'pf': 0.99, 'r': -0.006, 'r_dia': 0.116, 'dias': 118, 'ganho_med': 1.55, 'perda_med': -0.93, 'dias_aberta': 8.6, 'total_r': -1.1, 'dd_r': 20.6}
+           B {'n': 98, 'acerto': 53, 'pf': 1.92, 'r': 0.417, 'r_dia': 0.294, 'dias': 52, 'ganho_med': 1.64, 'perda_med': -0.96, 'dias_aberta': 8.1, 'total_r': 40.9, 'dd_r': 19.7}
+  lateral  A {'n': 133, 'acerto': 50, 'pf': 1.57, 'r': 0.262, 'r_dia': 0.085, 'dias': 75, 'ganho_med': 1.43, 'perda_med': -0.93, 'dias_aberta': 10.1, 'total_r': 34.9, 'dd_r': 19.3}
+           B {'n': 208, 'acerto': 40, 'pf': 1.09, 'r': 0.051, 'r_dia': -0.234, 'dias': 101, 'ganho_med': 1.56, 'perda_med': -0.95, 'dias_aberta': 9.4, 'total_r': 10.6, 'dd_r': 40.6}
+  queda    A {'n': 0}
+           B {'n': 0}
+  todas    A {'n': 326, 'acerto': 43, 'pf': 1.19, 'r': 0.104, 'r_dia': 0.104, 'dias': 193, 'ganho_med': 1.5, 'perda_med': -0.93, 'dias_aberta': 9.2, 'total_r': 33.8, 'dd_r': 34.0}
+           B {'n': 306, 'acerto': 44, 'pf': 1.32, 'r': 0.168, 'r_dia': -0.054, 'dias': 153, 'ganho_med': 1.59, 'perda_med': -0.95, 'dias_aberta': 9.0, 'total_r': 51.5, 'dd_r': 34.7}
+
+== SHORT_TURTLE
+  subida   A {'n': 27, 'acerto': 15, 'pf': 0.23, 'r': -0.666, 'r_dia': -0.465, 'dias': 15, 'ganho_med': 1.31, 'perda_med': -1.01, 'dias_aberta': 7.9, 'total_r': -18.0, 'dd_r': 21.7}
+           B {'n': 77, 'acerto': 64, 'pf': 1.99, 'r': 0.364, 'r_dia': 0.366, 'dias': 24, 'ganho_med': 1.15, 'perda_med': -1.01, 'dias_aberta': 11.1, 'total_r': 28.1, 'dd_r': 11.5}
+  lateral  A {'n': 274, 'acerto': 46, 'pf': 1.42, 'r': 0.195, 'r_dia': 0.181, 'dias': 113, 'ganho_med': 1.43, 'perda_med': -0.86, 'dias_aberta': 10.6, 'total_r': 53.5, 'dd_r': 32.2}
+           B {'n': 367, 'acerto': 43, 'pf': 1.22, 'r': 0.122, 'r_dia': 0.141, 'dias': 131, 'ganho_med': 1.54, 'perda_med': -0.96, 'dias_aberta': 10.1, 'total_r': 44.7, 'dd_r': 62.8}   <== APTA
+  queda    A {'n': 101, 'acerto': 48, 'pf': 1.47, 'r': 0.242, 'r_dia': 0.199, 'dias': 36, 'ganho_med': 1.58, 'perda_med': -0.97, 'dias_aberta': 7.9, 'total_r': 24.4, 'dd_r': 27.9}
+           B {'n': 76, 'acerto': 43, 'pf': 1.03, 'r': 0.015, 'r_dia': 0.028, 'dias': 31, 'ganho_med': 1.19, 'perda_med': -0.88, 'dias_aberta': 11.1, 'total_r': 1.2, 'dd_r': 12.5}
+  todas    A {'n': 405, 'acerto': 44, 'pf': 1.28, 'r': 0.14, 'r_dia': 0.119, 'dias': 165, 'ganho_med': 1.47, 'perda_med': -0.9, 'dias_aberta': 9.7, 'total_r': 56.8, 'dd_r': 40.2}
+           B {'n': 520, 'acerto': 46, 'pf': 1.28, 'r': 0.142, 'r_dia': 0.151, 'dias': 186, 'ganho_med': 1.41, 'perda_med': -0.96, 'dias_aberta': 10.4, 'total_r': 73.9, 'dd_r': 57.1}
+
+== FALSO_ROMP
+  subida   A {'n': 66, 'acerto': 47, 'pf': 1.12, 'r': 0.057, 'r_dia': 0.087, 'dias': 29, 'ganho_med': 1.13, 'perda_med': -0.9, 'dias_aberta': 2.3, 'total_r': 3.8, 'dd_r': 11.3}
+           B {'n': 140, 'acerto': 32, 'pf': 0.64, 'r': -0.245, 'r_dia': -0.439, 'dias': 35, 'ganho_med': 1.38, 'perda_med': -1.01, 'dias_aberta': 1.1, 'total_r': -34.3, 'dd_r': 38.2}
+  lateral  A {'n': 361, 'acerto': 35, 'pf': 0.68, 'r': -0.199, 'r_dia': -0.183, 'dias': 110, 'ganho_med': 1.2, 'perda_med': -0.94, 'dias_aberta': 1.8, 'total_r': -71.8, 'dd_r': 93.1}
+           B {'n': 418, 'acerto': 36, 'pf': 0.69, 'r': -0.202, 'r_dia': -0.335, 'dias': 96, 'ganho_med': 1.23, 'perda_med': -1.0, 'dias_aberta': 1.6, 'total_r': -84.4, 'dd_r': 86.8}
+  queda    A {'n': 0}
+           B {'n': 0}
+  todas    A {'n': 427, 'acerto': 37, 'pf': 0.73, 'r': -0.159, 'r_dia': -0.127, 'dias': 139, 'ganho_med': 1.19, 'perda_med': -0.94, 'dias_aberta': 1.9, 'total_r': -68.1, 'dd_r': 90.6}
+           B {'n': 558, 'acerto': 35, 'pf': 0.67, 'r': -0.213, 'r_dia': -0.363, 'dias': 131, 'ganho_med': 1.27, 'perda_med': -1.0, 'dias_aberta': 1.5, 'total_r': -118.8, 'dd_r': 122.1}
+
+== FALSO_ROMP_S
+  subida   A {'n': 519, 'acerto': 34, 'pf': 0.64, 'r': -0.24, 'r_dia': -0.142, 'dias': 185, 'ganho_med': 1.26, 'perda_med': -1.01, 'dias_aberta': 1.3, 'total_r': -124.4, 'dd_r': 129.3}
+           B {'n': 330, 'acerto': 25, 'pf': 0.45, 'r': -0.43, 'r_dia': -0.316, 'dias': 80, 'ganho_med': 1.4, 'perda_med': -1.03, 'dias_aberta': 1.1, 'total_r': -141.7, 'dd_r': 153.5}
+  lateral  A {'n': 721, 'acerto': 34, 'pf': 0.63, 'r': -0.25, 'r_dia': -0.145, 'dias': 267, 'ganho_med': 1.25, 'perda_med': -1.04, 'dias_aberta': 1.3, 'total_r': -180.0, 'dd_r': 187.8}
+           B {'n': 821, 'acerto': 39, 'pf': 0.74, 'r': -0.163, 'r_dia': -0.131, 'dias': 303, 'ganho_med': 1.22, 'perda_med': -1.04, 'dias_aberta': 1.2, 'total_r': -133.7, 'dd_r': 145.4}
+  queda    A {'n': 54, 'acerto': 50, 'pf': 1.31, 'r': 0.163, 'r_dia': 0.133, 'dias': 29, 'ganho_med': 1.37, 'perda_med': -1.04, 'dias_aberta': 1.1, 'total_r': 8.8, 'dd_r': 10.9}
+           B {'n': 36, 'acerto': 61, 'pf': 2.08, 'r': 0.409, 'r_dia': 0.144, 'dias': 24, 'ganho_med': 1.29, 'perda_med': -0.97, 'dias_aberta': 1.4, 'total_r': 14.7, 'dd_r': 3.1}   <== APTA
+  todas    A {'n': 1294, 'acerto': 35, 'pf': 0.66, 'r': -0.228, 'r_dia': -0.127, 'dias': 481, 'ganho_med': 1.26, 'perda_med': -1.03, 'dias_aberta': 1.3, 'total_r': -295.5, 'dd_r': 304.1}
+           B {'n': 1187, 'acerto': 35, 'pf': 0.67, 'r': -0.22, 'r_dia': -0.151, 'dias': 407, 'ganho_med': 1.26, 'perda_med': -1.03, 'dias_aberta': 1.2, 'total_r': -260.8, 'dd_r': 276.4}
+
+== CANAL_REJ
+  subida   A {'n': 75, 'acerto': 59, 'pf': 1.18, 'r': 0.076, 'r_dia': -0.063, 'dias': 39, 'ganho_med': 0.84, 'perda_med': -1.0, 'dias_aberta': 3.0, 'total_r': 5.7, 'dd_r': 12.0}
+           B {'n': 77, 'acerto': 30, 'pf': 0.41, 'r': -0.416, 'r_dia': -0.504, 'dias': 28, 'ganho_med': 0.99, 'perda_med': -1.01, 'dias_aberta': 2.7, 'total_r': -32.1, 'dd_r': 34.1}
+  lateral  A {'n': 187, 'acerto': 44, 'pf': 0.74, 'r': -0.136, 'r_dia': -0.179, 'dias': 68, 'ganho_med': 0.89, 'perda_med': -0.95, 'dias_aberta': 3.4, 'total_r': -25.4, 'dd_r': 38.8}
+           B {'n': 166, 'acerto': 37, 'pf': 0.66, 'r': -0.202, 'r_dia': -0.088, 'dias': 61, 'ganho_med': 1.06, 'perda_med': -0.93, 'dias_aberta': 3.4, 'total_r': -33.5, 'dd_r': 41.2}
+  queda    A {'n': 0}
+           B {'n': 0}
+  todas    A {'n': 262, 'acerto': 48, 'pf': 0.85, 'r': -0.075, 'r_dia': -0.136, 'dias': 107, 'ganho_med': 0.87, 'perda_med': -0.96, 'dias_aberta': 3.3, 'total_r': -19.7, 'dd_r': 38.3}
+           B {'n': 243, 'acerto': 35, 'pf': 0.57, 'r': -0.27, 'r_dia': -0.219, 'dias': 89, 'ganho_med': 1.04, 'perda_med': -0.96, 'dias_aberta': 3.2, 'total_r': -65.5, 'dd_r': 74.6}
+
+== CANAL_REJ_S
+  subida   A {'n': 173, 'acerto': 39, 'pf': 0.66, 'r': -0.21, 'r_dia': -0.18, 'dias': 79, 'ganho_med': 1.02, 'perda_med': -1.01, 'dias_aberta': 2.6, 'total_r': -36.3, 'dd_r': 50.0}
+           B {'n': 112, 'acerto': 28, 'pf': 0.41, 'r': -0.432, 'r_dia': 0.04, 'dias': 34, 'ganho_med': 1.08, 'perda_med': -1.01, 'dias_aberta': 3.0, 'total_r': -48.4, 'dd_r': 50.7}
+  lateral  A {'n': 313, 'acerto': 32, 'pf': 0.44, 'r': -0.376, 'r_dia': -0.239, 'dias': 138, 'ganho_med': 0.93, 'perda_med': -0.98, 'dias_aberta': 2.9, 'total_r': -117.8, 'dd_r': 118.4}
+           B {'n': 464, 'acerto': 42, 'pf': 0.8, 'r': -0.112, 'r_dia': -0.004, 'dias': 176, 'ganho_med': 1.11, 'perda_med': -0.99, 'dias_aberta': 3.1, 'total_r': -52.1, 'dd_r': 69.2}
+  queda    A {'n': 34, 'acerto': 53, 'pf': 1.51, 'r': 0.227, 'r_dia': 0.174, 'dias': 23, 'ganho_med': 1.26, 'perda_med': -0.94, 'dias_aberta': 2.3, 'total_r': 7.7, 'dd_r': 5.1}
+           B {'n': 20, 'acerto': 50, 'pf': 0.96, 'r': -0.021, 'r_dia': 0.011, 'dias': 18, 'ganho_med': 1.04, 'perda_med': -1.08, 'dias_aberta': 3.9, 'total_r': -0.4, 'dd_r': 5.3}
+  todas    A {'n': 520, 'acerto': 36, 'pf': 0.56, 'r': -0.281, 'r_dia': -0.18, 'dias': 240, 'ganho_med': 1.0, 'perda_med': -0.99, 'dias_aberta': 2.8, 'total_r': -146.3, 'dd_r': 147.5}
+           B {'n': 596, 'acerto': 39, 'pf': 0.72, 'r': -0.169, 'r_dia': 0.004, 'dias': 228, 'ganho_med': 1.11, 'perda_med': -0.99, 'dias_aberta': 3.1, 'total_r': -100.9, 'dd_r': 103.2}
+
+== SHORT_TURTLE_custos_x2
+  subida   A {'n': 27, 'acerto': 15, 'pf': 0.2, 'r': -0.699, 'r_dia': -0.511, 'dias': 15, 'ganho_med': 1.14, 'perda_med': -1.02, 'dias_aberta': 7.9, 'total_r': -18.9, 'dd_r': 22.1}
+           B {'n': 77, 'acerto': 62, 'pf': 1.78, 'r': 0.289, 'r_dia': 0.292, 'dias': 24, 'ganho_med': 1.06, 'perda_med': -0.99, 'dias_aberta': 11.1, 'total_r': 22.2, 'dd_r': 12.1}
+  lateral  A {'n': 274, 'acerto': 45, 'pf': 1.23, 'r': 0.112, 'r_dia': 0.101, 'dias': 113, 'ganho_med': 1.32, 'perda_med': -0.86, 'dias_aberta': 10.6, 'total_r': 30.6, 'dd_r': 33.1}
+           B {'n': 366, 'acerto': 43, 'pf': 1.1, 'r': 0.054, 'r_dia': 0.076, 'dias': 130, 'ganho_med': 1.42, 'perda_med': -0.96, 'dias_aberta': 10.1, 'total_r': 19.7, 'dd_r': 69.1}
+  queda    A {'n': 101, 'acerto': 48, 'pf': 1.34, 'r': 0.176, 'r_dia': 0.138, 'dias': 36, 'ganho_med': 1.45, 'perda_med': -0.98, 'dias_aberta': 7.9, 'total_r': 17.8, 'dd_r': 29.1}
+           B {'n': 76, 'acerto': 43, 'pf': 0.91, 'r': -0.048, 'r_dia': -0.038, 'dias': 31, 'ganho_med': 1.06, 'perda_med': -0.9, 'dias_aberta': 11.1, 'total_r': -3.7, 'dd_r': 13.2}
+  todas    A {'n': 405, 'acerto': 43, 'pf': 1.13, 'r': 0.065, 'r_dia': 0.047, 'dias': 165, 'ganho_med': 1.35, 'perda_med': -0.9, 'dias_aberta': 9.7, 'total_r': 26.5, 'dd_r': 51.2}
+           B {'n': 519, 'acerto': 46, 'pf': 1.14, 'r': 0.074, 'r_dia': 0.085, 'dias': 185, 'ganho_med': 1.3, 'perda_med': -0.96, 'dias_aberta': 10.4, 'total_r': 38.3, 'dd_r': 61.4}
+
+== SHORT_TURTLE_15d
+  subida   A {'n': 46, 'acerto': 22, 'pf': 0.35, 'r': -0.492, 'r_dia': -0.379, 'dias': 22, 'ganho_med': 1.22, 'perda_med': -0.97, 'dias_aberta': 10.5, 'total_r': -22.6, 'dd_r': 28.1}
+           B {'n': 94, 'acerto': 57, 'pf': 1.56, 'r': 0.225, 'r_dia': 0.593, 'dias': 31, 'ganho_med': 1.09, 'perda_med': -0.95, 'dias_aberta': 11.3, 'total_r': 21.1, 'dd_r': 19.4}
+  lateral  A {'n': 304, 'acerto': 52, 'pf': 1.62, 'r': 0.26, 'r_dia': 0.08, 'dias': 124, 'ganho_med': 1.32, 'perda_med': -0.87, 'dias_aberta': 11.6, 'total_r': 79.0, 'dd_r': 31.4}
+           B {'n': 391, 'acerto': 45, 'pf': 1.36, 'r': 0.186, 'r_dia': 0.02, 'dias': 150, 'ganho_med': 1.54, 'perda_med': -0.94, 'dias_aberta': 11.4, 'total_r': 72.7, 'dd_r': 44.9}   <== APTA
+  queda    A {'n': 102, 'acerto': 44, 'pf': 1.26, 'r': 0.145, 'r_dia': 0.253, 'dias': 40, 'ganho_med': 1.59, 'perda_med': -0.99, 'dias_aberta': 7.7, 'total_r': 14.8, 'dd_r': 28.4}
+           B {'n': 93, 'acerto': 37, 'pf': 0.72, 'r': -0.16, 'r_dia': -0.015, 'dias': 31, 'ganho_med': 1.12, 'perda_med': -0.9, 'dias_aberta': 11.4, 'total_r': -14.9, 'dd_r': 24.7}
+  todas    A {'n': 454, 'acerto': 47, 'pf': 1.31, 'r': 0.152, 'r_dia': 0.057, 'dias': 187, 'ganho_med': 1.37, 'perda_med': -0.92, 'dias_aberta': 10.6, 'total_r': 69.1, 'dd_r': 44.5}
+           B {'n': 578, 'acerto': 46, 'pf': 1.27, 'r': 0.137, 'r_dia': 0.099, 'dias': 212, 'ganho_med': 1.4, 'perda_med': -0.93, 'dias_aberta': 11.4, 'total_r': 78.9, 'dd_r': 52.1}
+
+== SHORT_TURTLE_30d
+  subida   A {'n': 8, 'acerto': 38, 'pf': 0.6, 'r': -0.265, 'r_dia': -0.167, 'dias': 6, 'ganho_med': 1.05, 'perda_med': -1.05, 'dias_aberta': 9.2, 'total_r': -2.1, 'dd_r': 4.8}
+           B {'n': 31, 'acerto': 68, 'pf': 3.63, 'r': 0.877, 'r_dia': 1.059, 'dias': 12, 'ganho_med': 1.79, 'perda_med': -1.04, 'dias_aberta': 7.7, 'total_r': 27.2, 'dd_r': 5.8}
+  lateral  A {'n': 219, 'acerto': 37, 'pf': 0.95, 'r': -0.03, 'r_dia': -0.058, 'dias': 93, 'ganho_med': 1.45, 'perda_med': -0.92, 'dias_aberta': 8.8, 'total_r': -6.5, 'dd_r': 36.2}
+           B {'n': 289, 'acerto': 41, 'pf': 1.01, 'r': 0.008, 'r_dia': 0.074, 'dias': 111, 'ganho_med': 1.39, 'perda_med': -0.96, 'dias_aberta': 9.6, 'total_r': 2.2, 'dd_r': 63.5}
+  queda    A {'n': 105, 'acerto': 44, 'pf': 1.36, 'r': 0.194, 'r_dia': 0.122, 'dias': 34, 'ganho_med': 1.67, 'perda_med': -0.95, 'dias_aberta': 7.9, 'total_r': 20.4, 'dd_r': 31.9}
+           B {'n': 70, 'acerto': 47, 'pf': 1.37, 'r': 0.154, 'r_dia': 0.109, 'dias': 27, 'ganho_med': 1.21, 'perda_med': -0.79, 'dias_aberta': 11.7, 'total_r': 10.8, 'dd_r': 9.3}   <== APTA
+  todas    A {'n': 332, 'acerto': 39, 'pf': 1.06, 'r': 0.036, 'r_dia': -0.017, 'dias': 133, 'ganho_med': 1.52, 'perda_med': -0.93, 'dias_aberta': 8.5, 'total_r': 11.8, 'dd_r': 63.8}
+           B {'n': 390, 'acerto': 44, 'pf': 1.2, 'r': 0.103, 'r_dia': 0.159, 'dias': 150, 'ganho_med': 1.41, 'perda_med': -0.94, 'dias_aberta': 9.8, 'total_r': 40.1, 'dd_r': 55.5}
+
+SHORT_TURTLE lateral por moeda: positivas 19 de 25
+[(1.01, 'TRUMP', 9), (0.54, 'LINK', 25), (0.51, 'UNI', 31), (0.42, 'SUI', 21), (0.4, 'BCH', 30), (0.38, 'ARB', 22), (0.37, 'DOGE', 29), (0.31, 'XRP', 31), (0.24, 'XPL', 6), (0.23, 'AVAX', 33), (0.21, 'ENA', 18), (0.16, 'AAVE', 30), (0.12, 'PEPE', 25), (0.07, 'ETH', 29), (0.05, 'ADA', 42), (0.04, 'LTC', 34), (0.03, 'WLD', 25), (0.03, 'NEAR', 32), (0.01, 'SOL', 34), (-0.04, 'BTC', 33), (-0.07, 'PUMP', 5), (-0.09, 'ONDO', 6), (-0.15, 'XLM', 31), (-0.19, 'TRX', 31), (-0.19, 'BNB', 29)]

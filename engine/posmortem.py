@@ -112,9 +112,13 @@ def relatorio(led, longo=None, campeoes=()):
     elif len(med) < 10:
         licoes.append(f"só {len(med)} operações com resultado real medido: conclusões ainda fracas")
     causas = Counter(o["causa"] for o in ops)
+    gap_est = {}                               # (22/10) custo real por estrategia: ultimas 20 medidas
+    for o in med:
+        gap_est.setdefault(o["estrategia"], []).append(o["r_real"] - o["r_sinal"])
+    gap_est = {e: {"n": len(v[-20:]), "gap": _r(sum(v[-20:]) / len(v[-20:]))} for e, v in gap_est.items()}
     return {"n": len(ops), "r_total": _r(sum(rs)), "r_medio": _r(sum(rs) / len(rs)),
             "acerto": round(sum(1 for r in rs if r > 0) / len(rs) * 100), "usdc": _r(sum(o["usdc"] or 0 for o in ops)),
-            "gap_execucao_r": _r(gap), "medidas": len(med), "causas": dict(causas),
+            "gap_execucao_r": _r(gap), "medidas": len(med), "causas": dict(causas), "gap_por_estrategia": gap_est,
             "por_estrategia": est, "por_ativo": por("ativo"), "por_motivo": por("motivo"),
             "padroes": padroes, "licoes": licoes, "ops": ops[-20:]}
 
@@ -128,6 +132,29 @@ def _agrupar(ops, k):
 
 
 CAUSA_TXT = {"execucao": "perdeu na execução", "sinal": "o sinal falhou", "fase": "fase errada", "ganhou": "ganhou", "empate": "saiu perto da entrada"}
+
+
+CUSTO_N, CUSTO_LIMITE = 20, -0.10
+
+
+def custo_aviso(state, rel, now):
+    """(22/10, auditoria S/R, OK do Rui) A vantagem do Ramiro cai para metade com custos a
+    dobrar. Se, nas ultimas CUSTO_N operacoes reais medidas de uma estrategia, o resultado
+    real ficar em media pior do que o do sinal em mais de 0,10R, avisa (uma vez, e de novo
+    ao fim de 7 dias se continuar). Nao mexe em dinheiro."""
+    vis = state.setdefault("custo_alarme", {})
+    out = []
+    for e, v in ((rel or {}).get("gap_por_estrategia") or {}).items():
+        mau = v["n"] >= CUSTO_N and v["gap"] is not None and v["gap"] < CUSTO_LIMITE
+        ant = vis.get(e)
+        if mau and (not ant or now - ant >= 7 * 86400):
+            vis[e] = int(now)
+            out.append(f"💸 <b>Custo de execução alto em {e}</b>: nas últimas {v['n']} operações reais, o resultado "
+                       f"real ficou {v['gap']:+.2f}R por operação abaixo do sinal (limite −0,10R). A vantagem desta "
+                       "estratégia é fina: convém rever as moedas permitidas (spread e volume na Bybit UE).")
+        elif not mau and ant:
+            vis.pop(e, None)
+    return out
 
 
 def novos(state, rel):

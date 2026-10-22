@@ -1039,13 +1039,50 @@ def sig_turtle_fortes(c4):
     return sig and dict(sig, gatilho=sig["gatilho"] + f", moeda mais forte que o BTC a 30 dias ({mine:+.0%})")
 
 
-PAPEL_ESTUDO = ("TURTLE_FORTES",)       # so em papel: fora de promo.REAL_OK
+def sig_falso_rompimento(c4):
+    """Falso rompimento (auditoria S/R de 22/10): a vela de 4H fura o minimo dos 20 dias
+    completos antes do ultimo e fecha de novo acima dele; stop 0,2 ATR abaixo do minimo
+    da vela, objetivo 2R, maximo 5 dias. Em short (no espelho) = fura o maximo e falha."""
+    if len(c4) < 200:
+        return None
+    d = [x for x in B.daily(c4) if x["t"] + DAY <= c4[-1]["t"] + H4]
+    if len(d) < 25:
+        return None
+    lo = min(x["l"] for x in d[-21:-1])
+    b = c4[-1]
+    if not (b["l"] < lo < b["c"]):
+        return None
+    at = PB.atr(c4[-100:])[-1]
+    if not at:
+        return None
+    e, stop = b["c"], b["l"] - 0.2 * at
+    if e - stop <= 0:
+        return None
+    return {"stop": stop, "tp": [e + 2 * (e - stop)], "partials": [100], "breakeven": False,
+            "hold_s": 5 * DAY, "atr": at, "gatilho": f"falso rompimento de {lo:.6g} (furou e fechou de volta)"}
+
+
+def sig_short_falso_rompimento(m4):
+    """(22/10, OK do Rui; so em papel e so na fase de queda) short quando o preco fura o
+    maximo de 20 dias e volta a fechar abaixo. Auditoria: +0,16R e +0,41R por operacao na
+    fase de queda (2021-24 e 2024-26), mas so 24 dias de amostra em 2024-26 e perde fora
+    da queda. Regra fixada antes: 20 operacoes em papel na queda, R medio >= +0,15 e as
+    duas metades a ganhar -> pede o OK do Rui; R medio < 0 -> sai."""
+    if _fase_btc(m4[-1]["t"] + H4) != "queda":
+        return None
+    s = sig_falso_rompimento(m4)
+    return s and dict(s, gatilho="furou o máximo de 20 dias e voltou a fechar abaixo (falso rompimento)")
+
+
+PAPEL_ESTUDO = ("TURTLE_FORTES", "SHORT_FALSO_ROMP")    # so em papel: fora de promo.REAL_OK
+PAPEL_FASE = {"TURTLE_FORTES": "subida", "SHORT_FALSO_ROMP": "queda"}
 
 MAIORES_SIGS = {"MAIORES_RECUO": sig_maiores_recuo, "MAIORES_TENDENCIA": sig_maiores_tendencia,
                 "MAIORES_FUNDING": sig_maiores_funding}
 SHORT_SIGS.update({
     "SHORT_MAIORES_RECUO": _shortify(sig_maiores_recuo, lambda s: "repique numa tendência de descida a virar para baixo (maiores)"),
-    "SHORT_MAIORES_TENDENCIA": _shortify(sig_maiores_tendencia, lambda s: "quebra do mínimo de 20 dias com o diário em descida (maiores)")})
+    "SHORT_MAIORES_TENDENCIA": _shortify(sig_maiores_tendencia, lambda s: "quebra do mínimo de 20 dias com o diário em descida (maiores)"),
+    "SHORT_FALSO_ROMP": sig_short_falso_rompimento})
 
 
 NEW_SIGS = {"BRK_ESPACO": sig_breakout_espaco, "RETESTE": sig_reteste,

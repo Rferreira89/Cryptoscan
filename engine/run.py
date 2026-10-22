@@ -1044,6 +1044,9 @@ def main():
         for m in posmortem.novos(state, rel):
             if alerts.configured():
                 alerts.send(m, html=True)
+        for m in posmortem.custo_aviso(state, rel, res["generated_at"]):   # (22/10) custo real por estrategia
+            if alerts.configured():
+                alerts.send(m, html=True)
     except Exception as e:
         print("posmortem:", e)
     try:                                     # historico de derivados (engine/derivhist.py)

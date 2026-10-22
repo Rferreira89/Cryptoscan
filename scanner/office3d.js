@@ -1451,6 +1451,8 @@ const PESQUISA = [
   ["✅", "H14: núcleo reforça nas quedas", "fica: ajuda em 2021-24, neutro depois"],
   ["❌", "H15: núcleo a 85% na subida", "não melhora"],
   ["❌", "H16: só BTC, 50/25/25, 3 fechos", "nenhuma bate o núcleo de hoje"],
+  ["❌", "S/R, Fibonacci e canais", "perdem depois de custos"],
+  ["🧪", "Falso rompimento em short na queda", "em papel: 20 op. ≥ +0,15R"],
   ["🔬", "H4: liquidações em massa", "em estudo"],
 ];
 const p2n = (x, d = 2) => x == null || isNaN(x) ? "–" : (x > 0 ? "+" : "") + Number(x).toFixed(d).replace(".", ",");
@@ -1458,7 +1460,7 @@ const P2FASE = { subida: "subida", lateral: "lateral", queda: "descida" };
 function p2Data() { return API().D() || {}; }
 function p2Fase() { return (p2Data().mercado || {}).regime || "lateral"; }
 function p2Dead() { return new Set(((p2Data().arena || {}).classificacao || []).filter(b => b.estado === "MORTA").map(b => b.id)); }
-function p2Persona(k) { const b = ((p2Data().arena || {}).classificacao || []).find(x => x.id === k); return ((b && b.persona) || { TURTLE_FORTES: "Teodoro" }[k] || k).replace(" Jr.", ""); }
+function p2Persona(k) { const b = ((p2Data().arena || {}).classificacao || []).find(x => x.id === k); return ((b && b.persona) || { TURTLE_FORTES: "Teodoro", SHORT_FALSO_ROMP: "Fausto" }[k] || k).replace(" Jr.", ""); }
 function p2Champs() { return new Set((p2Data().promo || {}).campeoes || []); }
 // ate onde chega o lutador k na fase f: indice da sala onde chumba (ou 5 = campeao)
 function p2Eval(k, f) {
@@ -1818,7 +1820,7 @@ const P3 = { on: false, g: null, people: [], champ: [], labels: [], tex: {}, scr
 const P3C = "#F6C453";
 function p3Data() { return API().D() || {}; }
 const p3n = (x, d = 2) => x == null || isNaN(x) ? "–" : (x > 0 ? "+" : "") + Number(x).toFixed(d).replace(".", ",");
-function p3Persona(k) { const b = ((p3Data().arena || {}).classificacao || []).find(x => x.id === k); return ((b && b.persona) || k).replace(" Jr.", ""); }
+function p3Persona(k) { const b = ((p3Data().arena || {}).classificacao || []).find(x => x.id === k); return ((b && b.persona) || { TURTLE_FORTES: "Teodoro", SHORT_FALSO_ROMP: "Fausto" }[k] || k).replace(" Jr.", ""); }
 function p3Frame(g, title, c) { g.fillStyle = "#0d0b06"; g.fillRect(0, 0, 640, 400); g.strokeStyle = c; g.lineWidth = 5; g.strokeRect(3, 3, 634, 394);
   g.fillStyle = c; g.fillRect(0, 0, 640, 52); g.fillStyle = "#0d0b06"; g.font = "800 26px system-ui"; g.fillText(title, 18, 36); }
 function p3Rows(g, rows, y0 = 92, lh = 30) { rows.slice(0, 10).forEach(([a, b, col], i) => { const y = y0 + i * lh; g.font = "600 21px system-ui"; g.fillStyle = "#efe6cf"; g.fillText(String(a).slice(0, 36), 18, y);
@@ -1831,8 +1833,8 @@ function p3Draw(k, g) {
     const rows = [];
     if (f === "subida") { const pos = Object.keys(N.pos || {}); rows.push(["Núcleo BTC · ETH · SOL", pos.length ? `${pos.length} em carteira` : "em USDC", pos.length ? up : "#b8a77a"], ["Regra: acima da média de 200 dias", "70% do capital"]); }
     L.forEach(x => rows.push([`${p3Persona(x.k)} · ${x.k}`, x.ativo ? "a operar" : "reserva", x.ativo ? (x.k.startsWith("SHORT") ? dn : up) : "#b8a77a"]));
-    if (f === "subida") { const pv = (((D.paper_ring || {}).TURTLE_FORTES) || {}).prova || { n: 0, n_min: 20, estado: "a medir" };
-      rows.push([`${p3Persona("TURTLE_FORTES")} · em papel na subida`, `${pv.n}/${pv.n_min || 20} op. ${pv.r != null ? p3n(pv.r) + "R" : ""}`, "#cbd5e0"], ["Regra: ≥ +0,15R e 2 metades a ganhar", pv.estado || "a medir", "#b8a77a"]); }
+    if (P3PAPEL[f]) { const pv = (((D.paper_ring || {})[P3PAPEL[f]]) || {}).prova || { n: 0, n_min: 20, estado: "a medir" };
+      rows.push([`${p3Persona(P3PAPEL[f])} · em papel na ${f}`, `${pv.n}/${pv.n_min || 20} op. ${pv.r != null ? p3n(pv.r) + "R" : ""}`, "#cbd5e0"], ["Regra: ≥ +0,15R e 2 metades a ganhar", pv.estado || "a medir", "#b8a77a"]); }
     if (!L.length && f !== "subida") rows.push(["Sem aprovados no ringue de um ano", "", "#b8a77a"]);
     const RD = D.radar || {}, rl = f === "subida" ? RD.rompimentos : f === "lateral" ? RD.quebras : null;
     if (rl) rl.filter(x => x.ok && !/^já/.test(x.estado)).slice(0, 2).forEach(x => rows.push([`🎯 ${x.asset}: ${f === "subida" ? "máximo" : "mínimo"} de 20 dias`, `a ${p3n(x.dist_pct, 1).replace("+", "")}%`, x.dist_pct < 1 ? "#FFA94D" : "#b8a77a"]));
@@ -1858,7 +1860,7 @@ function p3Falas() {
   ["BTC", "ETH", "SOL"].forEach(a => { const p = (N.plano || {})[a] || {}, op = P3.people.find(q => q.coin === a); if (!op) return;
     const dist = p.preco && p.media ? (1 - p.media / p.preco) * 100 : null;
     out.push([op, N.pos && N.pos[a] ? `${a}: ${Math.round(p.valor_usdc || 0)} USDC, ${p3n(p.resultado_usdc)} USDC. Saída se fechar abaixo da média de 200 dias${dist != null ? `, a ${dist.toFixed(1).replace(".", ",")}%` : ""}.` : `${a}: em USDC, à espera do fecho acima da média de 200 dias.`]); });
-  P3.champ.forEach(op => { const k = op.k; if (op.papel) { out.push([op, `Sou o candidato da subida, só em papel: rompimentos de 20 dias em moedas mais fortes que o BTC. Tenho ${op.papel.n} de ${op.papel.n_min || 20} operações; só passo a dinheiro real com +0,15R de média e o OK do Rui.`]); return; } if (!op.ativo) { out.push([op, `Estou de reserva no gabinete ${P3F[op.fase].n.toLowerCase()}: provei ganhar nessa fase e entro sozinho quando o mercado lá chegar.`]); return; } out.push([op, k.startsWith("SHORT_TURTLE") ? "Procuro altcoins a quebrar o mínimo de 20 dias para vender a descoberto." :
+  P3.champ.forEach(op => { const k = op.k; if (op.papel) { out.push([op, op.k === "SHORT_FALSO_ROMP" ? `Sou o candidato da queda, só em papel: vendo quando o preço fura o máximo de 20 dias e volta a fechar abaixo. Tenho ${op.papel.n} de ${op.papel.n_min || 20} operações; só passo a dinheiro real com +0,15R de média e o OK do Rui.` : `Sou o candidato da subida, só em papel: rompimentos de 20 dias em moedas mais fortes que o BTC. Tenho ${op.papel.n} de ${op.papel.n_min || 20} operações; só passo a dinheiro real com +0,15R de média e o OK do Rui.`]); return; } if (!op.ativo) { out.push([op, `Estou de reserva no gabinete ${P3F[op.fase].n.toLowerCase()}: provei ganhar nessa fase e entro sozinho quando o mercado lá chegar.`]); return; } out.push([op, k.startsWith("SHORT_TURTLE") ? "Procuro altcoins a quebrar o mínimo de 20 dias para vender a descoberto." :
     k.startsWith("BOUNCE") ? `Espero sobrevenda forte: hoje ${Number(AM.sobrevenda_pct || 0).toFixed(0)}% das moedas estão em sobrevenda.` : "À espera do meu sinal, com a prova da fase."]); });
   const role = r => P3.people.find(q => q.role === r);
   if (role("risco")) out.push([role("risco"), `Risco ${RK.reduzido ? "a metade" : "normal"}: ${RK.motivo || ""}`.slice(0, 120)]);
@@ -1884,6 +1886,7 @@ function p3Person(key, nm, st, col, x, z) { STYLE[key] = st; DESK[key] = { z: "s
 // operam agora; nos outros, os aprovados no ringue de um ano para essa fase,
 // de reserva, que entram sozinhos quando o mercado mudar de fase.
 const P3F = { subida: { n: "Subida", c: "#68D391", x: -13.33 }, lateral: { n: "Lateral", c: "#63B3ED", x: 2 }, queda: { n: "Queda", c: "#FC8181", x: 17.33 } };
+const P3PAPEL = { subida: "TURTLE_FORTES", queda: "SHORT_FALSO_ROMP" };
 const P3ROW = [-9.6, -5.6], P3COL = [-5.25, -1.75, 1.75, 5.25];
 function p3Room(x0, x1, z0, z1, col, porta, nome) {
   const G = P3.g, cx = (x0 + x1) / 2, cz = (z0 + z1) / 2, w = x1 - x0, d = z1 - z0, glass = mat(col, .2, .13), frame = mat(P3C, .35);
@@ -1967,12 +1970,13 @@ function updateFloor3(force) {
       const p = p3Person("p3c_" + f + "_" + k, `${nm} · ${ativo ? "a operar" : "de reserva"} ${k.startsWith("SHORT") ? "(venda)" : "(compra)"}`, { skin: SKINS[hh % 5], hair: HAIRS[(hh >> 2) % 6], hs: fem ? (hh % 2 ? "long" : "bun") : ["short", "buzz", "curly"][hh % 3], top: col, jacket: "#1f1a12", legs: "#1d1b2e" }, ativo ? col : "#a0aec0", x, z);
       if (ativo) { const cup = new THREE.Mesh(new THREE.CylinderGeometry(.13, .07, .28, 16), mat(P3C, 1.1)); cup.position.set(.6, .95, 0); desk.add(cup); }
       p.k = k; p.fase = f; p.ativo = ativo; P3.champ.push(p); P3.people.push(p); });
-    if (f === "subida") {                             // (22/10) o candidato de subida em papel
-      const pv = ((((p3Data().paper_ring || {}).TURTLE_FORTES) || {}).prova) || { n: 0, n_min: 20, estado: "a medir" };
+    const EST = P3PAPEL[f];                           // (22/10) candidatos em papel: Teodoro (subida), Fausto (queda)
+    if (EST) {
+      const pv = ((((p3Data().paper_ring || {})[EST]) || {}).prova) || { n: 0, n_min: 20, estado: "a medir" };
       const x = o.x + P3COL[3], z = P3ROW[1], desk = p3Desk(x, z, "#4a5568"); P3.dyn.push(desk);
-      const nm = p3Persona("TURTLE_FORTES"), hh = hsh(nm);
-      const p = p3Person("p3e_TURTLE_FORTES", `${nm} · em papel (${pv.n}/${pv.n_min || 20})`, { skin: SKINS[hh % 5], hair: HAIRS[(hh >> 2) % 6], hs: "short", top: "#a0aec0", jacket: "#1f1a12", legs: "#1d1b2e", glasses: 1 }, "#cbd5e0", x, z);
-      p.k = "TURTLE_FORTES"; p.fase = f; p.ativo = false; p.papel = pv; P3.champ.push(p); P3.people.push(p); }
+      const nm = p3Persona(EST), hh = hsh(nm);
+      const p = p3Person("p3e_" + EST, `${nm} · em papel (${pv.n}/${pv.n_min || 20})`, { skin: SKINS[hh % 5], hair: HAIRS[(hh >> 2) % 6], hs: "short", top: "#a0aec0", jacket: "#1f1a12", legs: "#1d1b2e", glasses: 1 }, "#cbd5e0", x, z);
+      p.k = EST; p.fase = f; p.ativo = false; p.papel = pv; P3.champ.push(p); P3.people.push(p); }
     if (f !== "subida" && !lista.length) { const l = p3Label("Sem aprovados nesta fase", "#a0aec0", new THREE.Vector3(o.x, P3H + 1.6, -7.6)); P3.dyn.push(l); }
   });
 }

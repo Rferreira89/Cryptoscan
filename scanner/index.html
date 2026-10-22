@@ -295,7 +295,7 @@ body.sheet-open #sheet{transform:none}
 @media (prefers-reduced-motion:reduce){.typing i,.bot .eye{animation:none}.bub{transition:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module" src="office3d.js?v=20261022l"></script>
+<script type="module" src="office3d.js?v=20261023a"></script>
 </head>
 <body class="w3d">
 <div id="world">
@@ -1313,6 +1313,7 @@ function openPM(){const P=D&&D.posmortem,el=$("hoje"),sg=v=>v==null?"–":(v>=0?
     (P.licoes||[]).forEach(x=>h+=`<div class="it"><i>💡</i><span>${esc(x)}</span></div>`);
     h+=`<div class="it"><i>🧩</i><span><b>Por estratégia</b><br><small>${Object.entries(P.por_estrategia||{}).sort((a,b)=>a[1].total-b[1].total).map(([k,v])=>`${esc(personaOf(k))} (${esc(k)}): ${v.n} op., ${sg(v.r)}R`).join(" · ")}</small></span></div>`;
     (P.ops||[]).slice().reverse().forEach(o=>h+=`<div class="it"><i>${o.r>0?"✅":o.causa==="empate"?"➖":"❌"}</i><span><b>${esc(o.ativo)}</b> · ${esc(personaOf(o.estrategia))} · <b class="${o.r>=0?"up":"dn"}">${sg(o.r)}R</b> — ${esc(PMCAUSA[o.causa]||o.causa)}<br><small>${o.t?new Date(o.t*1000).toLocaleDateString("pt-PT",{day:"2-digit",month:"2-digit"})+" · ":""}${(o.licoes||[]).map(esc).join("; ")||"nada a apontar"}</small></span></div>`)}
+  {const G=(P&&P.gap_por_estrategia)||{};const ks=Object.keys(G);if(ks.length)h+=`<div class="it"><i>💸</i><span><b>Custo real por estratégia</b> (últimas até 20 operações medidas; alarme abaixo de −0,10R com 20)<br><small>${ks.map(k=>`${esc(personaOf(k))}: ${sg(G[k].gap)}R em ${G[k].n}`).join(" · ")}</small></span></div>`}
   el.querySelector(".hj").innerHTML=h;el.hidden=false}
 function openFiltro(){const F=D&&D.filtro_novo,el=$("hoje"),FN={subida:"Subida",lateral:"Lateral",queda:"Descida"},sg=v=>v==null?"–":(v>=0?"+":"−")+Math.abs(v).toFixed(2).replace(".",",");
   const TF=D.troca_filtro||{},M=TF.medicao||{},RG=TF.regra||{},fm=x=>x&&x.n?`${sg(x.r)}R em ${x.n} op.`:"sem operações";
