@@ -27,6 +27,10 @@ class Radar(unittest.TestCase):
         d = [x for x in AR.B.daily(m) if x["t"] + DAY <= m[-1]["t"] + H4]
         self.assertAlmostEqual(1 / max(x["h"] for x in d[-21:-1]), lo)
 
+    def test_velas_ao_vivo_sem_volume_comprador(self):
+        c4 = [dict(x, tb=None) for x in velas([100.0] * 180)]
+        self.assertIsNotNone(radar.niveis(c4))
+
     def test_estados(self):
         c4 = velas([100.0] * 180)
         lo, _ = radar.niveis(c4)

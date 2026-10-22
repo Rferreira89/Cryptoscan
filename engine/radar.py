@@ -7,17 +7,31 @@ mesmas contas do sinal (tools/arena_ringue.sig_turtle):
   - Teodoro (TURTLE_FORTES, so papel e so na subida): fecho acima do maximo de 20 dias.
 So informa: nao gera sinais nem mexe em dinheiro.
 """
-from . import backtest as B
 
 DAY, H4 = 86400, 14400
 MAX = 10
+
+
+def _diario(c4):
+    """Como backtest.daily (so dias completos de 6 velas), sem precisar do volume comprador,
+    que nas velas ao vivo pode vir vazio."""
+    out, cur = [], []
+    for x in c4:
+        if cur and x["t"] // DAY != cur[0]["t"] // DAY:
+            if len(cur) == 6:
+                out.append({"t": cur[0]["t"], "h": max(y["h"] for y in cur), "l": min(y["l"] for y in cur)})
+            cur = []
+        cur.append(x)
+    if len(cur) == 6:
+        out.append({"t": cur[0]["t"], "h": max(y["h"] for y in cur), "l": min(y["l"] for y in cur)})
+    return out
 
 
 def niveis(c4):
     """(minimo, maximo) de 20 dias como no sinal, ou None."""
     if not c4 or len(c4) < 150:
         return None
-    d = [x for x in B.daily(c4) if x["t"] + DAY <= c4[-1]["t"] + H4]
+    d = [x for x in _diario(c4) if x["t"] + DAY <= c4[-1]["t"] + H4]
     if len(d) < 25:
         return None
     w = d[-21:-1]
