@@ -628,7 +628,9 @@ def campeoes_aviso(state, campeoes, now):
         if k in atual:
             continue
         nome = arena.persona(k)
-        if k in cl:
+        if k in (state.get("so_papel") or {}):
+            motivo = state["so_papel"][k] + "; continua a ser medido em papel"
+        elif k in cl:
             de = cl[k]
             motivo = (f"é clone de {arena.persona(de['de'])} ({de['de']}, resultados diários correlacionados "
                       f"{de['corr']:.2f}); fica {arena.persona(de['de'])}")

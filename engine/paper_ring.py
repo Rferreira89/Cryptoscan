@@ -25,6 +25,8 @@ def update(state, rows, bars, now, market_ok=True):
     except Exception:
         PAPEL_ESTUDO, PAPEL_FASE = (), {}
     active += [k for k in PAPEL_ESTUDO if k in reg and k not in active and k not in promo.REAL_OK]
+    # (23/10) campeoes tirados do dinheiro real (familia so em papel, deriva) continuam medidos aqui
+    active += [k for k in (state.get("so_papel") or {}) if k in reg and k not in active]
     fase = (state.get("mercado") or {}).get("regime")
     for k in set(st) | set(active):
         b = st.setdefault(k, {"open": {}, "closed": [], "last": {}})

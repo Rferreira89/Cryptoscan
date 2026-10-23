@@ -311,6 +311,19 @@ def regime_qualified(state, fase):
 
 
 CONFIG_ESTUDO = {}          # {fase: [lutadores]} de config "campeoes_estudo" (scanner preenche)
+SO_PAPEL_FAM = set()        # familias que nunca usam dinheiro real (config "familias_so_papel")
+DERIVA_LIMITE, DERIVA_MIN = -0.15, 80
+
+
+def deriva(state, k, fase):
+    """(23/10, OK do Rui) um campeao por estudo cuja segunda metade do ringue de um ano, nesta
+    fase, fica abaixo de -0,15R com pelo menos 80 operacoes nessa metade, passa a papel: a
+    vantagem trata-se como perdida ate voltar. Devolve o motivo ou None."""
+    f = ((((state.get("arena") or {}).get("longo") or {}).get("lutadores") or {}).get(k) or {}).get("por_regime", {}).get(fase) or {}
+    met, n = f.get("metades"), f.get("n") or 0
+    if met and len(met) == 2 and met[1] is not None and n / 2 >= DERIVA_MIN and met[1] < DERIVA_LIMITE:
+        return f"deriva: 2.ª metade do ano na fase {fase} em {met[1]:+.2f}R ({n // 2} op.), abaixo de {DERIVA_LIMITE:+.2f}R"
+    return None
 
 
 def champions(state, disabled=(), fase=None, por_fase=False):
@@ -330,13 +343,25 @@ def champions(state, disabled=(), fase=None, por_fase=False):
         sus_real = suspended(state, contas_mes=False)
         out = [k for k, _ in regime_qualified(state, fase)
                if k in reg and k in REAL_OK and k not in disabled and k not in sus_real]
+        papel = {}
         # (21/10, OK do Rui) aprovados pelo estudo de dois periodos (H10/H10b):
         # SHORT_TURTLE na lateral ganha em 2021-24 e 2024-26, ja com o juro do
         # emprestimo; a vantagem e a queda das altcoins, nao o momento, por isso
         # nao bate o acaso do ringue. Mesma suspensao pela prova real.
         for k in (CONFIG_ESTUDO.get(fase) or []):
             if k not in out and k in reg and k in REAL_OK and k not in disabled and k not in sus_real:
+                d = deriva(state, k, fase)
+                if d:
+                    papel[k] = d
+                    continue
                 out.append(k)
+        # (23/10, OK do Rui) familias so em papel (a sobrevenda perde por dia nos dois periodos
+        # testados): saem do dinheiro real e passam a ser medidas em papel
+        for k in list(out):
+            if family(k) in SO_PAPEL_FAM:
+                out.remove(k)
+                papel[k] = f"família «{FAMILIAS.get(family(k), family(k))}» só em papel (decisão do Rui, 23/10)"
+        state["so_papel"] = papel
         return out
     sus = suspended(state)
     out = [(k, r) for k, r in qualified(state)
@@ -348,7 +373,7 @@ def champions(state, disabled=(), fase=None, por_fase=False):
         have = {k for k, _ in out}
         out += [(k, r) for k, r in regime_qualified(state, fase)
                 if k not in have and k in reg and k in REAL_OK and k not in disabled and k not in sus_real]
-    return [k for k, _ in out]
+    return [k for k, _ in out if family(k) not in SO_PAPEL_FAM]
 
 
 def champion(state, disabled=()):
