@@ -84,6 +84,14 @@ def sizing(stop_pct, stop_frac, entry, cfg, short=False):
             # sobe no maximo 10% do seu valor, p. ex. de 0.50% para 0.55%)
             size_pct = mn / cap * 100
             pos_usdc = mn
+        # (23/10, OK do Rui) com o risco a metade, um stop largo deixa a posicao abaixo da
+        # ordem minima da Bybit (a FIL de 22/10: 4,11 USDC). Sobe ate a ordem minima desde
+        # que o risco dessa operacao nao passe do risco NORMAL (max_risk_usdc_normal)
+        teto = cfg.get("max_risk_usdc_normal")
+        if pos_usdc < mn and fixed and teto and mn * stop_pct / 100 <= teto + 1e-9 \
+                and mn <= cap * cfg.get("max_position_pct", 100) / 100 * lev["use"]:
+            size_pct = mn / cap * 100
+            pos_usdc = mn
         if pos_usdc < mn:
             return None, (f"posição de {pos_usdc:.2f} USDC abaixo da ordem "
                           f"mínima de {mn:g} USDC com o capital atual")

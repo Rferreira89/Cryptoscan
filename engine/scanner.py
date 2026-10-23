@@ -283,6 +283,7 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
     from . import risco
     rn = risco.nivel(state, cfg.get("capital_usdc"))
     if (losing_streak(state.get("ledger", [])) >= 2 or rn["reduzido"]) and cfg.get("max_risk_usdc"):
+        cfg["max_risk_usdc_normal"] = cfg["max_risk_usdc"]       # (23/10) teto para chegar a ordem minima
         cfg["max_risk_usdc"] = round(cfg["max_risk_usdc"] / 2, 2)
         cfg["risk_reduced"] = True
     status, data = collect_tickers()

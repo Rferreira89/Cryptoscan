@@ -479,3 +479,29 @@ class FixedStake(unittest.TestCase):
         rw = [{"asset": "LINK", "price": 104.2, "venue": {"pair": "LINK/USDC"}}]
         ev = P.update({}, rw, {"LINK": c}, config.load("nao-existe.json"), 1)[1]
         self.assertEqual(ev[0]["position_usdc"], 25.0)
+
+
+class OrdemMinimaComRiscoAMetade(unittest.TestCase):
+    """(23/10, OK do Rui) a FIL de 22/10 ficou de fora com 4,11 USDC."""
+    def sz(self, stop_pct, normal=1.77):
+        from engine import risk
+        cfg = dict(CFG, capital_usdc=355.0, fixed_position_usdc=78.1, max_risk_usdc=0.89,
+                   swing_leverage=1.0, max_position_pct=25.0)
+        if normal:
+            cfg["max_risk_usdc_normal"] = normal
+        return risk.sizing(stop_pct, stop_pct / 100, 10.0, cfg, short=True)
+
+    def test_sobe_ate_5_usdc_dentro_do_risco_normal(self):
+        s, why = self.sz(22.0)                        # 0,89 / 22% = 4,05 USDC -> 5 USDC, risco 1,10
+        self.assertIsNone(why)
+        self.assertEqual(s["usdc"]["position_usdc"], 5.0)
+        self.assertLessEqual(s["usdc"]["risk_usdc"], 1.77)
+
+    def test_nao_passa_do_risco_normal(self):
+        s, why = self.sz(40.0)                        # 5 USDC com stop a 40% = 2,00 > 1,77
+        self.assertIsNone(s)
+        self.assertIn("ordem mínima", why)
+
+    def test_sem_risco_reduzido_nada_muda(self):
+        s, why = self.sz(22.0, normal=None)
+        self.assertIsNone(s)
