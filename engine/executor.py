@@ -1441,7 +1441,12 @@ def main(state_path, ex_in, out):
     reqs = [r for r in state.get("exec_req") or [] if r.get("id") not in ex["feitos"]]
     forced = os.environ.get("EXEC_ACAO", "").strip()
     if forced:                                   # pedido manual (teste)
-        reqs.append({"id": f"manual-{forced}-{now}", "acao": forced, "op": "", "t": now})
+        acao, _, op = forced.partition(":")      # (23/10) "vender:<id>" = o botao Executar pedido pelo Rui
+        acao = acao.strip()
+        if acao in ("comprar", "vender") and op.strip():
+            reqs.append({"id": f"{acao}-{op.strip()}-manual-{now}", "acao": acao, "op": op.strip(), "t": now})
+        else:
+            reqs.append({"id": f"manual-{forced}-{now}", "acao": forced, "op": "", "t": now})
     for r in reqs:
         res = "ignorado"
         if not ex["pronto"]:
