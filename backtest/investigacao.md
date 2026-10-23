@@ -1,17 +1,17 @@
 # Diário de investigação
 
-**Hipóteses testadas contra esta reserva: 19** (12 neste diário: compra de
+**Hipóteses testadas contra esta reserva: 20** (12 neste diário: compra de
 quedas, compressão, oversold bounce 4H, day trade 1H, bounce com outras
 saídas, sweep a mercado, funding negativo, quebra com compradores,
 capitulação do mercado, atraso face ao BTC, resiliente, impulso de
-amplitude; mais 7 no diário de afinação, H1 a H7). Atualizado em
-2026-10-22 (sem hipótese nova nesta corrida). O contador global do
-programa (`engine/hipoteses.py`, com os estudos fora do programa em
-`backtest/hipoteses_offline.json`, contra dados que incluem esta reserva)
-já vai em 41. Quanto maior este número, maior a probabilidade de uma
-hipótese passar por sorte: com 19 testes, a probabilidade de pelo menos um
-falso positivo a 5% já ronda os 62% (e as várias configurações de cada
-grelha aumentam-na ainda mais).
+amplitude; mais 8 no diário de afinação, H1 a H8). Atualizado em
+2026-10-23 (sem hipótese nova nesta corrida; +1 pela H8 da afinação). O
+contador global do programa (`engine/hipoteses.py`, com os estudos fora do
+programa em `backtest/hipoteses_offline.json`, contra dados que incluem
+esta reserva) já vai em 57. Quanto maior este número, maior a
+probabilidade de uma hipótese passar por sorte: com 20 testes, a
+probabilidade de pelo menos um falso positivo a 5% já ronda os 64% (e as
+várias configurações de cada grelha aumentam-na ainda mais).
 
 Uma hipótese por entrada, com o veredicto. Método: `tools/research.py`
 (decisão no fecho, execução na abertura seguinte, 0,25% de comissão + 0,1% de
@@ -175,6 +175,7 @@ o Rui), e o morto fica registado. Um por corrida, na segunda vaga.
 | BOUNCE_MACRO | 2026-10-19 (forma recente; 51 op., −0,011R) | o próprio filtro macro: nos últimos 90 dias tirou ao BOUNCE_X30 (vivo, +0,28R) cerca de 16 operações que valeram em média +1,2R; as melhores sobrevendas acontecem quando a macro NÃO está calma (ver entrada de 2026-10-20) | sem sucessor (a correção é tirar o filtro, e isso é o BOUNCE_X30, já vivo; o contrário, BOUNCE_MEDO, já existe) | — |
 | TURTLE_FORTES | 2026-10-22 06:35 UTC (forma recente; 35 op., +0,19R) | a mesma da TURTLE: com esta saída, entradas ao acaso dão +0,56R (p95 +0,93R), logo o momento de comprar o rompimento é pior do que o acaso; +0,78R nos primeiros 60 dias (subida), −0,51R nos últimos 30 (lateral); no estudo H11d falha 2021-24 (ver entrada de 2026-10-22) | sem sucessor (família das quebras esgotada; ver 2026-10-14) | — |
 | BOUNCE_X30, BOUNCE_X30_LIQ, BOUNCE_X30_PAVIO, BOUNCE_ISOLADA, BOUNCE_SQUEEZE, BOUNCE_TRAIL, BOUNCE_NOREACT, BOUNCE_FLUXO, BOUNCE_FORTE, BOUNCE_HORAS, BOUNCE_ABSORCAO, BOUNCE_G0, BOUNCE_V2, BOUNCE_V3, DIP_TREND | 2026-10-22 (corte dos clones, 04:50 e 09:25 UTC) | não é desempenho: morreram como clones (resultados diários correlacionados 0,75 a 1,00). Defeito encontrado: o representante do grupo também morreu (PAVIO como clone da ISOLADA às 04:50, ISOLADA como clone da PAVIO, já morta, às 09:25), por isso a família inteira do Oversold Bounce, a única acima do acaso, ficou sem ninguém (ver entrada de 2026-10-22) | sem sucessor (um sucessor seria outro clone; a correção é no corte dos clones, numa sessão com o Rui) | — |
+| BOUNCE_LSR | 2026-10-23 09:15 UTC (clone de BOUNCE_MACRO, correlação 0,96) | não é desempenho: no combate de 90 dias tinha 28 op., +0,108R, com o acaso a mediana −0,42R e p95 −0,17R (acima do p95). Foi morta como clone de BOUNCE_MACRO, que já estava morta desde 2026-10-19: é o mesmo defeito do corte dos clones de 2026-10-22, outra vez (ver entrada de 2026-10-23) | sem sucessor (seria outro clone; a correção é no corte dos clones, numa sessão com o Rui) | — |
 
 ## Hipóteses anteriores a este diário (até 2026-10-02, período 2021-2026)
 
@@ -1306,3 +1307,62 @@ só aumenta o ruído.
   com uma ideia de entrada que não seja variante das famílias acima. Na
   corrida de 2026-10-25 o histórico terá 7 dias de atraso: correr primeiro
   o workflow "Historico para backtest".
+
+## 2026-10-23 — Sem hipótese nova hoje; BOUNCE_LSR morta como clone de uma morta (sem sucessor)
+
+**Veredicto da corrida: nenhuma hipótese testada.** O contador desta
+reserva passa a 20 só pela H8 da afinação (SHORT_FUNDING, rejeitada em
+2026-10-23); o global vai em 57.
+
+- **Histórico** (ramo `history`): última atualização 2026-10-18, 5 dias de
+  atraso (abaixo dos 7): não foi preciso correr o workflow. Na corrida de
+  2026-10-25 terá 7 dias: correr primeiro "Historico para backtest".
+- **Arena** (scan.json do ramo `data`, 2026-10-23 10:51 UTC): **8
+  lutadores vivos** (ontem 9; mínimo 5), `recrutar` falso. Fila do Rui
+  vazia. Vivos: BOUNCE_AMPLITUDE, BOUNCE_DESALAV, BOUNCE_V1,
+  REVERSAO_INTERVALO, MAIORES_RECUO, MAIORES_TENDENCIA, SHORT_SQUEEZE,
+  SHORT_MAIORES_TENDENCIA. Morto novo: BOUNCE_LSR.
+
+### BOUNCE_LSR: morta pelo mesmo defeito do corte dos clones (sem sucessor)
+
+- Morreu às 09:15 UTC como "clone de Mário" (BOUNCE_MACRO), correlação
+  diária 0,96. BOUNCE_MACRO está morta desde 2026-10-19 (forma recente).
+- No combate de 90 dias (`forma.json`, ramo `arena`, 37 moedas): 28 op.,
+  19 ganhadoras, +0,108R (+0,105R líquido); com a mesma saída e entradas ao
+  acaso, mediana −0,418R e p95 −0,173R: **acima do p95 do acaso**. Não
+  morreria por desempenho.
+- **Causa**: confirmada no código (`tools/arena_ringue.clones`, linha
+  1430): os candidatos a representante são todos os lutadores com 20 ou
+  mais operações no combate, vivos ou mortos; o ringue continua a correr os
+  mortos, por isso um morto melhor classificado continua a "ficar" como
+  representante e mata os vivos parecidos com ele. É a segunda vez em dois
+  dias (ontem toda a família do Bounce).
+- **Risco a seguir**: BOUNCE_DESALAV (16 op., +0,47R, p95 do acaso
+  −0,07R) e BOUNCE_AMPLITUDE (13 op., +0,74R, p95 +0,04R), os dois vivos
+  acima do acaso, ainda não entram no corte por terem menos de 20
+  operações; quando chegarem às 20 podem ser mortos como clones de
+  BOUNCE_X30 ou BOUNCE_ISOLADA, já mortas. A correção (só considerar
+  representantes vivos; decidir se algum morto pelo defeito renasce) muda a
+  regra de morte e `engine/arena.py`: não a fiz, fica para uma sessão com o
+  Rui, com prioridade.
+- **Sem sucessor**: um sucessor seria outra variante do Bounce e seria
+  cortado como clone outra vez.
+
+### Porque não há hipótese nova
+
+As ideias de compra possíveis com os dados de 24 meses do histórico (velas
+de 4H e 1H, fluxo comprador, funding) continuam a ser variantes de
+famílias rejeitadas (quebras, recuos, amplitude, reação ao BTC, funding
+negativo, acumulação de volume) ou do Bounce já no ringue. Juntar um
+filtro de funding a uma entrada rejeitada seria uma colecção de filtros, não
+uma entrada nova. Com 20 hipóteses contra esta reserva (cerca de 64% de
+probabilidade de pelo menos um falso positivo), uma hipótese fraca só
+acrescenta ruído; a prova útil continua a vir do combate e do papel ao
+vivo, e neste momento o maior risco para essa prova é o defeito do corte
+dos clones.
+
+- Proposta para a próxima corrida: correr primeiro o workflow do histórico
+  (7 dias de atraso); autópsia se morrer alguém; uma hipótese nova só com
+  uma fonte ainda não usada com histórico suficiente (`derivados.json`
+  desde 2026-10-20) ou uma ideia de entrada que não seja variante das
+  famílias acima.
