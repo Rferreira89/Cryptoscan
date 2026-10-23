@@ -1067,6 +1067,15 @@ def main():
         res["evolucao"] = evolucao.resumo(state.get("evolucao"), c.get("equity"), res["generated_at"])
     except Exception as e:
         print("evolucao:", e)
+    try:                                     # (23/10) caminho para a liberdade: resumo e mensagem de domingo
+        from . import liberdade
+        res["liberdade"] = liberdade.resumo((res.get("conta") or {}).get("equity") or (res.get("config") or {}).get("capital_usdc"),
+                                            res.get("evolucao"), (res.get("config") or {}).get("liberdade"))
+        txt = liberdade.semanal(state, res, res["generated_at"])
+        if txt and alerts.configured():
+            alerts.send(txt, html=True)
+    except Exception as e:
+        print("liberdade:", e)
     exec_after(state, events, res["generated_at"])
     res["execucao"] = {"pronto": execucao.READY, "pedidos": len(state.get("exec_req") or [])}
     extra = reports.due(res, state, res["generated_at"]) if res["universe"] else []
