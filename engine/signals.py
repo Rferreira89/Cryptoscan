@@ -532,6 +532,23 @@ def update_state(state, rows, cfg, now, daily=None):
                                     "checks": d["checks"],
                                     "data_status": r["data_status"],
                                     "price": r["price"]}})
+    # (23/10) sinais de campeoes travados nesta fase (moeda ocupada, vagas, correlacao) ficam
+    # registados nas oportunidades perdidas: antes desapareciam sem rasto (AVAX, 23/10 13:00)
+    emitidos = {e["asset"] for e in events if e.get("event") == "ISSUED"}
+    for r in rows:
+        d = r["decision"]
+        if d.get("score_label") != "campeão da arena" or r["asset"] in emitidos:
+            continue
+        motivo = None
+        if d["decision"] in ("LONG", "SHORT") and r["asset"] in live:
+            motivo = "já há uma operação em curso neste ativo"
+        elif d["decision"] == "WATCHLIST" and d.get("strategy") and d.get("reason") and d.get("plan"):
+            motivo = d["reason"]
+        if motivo:
+            from . import promo
+            lst = state.get("promo_lost") or []
+            if not any(x["asset"] == r["asset"] and now - x["t"] < 4 * 3600 and x["reason"] == motivo for x in lst):
+                promo.lost(state, now, r["asset"], d.get("strategy"), motivo)
     for r in rows:
         act = [s for s in sigs.values() if s["asset"] == r["asset"]
                and s["status"] in ("ACTIVE", "TRIGGERED")]

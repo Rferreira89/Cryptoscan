@@ -63,6 +63,19 @@ class DeclinedSlots(unittest.TestCase):
         _, issued = scan(state, ["A0"], NOW + 4 * 3600 + 60)
         self.assertEqual(len(issued), 1)
 
+    def test_sinal_de_campeao_travado_fica_registado(self):
+        state = {}
+        rs = rows(["A0"])
+        rs[0]["decision"]["score_label"] = "campeão da arena"
+        ev = signals.update_state(state, rs, CFG2, NOW)
+        ledger.apply(state, ev)
+        rs = rows(["A0"])
+        rs[0]["decision"]["score_label"] = "campeão da arena"
+        signals.update_state(state, rs, CFG2, NOW + 300)
+        self.assertEqual(state["promo_lost"][-1]["reason"], "já há uma operação em curso neste ativo")
+        signals.update_state(state, rows(["A0"]), CFG2, NOW + 600)
+        self.assertEqual(len(state["promo_lost"]), 1)                 # sem repetir a cada scan
+
     def test_recusa_da_bybit_liberta_a_operacao(self):
         from engine import execucao
         st = {"ledger": [{"id": "ICP-SHORT_TURTLE-1", "asset": "ICP", "kind": "4H", "mode": "REAL",
