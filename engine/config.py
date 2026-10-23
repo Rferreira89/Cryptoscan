@@ -65,6 +65,8 @@ DEFAULTS = {
     # campeoes aprovados por estudo de dois periodos (engine/promo.champions): so com o OK do Rui
     "campeoes_estudo": {},
     "familias_so_papel": [],
+    # (23/10) painel "Caminho para a liberdade" (so mostra; os valores mudam-se no painel)
+    "liberdade": {"deposito_mensal": 300, "rendimento_mensal": 2000, "levantamento_pct": 5, "imposto_pct": 28},
     # Capital de trading em USDC (2026-10-02: 50). Atualiza-se pelo Telegram
     # com /capital <valor>. Serve para dar valores em USDC e para adaptar
     # as operacoes a ordem minima da Bybit UE.
