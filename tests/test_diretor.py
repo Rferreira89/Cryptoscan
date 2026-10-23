@@ -488,6 +488,42 @@ class VendaADescoberto(unittest.TestCase):
         self.assertEqual(ex["ops"]["op1"]["status"], "fechada")
         self.assertIn("Recomprei", sent[-1])
 
+    def _sei(self):
+        sig = {"status": "ACTIVE", "mode": "REAL", "plan": {"entry_zone": [99.5, 100.5], "stop": 106.0,
+               "tp": [94.0], "partials": [100], "position_usdc": 6.0}}
+        return {"signals": {"op1": sig}, "ledger": [{"id": "op1", "asset": "SEI", "pair": "SEI/USDC",
+                                                     "side": "SHORT", "issued_at": NOW}]}
+
+    def test_livro_fino_nao_vende(self):
+        X, sent = self.X, []
+        ex = {"ops": {}}
+        res = self.run_with(X.do_short, self._sei(), {"op": "op1"}, ex, NOW, lambda t, html=False: sent.append(t),
+                            last_price=100.0, best_bid=99.0)            # compradores 1% abaixo
+        self.assertEqual(ex["ops"]["op1"]["status"], "recusada")
+        self.assertIn("livro fino", str(res))
+        self.assertFalse([b for p, b in self.calls if b.get("side") == "Sell"])
+        self.assertIn("Nada foi vendido", sent[-1])
+
+    def test_ioc_sem_execucao_fica_recusada_sem_rebentar(self):
+        from unittest import mock
+        X, sent = self.X, []
+        ex = {"ops": {}}
+        def sem(*a, **k):
+            raise X.ExecError("a ordem não mostrou execução")
+        with mock.patch.object(X, "order_state", return_value=("Cancelled", 0.0, None)):
+            ps = self.patches(last_price=100.0, best_bid=99.9)
+            for p in ps:
+                p.start()
+            try:
+                with mock.patch.object(X, "fills", side_effect=sem):
+                    X.do_short(self._sei(), {"op": "op1"}, ex, NOW, lambda t, html=False: sent.append(t))
+            finally:
+                for p in ps:
+                    p.stop()
+        self.assertEqual(ex["ops"]["op1"]["status"], "recusada")
+        self.assertIn("sem execução", ex["ops"]["op1"]["erro"])
+        self.assertIn("Nada foi vendido", sent[-1])
+
     def test_recusa_fora_da_zona_e_botao_so_com_teste(self):
         from engine import execucao, run
         X = self.X

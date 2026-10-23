@@ -242,6 +242,45 @@ def fills(order_id, symbol, base, side="Buy"):
     raise ExecError("a ordem não mostrou execução")
 
 
+def order_state(order_id, symbol):
+    """(estado, quantidade executada, preco medio) de uma ordem pelo historico da Bybit, ou None."""
+    for path in ("/v5/order/realtime", "/v5/order/history"):
+        try:
+            lst = get(path, {"category": "spot", "symbol": symbol, "orderId": order_id}).get("list") or []
+        except ExecError:
+            continue
+        if lst:
+            o = lst[0]
+            q = float(o.get("cumExecQty") or 0)
+            return o.get("orderStatus"), q, float(o.get("avgPrice") or 0) or None
+    return None
+
+
+def fills_or_state(order_id, symbol, base, side):
+    """(23/10, SEI) como fills(), mas sem execucao vista pergunta o estado da ordem: uma IOC
+    cancelada sem nada executado devolve (None, 0.0) em vez de rebentar o pedido."""
+    try:
+        return fills(order_id, symbol, base, side=side)
+    except ExecError:
+        st = order_state(order_id, symbol)
+        if st and st[1] > 0 and st[2]:
+            return st[2], st[1]
+        if st and st[0] in ("Cancelled", "Rejected", "Deactivated", "PartiallyFilledCanceled") and st[1] == 0:
+            return None, 0.0
+        raise
+
+
+def best_bid(symbol):
+    try:
+        b = get("/v5/market/orderbook", {"category": "spot", "symbol": symbol, "limit": 5}).get("b") or []
+        return float(b[0][0]) if b else None
+    except (ExecError, KeyError, IndexError, ValueError, TypeError):
+        return None
+
+
+SHORT_MAX_SLIP = 0.006          # (23/10) venda a descoberto: no maximo 0,6% abaixo do ultimo preco
+
+
 def tpsl_orders(symbol):
     """Ordens de protecao abertas no par. A Bybit UE guarda o TP/SL anexado
     a uma compra limite como UMA ordem de venda 'BidirectionalTpslOrder'
@@ -564,7 +603,14 @@ def place_short_part(symbol, quote, tp, stop, inst, tag, px=None):
     """Vende a descoberto ~'quote' USDC (moeda emprestada) com TP/SL anexados;
     limite IOC ligeiramente abaixo do preco (executa ja ou nao executa)."""
     px = px or last_price(symbol)
-    lim = float(fmt(px * (1 - LIMIT_SLIP), inst["tick"])) or px
+    # (23/10) a SEI de 23/10 nao executou: a IOC a 0,3% abaixo do ultimo preco ficou acima dos
+    # compradores (livro fino). Agora o limite segue o melhor comprador, ate 0,6% abaixo do ultimo
+    # preco; se os compradores estiverem mais longe, nao vende (o custo comeria a vantagem).
+    bid = best_bid(symbol)
+    if bid is not None and bid < px * (1 - SHORT_MAX_SLIP):
+        raise ExecError(f"livro fino: o melhor comprador está {100 * (1 - bid / px):.2f}% abaixo do último preço")
+    alvo = min(px * (1 - LIMIT_SLIP), bid * 0.998) if bid else px * (1 - LIMIT_SLIP)
+    lim = float(fmt(max(alvo, px * (1 - SHORT_MAX_SLIP)), inst["tick"])) or px
     qty = floor_to(quote / lim, inst["base_step"])
     base = {"category": "spot", "symbol": symbol, "side": "Sell", "orderType": "Limit",
             "timeInForce": "IOC", "price": fmt(lim, inst["tick"]), "isLeverage": 1,
@@ -655,7 +701,10 @@ def do_short(state, req, ex, now, send):
         except ExecError as e:
             o["erro"] = str(e)[:120]
             break
-        avg, qty = fills(oid, symbol, rec["asset"], side="Sell")
+        avg, qty = fills_or_state(oid, symbol, rec["asset"], "Sell")
+        if not qty:                          # IOC sem execucao: nada vendido, nada emprestado
+            o["erro"] = "sem execução: não havia compradores ao preço limite (livro fino)"
+            break
         part = {"orderId": oid, "usdc": round(q, 2), "tp": tp, "preco": avg, "qty": qty, "anexo": attached}
         if not attached:
             part["anexo_erro"] = LAST_ATTACH_ERR

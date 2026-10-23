@@ -76,6 +76,21 @@ class DeclinedSlots(unittest.TestCase):
         signals.update_state(state, rows(["A0"]), CFG2, NOW + 600)
         self.assertEqual(len(state["promo_lost"]), 1)                 # sem repetir a cada scan
 
+    def test_erro_da_bybit_no_registo_tambem_liberta(self):
+        from engine import execucao, promo
+        st = {"ledger": [{"id": "SEI-SHORT_TURTLE-1792785613", "asset": "SEI", "kind": "4H", "mode": "REAL",
+                          "status": "OPEN", "strategy": "SHORT_TURTLE"}],
+              "auto": {"ligado": True, "feitos": [1792785613], "feitos_id": {"SEI-SHORT_TURTLE-1792785613": 1792785613}}}
+        execucao.apply(st, {"t": NOW, "ops": {}, "log": [{"t": 1792785716, "acao": "vender",
+                       "id": "vender-SEI-SHORT_TURTLE-1792785613-1792785613", "res": "erro: a ordem não mostrou execução"}]})
+        self.assertIs(st["ledger"][0]["executed"], False)
+        self.assertEqual(promo.family_open(st), {})
+        self.assertEqual(st["auto"]["feitos"], [])                  # o lugar do dia volta
+        st2 = {"ledger": [{"id": "X-SHORT_TURTLE-1", "asset": "X", "kind": "4H", "mode": "REAL", "status": "OPEN"}]}
+        execucao.apply(st2, {"t": NOW, "ops": {}, "log": [{"t": 1, "acao": "vender", "id": "vender-X-SHORT_TURTLE-1-1",
+                       "res": "erro inesperado: KeyError: x"}]})
+        self.assertIsNone(st2["ledger"][0].get("executed"))          # inesperado: confirmar na app
+
     def test_recusa_da_bybit_liberta_a_operacao(self):
         from engine import execucao
         st = {"ledger": [{"id": "ICP-SHORT_TURTLE-1", "asset": "ICP", "kind": "4H", "mode": "REAL",

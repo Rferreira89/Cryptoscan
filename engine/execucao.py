@@ -31,6 +31,17 @@ def apply(state, ex):
         READY = bool(state.get("exec_ready"))
         READY_SHORT = bool(state.get("exec_ready_short"))
         return
+    # (23/10, SEI) um pedido de compra/venda que acabou em erro da Bybit sem registo da operacao
+    # (ex.: IOC sem execucao) conta como recusado: nao ocupa a familia, a moeda nem o limite do dia.
+    # "erro inesperado" fica de fora: ai pode ter havido execucao e a app tem de ser confirmada.
+    ops = ex.setdefault("ops", {})
+    for x in ex.get("log") or []:
+        acao, res = x.get("acao"), str(x.get("res") or "")
+        if acao in ("comprar", "vender") and res.startswith("erro: "):
+            op = str(x.get("id") or "")[len(acao) + 1:].rsplit("-", 1)[0]
+            if op and op not in ops:
+                ops[op] = {"asset": op.split("-")[0], "status": "recusada", "motivo": res[6:], "t": x.get("t"),
+                           "sintetico": True}
     # botao so depois do teste real de 5 USDC ter passado (decisao do Rui)
     passos = (ex.get("teste") or {}).get("passos") or []
     teste_ok = bool(passos) and not any("ERRO" in p for p in passos) and \
