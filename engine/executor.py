@@ -697,7 +697,10 @@ def do_short(state, req, ex, now, send):
          "stop": plan["stop"], "partes": [], "t": now}
     for i, (q, tp) in enumerate(parts):
         try:
-            oid, attached = place_short_part(symbol, q, tp, plan["stop"], inst, f"{_tag(op)}-v{i}", px=px)
+            # (23/10) nova tentativa manual depois de uma IOC sem execucao: outro identificador
+            # (a Bybit recusa o mesmo orderLinkId); a primeira nunca executou, por isso nao duplica
+            tag = f"{_tag(op)}-v{i}" + (f"m{str(req['manual'])[-4:]}" if req.get("manual") else "")
+            oid, attached = place_short_part(symbol, q, tp, plan["stop"], inst, tag, px=px)
         except ExecError as e:
             o["erro"] = str(e)[:120]
             break
@@ -1444,7 +1447,8 @@ def main(state_path, ex_in, out):
         acao, _, op = forced.partition(":")      # (23/10) "vender:<id>" = o botao Executar pedido pelo Rui
         acao = acao.strip()
         if acao in ("comprar", "vender") and op.strip():
-            reqs.append({"id": f"{acao}-{op.strip()}-manual-{now}", "acao": acao, "op": op.strip(), "t": now})
+            reqs.append({"id": f"{acao}-{op.strip()}-manual-{now}", "acao": acao, "op": op.strip(), "t": now,
+                         "manual": int(now)})
         else:
             reqs.append({"id": f"manual-{forced}-{now}", "acao": forced, "op": "", "t": now})
     for r in reqs:
