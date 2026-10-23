@@ -866,3 +866,62 @@ Notas para as próximas execuções:
   mesmos dados contando o diário de investigação (18 até 2026-10-20 +
   esta). Com 19 tentativas a probabilidade de pelo menos um falso positivo
   a 5% ronda os 62%.
+
+### 2026-10-23 — H8: short dos compradores apinhados (SHORT_FUNDING)
+
+**Escrito antes de correr qualquer teste.**
+
+- Situação: regime atual (scan.json, `mercado`) **lateral** desde
+  2026-10-17. Ringue de 90 dias (forma.json de 2026-10-23 08:30 UTC): os 11
+  vivos com veredicto SOBE são todos da sobrevenda (BOUNCE_* e DIP_TREND);
+  os clones mortos a 22/10 voltaram a competir. Ringue longo (longo.json de
+  2026-10-23): **subida** — ganha a sobrevenda e o PULLBACK (13 op.,
+  +0,86R, p95 do acaso +0,45R); **lateral** — só a sobrevenda (ISOLADA,
+  SQUEEZE, G0, V2, V3, DESALAV); nenhuma família fora dela bate o acaso na
+  lateral (RETESTE +0,12R com p95 +0,34R; TURTLE +0,28R com p95 +1,02R);
+  **queda** — SHORT_FALSO_ROMP (49 op., +0,53R, só papel) e os shorts de
+  sobrecompra mortos (SHORT_X30 +0,49R, SHORT_ISOLADA +0,43R). Regime sem
+  campeão fora da sobrevenda: **lateral** (o de hoje).
+- Hipótese (família **derivados / vendas a descoberto**, não usa RSI nem
+  níveis de 20 dias): quando o funding do perpétuo fica muito positivo, os
+  compradores alavancados estão apinhados e pagam para manter a posição;
+  num mercado sem tendência não vem o rompimento que os pagaria e, quando o
+  preço começa a falhar, as saídas e liquidações empurram-no para baixo.
+  Diferente do SHORT_SQUEEZE (que exige sobrecompra RSI > 70) e do estudo
+  de investigação H4 (funding negativo, lado comprador).
+- Regra (preços reais; o ringue corre-a no espelho como todos os shorts):
+  f24 = média das liquidações de funding com instante em (fecho − 24h,
+  fecho], cada uma convertida para 8 horas (taxa × 8h / intervalo entre
+  liquidações). Condição: f24 ≥ X. Gatilho: fecho da vela de 4H abaixo do
+  mínimo da vela anterior. Short na abertura seguinte. Stop: fecho + k ×
+  ATR(4H, 14). Distância do stop entre 0,5% e 20%. Sem filtro do BTC.
+  Limiar absoluto (não percentil por moeda) para funcionar no ringue, que
+  só traz o funding da própria janela.
+- Grelha (6, escrita antes de testar): X ∈ {0,02%, 0,04%} por 8h ×
+  G1 k=1,5, 100% a 2R, 3 dias; G2 k=3, 100% a 2R, 5 dias;
+  G3 k=3, 50/50 a 1R/3R, 5 dias (stops largos para os custos pesarem menos,
+  lição da H7).
+- Método: `tools/arena_ringue.generic_trades` nas velas espelhadas (só
+  passado, uma operação de cada vez por moeda, entrada na abertura
+  seguinte, 0,25% + 0,1% por lado) e `judge` + percentil contra o acaso no
+  espelho (mesma moeda, ±90 velas, mesma geometria). Histórico do ramo
+  `history`: velas de 4H até 2026-10-18; funding (Binance) de 2024-08-01 a
+  2026-09-30.
+- Janelas: **B (decide)** 2024-10-01 a 2025-09-30 (60 dias de funding
+  antes). **A (confirma)** 2025-10-01 a 2026-09-30. **C**: últimos 90 dias
+  com funding (2026-07-02 a 2026-09-30, o combate). **L**: últimos 365
+  dias com funding, por regime do BTC (`regime_by_day`), como o ringue
+  longo.
+- Critérios (todos, em B): ≥ 40 operações; R médio > 0; acima do percentil
+  95 do acaso; R médio > 0 sem a melhor moeda; R médio > 0 e acima do p95
+  do acaso na **lateral** ou na **queda** com ≥ 20 operações; em A, R médio
+  > 0. Escolha: a de maior R médio em B entre as que passam. Se passar,
+  entra no ringue como SHORT_FUNDING em SHORT_SIGS (o ringue decide);
+  REAL_OK não se mexe. Registo também o percentil face ao limiar do filtro
+  novo (99,9 com o contador global).
+- Previsão honesta: mais provável falhar. A H4 da investigação viu que o
+  funding extremo dá um avanço pequeno sobre o acaso, pequeno demais para
+  0,7% de custos ida e volta, e os shorts ao acaso partem de −0,3R (H7).
+- Hipóteses testadas até agora (com esta): 8 neste diário; 20 contra os
+  mesmos dados contando o diário de investigação (19 até 2026-10-22); 57 no
+  contador global (37 estudos fora do programa).
