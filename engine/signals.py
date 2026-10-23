@@ -448,8 +448,13 @@ def update_state(state, rows, cfg, now, daily=None):
     """Acompanha, expira, invalida e emite sinais. Devolve eventos."""
     sigs = state.setdefault("signals", {})
     events = track(state, tracking_prices(state, rows), cfg, now)
-    live = {s["asset"] for s in sigs.values()
-            if s["status"] in ("ACTIVE", "TRIGGERED")}
+    # (23/10) um sinal recusado pela Bybit ou marcado "nao executei" nao ocupa a moeda:
+    # antes ficava ate 20 dias a impedir um novo sinal no mesmo ativo (AVAX e ICP, 22/10)
+    # So a partir da vela de 4H seguinte, para o mesmo sinal nao voltar a sair a cada scan.
+    no_ids0 = ledger.declined(state)[0]
+    live = {s["asset"] for k, s in sigs.items()
+            if s["status"] in ("ACTIVE", "TRIGGERED")
+            and not (k in no_ids0 and now - (s.get("issued_at") or now) >= 4 * 3600)}
     halt = trading_halt(sigs, cfg, now, state.get("ledger"))
     prev = state.get("halt")
     if halt and not prev:                       # aviso imediato (decisao do Rui, 2026-10-15)

@@ -66,6 +66,10 @@ def apply(state, ex):
     for k, o in (ex.get("ops") or {}).items():
         auto[k] = o.get("status")
         rec = led.get(k)
+        # (23/10) ordem recusada pela Bybit (ICP, 22/10: moeda sem margem): nada entrou, por isso a
+        # operacao deixa de contar como aberta (vaga, familia e moeda); continua seguida em papel
+        if rec and o.get("status") == "recusada" and rec.get("executed") is None and not o.get("entrada"):
+            rec.update(executed=False, recusada=str(o.get("motivo") or o.get("erro") or "recusada pela Bybit")[:140])
         state.setdefault("auto_be_flag", {})[k] = bool(o.get("be_pendente")) and o.get("status") == "aberta"
         if o.get("status") == "aberta":
             # TP1 do sinal sem venda na Bybit: volta a pedir de 15 em 15 minutos (20/10)

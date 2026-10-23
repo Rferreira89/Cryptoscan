@@ -58,7 +58,22 @@ class DeclinedSlots(unittest.TestCase):
         _, first = scan(state, ["A0"], NOW)
         state["ledger"][0]["executed"] = False
         _, issued = scan(state, ["A0"], NOW + 300)
-        self.assertEqual(issued, [])                 # uma operacao por ativo
+        self.assertEqual(issued, [])                 # uma operacao por ativo (mesma vela)
+        # (23/10) a partir da vela de 4H seguinte, a moeda recusada volta a poder dar sinal
+        _, issued = scan(state, ["A0"], NOW + 4 * 3600 + 60)
+        self.assertEqual(len(issued), 1)
+
+    def test_recusa_da_bybit_liberta_a_operacao(self):
+        from engine import execucao
+        st = {"ledger": [{"id": "ICP-SHORT_TURTLE-1", "asset": "ICP", "kind": "4H", "mode": "REAL",
+                          "status": "OPEN", "strategy": "SHORT_TURTLE"}]}
+        execucao.apply(st, {"t": NOW, "ops": {"ICP-SHORT_TURTLE-1": {"asset": "ICP", "status": "recusada",
+                                                                     "motivo": "170344 Symbol is not supported on Margin Trading."}}})
+        rec = st["ledger"][0]
+        self.assertIs(rec["executed"], False)
+        self.assertIn("Margin", rec["recusada"])
+        from engine import promo
+        self.assertEqual(promo.family_open(st), {})
 
     def test_declined_helper(self):
         st = {"ledger": [
