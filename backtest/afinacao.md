@@ -925,3 +925,66 @@ Notas para as próximas execuções:
 - Hipóteses testadas até agora (com esta): 8 neste diário; 20 contra os
   mesmos dados contando o diário de investigação (19 até 2026-10-22); 57 no
   contador global (37 estudos fora do programa).
+
+**Resultados** (ramo `history`: 4H até 2026-10-18, funding Binance de
+2024-08-01 a 2026-09-30; 68 moedas com funding e velas; shorts sem filtro do BTC;
+`backtest/afinacao_h08_funding.json`; código `tools/afinacao_h08_funding.py`;
+teste do funding sem look-ahead e do plano no espelho em
+`tests/test_afinacao_h08.py`).
+
+| Config. | B: op. | B: R médio | B: acaso med./p95 | B: percentil | B por regime | A: op., R | C 90 dias | L 365 dias |
+|---|---|---|---|---|---|---|---|---|
+| X2G1 0,02%, 1,5 ATR, 2R, 3d | 385 | −0,297 | −0,207 / −0,118 | 6,5 | subida 383 (−0,30); lateral 2 | 4, −0,78 | 1 op. | 4 op., −0,78 |
+| X2G2 0,02%, 3 ATR, 2R, 5d | 243 | −0,245 | −0,232 / −0,120 | 36,1 | subida 242; lateral 1 | 1, −0,56 | 1 op. | 1 op. |
+| X2G3 0,02%, 3 ATR, 1R/3R, 5d | 247 | −0,235 | −0,216 / −0,120 | 34,0 | subida 246; lateral 1 | 1, −0,56 | 1 op. | 1 op. |
+| X4G1 0,04%, 1,5 ATR, 2R, 3d | 101 | −0,106 | −0,060 / +0,123 | 38,2 | subida 101 | 0 | 0 | 0 |
+| X4G2 0,04%, 3 ATR, 2R, 5d | 69 | **+0,367** | +0,012 / +0,221 | **99,5** | subida 69 | 0 | 0 | 0 |
+| X4G3 0,04%, 3 ATR, 1R/3R, 5d | 69 | +0,188 | −0,011 / +0,187 | 95,4 | subida 69 | 0 | 0 | 0 |
+
+- **O funding alto quase deixou de existir.** f24 ≥ 0,02% por 8h: 3 233
+  liquidações em novembro e dezembro de 2024, 169 em janeiro de 2025,
+  menos de 140 por mês depois, 3 desde novembro de 2025. Das 69 operações
+  de X4 em B, as 69 são de 2024 (a euforia de nov./dez., regime de
+  subida). Na lateral e na queda: 0 a 4 operações em todas as
+  configurações, nos dois anos.
+- X4G2 bate o acaso (percentil 99,5; abaixo do limiar do filtro novo,
+  99,9, com o contador global) e ganha sem a melhor moeda (+0,34R), mas
+  é **um só episódio de 8 semanas** num regime (subida) que nem era o
+  alvo. É a mesma armadilha da H5: um episódio não é uma vantagem.
+- Com o limiar baixo (0,02%) o short perde mais do que o acaso (percentil
+  6,5 com stop curto): na euforia, vender cedo contra o funding alto é
+  pior do que vender ao calhas.
+- Critérios em B (melhor, X4G2): ≥ 40 op. sim (69); R > 0 sim (+0,367);
+  acima do p95 sim (99,5); sem a melhor moeda sim (+0,344); lateral ou
+  queda com ≥ 20 op. **NÃO** (0); A > 0 **NÃO** (0 operações em 12 meses).
+
+**Veredicto: REJEITADA.** O short dos compradores apinhados só disparou
+na euforia de nov./dez. de 2024 e não opera no regime que devia cobrir
+(lateral): no último ano deu 0 a 4 sinais. Nada entra no ringue (no
+combate de 90 dias teria 0 a 1 operação); REAL_OK não se mexe.
+
+Notas para as próximas execuções:
+
+- Regime atual **lateral**. Na lateral só ganha a sobrevenda; nenhuma
+  família fora dela tem vantagem medida. Na queda há o SHORT_FALSO_ROMP
+  em papel; na subida a sobrevenda e o PULLBACK.
+- Pista (não é resultado): com funding ≥ 0,04% por 8h, short com stop a
+  3 ATR e objetivo a 2R ganhou +0,37R em 69 operações na euforia de 2024
+  (percentil 99,5). Pode servir um dia como **travão das compras** (não
+  comprar moedas com funding ≥ 0,04%) ou como short de euforia, mas só
+  com outra euforia para o confirmar; não há dados para isso hoje.
+- Lição: limiares absolutos de funding dependem do ciclo; em 2026 os
+  perpétuos andam perto de 0,01% e um sinal de funding alto não dispara.
+- Proposta para a próxima execução (H9): um lutador de compra fora da
+  sobrevenda para a **lateral** que não dependa de dados que só existem
+  desde 2024 — por exemplo, **reversão à média do rácio moeda/BTC** (comprar
+  a moeda cujo rácio com o BTC caiu 2 desvios abaixo da média de 20 dias
+  enquanto o próprio BTC está lateral, sair na média), testada em
+  2021-08 a 2024-10 (B) e só depois nos últimos 2 anos. Atenção: o RSI da
+  moeda pode estar baixo nesses momentos; medir a correlação diária com a
+  BOUNCE_ISOLADA antes de concluir que é família nova (o ringue corta
+  clones acima de 0,7).
+- Hipóteses testadas até agora: 8 neste diário (H1 a H8); o contador
+  passa a 20 contra os mesmos dados (diários agendados); 57 no contador
+  global com os 37 estudos fora do programa. Com 57 tentativas, a
+  probabilidade de pelo menos um falso positivo a 5% passa os 94%.
