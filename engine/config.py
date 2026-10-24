@@ -40,6 +40,7 @@ DEFAULTS = {
     "signal_expiry_hours": 12,  # 3 velas de 4H
     "max_venue_spread_pct": 0.30,
     "min_venue_volume_usd": 25_000,   # ordens pequenas: o spread pesa mais
+    "venue_vol_por_ordem": 200,       # (24/10) a ordem ate 0,5% do volume de 24h
     "alerts": True,             # Telegram em cada compra e venda
     # Decisao do utilizador (2026-10-02): operar com dinheiro real mesmo sem
     # estrategias validadas. Os sinais saem como operacoes reais, cada um

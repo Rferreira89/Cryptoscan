@@ -43,7 +43,8 @@ def decide(row, c4, cfg, v, btc_reg, regime_changed, market_ok=True,
     if not chk(2, "execução na Bybit UE", v_ok, "; ".join(v_why)):
         return stop(v_why[0])
     out["venue"] = {"name": cfg["venue"], "pair": v["pair"], "last": v["last"],
-                    "spread_pct": v["spread_pct"], "url": v["url"]}
+                    "spread_pct": v["spread_pct"], "url": v["url"],
+                    "volume_usd": v.get("volume_usd")}
 
     a1, a4 = an["1d"], an["4h"]
     reg = regime.classify(a1)
@@ -139,6 +140,10 @@ def decide(row, c4, cfg, v, btc_reg, regime_changed, market_ok=True,
         chk(8, "R:R e stop", False, fails[0])
         return stop(fails[0])
     _, _, s, p, sc = best
+    vw = venue.vol_ordem(v, p.get("position_usdc"), cfg)
+    if vw:
+        chk(2, "execução na Bybit UE", False, vw)
+        return stop(vw)
     # O gatilho e avaliado na ultima vela fechada; o sinal pode sair horas
     # depois (p. ex. quando liberta uma vaga). Se entretanto o preco ja
     # caiu abaixo da zona de entrada, o nivel nao aguentou: nao ha sinal.
@@ -228,7 +233,8 @@ def decide_short(row, c1, c4, cfg, v, btc_reg_m, regime_changed, market_ok,
                disabled, suffix=short.SUFFIX)
     d["side"] = "SHORT"
     d["venue"] = {"name": cfg["venue"], "pair": v["pair"], "last": v["last"],
-                  "spread_pct": v["spread_pct"], "url": v["url"]}
+                  "spread_pct": v["spread_pct"], "url": v["url"],
+                    "volume_usd": v.get("volume_usd")}
     if d.get("regime"):
         # BULL no espelho e descida no preco real: mostra-se o regime real
         flip = {"STRONG BULL": "STRONG BEAR", "BULL": "BEAR", "BEAR": "BULL",

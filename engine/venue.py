@@ -61,3 +61,19 @@ def check(v, global_price, cfg):
             abs(v["last"] / global_price - 1) > 0.01:
         why.append("preço da Bybit UE diverge do mercado")
     return not why, why
+
+
+def vol_ordem(v, pos_usdc, cfg):
+    """(24/10, OK do Rui: "faz tudo o que acelere") O volume minimo passa a ser proporcional a
+    ordem: a ordem nao pode passar de 1/venue_vol_por_ordem do volume de 24h (200 -> 0,5%).
+    O piso fixo (min_venue_volume_usd) so afasta moedas mortas; o spread maximo fica igual."""
+    mult = cfg.get("venue_vol_por_ordem")
+    if not mult or not pos_usdc or not v:
+        return None
+    vol = v.get("volume_usd")
+    if vol is None:                     # sem volume conhecido: ja passou o piso em check()
+        return None
+    if vol < mult * pos_usdc:
+        return (f"volume baixo na Bybit UE para uma ordem de {pos_usdc:.0f} USDC "
+                f"({vol:.0f} USD em 24h, mínimo {mult * pos_usdc:.0f})")
+    return None

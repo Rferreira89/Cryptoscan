@@ -16,7 +16,7 @@ Se o campeao morrer (no combate ou nas operacoes ao vivo, com as regras da
 arena), perde o lugar logo e o seguinte qualificado assume. Sem
 qualificados, nao ha sinais reais: nunca se volta a uma estrategia morta.
 """
-from . import risk
+from . import risk, venue
 
 MIN_N = 20
 TF = 14400
@@ -508,6 +508,12 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
             if not p:
                 falhou = falhou or (champ, sig["t_sig"], why)
                 continue
+            vw = venue.vol_ordem(d0.get("venue"), p.get("position_usdc"), cfg)
+            if vw:
+                seen[a] = sig["t_sig"]
+                lost(state, now, a, champ, "liquidez: " + vw)
+                falhou = None
+                break
             cands.append((rank, a, champ, sig, p, d0))
             break
         else:
