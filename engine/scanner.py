@@ -253,6 +253,8 @@ def bybit_venue(ven, by, now):
     for b, (last, bid, ask, vol) in by["m"].items():
         v = dict(out.get(b) or {"pair": f"{b}/USDC", "url": f"https://www.bybit.eu/en-EU/trade/spot/{b}/USDC"})
         sp = (ask - bid) / ((ask + bid) / 2) * 100 if bid and ask and ask >= bid else v.get("spread_pct")
+        if bid and ask and ask >= bid and not bid <= last <= ask:
+            last = (bid + ask) / 2          # ultimo negocio antigo fora do livro: preco a meio
         v.update(last=last, spread_pct=None if sp is None else round(sp, 4), volume_usd=round(vol, 2),
                  stale=False, fonte="bybit")
         out[b] = v

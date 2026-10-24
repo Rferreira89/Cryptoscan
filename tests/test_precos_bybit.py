@@ -26,3 +26,12 @@ class PrecosBybit(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class UltimoForaDoLivro(unittest.TestCase):
+    def test_usa_meio_do_livro(self):
+        from engine.scanner import bybit_venue
+        v = bybit_venue({}, {"t": 1000, "m": {"SEI": [0.05246, 0.05321, 0.05325, 42330.0]}}, 1100)
+        self.assertAlmostEqual(v["SEI"]["last"], 0.05323)
+        v = bybit_venue({}, {"t": 1000, "m": {"BTC": [80216.8, 80207.5, 80216.8, 1.0]}}, 1100)
+        self.assertEqual(v["BTC"]["last"], 80216.8)

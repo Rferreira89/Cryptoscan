@@ -644,8 +644,9 @@ async function liveBybitAll(){
   const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),5000);
   try{const r=await fetch(BYURL+"tickers?category=spot",{signal:ctl.signal,cache:"no-store"});const j=await r.json();
     if(j.retCode!==0) throw new Error(j.retMsg);const m={};
-    for(const t of j.result.list||[]){if(!t.symbol.endsWith("USDC"))continue;const b=t.symbol.slice(0,-4),l=+t.lastPrice;if(!l)continue;
-      m[b]={last:l,bid:+t.bid1Price||null,ask:+t.ask1Price||null,chg:t.price24hPcnt!=null?+t.price24hPcnt*100:null}}
+    for(const t of j.result.list||[]){if(!t.symbol.endsWith("USDC"))continue;const b=t.symbol.slice(0,-4),l0=+t.lastPrice;if(!l0)continue;
+      const bd=+t.bid1Price||null,ak=+t.ask1Price||null,l=(bd&&ak&&ak>=bd&&(l0<bd||l0>ak))?(bd+ak)/2:l0; // ultimo negocio antigo fora do livro: preco a meio
+      m[b]={last:l,bid:bd,ask:ak,chg:t.price24hPcnt!=null?+t.price24hPcnt*100:null}}
     BYALL.map=m;BYALL.at=Date.now();return m}
   catch(_){return BYALL.map}finally{clearTimeout(to)}
 }
