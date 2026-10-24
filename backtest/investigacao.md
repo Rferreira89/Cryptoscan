@@ -5,7 +5,7 @@ quedas, compressão, oversold bounce 4H, day trade 1H, bounce com outras
 saídas, sweep a mercado, funding negativo, quebra com compradores,
 capitulação do mercado, atraso face ao BTC, resiliente, impulso de
 amplitude; mais 8 no diário de afinação, H1 a H8). Atualizado em
-2026-10-23 (sem hipótese nova nesta corrida; +1 pela H8 da afinação). O
+2026-10-24 (sem hipótese nova nesta corrida nem na afinação). O
 contador global do programa (`engine/hipoteses.py`, com os estudos fora do
 programa em `backtest/hipoteses_offline.json`, contra dados que incluem
 esta reserva) já vai em 57. Quanto maior este número, maior a
@@ -1366,3 +1366,39 @@ dos clones.
   uma fonte ainda não usada com histórico suficiente (`derivados.json`
   desde 2026-10-20) ou uma ideia de entrada que não seja variante das
   famílias acima.
+
+## 2026-10-24 — Sem hipótese nova hoje (sem mortos novos; fila vazia)
+
+**Veredicto da corrida: nenhuma hipótese testada.** O contador desta
+reserva fica em 20 (a afinação não testou nada desde a H8); o global fica
+em 57.
+
+- **Histórico** (ramo `history`): última atualização 2026-10-18, 6 dias de
+  atraso (abaixo dos 7): não foi preciso correr o workflow. Amanhã terá 7.
+- **Arena** (scan.json do ramo `data`): **8 lutadores vivos** (mínimo 5),
+  `recrutar` falso, os mesmos de ontem. Nenhum morto novo desde BOUNCE_LSR
+  (2026-10-23), que já tem linha na tabela dos sucessores. Fila do Rui
+  vazia.
+- **Combate de 90 dias** (`forma.json`, ramo `arena`, 40 moedas): dos
+  vivos, só BOUNCE_DESALAV (17 op., +0,53R) e BOUNCE_AMPLITUDE (16 op.,
+  +0,70R) estão positivos; BOUNCE_V1 (8 op., −0,05R), MAIORES_RECUO (17
+  op., −0,02R), REVERSAO_INTERVALO (19 op., −0,11R) e os restantes estão
+  perto de zero ou negativos com poucas operações. O risco registado
+  ontem aproxima-se: DESALAV e AMPLITUDE estão a 3 e 4 operações das 20
+  que as põem no corte dos clones, e os representantes mortos da família
+  do Bounce (X30, ISOLADA, PAVIO) continuam a contar como "o melhor do
+  grupo". A correção é em `engine/` e na regra de morte: sessão com o Rui,
+  com prioridade.
+- **Porque não há hipótese nova**: as mesmas razões de 2026-10-21 a
+  2026-10-23. As entradas de compra possíveis com 24 meses de velas de 4H
+  e 1H, fluxo comprador e funding são variantes de famílias rejeitadas ou
+  do Bounce já no ringue; a ideia de compra fora da sobrevenda com mais
+  lógica (reversão à média do rácio moeda/BTC na lateral) é a H9 proposta
+  pela afinação e fica para ela, para não ser contada duas vezes. Com 20
+  hipóteses contra esta reserva (cerca de 64% de probabilidade de pelo
+  menos um falso positivo a 5%), uma hipótese fraca só acrescenta ruído.
+- Proposta para a próxima corrida: correr primeiro o workflow do
+  histórico (7 dias de atraso); autópsia se morrer alguém (sobretudo se
+  DESALAV ou AMPLITUDE morrerem como clones de uma morta); uma hipótese
+  nova só com uma fonte ainda não usada com histórico suficiente ou uma
+  entrada que não seja variante das famílias acima.
