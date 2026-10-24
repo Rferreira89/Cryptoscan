@@ -1,0 +1,113 @@
+{
+ "gerado": 1792839901,
+ "dias": 30,
+ "carteira": {
+  "n": 0
+ },
+ "variantes": null,
+ "nota": "campeões de hoje aplicados ao passado: dentro da amostra, otimista",
+ "moedas": 72,
+ "campeoes": [],
+ "desligadas": [
+  "BREAKOUT",
+  "LIQUIDITY_SWEEP",
+  "PULLBACK",
+  "RANGE",
+  "RANGE_SHORT",
+  "TREND_DAILY"
+ ],
+ "sinais": [],
+ "resumo": {},
+ "rsi_min_4d": [
+  [
+   23.1,
+   "ZK"
+  ],
+  [
+   26.2,
+   "KAIA"
+  ],
+  [
+   28.0,
+   "LTC"
+  ],
+  [
+   28.3,
+   "STRK"
+  ],
+  [
+   29.4,
+   "ONDO"
+  ],
+  [
+   29.6,
+   "PLUME"
+  ],
+  [
+   29.7,
+   "OP"
+  ],
+  [
+   29.7,
+   "WAL"
+  ],
+  [
+   30.2,
+   "EIGEN"
+  ],
+  [
+   30.3,
+   "APT"
+  ],
+  [
+   30.3,
+   "WIF"
+  ],
+  [
+   30.4,
+   "ROBO"
+  ],
+  [
+   30.5,
+   "APE"
+  ],
+  [
+   30.5,
+   "ICP"
+  ],
+  [
+   30.6,
+   "GALA"
+  ],
+  [
+   30.7,
+   "SEI"
+  ],
+  [
+   31.0,
+   "AAVE"
+  ],
+  [
+   31.0,
+   "AVAX"
+  ],
+  [
+   31.4,
+   "IMX"
+  ],
+  [
+   31.5,
+   "ARB"
+  ]
+ ],
+ "falhas": [
+  "ARX: HTTPError: HTTP Error 400: Bad Request",
+  "DEEP: HTTPError: HTTP Error 400: Bad Request",
+  "EURC: HTTPError: HTTP Error 400: Bad Request",
+  "GRASS: HTTPError: HTTP Error 400: Bad Request",
+  "ICNT: HTTPError: HTTP Error 400: Bad Request",
+  "MNT: HTTPError: HTTP Error 400: Bad Request",
+  "POPCAT: HTTPError: HTTP Error 400: Bad Request",
+  "ZIG: HTTPError: HTTP Error 400: Bad Request"
+ ]
+}
