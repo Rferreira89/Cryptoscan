@@ -70,6 +70,8 @@ def atualizar(state, rows, now):
     # (24/10, Rui: avisos repetidos) o estado oscilava entre "queda das altcoins" e "capitulacao
     # geral" a cada 5 minutos (perto dos 40%). Agora so avisa quando entra num grupo novo
     # (queda -> normal -> queda), quando o estado novo se mantem 30 minutos, e no maximo 1 vez em 12 horas.
+    if "grupo_avisado" not in st and antes in QUEDA:
+        st["grupo_avisado"], st["avisado_t"] = "queda", int(now)   # ja avisado pelo sistema antigo
     grupo = "queda" if m["estado"] in QUEDA else m["estado"]
     if grupo != st.get("grupo_pendente"):
         st["grupo_pendente"], st["desde_pendente"] = grupo, int(now)
