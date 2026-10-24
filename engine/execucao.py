@@ -111,6 +111,20 @@ def apply(state, ex):
                     pass
 
 
+def abertas(ex):
+    """(24/10, Rui: "o lucro nao aparece na corretora") Operacoes reais abertas na Bybit, com o
+    lado, a quantidade e a entrada, para a app mostrar o resultado ao vivo ao preco de fecho."""
+    out = []
+    for oid, o in ((ex or {}).get("ops") or {}).items():
+        if not isinstance(o, dict) or o.get("status") != "aberta" or not o.get("entrada") or not o.get("qty"):
+            continue
+        tps = [p.get("tp") for p in o.get("partes") or [] if p.get("tp")]
+        out.append({"id": oid, "asset": o.get("asset"), "lado": o.get("lado") or "LONG",
+                    "entrada": o["entrada"], "qty": o["qty"], "usdc": o.get("usdc"),
+                    "stop": o.get("stop"), "tp": tps[0] if tps else None, "desde": o.get("t") or o.get("criado")})
+    return out
+
+
 def request(state, acao, op, now):
     q = state.setdefault("exec_req", [])
     if any(r["acao"] == acao and r.get("op") == op for r in q):

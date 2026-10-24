@@ -35,3 +35,17 @@ class UltimoForaDoLivro(unittest.TestCase):
         self.assertAlmostEqual(v["SEI"]["last"], 0.05323)
         v = bybit_venue({}, {"t": 1000, "m": {"BTC": [80216.8, 80207.5, 80216.8, 1.0]}}, 1100)
         self.assertEqual(v["BTC"]["last"], 80216.8)
+
+
+class Abertas(unittest.TestCase):
+    def test_so_operacoes_abertas(self):
+        from engine import execucao
+        ex = {"ops": {"SEI-SHORT_TURTLE-1": {"asset": "SEI", "status": "aberta", "lado": "SHORT", "entrada": 0.05715,
+                                              "qty": 102.5, "usdc": 5.85, "stop": 0.0656, "t": 5,
+                                              "partes": [{"tp": 0.0457}]},
+                      "X-1": {"asset": "X", "status": "recusada"}, "Y-1": {"asset": "Y", "status": "fechada",
+                                                                           "entrada": 1, "qty": 1}}}
+        a = execucao.abertas(ex)
+        self.assertEqual([x["asset"] for x in a], ["SEI"])
+        self.assertEqual((a[0]["lado"], a[0]["tp"], a[0]["qty"]), ("SHORT", 0.0457, 102.5))
+        self.assertEqual(execucao.abertas(None), [])

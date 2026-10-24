@@ -639,6 +639,13 @@ async function bybitInfo(pair){
 // telemovel le agora todos os precos da Bybit UE de uma vez, de 30 em 30 segundos, e passa a mostrar
 // esses. O motor continua a decidir com os precos globais; a execucao usa sempre o preco real da Bybit.
 const BYALL={at:0,map:null};
+// (24/10) resultado ao vivo das operacoes reais abertas, ao preco a que se fecharia agora
+const pxf=v=>v==null?"–":Number(Number(v).toPrecision(5)).toLocaleString("pt-PT",{maximumSignificantDigits:5});
+function posAbertas(){const A=((D&&D.execucao)||{}).abertas||[],M=BYALL.map||{},FEE=0.001;
+  return A.map(o=>{const t=M[o.asset],short=o.lado==="SHORT",r=(D.universe||[]).find(x=>x.asset===o.asset);
+    const px=t?(short?(t.ask||t.last):(t.bid||t.last)):((r&&r.venue&&r.venue.last)||(r&&r.price));if(!px)return null;
+    const pnl=(short?(o.entrada-px):(px-o.entrada))*o.qty-px*o.qty*FEE;
+    return {...o,px,live:!!t,pnl,pct:pnl/(o.entrada*o.qty)*100}}).filter(Boolean)}
 async function liveBybitAll(){
   if(BYALL.map&&Date.now()-BYALL.at<25000) return BYALL.map;
   const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),5000);
@@ -753,9 +760,10 @@ function renderDiary(mine,R){
     const X=t=>8+(t-t0)/((t1-t0)||1)*(W-16),Y=v=>8+(hi-v)/(hi-lo)*(H-26);
     const path=pts.map((p,i)=>(i?"L":"M")+X(p[0]).toFixed(1)+","+Y(p[1]).toFixed(1)).join(""),col=(now!=null?now:v)>=base?"#3ee0c4":"#ff6f8a";
     eq=`<div class="banner" style="padding:10px 10px 6px"><b>Capital ao longo do tempo</b><svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Evolução do capital"><defs><linearGradient id="eqg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".35"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs><line x1="8" x2="${W-8}" y1="${Y(base)}" y2="${Y(base)}" stroke="#8AA0B4" stroke-dasharray="3 4"/><text x="${W-8}" y="${Y(base)-4}" fill="#8AA0B4" font-size="10" text-anchor="end">partida ${num(base,0)}</text><path d="${path}L${X(t1)},${H-18}L${X(t0)},${H-18}Z" fill="url(#eqg)"/><path d="${path}" fill="none" stroke="${col}" stroke-width="2.5" stroke-linejoin="round"/>${pts.slice(1,-1).map(p=>`<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="3" fill="${col}"/>`).join("")}<text x="8" y="${H-4}" fill="#8AA0B4" font-size="10">${new Date(t0*1000).toLocaleDateString("pt-PT",{day:"2-digit",month:"2-digit"})}</text><text x="${W-8}" y="${H-4}" fill="#8AA0B4" font-size="10" text-anchor="end">agora</text></svg></div>`}
-  const K=D.conta,ka=K?Math.round((Date.now()/1000-K.t)/60):null;
+  const K=D.conta,ka=K?Math.round((Date.now()/1000-K.t)/60):null,PA=posAbertas();
+  const abh=PA.length?`<div class="banner" style="margin:0 0 12px"><b>📍 Operações abertas na Bybit — resultado ao vivo</b>${PA.map(p=>`<div style="margin-top:6px">${p.lado==="SHORT"?"🔻 Short":"🔺 Compra"} <b>${esc(p.asset)}</b> · ${esc(personaOf((p.id||"").split("-")[1]))} · entrada ${pxf(p.entrada)}, agora ${pxf(p.px)} (preço de ${p.lado==="SHORT"?"recompra":"venda"}${p.live?", Bybit ao vivo":""})<br><b class="${p.pnl>=0?"up":"dn"}">${p.pnl>=0?"+":"−"}${num(Math.abs(p.pnl),2)} USDC (${p.pct>=0?"+":"−"}${num(Math.abs(p.pct),1)}%)</b> se fechasses agora, já com a comissão de saída${p.stop?` · stop ${pxf(p.stop)}`:""}${p.tp?` · alvo ${pxf(p.tp)}`:""}</div>`).join("")}<div class="note" style="margin:6px 0 0">Num short em margem a Bybit não mostra lucro por linha: vês a dívida em moedas e os USDC da venda. O lucro é a diferença e só aparece fechado no fim.</div></div>`:"";
   const acct=K?`<div class="note" style="margin:0 0 12px">🇪🇺 Conta Bybit lida automaticamente há ${ka} min: total <b>${K.equity!=null?num(K.equity,2):"–"} USD</b> · USDC livre <b>${K.usdc_free!=null?num(K.usdc_free,2):"–"}</b>. O capital acompanha a conta sozinho; já não precisas de enviar /capital.</div>`:"";
-  $("diary").innerHTML=acct+cap+eq+(rows?`<table class="diary">${rows}</table>`:`<div class="banner">Ainda sem operações executadas. Carrega em "Executei" no Telegram quando entrares.</div>`)+`<div class="note">Toca numa operação fechada para a rever no gráfico. Só as operações que marcaste como executadas. Valores em USDC estimados pelo plano, com comissões; o extrato da Bybit é que conta. Se o teu preço de entrada foi diferente, envia /preco MOEDA preço no Telegram.</div>`;
+  $("diary").innerHTML=abh+acct+cap+eq+(rows?`<table class="diary">${rows}</table>`:`<div class="banner">Ainda sem operações executadas. Carrega em "Executei" no Telegram quando entrares.</div>`)+`<div class="note">Toca numa operação fechada para a rever no gráfico. Só as operações que marcaste como executadas. Valores em USDC estimados pelo plano, com comissões; o extrato da Bybit é que conta. Se o teu preço de entrada foi diferente, envia /preco MOEDA preço no Telegram.</div>`;
 }
 // Teste contra entradas ao acaso: backtest (tools/random_baseline.py) e
 // sinais ao vivo (tools/liga.py). Ficheiros do ramo main, atualizados pelos
@@ -1184,6 +1192,7 @@ function renderHud(){if(!D)return;const C=D.config||{},J=(D.journal||{}).rows||[
   $("sysstate").innerHTML=`<div class="banner"><b>Estado do sistema</b>Último scan: ${hm(D.generated_at)} (há ${age} min) · ${(D.counts||{}).pairs_seen||"–"} pares vistos, ${(D.counts||{}).deep_checked||"–"} analisados a fundo.<br>Fontes de preços: ${Object.entries(src).map(([k,v])=>`${esc(k)} ${v.ok?"✅":"❌"}`).join(" · ")}<br>${D.halt?`<span class="dn">Travão ativo: ${esc(D.halt)}</span>`:"Sem travões ativos."} ${D.next_event?`<br>Próximo evento: ${esc(D.next_event.name)}, ${hm(D.next_event.t)}.`:""}</div>`;
 }
 function hojeItems(){const it=[],d0=new Date();d0.setHours(0,0,0,0);const T0=d0.getTime()/1000,hoje=t=>t&&t>=T0,hh=t=>new Date(t*1000).toLocaleTimeString("pt-PT",{hour:"2-digit",minute:"2-digit"});
+  posAbertas().forEach(p=>it.push(["📍",`${p.lado==="SHORT"?"Short":"Compra"} ${esc(p.asset)} aberto: <b class="${p.pnl>=0?"up":"dn"}">${p.pnl>=0?"+":"−"}${num(Math.abs(p.pnl),2)} USDC (${p.pct>=0?"+":"−"}${num(Math.abs(p.pct),1)}%)</b> se fechasses agora`,`entrada ${pxf(p.entrada)} · agora ${pxf(p.px)}${p.live?" (Bybit ao vivo)":""} · stop ${pxf(p.stop)} · alvo ${pxf(p.tp)}`]));
   const EV=D.evolucao||{},P=EV.periodos||{},sg=(v,d=2)=>(v>=0?"+":"−")+Math.abs(v).toFixed(d).replace(".",",");
   {const c=libCfg(),cap=Number((D.conta||{}).equity||0);if(cap){const a=libAnos(cap,c.dep,c.ret/100,1e5);it.push(["🕊️",`Caminho: 100 000 em <b>${libAnosTxt(a)}</b>`,`com ${c.dep} €/mês e ${c.ret}% ao ano · toca em "Ir para… → Caminho para a liberdade"`])}}
   if(D.indice)it.push(["🌡️",`Índice do mercado: <b style="color:${IDXC(D.indice.valor)}">${D.indice.valor}/100 (${esc(D.indice.rotulo)})</b>`,`fase pela regra: ${esc(D.indice.fase_regra)} · toca em "Ir para… → Índice e radar"`]);

@@ -1084,7 +1084,9 @@ def main():
     except Exception as e:
         print("liberdade:", e)
     exec_after(state, events, res["generated_at"])
-    res["execucao"] = {"pronto": execucao.READY, "pedidos": len(state.get("exec_req") or [])}
+    res["execucao"] = {"pronto": execucao.READY, "pedidos": len(state.get("exec_req") or []),
+                       "abertas": execucao.abertas(ex_now) if ex_now else state.get("exec_abertas") or []}
+    state["exec_abertas"] = res["execucao"]["abertas"]
     extra = reports.due(res, state, res["generated_at"]) if res["universe"] else []
     res["journal"] = ledger.view(state.get("ledger", []))
     if res["universe"]:             # so conta scans com dados
