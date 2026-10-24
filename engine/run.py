@@ -10,6 +10,11 @@ from . import (alerts, config, consultas, europa, execucao, inbox, ledger, paper
                strategies, validation)
 
 OUT = sys.argv[1] if len(sys.argv) > 1 else "out"
+try:                                  # (24/10) registo anti-repeticao das mensagens do Telegram
+    from . import alerts as _alerts
+    _alerts.DEDUP_FILE = os.path.join(OUT, "tg_enviadas.json")
+except Exception:
+    pass
 
 
 def _load(name, default):

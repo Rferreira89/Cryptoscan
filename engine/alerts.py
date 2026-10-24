@@ -14,12 +14,56 @@ class AlertError(Exception):
     pass
 
 
+# (24/10, pergunta do Rui: "nao estao a enviar notificacoes repetidas?") Rede de seguranca contra
+# mensagens repetidas: a mesma mensagem (texto igual) nao volta a sair dentro de DEDUP_S. O registo
+# fica num ficheiro a parte (DEDUP_FILE, publicado com o estado), gravado logo a seguir a cada envio:
+# assim, se um scan falhar depois de enviar e for repetido, ou se a publicacao falhar, nao repete.
+DEDUP_S = 6 * 3600
+DEDUP_FILE = None
+_SENT = None
+
+
+def _sent():
+    global _SENT
+    if _SENT is None:
+        _SENT = {}
+        if DEDUP_FILE and os.path.exists(DEDUP_FILE):
+            try:
+                _SENT = json.load(open(DEDUP_FILE))
+            except (OSError, ValueError):
+                _SENT = {}
+    return _SENT
+
+
+def _key(text, markup):
+    import hashlib
+    return hashlib.sha1((text + json.dumps(markup or {}, sort_keys=True)).encode()).hexdigest()[:16]
+
+
+def _guardar(now):
+    if not DEDUP_FILE:
+        return
+    s = _sent()
+    for k in [k for k, t in s.items() if now - t > 2 * DEDUP_S]:
+        del s[k]
+    try:
+        with open(DEDUP_FILE, "w") as f:
+            json.dump(s, f)
+    except OSError:
+        pass
+
+
 def configured():
     return bool(os.environ.get("TELEGRAM_BOT_TOKEN")
                 and os.environ.get("TELEGRAM_CHAT_ID"))
 
 
 def send(text, markup=None, html=False):
+    import time as _t
+    now = int(_t.time())
+    k = _key(text, markup)
+    if now - _sent().get(k, -10 ** 12) < DEDUP_S:
+        return False                         # igual a uma mensagem enviada ha menos de 6 horas
     token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
     chat = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
     if not token:
@@ -49,6 +93,9 @@ def send(text, markup=None, html=False):
         raise AlertError(f"Telegram: {type(e).__name__}") from None
     if not d.get("ok"):
         raise AlertError(f"Telegram: {d.get('description')}")
+    _sent()[k] = now
+    _guardar(now)
+    return True
 
 
 if __name__ == "__main__":
