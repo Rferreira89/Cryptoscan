@@ -565,8 +565,10 @@ def ordens_watch(state, conta, ex, now):
     ops = (ex or {}).get("ops") or {}
     vistos = state.setdefault("ordens_watch", {})
     out = []
+    # (24/10) um short nao tem moedas na conta (tem divida): conta como posicao se a entrada foi vista
+    pos = lambda t: bool(t.get("held") or t.get("fill_px"))
     for t in conta.get("trades") or []:
-        if not t.get("held"):
+        if not pos(t):
             continue
         op = ops.get(t["id"]) or {}
         partes = op.get("partes") or []
@@ -583,7 +585,7 @@ def ordens_watch(state, conta, ex, now):
                 "a Bybit devia ter o objetivo anexado e não o encontro")
         out.append(f"🔎 <b>Verificação das ordens: {t['asset']}</b> sem {' nem '.join(falta)} na Bybit ({quem}). "
                    "Confirma na app (Ordens → TP/SL).")
-    state["ordens_ok"] = {"t": int(now), "posicoes": sum(1 for t in conta.get("trades") or [] if t.get("held")),
+    state["ordens_ok"] = {"t": int(now), "posicoes": sum(1 for t in conta.get("trades") or [] if pos(t)),
                           "avisos": len(out)}
     return out
 

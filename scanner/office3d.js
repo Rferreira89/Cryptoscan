@@ -1842,7 +1842,7 @@ function p3Draw(k, g) {
     rows.push([`Fase do mercado agora: ${E.fase || "–"}`, on ? "● ativa" : "", on ? o.c : "#b8a77a"]); p3Rows(g, rows); return; }
   if (k === "pos") { p3Frame(g, "💼 Posições com dinheiro real", P3C); const rows = [];
     Object.entries(N.plano || {}).forEach(([a, p]) => { if (N.pos && N.pos[a]) rows.push([`Núcleo ${a} · ${Math.round(p.valor_usdc || 0)} USDC`, p3n(p.resultado_usdc) + " USDC", (p.resultado_usdc || 0) >= 0 ? up : dn]); });
-    (t0 => Array.isArray(t0) ? t0 : Object.values(t0 || {}))((D.conta || {}).trades).filter(t => t && t.held).forEach(t => rows.push([`${t.asset} · ${p3Persona((t.id || "").split("-")[1])}`, `stop ${t.stop_px ?? "–"}`, "#efe6cf"]));
+    (t0 => Array.isArray(t0) ? t0 : Object.values(t0 || {}))((D.conta || {}).trades).filter(t => t && (t.held || t.fill_px)).forEach(t => rows.push([`${t.asset} · ${p3Persona((t.id || "").split("-")[1])}`, `stop ${t.stop_px ?? "–"}`, "#efe6cf"]));
     if (!rows.length) rows.push(["Sem posições abertas", "", "#b8a77a"]);
     rows.push(["Conta", `${Number((D.conta || {}).equity || 0).toFixed(2).replace(".", ",")} USDC`, "#fff"]); p3Rows(g, rows); return; }
   if (k === "camp") { p3Frame(g, "🏆 Campeões a operar agora", P3C); const C = (D.promo || {}).campeoes || [], fase = (D.mercado || {}).regime || "–";

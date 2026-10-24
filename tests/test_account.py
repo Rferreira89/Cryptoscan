@@ -153,3 +153,11 @@ class VerificacaoOrdens(unittest.TestCase):
         self.assertIn("sem objetivo", m[0])
         self.assertEqual(RUN.ordens_watch(st, conta, ex_anexo, 2000), [])     # uma vez por dia
         self.assertEqual(st["ordens_ok"]["posicoes"], 1)
+
+    def test_short_conta_como_posicao(self):
+        from engine import run as RUN
+        st = {}
+        conta = {"trades": [{"id": "SEI-1", "asset": "SEI", "held": False, "fill_px": 0.05715, "stop_found": False, "tp_n": 1}]}
+        m = RUN.ordens_watch(st, conta, {"ops": {"SEI-1": {"status": "aberta", "partes": [{"anexo": True}]}}}, 1000)
+        self.assertEqual(st["ordens_ok"]["posicoes"], 1)
+        self.assertIn("sem stop", m[0])
