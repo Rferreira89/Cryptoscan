@@ -67,12 +67,30 @@ def atualizar(state, rows, now):
     st["estado"] = m["estado"]
     m["mudou"] = antes is not None and antes != m["estado"]
     m["hist"] = h[-48:]
+    # (24/10, Rui: avisos repetidos) o estado oscilava entre "queda das altcoins" e "capitulacao
+    # geral" a cada 5 minutos (perto dos 40%). Agora so avisa quando entra num grupo novo
+    # (queda -> normal -> queda), quando o estado novo se mantem 30 minutos, e no maximo 1 vez em 12 horas.
+    grupo = "queda" if m["estado"] in QUEDA else m["estado"]
+    if grupo != st.get("grupo_pendente"):
+        st["grupo_pendente"], st["desde_pendente"] = grupo, int(now)
+    m["avisar"] = (grupo == "queda" and st.get("grupo_avisado") != "queda"
+                   and now - st.get("desde_pendente", now) >= ESTAVEL_S
+                   and (st.get("avisado_t") is None or now - st["avisado_t"] >= MIN_ENTRE_S))
+    if m["avisar"]:
+        st["grupo_avisado"], st["avisado_t"] = grupo, int(now)
+    elif grupo != "queda" and now - st.get("desde_pendente", now) >= ESTAVEL_S:
+        st["grupo_avisado"] = grupo           # o mercado normalizou: a proxima queda volta a avisar
     return m
 
 
+QUEDA = ("capitulação geral", "queda das altcoins com o BTC parado", "queda geral")
+ESTAVEL_S, MIN_ENTRE_S = 30 * 60, 12 * 3600
+
+
 def aviso(m):
-    if not m or not m.get("mudou") or m["estado"] not in ("capitulação geral", "queda das altcoins com o BTC parado"):
+    if not m or not m.get("avisar"):
         return None
     return (f"🌊 Amplitude do mercado: <b>{m['estado']}</b>. {m['queda_forte_pct']:.0f}% das moedas a cair 5% ou mais "
-            f"em 24h (mediana {m['chg_mediana']:+.1f}%, BTC {m['btc_chg']:+.1f}%), RSI 4H mediano {m['rsi_mediano']:.0f}, "
-            f"{m['sobrevenda_pct']:.0f}% em sobrevenda. Os campeões de sobrevenda só entram quando a vela virar.")
+            f"em 24h (mediana {m['chg_mediana']:+.1f}%, BTC {m['btc_chg']:+.1f}%), RSI 4H mediano {m['rsi_mediano']:.0f}. "
+            "É o terreno do Ramiro: shorts nas moedas que quebram o mínimo de 20 dias (um de cada vez). "
+            "Não volto a avisar enquanto a queda durar.")

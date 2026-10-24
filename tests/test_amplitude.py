@@ -23,9 +23,23 @@ class Amplitude(unittest.TestCase):
         calma = [row(f"A{i}", 0.5, 50) for i in range(12)]
         queda = [row("BTC", -0.5, 45)] + [row(f"A{i}", -8, 26) for i in range(12)]
         self.assertIsNone(amplitude.aviso(amplitude.atualizar(st, calma, 0)))
-        self.assertIn("capitulação", amplitude.aviso(amplitude.atualizar(st, queda, 3600)))
+        self.assertIsNone(amplitude.aviso(amplitude.atualizar(st, queda, 3600)))     # ainda nao estavel
+        self.assertIn("capitulação", amplitude.aviso(amplitude.atualizar(st, queda, 3600 + 1800)))
         self.assertIsNone(amplitude.aviso(amplitude.atualizar(st, queda, 7200)))
         self.assertEqual(len(st["amplitude"]["hist"]), 3)
+
+    def test_oscilar_entre_queda_e_capitulacao_nao_repete(self):
+        # (24/10) o Telegram recebia um aviso a cada 5 minutos com o estado a saltar perto dos 40%
+        st = {}
+        cap = [row("BTC", -1.3, 45)] + [row(f"A{i}", -8, 30) for i in range(12)]
+        alt = [row("BTC", -1.3, 50)] + [row(f"A{i}", -4.5, 45) for i in range(12)]
+        avisos = [amplitude.aviso(amplitude.atualizar(st, cap if k % 2 else alt, k * 300)) for k in range(30)]
+        self.assertEqual(sum(1 for a in avisos if a), 1)
+        calma = [row(f"A{i}", 0.5, 50) for i in range(12)]
+        for k in range(30, 40):
+            amplitude.atualizar(st, calma, k * 300)                                # normaliza mais de 30 min
+        avisos = [amplitude.aviso(amplitude.atualizar(st, cap, 13 * 3600 + k * 300)) for k in range(10)]
+        self.assertEqual(sum(1 for a in avisos if a), 1)                           # nova queda volta a avisar
 
     def test_diretor_mostra_a_amplitude(self):
         diretor.AMPLITUDE = {"estado": "capitulação geral", "queda_forte_pct": 60, "rsi_mediano": 31,
