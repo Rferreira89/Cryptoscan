@@ -1,0 +1,36 @@
+2026-10-24T10:25:16Z testes falharam:
+  File "/home/runner/work/Cryptoscan/Cryptoscan/tests/test_amplitude.py", line 37, in test_oscilar_entre_queda_e_capitulacao_nao_repete
+    self.assertEqual(sum(1 for a in avisos if a), 1)
+AssertionError: 0 != 1
+
+----------------------------------------------------------------------
+Ran 575 tests in 10.470s
+
+FAILED (failures=1, errors=1)
+2026-10-24T10:30:16Z testes falharam:
+  File "/home/runner/work/Cryptoscan/Cryptoscan/tests/test_amplitude.py", line 37, in test_oscilar_entre_queda_e_capitulacao_nao_repete
+    self.assertEqual(sum(1 for a in avisos if a), 1)
+AssertionError: 0 != 1
+
+----------------------------------------------------------------------
+Ran 575 tests in 10.339s
+
+FAILED (failures=1, errors=1)
+2026-10-24T10:35:17Z testes falharam:
+  File "/home/runner/work/Cryptoscan/Cryptoscan/tests/test_amplitude.py", line 37, in test_oscilar_entre_queda_e_capitulacao_nao_repete
+    self.assertEqual(sum(1 for a in avisos if a), 1)
+AssertionError: 0 != 1
+
+----------------------------------------------------------------------
+Ran 575 tests in 10.494s
+
+FAILED (failures=1, errors=1)
+2026-10-24T10:40:17Z testes falharam:
+  File "/home/runner/work/Cryptoscan/Cryptoscan/tests/test_amplitude.py", line 37, in test_oscilar_entre_queda_e_capitulacao_nao_repete
+    self.assertEqual(sum(1 for a in avisos if a), 1)
+AssertionError: 0 != 1
+
+----------------------------------------------------------------------
+Ran 575 tests in 10.478s
+
+FAILED (failures=1, errors=1)
