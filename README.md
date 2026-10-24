@@ -47,9 +47,9 @@ Nenhuma estratégia está validada. O backtest (2021 a 2026, custos incluídos) 
 
 Por decisão do utilizador (2026-10-02, `real_money_unvalidated` em `engine/config.py`), os sinais são mesmo assim emitidos como operações reais, com estas salvaguardas:
 
-- posição fixa de 25 USDC por operação (decisão do utilizador), no máximo 2 operações em simultâneo incluindo a tendência diária; a posição é 25 USDC de margem própria vezes a alavancagem e encolhe até a perda no stop caber em 2,5 USDC (5% do capital, `max_risk_usdc` em `config.json`, decisão de 2026-10-03). `{"fixed_position_usdc": null}` volta à dimensão pelo risco
+- posição fixa de 25 USDC por operação (decisão do utilizador), no máximo `max_open_positions` operações em simultâneo incluindo a tendência diária (4 em `config.json`; 2 por omissão); a posição é 25 USDC de margem própria vezes a alavancagem e encolhe até a perda no stop caber em 2,5 USDC (5% do capital, `max_risk_usdc` em `config.json`, decisão de 2026-10-03). `{"fixed_position_usdc": null}` volta à dimensão pelo risco
 - alavancagem de swing (`swing_leverage`, teto de 10x por decisão do utilizador em 2026-10-07): multiplica a posição e o risco, limitada ao valor que mantém a liquidação estimada a pelo menos 2,5 vezes a distância do stop, com teto de 6x. `{"swing_leverage": 1}` desliga-a
-- shorts em margem spot (`shorts`, por decisão do utilizador): espelho das estratégias de compra (`engine/short.py`), só com o BTC abaixo da média de 200 dias. No backtest deram −0,22R por operação, igual às compras. `{"shorts": false}` desliga-os
+- shorts em margem spot (`shorts`, por decisão do utilizador): espelho das estratégias de compra (`engine/short.py`), só com o BTC abaixo da média de 200 dias. Exceção: os campeões aprovados pelo estudo de dois períodos (`campeoes_estudo` em `config.json`, hoje SHORT_TURTLE na fase lateral, OK do Rui de 21/10) dão shorts reais mesmo com o BTC acima da média. No backtest deram −0,22R por operação, igual às compras. `{"shorts": false}` desliga-os
 - sem compras novas com o BTC abaixo da média de 200 dias
 - travão de perdas: −3R num dia, −6R numa semana ou 3 perdas seguidas suspendem sinais novos
 - cada alerta traz o registo da estratégia no backtest

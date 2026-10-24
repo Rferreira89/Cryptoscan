@@ -56,6 +56,18 @@ class Account(unittest.TestCase):
         self.assertFalse(rows[0]["stop_found"])
         self.assertFalse(rows[0]["held"])
 
+    def test_short_conta_como_posicao(self):
+        # (24/10) SEI: short real com stop na Bybit aparecia com held=False e os
+        # alarmes de stop saltavam-no
+        led = [{"id": "S1", "kind": "4H", "asset": "SEI", "pair": "SEI/USDC", "side": "SHORT",
+                "status": "OPEN", "executed": True, "stop": 0.0656, "issued_at": 1000}]
+        self.assertTrue(A.check_trades(led, {"SEI": -102.0}, [], [], 3000)[0]["held"])
+        self.assertTrue(A.check_trades(led, {}, [], [], 3000, {"SEI": 102.0})[0]["held"])
+        self.assertFalse(A.check_trades(led, {"SEI": 0.2}, [], [], 3000, {})[0]["held"])  # recomprado
+        w = {"list": [{"coin": [{"coin": "SEI", "walletBalance": "-102", "borrowAmount": "102.1"},
+                                {"coin": "USDC", "walletBalance": "50", "spotBorrow": "0"}]}]}
+        self.assertEqual(A.debts(w), {"SEI": 102.1})
+
     def test_sem_chave_nao_faz_pedidos(self):
         with mock.patch.dict(os.environ, {"BYBIT_API_KEY": "", "BYBIT_API_SECRET": ""}):
             self.assertEqual(A.snapshot({}, 5)["error"], "sem chave")

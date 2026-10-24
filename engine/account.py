@@ -97,6 +97,23 @@ def coins(wallet):
     return out
 
 
+def debts(wallet):
+    """{moeda: divida} da margem (spotBorrow/borrowAmount). (24/10) Um short em
+    margem spot deixa a moeda com saldo negativo ou em divida, nunca positivo."""
+    out = {}
+    for acc in wallet.get("list") or []:
+        for c in acc.get("coin") or []:
+            for k in ("spotBorrow", "borrowAmount"):
+                try:
+                    v = float(c.get(k) or 0)
+                except (TypeError, ValueError):
+                    v = 0.0
+                if v > 0:
+                    out[c.get("coin", "").upper()] = v
+                    break
+    return out
+
+
 def usdc_free(wallet):
     for acc in wallet.get("list") or []:
         for c in acc.get("coin") or []:
@@ -189,8 +206,12 @@ def symbol_of(rec):
     return f"{base}{quote or 'USDC'}".upper()
 
 
-def check_trades(ledger, held, orders, execs, now):
-    """Para cada operacao 4H aberta: moedas na conta, stop, entrada vista."""
+def check_trades(ledger, held, orders, execs, now, debt=None):
+    """Para cada operacao 4H aberta: moedas na conta, stop, entrada vista.
+    (24/10) Num short a posicao existe quando a moeda esta negativa ou em
+    divida (antes 'held' so via saldo positivo e os alarmes de stop saltavam
+    todos os shorts)."""
+    debt = debt or {}
     out = []
     for r in ledger:
         if r.get("kind") != "4H" or r.get("status") != "OPEN":
@@ -202,7 +223,8 @@ def check_trades(ledger, held, orders, execs, now):
         stop = stop_for(orders, sym, side)
         fill = fill_for(execs, sym, (r.get("issued_at") or now) - 600, side)
         row = {"id": r["id"], "asset": r["asset"], "symbol": sym,
-               "held": held.get(r["asset"].upper(), 0.0) > 0,
+               "held": (held.get(r["asset"].upper(), 0.0) > 0 if side == "LONG" else
+                     held.get(r["asset"].upper(), 0.0) < 0 or debt.get(r["asset"].upper(), 0.0) > 0),
                "stop_found": stop is not None,
                "tp_n": tp_for(orders, sym, side, r.get("exec_price") or r.get("entry")),
                "stop_px": stop, "plan_stop": r.get("stop"),
@@ -420,7 +442,7 @@ def snapshot(state, now=None):
                 "expires": info.get("expiredAt"),
                 "fundo": funding(),
                 "margem": _margem_ou_none(),
-                "trades": check_trades(led, held, orders, execs, now)}
+                "trades": check_trades(led, held, orders, execs, now, debts(wallet))}
     except AccountError as e:
         return {"ok": False, "error": str(e)[:120], "t": int(now)}
 

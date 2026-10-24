@@ -4,9 +4,9 @@ Datas oficiais, hora de Nova Iorque:
 - FOMC: federalreserve.gov/monetarypolicy/fomccalendars.htm (decisao as
   14:00 do segundo dia)
 - CPI: bls.gov/schedule/news_release/cpi.htm (08:30)
-Consultadas em 2026-10-02. O PCE e os desbloqueios de tokens nao estao
+Consultadas em 2026-10-02 (CPI de 2027 em 2026-10-24). O PCE e os desbloqueios de tokens nao estao
 incluidos: nao ha fonte gratuita fiavel. O calendario tem de ser
-atualizado quando o BLS publicar as datas de 2027; ate la o sistema avisa
+atualizado quando o BLS publicar as datas de 2028; ate la o sistema avisa
 que esta desatualizado em vez de assumir que nao ha eventos.
 """
 import datetime
@@ -17,7 +17,11 @@ from zoneinfo import ZoneInfo
 NY = ZoneInfo("America/New_York")
 FOMC = ["2026-10-28", "2026-12-09", "2027-01-27", "2027-03-17", "2027-04-28",
         "2027-06-09", "2027-07-28", "2027-09-15", "2027-10-27", "2027-12-08"]
-CPI = ["2026-10-14", "2026-11-10", "2026-12-10"]
+CPI = ["2026-10-14", "2026-11-10", "2026-12-10",
+       # 2027 (BLS, consultado em 2026-10-24)
+       "2027-01-13", "2027-02-11", "2027-03-10", "2027-04-13", "2027-05-12",
+       "2027-06-10", "2027-07-14", "2027-08-11", "2027-09-14", "2027-10-14",
+       "2027-11-10", "2027-12-10"]
 BEFORE_H, AFTER_H = 12, 2
 
 

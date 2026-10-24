@@ -30,7 +30,8 @@ class Events(unittest.TestCase):
         now = ts(2026, 10, 2, 9)
         self.assertEqual(events.next_event(now)["t"], ts(2026, 10, 14, 8, 30))
         self.assertFalse(events.stale(now))
-        self.assertTrue(events.stale(ts(2026, 12, 20, 9)))    # sem CPI de 2027
+        self.assertFalse(events.stale(ts(2026, 12, 20, 9)))   # CPI de 2027 ja na lista
+        self.assertTrue(events.stale(ts(2027, 12, 20, 9)))    # sem CPI de 2028
         self.assertEqual([t for _, t in events.ALL], sorted(t for _, t in events.ALL))
 
     def test_decision_blocked(self):
