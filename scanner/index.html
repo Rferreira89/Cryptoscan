@@ -634,12 +634,31 @@ async function bybitInfo(pair){
   const [t,i]=await Promise.all([get("tickers"),get("instruments-info")]);
   return BY[pair]={at:Date.now(),last:+t.lastPrice,bid:+t.bid1Price,ask:+t.ask1Price,margin:i.marginTrading,tick:i.priceFilter.tickSize,minAmt:i.lotSizeFilter.minOrderAmt,minQty:i.lotSizeFilter.minOrderQty,step:i.lotSizeFilter.basePrecision};
 }
+// (24/10, Rui: "os precos tem diferencas") Os precos do programa vinham dos mercados globais em USDT
+// (Binance, OKX, KuCoin), com ate 5 minutos de atraso, e tu negocias na Bybit UE em USDC. Este
+// telemovel le agora todos os precos da Bybit UE de uma vez, de 30 em 30 segundos, e passa a mostrar
+// esses. O motor continua a decidir com os precos globais; a execucao usa sempre o preco real da Bybit.
+const BYALL={at:0,map:null};
+async function liveBybitAll(){
+  if(BYALL.map&&Date.now()-BYALL.at<25000) return BYALL.map;
+  const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),5000);
+  try{const r=await fetch(BYURL+"tickers?category=spot",{signal:ctl.signal,cache:"no-store"});const j=await r.json();
+    if(j.retCode!==0) throw new Error(j.retMsg);const m={};
+    for(const t of j.result.list||[]){if(!t.symbol.endsWith("USDC"))continue;const b=t.symbol.slice(0,-4),l=+t.lastPrice;if(!l)continue;
+      m[b]={last:l,bid:+t.bid1Price||null,ask:+t.ask1Price||null,chg:t.price24hPcnt!=null?+t.price24hPcnt*100:null}}
+    BYALL.map=m;BYALL.at=Date.now();return m}
+  catch(_){return BYALL.map}finally{clearTimeout(to)}
+}
+function applyBybit(d){const m=BYALL.map;if(!d||!m)return 0;let n=0;
+  for(const r of d.universe||[]){const b=m[r.asset];if(!b)continue;if(r.price_global==null){r.price_global=r.price;r.chg_global=r.chg_24h}
+    r.price=b.last;if(b.chg!=null)r.chg_24h=b.chg;r.px_fonte="bybit";n++}
+  d.px_bybit_at=BYALL.at;return n}
 let byFail=false;
 async function fillBybit(){
   for(const el of document.querySelectorAll(".bybit")){
     try{
       const b=await bybitInfo(el.dataset.pair);
-      const row=(D.universe||[]).find(x=>x.asset===el.dataset.asset),g=row?row.price:null;
+      const row=(D.universe||[]).find(x=>x.asset===el.dataset.asset),g=row?(row.price_global??row.price):null;
       const dif=g?(b.last/g-1)*100:null;
       let extra="";
       if(dif!=null) extra+=` · diferença para o preço global ${dif>0?"+":""}${num(dif,2)}%`+(Math.abs(dif)>0.5?` <span class="warn">(elevada: confirma os níveis antes de entrar)</span>`:"");
@@ -904,7 +923,7 @@ function render(){
     const issues=Object.entries(r.timeframes).filter(([,v])=>v.issues.length).map(([tf,v])=>`${tf.toUpperCase()}: ${esc(v.issues.join("; "))}`);
     return `<div class="row ${open.has(r.asset)?"open":""}" data-a="${esc(r.asset)}">
     <div class="head"><div><div class="sym">${esc(r.asset)}</div><div class="chips">${chips.join("")}</div></div>
-    <div class="px"><div>${price(r.price)} $</div><div class="${r.chg_24h>=0?"up":"dn"}">${r.chg_24h==null?"–":(r.chg_24h>=0?"+":"")+num(r.chg_24h,2)+"%"}</div></div></div>
+    <div class="px"><div>${price(r.price)} ${r.px_fonte==="bybit"?"USDC":"$"}</div><div class="${r.chg_24h>=0?"up":"dn"}">${r.chg_24h==null?"–":(r.chg_24h>=0?"+":"")+num(r.chg_24h,2)+"%"}</div></div></div>
     <div class="det">
     ${decBlock(r)}
     <div class="kv" style="margin-bottom:10px"><div><span>Volume 24h</span><b>${vol(r.volume_24h)}</b></div><div><span>Spread</span><b>${num(r.spread_bps,2)} bps</b></div>
@@ -920,12 +939,13 @@ async function load(){
     const r=await fetch(URL_DATA+"?t="+Date.now(),{cache:"no-store"});
     if(!r.ok) throw new Error("HTTP "+r.status);
     D=await r.json();normUserClosed(D);
+    try{await liveBybitAll();applyBybit(D)}catch(_){}
     if(!capSet&&D.config&&D.config.capital_usdc&&!$("cap").value){$("cap").value=D.config.capital_usdc;$("capnote").textContent="definido no programa; muda com /capital no Telegram"}
     const age=Math.round((Date.now()/1000-Math.max(D.generated_at,D.monitored_at||0))/60);
     const src=Object.entries(D.sources).map(([n,s])=>n+(s.ok?" ✓":" ✗")).join(" · ")+" · Bybit UE"+(D.venue_source&&D.venue_source.ok?" ✓":" ✗");
     const bad=Object.values(D.sources).some(x=>!x.ok)||!(D.venue_source&&D.venue_source.ok);
     $("sub").className=age>20||bad?"late":"";$("sub").title=src;
-    $("sub").innerHTML=`<i></i>${age>20?"dados atrasados, ":""}há ${age} min${bad?", fonte em falha":""}`;
+    $("sub").innerHTML=`<i></i>${age>20?"dados atrasados, ":""}há ${age} min${bad?", fonte em falha":""}${D.px_bybit_at?" · preços Bybit UE ao vivo":""}`;
     const c=D.counts||{};
     $("n-mercado").textContent=(c.deep_checked??"–")+" analisados";
     $("stats").innerHTML=[["Analisados",c.deep_checked],["Sinais novos",(c.long||0)+(c.short||0)],["Em operação",(()=>{const dc=new Set(((D.journal||{}).rows||[]).filter(r=>r.executed===false||r.user_closed_flag).map(r=>r.id));return (D.active_signals||[]).filter(x=>x.mode!=="PAPER"&&x.status==="TRIGGERED"&&!dc.has(x.id)).length})()],["A vigiar",(c.watchlist||0)+(c.watch_short||0)]].map(([l,v])=>`<div class="stat"><b>${v??"–"}</b><span>${l}</span></div>`).join("");
@@ -1383,6 +1403,7 @@ loadAcaso();
 async function checkVersion(){try{const t=await (await fetch("./index.html?nocache="+Date.now(),{cache:"no-store"})).text();const m=t.match(/PAGE_V="(\w+)"/);if(m&&m[1]!==PAGE_V)location.replace("./?v="+m[1])}catch(_){}}
 checkVersion();setInterval(checkVersion,600000);
 load();setInterval(load,60000);
+setInterval(async()=>{if(!D)return;const m=await liveBybitAll();if(m&&applyBybit(D)){try{render()}catch(_){}}},30000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)load()});
 
 // ===== Explorador de moedas e cartao dos lutadores =====
@@ -1421,7 +1442,7 @@ async function renderExplorer(a,quiet){const r=(D.universe||[]).find(x=>x.asset=
   if(!r||!r.analysis){$("xbox").innerHTML=`<div class="banner">${esc(a)} não está entre as moedas analisadas agora (as mais líquidas listadas na Bybit UE em USDC).</div>`;return}
   const deps=r.departamentos||[],n={verde:0,amarelo:0,vermelho:0};deps.forEach(d=>n[d.cor]++);
   const d=r.decision||{},act=d.active_signal,dec=d.plan?"✅ Há sinal de compra ativo nesta moeda.":act?`📌 Já há uma operação em curso nesta moeda (${esc(personaOf(act.split("-")[1]))}).`:`⏸️ Sem sinal agora: ${esc(d.reason||"nenhuma estratégia viva encontrou entrada")}.`;
-  const html=`<div class="banner"><b style="font-size:16px">${esc(a)} <span style="font-weight:600">${price(r.price)} $</span> <span class="${r.chg_24h>=0?"up":"dn"}" style="font-size:13px">${r.chg_24h>=0?"+":""}${num(r.chg_24h,2)}%</span></b>
+  const html=`<div class="banner"><b style="font-size:16px">${esc(a)} <span style="font-weight:600">${price(r.price)} ${r.px_fonte==="bybit"?"USDC (Bybit UE)":"$"}</span> <span class="${r.chg_24h>=0?"up":"dn"}" style="font-size:13px">${r.chg_24h>=0?"+":""}${num(r.chg_24h,2)}%</span></b>
   <canvas id="xchart"></canvas><div class="xleg"><span><i style="background:#3ee0c4"></i>suporte</span><span><i style="background:#ff6f8a"></i>resistência</span><span><i style="background:#B794F4"></i>FVG / entrada</span><span><i style="background:#FFA94D"></i>varrimento</span><span><i style="background:#3ee0c455"></i>order block</span></div>
   ${deps.length?deps.map(x=>`<div class="dep"><span>${DOTC[x.cor]}</span><div><div style="font-weight:700">${esc(x.dep)}</div><div style="color:var(--mut)">${esc(x.texto)}</div></div></div>`).join(""):`<div style="color:var(--mut)">A leitura por departamentos aparece no próximo scan.</div>`}
   ${(r.debate||[]).length?`<div class="sec2" style="margin-top:12px;color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.04em">Mesa redonda: ${(r.debate||[]).filter(x=>x.voto!=="não").length} de ${r.debate.length} operavam</div>${votesHtml(r.debate)}`:""}

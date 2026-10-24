@@ -240,6 +240,25 @@ def losing_streak(led):
     return n
 
 
+BYBIT_MAX_IDADE = 25 * 60
+
+
+def bybit_venue(ven, by, now):
+    """(24/10, Rui: precos com diferencas) Os dados da Bybit UE vinham da CoinGecko, com atraso e com
+    avisos de 'preco parado' errados. Com os precos lidos diretamente da Bybit pelo servidor europeu
+    (ha menos de 25 minutos), o ultimo preco, o spread e o volume passam a ser os reais."""
+    if not by or not by.get("m") or now - (by.get("t") or 0) > BYBIT_MAX_IDADE:
+        return ven
+    out = dict(ven or {})
+    for b, (last, bid, ask, vol) in by["m"].items():
+        v = dict(out.get(b) or {"pair": f"{b}/USDC", "url": f"https://www.bybit.eu/en-EU/trade/spot/{b}/USDC"})
+        sp = (ask - bid) / ((ask + bid) / 2) * 100 if bid and ask and ask >= bid else v.get("spread_pct")
+        v.update(last=last, spread_pct=None if sp is None else round(sp, 4), volume_usd=round(vol, 2),
+                 stale=False, fonte="bybit")
+        out[b] = v
+    return out
+
+
 def apply_account(state, eu, now):
     """Capital automatico (decisao do Rui, 2026-10-13: "o saldo fica sempre
     certo sem eu o enviar"): o valor total da conta Bybit lido pelo servidor
@@ -253,6 +272,8 @@ def apply_account(state, eu, now):
         state["capital_t"] = int(acc["t"])   # o composto conta a partir daqui
         state["capital_auto"] = True
     state["conta_livre"] = {"t": acc["t"], "usdc": acc.get("usdc_free")}
+    if acc.get("tickers"):                   # (24/10) precos reais da Bybit UE (servidor europeu)
+        state["bybit_tickers"] = {"t": acc["t"], "m": acc["tickers"]}
     if acc.get("margem"):                    # (22/10) moedas que a Bybit UE deixa vender a descoberto
         state["margem_bybit"] = {"t": acc["t"], "moedas": list(acc["margem"])}
     return {"t": acc["t"], "usdc_free": acc.get("usdc_free"),
@@ -313,6 +334,7 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
         ven = None
         result["venue_source"] = {"ok": False, "error": str(e)[:200]}
 
+    ven = bybit_venue(ven, state.get("bybit_tickers"), now)
     uni = build_universe(data)
     for r in uni:
         v = ven.get(r["asset"]) if ven else None

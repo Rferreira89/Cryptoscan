@@ -390,6 +390,31 @@ def _margem_ou_none():
         return None
 
 
+def tickers_usdc():
+    """(24/10) Precos reais da Bybit UE de todos os pares USDC: {base: [ultimo, compra, venda, volume USD 24h]}.
+    O servidor do GitHub nao chega a Bybit; o servidor europeu le-os de 15 em 15 minutos."""
+    d = get("/v5/market/tickers", {"category": "spot"})
+    out = {}
+    for x in d.get("list") or []:
+        sym = x.get("symbol") or ""
+        if not sym.endswith("USDC"):
+            continue
+        try:
+            out[sym[:-4]] = [float(x["lastPrice"]), float(x.get("bid1Price") or 0) or None,
+                             float(x.get("ask1Price") or 0) or None, float(x.get("turnover24h") or 0)]
+        except (KeyError, ValueError, TypeError):
+            continue
+    return out
+
+
+def _tickers_ou_none():
+    try:
+        return tickers_usdc() or None
+    except Exception as e:
+        print("tickers:", e)
+        return None
+
+
 def margem():
     """(22/10) Moedas com par em USDC que aceitam margem spot na Bybit UE (para vender a
     descoberto). A ICP de 22/10 foi recusada: 'Symbol is not supported on Margin Trading'."""
@@ -442,6 +467,7 @@ def snapshot(state, now=None):
                 "expires": info.get("expiredAt"),
                 "fundo": funding(),
                 "margem": _margem_ou_none(),
+                "tickers": _tickers_ou_none(),
                 "trades": check_trades(led, held, orders, execs, now, debts(wallet))}
     except AccountError as e:
         return {"ok": False, "error": str(e)[:120], "t": int(now)}
