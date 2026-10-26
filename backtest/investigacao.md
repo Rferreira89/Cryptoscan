@@ -1,16 +1,16 @@
 # Diário de investigação
 
-**Hipóteses testadas contra esta reserva: 20** (12 neste diário: compra de
+**Hipóteses testadas contra esta reserva: 21** (12 neste diário: compra de
 quedas, compressão, oversold bounce 4H, day trade 1H, bounce com outras
 saídas, sweep a mercado, funding negativo, quebra com compradores,
 capitulação do mercado, atraso face ao BTC, resiliente, impulso de
-amplitude; mais 8 no diário de afinação, H1 a H8). Atualizado em
-2026-10-25 (sem hipótese nova nesta corrida nem na afinação). O
-contador global do programa (`engine/hipoteses.py`, com os estudos fora do
-programa em `backtest/hipoteses_offline.json`, contra dados que incluem
-esta reserva) já vai em 57. Quanto maior este número, maior a
-probabilidade de uma hipótese passar por sorte: com 20 testes, a
-probabilidade de pelo menos um falso positivo a 5% já ronda os 64% (e as
+amplitude; mais 9 no diário de afinação, H1 a H9). Atualizado em
+2026-10-26 (sem hipótese nova nesta corrida; a afinação testou a H9 em
+2026-10-25). O contador global do programa (`engine/hipoteses.py`, com os
+estudos fora do programa em `backtest/hipoteses_offline.json`, contra dados
+que incluem esta reserva) já vai em 57 ou mais. Quanto maior este número,
+maior a probabilidade de uma hipótese passar por sorte: com 21 testes, a
+probabilidade de pelo menos um falso positivo a 5% já ronda os 66% (e as
 várias configurações de cada grelha aumentam-na ainda mais).
 
 Uma hipótese por entrada, com o veredicto. Método: `tools/research.py`
@@ -1442,3 +1442,42 @@ em 57.
   ainda não usada com histórico suficiente (interesse em aberto já é
   medido em 38 moedas no ringue, mas sem 24 meses de histórico) ou uma
   entrada que não seja variante das famílias acima.
+
+## 2026-10-26 — Sem hipótese nova hoje (sem mortos novos; fila vazia)
+
+**Veredicto da corrida: nenhuma hipótese testada.** O contador desta
+reserva passa a 21 só pela H9 da afinação (RACIO_BTC, rejeitada em
+2026-10-25).
+
+- **Histórico** (ramo `history`): atualizado em 2026-10-25 12:30 UTC pelo
+  workflow pedido ontem; 1 dia de atraso, a janela chega ao presente.
+- **Arena** (scan.json do ramo `data`): **9 lutadores vivos** (mínimo 5),
+  `recrutar` falso, os mesmos de ontem: BOUNCE_AMPLITUDE, BOUNCE_DESALAV,
+  BOUNCE_V1, VOLUME_ACUMULACAO_R2, REVERSAO_INTERVALO, MAIORES_RECUO,
+  MAIORES_TENDENCIA, SHORT_SQUEEZE, SHORT_MAIORES_TENDENCIA. Nenhum morto
+  novo desde BOUNCE_LSR (2026-10-23). Fila do Rui vazia.
+- **Combate de 90 dias** (`forma.json`, ramo `arena`, 2026-10-26 11:35 UTC,
+  46 moedas): acima do p95 do acaso só BOUNCE_AMPLITUDE (15 op., +0,93R;
+  p95 −0,03R) e BOUNCE_DESALAV (18 op., +0,46R; p95 −0,13R). DESALAV está
+  a 2 operações das 20 que a põem no corte dos clones, e os representantes
+  mortos do Bounce (X30, ISOLADA, PAVIO) continuam no combate com 84 a 94
+  operações: o risco registado desde 2026-10-23 está iminente. A correção
+  (só representantes vivos) é em `engine/`: sessão com o Rui, com
+  prioridade máxima. REVERSAO_INTERVALO (20 op., −0,02R, p95 −0,01R) está
+  no limite do acaso; MAIORES_RECUO (17 op., −0,02R) perto de zero.
+- **Porque não há hipótese nova**: as mesmas razões de 2026-10-21 a
+  2026-10-25. Com 24 meses de velas de 4H e 1H, fluxo comprador e funding,
+  as entradas de compra com lógica económica já foram testadas (quebras,
+  recuos, sobrevenda, capitulação, amplitude, reação ao BTC, funding,
+  acumulação, rácio moeda/BTC) ou estão no ringue como variantes do Bounce.
+  Um efeito de calendário (hora ou dia da semana) não tem lógica económica
+  forte nem custos que o comportem. Com 21 hipóteses contra esta reserva,
+  uma hipótese fraca só acrescenta ruído. É a sexta corrida seguida sem
+  hipótese nova: a investigação diária esgotou as fontes de dados que tem.
+  O que mudaria isto é uma fonte nova com histórico (interesse em aberto
+  e rácio long/short por moeda guardados no ramo `history`, ou
+  `derivados.json` quando tiver meses), não mais ideias sobre as mesmas
+  velas.
+- Proposta para a próxima corrida: autópsia se morrer alguém (sobretudo
+  DESALAV ou AMPLITUDE como clones de uma morta); uma hipótese nova só com
+  uma fonte ainda não usada com histórico suficiente.
