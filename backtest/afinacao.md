@@ -1,7 +1,7 @@
 # Diário de afinação dos sinais
 
 Hipóteses testadas sobre as estratégias que já estão ao vivo, uma por
-entrada, com o veredicto. Hipóteses testadas até agora: 6.
+entrada, com o veredicto. Hipóteses testadas até agora: 9 (H1 a H9).
 
 ## Decisões do Rui (valem para todas as execuções)
 
@@ -988,3 +988,136 @@ Notas para as próximas execuções:
   passa a 20 contra os mesmos dados (diários agendados); 57 no contador
   global com os 37 estudos fora do programa. Com 57 tentativas, a
   probabilidade de pelo menos um falso positivo a 5% passa os 94%.
+
+### 2026-10-26 — H9: reversão à média do rácio moeda/BTC (RACIO_BTC)
+
+**Escrito antes de correr qualquer teste.**
+
+- Situação: regime atual (scan.json, `mercado`) **lateral** desde
+  2026-10-17. Ringue de 90 dias (forma.json de 2026-10-26): os únicos
+  vivos acima do acaso são BOUNCE_AMPLITUDE (14 op., +0,85R) e
+  BOUNCE_DESALAV (17 op., +0,50R), ambos sobrevenda; REVERSAO_INTERVALO,
+  MAIORES_RECUO e VOLUME_ACUMULACAO_R2 estão perto de zero. Ringue longo
+  (longo.json de 2026-10-25): **subida** — sobrevenda e PULLBACK (15 op.,
+  +0,82R, p95 +0,51R); **lateral** — só sobrevenda (AMPLITUDE, V2, V3, G0,
+  DESALAV, SQUEEZE, LSR, PAVIO, MACRO); **queda** — SHORT_X30,
+  SHORT_ISOLADA, SHORT_FALSO_ROMP, SHORT_MAIORES_RECUO (todos mortos ou em
+  papel). Regime sem campeão vivo: **queda**; regime sem nenhuma família
+  fora da sobrevenda: **lateral** (o de hoje).
+- Hipótese (família **valor relativo / reversão do rácio**, proposta na H8
+  e deixada pela investigação a 24 e 25/10): com o BTC sem tendência, o
+  rácio moeda/BTC oscila à volta da média; quando cai muito abaixo dela
+  (vendas forçadas, rotação de curto prazo) tende a voltar. Mede-se o
+  desvio do rácio, não o preço: uma moeda pode estar fraca contra o BTC
+  sem estar em sobrevenda (RSI), e é aí que a família é nova. Diferente do
+  ATRASO_BTC (investigação, reação a um impulso de uma vela do BTC) e do
+  REVERSAO_INTERVALO (bandas do preço da própria moeda com ADX baixo).
+- Regra (só compras, só velas fechadas): rácio = fecho da moeda / fecho do
+  BTC na mesma vela de 4H; z = (rácio − média das últimas N velas) /
+  desvio padrão das N velas. Condição: z da vela anterior ≤ −Z e o rácio
+  da última vela fechada acima do da anterior (o rácio vira) com a moeda a
+  fechar acima do fecho anterior. Filtro opcional "fora da sobrevenda":
+  RSI(14, 4H) da moeda ≥ 35 na vela do sinal. Entrada na abertura
+  seguinte. Stop: fecho − k × ATR(4H, 14), distância entre 0,5% e 20%.
+  Objetivo único: o preço que devolve o rácio à média com o BTC parado
+  (fecho × média / rácio), pelo menos 1% acima; sem objetivo, não entra.
+  Saída por tempo ao fim de D dias. Filtro do BTC dos compradores do
+  ringue (BTC acima da SMA200 diária).
+- Grelha (6, escrita antes de testar):
+  R1 N=120 (20 dias), Z=2, k=2, D=3, sem filtro RSI;
+  R2 N=120, Z=2, k=2, D=3, RSI ≥ 35;
+  R3 N=120, Z=2,5, k=2, D=3, sem filtro RSI;
+  R4 N=120, Z=2,5, k=2, D=3, RSI ≥ 35;
+  R5 N=120, Z=2, k=3, D=5, RSI ≥ 35;
+  R6 N=60 (10 dias), Z=2, k=2, D=3, RSI ≥ 35.
+- Método: `tools/arena_ringue.generic_trades` (só passado, uma operação de
+  cada vez por moeda, entrada na abertura seguinte, 0,25% + 0,1% por lado)
+  e `judge` + percentil contra o acaso (mesma moeda, ±90 velas, mesma
+  geometria). Histórico do ramo `history` (4H até 2026-10-25).
+- Janelas: **B (decide)** 2021-08-01 a 2024-10-10. **A (confirma)**
+  2024-10-11 até ao fim. **C**: últimos 90 dias (o combate). Cada janela
+  também por regime do BTC (`regime_by_day`).
+- Critérios (todos, em B): ≥ 40 operações; R médio > 0; acima do percentil
+  95 do acaso; R médio > 0 sem a melhor moeda; R médio > 0 em pelo menos
+  metade dos anos civis com ≥ 10 operações; R médio > 0 e acima do p95 do
+  acaso na **lateral** com ≥ 20 operações; em A, R médio > 0; correlação
+  dos resultados diários com a BOUNCE_ISOLADA (mesma janela) abaixo de
+  0,7 (o ringue corta clones acima disso). Escolha: a de maior R médio em
+  B entre as que passam. Se passar, entra no ringue como RACIO_BTC em
+  NEW_SIGS (o ringue decide); REAL_OK não se mexe.
+- Previsão honesta: mais provável falhar. Sem o filtro RSI deve ser quase
+  um clone da sobrevenda; com o filtro, os desvios do rácio sem sobrevenda
+  podem ser só moedas fracas (rotação para fora), que não voltam.
+- Hipóteses testadas até agora (com esta): 9 neste diário; 21 contra os
+  mesmos dados contando o diário de investigação (20 até 2026-10-25); 58 no
+  contador global (37 estudos fora do programa).
+
+**Resultados** (ramo `history`, 4H até 2026-10-25; 70 moedas além do BTC,
+ROBO de fora por histórico curto; filtro do BTC acima da SMA200 diária,
+por isso 2022 não tem operações; `backtest/afinacao_h09_racio.json`;
+código `tools/afinacao_h09_racio.py`; teste do gatilho, do plano e sem
+look-ahead em `tests/test_afinacao_h09.py`). Percentil = posição do R
+médio face a 1000 carteiras de entradas ao acaso com a mesma geometria.
+
+| Config. | B: op. | B: R médio | B: acaso p95 | B: perc. | B: subida / lateral (op., R) | A: op., R (perc.) | A lateral | C 90 dias: op., R (perc.) | corr. ISOLADA B / A |
+|---|---|---|---|---|---|---|---|---|---|
+| R1 Z2 k2 3d | 1478 | −0,122 | −0,189 | 100 | 506, −0,04 / 972, −0,17 | 1545, +0,034 (100) | +0,03 | 268, +0,258 (100) | 0,35 / 0,46 |
+| R2 Z2 k2 3d RSI≥35 | 1190 | −0,075 | −0,155 | 100 | 455, −0,03 / 735, −0,10 | 1185, +0,020 (100) | +0,02 | 242, +0,230 (100) | 0,43 / 0,44 |
+| R3 Z2,5 k2 3d | 644 | −0,062 | −0,155 | 100 | 213, +0,06 / 431, −0,12 | 574, +0,138 (100) | +0,11 | 93, +0,455 (100) | 0,22 / 0,37 |
+| **R4 Z2,5 k2 3d RSI≥35** | 415 | **+0,066** | −0,076 | 100 | 173, +0,17 / 242, **−0,01** | 329, +0,089 (100) | +0,09 | 63, +0,585 (100) | 0,24 / 0,15 |
+| R5 Z2 k3 5d RSI≥35 | 968 | −0,058 | −0,117 | 100 | 368, −0,03 / 600, −0,08 | 955, −0,027 (100) | −0,00 | 207, +0,136 (100) | 0,43 / 0,28 |
+| R6 N60 Z2 k2 3d RSI≥35 | 1442 | −0,064 | −0,143 | 100 | 549, +0,06 / 893, −0,14 | 1379, +0,025 (100) | +0,00 | 262, +0,195 (100) | 0,37 / 0,44 |
+
+- **O momento tem informação, em todo o lado**: percentil 100 do acaso nas
+  6 configurações, em B, em A e no combate de 90 dias. Correlação diária
+  com a BOUNCE_ISOLADA entre 0,15 e 0,46: **não é um clone da sobrevenda**
+  (o ringue só corta acima de 0,7).
+- **Mas só a R4 ganha dinheiro em B** (+0,066R em 415 op.; sem a melhor
+  moeda, XLM, +0,053R; 2021 +0,16R, 2023 +0,09R, 2024 +0,02R). As outras
+  perdem em B: o acaso nestas moedas parte de −0,15R a −0,22R (custos de
+  0,7% ida e volta sobre stops de 2 ATR) e o sinal só recupera parte.
+- **Na lateral de B a R4 fica a zero** (242 op., −0,011R; acima do acaso,
+  percentil 99,4, mas não positiva): em 2021-24 o ganho veio da subida
+  (+0,17R). Na lateral de A (283 op., +0,092R) e do combate de 90 dias
+  (57 op., +0,651R, p95 do acaso +0,10R) é positiva, mas os 90 dias são
+  uma só fase e o +0,65R é quase de certeza sorte de fase.
+- Critérios em B (R4): ≥ 40 op. sim (415); R > 0 sim (+0,066); acima do
+  p95 sim (percentil 100); sem a melhor moeda sim (+0,053); anos positivos
+  3 de 3 sim; **lateral com R > 0 acima do p95 NÃO** (−0,011R, 242 op.);
+  A > 0 sim (+0,089); correlação < 0,7 sim (0,24). Falha 1 de 8.
+
+**Veredicto: REJEITADA** (pelo critério pré-registado da lateral). É a
+primeira família fora da sobrevenda neste diário que bate o acaso e ganha
+dinheiro em B e em A, mas a regra existe para cobrir a lateral e em
+2021-24 não ganhou na lateral. Não entra no ringue nesta execução: mudar
+o critério depois de ver os números seria escolher o resultado. REAL_OK
+não se mexe.
+
+Notas para as próximas execuções:
+
+- Regime atual **lateral**. Regimes sem campeão vivo: **queda** (só
+  shorts mortos ou em papel) e, fora da sobrevenda, **lateral**.
+- **Proposta para o Rui** (decisão dele, não minha): pôr a R4 no ringue
+  como lutador novo RACIO_BTC (z do rácio moeda/BTC ≤ −2,5 em 20 dias, a
+  virar, RSI ≥ 35, stop 2 ATR, objetivo na média do rácio, 3 dias). Os
+  números a favor: percentil 100 do acaso em todas as janelas, R > 0 em B
+  e em A, baixa correlação com a sobrevenda (diversifica). Contra: em
+  2021-24 só ganhou na subida, e com 21 hipóteses contra os mesmos dados
+  um R médio de +0,07R é fácil de obter por acaso. O ringue (20+ op., R >
+  0, acima do p95 do acaso) e o papel ao vivo seriam o teste fora da
+  amostra; com OK do Rui, a função de sinal já está escrita
+  (`tools/afinacao_h09_racio.racio_var(120, 2.5, 2.0, 3, 35)`).
+- Lição: o filtro "fora da sobrevenda" (RSI ≥ 35) melhora sempre o R
+  médio (R2 > R1, R4 > R3): os desvios do rácio com sobrevenda são piores
+  do que os desvios sem ela.
+- Proposta para a próxima execução (H10): atacar a **queda** (regime sem
+  campeão vivo). A família que lá ganha no ringue longo é o short da
+  sobrecompra (SHORT_X30 +0,43R, SHORT_ISOLADA +0,39R), morta pelo
+  combate de 90 dias em fases que não eram de queda; testar o espelho da
+  H9 (short quando o rácio moeda/BTC está 2,5 desvios ACIMA da média e
+  vira, RSI ≤ 65, só com o regime do BTC em queda) com a lição da H7
+  (shorts de stop curto partem de −0,3R ao acaso).
+- Hipóteses testadas até agora: 9 neste diário (H1 a H9); 21 contra os
+  mesmos dados (diários agendados); 58 no contador global. Com 21
+  tentativas, a probabilidade de pelo menos um falso positivo a 5% ronda
+  os 66%.
