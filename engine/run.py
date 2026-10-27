@@ -355,6 +355,9 @@ def alert_text(e, sigs, note):
     head = f"{s['asset']} ({s['pair']}, {s['venue']})"
     if k == "ISSUED" and s.get("diretor"):
         note = diretor_lines(s["diretor"]) + note
+    if k == "ISSUED" and s.get("maquina_tempo"):
+        from . import maquina_tempo
+        note = maquina_tempo.linha(s["maquina_tempo"]) + "\n" + note
     if s.get("mode") == "PAPER":
         return paper_text(e, s, head, note)
     if s.get("direction") == "SHORT":

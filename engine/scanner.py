@@ -10,7 +10,7 @@ import statistics
 import time
 from concurrent.futures import ThreadPoolExecutor
 
-from . import (analysis, config, consultas, debate, derivatives, diretor, europa, liga, events as calendar, ledger, short,
+from . import (analysis, maquina_tempo, config, consultas, debate, derivatives, diretor, europa, liga, events as calendar, ledger, short,
                arena, paper_bounce, paper_ring, paper_shadow, promo, rewards,
                liquidity, paper_trend, regime, review,
                signals,
@@ -538,6 +538,10 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
     both = eligible + [dict(r, decision=r["decision_short"])
                        for r in eligible if r.get("decision_short")]
     events += signals.update_state(state, both, cfg, now, daily)
+    try:                                   # (27/10) maquina do tempo: so informa
+        result["maquina_tempo"] = maquina_tempo.registar(state, events, c4s, now)
+    except Exception as e:
+        result["maquina_tempo_erro"] = str(e)[:120]
     for a, row in promo_rows.items():     # campeao que nao virou sinal: porque?
         ds = row.get("decision_short") or {}
         d, want = (ds, "SHORT") if ds.get("score_label") == "campeão da arena" else (row["decision"], "LONG")
