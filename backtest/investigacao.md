@@ -5,7 +5,7 @@ quedas, compressão, oversold bounce 4H, day trade 1H, bounce com outras
 saídas, sweep a mercado, funding negativo, quebra com compradores,
 capitulação do mercado, atraso face ao BTC, resiliente, impulso de
 amplitude; mais 9 no diário de afinação, H1 a H9). Atualizado em
-2026-10-26 (sem hipótese nova nesta corrida; a afinação testou a H9 em
+2026-10-27 (sem hipótese nova nesta corrida; a afinação testou a H9 em
 2026-10-25). O contador global do programa (`engine/hipoteses.py`, com os
 estudos fora do programa em `backtest/hipoteses_offline.json`, contra dados
 que incluem esta reserva) já vai em 57 ou mais. Quanto maior este número,
@@ -1481,3 +1481,51 @@ reserva passa a 21 só pela H9 da afinação (RACIO_BTC, rejeitada em
 - Proposta para a próxima corrida: autópsia se morrer alguém (sobretudo
   DESALAV ou AMPLITUDE como clones de uma morta); uma hipótese nova só com
   uma fonte ainda não usada com histórico suficiente.
+
+## 2026-10-27 — Sem hipótese nova hoje (sem mortos novos; fila vazia)
+
+**Veredicto da corrida: nenhuma hipótese testada.** O contador desta
+reserva fica em 21 (a afinação não testou nada depois da H9).
+
+- **Histórico** (ramo `history`): atualizado em 2026-10-25 12:30 UTC, 2
+  dias de atraso (abaixo dos 7). Continua sem fontes novas: só velas de 4H,
+  1H e funding.
+- **Arena** (scan.json do ramo `data`, 2026-10-27 11:57 UTC): **9
+  lutadores vivos na classificação** (mínimo 5), `recrutar` falso. Nenhum
+  morto novo desde BOUNCE_LSR (2026-10-23). Mudanças desde ontem:
+  - BOUNCE_MACRO_R2 entrou a 2026-10-26 05:35 UTC: é o regresso da
+    BOUNCE_MACRO pela regra dos renascidos (regime lateral firme 7 dias),
+    não um lutador novo, e a BOUNCE_MACRO já tem autópsia (2026-10-20). No
+    combate leva 2 op., −0,50R.
+  - VOLUME_ACUMULACAO_R2 desapareceu da classificação sem morrer: continua
+    em `arena.renascidos` e não está em `arena.mortos`. Causa: em
+    `engine/arena.update` um lutador sem operações ao vivo e com 0
+    operações no combate de 90 dias (`forma.json`) é saltado. O número de
+    vivos mostrado (9) conta um a menos do que existe (10). Não é morte nem
+    precisa de autópsia; é um defeito de apresentação em `engine/`, para
+    uma sessão com o Rui (não mexo em engine/).
+  Fila do Rui vazia.
+- **Combate de 90 dias** (`forma.json`, ramo `arena`, 2026-10-27 11:23
+  UTC): acima do p95 do acaso continuam só BOUNCE_AMPLITUDE (13 op.,
+  +0,83R; p95 +0,03R) e BOUNCE_DESALAV (16 op., +0,52R; p95 −0,10R).
+  BOUNCE_V1 (6 op., +0,28R, p95 +0,26R) com amostra mínima;
+  REVERSAO_INTERVALO (19 op., −0,09R, abaixo do p95 +0,06R) e MAIORES_RECUO
+  (17 op., −0,02R) perto de zero ou a perder. O risco do corte dos clones
+  (representantes mortos do Bounce, X30/ISOLADA/PAVIO, com 81 a 90
+  operações no combate, ainda contam como "o melhor do grupo") mantém-se
+  para DESALAV e AMPLITUDE quando chegarem às 20 operações: sessão com o
+  Rui, prioridade máxima.
+- **Porque não há hipótese nova**: as mesmas razões de 2026-10-21 a
+  2026-10-26. Com as fontes que o histórico tem (velas de 4H e 1H, fluxo
+  comprador, funding), as entradas de compra com lógica económica já foram
+  testadas ou estão no ringue como variantes do Bounce. Com 21 hipóteses
+  contra esta reserva (cerca de 66% de probabilidade de pelo menos um falso
+  positivo a 5%), uma hipótese fraca só acrescenta ruído. Sétima corrida
+  seguida sem hipótese nova.
+- Proposta para a próxima corrida: autópsia se morrer alguém (sobretudo
+  DESALAV ou AMPLITUDE como clones de uma morta); uma hipótese nova só com
+  uma fonte nova com histórico (interesse em aberto ou rácio long/short
+  guardados no ramo `history`). Para a sessão com o Rui: (1) corte dos
+  clones só com representantes vivos; (2) mostrar os renascidos sem
+  operações na classificação; (3) decidir se esta corrida diária deve
+  passar a semanal enquanto não houver dados novos.
