@@ -750,7 +750,7 @@ function renderDiary(mine,R){
   const dd=t=>new Date(t*1000).toLocaleString("pt-PT",{day:"2-digit",month:"2-digit"});
   const rows=mine.slice().sort((a,b)=>(b.closed_at||b.issued_at)-(a.closed_at||a.issued_at)).map(r=>{
     const open=r.status!=="CLOSED",rr=R(r),u=rr!=null&&r.risk_usdc!=null?rr*r.risk_usdc:null;
-    const res=open?`<span style="color:var(--mut)">${r.status==="OPEN"?"aberta":"à espera"}</span>`:`<b class="${rr>0?"up":"dn"}">${u!=null?(u>0?"+":"")+num(u,2)+" USDC":"–"}</b><br><span style="color:var(--mut);font-size:12px">${rr>0?"+":""}${num(rr,2)}R</span>`;
+    const res=r.fora_programa?`<span style="color:var(--mut)">fechada por ti fora do programa (sem resultado registado)</span>`:open?`<span style="color:var(--mut)">${r.status==="OPEN"?"aberta":"à espera"}</span>`:`<b class="${rr>0?"up":"dn"}">${u!=null?(u>0?"+":"")+num(u,2)+" USDC":"–"}</b><br><span style="color:var(--mut);font-size:12px">${rr>0?"+":""}${num(rr,2)}R</span>`;
     const ent=r.exec_price||r.entry||r.entry_zone[1];
     return `<tr${open?"":` class="rp" data-rp="${esc(r.id)}"`}><td><b>${esc(r.asset)}</b>${r.side==="SHORT"?" ▼":""}<br><span style="color:var(--mut);font-size:12px">${dd(r.issued_at)}${r.closed_at?" → "+dd(r.closed_at):""}</span></td><td>${price(ent)}${(r.user_exit||r.exit)?"<br><span style='color:var(--mut);font-size:12px'>saída "+price(r.user_exit||r.exit)+(r.user_exit?" (à mão)":"")+"</span>":""}</td><td>${res}</td></tr>`}).join("");
   const cap=now!=null?`<div class="stats" style="grid-template-columns:repeat(3,1fr)"><div class="stat"><b>${num(now,2)}</b><span>Capital agora</span></div><div class="stat"><b>${base!=null?num(base,0):"–"}</b><span>Capital de partida</span></div><div class="stat"><b class="${base!=null&&now>=base?"up":"dn"}">${base!=null?(now>=base?"+":"")+num((now/base-1)*100,1)+"%":"–"}</b><span>Variação</span></div></div>`:"";
@@ -788,7 +788,7 @@ async function loadAcaso(){
 function renderJournal(){
   const J=D.journal;if(!J){$("journal").innerHTML="";return}
   {const mine=J.rows.filter(r=>r.executed===true),cl=mine.filter(r=>r.status==="CLOSED"),R=r=>r.user_r!=null?r.user_r:r.result_r;
-   const w=cl.filter(r=>R(r)>0).length,l=cl.length-w,op=mine.filter(r=>r.status==="OPEN"||r.status==="WAITING").length;
+   const w=cl.filter(r=>R(r)>0).length,l=cl.length-w,op=mine.filter(r=>(r.status==="OPEN"||r.status==="WAITING")&&!r.fora_programa).length;
    const usd=cl.reduce((a,r)=>a+(R(r)||0)*(r.risk_usdc||0),0);
    $("score").innerHTML=[["Ganhas",`<span class="up">${w}</span>`],["Perdidas",`<span class="dn">${l}</span>`],["Acerto",cl.length?num(100*w/cl.length,0)+"%":"–"],["USDC",`<span class="${usd>0?"up":usd<0?"dn":""}">${usd>0?"+":""}${num(usd,2)}</span>`]].map(([k,v])=>`<div class="stat"><b>${v}</b><span>${k}</span></div>`).join("");
    renderDiary(mine,R);
