@@ -304,7 +304,10 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
     # decisao do Rui (2026-10-18): risco normal so depois da prova de 5
     # operacoes dos campeoes, com travao aos -10% desde o maximo (engine/risco.py)
     from . import risco
-    rn = risco.nivel(state, cfg.get("capital_usdc"))
+    # (27/10) o travao usa o valor real da conta quando ha leitura fresca (o capital dos planos
+    # nao desce abaixo de 5 USDC e ficava parado depois do levantamento de 25/10)
+    eq_real = (conta or {}).get("equity")
+    rn = risco.nivel(state, eq_real if eq_real is not None else cfg.get("capital_usdc"))
     if (losing_streak(state.get("ledger", [])) >= 2 or rn["reduzido"]) and cfg.get("max_risk_usdc"):
         cfg["max_risk_usdc_normal"] = cfg["max_risk_usdc"]       # (23/10) teto para chegar a ordem minima
         cfg["max_risk_usdc"] = round(cfg["max_risk_usdc"] / 2, 2)

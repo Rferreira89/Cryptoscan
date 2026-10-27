@@ -28,7 +28,7 @@ CLOSE = re.compile(r"^/?fechei\s+([A-Za-z0-9]+)\s+([0-9]+(?:[.,][0-9]+)?)\s*$",
 PARAR = re.compile(r"^/?parar\s*$", re.I)
 # (27/10) o Rui fechou tudo a mao e tirou o dinheiro da Bybit: as operacoes reais abertas
 # passam a "fechadas fora do programa" (sem resultado inventado, nao contam para a prova)
-LIMPAR = re.compile(r"^/?limpar(?:\s+desde\s+([0-9]+))?\s*$", re.I)
+LIMPAR = re.compile(r"^/?limpar(?:\s+desde\s+([0-9]+))?(?:\s+pico\s+([0-9]+(?:[.,][0-9]+)?))?\s*$", re.I)
 AUTO = re.compile(r"^/?auto(?:@\w+)?(?:\s+(ligar|desligar|for[cç]ar))?\s*$", re.I)
 
 
@@ -263,6 +263,10 @@ def apply(state, updates, chat_id, res=None):
                 nu["pedidos"] = {}
                 if lp.group(1):                  # levantamentos/depositos a descontar do pico
                     state.setdefault("risco", {})["fluxo_visto"] = int(lp.group(1))
+                if lp.group(2):                  # pico corrigido a mao (fluxos ja descontados)
+                    rk = state.setdefault("risco", {})
+                    rk["pico"] = float(lp.group(2).replace(",", "."))
+                    rk["fluxo_visto"] = max([f[0] for f in (state.get("evolucao") or {}).get("fluxos") or []] or [0])
                 out.append((("Estado limpo: " + (", ".join(fechadas) if fechadas else "nenhuma operação aberta")
                              + " marcada(s) como fechada(s) fora do programa (sem resultado, não conta para a "
                              "prova). O travão passa a descontar levantamentos e depósitos."), None))

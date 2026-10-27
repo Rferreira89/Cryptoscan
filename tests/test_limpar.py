@@ -48,3 +48,16 @@ class Limpar(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PicoManual(unittest.TestCase):
+    def test_pico_corrigido(self):
+        st = {"ledger": [], "risco": {"pico": 120.55},
+              "evolucao": {"fluxos": [[50, -120.55], [70, -119.45]]}}
+        inbox.apply(st, msg("/limpar pico 17.98"), "admin")
+        risco.nivel(st, 0.87)
+        self.assertEqual(st["risco"]["pico"], 17.98)
+        st["evolucao"]["fluxos"].append([90, 300.0])
+        n = risco.nivel(st, 300.87)
+        self.assertEqual(st["risco"]["pico"], 317.98)
+        self.assertLess(n["dd"], 0.10)
