@@ -314,6 +314,7 @@ def regime_qualified(state, fase):
 CONFIG_ESTUDO = {}          # {fase: [lutadores]} de config "campeoes_estudo" (scanner preenche)
 SO_PAPEL_FAM = set()        # familias que nunca usam dinheiro real (config "familias_so_papel")
 DERIVA_LIMITE, DERIVA_MIN = -0.15, 80
+RECENTE_MIN = 40              # (27/10, OK do Rui) bloco mais recente do ringue nesta fase
 
 
 def deriva(state, k, fase):
@@ -324,6 +325,13 @@ def deriva(state, k, fase):
     met, n = f.get("metades"), f.get("n") or 0
     if met and len(met) == 2 and met[1] is not None and n / 2 >= DERIVA_MIN and met[1] < DERIVA_LIMITE:
         return f"deriva: 2.ª metade do ano na fase {fase} em {met[1]:+.2f}R ({n // 2} op.), abaixo de {DERIVA_LIMITE:+.2f}R"
+    # regra mais rapida (27/10, OK do Rui): as operacoes mais recentes desta fase (bloco reservado
+    # do ringue de um ano) abaixo do mesmo limite tambem passam a papel. O Ramiro estava com a
+    # 2.a metade em -0,01R mas as 65 mais recentes em -0,27R e o combate de 90 dias em -0,78R.
+    rec = (f.get("qualidade") or {}).get("reservado") or {}
+    if (rec.get("n") or 0) >= RECENTE_MIN and rec.get("avg_r") is not None and rec["avg_r"] < DERIVA_LIMITE:
+        return (f"deriva recente: últimas {rec['n']} operações na fase {fase} em {rec['avg_r']:+.2f}R, "
+                f"abaixo de {DERIVA_LIMITE:+.2f}R")
     return None
 
 

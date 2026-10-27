@@ -34,6 +34,18 @@ class SoPapel(unittest.TestCase):
             self.assertEqual(promo.champions(s, (), "lateral", True), [])
         self.assertIn("deriva", s["so_papel"]["SHORT_TURTLE"])
 
+    def test_deriva_recente_passa_a_papel(self):
+        s = st(met_st=(0.68, -0.01), n_st=259)
+        s["arena"]["longo"]["lutadores"]["SHORT_TURTLE"]["por_regime"]["lateral"]["qualidade"] = \
+            {"reservado": {"n": 65, "avg_r": -0.27}}
+        with self.reg():
+            self.assertEqual(promo.champions(s, (), "lateral", True), [])
+        self.assertIn("deriva recente", s["so_papel"]["SHORT_TURTLE"])
+        s["arena"]["longo"]["lutadores"]["SHORT_TURTLE"]["por_regime"]["lateral"]["qualidade"] = \
+            {"reservado": {"n": 30, "avg_r": -0.5}}                # amostra curta: nao suspende
+        with self.reg():
+            self.assertEqual(promo.champions(s, (), "lateral", True), ["SHORT_TURTLE"])
+
     def test_sem_amostra_suficiente_nao_suspende(self):
         s = st(met_st=(0.5, -0.20), n_st=150)                     # 75 na 2.a metade
         with self.reg():
