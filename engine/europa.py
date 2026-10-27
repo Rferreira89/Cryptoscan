@@ -117,4 +117,6 @@ def capital_from(acc):
         v = round(float(v), 2)
     except (TypeError, ValueError):
         return None
-    return v if 5 <= v <= 1_000_000 else None
+    # (27/10) o Rui levantou tudo a 25/10 e o capital ficou parado nos 120,55 porque so
+    # aceitava 5 ou mais: agora segue sempre a conta (abaixo de 5 USDC nao ha ordens possiveis)
+    return v if 0 < v <= 1_000_000 else None

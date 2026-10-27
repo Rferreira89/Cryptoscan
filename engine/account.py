@@ -216,7 +216,7 @@ def check_trades(ledger, held, orders, execs, now, debt=None):
     for r in ledger:
         if r.get("kind") != "4H" or r.get("status") != "OPEN":
             continue
-        if r.get("executed") is False:
+        if r.get("executed") is False or r.get("fora_programa"):
             continue
         side = "SHORT" if r.get("side") == "SHORT" else "LONG"
         sym = symbol_of(r)

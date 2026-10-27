@@ -555,9 +555,10 @@ def update_state(state, rows, cfg, now, daily=None):
             lst = state.get("promo_lost") or []
             if not any(x["asset"] == r["asset"] and now - x["t"] < 4 * 3600 and x["reason"] == motivo for x in lst):
                 promo.lost(state, now, r["asset"], d.get("strategy"), motivo)
+    nao_tuas = ledger.declined(state)[0]     # (27/10) recusadas ou fechadas fora: so papel
     for r in rows:
         act = [s for s in sigs.values() if s["asset"] == r["asset"]
-               and s["status"] in ("ACTIVE", "TRIGGERED")]
+               and s["status"] in ("ACTIVE", "TRIGGERED") and s["id"] not in nao_tuas]
         if act:
             r["decision"]["active_signal"] = act[0]["id"]
     return events

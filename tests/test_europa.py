@@ -88,11 +88,15 @@ class Conta(unittest.TestCase):
 
     def test_conta_falhada_ou_velha_nao_mexe(self):
         for c in ({"ok": False}, {"ok": True, "t": NOW - 7200, "equity": 90},
-                  {"ok": True, "t": NOW, "equity": 1}):
+                  {"ok": True, "t": NOW, "equity": 0}):
             st = {"capital": 50, "capital_t": 1}
             scanner.apply_account(st, {"t": NOW, "conta": c}, NOW)
             self.assertEqual(st["capital"], 50)
         self.assertIsNone(scanner.apply_account({}, None, NOW))
+        # (27/10) conta quase vazia (levantamento): o capital segue a conta real
+        st = {"capital": 120.55, "capital_t": 1}
+        scanner.apply_account(st, {"t": NOW, "conta": {"ok": True, "t": NOW, "equity": 0.87}}, NOW)
+        self.assertEqual(st["capital"], 0.87)
 
 
 class Desalavancagem(unittest.TestCase):
