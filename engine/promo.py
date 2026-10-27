@@ -195,7 +195,8 @@ def family_open(state):
     out = {}
     for r in state.get("ledger") or []:
         if r.get("mode") == "REAL" and r.get("status") in ("OPEN", "WAITING") \
-                and r.get("executed") is not False and r.get("user_result_r") is None:
+                and r.get("executed") is not False and r.get("user_result_r") is None \
+                and not r.get("fora_programa"):
             f = family(r.get("strategy"))
             out[f] = out.get(f, 0) + 1
     return out

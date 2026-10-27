@@ -26,6 +26,9 @@ CLOSE = re.compile(r"^/?fechei\s+([A-Za-z0-9]+)\s+([0-9]+(?:[.,][0-9]+)?)\s*$",
 
 
 PARAR = re.compile(r"^/?parar\s*$", re.I)
+# (27/10) o Rui fechou tudo a mao e tirou o dinheiro da Bybit: as operacoes reais abertas
+# passam a "fechadas fora do programa" (sem resultado inventado, nao contam para a prova)
+LIMPAR = re.compile(r"^/?limpar(?:\s+desde\s+([0-9]+))?\s*$", re.I)
 AUTO = re.compile(r"^/?auto(?:@\w+)?(?:\s+(ligar|desligar|for[cç]ar))?\s*$", re.I)
 
 
@@ -245,6 +248,24 @@ def apply(state, updates, chat_id, res=None):
                                 "USDC. Aplica-se aos próximos sinais.", None))
                 else:
                     out.append(("Valor de capital fora dos limites.", None))
+                continue
+            lp = LIMPAR.match(text)
+            if lp:
+                t = int(msg.get("date") or 0)
+                fechadas = []
+                for r in led:
+                    if r.get("mode") == "REAL" and r.get("executed") is True and \
+                            r.get("status") in ("OPEN", "WAITING") and not ledger.user_closed(r) \
+                            and not r.get("fora_programa"):
+                        r.update(fora_programa=True, fora_t=t)
+                        fechadas.append(r["asset"])
+                nu = state.get("nucleo") or {}
+                nu["pedidos"] = {}
+                if lp.group(1):                  # levantamentos/depositos a descontar do pico
+                    state.setdefault("risco", {})["fluxo_visto"] = int(lp.group(1))
+                out.append((("Estado limpo: " + (", ".join(fechadas) if fechadas else "nenhuma operação aberta")
+                             + " marcada(s) como fechada(s) fora do programa (sem resultado, não conta para a "
+                             "prova). O travão passa a descontar levantamentos e depósitos."), None))
                 continue
             cl = CLOSE.match(text)
             if cl:

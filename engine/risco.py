@@ -24,7 +24,7 @@ def prova(led):
         quando = r.get("user_closed_at") or r.get("closed_at") or 0
         fechou = r.get("status") == "CLOSED" or ledger.user_closed(r)
         # so operacoes abertas depois da decisao (Rui, 18/10: "a da PUMP ja nao devia contar")
-        if r.get("executed") is True and fechou and (r.get("issued_at") or 0) >= DESDE \
+        if r.get("executed") is True and fechou and not r.get("fora_programa") and (r.get("issued_at") or 0) >= DESDE \
                 and r.get("kind") == "4H" and r.get("strategy") not in CLASSICAS:
             R = ledger.user_r(r)
             if R is not None:
@@ -37,6 +37,17 @@ def prova(led):
 def nivel(state, capital):
     """Devolve {"reduzido": bool, "motivo": str, ...} e atualiza o pico."""
     st = state.setdefault("risco", {})
+    # (27/10) levantamentos e depositos nao sao perdas nem ganhos: mexem no pico pelo mesmo valor
+    # (o Rui tirou o dinheiro a 25/10 e o travao leu uma queda de 67%)
+    fl = (state.get("evolucao") or {}).get("fluxos") or []
+    visto = st.get("fluxo_visto")
+    if visto is None:
+        visto = max([f[0] for f in fl] or [0])
+    for t, v in fl:
+        if t > visto and st.get("pico") is not None:
+            st["pico"] = round(max(0.0, st["pico"] + v), 2)
+        visto = max(visto, t)
+    st["fluxo_visto"] = visto
     if capital:
         st["pico"] = round(max(st.get("pico") or 0, capital), 2)
     pico = st.get("pico") or capital or 0

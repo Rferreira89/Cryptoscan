@@ -13,7 +13,7 @@ def declined(state):
     ser acompanhadas em papel, mas nao ocupam vaga no limite de operacoes
     em simultaneo. Devolve (ids de sinais de 4H, ativos da tendencia)."""
     led = state.get("ledger", [])
-    ids = {r["id"] for r in led if r.get("executed") is False}
+    ids = {r["id"] for r in led if r.get("executed") is False or r.get("fora_programa")}
     trend = {r["asset"] for r in led if r.get("executed") is False
              and r.get("kind") == "1D" and r.get("status") == "OPEN"}
     return ids, trend
