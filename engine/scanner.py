@@ -292,6 +292,8 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
     now = int(now or time.time())
     state = state if state is not None else {}
     cfg = dict(cfg or config.load())
+    ra = cfg.get("real_autorizados")          # (28/10) antes do travao: a prova so conta as autorizadas
+    promo.AUTORIZADOS = None if ra is None else set(ra)
     ledger.fix_stop_exits(state)
     conta = apply_account(state, eu, now)
     real_view = ledger.apply_real(state.get("ledger", []), (conta or {}).get("reais"))
