@@ -26,6 +26,7 @@ CLOSE = re.compile(r"^/?fechei\s+([A-Za-z0-9]+)\s+([0-9]+(?:[.,][0-9]+)?)\s*$",
 
 
 PARAR = re.compile(r"^/?parar\s*$", re.I)
+FLUXO = re.compile(r"^/?fluxo\s+([+-]?[0-9]+(?:[.,][0-9]+)?)\s*$", re.I)   # (28/10, auditoria F1)
 # (27/10) o Rui fechou tudo a mao e tirou o dinheiro da Bybit: as operacoes reais abertas
 # passam a "fechadas fora do programa" (sem resultado inventado, nao contam para a prova)
 LIMPAR = re.compile(r"^/?limpar(?:\s+desde\s+([0-9]+))?(?:\s+pico\s+([0-9]+(?:[.,][0-9]+)?))?\s*$", re.I)
@@ -249,6 +250,19 @@ def apply(state, updates, chat_id, res=None):
                 else:
                     out.append(("Valor de capital fora dos limites.", None))
                 continue
+            fx = FLUXO.match(text)
+            if fx:
+                from . import evolucao
+                v = float(fx.group(1).replace(",", "."))
+                r = evolucao.fluxo_manual(state, v, int(msg.get("date") or 0)) if v else None
+                if r:
+                    txt = (f"Registado: {abs(v):g} USDC {'postos' if v > 0 else 'tirados'} por ti"
+                           + (f" (o salto de {r['salto']:+.2f})" if r.get("salto") is not None else "")
+                           + ". Deixa de contar como ganho ou perda e o travão de risco ignora-o.")
+                else:
+                    txt = "Ainda não há histórico da conta para registar esse valor."
+                out.append((txt, None))
+                continue
             lp = LIMPAR.match(text)
             if lp:
                 t = int(msg.get("date") or 0)
@@ -261,6 +275,8 @@ def apply(state, updates, chat_id, res=None):
                         fechadas.append(r["asset"])
                 nu = state.get("nucleo") or {}
                 nu["pedidos"] = {}
+                from . import execucao        # (28/10, auditoria F3) o executor acerta o nucleo pela conta
+                execucao.request(state, "nucleo_acertar", "", t)
                 if lp.group(1):                  # levantamentos/depositos a descontar do pico
                     state.setdefault("risco", {})["fluxo_visto"] = int(lp.group(1))
                 if lp.group(2):                  # pico corrigido a mao (fluxos ja descontados)

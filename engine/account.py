@@ -415,6 +415,62 @@ def _tickers_ou_none():
         return None
 
 
+MOV_JANELA = 7 * 86400
+ESTAVEIS = {"USDC", "USDT", "USD"}
+
+
+def _mov_usd(coin, qty, tk):
+    if coin in ESTAVEIS:
+        return qty
+    px = ((tk or {}).get(coin) or [None])[0]
+    return qty * px if px else None
+
+
+def movimentos(now, tk=None):
+    """(28/10, auditoria F1) Depositos, levantamentos e transferencias internas dos ultimos 7 dias,
+    para o programa distinguir dinheiro posto ou tirado de ganhos e perdas. sinal +1 = entra na
+    Conta Unificada, -1 = sai. ok=False quando a chave nao pode ler as transferencias internas."""
+    t0, t1 = int((now - MOV_JANELA) * 1000), int(now * 1000)
+    lista, erros, ok = [], [], False
+    try:
+        r = get("/v5/asset/transfer/query-inter-transfer-list", {"startTime": t0, "endTime": t1, "limit": 50})
+        ok = True
+        for x in r.get("list") or []:
+            if str(x.get("status") or "").upper() != "SUCCESS":
+                continue
+            de, para = x.get("fromAccountType"), x.get("toAccountType")
+            sn = 1 if para == "UNIFIED" else -1 if de == "UNIFIED" else 0
+            if sn:
+                lista.append({"t": int(int(x.get("timestamp") or 0) / 1000), "tipo": "transferência",
+                              "moeda": x.get("coin"), "qtd": float(x.get("amount") or 0), "sinal": sn})
+    except (AccountError, ValueError, TypeError) as e:
+        erros.append(f"transferências: {str(e)[:80]}")
+    try:
+        r = get("/v5/asset/deposit/query-record", {"startTime": t0, "endTime": t1, "limit": 50})
+        for x in r.get("rows") or []:
+            if str(x.get("status")) != "3":            # 3 = creditado
+                continue
+            lista.append({"t": int(int(x.get("successAt") or 0) / 1000), "tipo": "depósito",
+                          "moeda": x.get("coin"), "qtd": float(x.get("amount") or 0), "sinal": 1})
+    except (AccountError, ValueError, TypeError) as e:
+        erros.append(f"depósitos: {str(e)[:80]}")
+    try:
+        r = get("/v5/asset/withdraw/query-record", {"startTime": t0, "endTime": t1, "limit": 50, "withdrawType": 2})
+        for x in r.get("rows") or []:
+            if str(x.get("status") or "").lower() != "success":
+                continue
+            lista.append({"t": int(int(x.get("updateTime") or x.get("createTime") or 0) / 1000),
+                          "tipo": "levantamento", "moeda": x.get("coin"),
+                          "qtd": float(x.get("amount") or 0), "sinal": -1})
+    except (AccountError, ValueError, TypeError) as e:
+        erros.append(f"levantamentos: {str(e)[:80]}")
+    out = []                                 # o repositorio e publico: so hora, tipo, sentido e valor
+    for m in lista:
+        u = _mov_usd(m["moeda"], m["qtd"], tk)
+        out.append({"t": m["t"], "tipo": m["tipo"], "sinal": m["sinal"], "usd": None if u is None else round(u, 2)})
+    return {"ok": ok, "lista": sorted(out, key=lambda m: m["t"]), "erros": erros}
+
+
 def margem():
     """(22/10) Moedas com par em USDC que aceitam margem spot na Bybit UE (para vender a
     descoberto). A ICP de 22/10 foi recusada: 'Symbol is not supported on Margin Trading'."""
@@ -462,12 +518,19 @@ def snapshot(state, now=None):
                 reais.update(recuperar(led, now))
         except Exception as e:
             print("recuperar:", e)
+        tk = _tickers_ou_none()
+        try:
+            mv = movimentos(now, tk)
+        except Exception as e:               # nunca impede a leitura da conta
+            mv = {"ok": False, "lista": [], "erros": [str(e)[:80]]}
         return {"ok": True, "t": int(now), "usdc_free": usdc_free(wallet), "reais": reais,
                 "equity": equity(wallet),
                 "expires": info.get("expiredAt"),
                 "fundo": funding(),
                 "margem": _margem_ou_none(),
-                "tickers": _tickers_ou_none(),
+                "tickers": tk,
+                "movimentos": mv,
+                "saldos": {c: round(held.get(c, 0.0), 10) for c in ("BTC", "ETH", "SOL")},
                 "trades": check_trades(led, held, orders, execs, now, debts(wallet))}
     except AccountError as e:
         return {"ok": False, "error": str(e)[:120], "t": int(now)}

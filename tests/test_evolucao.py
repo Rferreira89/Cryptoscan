@@ -28,9 +28,10 @@ class Evolucao(unittest.TestCase):
         E.atualizar(st, 200, 0, [], nuc(1, 100))
         E.atualizar(st, 210, H, [], nuc(1, 110))            # BTC +10: ganho
         self.assertAlmostEqual(st["evolucao"]["g"], 10)
-        E.atualizar(st, 310, 2 * H, [], nuc(1, 110))        # +100 sem mercado: deposito
+        mv = {"ok": True, "lista": [{"t": 2 * H - 60, "tipo": "transferência", "sinal": 1, "usd": 100.0}]}
+        E.atualizar(st, 310, 2 * H, [], nuc(1, 110), mv)    # +100 sem mercado, registado na Bybit: deposito
         self.assertAlmostEqual(st["evolucao"]["g"], 10)
-        self.assertEqual(st["evolucao"]["fluxos"], [[2 * H, 100.0]])
+        self.assertEqual(st["evolucao"]["fluxos"], [[2 * H, 100.0, "bybit"]])
         E.atualizar(st, 311.5, 3 * H, [], nuc(1, 110))      # pequena variacao das operacoes: ganho
         self.assertAlmostEqual(st["evolucao"]["g"], 11.5)
         r = E.resumo(st["evolucao"], 311.5, 3 * H)

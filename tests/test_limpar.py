@@ -28,16 +28,12 @@ class Limpar(unittest.TestCase):
         self.assertEqual(risco.prova(st["ledger"]), (0, 0))
         self.assertEqual(st["nucleo"]["pedidos"], {})
 
-    def test_travao_desconta_levantamentos(self):
+    def test_travao_ignora_levantamentos_confirmados(self):
+        # (28/10, auditoria F1) a queda mede-se num indice que tira os fluxos registados
         st = self.st()
-        inbox.apply(st, msg("/limpar desde 40"), "admin")
+        st["evolucao"]["pts"] = [[10, 366.19, 0], [50, 228.45, 0], [60, 120.53, 0], [70, 0.87, 0]]
         n = risco.nivel(st, 0.87)
-        self.assertAlmostEqual(st["risco"]["pico"], 17.98, places=2)   # 366,19 - 348,21
-        n = risco.nivel(st, 300.87 + 0)                                  # sem deposito registado: novo pico
-        st2 = self.st(); inbox.apply(st2, msg("/limpar desde 40"), "admin"); risco.nivel(st2, 0.87)
-        st2["evolucao"]["fluxos"].append([80, 300.0])
-        n = risco.nivel(st2, 300.87)
-        self.assertLess(n["dd"], 0.10)                                   # deposito nao e ganho nem perda
+        self.assertLess(n["dd"], 0.10)
         self.assertNotIn("travão", n["motivo"])
 
     def test_sem_marcador_nao_reaplica_historico(self):
@@ -51,13 +47,8 @@ if __name__ == "__main__":
 
 
 class PicoManual(unittest.TestCase):
-    def test_pico_corrigido(self):
+    def test_pico_corrigido_continua_aceite(self):
         st = {"ledger": [], "risco": {"pico": 120.55},
               "evolucao": {"fluxos": [[50, -120.55], [70, -119.45]]}}
         inbox.apply(st, msg("/limpar pico 17.98"), "admin")
-        risco.nivel(st, 0.87)
         self.assertEqual(st["risco"]["pico"], 17.98)
-        st["evolucao"]["fluxos"].append([90, 300.0])
-        n = risco.nivel(st, 300.87)
-        self.assertEqual(st["risco"]["pico"], 317.98)
-        self.assertLess(n["dd"], 0.10)

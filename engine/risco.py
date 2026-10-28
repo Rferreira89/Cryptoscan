@@ -1,10 +1,11 @@
 """Nivel de risco por operacao (decisao do Rui, 2026-10-18 12:56: "avancamos
 com a que recomendas").
 
-  - risco REDUZIDO (metade: 1,5% do capital) ate as primeiras PROVA_N
+  - risco REDUZIDO (metade do normal) ate as primeiras PROVA_N
     operacoes dos campeoes com dinheiro real, fechadas depois da decisao,
     somarem resultado positivo;
-  - depois, risco NORMAL (3% do capital);
+  - depois, risco NORMAL: config "risk_pct_of_capital" (0,5% do capital em config.json;
+    o 3% deste comentario estava desatualizado, auditoria de 28/10);
   - travao: se o capital cair TRAVAO_DD desde o maximo, volta ao reduzido
     ate o capital recuperar esse maximo... ou ate o Rui decidir outra coisa;
   - a regra de 13/10 continua por cima: 2 perdas seguidas = metade ate um ganho.
@@ -24,6 +25,9 @@ def prova(led):
         quando = r.get("user_closed_at") or r.get("closed_at") or 0
         fechou = r.get("status") == "CLOSED" or ledger.user_closed(r)
         # so operacoes abertas depois da decisao (Rui, 18/10: "a da PUMP ja nao devia contar")
+        from . import promo                   # (28/10) a prova so conta estrategias autorizadas
+        if promo.AUTORIZADOS is not None and r.get("strategy") not in promo.AUTORIZADOS:
+            continue
         if r.get("executed") is True and fechou and not r.get("fora_programa") and (r.get("issued_at") or 0) >= DESDE \
                 and r.get("kind") == "4H" and r.get("strategy") not in CLASSICAS:
             R = ledger.user_r(r)
@@ -37,25 +41,22 @@ def prova(led):
 def nivel(state, capital):
     """Devolve {"reduzido": bool, "motivo": str, ...} e atualiza o pico."""
     st = state.setdefault("risco", {})
-    # (27/10) levantamentos e depositos nao sao perdas nem ganhos: mexem no pico pelo mesmo valor
-    # (o Rui tirou o dinheiro a 25/10 e o travao leu uma queda de 67%)
-    fl = (state.get("evolucao") or {}).get("fluxos") or []
-    visto = st.get("fluxo_visto")
-    if visto is None:
-        visto = max([f[0] for f in fl] or [0])
-    for t, v in fl:
-        if t > visto and st.get("pico") is not None:
-            st["pico"] = round(max(0.0, st["pico"] + v), 2)
-        visto = max(visto, t)
-    st["fluxo_visto"] = visto
+    # (28/10, auditoria F1) a queda mede-se num indice da carteira que ignora depositos e levantamentos
+    # (engine/evolucao.nav_queda). A regra de 27/10 descontava do pico todos os "fluxos", incluindo
+    # perdas grandes mal classificadas, e o travao ficava cego a elas.
+    from . import evolucao
+    q = evolucao.nav_queda(state.get("evolucao"), capital)
     if capital:
         st["pico"] = round(max(st.get("pico") or 0, capital), 2)
-    pico = st.get("pico") or capital or 0
-    dd = 1 - capital / pico if capital and pico else 0.0
+    if q is not None:
+        dd, base = q[0], "do máximo da carteira, sem contar depósitos e levantamentos"
+    else:
+        pico = st.get("pico") or capital or 0
+        dd, base = (1 - capital / pico if capital and pico else 0.0), f"do máximo ({pico:.2f} USDC)"
     n, soma = prova(state.get("ledger"))
     provado = n >= PROVA_N and soma > 0
     if dd >= TRAVAO_DD:
-        red, why = True, f"travão: capital {dd:.0%} abaixo do máximo ({pico:.2f} USDC)"
+        red, why = True, f"travão: carteira {dd:.0%} abaixo {base}"
     elif not provado:
         red, why = True, (f"à espera da prova: {n}/{PROVA_N} operações dos campeões fechadas "
                           f"({soma:+.2f}R)" if n < PROVA_N else

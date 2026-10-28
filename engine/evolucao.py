@@ -44,7 +44,21 @@ def _nucleo(nuc):
     return q, px
 
 
-def atualizar(state, equity, now, led=None, nuc=None):
+def explicar(resto, movs, t0, t1):
+    """(28/10, auditoria F1) Valor dos movimentos reais da Bybit (depositos, levantamentos,
+    transferencias) entre t0 e t1 que explica o salto 'resto', ou None. Tenta so as
+    transferencias da Conta Unificada e depois tudo (um deposito cai primeiro na conta Funding)."""
+    if not movs or not movs.get("ok"):
+        return None
+    js = [m for m in movs.get("lista") or [] if t0 - 600 < (m.get("t") or 0) <= t1 + 60 and m.get("usd") is not None]
+    for grupo in ([m for m in js if m.get("tipo") == "transferência"], js):
+        v = sum(m["sinal"] * m["usd"] for m in grupo)
+        if v and abs(resto - v) <= max(LIMIAR_USDC, 0.1 * abs(v)):
+            return v
+    return None
+
+
+def atualizar(state, equity, now, led=None, nuc=None, movs=None):
     """Junta uma amostra (no maximo uma por PASSO) e devolve o estado."""
     ev = state.setdefault("evolucao", {})
     if not equity or equity <= 0:
@@ -69,10 +83,20 @@ def atualizar(state, equity, now, led=None, nuc=None):
                   for a, qq in (u.get("q") or {}).items() if a in px)
     dv = eq - float(u.get("eq") or eq)
     resto = dv - mercado
-    fluxo = resto if abs(resto) > max(LIMIAR_USDC, LIMIAR_PCT * float(u.get("eq") or eq)) else 0.0
-    if fluxo:
-        ev.setdefault("fluxos", []).append([now, _r(fluxo)])
-        ev["fluxos"] = ev["fluxos"][-50:]
+    fluxo = 0.0
+    if abs(resto) > max(LIMIAR_USDC, LIMIAR_PCT * float(u.get("eq") or eq)):
+        # (28/10, auditoria F1) antes, todo o salto sem explicacao era tratado como deposito ou
+        # levantamento, e uma perda grande numa hora desaparecia (e o travao nao a via). Agora so
+        # conta como fluxo o que os registos da Bybit confirmam; o resto fica no resultado e pede
+        # confirmacao ao Rui (/fluxo VALOR se foi dinheiro dele).
+        v = explicar(resto, movs, int(u.get("t", now)), now)
+        if v is not None:
+            fluxo = v
+            ev.setdefault("fluxos", []).append([now, _r(fluxo), "bybit"])
+            ev["fluxos"] = ev["fluxos"][-50:]
+        else:
+            ev.setdefault("por_confirmar", []).append([now, _r(resto)])
+            ev["por_confirmar"] = ev["por_confirmar"][-20:]
     ev["g"] = _r(float(ev["g"]) + dv - fluxo, 4)
     ev.setdefault("pts", []).append([now, _r(eq), _r(ev["g"])])
     ev["pts"] = ev["pts"][-MAX_PTS:]
@@ -115,3 +139,45 @@ def resumo(ev, equity=None, now=None, n=180):
     return {"g_usdc": _r(g), "pct": _pct(g, eq), "investido": _r(eq - g), "periodos": per,
             "serie": serie, "capital": [[p[0], p[1]] for p in pts[-n:]], "desde": ev.get("desde"),
             "fluxos": (ev.get("fluxos") or [])[-10:], "inicio": (ev.get("hist") or [[ev.get("desde")]])[0][0]}
+
+
+def fluxo_manual(state, valor, now):
+    """/fluxo VALOR: o Rui confirma que um salto foi dinheiro dele (positivo = deposito).
+    Fica no salto por confirmar mais parecido (mesmo sinal, a 15%), senao na ultima amostra.
+    O salto tinha contado como ganho ou perda: sai do resultado."""
+    ev = state.get("evolucao") or {}
+    if "g" not in ev:
+        return None
+    pc = ev.get("por_confirmar") or []
+    cand = [x for x in pc if x[1] * valor > 0 and abs(x[1] - valor) <= 0.15 * abs(valor)]
+    alvo = min(cand, key=lambda x: abs(x[1] - valor)) if cand else None
+    t = alvo[0] if alvo else ((ev.get("pts") or [[int(now)]])[-1][0])
+    if alvo:
+        pc.remove(alvo)
+    ev.setdefault("fluxos", []).append([int(t), _r(valor), "manual"])
+    ev["fluxos"] = ev["fluxos"][-50:]
+    ev["g"] = _r(float(ev["g"]) - valor, 4)
+    return {"t": int(t), "valor": _r(valor), "salto": alvo[1] if alvo else None}
+
+
+def nav_queda(ev, capital=None):
+    """(28/10, auditoria F1) Queda desde o maximo de um indice da carteira que ignora o dinheiro
+    posto ou tirado (fluxos registados) e conta todo o resto como mercado. Devolve (queda, n) ou None."""
+    pts = (ev or {}).get("pts") or []
+    if len(pts) < 2:
+        return None
+    fl = {}
+    for f in (ev.get("fluxos") or []):
+        if len(f) < 3 or f[2] in ("bybit", "manual"):   # sem fonte = registos antigos (verificados a 27/10)
+            fl[int(f[0])] = fl.get(int(f[0]), 0.0) + float(f[1])
+    nav = pico = 1.0
+    ant = float(pts[0][1])
+    for t, eq, *_ in pts[1:]:
+        eq = float(eq)
+        if ant > 0:
+            nav *= max(0.0, (eq - fl.get(int(t), 0.0)) / ant)
+        pico = max(pico, nav)
+        ant = eq
+    if capital and ant > 0:
+        nav *= capital / ant
+    return (1 - nav / pico if pico else 0.0), len(pts)

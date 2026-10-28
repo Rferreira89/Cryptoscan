@@ -274,6 +274,10 @@ def apply_account(state, eu, now):
         state["capital_t"] = int(acc["t"])   # o composto conta a partir daqui
         state["capital_auto"] = True
     state["conta_livre"] = {"t": acc["t"], "usdc": acc.get("usdc_free")}
+    # (28/10, auditoria F1/F3) movimentos e saldos por moeda: so no estado, nao no scan publicado
+    state["conta_mov"] = {"t": acc["t"], **(acc.get("movimentos") or {"ok": False, "lista": []})}
+    if acc.get("saldos") is not None:
+        state["conta_saldos"] = {"t": acc["t"], "m": acc.get("saldos")}
     if acc.get("tickers"):                   # (24/10) precos reais da Bybit UE (servidor europeu)
         state["bybit_tickers"] = {"t": acc["t"], "m": acc["tickers"]}
     if acc.get("margem"):                    # (22/10) moedas que a Bybit UE deixa vender a descoberto
@@ -436,6 +440,8 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
     # do Rui (config "campeoes_por_fase")
     promo.CONFIG_ESTUDO = dict(cfg.get("campeoes_estudo") or {})
     promo.SO_PAPEL_FAM = set(cfg.get("familias_so_papel") or [])
+    ra = cfg.get("real_autorizados")
+    promo.AUTORIZADOS = None if ra is None else set(ra)
     champs = promo.champions(state, set(disabled), (state.get("mercado") or {}).get("regime"),
                              bool(cfg.get("campeoes_por_fase")))
     champ = champs[0] if champs else None

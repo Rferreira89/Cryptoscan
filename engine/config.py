@@ -41,6 +41,9 @@ DEFAULTS = {
     "max_venue_spread_pct": 0.30,
     "min_venue_volume_usd": 25_000,   # ordens pequenas: o spread pesa mais
     "venue_vol_por_ordem": 200,       # (24/10) a ordem ate 0,5% do volume de 24h
+    # (28/10, auditoria) estrategias autorizadas pelo Rui a usar dinheiro real; None = sem lista
+    # (comportamento antigo). config.json: [] = nenhuma ate passar o criterio unico.
+    "real_autorizados": None,
     "alerts": True,             # Telegram em cada compra e venda
     # Decisao do utilizador (2026-10-02): operar com dinheiro real mesmo sem
     # estrategias validadas. Os sinais saem como operacoes reais, cada um

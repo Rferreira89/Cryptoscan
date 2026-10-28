@@ -313,6 +313,11 @@ def regime_qualified(state, fase):
 
 CONFIG_ESTUDO = {}          # {fase: [lutadores]} de config "campeoes_estudo" (scanner preenche)
 SO_PAPEL_FAM = set()        # familias que nunca usam dinheiro real (config "familias_so_papel")
+# (28/10, auditoria, OK do Rui) dinheiro real so para estrategias autorizadas pelo Rui depois do
+# criterio unico (dois periodos, correcao para testes multiplos, custos a dobrar, 3 meses em papel).
+# None = regra desligada (testes antigos); o scanner preenche com config "real_autorizados".
+AUTORIZADOS = None
+SEM_AUTORIZACAO = "em papel até passar o critério de 28/10 e ter a autorização do Rui"
 DERIVA_LIMITE, DERIVA_MIN = -0.15, 80
 RECENTE_MIN = 40              # (27/10, OK do Rui) bloco mais recente do ringue nesta fase
 
@@ -370,6 +375,11 @@ def champions(state, disabled=(), fase=None, por_fase=False):
             if family(k) in SO_PAPEL_FAM:
                 out.remove(k)
                 papel[k] = f"família «{FAMILIAS.get(family(k), family(k))}» só em papel (decisão do Rui, 23/10)"
+        if AUTORIZADOS is not None:
+            for k in list(out):
+                if k not in AUTORIZADOS:
+                    out.remove(k)
+                    papel[k] = SEM_AUTORIZACAO
         state["so_papel"] = papel
         return out
     sus = suspended(state)
@@ -382,7 +392,8 @@ def champions(state, disabled=(), fase=None, por_fase=False):
         have = {k for k, _ in out}
         out += [(k, r) for k, r in regime_qualified(state, fase)
                 if k not in have and k in reg and k in REAL_OK and k not in disabled and k not in sus_real]
-    return [k for k, _ in out if family(k) not in SO_PAPEL_FAM]
+    return [k for k, _ in out if family(k) not in SO_PAPEL_FAM
+            and (AUTORIZADOS is None or k in AUTORIZADOS)]
 
 
 def champion(state, disabled=()):

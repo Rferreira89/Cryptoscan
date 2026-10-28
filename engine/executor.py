@@ -715,12 +715,39 @@ def do_short(state, req, ex, now, send):
                 part["stopId"] = stop_order_buy(symbol, qty * 1.002, plan["stop"], inst, f"{_tag(op)}-s{i}")
             except ExecError as e:
                 part["stop_erro"] = str(e)[:100]
+                # (28/10, auditoria F2) sem objetivo anexado e sem stop de reserva, um short em margem
+                # fica com perda sem limite: recompra logo esta parte e devolve o emprestimo
+                try:
+                    part["recomprada_sem_stop"] = buy_back(symbol, qty * 1.002, inst, f"{_tag(op)}-x{i}")
+                    time.sleep(1)
+                    try:
+                        w2 = wallet()
+                        left = coin_debt(w2, rec["asset"]) - d0
+                        if left > 0 and held(w2, rec["asset"]) > 0:
+                            repay_coin(rec["asset"], min(left, held(w2, rec["asset"])), inst["base_step"])
+                    except ExecError:
+                        pass
+                except ExecError as e2:
+                    part["recompra_erro"] = str(e2)[:100]
         o["partes"].append(part)
     if not o["partes"]:
         o["status"] = "recusada"
         send(f"⚠️ A venda a descoberto de {rec['asset']} falhou na Bybit: {o.get('erro')}. Nada foi vendido.")
         ex["ops"][op] = o
         return o.get("erro")
+    recomp = [p for p in o["partes"] if p.get("recomprada_sem_stop")]
+    nu = [p for p in o["partes"] if p.get("stop_erro") and not p.get("recomprada_sem_stop")]
+    if nu:                                   # sem stop E sem recompra: alarme maximo
+        send(f"🚨🚨 <b>{rec['asset']}: venda a descoberto SEM STOP na Bybit</b> em {len(nu)} parte(s) "
+             f"({sum(p['qty'] for p in nu):.6g} moedas). A Bybit recusou o stop e a recompra falhou. "
+             "Recompra já na app (Spot → comprar a mercado) ou envia /parar.", html=True)
+    if recomp and len(recomp) == len(o["partes"]):
+        o.update(status="fechada", fechado=now, motivo="stop recusado pela Bybit: recomprada logo, sem ficar aberta")
+        ex["ops"][op] = o
+        send(f"🚨 {rec['asset']}: a Bybit recusou o stop da venda a descoberto. Recomprei logo tudo "
+             "e devolvi o empréstimo: não ficou nada aberto sem proteção.")
+        return "sem stop: recomprada"
+    o["partes"] = [p for p in o["partes"] if not p.get("recomprada_sem_stop")]
     for _ in range(6):
         time.sleep(2)
         try:
@@ -739,7 +766,10 @@ def do_short(state, req, ex, now, send):
     ex["ops"][op] = o
     L = [f"⚡ <b>Executado: venda a descoberto de {rec['asset']}</b>",
          f"Vendi {q_tot:.6g} {rec['asset']} emprestados a {o['entrada']:.6g} ({o['usdc']:.2f} USDC).",
-         f"Stop (compra) em {plan['stop']:g}, acima da entrada; fica na Bybit até ao fim."]
+         (f"Stop (compra) em {plan['stop']:g}, acima da entrada; fica na Bybit até ao fim." if not nu else
+          f"🚨 O STOP NÃO FICOU na Bybit em {len(nu)} parte(s): recompra-as já (ver alarme).")]
+    if recomp:
+        L.append(f"🚨 {len(recomp)} parte(s) recompradas logo porque a Bybit recusou o stop.")
     L += [f"• Parte {i + 1}: {p['usdc']:.2f} USDC → objetivo {p['tp']:g}" for i, p in enumerate(o["partes"])]
     if reduced:
         L.append(f"Valor reduzido ao que a margem permite (USDC livre {free:.2f}).")
@@ -1404,10 +1434,31 @@ def do_nucleo_vender(state, req, ex, now, send):
     return "ok"
 
 
+def do_nucleo_acertar(state, req, ex, now, send):
+    """(28/10, auditoria F3) /limpar: o nucleo passa a ter o que a conta tem de facto (o Rui pode ter
+    vendido a mao). Nunca compra nem vende nada."""
+    nuc = ex.setdefault("nucleo", {})
+    if not nuc:
+        return "núcleo vazio"
+    w, mud = wallet(), []
+    for a, pos in list(nuc.items()):
+        q, h = float(pos.get("qty") or 0), held(w, a)
+        if h < 0.9 * q:
+            if h * float(pos.get("entrada") or 0) < 1.0:
+                nuc.pop(a)
+                mud.append(f"{a}: já não está na conta")
+            else:
+                pos["qty"] = h
+                mud.append(f"{a}: {q:.6g} → {h:.6g}")
+    if mud:
+        send("🧱 Núcleo acertado pela conta Bybit: " + "; ".join(mud) + ". Nada foi comprado nem vendido.")
+    return "ok: " + ("; ".join(mud) if mud else "já batia certo")
+
+
 ACTIONS = {"vender": do_short, "teste_short": do_test_short, "limpar_short": do_clean_short, "ordens": do_orders, "teste_alav": do_test_lev, "teste_margem": do_test_margin, "teste2": do_test2, "limpar": do_clean, "diag": do_diag, "comprar": do_buy, "breakeven": do_breakeven, "fechar": do_close,
            "parar": do_stop_all, "teste": do_test,
            "nucleo_comprar": do_nucleo_comprar, "nucleo_vender": do_nucleo_vender,
-           "nucleo_reforcar": do_nucleo_reforcar}
+           "nucleo_reforcar": do_nucleo_reforcar, "nucleo_acertar": do_nucleo_acertar}
 
 
 def main(state_path, ex_in, out):

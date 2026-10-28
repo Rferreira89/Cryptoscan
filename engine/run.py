@@ -598,6 +598,69 @@ def ordens_watch(state, conta, ex, now):
     return out
 
 
+def reconciliar(state, conta, ex, now):
+    """(28/10, auditoria F3) Depois de 25/10 (SEI e nucleo vendidos a mao), o programa manteve dois
+    dias operacoes e nucleo que ja nao existiam. Agora: uma operacao aberta sem moedas, divida nem
+    stop na Bybit, ou um nucleo com mais moedas do que a conta tem, em DUAS leituras seguidas da
+    conta, gera um aviso (uma vez) a pedir confirmacao. Nao mexe em nada sozinho."""
+    if not conta or not conta.get("t"):
+        return []
+    rc = state.setdefault("reconc", {"leituras": {}, "avisados": []})
+    lei, av, out = rc.setdefault("leituras", {}), rc.setdefault("avisados", []), []
+    t = int(conta["t"])
+    suspeitos = {}
+    for tr in conta.get("trades") or []:
+        if not tr.get("held") and not tr.get("stop_found") and not tr.get("tp_n"):
+            suspeitos[tr["id"]] = ("op", tr.get("asset"))
+    sal = state.get("conta_saldos") or {}
+    if sal.get("m") is not None and abs(int(sal.get("t") or 0) - t) < 3600:
+        for a, pos in ((ex or {}).get("nucleo") or {}).items():
+            q = float((pos or {}).get("qty") or 0)
+            if q > 0 and float(sal["m"].get(a) or 0) < 0.9 * q:
+                suspeitos[f"nucleo-{a}"] = ("nucleo", a)
+    for k in list(lei):
+        if k not in suspeitos:
+            lei.pop(k)                           # voltou a bater certo: recomeca a contagem
+            if k in av:
+                av.remove(k)
+    for k, (tipo, a) in suspeitos.items():
+        ts = lei.setdefault(k, [])
+        if t not in ts:
+            ts.append(t)
+        del ts[:-3]
+        if len(ts) >= 2 and k not in av:
+            av.append(k)
+            if tipo == "op":
+                out.append(f"🔄 <b>Programa e Bybit não batem certo: {a}</b>. O programa tem esta operação "
+                           "aberta, mas a Bybit não mostra moedas, dívida nem stop (duas leituras seguidas). "
+                           f"Se a fechaste à mão, envia <code>/limpar</code> (fica como fechada fora do programa) "
+                           f"ou <code>/fechei {a} preço</code> se souberes o preço.")
+            else:
+                out.append(f"🔄 <b>Programa e Bybit não batem certo: núcleo {a}</b>. O núcleo regista mais {a} "
+                           "do que a conta tem (duas leituras seguidas). Se vendeste à mão, envia "
+                           "<code>/limpar</code> e o programa acerta o núcleo com o que está na conta.")
+    del av[:-50]
+    return out
+
+
+def salto_aviso(state):
+    """(28/10, auditoria F1) Um salto no valor da conta que nem o mercado do nucleo nem os registos
+    da Bybit explicam conta como ganho ou perda, e o Rui e avisado uma vez para confirmar."""
+    ev = state.get("evolucao") or {}
+    vistos = state.setdefault("saltos_avisados", [])
+    out = []
+    for t, v in ev.get("por_confirmar") or []:
+        if t in vistos:
+            continue
+        vistos.append(t)
+        out.append(f"❓ <b>A conta mudou {v:+.2f} USDC</b> numa hora sem explicação pelo mercado do núcleo nem "
+                   "pelos registos de depósitos e levantamentos da Bybit. Contei como "
+                   f"{'ganho' if v > 0 else 'perda'} de trading (o travão de risco vê-o). Se foi dinheiro teu "
+                   f"posto ou tirado, envia <code>/fluxo {v:.2f}</code>.")
+    del vistos[:-50]
+    return out
+
+
 def estudo_aviso(state, paper):
     """(22/10) Aviso quando um lutador em papel de estudo muda de estado pela
     regra fixada (aprovado: pede o OK do Rui / chumbado). Nao mexe em dinheiro."""
@@ -1010,6 +1073,12 @@ def main():
         res["ordens_ok"] = state.get("ordens_ok")
     except Exception as e:
         print("ordens_watch:", e)
+    try:                                     # (28/10, auditoria F3) programa e conta Bybit batem certo?
+        for txt in reconciliar(state, res.get("conta"), ex_now, res["generated_at"]):
+            if alerts.configured():
+                alerts.send(txt, html=True)
+    except Exception as e:
+        print("reconciliar:", e)
     try:
         from . import amplitude
         am = amplitude.aviso(res.get("amplitude"))
@@ -1073,8 +1142,12 @@ def main():
         from . import evolucao
         c = res.get("conta") or {}
         if c.get("equity"):
-            evolucao.atualizar(state, c["equity"], res["generated_at"], state.get("ledger"), res.get("nucleo"))
+            evolucao.atualizar(state, c["equity"], res["generated_at"], state.get("ledger"), res.get("nucleo"),
+                               state.get("conta_mov"))
         res["evolucao"] = evolucao.resumo(state.get("evolucao"), c.get("equity"), res["generated_at"])
+        for txt in salto_aviso(state):           # (28/10, auditoria F1) salto sem explicacao: pergunta
+            if alerts.configured():
+                alerts.send(txt, html=True)
     except Exception as e:
         print("evolucao:", e)
     try:                                     # (23/10) caminho para a liberdade: resumo e mensagem de domingo
