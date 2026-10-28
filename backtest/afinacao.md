@@ -1,7 +1,7 @@
 # Diário de afinação dos sinais
 
 Hipóteses testadas sobre as estratégias que já estão ao vivo, uma por
-entrada, com o veredicto. Hipóteses testadas até agora: 9 (H1 a H9).
+entrada, com o veredicto. Hipóteses testadas até agora: 10 (H1 a H10).
 
 ## Decisões do Rui (valem para todas as execuções)
 
@@ -1121,3 +1121,149 @@ Notas para as próximas execuções:
   mesmos dados (diários agendados); 58 no contador global. Com 21
   tentativas, a probabilidade de pelo menos um falso positivo a 5% ronda
   os 66%.
+
+### 2026-10-28 — H10: short do rácio moeda/BTC esticado, só na queda (SHORT_RACIO)
+
+**Escrito antes de correr qualquer teste.**
+
+- Situação: regime atual (scan.json, `mercado`) **lateral** desde
+  2026-10-17. Combate de 90 dias (forma.json de 2026-10-28 08:43 UTC): acima
+  do acaso e a ganhar só a sobrevenda (AMPLITUDE, G0, V2, V3, DESALAV,
+  SQUEEZE, ISOLADA, X30_*, HORAS, FLUXO, …); fora dela PULLBACK (+0,03R,
+  p95 +0,21R), REVERSAO_INTERVALO e MAIORES_RECUO perto de zero. Ringue
+  longo (longo.json de 2026-10-28): **subida** — sobrevenda, PULLBACK
+  (+0,78R) e REJEITADOS; **lateral** — só a sobrevenda (AMPLITUDE, V2, G0,
+  V3, DESALAV); **queda** — só shorts: SHORT_FALSO_ROMP (59 op., +0,34R,
+  em papel), SHORT_X30 (66 op., +0,31R) e SHORT_ISOLADA (57 op., +0,26R),
+  os dois últimos mortos no combate de 90 dias. Regime sem campeão vivo
+  com dinheiro real: **queda**. Regime sem família fora da sobrevenda:
+  **lateral** (a H9 tentou e falhou o critério da lateral).
+- Hipótese (família **valor relativo / vendas a descoberto**, proposta na
+  H9; a investigação não a testou: o H21 de 27/10 só tem força relativa
+  RS0 sem desvio do rácio nem fase do BTC): com o BTC em queda, uma moeda
+  cujo rácio com o BTC subiu muito acima da média de 20 dias (compras de
+  curto prazo, rotação) tende a devolver o excesso quando o rácio vira,
+  porque o mercado não tem compradores para o sustentar. É o espelho da R4
+  da H9, que bateu o acaso em todas as janelas (percentil 100). Não é a
+  sobrecompra espelhada: o filtro RSI(4H) ≤ 65 tira os casos de
+  sobrecompra (lição da H9: os desvios sem sobrevenda foram melhores).
+- Regra (no espelho, como todos os shorts do ringue; só velas fechadas):
+  rácio do espelho = fecho do espelho × fecho real do BTC (= 1 / rácio
+  real). z do rácio do espelho nas N velas até à anterior ≤ −Z, o rácio do
+  espelho vira para cima e o espelho fecha acima do fecho anterior (preço
+  real a cair). Filtro RSI(14, 4H) do espelho ≥ 35 (RSI real ≤ 65).
+  Fase do BTC (`_fase_btc`, igual ao SHORT_FALSO_ROMP) = **queda**. Stop
+  k ATR, distância 0,5% a 20%; objetivo único no preço que devolve o rácio
+  à média (≥ 1%); saída por tempo ao fim de D dias. Sem o filtro do BTC
+  acima da SMA200 (é um short).
+- Grelha (6, escrita antes de testar):
+  Q1 N=120, Z=2,5, k=2, D=3, RSI real ≤ 65, só queda (o espelho exato da R4);
+  Q2 N=120, Z=2, k=2, D=3, RSI ≤ 65, só queda;
+  Q3 N=120, Z=2,5, k=3, D=5, RSI ≤ 65, só queda (stop largo, lição da H7);
+  Q4 N=120, Z=2,5, k=2, D=3, sem filtro RSI, só queda;
+  Q5 N=60, Z=2,5, k=2, D=3, RSI ≤ 65, só queda;
+  Q6 N=120, Z=2,5, k=2, D=3, RSI ≤ 65, queda **e lateral** (BTC fora da
+  subida).
+- Método: `tools/arena_ringue.generic_trades` nas velas espelhadas (só
+  passado, uma operação de cada vez por moeda, entrada na abertura
+  seguinte, 0,25% + 0,1% por lado) e `judge` + percentil contra o acaso no
+  espelho (mesma moeda, ±90 velas, mesma geometria). Histórico do ramo
+  `history` (4H até 2026-10-25).
+- Janelas: **B (decide)** 2021-08-01 a 2024-10-10 (queda: ~190 dias, quase
+  tudo 2022). **A (confirma)** 2024-10-11 até ao fim (queda: 3 episódios,
+  nov.–dez. 2025, fev.–mar. 2026, jun. 2026). **C**: últimos 90 dias (o
+  combate; lateral, por isso Q1–Q5 devem dar 0 operações). **L**: últimos
+  365 dias por regime, como o ringue longo.
+- Critérios (todos): em B ≥ 40 operações; R médio > 0; acima do percentil
+  95 do acaso; R médio > 0 sem a melhor moeda; em A ≥ 20 operações e R
+  médio > 0, com R médio > 0 em pelo menos 2 dos 3 episódios de queda
+  (contra a armadilha de um só episódio da H5 e da H8); correlação dos
+  resultados diários com a SHORT_ISOLADA < 0,7. Para a Q6, além disso, a
+  parte lateral com R > 0 em B e em A. Escolha: a de maior R médio em B
+  entre as que passam. Se passar, entra no ringue como SHORT_RACIO em
+  SHORT_SIGS (o ringue decide); REAL_OK não se mexe.
+- Previsão honesta: mais provável falhar. Os shorts ao acaso partem de
+  −0,15R a −0,3R (H7) e a H5 já viu que a vantagem dos shorts na queda
+  era de um só episódio. A favor: o espelho deste momento bateu o acaso em
+  todas as janelas (H9) e a queda dá ao short o vento a favor.
+- Hipóteses testadas até agora (com esta): 10 neste diário; 22 contra os
+  mesmos dados (diários agendados); 59 no contador global de 26/10 (37
+  estudos fora do programa) — sem contar os estudos H10–H21 de 26–27/10
+  em `backtest/estudos/` (dezenas de configurações), que aumentam ainda
+  mais o risco real de falso positivo.
+
+**Resultados** (ramo `history`, 4H até 2026-10-25 16:00 UTC; 70 moedas além
+do BTC, ROBO de fora por histórico curto; shorts no espelho sem filtro do
+BTC acima da SMA200; `backtest/afinacao_h10_racio_short.json`; código
+`tools/afinacao_h10_racio_short.py`; teste do gatilho no espelho, do
+plano, da fase do BTC e sem look-ahead em `tests/test_afinacao_h10.py`).
+Percentil = posição do R médio face a 1000 carteiras de entradas ao acaso
+com a mesma geometria.
+
+| Config. | B: op. | B: R médio | B: acaso p95 | B: perc. | B por ano (op., R) | A: op., R (perc.) | A: episódios nov-dez 25 / fev-mar 26 / jun 26 (op., R) | corr. SHORT_ISOLADA B / A |
+|---|---|---|---|---|---|---|---|---|
+| Q1 Z2,5 k2 3d RSI≤65 | 100 | −0,144 | +0,093 | 11,0 | 2022: 93, −0,12; 2024: 7, −0,44 | 110, **+0,437** (100) | 11, +0,32 / 40, +0,16 / 59, +0,65 | 0,03 / 0,04 |
+| Q2 Z2 k2 3d RSI≤65 | 196 | −0,040 | +0,068 | 50,5 | 2022: 173, −0,00; 2024: 23, −0,34 | 212, +0,295 (100) | 29, +0,33 / 83, −0,03 / 100, +0,56 | 0,04 / 0,03 |
+| Q3 Z2,5 k3 5d RSI≤65 | 81 | −0,076 | +0,126 | 18,4 | 2022: 75, −0,04; 2024: 6, −0,58 | 101, +0,377 (100) | 11, +0,18 / 38, +0,27 / 52, +0,50 | 0,02 / 0,06 |
+| Q4 Z2,5 k2 3d sem RSI | 130 | −0,080 | +0,077 | 32,1 | 2022: 110, +0,02; 2024: 19, −0,65 | 139, **+0,486** (100) | 17, +0,34 / 54, +0,30 / 67, +0,65 | 0,04 / 0,09 |
+| Q5 N60 Z2,5 k2 3d RSI≤65 | 145 | −0,105 | +0,090 | 11,2 | 2022: 119, +0,01; 2024: 24, −0,66 | 161, +0,294 (100) | 21, +0,11 / 47, +0,10 / 93, +0,44 | 0,04 / 0,03 |
+| Q6 Q1 + lateral | 439 | −0,092 | −0,066 | 90,6 | todos os anos negativos | 569, +0,132 (100); lateral 462, +0,06 | 12, +0,33 / 42, +0,19 / 58, +0,64 | 0,27 / 0,24 |
+
+- Combate de 90 dias (C): 0 operações em Q1–Q5 (regime lateral, como
+  previsto); Q6 99 op., +0,057R (percentil 100, acaso p95 −0,13R).
+- Últimos 365 dias (L, como o ringue longo): Q1 110 op., +0,44R, p95 do
+  acaso +0,13R; Q4 139 op., +0,49R, p95 +0,11R; tudo na queda.
+- **Dois mundos opostos.** Na queda de 2022 (B) nenhuma configuração ganha
+  dinheiro nem bate o acaso (percentil 11 a 50); em 2024 (as quedas curtas
+  de agosto e setembro) perde −0,34R a −0,66R. Na janela A todas ganham,
+  todas no percentil 100, com R > 0 em quase todos os episódios e
+  correlação quase nula com a SHORT_ISOLADA (0,03 a 0,09: seria
+  diversificação a sério).
+- Leitura honesta: em 2022 a queda foi de todo o mercado e as altcoins
+  caíram mais do que o BTC; um rácio esticado para cima era muitas vezes a
+  primeira moeda a sair do fundo, e continuava. Em 2025–26 as subidas
+  isoladas de altcoins em queda do BTC foram devolvidas. Não sei qual
+  destes mundos é o próximo, e o critério pré-registado manda decidir em B.
+- Critérios (melhor em B, Q2): ≥ 40 op. sim (196); R > 0 em B **NÃO**
+  (−0,040); acima do p95 **NÃO** (percentil 50,5); sem a melhor moeda
+  **NÃO** (−0,063); A ≥ 20 op. e R > 0 sim (+0,295); 2 de 3 episódios de A
+  positivos sim; correlação < 0,7 sim. Todas as 6 falham em B.
+
+**Veredicto: REJEITADA** (pelo critério pré-registado: falha em B, a queda
+de 2022). Nada entra no ringue; REAL_OK não se mexe. É o segundo caso neste
+diário (depois da R4 da H9) de uma regra de valor relativo que bate o acaso
+nos últimos dois anos e não em 2021-24.
+
+Notas para as próximas execuções:
+
+- Regime atual **lateral**. Regimes sem campeão com dinheiro real:
+  **queda** (só SHORT_FALSO_ROMP em papel; SHORT_X30 e SHORT_ISOLADA ganham
+  na queda do ringue longo mas morreram no combate de 90 dias). Fora da
+  sobrevenda, **lateral** continua sem nenhuma família que ganhe.
+- **Proposta para o Rui** (decisão dele, não minha): a Q4 (short quando o
+  rácio moeda/BTC está 2,5 desvios acima da média de 20 dias e vira, só
+  com o BTC em queda, stop 2 ATR, objetivo na média, 3 dias) é o melhor
+  resultado de queda que este diário já mediu nos últimos 2 anos (139 op.,
+  +0,49R, percentil 100, três episódios positivos, correlação 0,09 com os
+  shorts atuais), mas perde em 2022. Se o Rui quiser, pode entrar **só em
+  papel** como o SHORT_FALSO_ROMP (regra fixada antes: 20 operações em
+  papel na queda com R médio ≥ +0,15 e as duas metades a ganhar → pede o
+  OK; R < 0 → sai). Junto com a R4 da H9 (compra, lado oposto), seria um
+  par de valor relativo. A função está escrita:
+  `tools/afinacao_h10_racio_short.racio_short(120, 2.5, 2.0, 3, None, ("queda",))`.
+- Lição: o rácio moeda/BTC tem informação forte em 2024-26 (percentil 100
+  nos dois lados) e fraca em 2021-24. Antes de mais hipóteses de valor
+  relativo, vale perceber porquê (por exemplo, a dispersão entre altcoins
+  ou o peso do BTC no mercado mudou) em vez de afinar mais configurações.
+- Proposta para a próxima execução (H11): a **lateral** (o regime de hoje)
+  continua sem família fora da sobrevenda. Candidata com lógica de mercado
+  e dados com histórico: **reversão do intervalo no diário** (moedas em
+  intervalo de 30 dias com ADX diário baixo, compra no terço inferior do
+  intervalo com a vela diária a fechar acima do mínimo do dia anterior,
+  objetivo no meio do intervalo), diferente do REVERSAO_INTERVALO (4H,
+  bandas) — confirmar primeiro na investigação que não foi testada; ou,
+  se o Rui aceitar a proposta acima, nada de novo na queda.
+- Hipóteses testadas até agora: 10 neste diário (H1 a H10); 22 contra os
+  mesmos dados (diários agendados); 59 no contador global, mais os estudos
+  H10–H21 de 26–27/10. Com 22 tentativas, a probabilidade de pelo menos um
+  falso positivo a 5% ronda os 68%.
