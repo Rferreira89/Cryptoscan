@@ -17,12 +17,32 @@ except Exception:
     pass
 
 
+# (28/10, OK do Rui) o repositorio e publico: os ficheiros completos vao cifrados para o "cofre"
+# e scan.json / state.json / audit.jsonl passam a copias sem dinheiro (engine/publico.py).
+# So com CRYPTOSCAN_COFRE=1 (posto pelo workflow novo): com o ciclo antigo, que nao guarda os
+# ficheiros do cofre, tudo fica exatamente como antes (senao o estado perdia-se).
+COFRE = {"scan.json": "cofre_scan.json", "state.json": "cofre_state.json", "audit.jsonl": "cofre_audit.jsonl"}
+
+
+def _cofre():
+    return os.environ.get("CRYPTOSCAN_COFRE") == "1"
+
+
 def _load(name, default):
+    from . import cifra, publico
+    if _cofre() and name in COFRE:
+        pc = os.path.join(OUT, COFRE[name])
+        if os.path.exists(pc) and os.path.getsize(pc):
+            return json.loads(cifra.ler_texto(pc))     # sem chave ou chave errada: para (nunca recomeca vazio)
     p = os.path.join(OUT, name)
     if os.path.exists(p):
         try:
             with open(p) as f:
-                return json.load(f)
+                d = json.load(f)
+            if _cofre() and name in COFRE and publico.e_publico(d):
+                # a copia publica nunca pode passar por estado completo (perdia o registo)
+                raise RuntimeError(f"{name}: só existe a cópia pública e falta {COFRE[name]}; scan parado")
+            return d
         except ValueError:
             print(f"AVISO: {name} corrompido, a recomecar")
     return default
@@ -38,8 +58,8 @@ def summary(res):
         return L
     L.append(f"COUNTS {res['counts']}")
     L.append(f"DERIVADOS {res.get('derivatives_source')}")
-    L.append(f"EUROPA {res.get('europa')} CONTA "
-             f"{ {k: v for k, v in (res.get('conta') or {}).items() if k != 'trades'} }")
+    # (28/10) o resumo vai para o registo publico das Actions e para o ramo data: sem dinheiro
+    L.append(f"EUROPA {res.get('europa')} CONTA {'lida' if (res.get('conta') or {}).get('t') else 'sem leitura'}")
     L.append(f"REGIME BTC {res['market_regime']['btc']}")
     for r in res["universe"]:
         d = r["decision"]
@@ -915,6 +935,8 @@ def autopsy(state, e, s):
 
 
 def save(state, res, events):
+    if _cofre():
+        return _save_cofre(state, res, events)
     with open(os.path.join(OUT, "scan.json"), "w") as f:
         json.dump(res, f, separators=(",", ":"))
     with open(os.path.join(OUT, "state.json"), "w") as f:
@@ -923,6 +945,36 @@ def save(state, res, events):
         with open(os.path.join(OUT, "audit.jsonl"), "a") as f:
             for e in events:
                 f.write(json.dumps(e, separators=(",", ":")) + "\n")
+
+
+def _save_cofre(state, res, events):
+    """Completo e cifrado no cofre; copias sem dinheiro nos nomes de sempre."""
+    from . import cifra, publico
+    j = lambda o: json.dumps(o, separators=(",", ":"))
+    cifra.gravar_texto(os.path.join(OUT, "cofre_scan.json"), j(res))
+    cifra.gravar_texto(os.path.join(OUT, "cofre_state.json"), j(state))
+    with open(os.path.join(OUT, "scan.json"), "w") as f:
+        f.write(j(publico.scan(res)))
+    with open(os.path.join(OUT, "state.json"), "w") as f:
+        f.write(j(publico.state(state)))
+    pc, pa = os.path.join(OUT, "cofre_audit.jsonl"), os.path.join(OUT, "audit.jsonl")
+    if os.path.exists(pc) and os.path.getsize(pc):
+        antigo, publica_tudo = cifra.ler_texto(pc), False
+    else:                                  # transicao: o audit.jsonl publicado ainda e o completo
+        antigo = open(pa).read() if os.path.exists(pa) else ""
+        publica_tudo = True
+    novos = "".join(j(e) + "\n" for e in events or [])
+    if novos or publica_tudo:
+        cifra.gravar_texto(pc, antigo + novos)
+        linhas = (antigo + novos).splitlines() if publica_tudo else novos.splitlines()
+        pub = []
+        for ln in linhas:
+            try:
+                pub.append(j(publico.evento(json.loads(ln))))
+            except ValueError:
+                continue
+        with open(pa, "w" if publica_tudo else "a") as f:
+            f.write("".join(x + "\n" for x in pub))
 
 
 SCAN_HISTORY_SECONDS = 7 * 86400

@@ -44,6 +44,12 @@ def load(max_age=MAX_AGE_LIVE, now=None, path=None):
         return None
     if not isinstance(d, dict) or now - (d.get("t") or 0) > max_age:
         return None
+    from . import cifra                      # (28/10) a conta vem cifrada no repositorio publico
+    if cifra.e_envelope(d.get("conta")):
+        try:
+            d["conta"] = cifra.abrir_obj(d["conta"])
+        except (cifra.SemChave, cifra.Invalido) as e:
+            d["conta"] = {"ok": False, "error": f"conta cifrada: {type(e).__name__}", "t": d.get("t")}
     return d
 
 

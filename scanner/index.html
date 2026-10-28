@@ -395,8 +395,10 @@ body.sheet-open #sheet{transform:none}
 </main>
 </div>
 <div id="toast" role="status" aria-live="polite"></div>
+<script src="cifra.js?v=20261028a"></script>
 <script>
 const URL_DATA="https://raw.githubusercontent.com/Rferreira89/Cryptoscan/data/scan.json";
+const URL_COFRE="https://raw.githubusercontent.com/Rferreira89/Cryptoscan/data/cofre_scan.json";
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const num=(v,d)=>v==null?"–":Number(v).toLocaleString("pt-PT",{maximumFractionDigits:d,minimumFractionDigits:0});
@@ -946,9 +948,11 @@ function render(){
 }
 async function load(){
   try{
-    const r=await fetch(URL_DATA+"?t="+Date.now(),{cache:"no-store"});
+    // (28/10) dados completos cifrados no cofre; sem cofre (transicao) le o scan.json de sempre
+    let r=await fetch(URL_COFRE+"?t="+Date.now(),{cache:"no-store"});
+    if(r.status===404) r=await fetch(URL_DATA+"?t="+Date.now(),{cache:"no-store"});
     if(!r.ok) throw new Error("HTTP "+r.status);
-    D=await r.json();normUserClosed(D);
+    D=await CIFRA.json(await r.json());normUserClosed(D);
     try{await liveBybitAll();applyBybit(D)}catch(_){}
     if(!capSet&&D.config&&D.config.capital_usdc&&!$("cap").value){$("cap").value=D.config.capital_usdc;$("capnote").textContent="definido no programa; muda com /capital no Telegram"}
     const age=Math.round((Date.now()/1000-Math.max(D.generated_at,D.monitored_at||0))/60);

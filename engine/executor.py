@@ -1492,6 +1492,11 @@ def main(state_path, ex_in, out):
         except ExecError as e:
             ok, why = False, str(e)[:120]
         ex.update(pronto=ok, chave=why)
+    if state.get("_publico"):
+        # (28/10) so chegou a copia publica do estado (sem tamanhos nem precos de entrada): nunca
+        # executar com ela. Acontece se o cofre faltar ou nao se puder decifrar.
+        ex.setdefault("log", []).append({"t": now, "acao": "-", "id": "-", "res": "estado completo indisponível: nada feito"})
+        state = {}
     reqs = [r for r in state.get("exec_req") or [] if r.get("id") not in ex["feitos"]]
     forced = os.environ.get("EXEC_ACAO", "").strip()
     if forced:                                   # pedido manual (teste)

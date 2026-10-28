@@ -19,7 +19,9 @@ def load():
     try:
         url = f"https://raw.githubusercontent.com/{repo}/execucoes/exec.json?t={int(time.time())}"
         with urllib.request.urlopen(url, timeout=10) as r:
-            return json.loads(r.read().decode())
+            d = json.loads(r.read().decode())
+        from . import cifra                  # (28/10) exec.json cifrado no repositorio publico
+        return cifra.abrir_obj(d)
     except Exception:
         return None
 

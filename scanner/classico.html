@@ -95,6 +95,7 @@ h2{font-size:16px;margin:18px 0 8px}
 <div id="list"></div>
 <div class="note" id="note"></div>
 </main>
+<script src="cifra.js?v=20261028a"></script>
 <script>
 const URL_DATA="https://raw.githubusercontent.com/Rferreira89/Cryptoscan/data/scan.json";
 const $=id=>document.getElementById(id);
@@ -381,9 +382,10 @@ function render(){
 }
 async function load(){
   try{
-    const r=await fetch(URL_DATA+"?t="+Date.now(),{cache:"no-store"});
+    let r=await fetch(URL_DATA.replace("scan.json","cofre_scan.json")+"?t="+Date.now(),{cache:"no-store"});
+    if(r.status===404) r=await fetch(URL_DATA+"?t="+Date.now(),{cache:"no-store"});
     if(!r.ok) throw new Error("HTTP "+r.status);
-    D=await r.json();
+    D=await CIFRA.json(await r.json());
     if(!capSet&&D.config&&D.config.capital_usdc&&!$("cap").value){$("cap").value=D.config.capital_usdc;$("capnote").textContent="definido no programa; muda com /capital no Telegram"}
     const age=Math.round((Date.now()/1000-Math.max(D.generated_at,D.monitored_at||0))/60);
     const src=Object.entries(D.sources).map(([n,s])=>n+(s.ok?" ✓":" ✗")).join(" · ")+" · Bybit UE"+(D.venue_source&&D.venue_source.ok?" ✓":" ✗");

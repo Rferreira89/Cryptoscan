@@ -28,15 +28,20 @@ jobs:
           BYBIT_API_SECRET: ${{ secrets.BYBIT_API_SECRET }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DATA_KEY: ${{ secrets.DATA_KEY }}
           EXEC_ACAO: ${{ github.event.inputs.acao }}
           PUSH_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
         run: |
           rm -rf /tmp/ex && mkdir -p /tmp/ex/out
-          git fetch -q origin data && git show FETCH_HEAD:state.json > /tmp/ex/state.json || echo '{}' > /tmp/ex/state.json
+          python3 -m pip install -q --user cryptography==43.0.3 2>/dev/null || python3 -m pip install -q cryptography==43.0.3 2>/dev/null || echo "cryptography nao instalada: cifra em Python puro"
+          # (28/10) estado completo no cofre (cifrado); state.json e a copia publica sem dinheiro
+          git fetch -q origin data && { git show FETCH_HEAD:cofre_state.json > /tmp/ex/state.json 2>/dev/null || git show FETCH_HEAD:state.json > /tmp/ex/state.json; } || echo '{}' > /tmp/ex/state.json
           if git ls-remote --exit-code -q origin refs/heads/execucoes >/dev/null 2>&1 && git fetch -q origin execucoes; then
             git show FETCH_HEAD:exec.json > /tmp/ex/in.json || echo '{}' > /tmp/ex/in.json
           else echo '{}' > /tmp/ex/in.json; fi
+          python3 -m engine.cifra abrir /tmp/ex/state.json /tmp/ex/in.json
           python3 -m engine.executor /tmp/ex/state.json /tmp/ex/in.json /tmp/ex/out/exec.json
+          python3 -m engine.cifra fechar /tmp/ex/out/exec.json
           cd /tmp/ex/out && git init -q -b execucoes && git config user.name cryptoscan-bot \
             && git config user.email bot@users.noreply.github.com \
             && git add exec.json && git commit -q -m "exec $(date -u +%FT%TZ)" \
