@@ -1,16 +1,17 @@
 # Diário de investigação
 
-**Hipóteses testadas contra esta reserva: 21** (12 neste diário: compra de
+**Hipóteses testadas contra esta reserva: 22** (12 neste diário: compra de
 quedas, compressão, oversold bounce 4H, day trade 1H, bounce com outras
 saídas, sweep a mercado, funding negativo, quebra com compradores,
 capitulação do mercado, atraso face ao BTC, resiliente, impulso de
-amplitude; mais 9 no diário de afinação, H1 a H9). Atualizado em
-2026-10-27 (sem hipótese nova nesta corrida; a afinação testou a H9 em
-2026-10-25). O contador global do programa (`engine/hipoteses.py`, com os
+amplitude; mais 10 no diário de afinação, H1 a H10). Atualizado em
+2026-10-28 (sem hipótese nova nesta corrida; a afinação testou a H10 em
+2026-10-28). O contador global do programa (`engine/hipoteses.py`, com os
 estudos fora do programa em `backtest/hipoteses_offline.json`, contra dados
-que incluem esta reserva) já vai em 57 ou mais. Quanto maior este número,
-maior a probabilidade de uma hipótese passar por sorte: com 21 testes, a
-probabilidade de pelo menos um falso positivo a 5% já ronda os 66% (e as
+que incluem esta reserva) já vai em 59 ou mais, sem contar os estudos
+H10–H21 de 26–27/10 em `backtest/estudos/`. Quanto maior este número,
+maior a probabilidade de uma hipótese passar por sorte: com 22 testes, a
+probabilidade de pelo menos um falso positivo a 5% já ronda os 68% (e as
 várias configurações de cada grelha aumentam-na ainda mais).
 
 Uma hipótese por entrada, com o veredicto. Método: `tools/research.py`
@@ -1529,3 +1530,45 @@ reserva fica em 21 (a afinação não testou nada depois da H9).
   clones só com representantes vivos; (2) mostrar os renascidos sem
   operações na classificação; (3) decidir se esta corrida diária deve
   passar a semanal enquanto não houver dados novos.
+
+## 2026-10-28 — Sem hipótese nova hoje (sem mortos novos; fila vazia)
+
+**Veredicto da corrida: nenhuma hipótese testada.** O contador desta
+reserva passa a 22 só pela H10 da afinação (SHORT_RACIO, rejeitada hoje
+pela queda de 2022).
+
+- **Histórico** (ramo `history`): atualizado em 2026-10-25 12:30 UTC, 3
+  dias de atraso (abaixo dos 7). Continua só com velas de 4H, 1H e funding
+  (75 ficheiros na raiz); nenhuma fonte nova.
+- **Arena** (scan.json do ramo `data`, 2026-10-28 11:52 UTC): **10
+  lutadores a competir** (BOUNCE_AMPLITUDE, VOLUME_ACUMULACAO_R2,
+  BOUNCE_DESALAV, BOUNCE_V1, REVERSAO_INTERVALO, BOUNCE_MACRO_R2,
+  MAIORES_RECUO, MAIORES_TENDENCIA, SHORT_SQUEEZE, SHORT_MAIORES_TENDENCIA;
+  o VOLUME_ACUMULACAO_R2 voltou a aparecer na classificação), `recrutar`
+  falso. Nenhum morto novo desde BOUNCE_LSR (2026-10-23), que já tem linha
+  na tabela dos sucessores. Fila do Rui vazia.
+- **Combate de 90 dias** (`forma.json`, ramo `arena`, 41 moedas): acima do
+  p95 do acaso BOUNCE_AMPLITUDE (12 op., 12 ganhadoras, +0,96R; p95
+  +0,05R), BOUNCE_DESALAV (15 op., +0,51R; p95 −0,10R) e, pela primeira
+  vez, REVERSAO_INTERVALO (17 op., +0,10R; p95 +0,07R, margem mínima).
+  BOUNCE_V1 (6 op., +0,27R) fica no p95 com amostra mínima; MAIORES_RECUO
+  (17 op., −0,02R) perto de zero; MAIORES_TENDENCIA (3 op., −0,79R) a
+  perder com amostra mínima. O risco do corte dos clones (representantes
+  mortos do Bounce ainda contam como "o melhor do grupo") mantém-se para
+  DESALAV e AMPLITUDE quando chegarem às 20 operações: sessão com o Rui,
+  prioridade máxima.
+- **Porque não há hipótese nova**: as mesmas razões de 2026-10-21 a
+  2026-10-27. Com as fontes do histórico (velas de 4H e 1H, fluxo
+  comprador, funding), as entradas de compra com lógica económica já foram
+  testadas ou estão no ringue como variantes do Bounce. A ideia seguinte
+  com lógica (reversão do intervalo no diário, para a lateral) foi
+  proposta hoje pela afinação como a sua H11 e fica para ela, para não ser
+  contada duas vezes. Com 22 hipóteses contra esta reserva, uma hipótese
+  fraca só acrescenta ruído. Oitava corrida seguida sem hipótese nova.
+- Proposta para a próxima corrida: autópsia se morrer alguém; uma hipótese
+  nova só com uma fonte nova com histórico (interesse em aberto, já medido
+  em 34 moedas no combate, ou rácio long/short guardados no ramo
+  `history`). Para a sessão com o Rui, as mesmas três de ontem: (1) corte
+  dos clones só com representantes vivos; (2) renascidos sem operações na
+  classificação; (3) passar esta corrida a semanal enquanto não houver
+  dados novos.
