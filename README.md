@@ -3,7 +3,7 @@
 Scanner de criptomoedas para operar em **spot e margem spot na Bybit UE** (pares em USDC). Corre sozinho no GitHub Actions: scan completo de 5 em 5 minutos e acompanhamento das operações abertas de minuto a minuto.
 
 - Página: https://rferreira89.github.io/Cryptoscan/scanner/
-- Dados publicados: ramo `data` (`scan.json`, `state.json`, `audit.jsonl`, `resumo.txt`)
+- Dados publicados: ramo `data` (`scan.json`, `state.json`, `audit.jsonl`, `resumo.txt`). Desde 28/10 (o repositório é público) estes três são **cópias sem dinheiro** (`engine/publico.py`: sem saldos, capital, tamanhos nem resultados em USDC; estados, sinais, preços, resultados em R e arena continuam lá). Os completos estão cifrados em `cofre_scan.json`, `cofre_state.json` e `cofre_audit.jsonl` (`engine/cifra.py`, segredo `DATA_KEY`); a conta em `europa/dados.json`, `conta/conta.json` e `execucoes/exec.json` também. Agentes agendados: usem as cópias públicas; nunca peçam nem guardem a palavra-passe.
 - Paragem de emergência: criar um ficheiro `STOP` na raiz do repositório
 
 ## Objetivo e regras de equipa (decisão do Rui, 2026-10-14)
