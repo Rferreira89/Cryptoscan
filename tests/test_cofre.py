@@ -71,6 +71,14 @@ class Cofre(unittest.TestCase):
             with self.assertRaises(cifra.Invalido):
                 run._load("state.json", None)
 
+    def test_audit_em_claro_e_cifrado_mesmo_sem_eventos(self):
+        with self.env(key=""):
+            run.save(STATE, RES, [{"event": "X"}])
+        with self.env():
+            run.save(STATE, RES, [])
+            self.assertTrue(cifra.e_envelope(json.load(open(os.path.join(self.d, "cofre_audit.jsonl")))))
+            self.assertIn('"X"', cifra.ler_texto(os.path.join(self.d, "cofre_audit.jsonl")))
+
     def test_ciclo_antigo_fica_igual(self):
         with mock.patch.dict(os.environ, {"CRYPTOSCAN_COFRE": "", "DATA_KEY": ""}):
             run.save(STATE, RES, [])

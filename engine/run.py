@@ -958,13 +958,16 @@ def _save_cofre(state, res, events):
     with open(os.path.join(OUT, "state.json"), "w") as f:
         f.write(j(publico.state(state)))
     pc, pa = os.path.join(OUT, "cofre_audit.jsonl"), os.path.join(OUT, "audit.jsonl")
+    em_claro = False
     if os.path.exists(pc) and os.path.getsize(pc):
+        with open(pc, "rb") as f:
+            em_claro = not f.read(12).lstrip().startswith(b'{"cifra"')
         antigo, publica_tudo = cifra.ler_texto(pc), False
     else:                                  # transicao: o audit.jsonl publicado ainda e o completo
         antigo = open(pa).read() if os.path.exists(pa) else ""
         publica_tudo = True
     novos = "".join(j(e) + "\n" for e in events or [])
-    if novos or publica_tudo:
+    if novos or publica_tudo or (em_claro and cifra.ativa()):   # cifra logo o que ficou em claro
         cifra.gravar_texto(pc, antigo + novos)
         linhas = (antigo + novos).splitlines() if publica_tudo else novos.splitlines()
         pub = []
