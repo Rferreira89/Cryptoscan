@@ -464,6 +464,11 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
             promo_rows[a] = row
     except Exception as e:  # a promocao nunca pode parar o scan
         result["promo_erro"] = str(e)[:120]
+    try:                                      # (29/10) papel ao vivo: compra no panico com ordem limite (H23)
+        from . import papel_panico
+        result["papel_panico"] = papel_panico.update(state, c4s, eu, now)
+    except Exception as e:                   # o papel nunca para o scan
+        result["papel_panico"] = {"erro": str(e)[:120]}
     try:                                      # (22/10) radar de quebras e indice do mercado (so informam)
         from . import radar, indice
         result["radar"] = radar.calcular(eligible, c4s, now, (state.get("mercado") or {}).get("regime"),

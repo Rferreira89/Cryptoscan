@@ -1,0 +1,6 @@
+H23 (29/10, pre-registado) compra no panico (F2 do H22) com ordem limite. B1 ago/2024-set/2025, B2 out/2025-out/2026.
+M   (mercado): B1 -0,019R (n=614, acaso -0,088) | B2 +0,047R (n=656, acaso -0,157)
+L05 (limite -0,5%): B1 +0,040R (n=567, p=0,000) | B2 +0,094R (n=576, p=0,000); sem top5% -0,064/-0,005; custos x2 -0,001/+0,051 -> CHUMBA
+L10 (limite -1,0%): B1 +0,080R (n=522, p=0,000) | B2 +0,080R (n=519, p=0,000); sem top5% -0,024/-0,020; custos x2 +0,039/+0,037 -> CHUMBA
+Melhor candidata ate hoje: positiva nas duas metades e muito acima do acaso, mas abaixo de +0,15R e dependente das melhores operacoes.
+Decisao: papel ao vivo (engine/papel_panico.py), sem ordens nem dinheiro.
