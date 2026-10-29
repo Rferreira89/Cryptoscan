@@ -5,7 +5,7 @@ quedas, compressão, oversold bounce 4H, day trade 1H, bounce com outras
 saídas, sweep a mercado, funding negativo, quebra com compradores,
 capitulação do mercado, atraso face ao BTC, resiliente, impulso de
 amplitude; mais 10 no diário de afinação, H1 a H10). Atualizado em
-2026-10-28 (sem hipótese nova nesta corrida; a afinação testou a H10 em
+2026-10-29 (sem hipótese nova nesta corrida; a afinação testou a H10 em
 2026-10-28). O contador global do programa (`engine/hipoteses.py`, com os
 estudos fora do programa em `backtest/hipoteses_offline.json`, contra dados
 que incluem esta reserva) já vai em 59 ou mais, sem contar os estudos
@@ -177,6 +177,7 @@ o Rui), e o morto fica registado. Um por corrida, na segunda vaga.
 | TURTLE_FORTES | 2026-10-22 06:35 UTC (forma recente; 35 op., +0,19R) | a mesma da TURTLE: com esta saída, entradas ao acaso dão +0,56R (p95 +0,93R), logo o momento de comprar o rompimento é pior do que o acaso; +0,78R nos primeiros 60 dias (subida), −0,51R nos últimos 30 (lateral); no estudo H11d falha 2021-24 (ver entrada de 2026-10-22) | sem sucessor (família das quebras esgotada; ver 2026-10-14) | — |
 | BOUNCE_X30, BOUNCE_X30_LIQ, BOUNCE_X30_PAVIO, BOUNCE_ISOLADA, BOUNCE_SQUEEZE, BOUNCE_TRAIL, BOUNCE_NOREACT, BOUNCE_FLUXO, BOUNCE_FORTE, BOUNCE_HORAS, BOUNCE_ABSORCAO, BOUNCE_G0, BOUNCE_V2, BOUNCE_V3, DIP_TREND | 2026-10-22 (corte dos clones, 04:50 e 09:25 UTC) | não é desempenho: morreram como clones (resultados diários correlacionados 0,75 a 1,00). Defeito encontrado: o representante do grupo também morreu (PAVIO como clone da ISOLADA às 04:50, ISOLADA como clone da PAVIO, já morta, às 09:25), por isso a família inteira do Oversold Bounce, a única acima do acaso, ficou sem ninguém (ver entrada de 2026-10-22) | sem sucessor (um sucessor seria outro clone; a correção é no corte dos clones, numa sessão com o Rui) | — |
 | BOUNCE_LSR | 2026-10-23 09:15 UTC (clone de BOUNCE_MACRO, correlação 0,96) | não é desempenho: no combate de 90 dias tinha 28 op., +0,108R, com o acaso a mediana −0,42R e p95 −0,17R (acima do p95). Foi morta como clone de BOUNCE_MACRO, que já estava morta desde 2026-10-19: é o mesmo defeito do corte dos clones de 2026-10-22, outra vez (ver entrada de 2026-10-23) | sem sucessor (seria outro clone; a correção é no corte dos clones, numa sessão com o Rui) | — |
+| BOUNCE_DESALAV | 2026-10-29 10:55 UTC (clone de BOUNCE_V2, correlação 0,96) | não é desempenho: no combate de 90 dias tinha 20 op., 17 ganhadoras, +0,451R, com o acaso a mediana −0,434R e p95 −0,134R (acima do p95; validação interna 19 op. fora, +0,348R). Foi morta ao chegar às 20 operações como clone de BOUNCE_V2, que está morta desde 2026-10-22: terceira vez o mesmo defeito do corte dos clones (ver entrada de 2026-10-29) | sem sucessor (seria outro clone; a correção é no corte dos clones, numa sessão com o Rui) | — |
 
 ## Hipóteses anteriores a este diário (até 2026-10-02, período 2021-2026)
 
@@ -1571,4 +1572,56 @@ pela queda de 2022).
   `history`). Para a sessão com o Rui, as mesmas três de ontem: (1) corte
   dos clones só com representantes vivos; (2) renascidos sem operações na
   classificação; (3) passar esta corrida a semanal enquanto não houver
+  dados novos.
+
+## 2026-10-29 — Sem hipótese nova hoje; BOUNCE_DESALAV morta como clone de uma morta (sem sucessor)
+
+**Veredicto da corrida: nenhuma hipótese testada.** O contador desta
+reserva fica em 22 (a afinação não testou nada depois da H10).
+
+- **Histórico** (ramo `history`): atualizado em 2026-10-25 12:30 UTC, 4
+  dias de atraso (abaixo dos 7). Continua só com velas de 4H, 1H e funding
+  (75 ficheiros na raiz); nenhuma fonte nova.
+- **Arena** (scan.json do ramo `data`, 2026-10-29 11:55 UTC): **9
+  lutadores a competir** (BOUNCE_AMPLITUDE, MAIORES_RECUO,
+  REVERSAO_INTERVALO, BOUNCE_V1, MAIORES_TENDENCIA, SHORT_SQUEEZE,
+  SHORT_MAIORES_TENDENCIA, BOUNCE_MACRO_R2, VOLUME_ACUMULACAO_R2), mínimo
+  5, `recrutar` falso. Fila do Rui vazia.
+- **Morto novo: BOUNCE_DESALAV** (Dália), 2026-10-29 10:55 UTC, motivo
+  "clone de Vera (resultados diários correlacionados 0,96)". Autópsia
+  (`forma.json`, ramo `arena`, 51 moedas, 90 dias): 20 operações, 17
+  ganhadoras, +0,451R por operação (+9,03R no total), contra o acaso com a
+  mesma geometria mediana −0,434R e p95 −0,134R: estava ACIMA do p95, e a
+  validação interna do combate dava 19 operações fora com +0,348R
+  ("passa": verdadeiro). Não morreu por perder. Morreu no dia em que chegou
+  às 20 operações, como clone da BOUNCE_V2 (Vera), que está MORTA desde
+  2026-10-22 (também ela como clone, de BOUNCE_X30_PAVIO, já morta) e que
+  no mesmo combate tem 25 op., +0,555R, p95 −0,065R. É exatamente o risco
+  anotado nas corridas de 2026-10-27 e 2026-10-28: o corte dos clones
+  compara com representantes já mortos, por isso cada variante do Oversold
+  Bounce que chega às 20 operações morre, por boa que seja. É a terceira
+  vez (2026-10-22, 2026-10-23, hoje).
+  **Sem sucessor**: qualquer sucessor do Bounce seria outro clone e
+  morreria da mesma maneira; a correção é em `engine/arena.py` (só contar
+  como representante um lutador vivo), que eu não posso mexer.
+- **Próximo em risco**: BOUNCE_AMPLITUDE (Amélia), 16 operações, 16
+  ganhadoras, +0,822R, p95 do acaso −0,048R: o último lutador do Bounce
+  acima do acaso. Se for comparado com um representante morto quando
+  chegar às 20 operações, a família inteira do Bounce, a única que bate o
+  acaso de forma consistente no combate, fica sem ninguém.
+- **Porque não há hipótese nova**: as mesmas razões de 2026-10-21 a
+  2026-10-28. Com as fontes do histórico (velas de 4H e 1H, fluxo
+  comprador, funding), as entradas de compra com lógica económica já foram
+  testadas ou estão no ringue como variantes do Bounce; e hoje um sucessor
+  ou variante do Bounce morreria como clone antes de poder provar alguma
+  coisa. Com 22 hipóteses contra esta reserva (cerca de 68% de
+  probabilidade de pelo menos um falso positivo a 5%), uma hipótese fraca
+  só acrescenta ruído. Nona corrida seguida sem hipótese nova.
+- Proposta para a próxima corrida: autópsia se morrer alguém; hipótese
+  nova só com uma fonte nova com histórico (interesse em aberto ou rácio
+  long/short no ramo `history`). Para a sessão com o Rui, URGENTE antes de
+  a BOUNCE_AMPLITUDE chegar às 20 operações: (1) corte dos clones só com
+  representantes vivos (e decidir se BOUNCE_DESALAV e BOUNCE_LSR devem
+  renascer, já que morreram acima do acaso); (2) renascidos sem operações
+  na classificação; (3) passar esta corrida a semanal enquanto não houver
   dados novos.
