@@ -89,5 +89,34 @@ class Acelerado(unittest.TestCase):
         self.assertEqual(r["estrategias"]["PANICO_L10"]["risco_pct"], 2.5)
 
 
+class Marcos(unittest.TestCase):
+    def test_sem_operacoes_nao_avisa(self):
+        st = {"papel_panico": {"fechadas": [{"r": 2.0}] * 10}}
+        self.assertEqual(A.marcos(st, cfg(real_autorizados=[])), [])
+
+    def test_prova_boa_avisa_deposito_uma_vez(self):
+        st = {"papel_panico": {"fechadas": [{"r": r} for r in BOM]}}
+        m = A.marcos(st, cfg(real_autorizados=[], modo_acelerado={"ligado": False}))
+        self.assertEqual(len(m), 1)
+        self.assertIn("DEPOSITAR", m[0])
+        self.assertEqual(A.marcos(st, cfg(real_autorizados=[])), [])
+
+    def test_prova_fraca_diz_para_nao_depositar(self):
+        st = {"papel_panico": {"fechadas": [{"r": r} for r in [2.0] * 22 + [-1.0] * 40]}}
+        m = A.marcos(st, cfg(real_autorizados=[]))
+        self.assertIn("NÃO é altura de depositar", m[0])
+
+    def test_acelerado_pronto_pede_ok(self):
+        st = {"ledger": reg(BOM)}
+        m = A.marcos(st, cfg(modo_acelerado={"ligado": False}))
+        self.assertEqual(len(m), 1)
+        self.assertIn("liga o acelerado", m[0])
+        self.assertIn("2.5%", m[0])
+        self.assertEqual(A.marcos(st, cfg(modo_acelerado={"ligado": False})), [])
+
+    def test_ja_ligado_nao_pede(self):
+        self.assertEqual(A.marcos({"ledger": reg(BOM)}, cfg()), [])
+
+
 if __name__ == "__main__":
     unittest.main()

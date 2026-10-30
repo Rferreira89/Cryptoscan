@@ -101,3 +101,55 @@ def resumo(state, cfg):
     return {"ligado": bool(o["ligado"]), "teto_pct": o["teto_pct"], "min_ops": o["min_ops"],
             "estrategias": linhas,
             "regra": "meio-Kelly só para estratégias aprovadas, depois do OK final do Rui"}
+
+
+# ---------- avisos dos marcos (30/10, Rui: "Vais ter de me dizer quando depositar o dinheiro e quando o
+# acelerado vai funcionar") ----------
+# Cada marco e enviado uma vez por estrategia (state["marcos_milhao"]). So informa: nao autoriza,
+# nao liga nada, nao mexe em dinheiro. O deposito e a autorizacao sao sempre decisao do Rui.
+CANDIDATAS = {"PANICO_L10": "Compra no pânico (ordem limite)"}
+LIMIAR_R = 0.15                       # o mesmo +0,15R do criterio unico de 28/10
+
+
+def _stats(rs):
+    n = len(rs)
+    m = sum(rs) / n
+    sd = math.sqrt(sum((x - m) ** 2 for x in rs) / (n - 1)) if n > 1 else 0
+    return n, m, m - sd / math.sqrt(n) if n else 0, 100 * sum(1 for x in rs if x > 0) / n
+
+
+def marcos(state, cfg):
+    """Mensagens novas para o Telegram (lista de texto)."""
+    o = opcoes(cfg)
+    feitos = state.setdefault("marcos_milhao", {})
+    out = []
+    aut = set((cfg or {}).get("real_autorizados") or [])
+    for k, nome in CANDIDATAS.items():
+        if k in aut or feitos.get(k + ":prova"):
+            continue
+        rs = resultados(state, k)
+        if len(rs) < o["min_ops"]:
+            continue
+        n, m, lb, ac = _stats(rs)
+        feitos[k + ":prova"] = True
+        if m >= LIMIAR_R and lb > 0:
+            out.append(f"🏁 MARCO DO MILHÃO — {nome}: {n} operações em papel ao vivo, média {m:+.2f}R, acerto {ac:.0f}%, "
+                       f"vantagem positiva mesmo no cálculo pessimista ({lb:+.2f}R).\n"
+                       "É altura de decidir: (1) autorizar dinheiro real nesta estratégia com o risco normal (0,5%) e "
+                       "(2) DEPOSITAR o capital com que queres operar. Nada muda sem o teu OK.")
+        else:
+            out.append(f"🧪 {nome}: {n} operações em papel ao vivo, média {m:+.2f}R, acerto {ac:.0f}%. "
+                       f"Não chega ao critério (+{LIMIAR_R:.2f}R com vantagem segura): NÃO é altura de depositar. "
+                       "Continua em papel e a investigação segue.")
+    if not o["ligado"]:
+        for k in sorted(aut):
+            if feitos.get(k + ":acelerado"):
+                continue
+            pct, why = risco_pct(k, state, dict(cfg, modo_acelerado={**o, "ligado": True}))
+            if pct is None:
+                continue
+            feitos[k + ":acelerado"] = True
+            out.append(f"🚀 MARCO DO MILHÃO — o modo acelerado já pode funcionar em {CANDIDATAS.get(k, k)}: {why}. "
+                       f"Risco por operação passaria de {(cfg or {}).get('risk_pct_of_capital')}% para {pct}%. "
+                       "Diz ao Claude «liga o acelerado» para o ligar.")
+    return out

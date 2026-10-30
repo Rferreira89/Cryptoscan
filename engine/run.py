@@ -1155,6 +1155,13 @@ def main():
             alerts.send(ra)
     except Exception as e:
         print("risco:", e)
+    try:                                     # (30/10) marcos do milhao: quando depositar e quando acelerar
+        from . import acelerado
+        for m in acelerado.marcos(state, config.load()):
+            if alerts.configured():
+                alerts.send(m)
+    except Exception as e:
+        print("marcos:", e)
     try:
         fa = funding_alert(state, res.get("conta"), res["generated_at"])
         if fa and alerts.configured():
