@@ -1,0 +1,24 @@
+H25 modo acelerado | 1041 operacoes L10 2024-26, media +0.080R, acerto 50%
+
+1) Historico real, por ordem (risco a partir da operacao 1; o acelerado so liga depois de 60 operacoes):
+   normal     conta x1.57  queda maxima 21%
+   acelerado  conta x6.86  queda maxima 24%
+   2.5        conta x5.67  queda maxima 84%
+   5.0        conta x16.60  queda maxima 98%
+
+2) 10 000 anos simulados (520 operacoes/ano). O acelerado comeca ja com o historico do papel (60 ops):
+   -- vantagem medida (media +0.08R)
+      normal     mediana x1.20  pior 5% x0.87  melhor 5% x1.81  perde dinheiro 21%  queda >30% 0%
+      acelerado  mediana x1.78  pior 5% x0.89  melhor 5% x8.62  perde dinheiro 14%  queda >30% 0%
+      2.5        mediana x2.23  pior 5% x0.31  melhor 5% x17.82  perde dinheiro 25%  queda >30% 100%
+      5.0        mediana x3.77  pior 5% x0.08  melhor 5% x210.58  perde dinheiro 29%  queda >30% 100%
+   -- se o papel der +0,15R (media +0.15R)
+      normal     mediana x1.44  pior 5% x0.99  melhor 5% x2.18  perde dinheiro 6%  queda >30% 0%
+      acelerado  mediana x3.37  pior 5% x1.04  melhor 5% x20.81  perde dinheiro 4%  queda >30% 0%
+      2.5        mediana x5.55  pior 5% x0.79  melhor 5% x43.07  perde dinheiro 7%  queda >30% 98%
+      5.0        mediana x24.10  pior 5% x0.47  melhor 5% x1173.38  perde dinheiro 9%  queda >30% 100%
+   -- se o papel der +0,30R (media +0.30R)
+      normal     mediana x2.15  pior 5% x1.44  melhor 5% x3.26  perde dinheiro 0%  queda >30% 0%
+      acelerado  mediana x21.10  pior 5% x3.43  melhor 5% x150.55  perde dinheiro 0%  queda >30% 0%
+      2.5        mediana x39.48  pior 5% x5.63  melhor 5% x293.48  perde dinheiro 0%  queda >30% 83%
+      5.0        mediana x1165.50  pior 5% x23.45  melhor 5% x64939.95  perde dinheiro 0%  queda >30% 100%

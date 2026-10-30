@@ -26,9 +26,11 @@ class Acelerado(unittest.TestCase):
     def test_config_real_vem_desligado(self):
         with open(CAMINHO) as f:
             c = json.load(f)
-        self.assertFalse(c["modo_acelerado"]["ligado"])
-        self.assertEqual(c["real_autorizados"], [])
-        st = {"ledger": reg(BOM)}
+        self.assertTrue(c["modo_acelerado"]["ligado"])          # (30/10) ligado antecipadamente pelo Rui
+        self.assertEqual(c["modo_acelerado"]["teto_pct"], 2.5)
+        self.assertFalse(c["nucleo_ligado"])                     # (30/10) nucleo desligado pelo Rui
+        self.assertEqual(c["real_autorizados"], [])               # nada autorizado: o acelerado nao atua
+        st = {"ledger": reg(BOM), "papel_panico": {"fechadas": [{"r": r} for r in BOM]}}
         self.assertIs(A.cfg_para("PANICO_L10", st, c), c)
 
     def test_desligado_nao_muda_nada(self):
@@ -114,8 +116,64 @@ class Marcos(unittest.TestCase):
         self.assertIn("2.5%", m[0])
         self.assertEqual(A.marcos(st, cfg(modo_acelerado={"ligado": False})), [])
 
-    def test_ja_ligado_nao_pede(self):
-        self.assertEqual(A.marcos({"ledger": reg(BOM)}, cfg()), [])
+    def test_ligado_avisa_quando_passa_a_atuar_e_quando_pausa(self):
+        st = {"ledger": reg(BOM)}
+        m = A.marcos(st, cfg())
+        self.assertEqual(len(m), 1)
+        self.assertIn("A ATUAR", m[0])
+        self.assertEqual(A.marcos(st, cfg()), [])                 # uma vez so
+        st["risco"] = {"dd": 0.12}
+        m = A.marcos(st, cfg())
+        self.assertIn("em pausa", m[0])
+        st["risco"] = {"dd": 0.0}
+        self.assertIn("A ATUAR", A.marcos(st, cfg())[0])
+
+    def test_ligado_sem_operacoes_fica_calado(self):
+        self.assertEqual(A.marcos({"ledger": reg(BOM[:20])}, cfg()), [])
+
+
+class Tamanho(unittest.TestCase):
+    """O limite de perda acelerado chega mesmo ao tamanho da ordem (engine/risk.sizing)."""
+    def base(self):
+        from engine import config
+        c = dict(config.load(), capital_usdc=1000, compound=True, fixed_position_usdc=220,
+                 max_risk_usdc=5.0, real_autorizados=["PANICO_L10"], modo_acelerado={"ligado": True})
+        return c
+
+    def test_perda_no_stop_sobe_de_5_para_25(self):
+        from engine import risk
+        c = self.base()
+        st = {"ledger": reg(BOM)}
+        normal, _ = risk.sizing(4.0, 0.04, 100.0, c)
+        ac, _ = risk.sizing(4.0, 0.04, 100.0, A.cfg_para("PANICO_L10", st, c))
+        self.assertAlmostEqual(normal["usdc"]["risk_usdc"], 5.0, places=1)
+        self.assertAlmostEqual(ac["usdc"]["risk_usdc"], 25.0, places=1)
+        self.assertLessEqual(ac["leverage"]["use"], 10)
+
+    def test_stop_largo_nunca_passa_do_teto(self):
+        from engine import risk
+        c = self.base()
+        ac, _ = risk.sizing(15.0, 0.15, 100.0, A.cfg_para("PANICO_L10", {"ledger": reg(BOM)}, c))
+        self.assertLessEqual(ac["usdc"]["risk_usdc"], 25.0 + 1e-6)
+
+    def test_outra_estrategia_fica_normal(self):
+        c = self.base()
+        self.assertIs(A.cfg_para("SHORT_TURTLE", {"ledger": reg(BOM, "SHORT_TURTLE")}, c), c)
+
+    def test_capital_desconhecido_nao_acelera(self):
+        c = dict(self.base(), capital_usdc=None)
+        self.assertIs(A.cfg_para("PANICO_L10", {"ledger": reg(BOM)}, c), c)
+
+    def test_registo_vazio_ou_estranho(self):
+        c = self.base()
+        for st in ({}, {"ledger": None}, {"ledger": [{"strategy": "PANICO_L10"}]}, None):
+            self.assertIs(A.cfg_para("PANICO_L10", st, c), c)
+
+    def test_kelly_bordas(self):
+        self.assertEqual(A.kelly([]), (None, None, None))
+        self.assertEqual(A.kelly([1.0])[0], None)
+        self.assertIsNone(A.kelly([0.0] * 100)[0])
+        self.assertIsNone(A.kelly([-1.0] * 100)[0])
 
 
 if __name__ == "__main__":

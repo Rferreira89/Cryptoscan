@@ -12,8 +12,8 @@
   "venue_vol_por_ordem": 200,
   "campeoes_por_fase": true,
   "cooldown_after_losses": 0,
-  "nucleo_ligado": true,
-  "nucleo_reforcar": true,
+  "nucleo_ligado": false,
+  "nucleo_reforcar": false,
   "campeoes_estudo": {
     "lateral": [
       "SHORT_TURTLE"
@@ -30,7 +30,7 @@
   },
   "real_autorizados": [],
   "modo_acelerado": {
-    "ligado": false,
+    "ligado": true,
     "teto_pct": 2.5,
     "fracao_kelly": 0.5,
     "min_ops": 60

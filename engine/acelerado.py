@@ -141,7 +141,20 @@ def marcos(state, cfg):
             out.append(f"🧪 {nome}: {n} operações em papel ao vivo, média {m:+.2f}R, acerto {ac:.0f}%. "
                        f"Não chega ao critério (+{LIMIAR_R:.2f}R com vantagem segura): NÃO é altura de depositar. "
                        "Continua em papel e a investigação segue.")
-    if not o["ligado"]:
+    if o["ligado"]:                    # (30/10) ligado antecipadamente pelo Rui: avisa quando passa a atuar
+        for k in sorted(aut):
+            pct, why = risco_pct(k, state, cfg)
+            ativo = pct is not None
+            if ativo == bool(feitos.get(k + ":ativo")):
+                continue
+            feitos[k + ":ativo"] = ativo
+            if ativo:
+                out.append(f"🚀 MARCO DO MILHÃO — modo acelerado A ATUAR em {CANDIDATAS.get(k, k)}: {why}. "
+                           f"Risco por operação passa de {(cfg or {}).get('risk_pct_of_capital')}% para {pct}%. "
+                           "Travões: metade com a carteira 5% abaixo do máximo, desliga a 10%.")
+            else:
+                out.append(f"🛡️ Modo acelerado em pausa em {CANDIDATAS.get(k, k)}: {why}. Volta o risco normal.")
+    else:
         for k in sorted(aut):
             if feitos.get(k + ":acelerado"):
                 continue
