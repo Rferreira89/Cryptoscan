@@ -1497,7 +1497,9 @@ def do_panico_comprar(state, req, ex, now, send):
     w = wallet()
     free = usdc_free(w)
     lev_acct = 1.0
-    need = min(10, math.ceil(size / max(free * 0.98, 1e-9) - 1e-9))
+    from .risk import leverage_for            # liquidacao estimada a 2,5x a distancia do stop, teto 10x
+    teto = leverage_for((e0 - stop) / e0, {"swing_leverage": 10.0})["max_safe"]
+    need = min(10, int(teto), math.ceil(size / max(free * 0.98, 1e-9) - 1e-9))
     if need > 1:
         try:
             lev_acct = float(get("/v5/spot-margin-trade/state").get("spotLeverage") or 1)
@@ -1509,7 +1511,7 @@ def do_panico_comprar(state, req, ex, now, send):
                 lev_acct = float(need)
             except ExecError as e:
                 print("teto de alavancagem nao alterado:", e)
-    cap = math.floor(free * 0.98 * max(1.0, lev_acct) * 100) / 100
+    cap = math.floor(free * 0.98 * max(1.0, min(lev_acct, teto)) * 100) / 100
     reduced = size > cap
     size = min(size, cap)
     if size < inst["min_amt"]:

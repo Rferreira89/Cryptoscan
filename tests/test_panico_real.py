@@ -234,6 +234,24 @@ class Executor(unittest.TestCase):
         compra = [b for p, b in self.calls if b.get("side") == "Buy"][0]
         self.assertEqual(compra.get("isLeverage"), 1)
 
+    def test_alavancagem_nunca_poe_a_liquidacao_antes_do_stop(self):
+        from engine.risk import leverage_for
+        ex = {"ops": {}}
+        self.correr(self.plano(risco_usdc=500.0, atr=0.0046), ex, free=30.0)    # stop a ~10%
+        teto = leverage_for(0.0092 / 0.0921, {"swing_leverage": 10.0})["max_safe"]
+        self.assertLess(teto, 10)
+        alav = [b for p, b in self.calls if p == "/v5/spot-margin-trade/set-leverage"]
+        self.assertTrue(all(int(b["leverage"]) <= teto for b in alav))
+        compra = [b for p, b in self.calls if b.get("side") == "Buy"][0]
+        usdc = float(compra["qty"]) * float(compra["price"])
+        self.assertLessEqual(usdc, 30.0 * 0.98 * teto * 1.004)
+
+    def test_stop_curto_chega_a_10x(self):
+        ex = {"ops": {}}
+        self.correr(self.plano(risco_usdc=50.0, atr=0.0005), ex, free=10.0)     # stop a ~1%
+        alav = [b for p, b in self.calls if p == "/v5/spot-margin-trade/set-leverage"]
+        self.assertEqual(alav[0]["leverage"], "10")
+
     def test_nunca_duas_vezes(self):
         ex = {"ops": {f"PANICO-ALGO-{T_SIG}": {"status": "aberta"}}}
         self.assertEqual(self.correr(self.plano(), ex), "já executada antes")
