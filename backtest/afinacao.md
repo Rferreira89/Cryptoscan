@@ -1267,3 +1267,138 @@ Notas para as próximas execuções:
   mesmos dados (diários agendados); 59 no contador global, mais os estudos
   H10–H21 de 26–27/10. Com 22 tentativas, a probabilidade de pelo menos um
   falso positivo a 5% ronda os 68%.
+
+### 2026-10-30 — H11: reversão do intervalo no diário, só na lateral (INTERVALO_DIARIO)
+
+**Escrito antes de correr qualquer teste.**
+
+- Situação: regime atual (scan.json, `mercado`) **lateral** desde
+  2026-10-17; BTC acima da SMA200. Combate de 90 dias (forma.json de
+  2026-10-30 09:23 UTC, 53 moedas): acima do acaso e a ganhar só a
+  sobrevenda (AMPLITUDE +0,78R, G0, V2, V3, DESALAV, SQUEEZE, X30_*,
+  ISOLADA, HORAS, DIP_TREND, TRAIL, FLUXO). Fora dela, REVERSAO_INTERVALO
+  (24 op., −0,005R, p95 +0,01R) e MAIORES_RECUO (17 op., −0,02R) perto de
+  zero; TURTLE e RETESTE positivos mas abaixo do p95 do acaso (geometria de
+  tendência favorecida pelo acaso). Ringue longo (longo.json de
+  2026-10-30 04:02 UTC): **subida** — sobrevenda, PULLBACK (+0,70R, morto),
+  REJEITADOS, TURTLE (abaixo do p95); **lateral** — sobrevenda (AMPLITUDE,
+  V2, G0, V3, DESALAV), SHORT_MAIORES_TENDENCIA (10 op.) e SHORT_TURTLE /
+  TURTLE abaixo do p95 do acaso; REVERSAO_INTERVALO −0,19R; **queda** — só
+  shorts (SHORT_X30 +0,36R, SHORT_ISOLADA +0,32R, SHORT_FALSO_ROMP +0,27R
+  em papel), os dois primeiros mortos no combate. Regime sem campeão vivo:
+  **queda**. Regime sem família fora da sobrevenda que ganhe: **lateral**
+  (o de hoje).
+- Hipótese (família **intervalo / reversão à média no diário**, proposta na
+  H10; a investigação deixou-a explicitamente para esta corrida e não a
+  testou; o REVERSAO_INTERVALO é de 4H com bandas de Bollinger e perde):
+  numa moeda presa num intervalo de 30 dias com tendência diária fraca
+  (ADX diário baixo), quem compra no terço inferior do intervalo quando o
+  dia vira para cima tem o suporte do intervalo como stop natural e o meio
+  do intervalo como objetivo; com o BTC lateral não há maré a partir o
+  intervalo. Horizonte de dias, não de horas: deve operar em dias
+  diferentes da sobrevenda de 4H (que exige RSI 4H baixo).
+- Regra (só velas fechadas; diário agregado das velas de 4H com
+  `_diario`; avalia-se só na vela de 4H que fecha o dia): intervalo das
+  últimas N velas diárias, largura (máx./mín. − 1) entre 10% e 40%; ADX(14)
+  diário < A; o fecho do dia está no terço inferior e acima do mínimo do
+  intervalo; gatilho: fecho do dia acima do máximo do dia anterior. Stop no
+  mínimo do intervalo − 0,5 ATR(14) diário, distância 1% a 15%; objetivo no
+  meio do intervalo (≥ 1,5% acima); saída por tempo ao fim de D dias. Fase
+  do BTC (`_fase_btc`) = lateral; filtro normal das compras do ringue (BTC
+  acima da SMA200).
+- Grelha (6, escrita antes de testar):
+  R1 N=30, A=20, gatilho fecho > máximo de ontem, objetivo no meio, D=10, só lateral;
+  R2 R1 com gatilho mais solto: fecho > fecho de ontem;
+  R3 R1 com N=20;
+  R4 R1 com A=25;
+  R5 R1 com dois objetivos (meio 50%, dois terços do intervalo 50%), D=15;
+  R6 R1 em subida e lateral (BTC fora da queda).
+- Método: `tools/arena_ringue.generic_trades` (só passado, uma operação de
+  cada vez por moeda, entrada na abertura seguinte, 0,25% + 0,1% por lado),
+  `judge` e percentil contra 1000 carteiras de entradas ao acaso com a
+  mesma geometria (mesma moeda, ±90 velas). Histórico do ramo `history`
+  (4H até 2026-10-25).
+- Janelas: **B (decide)** 2021-08-01 a 2024-10-10; **A (confirma)**
+  2024-10-11 até ao fim; **C**: últimos 90 dias (o combate, lateral);
+  **L**: últimos 365 dias por regime, como o ringue longo.
+- Critérios (todos): em B ≥ 40 operações, R médio > 0, acima do percentil
+  95 do acaso e R médio > 0 sem a melhor moeda; em A ≥ 20 operações e R
+  médio > 0; correlação dos resultados diários com a BOUNCE_X30 < 0,7 em B
+  e em A (senão morre como clone no ringue). Para a R6, além disso, a parte
+  lateral com R > 0 em B e em A. Escolha: a de maior R médio em B entre as
+  que passam. Se passar, entra no ringue como INTERVALO_DIARIO em NEW_SIGS
+  (o ringue decide); REAL_OK não se mexe.
+- Previsão honesta: mais provável falhar. A REVERSAO_INTERVALO (a mesma
+  ideia em 4H) perde no ringue longo na lateral, e o objetivo no meio do
+  intervalo dá pouco R quando o stop fica abaixo do mínimo. A favor: o
+  diário filtra ruído e o stop no suporte é estrutural.
+- Hipóteses testadas até agora (com esta): 11 neste diário; 23 contra os
+  mesmos dados (diários agendados); 59 no contador global de 26/10, mais os
+  estudos H10–H25 de 26–29/10 em `backtest/estudos/`.
+
+**Resultados** (ramo `history`, 4H até 2026-10-25 16:00 UTC; 70 moedas além
+do BTC, ROBO de fora por histórico curto; compras com o filtro normal do
+BTC acima da SMA200; `backtest/afinacao_h11_intervalo_diario.json`; código
+`tools/afinacao_h11_intervalo_diario.py`; teste do gatilho, do fecho do
+dia, do terço inferior, da fase do BTC, do ADX e sem look-ahead em
+`tests/test_afinacao_h11.py`). Percentil = posição do R médio face a 1000
+carteiras de entradas ao acaso com a mesma geometria.
+
+| Config. | B: op. | B: R médio | B: acaso p95 | B: perc. | B sem a melhor | A: op. | A: R médio | A: acaso p95 | A: perc. | corr. BOUNCE_X30 B / A |
+|---|---|---|---|---|---|---|---|---|---|---|
+| R1 N30 ADX<20 máx. | 65 | −0,406 | −0,209 | 14,5 | −0,436 | 67 | +0,076 | +0,039 | 98,7 | 0,00 / 0,00 |
+| R2 gatilho fecho | 159 | −0,432 | −0,218 | 1,5 | −0,441 | 155 | −0,113 | −0,077 | 85,0 | −0,02 / 0,03 |
+| R3 N20 | 73 | −0,360 | −0,172 | 23,5 | −0,404 | 73 | +0,064 | +0,007 | 99,1 | 0,00 / 0,00 |
+| R4 ADX<25 | 98 | −0,270 | −0,164 | 46,4 | −0,289 | 95 | **+0,163** | −0,040 | 100 | 0,03 / 0,00 |
+| R5 dois objetivos, 15 d | 63 | −0,438 | −0,267 | 24,9 | −0,474 | 66 | +0,055 | +0,028 | 97,3 | 0,00 / 0,00 |
+| R6 subida + lateral | 76 | −0,366 | −0,178 | 16,3 | −0,390 | 87 | +0,050 | −0,005 | 99,6 | 0,00 / 0,00 |
+
+- B é quase toda 2023 (55 a 133 operações por configuração; 2021-22 quase
+  sem lateral com o BTC acima da SMA200). Em B tudo perde −0,27R a −0,44R
+  e fica abaixo do acaso (percentil 1,5 a 46); o próprio acaso com esta
+  geometria perde −0,26R a −0,39R (altcoins a sangrar em 2023 com o BTC a
+  subir devagar).
+- Em A (2024-26) cinco das seis ganham e batem o acaso (percentil 97 a
+  100); a R4 dá +0,16R em 95 operações (+0,22R em 2025). Correlação com a
+  BOUNCE_X30 praticamente nula em todas: seria diversificação a sério.
+- Combate de 90 dias (C) e últimos 365 dias (L): 2 a 9 operações (nos
+  últimos 12 meses o BTC esteve quase sempre abaixo da SMA200 ou fora da
+  lateral); amostra inútil para decidir. R1 3 op., +0,71R; R4 6 op., +0,12R.
+- Critérios (melhor em B, R4): ≥ 40 op. sim (98); R > 0 em B **NÃO**
+  (−0,270); acima do p95 **NÃO** (percentil 46); sem a melhor moeda
+  **NÃO**; A ≥ 20 op. e R > 0 sim; correlação < 0,7 sim. Todas as 6 falham
+  em B.
+
+**Veredicto: REJEITADA** (pelo critério pré-registado: falha em B). Nada
+entra no ringue; REAL_OK não se mexe.
+
+Notas para as próximas execuções:
+
+- **Terceira vez seguida (H9, H10, H11) o mesmo padrão:** regras com
+  lógica, sem correlação com a sobrevenda, que batem o acaso em 2024-26
+  (percentil 97 a 100) e perdem em 2021-24. Já não parece acaso de uma
+  hipótese: o mercado de 2021-24 (sobretudo 2023) castigou quase tudo o
+  que não era a sobrevenda, e a janela B decide sempre contra. Isto pede
+  uma decisão do Rui, não mais configurações: (a) manter B como juiz (e
+  aceitar que só a sobrevenda passa), ou (b) aceitar regras que batem o
+  acaso nos últimos 2 anos **só em papel**, com regra fixada antes (como o
+  SHORT_FALSO_ROMP). Se for (b), os três candidatos já estão escritos: R4
+  da H9 (compra do rácio esticado para baixo), Q4 da H10 (short do rácio
+  na queda) e R4 desta H11
+  (`tools/afinacao_h11_intervalo_diario.intervalo_diario(30, 25)`, lateral).
+  Nota para essa sessão: `engine/promo.family` põe qualquer chave nova na
+  família «sobrevenda»; uma família «intervalo / valor relativo» teria de
+  ser criada lá.
+- Regime atual **lateral**; regimes sem campeão vivo: **queda** (só
+  SHORT_FALSO_ROMP em papel) e, fora da sobrevenda, **lateral**.
+- Proposta para a próxima execução (H12): em vez de outra regra contra o
+  mesmo juiz, medir **porquê** 2023 mata tudo (dispersão entre moedas,
+  dominância do BTC, volume): se houver uma variável observável que separe
+  os dois mundos, ela vira filtro com lógica e pode ser pré-registada
+  contra B. Se não houver tempo para isso, testar na **queda** um short de
+  tendência com saídas diferentes para o SHORT_TURTLE (no ringue longo
+  ganha +0,36R na lateral e +0,10R na queda, mas abaixo do p95 do acaso).
+- Hipóteses testadas até agora: 11 neste diário (H1 a H11); 23 contra os
+  mesmos dados (diários agendados); 59 no contador global, mais os estudos
+  H10–H25 de 26–29/10. Com 23 tentativas, a probabilidade de pelo menos um
+  falso positivo a 5% ronda os 69%.
