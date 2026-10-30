@@ -28,5 +28,11 @@
     "levantamento_pct": 5,
     "imposto_pct": 28
   },
-  "real_autorizados": []
+  "real_autorizados": [],
+  "modo_acelerado": {
+    "ligado": false,
+    "teto_pct": 2.5,
+    "fracao_kelly": 0.5,
+    "min_ops": 60
+  }
 }

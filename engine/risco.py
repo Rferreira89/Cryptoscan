@@ -74,5 +74,5 @@ def aviso(st):
         return None
     if st["reduzido"]:
         return f"🛡️ Risco por operação passa a REDUZIDO (metade). Motivo: {st['motivo']}."
-    return (f"🚀 Risco por operação passa a NORMAL (3% do capital). {st['motivo'].capitalize()}. "
+    return (f"🚀 Risco por operação passa a NORMAL. {st['motivo'].capitalize()}. "
             f"Travão: volta a metade se o capital cair {TRAVAO_DD:.0%} desde o máximo.")

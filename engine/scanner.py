@@ -469,6 +469,11 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
         result["papel_panico"] = papel_panico.update(state, c4s, eu, now)
     except Exception as e:                   # o papel nunca para o scan
         result["papel_panico"] = {"erro": str(e)[:120]}
+    try:                                      # (30/10) modo acelerado (preparado desligado; so informa o estado)
+        from . import acelerado
+        result["acelerado"] = acelerado.resumo(state, cfg)
+    except Exception as e:
+        result["acelerado"] = {"erro": str(e)[:120]}
     try:                                      # (22/10) radar de quebras e indice do mercado (so informam)
         from . import radar, indice
         result["radar"] = radar.calcular(eligible, c4s, now, (state.get("mercado") or {}).get("regime"),

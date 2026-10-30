@@ -16,7 +16,7 @@ Se o campeao morrer (no combate ou nas operacoes ao vivo, com as regras da
 arena), perde o lugar logo e o seguinte qualificado assume. Sem
 qualificados, nao ha sinais reais: nunca se volta a uma estrategia morta.
 """
-from . import risk, venue
+from . import acelerado, risk, venue
 
 MIN_N = 20
 TF = 14400
@@ -522,9 +522,13 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
                 if mg and a not in mg:            # (22/10) a Bybit UE nao empresta esta moeda
                     falhou = falhou or (champ, sig["t_sig"], "sem margem na Bybit UE: a moeda não se pode vender a descoberto")
                     continue
-                p, why = short_plan_for(sig, r["price"], cfg)
+                cc = acelerado.cfg_para(champ, state, cfg)       # (30/10) modo acelerado: so com OK final
+                p, why = short_plan_for(sig, r["price"], cc)
             else:
-                p, why = plan_for(sig, r["price"], cfg)
+                cc = acelerado.cfg_para(champ, state, cfg)
+                p, why = plan_for(sig, r["price"], cc)
+            if p and cc.get("acelerado_pct"):
+                p["acelerado_pct"] = cc["acelerado_pct"]
             if not p:
                 falhou = falhou or (champ, sig["t_sig"], why)
                 continue

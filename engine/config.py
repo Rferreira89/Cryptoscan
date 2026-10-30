@@ -44,6 +44,8 @@ DEFAULTS = {
     # (28/10, auditoria) estrategias autorizadas pelo Rui a usar dinheiro real; None = sem lista
     # (comportamento antigo). config.json: [] = nenhuma ate passar o criterio unico.
     "real_autorizados": None,
+    # (30/10, OK do Rui) modo acelerado: meio-Kelly so para estrategias aprovadas (engine/acelerado.py)
+    "modo_acelerado": None,
     "alerts": True,             # Telegram em cada compra e venda
     # Decisao do utilizador (2026-10-02): operar com dinheiro real mesmo sem
     # estrategias validadas. Os sinais saem como operacoes reais, cada um
