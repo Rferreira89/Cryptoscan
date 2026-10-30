@@ -467,6 +467,8 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
     try:                                      # (29/10) papel ao vivo: compra no panico com ordem limite (H23)
         from . import papel_panico
         result["papel_panico"] = papel_panico.update(state, c4s, eu, now)
+        precos_vivos = {r["asset"]: ((r.get("venue") or {}).get("last") or r.get("price")) for r in eligible}
+        papel_panico.real(state, precos_vivos, cfg, now)          # (30/10) dinheiro real so com autorizacao
     except Exception as e:                   # o papel nunca para o scan
         result["papel_panico"] = {"erro": str(e)[:120]}
     try:                                      # (30/10) modo acelerado (preparado desligado; so informa o estado)

@@ -74,6 +74,8 @@ def update(state, c4s, eu, now):
                     e = min(p["lim"], b["o"])
                     stop = e - 2 * p["atr"]
                     if e - stop > 0:
+                        _aviso(st, f"📝 Papel — compra no pânico executada em {a} a {e:.6g} (stop {stop:.6g}, "
+                                   f"objetivo {e + 2 * (e - stop):.6g}, saída em 72 h). Só papel, sem dinheiro.")
                         ab[a] = {"entrada": e, "stop": stop, "alvo": e + 2 * (e - stop), "risco": e - stop,
                                  "t_sig": p["t_sig"], "t_fill": b["t"], "funding": p["funding"],
                                  "queda_3d_pct": p["queda_3d_pct"]}
@@ -87,6 +89,8 @@ def update(state, c4s, eu, now):
         if op:
             fim = _seguir(op, [b for b in c4 if b["t"] >= op["t_fill"]])
             if fim:
+                _aviso(st, f"📝 Papel — compra no pânico em {a} fechada ({fim[1]}): {fim[0]:+.2f}R. "
+                           f"Já vão {len(st['fechadas']) + 1} operações em papel.")
                 st["fechadas"].append({"asset": a, "t_sig": op["t_sig"], "t_fill": op["t_fill"], "entrada": op["entrada"],
                                        "r": fim[0], "motivo": fim[1], "t_fim": op.get("visto")})
                 ab.pop(a)
@@ -97,6 +101,79 @@ def update(state, c4s, eu, now):
                 st["ultimo"][a] = s["t_sig"]
     del st["fechadas"][:-500]
     return resumo(st)
+
+
+def _aviso(st, txt):
+    st.setdefault("avisos", []).append(txt)
+    del st["avisos"][:-20]
+
+
+def pop_avisos(state):
+    """(30/10, Rui: "quero que cada operacao me seja avisada") mensagens novas para o Telegram."""
+    st = state.get("papel_panico") or {}
+    out, st["avisos"] = list(st.get("avisos") or []), []
+    return out
+
+
+# ---------- dinheiro real (30/10): so com PANICO_L10 em "real_autorizados" ----------
+ESTRATEGIA = "PANICO_L10"
+MAX_REAIS = 2                       # no maximo 2 compras no panico reais abertas (caem juntas nas quedas)
+TENTATIVAS = 3
+REPETIR_S = 900
+
+
+def real(state, precos, cfg, now):
+    """Pede ao executor as compras reais quando o preco ao vivo chega ao limite de um sinal pendente
+    e a saida por tempo das abertas. Nao faz nada sem autorizacao, execucao pronta e modo automatico."""
+    from . import acelerado, auto, execucao, promo
+    st = state.get("papel_panico")
+    if not st:
+        return []
+    rl = st.setdefault("real", {})
+    estados = state.get("auto_ops") or {}
+    pedidos = []
+    for oid, p in rl.items():
+        p["estado"] = estados.get(oid)
+        if p["estado"] == "aberta" and now >= p["sair_em"] and not p.get("pediu_fecho"):
+            if execucao.request(state, "fechar", oid, now):
+                p["pediu_fecho"] = int(now)
+                pedidos.append(("fechar", oid))
+    for oid in [k for k, p in rl.items() if p.get("estado") in ("fechada", "recusada") and now - p["criado"] > 30 * 86400]:
+        rl.pop(oid)
+    autorizada = promo.AUTORIZADOS is not None and ESTRATEGIA in promo.AUTORIZADOS
+    if not autorizada or not execucao.READY or not auto.active(state) or state.get("halt"):
+        return pedidos
+    abertas_todas = sum(1 for v in estados.values() if v == "aberta")
+    minhas = sum(1 for p in rl.values() if p.get("estado") in (None, "aberta") and not p.get("pediu_fecho"))
+    for a, pd in sorted((st.get("pend") or {}).items()):
+        oid = f"PANICO-{a}-{pd['t_sig']}"
+        valido = pd["t_sig"] + (1 + VALIDA) * H4
+        px = (precos or {}).get(a)
+        if not px or px > pd["lim"] or now > valido:
+            continue
+        p = rl.get(oid)
+        if p:
+            # recusada pela Bybit (o preco fugiu entre o scan e a ordem): tenta outra vez mais tarde
+            if p.get("estado") != "recusada" or p.get("tentativas", 1) >= TENTATIVAS or now - p["criado"] < REPETIR_S:
+                continue
+        elif minhas >= MAX_REAIS or abertas_todas >= int(cfg.get("max_open_positions") or 4):
+            continue
+        cc = acelerado.cfg_para(ESTRATEGIA, state, cfg)
+        risco = cc.get("max_risk_usdc")
+        if not risco:
+            continue
+        barra = int(now // H4 * H4)
+        novo = {"asset": a, "symbol": f"{a}{cfg.get('quote') or 'USDC'}", "lim": pd["lim"], "atr": pd["atr"],
+                "risco_usdc": risco, "t_sig": pd["t_sig"], "valido_ate": valido, "sair_em": barra + HOLD * H4,
+                "criado": int(now), "tentativas": (p or {}).get("tentativas", 0) + 1,
+                "acelerado_pct": cc.get("acelerado_pct")}
+        rl[oid] = novo
+        if execucao.request(state, "panico_comprar", oid, now):
+            pedidos.append(("panico_comprar", oid))
+            if not p:
+                minhas += 1
+                abertas_todas += 1
+    return pedidos
 
 
 def resumo(st):

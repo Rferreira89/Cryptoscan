@@ -1155,6 +1155,13 @@ def main():
             alerts.send(ra)
     except Exception as e:
         print("risco:", e)
+    try:                                     # (30/10) cada operacao da compra no panico (papel) avisada
+        from . import papel_panico
+        for m in papel_panico.pop_avisos(state):
+            if alerts.configured():
+                alerts.send(m)
+    except Exception as e:
+        print("papel_panico:", e)
     try:                                     # (30/10) marcos do milhao: quando depositar e quando acelerar
         from . import acelerado
         for m in acelerado.marcos(state, config.load()):

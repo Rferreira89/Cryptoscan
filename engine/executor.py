@@ -1455,10 +1455,131 @@ def do_nucleo_acertar(state, req, ex, now, send):
     return "ok: " + ("; ".join(mud) if mud else "já batia certo")
 
 
+# ---------- compra no panico com ordem limite (30/10, Rui: "quero todas as operacoes automatizadas") ----------
+# So corre com a estrategia PANICO_L10 em config "real_autorizados" (passou o criterio + OK do Rui).
+# O scanner pede quando o preco ao vivo chega ao limite do sinal (engine/papel_panico.real); aqui
+# compra com uma IOC no maximo 0,3% acima do limite, com stop 2 ATR e objetivo 2R anexados. A saida
+# por tempo (72 h) e pedida pelo scanner como "fechar" (do_close).
+PANICO = "PANICO_L10"
+PANICO_FOLGA = 0.003
+
+
+def do_panico_comprar(state, req, ex, now, send):
+    from . import config
+    oid = req["op"]
+    p = (((state.get("papel_panico") or {}).get("real") or {}).get(oid))
+    if not p:
+        return "plano não encontrado"
+    if (ex["ops"].get(oid) or {}).get("status") == "aberta":
+        return "já executada antes"
+    asset, symbol = p["asset"], p.get("symbol") or f"{p['asset']}USDC"
+
+    def recusa(why, avisar=True):
+        if avisar:
+            send(f"⚠️ Compra no pânico — não entrei em {asset}: {why}. Nada foi comprado.")
+        ex["ops"][oid] = {"asset": asset, "status": "recusada", "motivo": why, "t": now, "estrategia": PANICO}
+        return why
+    if PANICO not in (config.load().get("real_autorizados") or []):
+        return recusa("a estratégia não está autorizada para dinheiro real", avisar=False)
+    if now > p["valido_ate"]:
+        return recusa("a ordem limite já expirou", avisar=False)
+    px = last_price(symbol)
+    if px > p["lim"] * (1 + PANICO_FOLGA):
+        return recusa(f"o preço ({px:.6g}) já está acima do limite ({p['lim']:.6g})", avisar=False)
+    e0 = min(px, p["lim"])
+    stop = e0 - 2 * p["atr"]
+    if stop <= 0 or stop >= px:
+        return recusa("stop inválido ao preço atual")
+    alvo = e0 + 2 * (e0 - stop)
+    frac = (e0 - stop) / e0 + 0.0035                     # distancia do stop + comissoes
+    size = float(p["risco_usdc"]) / frac
+    inst = instrument(symbol)
+    w = wallet()
+    free = usdc_free(w)
+    lev_acct = 1.0
+    need = min(10, math.ceil(size / max(free * 0.98, 1e-9) - 1e-9))
+    if need > 1:
+        try:
+            lev_acct = float(get("/v5/spot-margin-trade/state").get("spotLeverage") or 1)
+        except ExecError:
+            lev_acct = 1.0
+        if need > lev_acct:
+            try:
+                post("/v5/spot-margin-trade/set-leverage", {"leverage": str(need)})
+                lev_acct = float(need)
+            except ExecError as e:
+                print("teto de alavancagem nao alterado:", e)
+    cap = math.floor(free * 0.98 * max(1.0, lev_acct) * 100) / 100
+    reduced = size > cap
+    size = min(size, cap)
+    if size < inst["min_amt"]:
+        return recusa(f"valor ({size:.2f} USDC) abaixo do mínimo da Bybit ({inst['min_amt']:g}); USDC livre {free:.2f}")
+    margin = size > free * 0.98
+    debt0 = usdc_debt(w)
+    try:
+        bid, attached = place_part(symbol, size, alvo, stop, inst, f"{_tag(oid)}-0", px=e0, margin=margin)
+    except ExecError as e:
+        return recusa(f"a Bybit recusou: {str(e)[:120]}")
+    avg, qty = fills_or_state(bid, symbol, asset, "Buy")
+    if not qty:
+        return recusa("a ordem não executou ao limite (o preço fugiu)", avisar=False)
+    part = {"orderId": bid, "usdc": round(avg * qty, 2), "tp": alvo, "preco": avg, "qty": qty, "anexo": attached}
+    if not attached:
+        part["anexo_erro"] = LAST_ATTACH_ERR
+        try:
+            part["stopId"] = stop_order(symbol, qty, stop, inst, f"{_tag(oid)}-s0")
+        except ExecError as e:
+            part["stop_erro"] = str(e)[:100]
+    o = {"asset": asset, "symbol": symbol, "status": "aberta", "criado": now, "t": now, "stop": stop,
+         "partes": [part], "entrada": avg, "qty": qty, "usdc": part["usdc"], "estrategia": PANICO,
+         "sair_em": p["sair_em"], "alvo": alvo}
+    if part.get("stop_erro"):
+        # sem stop nao fica aberta em silencio: vende ja (espelho do F2 dos shorts)
+        try:
+            sell_all(symbol, qty, inst, f"{_tag(oid)}-x")
+            o.update(status="fechada", fechado=now, motivo="sem stop: vendida logo")
+            ex["ops"][oid] = o
+            send(f"🚨 Compra no pânico — {asset}: a Bybit recusou o stop; vendi logo as moedas. Confirma na app.")
+            return "sem stop: vendida"
+        except ExecError as e:
+            o["erro"] = f"stop e venda falharam: {str(e)[:80]}"
+            ex["ops"][oid] = o
+            send(f"🚨🚨 {asset} FICOU SEM STOP na Bybit. Põe já o stop em {stop:.6g} na app.")
+            return "SEM STOP"
+    for _ in range(6):
+        time.sleep(2)
+        try:
+            _match_children(symbol, [x for x in o["partes"] if not x.get("filho")], now, inst["base_step"])
+        except ExecError:
+            pass
+        if all(x.get("filho") or not x.get("anexo") for x in o["partes"]):
+            break
+    try:
+        o["emprestado"] = round(max(0.0, usdc_debt(wallet()) - debt0), 4)
+    except ExecError:
+        o["emprestado"] = None
+    ex["ops"][oid] = o
+    perda = qty * (avg - stop)
+    L = [f"⚡ <b>Compra no pânico executada: {asset}</b> (automática)",
+         f"Comprei {o['usdc']:.2f} USDC a {avg:.6g} ({qty:.6g} {asset}).",
+         f"Stop {stop:.6g} (perda máxima ≈ {perda:.2f} USDC) · objetivo {alvo:.6g} · saída por tempo em 72 h.",
+         ("Stop e objetivo ficaram na Bybit." if attached else
+          "O stop ficou na Bybit como ordem condicional; o objetivo fica a cargo do programa.")]
+    if p.get("acelerado_pct"):
+        L.append(f"🚀 Modo acelerado: risco {p['acelerado_pct']}% do capital.")
+    if o.get("emprestado"):
+        L.append(f"Alavancagem: {o['emprestado']:.2f} USDC emprestados pela Bybit (pagos na venda).")
+    if reduced:
+        L.append(f"Valor reduzido ao que o USDC livre ({free:.2f}) e a alavancagem permitem.")
+    send("\n".join(L), html=True)
+    return "ok"
+
+
 ACTIONS = {"vender": do_short, "teste_short": do_test_short, "limpar_short": do_clean_short, "ordens": do_orders, "teste_alav": do_test_lev, "teste_margem": do_test_margin, "teste2": do_test2, "limpar": do_clean, "diag": do_diag, "comprar": do_buy, "breakeven": do_breakeven, "fechar": do_close,
            "parar": do_stop_all, "teste": do_test,
            "nucleo_comprar": do_nucleo_comprar, "nucleo_vender": do_nucleo_vender,
-           "nucleo_reforcar": do_nucleo_reforcar, "nucleo_acertar": do_nucleo_acertar}
+           "nucleo_reforcar": do_nucleo_reforcar, "nucleo_acertar": do_nucleo_acertar,
+           "panico_comprar": do_panico_comprar}
 
 
 def main(state_path, ex_in, out):
