@@ -1,17 +1,17 @@
 # Diário de investigação
 
-**Hipóteses testadas contra esta reserva: 22** (12 neste diário: compra de
+**Hipóteses testadas contra esta reserva: 23** (12 neste diário: compra de
 quedas, compressão, oversold bounce 4H, day trade 1H, bounce com outras
 saídas, sweep a mercado, funding negativo, quebra com compradores,
 capitulação do mercado, atraso face ao BTC, resiliente, impulso de
-amplitude; mais 10 no diário de afinação, H1 a H10). Atualizado em
-2026-10-29 (sem hipótese nova nesta corrida; a afinação testou a H10 em
-2026-10-28). O contador global do programa (`engine/hipoteses.py`, com os
+amplitude; mais 11 no diário de afinação, H1 a H11). Atualizado em
+2026-10-30 (sem hipótese nova nesta corrida; a afinação testou a H11 em
+2026-10-30). O contador global do programa (`engine/hipoteses.py`, com os
 estudos fora do programa em `backtest/hipoteses_offline.json`, contra dados
 que incluem esta reserva) já vai em 59 ou mais, sem contar os estudos
 H10–H21 de 26–27/10 em `backtest/estudos/`. Quanto maior este número,
-maior a probabilidade de uma hipótese passar por sorte: com 22 testes, a
-probabilidade de pelo menos um falso positivo a 5% já ronda os 68% (e as
+maior a probabilidade de uma hipótese passar por sorte: com 23 testes, a
+probabilidade de pelo menos um falso positivo a 5% já ronda os 69% (e as
 várias configurações de cada grelha aumentam-na ainda mais).
 
 Uma hipótese por entrada, com o veredicto. Método: `tools/research.py`
@@ -1625,3 +1625,41 @@ reserva fica em 22 (a afinação não testou nada depois da H10).
   renascer, já que morreram acima do acaso); (2) renascidos sem operações
   na classificação; (3) passar esta corrida a semanal enquanto não houver
   dados novos.
+
+## 2026-10-30 — Sem hipótese nova hoje (sem mortos novos; fila vazia)
+
+**Veredicto da corrida: nenhuma hipótese testada.** O contador desta
+reserva passa a 23 só pela H11 da afinação (INTERVALO_DIARIO, reversão do
+intervalo no diário na lateral, rejeitada hoje: falha 2021-24).
+
+- **Histórico** (ramo `history`): atualizado em 2026-10-25 12:30 UTC, 5
+  dias de atraso (abaixo dos 7). Continua só com velas de 4H, 1H e funding
+  (75 entradas na raiz); nenhuma fonte nova.
+- **Arena** (scan.json do ramo `data`, 2026-10-30 11:57 UTC): **10
+  lutadores a competir** (SHORT_TURTLE_SHORT, novo, BOUNCE_AMPLITUDE,
+  REVERSAO_INTERVALO, MAIORES_RECUO, BOUNCE_V1, MAIORES_TENDENCIA,
+  SHORT_SQUEEZE, BOUNCE_MACRO_R2, SHORT_MAIORES_TENDENCIA,
+  VOLUME_ACUMULACAO_R2), `recrutar` falso. Nenhum morto novo desde
+  BOUNCE_DESALAV (2026-10-29), que já tem linha na tabela dos sucessores.
+  Fila do Rui vazia.
+- **Combate de 90 dias** (`forma.json`, ramo `arena`, 50 moedas):
+  BOUNCE_AMPLITUDE continua com 16 operações, 16 ganhadoras, +0,822R
+  (acaso: mediana −0,403R, p95 −0,060R; validação fora 14 op., +0,768R,
+  passa). REVERSAO_INTERVALO caiu para 23 op., −0,008R, agora abaixo do
+  p95 do acaso (+0,011R) e com a validação fora a −0,205R (não passa).
+  O risco do corte dos clones para a BOUNCE_AMPLITUDE às 20 operações
+  mantém-se (ver 2026-10-29).
+- **Porque não há hipótese nova**: as mesmas razões de 2026-10-21 a
+  2026-10-29. Sem fonte nova no histórico, as entradas de compra com
+  lógica económica com estes dados já foram testadas ou estão no ringue; a
+  última ideia com lógica (reversão do intervalo no diário) foi a H11 da
+  afinação e chumbou hoje. Com 23 hipóteses contra esta reserva (cerca de
+  69% de probabilidade de pelo menos um falso positivo a 5%), uma hipótese
+  fraca só acrescenta ruído. Décima corrida seguida sem hipótese nova.
+- Proposta para a próxima corrida: autópsia se morrer alguém; hipótese
+  nova só com uma fonte nova com histórico (interesse em aberto ou rácio
+  long/short no ramo `history`). Para a sessão com o Rui, as mesmas de
+  ontem: (1) URGENTE, corte dos clones só com representantes vivos antes
+  de a BOUNCE_AMPLITUDE chegar às 20 operações; (2) renascidos sem
+  operações na classificação; (3) passar esta corrida a semanal enquanto
+  não houver dados novos.
