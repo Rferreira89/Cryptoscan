@@ -1,0 +1,6 @@
+H28 compra no panico com filtros de confirmacao no grafico (R liquido por operacao)
+ REF      B1 n=522 +0.080R acerto 50% p=0.0001 s/top -0.024 x2 +0.039 | B2 n=519 +0.080R acerto 50% p=0.0000 s/top -0.020 x2 +0.037 -> referência
+ F-PAVIO  B1 n=271 +0.058R acerto 52% p=0.0211 s/top -0.047 x2 +0.018 | B2 n=246 +0.197R acerto 55% p=0.0000 s/top +0.097 x2 +0.157 -> chumba
+ F-VOL    B1 n=196 +0.049R acerto 51% p=0.1168 s/top -0.055 x2 +0.010 | B2 n=209 +0.160R acerto 51% p=0.0000 s/top +0.059 x2 +0.116 -> chumba
+ F-BTC    B1 n=428 -0.025R acerto 43% p=0.2742 s/top -0.133 x2 -0.066 | B2 n=395 -0.054R acerto 44% p=0.0324 s/top -0.162 x2 -0.096 -> chumba
+ F-RSI    B1 n=324 +0.061R acerto 52% p=0.0095 s/top -0.045 x2 +0.019 | B2 n=309 +0.259R acerto 57% p=0.0000 s/top +0.165 x2 +0.215 -> chumba
