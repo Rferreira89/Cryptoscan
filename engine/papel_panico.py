@@ -99,6 +99,16 @@ def update(state, c4s, eu, now):
             if s:
                 pend[a] = s
                 st["ultimo"][a] = s["t_sig"]
+        elif a in ab and c4[-1]["t"] > st.setdefault("ultimo_real", {}).get(a, 0):
+            # (31/10, Rui: "Quero que haja operacoes quando houver uma oportunidade") uma posicao em papel na
+            # moeda nao pode impedir um sinal novo para o dinheiro real (a conta real e outra)
+            s = sinal(c4, ((eu or {}).get("moedas") or {}).get(a, {}).get("funding"))
+            st["ultimo_real"][a] = c4[-1]["t"]
+            if s:
+                st.setdefault("pend_real", {})[a] = s
+    pr_ = st.setdefault("pend_real", {})
+    for a in [k for k, v in pr_.items() if (c4s or {}).get(k) and c4s[k][-1]["t"] >= v["t_sig"] + VALIDA * H4]:
+        pr_.pop(a)
     del st["fechadas"][:-500]
     return resumo(st)
 
@@ -148,7 +158,8 @@ def real(state, precos, cfg, now):
     max_reais = 1 if tudo else MAX_REAIS
     abertas_todas = sum(1 for v in estados.values() if v == "aberta")
     minhas = sum(1 for p in rl.values() if p.get("estado") in (None, "aberta") and not p.get("pediu_fecho"))
-    for a, pd in sorted((st.get("pend") or {}).items()):
+    cands = {**(st.get("pend_real") or {}), **(st.get("pend") or {})}
+    for a, pd in sorted(cands.items()):
         oid = f"PANICO-{a}-{pd['t_sig']}"
         valido = pd["t_sig"] + (1 + VALIDA) * H4
         px = (precos or {}).get(a)

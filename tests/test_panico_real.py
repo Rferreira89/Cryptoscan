@@ -61,6 +61,13 @@ class Gatilho(unittest.TestCase):
         self.assertEqual(st["exec_req"][0]["acao"], "panico_comprar")
         self.assertEqual(P.real(st, {"ALGO": 0.0921}, CFG, NOW + 60), [])          # nunca pede duas vezes
 
+    def test_papel_aberto_nao_bloqueia_sinal_real(self):
+        st = estado()
+        st["papel_panico"]["pend"] = {}
+        st["papel_panico"]["pend_real"] = {"ALGO": dict(PEND)}
+        out = P.real(st, {"ALGO": 0.0921}, CFG, NOW)
+        self.assertEqual(out, [("panico_comprar", f"PANICO-ALGO-{T_SIG}")])
+
     def test_expirado_nao_pede(self):
         self.assertEqual(P.real(estado(), {"ALGO": 0.0921}, CFG, T_SIG + 3 * H4 + 1), [])
 
@@ -323,6 +330,23 @@ class ValorTodo(unittest.TestCase):
         t.correr(t.plano(risco_usdc=None, tudo_usdc=20.0), ex, free=500.0)
         compra = [b for p, b in t.calls if b.get("side") == "Buy"][0]
         self.assertLessEqual(float(compra["qty"]) * float(compra["price"]), 20.0 * 1.004)
+
+
+class SinalComPapelAberto(unittest.TestCase):
+    def test_update_cria_pend_real_e_expira(self):
+        base = 1.0
+        c4 = [{"t": T_SIG - (59 - i) * H4, "o": base, "h": base * 1.01, "l": base * 0.99, "c": base} for i in range(60)]
+        st = {"papel_panico": {"pend": {}, "abertas": {"ALGO": {"entrada": 1, "stop": 0.5, "alvo": 2, "risco": 0.5,
+                                                              "t_sig": T_SIG - 10 * H4, "t_fill": T_SIG - 9 * H4}},
+                               "fechadas": []}}
+        with mock.patch.object(P, "sinal", return_value=dict(PEND)):
+            P.update(st, {"ALGO": c4}, {}, NOW)
+        self.assertIn("ALGO", st["papel_panico"]["pend_real"])
+        self.assertNotIn("ALGO", st["papel_panico"]["pend"])
+        c4b = c4 + [{"t": T_SIG + k * H4, "o": base, "h": base * 1.01, "l": base * 0.99, "c": base} for k in (1, 2)]
+        with mock.patch.object(P, "sinal", return_value=None):
+            P.update(st, {"ALGO": c4b}, {}, NOW + 2 * H4)
+        self.assertNotIn("ALGO", st["papel_panico"]["pend_real"])
 
 
 class Registo(unittest.TestCase):
