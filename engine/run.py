@@ -1160,6 +1160,10 @@ def main():
         for m in papel_panico.pop_avisos(state):
             if alerts.configured():
                 alerts.send(m)
+        from . import papel_fases
+        for m in papel_fases.pop_avisos(state):
+            if alerts.configured():
+                alerts.send(m)
     except Exception as e:
         print("papel_panico:", e)
     try:                                     # (30/10) marcos do milhao: quando depositar e quando acelerar

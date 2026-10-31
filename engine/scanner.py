@@ -471,6 +471,12 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
         papel_panico.real(state, precos_vivos, cfg, now)          # (30/10) dinheiro real so com autorizacao
     except Exception as e:                   # o papel nunca para o scan
         result["papel_panico"] = {"erro": str(e)[:120]}
+    try:                                      # (31/10) papel ao vivo por fase do mercado (lateral: short; subida: trio)
+        from . import papel_fases
+        pv = {r["asset"]: ((r.get("venue") or {}).get("last") or r.get("price")) for r in eligible}
+        result["papel_fases"] = papel_fases.update(state, c4s, promo.DAILY.get("BTC"), pv, now)
+    except Exception as e:
+        result["papel_fases"] = {"erro": str(e)[:120]}
     try:                                      # (30/10) modo acelerado (preparado desligado; so informa o estado)
         from . import acelerado
         result["acelerado"] = acelerado.resumo(state, cfg)
