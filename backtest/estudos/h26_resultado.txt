@@ -1,0 +1,24 @@
+H26 entrada com ordem limite nos lutadores (22 lutadores, 44 variantes novas; R liquido por operacao)
+BRK_ESPACO           M n= 509 -0.312 / n= 225 -0.357 | L05 n= 487 -0.258 / n= 210 -0.305 | L10 n= 445 -0.278 / n= 196 -0.255
+RETESTE              M n= 817 -0.059 / n= 314 -0.017 | L05 n= 778 +0.023 / n= 298 +0.002 | L10 n= 726 +0.042 / n= 275 +0.052
+TURTLE               M n= 475 +0.162 / n= 215 +0.275 | L05 n= 452 +0.190 / n= 195 +0.268 PASSA | L10 n= 438 +0.200 / n= 172 +0.215 PASSA
+SQUEEZE_BB           M n= 498 -0.097 / n= 142 -0.512 | L05 n= 417 -0.062 / n= 129 -0.484 | L10 n= 350 -0.087 / n= 105 -0.562
+BOUNCE_ABSORCAO      M n= 230 -0.056 / n=  51 +0.177 | L05 n= 191 -0.019 / n=  39 +0.112 | L10 n= 145 -0.030 / n=  27 -0.104
+BOUNCE_NOREACT       M n= 891 -0.047 / n= 254 +0.300 | L05 n= 765 -0.024 / n= 235 +0.346 | L10 n= 639 -0.038 / n= 198 +0.356
+BOUNCE_TRAIL         M n= 870 -0.007 / n= 215 +0.273 | L05 n= 751 +0.010 / n= 199 +0.308 | L10 n= 630 -0.020 / n= 169 +0.318
+BOUNCE_HORAS         M n= 491 -0.174 / n= 105 +0.252 | L05 n= 435 -0.143 / n=  98 +0.276 | L10 n= 376 -0.140 / n=  80 +0.331
+BOUNCE_X30           M n= 870 -0.015 / n= 215 +0.301 | L05 n= 751 +0.010 / n= 199 +0.342 | L10 n= 630 -0.016 / n= 169 +0.371
+DIP_TREND            M   sem ops /   sem ops | L05   sem ops /   sem ops | L10   sem ops /   sem ops
+CAPITULACAO          M n=  71 -0.232 / n=  56 -0.016 | L05 n=  68 -0.201 / n=  51 -0.115 | L10 n=  58 -0.302 / n=  50 -0.130
+BOUNCE_FORTE         M n= 182 +0.114 / n=  38 +0.281 | L05 n= 156 +0.147 / n=  35 +0.301 | L10 n= 134 +0.154 / n=  29 +0.319
+BOUNCE_SQUEEZE       M   sem ops /   sem ops | L05   sem ops /   sem ops | L10   sem ops /   sem ops
+BOUNCE_ISOLADA       M n= 684 +0.083 / n= 205 +0.439 | L05 n= 569 +0.127 / n= 186 +0.503 | L10 n= 451 +0.124 / n= 156 +0.574
+BOUNCE_X30_PAVIO     M n= 835 +0.025 / n= 211 +0.259 | L05 n= 722 +0.056 / n= 195 +0.294 | L10 n= 605 +0.043 / n= 166 +0.295
+BOUNCE_X30_LIQ       M n= 811 -0.005 / n= 152 +0.313 | L05 n= 691 +0.020 / n= 136 +0.363 | L10 n= 569 +0.001 / n= 109 +0.390
+REVERSAO_INTERVALO   M n= 135 -0.197 / n=  26 -0.077 | L05 n= 117 -0.159 / n=  25 +0.056 | L10 n=  97 -0.095 / n=  20 +0.090
+VOLUME_ACUMULACAO    M n=  77 -0.007 / n=  54 -0.125 | L05 n=  59 -0.085 / n=  43 -0.134 | L10 n=  49 +0.060 / n=  36 -0.099
+FIBO_RECUO           M n= 497 -0.175 / n= 262 -0.137 | L05 n= 458 -0.197 / n= 236 -0.058 | L10 n= 421 -0.217 / n= 216 -0.024
+MAIORES_RECUO        M   sem ops /   sem ops | L05   sem ops /   sem ops | L10   sem ops /   sem ops
+MAIORES_TENDENCIA    M   sem ops /   sem ops | L05   sem ops /   sem ops | L10   sem ops /   sem ops
+TURTLE_FORTES        M n= 179 +0.094 / n=  75 +0.109 | L05 n= 176 +0.178 / n=  66 +0.137 | L10 n= 172 +0.190 / n=  63 +0.151
+candidatos a teste contra o acaso: [('TURTLE', 'L05'), ('TURTLE', 'L10')]
