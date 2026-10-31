@@ -1492,14 +1492,16 @@ def do_panico_comprar(state, req, ex, now, send):
         return recusa("stop inválido ao preço atual")
     alvo = e0 + 2 * (e0 - stop)
     frac = (e0 - stop) / e0 + 0.0035                     # distancia do stop + comissoes
-    size = float(p["risco_usdc"]) / frac
     inst = instrument(symbol)
     w = wallet()
     free = usdc_free(w)
+    tudo = bool(p.get("tudo_usdc"))
+    # (31/10, Rui) modo valor todo: a posicao e o USDC livre ate ao teto, sem alavancagem
+    size = min(free * 0.98, float(p["tudo_usdc"])) if tudo else float(p["risco_usdc"]) / frac
     lev_acct = 1.0
     from .risk import leverage_for            # liquidacao estimada a 2,5x a distancia do stop, teto 10x
     teto = leverage_for((e0 - stop) / e0, {"swing_leverage": 10.0})["max_safe"]
-    need = min(10, int(teto), math.ceil(size / max(free * 0.98, 1e-9) - 1e-9))
+    need = 1 if tudo else min(10, int(teto), math.ceil(size / max(free * 0.98, 1e-9) - 1e-9))
     if need > 1:
         try:
             lev_acct = float(get("/v5/spot-margin-trade/state").get("spotLeverage") or 1)
@@ -1567,6 +1569,8 @@ def do_panico_comprar(state, req, ex, now, send):
          f"Stop {stop:.6g} (perda máxima ≈ {perda:.2f} USDC) · objetivo {alvo:.6g} · saída por tempo em 72 h.",
          ("Stop e objetivo ficaram na Bybit." if attached else
           "O stop ficou na Bybit como ordem condicional; o objetivo fica a cargo do programa.")]
+    if tudo:
+        L.append(f"Modo valor todo: posição completa com o saldo livre, sem alavancagem (perda no stop ≈ {100 * perda / max(o['usdc'], 1e-9):.1f}% do valor).")
     if p.get("acelerado_pct"):
         L.append(f"🚀 Modo acelerado: risco {p['acelerado_pct']}% do capital.")
     if o.get("emprestado"):

@@ -143,6 +143,9 @@ def real(state, precos, cfg, now):
     autorizada = promo.AUTORIZADOS is not None and ESTRATEGIA in promo.AUTORIZADOS
     if not autorizada or not execucao.READY or not auto.active(state) or state.get("halt"):
         return pedidos
+    pr = (cfg or {}).get("panico_real") or {}
+    tudo = pr.get("modo") == "tudo"
+    max_reais = 1 if tudo else MAX_REAIS
     abertas_todas = sum(1 for v in estados.values() if v == "aberta")
     minhas = sum(1 for p in rl.values() if p.get("estado") in (None, "aberta") and not p.get("pediu_fecho"))
     for a, pd in sorted((st.get("pend") or {}).items()):
@@ -156,17 +159,18 @@ def real(state, precos, cfg, now):
             # recusada pela Bybit (o preco fugiu entre o scan e a ordem): tenta outra vez mais tarde
             if p.get("estado") != "recusada" or p.get("tentativas", 1) >= TENTATIVAS or now - p["criado"] < REPETIR_S:
                 continue
-        elif minhas >= MAX_REAIS or abertas_todas >= int(cfg.get("max_open_positions") or 4):
+        elif minhas >= max_reais or abertas_todas >= int(cfg.get("max_open_positions") or 4):
             continue
-        cc = acelerado.cfg_para(ESTRATEGIA, state, cfg)
+        cc = {} if tudo else acelerado.cfg_para(ESTRATEGIA, state, cfg)
         risco = cc.get("max_risk_usdc")
-        if not risco:
+        if not risco and not tudo:
             continue
         barra = int(now // H4 * H4)
         novo = {"asset": a, "symbol": f"{a}{cfg.get('quote') or 'USDC'}", "lim": pd["lim"], "atr": pd["atr"],
                 "risco_usdc": risco, "t_sig": pd["t_sig"], "valido_ate": valido, "sair_em": barra + HOLD * H4,
                 "criado": int(now), "tentativas": (p or {}).get("tentativas", 0) + 1,
-                "acelerado_pct": cc.get("acelerado_pct")}
+                "acelerado_pct": cc.get("acelerado_pct"),
+                "tudo_usdc": float(pr.get("max_usdc") or 0) if tudo else None}
         rl[oid] = novo
         if execucao.request(state, "panico_comprar", oid, now):
             pedidos.append(("panico_comprar", oid))

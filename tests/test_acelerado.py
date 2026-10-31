@@ -29,7 +29,8 @@ class Acelerado(unittest.TestCase):
         self.assertTrue(c["modo_acelerado"]["ligado"])          # (30/10) ligado antecipadamente pelo Rui
         self.assertEqual(c["modo_acelerado"]["teto_pct"], 2.5)
         self.assertFalse(c["nucleo_ligado"])                     # (30/10) nucleo desligado pelo Rui
-        self.assertEqual(c["real_autorizados"], [])               # nada autorizado: o acelerado nao atua
+        self.assertEqual(c["real_autorizados"], ["PANICO_L10"])   # (31/10) Rui: 20$ com o valor todo
+        self.assertEqual(c["panico_real"], {"modo": "tudo", "max_usdc": 20})   # e no modo valor todo o acelerado nao atua
         st = {"ledger": reg(BOM), "papel_panico": {"fechadas": [{"r": r} for r in BOM]}}
         self.assertIs(A.cfg_para("PANICO_L10", st, c), c)
 
@@ -137,7 +138,8 @@ class Tamanho(unittest.TestCase):
     def base(self):
         from engine import config
         c = dict(config.load(), capital_usdc=1000, compound=True, fixed_position_usdc=220,
-                 max_risk_usdc=5.0, real_autorizados=["PANICO_L10"], modo_acelerado={"ligado": True})
+                 max_risk_usdc=5.0, real_autorizados=["PANICO_L10"], modo_acelerado={"ligado": True},
+                 panico_real=None)
         return c
 
     def test_perda_no_stop_sobe_de_5_para_25(self):

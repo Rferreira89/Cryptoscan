@@ -62,6 +62,8 @@ def risco_pct(estrategia, state, cfg):
     aut = (cfg or {}).get("real_autorizados")
     if not aut or estrategia not in aut:
         return None, "estratégia não autorizada"
+    if estrategia == "PANICO_L10" and ((cfg or {}).get("panico_real") or {}).get("modo") == "tudo":
+        return None, "modo valor todo (o tamanho é o saldo, não o risco)"
     rq = (state or {}).get("risco") or {}
     if rq.get("reduzido") or (cfg or {}).get("risk_reduced"):
         return None, "risco reduzido em vigor"

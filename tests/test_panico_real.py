@@ -278,6 +278,53 @@ class Executor(unittest.TestCase):
             pst.assert_not_called()
 
 
+class ValorTodo(unittest.TestCase):
+    """(31/10, Rui) 20$ com o valor todo: uma operacao de cada vez, posicao = saldo livre ate 20, sem alavancagem."""
+    CFGT = dict(CFG, panico_real={"modo": "tudo", "max_usdc": 20})
+
+    def setUp(self):
+        self.ant = (promo.AUTORIZADOS, execucao.READY)
+        promo.AUTORIZADOS, execucao.READY = {"PANICO_L10"}, True
+
+    def tearDown(self):
+        promo.AUTORIZADOS, execucao.READY = self.ant
+
+    def test_uma_de_cada_vez_com_teto(self):
+        st = estado()
+        st["papel_panico"]["pend"]["ENA"] = dict(PEND, lim=0.1737)
+        out = P.real(st, {"ALGO": 0.0921, "ENA": 0.17}, self.CFGT, NOW)
+        self.assertEqual(len(out), 1)
+        p = next(iter(st["papel_panico"]["real"].values()))
+        self.assertEqual(p["tudo_usdc"], 20.0)
+        self.assertIsNone(p["risco_usdc"])
+
+    def test_acelerado_nao_mexe(self):
+        from engine import acelerado
+        st = {"papel_panico": {"fechadas": [{"r": r} for r in [2.0] * 40 + [-1.0] * 50]}}
+        self.assertIsNone(acelerado.risco_pct("PANICO_L10", st, self.CFGT)[0])
+
+    def test_executor_compra_o_saldo_sem_alavancagem(self):
+        t = Executor("test_compra_com_stop_e_objetivo_anexados")
+        t.setUp()
+        ex = {"ops": {}}
+        st = t.plano(risco_usdc=None, tudo_usdc=20.0)
+        self.assertEqual(t.correr(st, ex, free=20.4), "ok")
+        compra = [b for p, b in t.calls if b.get("side") == "Buy"][0]
+        usdc = float(compra["qty"]) * float(compra["price"])
+        self.assertAlmostEqual(usdc, 19.99, delta=0.15)                  # 98% de 20,40 = 19,99
+        self.assertNotIn("isLeverage", compra)
+        self.assertFalse([b for p, b in t.calls if p == "/v5/spot-margin-trade/set-leverage"])
+        self.assertIn("valor todo", t.sent[-1])
+
+    def test_executor_com_mais_saldo_fica_no_teto(self):
+        t = Executor("test_compra_com_stop_e_objetivo_anexados")
+        t.setUp()
+        ex = {"ops": {}}
+        t.correr(t.plano(risco_usdc=None, tudo_usdc=20.0), ex, free=500.0)
+        compra = [b for p, b in t.calls if b.get("side") == "Buy"][0]
+        self.assertLessEqual(float(compra["qty"]) * float(compra["price"]), 20.0 * 1.004)
+
+
 class Registo(unittest.TestCase):
     def test_acao_registada_e_sem_auto_quando_desligado(self):
         from engine import executor as X

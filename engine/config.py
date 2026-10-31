@@ -46,6 +46,10 @@ DEFAULTS = {
     "real_autorizados": None,
     # (30/10, OK do Rui) modo acelerado: meio-Kelly so para estrategias aprovadas (engine/acelerado.py)
     "modo_acelerado": None,
+    # (31/10, Rui: "Vamos operar com 20$ e vamos fazer trades com o valor todo") compra no panico com
+    # dinheiro real: {"modo": "tudo", "max_usdc": 20} = cada operacao usa todo o USDC livre ate max_usdc,
+    # sem alavancagem, uma de cada vez. None = tamanho pelo risco (0,5% / acelerado).
+    "panico_real": None,
     "alerts": True,             # Telegram em cada compra e venda
     # Decisao do utilizador (2026-10-02): operar com dinheiro real mesmo sem
     # estrategias validadas. Os sinais saem como operacoes reais, cada um
