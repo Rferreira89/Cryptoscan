@@ -144,10 +144,22 @@ def real(state, precos, cfg, now):
     pedidos = []
     for oid, p in rl.items():
         p["estado"] = estados.get(oid)
-        if p["estado"] == "aberta" and now >= p["sair_em"] and not p.get("pediu_fecho"):
-            if execucao.request(state, "fechar", oid, now):
-                p["pediu_fecho"] = int(now)
+        ex_ = p.get("exec") or {}
+        px = (precos or {}).get(p["asset"])
+        if p["estado"] == "aberta" and not p.get("pediu_fecho"):
+            motivo = None
+            if now >= p["sair_em"]:
+                motivo = "tempo (72 h)"
+            elif px and ex_.get("stop") and px <= ex_["stop"]:
+                motivo = "stop"                    # a ordem de stop da Bybit ja disparou: o fecho limpa o resto
+            elif px and ex_.get("alvo") and px >= ex_["alvo"]:
+                motivo = "objetivo"
+            if motivo and execucao.request(state, "fechar", oid, now):
+                p.update(pediu_fecho=int(now), motivo_fecho=motivo, px_fecho=px)
                 pedidos.append(("fechar", oid))
+        if p["estado"] == "fechada" and not p.get("analisada") and ex_.get("entrada"):
+            p["analisada"] = True
+            _aviso(st, analise(p, st))
     for oid in [k for k, p in rl.items() if p.get("estado") in ("fechada", "recusada") and now - p["criado"] > 30 * 86400]:
         rl.pop(oid)
     autorizada = promo.AUTORIZADOS is not None and ESTRATEGIA in promo.AUTORIZADOS
@@ -181,7 +193,8 @@ def real(state, precos, cfg, now):
                 "risco_usdc": risco, "t_sig": pd["t_sig"], "valido_ate": valido, "sair_em": barra + HOLD * H4,
                 "criado": int(now), "tentativas": (p or {}).get("tentativas", 0) + 1,
                 "acelerado_pct": cc.get("acelerado_pct"),
-                "tudo_usdc": float(pr.get("max_usdc") or 0) if tudo else None}
+                "tudo_usdc": float(pr.get("max_usdc") or 0) if tudo else None,
+                "alav": list(pr.get("alavancagem") or []) if tudo and pr.get("alavancagem") else None}
         rl[oid] = novo
         if execucao.request(state, "panico_comprar", oid, now):
             pedidos.append(("panico_comprar", oid))
@@ -189,6 +202,39 @@ def real(state, precos, cfg, now):
                 minhas += 1
                 abertas_todas += 1
     return pedidos
+
+
+def analise(p, st):
+    """(31/10, Rui: "Quero que o programa e tu com meu mentor analise cada operacao") leitura do fecho."""
+    ex_ = p.get("exec") or {}
+    e, stop = ex_["entrada"], ex_.get("stop") or 0
+    motivo = p.get("motivo_fecho") or ex_.get("motivo") or "fecho"
+    saida = ex_.get("saida") or {"stop": stop, "objetivo": ex_.get("alvo")}.get(motivo) or p.get("px_fecho") or e
+    risco = e - stop if stop and e > stop else None
+    r = (saida - e) / risco if risco else None
+    lev = ex_.get("alavancagem") or 1
+    var = 100 * (saida / e - 1)
+    horas = ((ex_.get("fechado") or 0) - (ex_.get("criado") or 0)) / 3600 if ex_.get("fechado") else None
+    papel = next((x for x in reversed(st.get("fechadas") or []) if x.get("asset") == p["asset"]
+                  and abs((x.get("t_sig") or 0) - p["t_sig"]) <= 3 * H4), None)
+    L = [f"🧠 Análise — compra no pânico em {p['asset']} (dinheiro real)",
+         f"Saída por {motivo}: {var:+.1f}% no preço"
+         + (f", {var * lev:+.0f}% na conta com {lev}x" if lev > 1 else "")
+         + (f" ({r:+.2f}R)" if r is not None else "") + (f", {horas:.0f} h aberta." if horas else ".")]
+    if r is not None:
+        if r >= 1.5:
+            L.append("Leitura: o ressalto depois do pânico chegou ao objetivo, como a estratégia procura.")
+        elif r <= -0.8:
+            L.append("Leitura: a queda continuou depois do sinal e o stop protegeu a conta. Faz parte: no histórico, "
+                     "cerca de metade das operações perde.")
+        else:
+            L.append("Leitura: sem ressalto nem queda forte; saiu perto da entrada.")
+    if papel:
+        L.append(f"O papel na mesma moeda deu {papel['r']:+.2f}R ({papel['motivo']}).")
+    rs = [x["r"] for x in st.get("fechadas") or []]
+    if rs:
+        L.append(f"Prova em papel até agora: {len(rs)} operações, média {sum(rs) / len(rs):+.2f}R.")
+    return "\n".join(L)
 
 
 def resumo(st):

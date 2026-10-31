@@ -30,7 +30,7 @@ class Acelerado(unittest.TestCase):
         self.assertEqual(c["modo_acelerado"]["teto_pct"], 2.5)
         self.assertFalse(c["nucleo_ligado"])                     # (30/10) nucleo desligado pelo Rui
         self.assertEqual(c["real_autorizados"], ["PANICO_L10"])   # (31/10) Rui: 20$ com o valor todo
-        self.assertEqual(c["panico_real"], {"modo": "tudo", "max_usdc": 20})   # e no modo valor todo o acelerado nao atua
+        self.assertEqual(c["panico_real"], {"modo": "tudo", "max_usdc": 20, "alavancagem": [5, 10]})   # e no modo valor todo o acelerado nao atua
         st = {"ledger": reg(BOM), "papel_panico": {"fechadas": [{"r": r} for r in BOM]}}
         self.assertIs(A.cfg_para("PANICO_L10", st, c), c)
 

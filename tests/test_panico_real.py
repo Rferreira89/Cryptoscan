@@ -349,6 +349,106 @@ class SinalComPapelAberto(unittest.TestCase):
         self.assertNotIn("ALGO", st["papel_panico"]["pend_real"])
 
 
+class Alavancagem(unittest.TestCase):
+    """(31/10, Rui) valor todo com alavancagem entre 5x e 10x, sem a liquidacao chegar antes do stop."""
+    def compra(self, atr, free=20.4, falha_margem=False):
+        t = Executor("test_compra_com_stop_e_objetivo_anexados")
+        t.setUp()
+        ex = {"ops": {}}
+        X = t.X
+        orig = t.post
+
+        def post(path, body):
+            if falha_margem and body.get("isLeverage"):
+                raise X.ExecError("170131: Insufficient balance (sem margem)")
+            return orig(path, body)
+        t.post = post
+        st = t.plano(risco_usdc=None, tudo_usdc=20.0, alav=[5, 10], atr=atr)
+        res = t.correr(st, ex, free=free)
+        compra = [b for p, b in t.calls if b.get("side") == "Buy"][-1]
+        alav = [b for p, b in t.calls if p == "/v5/spot-margin-trade/set-leverage"]
+        return res, ex["ops"][f"PANICO-ALGO-{T_SIG}"], compra, alav, t.sent
+
+    def test_stop_curto_usa_10x(self):
+        res, op, compra, alav, sent = self.compra(atr=0.0009)              # stop ~2%
+        self.assertEqual(op["alavancagem"], 10)
+        self.assertEqual(alav[0]["leverage"], "10")
+        self.assertEqual(compra["isLeverage"], 1)
+        self.assertAlmostEqual(float(compra["qty"]) * float(compra["price"]), 199.9, delta=2)
+        self.assertIn("alavancagem 10x", sent[-1])
+
+    def test_stop_de_5pc_fica_abaixo_de_10x_e_liquidacao_longe(self):
+        res, op, compra, alav, sent = self.compra(atr=0.0024)              # stop ~5,2%
+        L = op["alavancagem"]
+        self.assertTrue(5 <= L < 10)
+        frac = 0.0048 / 0.0921 + 0.0035
+        self.assertGreaterEqual(1 / L - 0.05, 1.5 * frac - 1e-9)        # liquidacao a >= 1,5x o stop
+
+    def test_stop_largo_baixa_de_5x_e_avisa(self):
+        res, op, compra, alav, sent = self.compra(atr=0.0055)              # stop ~12%
+        self.assertLess(op["alavancagem"], 5)
+        self.assertIn("abaixo de 5x de propósito", sent[-1])
+
+    def test_sem_margem_compra_sem_alavancagem(self):
+        res, op, compra, alav, sent = self.compra(atr=0.0009, falha_margem=True)
+        self.assertEqual(res, "ok")
+        self.assertNotIn("isLeverage", compra)
+        self.assertEqual(op["alavancagem"], 1)
+        self.assertIn("não deu margem", sent[-1])
+
+
+class FechoEAnalise(unittest.TestCase):
+    def setUp(self):
+        self.ant = (promo.AUTORIZADOS, execucao.READY)
+        promo.AUTORIZADOS, execucao.READY = {"PANICO_L10"}, True
+
+    def tearDown(self):
+        promo.AUTORIZADOS, execucao.READY = self.ant
+
+    def aberta(self):
+        st = estado()
+        P.real(st, {"ALGO": 0.0921}, CFG, NOW)
+        oid = f"PANICO-ALGO-{T_SIG}"
+        st["exec_req"], st["auto_ops"] = [], {oid: "aberta"}
+        st["papel_panico"]["real"][oid]["exec"] = {"entrada": 0.0921, "stop": 0.0873, "alvo": 0.1017,
+                                                   "status": "aberta", "criado": NOW, "alavancagem": 5}
+        return st, oid
+
+    def test_stop_da_bybit_pede_fecho_logo(self):
+        st, oid = self.aberta()
+        self.assertEqual(P.real(st, {"ALGO": 0.0900}, CFG, NOW + 60), [])
+        self.assertEqual(P.real(st, {"ALGO": 0.0870}, CFG, NOW + 120), [("fechar", oid)])
+        self.assertEqual(st["papel_panico"]["real"][oid]["motivo_fecho"], "stop")
+
+    def test_objetivo_pede_fecho_logo(self):
+        st, oid = self.aberta()
+        self.assertEqual(P.real(st, {"ALGO": 0.1020}, CFG, NOW + 60), [("fechar", oid)])
+
+    def test_analise_no_fecho_uma_vez(self):
+        st, oid = self.aberta()
+        P.real(st, {"ALGO": 0.0870}, CFG, NOW + 120)
+        st["auto_ops"][oid] = "fechada"
+        st["papel_panico"]["real"][oid]["exec"].update(status="fechada", fechado=NOW + 7200)
+        st["papel_panico"]["fechadas"] = [{"asset": "ALGO", "t_sig": T_SIG, "r": -1.02, "motivo": "stop"}]
+        P.real(st, {"ALGO": 0.0870}, CFG, NOW + 180)
+        m = P.pop_avisos(st)
+        self.assertEqual(len(m), 1)
+        self.assertIn("Análise", m[0])
+        self.assertIn("stop", m[0])
+        self.assertIn("5x", m[0])
+        self.assertIn("-1.00R", m[0])
+        self.assertIn("papel na mesma moeda", m[0])
+        P.real(st, {"ALGO": 0.0870}, CFG, NOW + 240)
+        self.assertEqual(P.pop_avisos(st), [])
+
+    def test_exec_copiado_do_executor(self):
+        st, oid = self.aberta()
+        st["papel_panico"]["real"][oid].pop("exec")
+        execucao.apply(st, {"ops": {oid: {"status": "aberta", "entrada": 0.0921, "stop": 0.0873, "alvo": 0.1017,
+                                          "criado": NOW, "alavancagem": 7}}, "pronto": True})
+        self.assertEqual(st["papel_panico"]["real"][oid]["exec"]["alavancagem"], 7)
+
+
 class Registo(unittest.TestCase):
     def test_acao_registada_e_sem_auto_quando_desligado(self):
         from engine import executor as X

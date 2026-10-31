@@ -76,8 +76,12 @@ def apply(state, ex):
     pend = state.setdefault("auto_be", {})
     import time as _t
     now = max(int(_t.time()), int(ex.get("t") or 0))   # hora atual (o "t" do ficheiro e o da ultima corrida)
+    rl = (state.get("papel_panico") or {}).get("real") or {}
     for k, o in (ex.get("ops") or {}).items():
         auto[k] = o.get("status")
+        if k in rl and isinstance(o, dict):         # (31/10) compra no panico real: dados para o fecho e a analise
+            rl[k]["exec"] = {c: o.get(c) for c in ("entrada", "stop", "alvo", "saida", "status", "criado", "fechado",
+                                                   "motivo", "alavancagem") if o.get(c) is not None}
         rec = led.get(k)
         # (23/10) ordem recusada pela Bybit (ICP, 22/10: moeda sem margem): nada entrou, por isso a
         # operacao deixa de contar como aberta (vaga, familia e moeda); continua seguida em papel

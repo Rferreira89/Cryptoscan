@@ -39,6 +39,10 @@
   },
   "panico_real": {
     "modo": "tudo",
-    "max_usdc": 20
+    "max_usdc": 20,
+    "alavancagem": [
+      5,
+      10
+    ]
   }
 }
