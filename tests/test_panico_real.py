@@ -449,6 +449,45 @@ class FechoEAnalise(unittest.TestCase):
         self.assertEqual(st["papel_panico"]["real"][oid]["exec"]["alavancagem"], 7)
 
 
+class Composto(unittest.TestCase):
+    """(31/10, Rui) os 20 crescem com os ganhos (e encolhem com as perdas)."""
+    CFGC = dict(CFG, panico_real={"modo": "tudo", "max_usdc": 20, "alavancagem": [5, 10], "composto": True})
+
+    def setUp(self):
+        self.ant = (promo.AUTORIZADOS, execucao.READY)
+        promo.AUTORIZADOS, execucao.READY = {"PANICO_L10"}, True
+
+    def tearDown(self):
+        promo.AUTORIZADOS, execucao.READY = self.ant
+
+    def fecha(self, st, saida, lev, t):
+        oid = f"PANICO-ALGO-{T_SIG}"
+        st["auto_ops"] = {oid: "fechada"}
+        st["papel_panico"]["real"][oid]["exec"] = {"entrada": 0.0921, "stop": 0.0873, "alvo": 0.1017, "saida": saida,
+                                                   "status": "fechada", "criado": NOW, "fechado": NOW + 3600,
+                                                   "alavancagem": lev}
+        P.real(st, {}, self.CFGC, t)
+
+    def test_ganho_aumenta_a_proxima_e_perda_diminui(self):
+        st = estado()
+        P.real(st, {"ALGO": 0.0921}, self.CFGC, NOW)
+        self.assertEqual(next(iter(st["papel_panico"]["real"].values()))["tudo_usdc"], 20.0)
+        self.fecha(st, 0.1017, 5, NOW + 4000)                         # +10,4% no preco a 5x
+        f = st["papel_panico"]["composto"]
+        self.assertAlmostEqual(f, 1 + (0.1017 / 0.0921 - 1 - 0.0035) * 5, places=3)
+        self.assertIn("Conta do pânico desde o início: +50%", P.pop_avisos(st)[-1])
+        st["papel_panico"]["pend"] = {"ENA": dict(PEND, lim=0.1737, t_sig=T_SIG + 2 * H4)}
+        P.real(st, {"ENA": 0.17}, self.CFGC, T_SIG + 3 * H4)
+        p = st["papel_panico"]["real"][f"PANICO-ENA-{T_SIG + 2 * H4}"]
+        self.assertAlmostEqual(p["tudo_usdc"], round(20 * f, 2))
+
+    def test_nunca_chega_a_zero(self):
+        st = estado()
+        P.real(st, {"ALGO": 0.0921}, self.CFGC, NOW)
+        self.fecha(st, 0.05, 10, NOW + 4000)
+        self.assertGreaterEqual(st["papel_panico"]["composto"], 0.05)
+
+
 class Registo(unittest.TestCase):
     def test_acao_registada_e_sem_auto_quando_desligado(self):
         from engine import executor as X

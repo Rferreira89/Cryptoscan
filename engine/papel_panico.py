@@ -160,6 +160,8 @@ def real(state, precos, cfg, now):
         if p["estado"] == "fechada" and not p.get("analisada") and ex_.get("entrada"):
             p["analisada"] = True
             _aviso(st, analise(p, st))
+            if p.get("r_conta") is not None:
+                st["composto"] = round(max(0.05, st.get("composto", 1.0) * (1 + p["r_conta"])), 4)
     for oid in [k for k, p in rl.items() if p.get("estado") in ("fechada", "recusada") and now - p["criado"] > 30 * 86400]:
         rl.pop(oid)
     autorizada = promo.AUTORIZADOS is not None and ESTRATEGIA in promo.AUTORIZADOS
@@ -193,7 +195,10 @@ def real(state, precos, cfg, now):
                 "risco_usdc": risco, "t_sig": pd["t_sig"], "valido_ate": valido, "sair_em": barra + HOLD * H4,
                 "criado": int(now), "tentativas": (p or {}).get("tentativas", 0) + 1,
                 "acelerado_pct": cc.get("acelerado_pct"),
-                "tudo_usdc": float(pr.get("max_usdc") or 0) if tudo else None,
+                # (31/10, Rui: "leva-me esses 20$ a outro patamar") juros compostos: o teto cresce (e encolhe)
+                # com o resultado das operacoes reais fechadas; um deposito novo nao entra sozinho
+                "tudo_usdc": round(float(pr.get("max_usdc") or 0) * (st.get("composto", 1.0) if pr.get("composto") else 1.0), 2)
+                if tudo else None,
                 "alav": list(pr.get("alavancagem") or []) if tudo and pr.get("alavancagem") else None}
         rl[oid] = novo
         if execucao.request(state, "panico_comprar", oid, now):
@@ -214,6 +219,7 @@ def analise(p, st):
     r = (saida - e) / risco if risco else None
     lev = ex_.get("alavancagem") or 1
     var = 100 * (saida / e - 1)
+    p["r_conta"] = round((saida / e - 1 - 0.0035) * lev, 4)      # variacao da conta (comissoes incluidas)
     horas = ((ex_.get("fechado") or 0) - (ex_.get("criado") or 0)) / 3600 if ex_.get("fechado") else None
     papel = next((x for x in reversed(st.get("fechadas") or []) if x.get("asset") == p["asset"]
                   and abs((x.get("t_sig") or 0) - p["t_sig"]) <= 3 * H4), None)
@@ -234,6 +240,8 @@ def analise(p, st):
     rs = [x["r"] for x in st.get("fechadas") or []]
     if rs:
         L.append(f"Prova em papel até agora: {len(rs)} operações, média {sum(rs) / len(rs):+.2f}R.")
+    f = st.get("composto", 1.0) * (1 + p["r_conta"])
+    L.append(f"Conta do pânico desde o início: {100 * (f - 1):+.0f}% (a próxima operação usa esse valor).")
     return "\n".join(L)
 
 
@@ -245,4 +253,5 @@ def resumo(st):
             "acerto_pct": round(100 * sum(1 for r in rs if r > 0) / len(rs)) if rs else None,
             "abertas": sorted((st or {}).get("abertas") or {}), "pendentes": sorted((st or {}).get("pend") or {}),
             "ordens_nao_executadas": (st or {}).get("perdidas", 0), "ultimas": fc[-10:],
+            "real_composto_pct": round(100 * ((st or {}).get("composto", 1.0) - 1), 1),
             "meta": "60 operações ou 3 meses com média positiva antes de qualquer proposta de dinheiro real"}
