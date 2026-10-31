@@ -251,6 +251,17 @@ body.sheet-open #sheet{transform:none}
 .panel{display:block!important;scroll-margin-top:8px;padding-bottom:18px;margin-bottom:6px;border-bottom:1px dashed var(--line)}
 .panel::before{content:attr(data-h);display:block;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--up);font-weight:700;margin:6px 0 10px}
 @media (prefers-reduced-motion:reduce){#sheet{transition:none}.al.buy{animation:none}}
+/* (31/10, Rui: "Nao se esta a conseguir ler tudo") nada no centro de comando pode ficar mais largo do que o ecra:
+   tabelas largas deslizam dentro de si, textos longos partem, cartoes encolhem */
+#sheet{max-width:100vw;overflow:hidden;contain:layout paint}
+.sh-body{overflow-x:hidden;min-width:0;max-width:100%}
+html,body{max-width:100%;overflow-x:hidden}
+.sh-body .panel{min-width:0;max-width:100%;overflow-wrap:anywhere}
+.sh-body .panel *{max-width:100%;box-sizing:border-box}
+.sh-body .panel table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.sh-body .panel table td,.sh-body .panel table th{white-space:normal}
+.sh-body .panel [style*="grid"]>*,.sh-body .panel .grid>*{min-width:0}
+.diary td{white-space:normal}
 
 /* Escritorio: cada agente numa secretaria, com o que esta mesmo a fazer */
 .obub{position:absolute;max-width:56%;background:var(--ink);color:var(--bg);font-size:11.5px;line-height:1.3;padding:5px 8px;border-radius:9px;pointer-events:none;box-shadow:0 4px 14px #0008}
