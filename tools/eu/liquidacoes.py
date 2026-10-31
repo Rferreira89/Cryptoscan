@@ -2,7 +2,9 @@
 
 Programa de fundo, separado do trabalhador do GitHub: liga-se ao canal
 publico !forceOrder@arr (a maior liquidacao de cada segundo por moeda) e
-grava uma linha por liquidacao em ~/liq/AAAAMMDD.jsonl. Guarda 10 dias.
+grava uma linha por liquidacao em ~/liq/AAAAMMDD.jsonl. Guarda 45 dias.
+(31/10) arquivar(): cada dia completo vai, em blocos de 5 minutos, para o ramo "liquidacoes"
+(permanente), para os estudos de trades rapidas depois das cascatas de liquidacoes.
 Nao usa chaves nem mexe em nada da conta. Se a ligacao cair, volta a ligar.
 
   python3 -m tools.eu.liquidacoes correr     # o programa de escuta
@@ -22,8 +24,8 @@ VENV = os.path.expanduser("~/liq-venv")
 # a Binance passou os canais de mercado para /market/ws (provado a 2026-10-14:
 # /ws e /stream ligam mas ja nao enviam dados)
 URL = "wss://fstream.binance.com/market/ws/!forceOrder@arr"
-KEEP_DAYS = 10
-VERSION = "6"                    # muda quando o codigo da escuta muda (relanca)
+KEEP_DAYS = 45                    # (31/10) folga para o arquivo permanente apanhar tudo
+VERSION = "7"                    # muda quando o codigo da escuta muda (relanca)
 H4 = 14400
 
 
@@ -142,5 +144,51 @@ def resumo(d=DIR, now=None, days=30):
     return {b: [[k, round(v[0]), round(v[1])] for k, v in sorted(m.items())] for b, m in out.items()}
 
 
+BLOCO = 300
+
+
+def dia_5m(caminho):
+    """Linhas CSV de um dia: t_bloco(5 min),moeda,longs_usd,shorts_usd,n_longs,n_shorts."""
+    from engine.europa import base_of
+    agg = {}
+    for line in open(caminho):
+        try:
+            r = json.loads(line)
+            k = (int(r["t"]) // BLOCO * BLOCO, base_of(r["s"]))
+            v = float(r["q"]) * float(r["p"])
+        except (ValueError, KeyError, TypeError):
+            continue
+        a = agg.setdefault(k, [0.0, 0.0, 0, 0])
+        i = 0 if r.get("lado") == "SELL" else 1
+        a[i] += v
+        a[2 + i] += 1
+    return [f"{t},{b},{round(a[0])},{round(a[1])},{a[2]},{a[3]}" for (t, b), a in sorted(agg.items())]
+
+
+def arquivar(dest, d=DIR, now=None):
+    """Escreve dest/AAAAMMDD.csv.gz para cada dia COMPLETO que ainda nao esteja no arquivo.
+    Devolve a lista dos dias novos."""
+    import gzip
+    now = now or time.time()
+    hoje = time.strftime("%Y%m%d", time.gmtime(now))
+    os.makedirs(dest, exist_ok=True)
+    novos = []
+    for f in sorted(glob.glob(os.path.join(d, "2*.jsonl"))):
+        dia = os.path.basename(f)[:8]
+        alvo = os.path.join(dest, f"{dia}.csv.gz")
+        if dia >= hoje or os.path.exists(alvo):
+            continue
+        linhas = dia_5m(f)
+        if not linhas:
+            continue
+        with gzip.open(alvo, "wt") as g:
+            g.write("t,moeda,longs_usd,shorts_usd,n_longs,n_shorts\n" + "\n".join(linhas) + "\n")
+        novos.append(dia)
+    return novos
+
+
 if __name__ == "__main__":
+    if sys.argv[1] == "arquivar":
+        print("dias novos no arquivo:", arquivar(sys.argv[2]) or "nenhum")
+        sys.exit(0)
     {"correr": correr, "garantir": garantir}[sys.argv[1]]()

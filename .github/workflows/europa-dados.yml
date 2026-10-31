@@ -40,3 +40,19 @@ jobs:
             && git config user.email bot@users.noreply.github.com \
             && git add dados.json && { [ -f livro.json ] && git add livro.json || true; } && git commit -q -m "dados $(date -u +%FT%TZ)" \
             && git push -q -f "$PUSH_URL" europa:europa
+      - name: Arquivo permanente das liquidacoes (blocos de 5 min)
+        # (31/10) cada dia completo da escuta fica no ramo "liquidacoes" para sempre (a escuta so guarda 45 dias)
+        if: always()
+        env:
+          PUSH_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
+        run: |
+          rm -rf /tmp/eul && mkdir -p /tmp/eul && git -C /tmp/eul init -q -b liquidacoes
+          git -C /tmp/eul config user.name cryptoscan-bot && git -C /tmp/eul config user.email bot@users.noreply.github.com
+          if git -C /tmp/eul fetch -q "$PUSH_URL" liquidacoes 2>/dev/null; then git -C /tmp/eul reset -q --hard FETCH_HEAD; else echo "ramo novo"; fi
+          python3 -m tools.eu.liquidacoes arquivar /tmp/eul/5m
+          git -C /tmp/eul add -A 5m 2>/dev/null || true
+          if ! git -C /tmp/eul diff --cached --quiet 2>/dev/null; then
+            git -C /tmp/eul commit -q -m "liquidacoes $(date -u +%F)" && git -C /tmp/eul push -q "$PUSH_URL" liquidacoes:liquidacoes
+          else
+            echo "nada novo"
+          fi
