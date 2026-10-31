@@ -5,8 +5,8 @@ quedas, compressão, oversold bounce 4H, day trade 1H, bounce com outras
 saídas, sweep a mercado, funding negativo, quebra com compradores,
 capitulação do mercado, atraso face ao BTC, resiliente, impulso de
 amplitude; mais 11 no diário de afinação, H1 a H11). Atualizado em
-2026-10-30 (sem hipótese nova nesta corrida; a afinação testou a H11 em
-2026-10-30). O contador global do programa (`engine/hipoteses.py`, com os
+2026-10-31 (sem hipótese nova nesta corrida; autópsia de BOUNCE_V1; a
+afinação não testou nada depois da H11 de 2026-10-30). O contador global do programa (`engine/hipoteses.py`, com os
 estudos fora do programa em `backtest/hipoteses_offline.json`, contra dados
 que incluem esta reserva) já vai em 59 ou mais, sem contar os estudos
 H10–H21 de 26–27/10 em `backtest/estudos/`. Quanto maior este número,
@@ -178,6 +178,7 @@ o Rui), e o morto fica registado. Um por corrida, na segunda vaga.
 | BOUNCE_X30, BOUNCE_X30_LIQ, BOUNCE_X30_PAVIO, BOUNCE_ISOLADA, BOUNCE_SQUEEZE, BOUNCE_TRAIL, BOUNCE_NOREACT, BOUNCE_FLUXO, BOUNCE_FORTE, BOUNCE_HORAS, BOUNCE_ABSORCAO, BOUNCE_G0, BOUNCE_V2, BOUNCE_V3, DIP_TREND | 2026-10-22 (corte dos clones, 04:50 e 09:25 UTC) | não é desempenho: morreram como clones (resultados diários correlacionados 0,75 a 1,00). Defeito encontrado: o representante do grupo também morreu (PAVIO como clone da ISOLADA às 04:50, ISOLADA como clone da PAVIO, já morta, às 09:25), por isso a família inteira do Oversold Bounce, a única acima do acaso, ficou sem ninguém (ver entrada de 2026-10-22) | sem sucessor (um sucessor seria outro clone; a correção é no corte dos clones, numa sessão com o Rui) | — |
 | BOUNCE_LSR | 2026-10-23 09:15 UTC (clone de BOUNCE_MACRO, correlação 0,96) | não é desempenho: no combate de 90 dias tinha 28 op., +0,108R, com o acaso a mediana −0,42R e p95 −0,17R (acima do p95). Foi morta como clone de BOUNCE_MACRO, que já estava morta desde 2026-10-19: é o mesmo defeito do corte dos clones de 2026-10-22, outra vez (ver entrada de 2026-10-23) | sem sucessor (seria outro clone; a correção é no corte dos clones, numa sessão com o Rui) | — |
 | BOUNCE_DESALAV | 2026-10-29 10:55 UTC (clone de BOUNCE_V2, correlação 0,96) | não é desempenho: no combate de 90 dias tinha 20 op., 17 ganhadoras, +0,451R, com o acaso a mediana −0,434R e p95 −0,134R (acima do p95; validação interna 19 op. fora, +0,348R). Foi morta ao chegar às 20 operações como clone de BOUNCE_V2, que está morta desde 2026-10-22: terceira vez o mesmo defeito do corte dos clones (ver entrada de 2026-10-29) | sem sucessor (seria outro clone; a correção é no corte dos clones, numa sessão com o Rui) | — |
+| BOUNCE_V1 | 2026-10-30 19:40 UTC (forma recente, morte rápida; 10 op., −0,703R) | a saída, não a entrada: no mesmo combate e nas mesmas moedas o gatilho com a saída G0 tem 24 op., +0,59R (acima do p95 do acaso); a saída V1 (plano do sistema ao vivo: 1.º objetivo mais longe, até 30 dias, stop na entrada só depois do 1.º objetivo) devolve as subidas na lateral (stops depois de +1,0R a +1,5R a favor); 9 das 16 operações locais nasceram no mesmo dia (2026-10-09), um só acontecimento (ver entrada de 2026-10-31) | sem sucessor (a correção é a saída G0, que já existe e está morta como clone; um sucessor seria outro clone) | — |
 
 ## Hipóteses anteriores a este diário (até 2026-10-02, período 2021-2026)
 
@@ -1663,3 +1664,64 @@ intervalo no diário na lateral, rejeitada hoje: falha 2021-24).
   de a BOUNCE_AMPLITUDE chegar às 20 operações; (2) renascidos sem
   operações na classificação; (3) passar esta corrida a semanal enquanto
   não houver dados novos.
+
+## 2026-10-31 — Sem hipótese nova hoje; autópsia de BOUNCE_V1 (sem sucessor)
+
+**Veredicto da corrida: nenhuma hipótese testada.** O contador desta
+reserva fica em 23 (a afinação não testou nada depois da H11).
+
+- **Histórico** (ramo `history`): atualizado em 2026-10-25 12:30 UTC, 6
+  dias de atraso (abaixo dos 7, não foi preciso correr o workflow).
+  Continua só com velas de 4H, 1H e funding; nenhuma fonte nova com
+  histórico (o arquivo de liquidações do ramo `liquidacoes` começou hoje).
+- **Arena** (scan.json do ramo `data`, 2026-10-31 11:50 UTC): **8
+  lutadores a competir** (SHORT_TURTLE_SHORT, BOUNCE_AMPLITUDE,
+  MAIORES_RECUO, REVERSAO_INTERVALO, VOLUME_ACUMULACAO_R2,
+  MAIORES_TENDENCIA, SHORT_SQUEEZE, BOUNCE_MACRO_R2), mínimo 5,
+  `recrutar` falso. Fila do Rui vazia.
+- **Morto novo: BOUNCE_V1** (Vasco), 2026-10-30 19:40 UTC, motivo "forma
+  recente (90 dias)", morte rápida com 10 operações a −0,703R. Autópsia
+  (`tools/autopsia_bounce_v1.py` sobre o ramo `history` até 2026-10-25,
+  todas as 72 moedas, e `forma.json` do ramo `arena`, 51 moedas da Bybit
+  UE):
+  - **É a saída, não a entrada.** No mesmo combate e nas mesmas moedas, o
+    mesmo gatilho com a saída G0 tem 24 op., 18 ganhadoras, +0,593R (acaso
+    p95 −0,092R); V2 +0,508R e V3 +0,432R, também acima do acaso. Só a V1
+    perde (9 op., 3 ganhadoras, −0,157R hoje; p95 do acaso +0,023R). Nas
+    72 moedas locais (90 dias até 25/10): G0 33 op. +0,71R e 85% de
+    acerto; V1 16 op. +0,43R e 56%.
+  - **Como perde**: a V1 usa o plano do sistema ao vivo (`risk.plan`): 1.º
+    objetivo mediano a +6,8% contra um stop a −3,9%, três objetivos, até
+    30 dias e stop na entrada só depois do 1.º objetivo. Na lateral, 7 das
+    16 operações locais foram ao stop depois de estarem +1,0R a +1,5R a
+    favor; a G0 sai ao fim de 3 dias com esse ganho. Os ganhos da V1 vêm de
+    poucas operações de +2,5R a +3,6R (APT, BONK, SEI, LA), e duas dessas
+    moedas (BONK, LA) estão hoje fora do combate por falta de liquidez.
+  - **A amostra da morte é frágil**: 9 das 16 operações locais entraram no
+    mesmo dia (2026-10-09, entre as 00h e as 08h UTC): é um só acontecimento
+    do mercado contado como nove operações. Além disso a lista de moedas sem
+    liquidez muda de hora a hora, por isso o mesmo lutador tinha 10 op. a
+    −0,703R na hora da morte e 9 op. a −0,157R hoje. A morte rápida com 10
+    operações correlacionadas mede pouco; fica como nota para a sessão com o
+    Rui (contar operações por acontecimento, não por moeda).
+  - Em 24 meses (72 moedas) a V1 tem 108 op., +0,186R, ao nível da G0
+    (+0,141R) e da V3 (+0,193R): a diferença dos 90 dias é do regime
+    lateral recente, não uma falha permanente.
+  **Sem sucessor**: a correção que a autópsia aponta (sair mais cedo, como
+  a G0) é exatamente a BOUNCE_G0, que já existe e está morta como clone
+  desde 2026-10-22; um sucessor seria outra variante do Bounce e morreria
+  pelo mesmo defeito do corte dos clones.
+- **Porque não há hipótese nova**: as mesmas razões de 2026-10-21 a
+  2026-10-30. Sem fonte nova com histórico, as entradas de compra com
+  lógica económica com estes dados já foram testadas ou estão no ringue.
+  Com 23 hipóteses contra esta reserva (cerca de 69% de probabilidade de
+  pelo menos um falso positivo a 5%), uma hipótese fraca só acrescenta
+  ruído. Décima primeira corrida seguida sem hipótese nova.
+- Proposta para a próxima corrida: autópsia se morrer alguém; hipótese
+  nova só com uma fonte nova com histórico (liquidações quando o arquivo
+  tiver meses, interesse em aberto ou rácio long/short no ramo
+  `history`). Para a sessão com o Rui: (1) URGENTE, corte dos clones só
+  com representantes vivos (BOUNCE_AMPLITUDE com 17 op., 17 ganhadoras,
+  +0,82R, chega às 20 em breve); (2) a morte rápida contar acontecimentos
+  e não operações na mesma vela; (3) passar esta corrida a semanal
+  enquanto não houver dados novos.
