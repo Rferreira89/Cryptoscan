@@ -1700,20 +1700,34 @@ def do_panico_ordem(state, req, ex, now, send):
             body.update(takeProfit=fmt(alvo, inst["tick"]), stopLoss=fmt(stop, inst["tick"]),
                         tpOrderType="Market", slOrderType="Market")
         return post("/v5/order/create", body)["orderId"], q
-    sem_margem, anexo = None, True
+    sem_margem, anexo, recusas = None, True, []
     try:
-        try:
-            bid, q = colocar(size, margin, "-L")
-        except ExecError as e:
-            m = str(e).lower()
-            if margin and ("insufficient" in m or "balance" in m or "margin" in m or "leverage" in m):
-                sem_margem, size, margin, alav = str(e)[:100], proprio or size, False, 1   # sem margem nesta moeda
-                bid, q = colocar(size, False, "-M")
-            elif "duplicate" in m:
-                raise
-            else:                                          # anexo recusado: ordem sem ele, stop logo a seguir a executar
-                anexo = False
-                bid, q = colocar(size, margin, "-N", anexar=False)
+        bid = None
+        # (01/11, SEI: a Bybit recusou a margem pedida) tenta a alavancagem pedida e, se a Bybit recusar o
+        # emprestimo, desce passo a passo (5x, 3x, 2x) antes de ficar sem alavancagem
+        passos = [alav] + [x for x in (5, 3, 2) if x < alav] if margin else [1]
+        for k, lv in enumerate(passos):
+            sz = min(size, (proprio or size) * lv) if proprio else size
+            mg = sz > free * 0.98
+            try:
+                bid, q = colocar(sz, mg, f"-L{k}")
+                size, margin, alav = sz, mg, (lv if mg else 1)
+                break
+            except ExecError as e:
+                m = str(e).lower()
+                if "duplicate" in m:
+                    raise
+                if mg and ("insufficient" in m or "balance" in m or "margin" in m or "leverage" in m or "borrow" in m):
+                    recusas.append(f"{lv}x: {str(e)[:70]}")
+                    continue
+                anexo = False                              # anexo recusado: ordem sem ele, stop logo a seguir
+                bid, q = colocar(sz, mg, f"-N{k}", anexar=False)
+                size, margin, alav = sz, mg, (lv if mg else 1)
+                break
+        if bid is None:                                    # nenhuma alavancagem aceite: valor todo sem margem
+            sem_margem = "; ".join(recusas)[:160]
+            size, margin, alav = proprio or size, False, 1
+            bid, q = colocar(size, False, "-M")
     except ExecError as e:
         return recusa(f"a Bybit recusou: {str(e)[:120]}")
     o = {"asset": asset, "symbol": symbol, "status": "pendente", "orderId": bid, "lim": lim, "stop": stop, "alvo": alvo,
@@ -1727,7 +1741,9 @@ def do_panico_ordem(state, req, ex, now, send):
          f"Stop {stop:.6g} · objetivo {alvo:.6g}" + (" (anexados na Bybit)." if anexo else " (o stop é posto logo a seguir à compra)."),
          f"Válida até às {hora}; se não executar, cancelo-a sozinho. Vês a ordem em Ordens abertas na app."]
     if sem_margem:
-        L.append(f"A Bybit não deu margem nesta moeda ({sem_margem}): ordem sem alavancagem.")
+        L.append(f"A Bybit recusou o empréstimo em todas as alavancagens ({sem_margem}): ordem sem alavancagem.")
+    elif recusas:
+        L.append(f"A Bybit não aceitou a alavancagem mais alta ({recusas[0]}); ficou {alav}x.")
     send("\n".join(L), html=True)
     time.sleep(2)
     try:                                                   # o preco pode ja estar abaixo do limite

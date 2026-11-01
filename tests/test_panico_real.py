@@ -610,6 +610,16 @@ class OrdemParada(unittest.TestCase):
         self.assertAlmostEqual(float(b["qty"]) * 0.0924, 19.99, delta=0.15)
         self.assertEqual(ex["ops"][f"PANICO-ALGO-{T_SIG}"]["alavancagem"], 1)
 
+    def test_desce_a_alavancagem_quando_a_bybit_recusa_o_emprestimo(self):
+        ex = {"ops": {}}
+        self.corre(self.X.do_panico_ordem, self.plano(), ex,
+                   falha=lambda b: b.get("isLeverage") and float(b["qty"]) * 0.0924 > 61, msg="Insufficient margin to borrow")
+        b = [b for p, b in self.calls if p == "/v5/order/create"][-1]
+        self.assertEqual(b.get("isLeverage"), 1)
+        op = ex["ops"][f"PANICO-ALGO-{T_SIG}"]
+        self.assertEqual(op["alavancagem"], 3)
+        self.assertIn("ficou 3x", self.sent[0])
+
     def test_nao_autorizada_ou_caducada_nao_poe(self):
         ex = {"ops": {}}
         self.corre(self.X.do_panico_ordem, self.plano(valido_ate=NOW + 30), ex)
