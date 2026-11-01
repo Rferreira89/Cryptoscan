@@ -174,6 +174,8 @@ def real(state, precos, cfg, now):
             pedidos.append((acao, oid))
             return True
         return False
+    # (01/11, OK do Rui) H32: estrategia suspensa do dinheiro real -> as ordens pendentes sao canceladas ja
+    suspensa = promo.AUTORIZADOS is not None and ESTRATEGIA not in promo.AUTORIZADOS
     for oid, p in rl.items():
         p["estado"] = estados.get(oid)
         if p["estado"] is None and now - p["criado"] > 3600:   # o executor nunca respondeu: nao fica preso
@@ -182,6 +184,14 @@ def real(state, precos, cfg, now):
         if ex_.get("sair_em"):
             p["sair_em"] = ex_["sair_em"]
         px = (precos or {}).get(p["asset"])
+        if p["estado"] == "pendente" and suspensa:
+            if now - (p.get("pediu_cancelar") or 0) >= REPETIR_S:
+                r = execucao.request(state, "panico_cancelar", oid, now)
+                if r:
+                    r["motivo"] = "suspensa"
+                    pedidos.append(("panico_cancelar", oid))
+                    p["pediu_cancelar"] = int(now)
+            continue
         if p["estado"] == "pendente":
             # (01/11, SEI) ordem posta sem a alavancagem pedida antes de existir a descida passo a passo: refaz uma vez
             pedida = (p.get("alav") or [1])[0]

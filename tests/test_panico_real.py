@@ -153,6 +153,14 @@ class Gatilho(unittest.TestCase):
         promo.AUTORIZADOS = set()                                                   # o Rui tirou a autorizacao
         self.assertEqual(P.real(st, {}, CFG, sair), [("fechar", oid)])
 
+    def test_suspensa_cancela_a_pendente_ja(self):
+        st, oid = self.pendente()
+        promo.AUTORIZADOS = set()                                                   # (01/11) suspensa pelo Rui (H32)
+        self.assertEqual(P.real(st, {"ALGO": 0.0960}, CFG, NOW + 60), [("panico_cancelar", oid)])
+        self.assertEqual(st["exec_req"][-1]["motivo"], "suspensa")
+        st["exec_req"] = []
+        self.assertEqual(P.real(st, {"ALGO": 0.0960}, CFG, NOW + 120), [])         # nao repete logo
+
     def test_acelerado_entra_no_risco(self):
         st = estado(papel_panico={"pend": {"ALGO": dict(PEND)}, "abertas": {},
                                   "fechadas": [{"r": r} for r in [2.0] * 40 + [-1.0] * 50]})
@@ -610,6 +618,14 @@ class OrdemParada(unittest.TestCase):
         self.assertEqual(ex["ops"][f"PANICO-ALGO-{T_SIG}"]["status"], "cancelada")
         self.assertTrue(any(p == "/v5/order/cancel" for p, b in self.calls))
         self.assertIn("caducou sem executar", self.sent[-1])
+
+    def test_cancelar_por_suspensao_avisa(self):
+        ex = {"ops": {}}
+        self.corre(self.X.do_panico_ordem, self.plano(), ex)
+        self.estado_ordem = ("Cancelled", 0.0, None)
+        req = {"op": f"PANICO-ALGO-{T_SIG}", "motivo": "suspensa"}
+        self.assertEqual(self.corre(self.X.do_panico_cancelar, self.plano(), ex, req=req), "cancelada")
+        self.assertIn("SUSPENSA", self.sent[-1])
 
     def test_cancelar_parcialmente_executada_fica_aberta(self):
         ex = {"ops": {}}

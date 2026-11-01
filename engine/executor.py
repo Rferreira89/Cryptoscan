@@ -1890,7 +1890,10 @@ def do_panico_cancelar(state, req, ex, now, send):
         _panico_aberta(state, oid, o, avg, qty, now, send, parcial=st_[0] != "Filled")
         return "executada antes de cancelar"
     o.update(status="cancelada", motivo=req.get("motivo") or "caducou sem executar", fechado=now)
-    if req.get("motivo") != "silencio":
+    if req.get("motivo") == "suspensa":
+        send(f"🛑 Compra no pânico SUSPENSA do dinheiro real (OK do Rui, estudo H32): cancelei a ordem limite de "
+             f"{o['asset']} a {o['lim']:.6g} na Bybit. Nada foi comprado; a estratégia continua só em papel.")
+    elif req.get("motivo") != "silencio":
         send(f"⌛ Compra no pânico — a ordem limite de {o['asset']} a {o['lim']:.6g} caducou sem executar; "
              "cancelei-a na Bybit. Nada foi comprado.")
     return "cancelada"
