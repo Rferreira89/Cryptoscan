@@ -22,6 +22,15 @@ avaliada uma única vez). Janela desde 2026-10-03 (decisão do Rui): últimos 24
 meses, 18 de desenho e 6 de reserva; menos de 40 operações fora da amostra
 dá "AMOSTRA INSUFICIENTE".
 
+## AUTORIZAÇÃO PRÉVIA DO RUI PARA DINHEIRO REAL — 2026-11-01
+
+O Rui autorizou ("Sim dou", 01/11/2026) que uma estratégia nova passe a dinheiro real SEM novo pedido quando
+cumprir as DUAS condições: (1) passa o CRITÉRIO DA CONTA nas duas metades do histórico; (2) tem pelo menos 30
+operações em papel ao vivo com média positiva. Os agentes continuam a NÃO poder ligar dinheiro real: quando uma
+estratégia cumprir as duas condições, o agente avisa (notificação) e a ligação ao dinheiro é feita numa sessão
+com o Claude, dividindo o capital com a tendência BTC (núcleo a 2x). Caminho para o papel ao vivo: ENTRADA NO
+RINGUE (função de sinal em SINAIS de tools/arena_ringue.py, com teste).
+
 ## CRITÉRIO DA CONTA — obrigatório desde 2026-11-01 (decisão do Rui)
 
 O H32 mostrou que a compra no pânico (+0,08R por sinal, aprovada pelo critério único) PERDE dinheiro
