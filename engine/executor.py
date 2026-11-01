@@ -1058,6 +1058,12 @@ def do_close(state, req, ex, now, send, why="saída do plano"):
 def do_stop_all(state, req, ex, now, send):
     n = 0
     for k, op in list(ex["ops"].items()):
+        if op.get("status") == "pendente":            # (01/11) ordem limite parada da compra no panico
+            try:
+                do_panico_cancelar(state, {"op": k, "motivo": "paragem pedida (/parar)"}, ex, now, send)
+                n += 1
+            except ExecError as e:
+                send(f"⚠️ /parar: não consegui cancelar a ordem de {op.get('asset')}: {str(e)[:80]}")
         if op.get("status") == "aberta":
             do_close(state, {"op": k}, ex, now, send, why="paragem pedida (/parar)")
             n += 1
@@ -1606,11 +1612,225 @@ def do_panico_comprar(state, req, ex, now, send):
     return "ok"
 
 
+# ---------- (01/11, Rui: "na corretora nao tenho nenhuma ordem limite") ordem limite PARADA na Bybit ----------
+# Igual ao estudo (H23 L10): a ordem fica na Bybit ao preco limite, com stop e objetivo anexados, e executa
+# assim que o preco la chega (comissao de quem espera). O scanner pede a verificacao, o cancelamento quando
+# caduca e o fecho (do_close). Estados em exec.json: pendente -> aberta -> fechada, ou pendente -> cancelada.
+H4_S = 14400
+
+
+def _panico_plano(state, oid):
+    return (((state.get("papel_panico") or {}).get("real") or {}).get(oid))
+
+
+def _panico_tamanho(p, e0, stop, free):
+    """(posicao USDC, alavancagem, USDC proprio, distancia do stop com comissoes)."""
+    frac = (e0 - stop) / e0 + 0.0035
+    if p.get("tudo_usdc"):
+        alav = 1
+        if p.get("alav"):
+            alav = max(1, min(int(p["alav"][1]), int(1 / (1.5 * frac + MMR_PANICO))))
+        proprio = min(free * 0.98, float(p["tudo_usdc"]))
+        return proprio * alav, alav, proprio, frac
+    from .risk import leverage_for
+    size = float(p["risco_usdc"]) / frac
+    teto = int(leverage_for((e0 - stop) / e0, {"swing_leverage": 10.0})["max_safe"])
+    return size, min(10, teto, max(1, math.ceil(size / max(free * 0.98, 1e-9) - 1e-9))), None, frac
+
+
+def _alavancagem_conta(need):
+    if need <= 1:
+        return 1.0
+    try:
+        lev = float(get("/v5/spot-margin-trade/state").get("spotLeverage") or 1)
+    except ExecError:
+        lev = 1.0
+    if need > lev:
+        try:
+            post("/v5/spot-margin-trade/set-leverage", {"leverage": str(int(need))})
+            lev = float(need)
+        except ExecError as e:
+            print("teto de alavancagem nao alterado:", e)
+    return lev
+
+
+def do_panico_ordem(state, req, ex, now, send):
+    from . import config
+    oid = req["op"]
+    p = _panico_plano(state, oid)
+    if not p:
+        return "plano não encontrado"
+    if (ex["ops"].get(oid) or {}).get("status") in ("pendente", "aberta"):
+        return "já colocada antes"
+    asset, symbol = p["asset"], p.get("symbol") or f"{p['asset']}USDC"
+
+    def recusa(why, avisar=True):
+        if avisar:
+            send(f"⚠️ Compra no pânico — não pus a ordem de {asset}: {why}. Nada foi comprado.")
+        ex["ops"][oid] = {"asset": asset, "status": "recusada", "motivo": why, "t": now, "estrategia": PANICO}
+        return why
+    if PANICO not in (config.load().get("real_autorizados") or []):
+        return recusa("a estratégia não está autorizada para dinheiro real", avisar=False)
+    if now >= p["valido_ate"] - 60:
+        return recusa("o sinal já caducou", avisar=False)
+    lim = p["lim"]
+    stop = lim - 2 * p["atr"]
+    if stop <= 0:
+        return recusa("stop inválido")
+    alvo = lim + 2 * (lim - stop)
+    inst = instrument(symbol)
+    w = wallet()
+    free = usdc_free(w)
+    size, alav, proprio, frac = _panico_tamanho(p, lim, stop, free)
+    lev = _alavancagem_conta(alav)
+    size = min(size, math.floor(free * 0.98 * max(1.0, min(lev, alav)) * 100) / 100)
+    if size < inst["min_amt"]:
+        return recusa(f"valor ({size:.2f} USDC) abaixo do mínimo da Bybit ({inst['min_amt']:g}); USDC livre {free:.2f}")
+    margin = size > free * 0.98
+    debt0 = usdc_debt(w)
+
+    def colocar(sz, mg, sufixo, anexar=True):
+        q = floor_to(sz / lim, inst["base_step"])
+        body = {"category": "spot", "symbol": symbol, "side": "Buy", "orderType": "Limit", "timeInForce": "GTC",
+                "price": fmt(lim, inst["tick"]), "qty": fmt(q, inst["base_step"]),
+                "orderLinkId": f"{LINK}{_tag(oid)}{sufixo}"[:36]}
+        if mg:
+            body["isLeverage"] = 1
+        if anexar:
+            body.update(takeProfit=fmt(alvo, inst["tick"]), stopLoss=fmt(stop, inst["tick"]),
+                        tpOrderType="Market", slOrderType="Market")
+        return post("/v5/order/create", body)["orderId"], q
+    sem_margem, anexo = None, True
+    try:
+        try:
+            bid, q = colocar(size, margin, "-L")
+        except ExecError as e:
+            m = str(e).lower()
+            if margin and ("insufficient" in m or "balance" in m or "margin" in m or "leverage" in m):
+                sem_margem, size, margin, alav = str(e)[:100], proprio or size, False, 1   # sem margem nesta moeda
+                bid, q = colocar(size, False, "-M")
+            elif "duplicate" in m:
+                raise
+            else:                                          # anexo recusado: ordem sem ele, stop logo a seguir a executar
+                anexo = False
+                bid, q = colocar(size, margin, "-N", anexar=False)
+    except ExecError as e:
+        return recusa(f"a Bybit recusou: {str(e)[:120]}")
+    o = {"asset": asset, "symbol": symbol, "status": "pendente", "orderId": bid, "lim": lim, "stop": stop, "alvo": alvo,
+         "qty_ordem": q, "usdc_ordem": round(size, 2), "anexo": anexo, "criado": now, "t": now, "estrategia": PANICO,
+         "alavancagem": alav if margin else 1, "proprio": proprio, "valido_ate": p["valido_ate"], "debt0": debt0,
+         "tipo": p.get("tipo")}
+    ex["ops"][oid] = o
+    hora = time.strftime("%H:%M", time.localtime(p["valido_ate"]))
+    L = [f"📌 <b>Ordem limite na Bybit: {asset}</b> (compra no pânico, automática)",
+         f"Compra a {lim:.6g} com {size:.2f} USDC" + (f" ({o['alavancagem']}x, {proprio:.2f} teus)" if proprio else "") + ".",
+         f"Stop {stop:.6g} · objetivo {alvo:.6g}" + (" (anexados na Bybit)." if anexo else " (o stop é posto logo a seguir à compra)."),
+         f"Válida até às {hora}; se não executar, cancelo-a sozinho. Vês a ordem em Ordens abertas na app."]
+    if sem_margem:
+        L.append(f"A Bybit não deu margem nesta moeda ({sem_margem}): ordem sem alavancagem.")
+    send("\n".join(L), html=True)
+    time.sleep(2)
+    try:                                                   # o preco pode ja estar abaixo do limite
+        _panico_verifica(state, oid, ex, now, send)
+    except ExecError:
+        pass
+    return "ok"
+
+
+def _panico_aberta(state, oid, o, avg, qty, now, send, parcial=False):
+    inst = instrument(o["symbol"])
+    part = {"orderId": o["orderId"], "usdc": round(avg * qty, 2), "tp": o["alvo"], "preco": avg, "qty": qty,
+            "anexo": o.get("anexo", True)}
+    o.update(status="aberta", entrada=avg, qty=qty, usdc=part["usdc"], partes=[part], executada=now,
+             sair_em=int(now // H4_S * H4_S + 18 * H4_S))
+    if not part["anexo"]:
+        try:
+            part["stopId"] = stop_order(o["symbol"], qty, o["stop"], inst, f"{_tag(oid)}-s0")
+        except ExecError as e:
+            part["stop_erro"] = str(e)[:100]
+            try:
+                sell_all(o["symbol"], qty, inst, f"{_tag(oid)}-x")
+                o.update(status="fechada", fechado=now, motivo="sem stop: vendida logo")
+                send(f"🚨 Compra no pânico — {o['asset']}: a Bybit recusou o stop; vendi logo as moedas. Confirma na app.")
+            except ExecError as e2:
+                o["erro"] = f"stop e venda falharam: {str(e2)[:80]}"
+                send(f"🚨🚨 {o['asset']} FICOU SEM STOP na Bybit. Põe já o stop em {o['stop']:.6g} na app.")
+            return
+    for _ in range(6):
+        time.sleep(2)
+        try:
+            _match_children(o["symbol"], [x for x in o["partes"] if not x.get("filho")], o["criado"], inst["base_step"])
+        except ExecError:
+            pass
+        if all(x.get("filho") or not x.get("anexo") for x in o["partes"]):
+            break
+    try:
+        o["emprestado"] = round(max(0.0, usdc_debt(wallet()) - (o.get("debt0") or 0)), 4)
+    except ExecError:
+        o["emprestado"] = None
+    perda = qty * (avg - o["stop"])
+    prop = o.get("proprio") or part["usdc"]
+    L = [f"⚡ <b>Compra no pânico executada: {o['asset']}</b>" + (" (parcial)" if parcial else ""),
+         f"A ordem limite executou: {part['usdc']:.2f} USDC a {avg:.6g} ({qty:.6g} {o['asset']}), alavancagem {o.get('alavancagem') or 1}x.",
+         f"Stop {o['stop']:.6g} (perda máxima ≈ {perda:.2f} USDC = {100 * perda / max(prop, 1e-9):.0f}% da conta) · "
+         f"objetivo {o['alvo']:.6g} · saída por tempo em 72 h.",
+         "Stop e objetivo estão na Bybit." if part["anexo"] else "O stop ficou na Bybit como ordem condicional."]
+    if o.get("tipo"):
+        L.append(f"Pânico {o['tipo']}.")
+    send("\n".join(L), html=True)
+
+
+def _panico_verifica(state, oid, ex, now, send):
+    o = ex["ops"].get(oid) or {}
+    if o.get("status") != "pendente":
+        return "nada a verificar"
+    st_ = order_state(o["orderId"], o["symbol"])
+    if not st_:
+        return "estado desconhecido"
+    estado, cum = st_[0], st_[1]
+    if estado == "Filled" or (cum > 0 and estado in ("Cancelled", "PartiallyFilledCanceled", "Deactivated")):
+        avg, qty = fills(o["orderId"], o["symbol"], o["asset"])
+        _panico_aberta(state, oid, o, avg, qty, now, send, parcial=estado != "Filled")
+        return "executada"
+    if estado in ("Cancelled", "Rejected", "Deactivated"):
+        o.update(status="cancelada", motivo=f"a Bybit marcou a ordem como {estado}", fechado=now)
+        return "cancelada"
+    return f"à espera ({estado})"
+
+
+def do_panico_verificar(state, req, ex, now, send):
+    return _panico_verifica(state, req["op"], ex, now, send)
+
+
+def do_panico_cancelar(state, req, ex, now, send):
+    oid = req["op"]
+    o = ex["ops"].get(oid) or {}
+    if o.get("status") != "pendente":
+        return "nada a cancelar"
+    try:
+        post("/v5/order/cancel", {"category": "spot", "symbol": o["symbol"], "orderId": o["orderId"]})
+    except ExecError as e:
+        if "not exist" not in str(e).lower() and "filled" not in str(e).lower():
+            raise
+    time.sleep(1)
+    st_ = order_state(o["orderId"], o["symbol"])
+    if st_ and st_[1] > 0:                                 # executou (toda ou parte) antes de cancelar
+        avg, qty = fills(o["orderId"], o["symbol"], o["asset"])
+        _panico_aberta(state, oid, o, avg, qty, now, send, parcial=st_[0] != "Filled")
+        return "executada antes de cancelar"
+    o.update(status="cancelada", motivo=req.get("motivo") or "caducou sem executar", fechado=now)
+    if req.get("motivo") != "silencio":
+        send(f"⌛ Compra no pânico — a ordem limite de {o['asset']} a {o['lim']:.6g} caducou sem executar; "
+             "cancelei-a na Bybit. Nada foi comprado.")
+    return "cancelada"
+
+
 ACTIONS = {"vender": do_short, "teste_short": do_test_short, "limpar_short": do_clean_short, "ordens": do_orders, "teste_alav": do_test_lev, "teste_margem": do_test_margin, "teste2": do_test2, "limpar": do_clean, "diag": do_diag, "comprar": do_buy, "breakeven": do_breakeven, "fechar": do_close,
            "parar": do_stop_all, "teste": do_test,
            "nucleo_comprar": do_nucleo_comprar, "nucleo_vender": do_nucleo_vender,
            "nucleo_reforcar": do_nucleo_reforcar, "nucleo_acertar": do_nucleo_acertar,
-           "panico_comprar": do_panico_comprar}
+           "panico_comprar": do_panico_comprar, "panico_ordem": do_panico_ordem,
+           "panico_verificar": do_panico_verificar, "panico_cancelar": do_panico_cancelar}
 
 
 def main(state_path, ex_in, out):

@@ -39,7 +39,7 @@ def apply(state, ex):
     ops = ex.setdefault("ops", {})
     for x in ex.get("log") or []:
         acao, res = x.get("acao"), str(x.get("res") or "")
-        if acao in ("comprar", "vender") and res.startswith("erro: "):
+        if acao in ("comprar", "vender", "panico_ordem") and res.startswith("erro: "):
             op = str(x.get("id") or "")[len(acao) + 1:].rsplit("-", 1)[0]
             if op and op not in ops:
                 ops[op] = {"asset": op.split("-")[0], "status": "recusada", "motivo": res[6:], "t": x.get("t"),
@@ -81,7 +81,7 @@ def apply(state, ex):
         auto[k] = o.get("status")
         if k in rl and isinstance(o, dict):         # (31/10) compra no panico real: dados para o fecho e a analise
             rl[k]["exec"] = {c: o.get(c) for c in ("entrada", "stop", "alvo", "saida", "status", "criado", "fechado",
-                                                   "motivo", "alavancagem") if o.get(c) is not None}
+                                                   "motivo", "alavancagem", "sair_em", "lim") if o.get(c) is not None}
         rec = led.get(k)
         # (23/10) ordem recusada pela Bybit (ICP, 22/10: moeda sem margem): nada entrou, por isso a
         # operacao deixa de contar como aberta (vaga, familia e moeda); continua seguida em papel

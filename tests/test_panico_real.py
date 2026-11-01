@@ -44,69 +44,95 @@ class Gatilho(unittest.TestCase):
         self.assertEqual(P.real(estado(auto={"ligado": False}), {"ALGO": 0.0920}, CFG, NOW), [])
         self.assertEqual(P.real(estado(halt={"t": NOW}), {"ALGO": 0.0920}, CFG, NOW), [])
 
-    def test_preco_acima_do_limite_espera(self):
-        st = estado()
-        self.assertEqual(P.real(st, {"ALGO": 0.0930}, CFG, NOW), [])
-        self.assertEqual(P.real(st, {}, CFG, NOW), [])
+    def test_sem_preco_nao_pede(self):
+        self.assertEqual(P.real(estado(), {}, CFG, NOW), [])
 
-    def test_limite_tocado_pede_compra_com_plano(self):
+    def test_sinal_poe_ordem_limite_na_bybit_mesmo_com_o_preco_acima(self):
         st = estado()
-        out = P.real(st, {"ALGO": 0.0921}, CFG, NOW)
+        out = P.real(st, {"ALGO": 0.0950}, CFG, NOW)                 # 2,8% acima do limite: a ordem fica a espera
         oid = f"PANICO-ALGO-{T_SIG}"
-        self.assertEqual(out, [("panico_comprar", oid)])
+        self.assertEqual(out, [("panico_ordem", oid)])
         p = st["papel_panico"]["real"][oid]
         self.assertEqual(p["risco_usdc"], 5.0)
         self.assertEqual(p["valido_ate"], T_SIG + 3 * H4)
-        self.assertEqual(p["sair_em"], NOW // H4 * H4 + 18 * H4)
-        self.assertEqual(st["exec_req"][0]["acao"], "panico_comprar")
-        self.assertEqual(P.real(st, {"ALGO": 0.0921}, CFG, NOW + 60), [])          # nunca pede duas vezes
+        self.assertEqual(st["exec_req"][0]["acao"], "panico_ordem")
+        self.assertEqual(P.real(st, {"ALGO": 0.0950}, CFG, NOW + 60), [])          # nunca pede duas vezes
 
     def test_papel_aberto_nao_bloqueia_sinal_real(self):
         st = estado()
         st["papel_panico"]["pend"] = {}
         st["papel_panico"]["pend_real"] = {"ALGO": dict(PEND)}
         out = P.real(st, {"ALGO": 0.0921}, CFG, NOW)
-        self.assertEqual(out, [("panico_comprar", f"PANICO-ALGO-{T_SIG}")])
+        self.assertEqual(out, [("panico_ordem", f"PANICO-ALGO-{T_SIG}")])
 
     def test_expirado_nao_pede(self):
         self.assertEqual(P.real(estado(), {"ALGO": 0.0921}, CFG, T_SIG + 3 * H4 + 1), [])
 
-    def test_limite_de_abertas(self):
+    def test_varios_sinais_fica_o_mais_perto(self):
         st = estado(auto_ops={"a": "aberta", "b": "aberta", "c": "aberta", "d": "aberta"})
-        self.assertEqual(P.real(st, {"ALGO": 0.0921}, CFG, NOW), [])
+        self.assertEqual(P.real(st, {"ALGO": 0.0921}, CFG, NOW), [])            # limite de posicoes
         st = estado()
         st["papel_panico"]["pend"]["ENA"] = dict(PEND, lim=0.1737)
         st["papel_panico"]["pend"]["PYTH"] = dict(PEND, lim=0.0624)
-        out = P.real(st, {"ALGO": 0.0921, "ENA": 0.17, "PYTH": 0.06}, CFG, NOW)
+        out = P.real(st, {"ALGO": 0.0960, "ENA": 0.1740, "PYTH": 0.066}, CFG, NOW)
+        self.assertEqual([o[1] for o in out][:1], [f"PANICO-ENA-{T_SIG}"])     # ENA esta a 0,2% do limite
         self.assertEqual(len(out), P.MAX_REAIS)
 
-    def test_recusada_tenta_outra_vez_mais_tarde(self):
+    def test_valor_todo_uma_ordem_de_cada_vez(self):
+        cfgt = dict(CFG, panico_real={"modo": "tudo", "max_usdc": 20})
         st = estado()
-        P.real(st, {"ALGO": 0.0921}, CFG, NOW)
+        st["papel_panico"]["pend"]["ENA"] = dict(PEND, lim=0.1737)
+        out = P.real(st, {"ALGO": 0.0960, "ENA": 0.1740}, cfgt, NOW)
+        self.assertEqual(out, [("panico_ordem", f"PANICO-ENA-{T_SIG}")])
+        st["exec_req"], st["auto_ops"] = [], {f"PANICO-ENA-{T_SIG}": "pendente"}
+        self.assertNotIn("panico_ordem", [a for a, _ in P.real(st, {"ALGO": 0.0960, "ENA": 0.1740}, cfgt, NOW + 60)])
+
+    def pendente(self):
+        st = estado()
+        P.real(st, {"ALGO": 0.0950}, CFG, NOW)
         oid = f"PANICO-ALGO-{T_SIG}"
+        st["exec_req"], st["auto_ops"] = [], {oid: "pendente"}
+        return st, oid
+
+    def test_preco_no_limite_pede_verificacao(self):
+        st, oid = self.pendente()
+        self.assertEqual(P.real(st, {"ALGO": 0.0921}, CFG, NOW + 400), [("panico_verificar", oid)])
         st["exec_req"] = []
-        st["auto_ops"] = {oid: "recusada"}
-        self.assertEqual(P.real(st, {"ALGO": 0.0921}, CFG, NOW + 60), [])           # cedo demais
-        self.assertEqual(P.real(st, {"ALGO": 0.0921}, CFG, NOW + P.REPETIR_S + 1), [("panico_comprar", oid)])
-        self.assertEqual(st["papel_panico"]["real"][oid]["tentativas"], 2)
+        self.assertEqual(P.real(st, {"ALGO": 0.0921}, CFG, NOW + 500), [])          # nao a cada minuto
+
+    def test_longe_do_limite_verifica_de_30_em_30_min(self):
+        st, oid = self.pendente()
+        st["papel_panico"]["real"][oid]["verif"] = NOW
+        self.assertEqual(P.real(st, {"ALGO": 0.0960}, CFG, NOW + 600), [])
+        self.assertEqual(P.real(st, {"ALGO": 0.0960}, CFG, NOW + 1900), [("panico_verificar", oid)])
+
+    def test_caducada_pede_cancelamento(self):
+        st, oid = self.pendente()
+        self.assertEqual(P.real(st, {"ALGO": 0.0960}, CFG, T_SIG + 3 * H4), [("panico_cancelar", oid)])
+        st["exec_req"] = []
+        self.assertEqual(P.real(st, {"ALGO": 0.0960}, CFG, T_SIG + 3 * H4 + 60), [])
+
+    def test_cancelada_liberta_para_o_proximo(self):
+        st, oid = self.pendente()
+        st["auto_ops"] = {oid: "cancelada"}
+        st["papel_panico"]["pend"]["ENA"] = dict(PEND, lim=0.1737, t_sig=T_SIG + H4)
+        self.assertEqual(P.real(st, {"ENA": 0.1740}, CFG, NOW + H4), [("panico_ordem", f"PANICO-ENA-{T_SIG + H4}")])
 
     def test_saida_por_tempo(self):
-        st = estado()
-        P.real(st, {"ALGO": 0.0921}, CFG, NOW)
-        oid = f"PANICO-ALGO-{T_SIG}"
-        st["exec_req"], st["auto_ops"] = [], {oid: "aberta"}
-        sair = st["papel_panico"]["real"][oid]["sair_em"]
+        st, oid = self.pendente()
+        st["auto_ops"] = {oid: "aberta"}
+        sair = NOW // H4 * H4 + 18 * H4
+        st["papel_panico"]["real"][oid]["exec"] = {"entrada": 0.0924, "stop": 0.0876, "alvo": 0.102, "sair_em": sair}
         self.assertEqual(P.real(st, {"ALGO": 0.095}, CFG, sair - 10), [])
         self.assertEqual(P.real(st, {"ALGO": 0.095}, CFG, sair), [("fechar", oid)])
         self.assertEqual(P.real(st, {"ALGO": 0.095}, CFG, sair + 60), [])
 
     def test_saida_por_tempo_mesmo_desautorizada(self):
-        st = estado()
-        P.real(st, {"ALGO": 0.0921}, CFG, NOW)
-        oid = f"PANICO-ALGO-{T_SIG}"
-        st["exec_req"], st["auto_ops"] = [], {oid: "aberta"}
+        st, oid = self.pendente()
+        st["auto_ops"] = {oid: "aberta"}
+        sair = NOW + 18 * H4
+        st["papel_panico"]["real"][oid]["exec"] = {"entrada": 0.0924, "stop": 0.0876, "alvo": 0.102, "sair_em": sair}
         promo.AUTORIZADOS = set()                                                   # o Rui tirou a autorizacao
-        sair = st["papel_panico"]["real"][oid]["sair_em"]
         self.assertEqual(P.real(st, {}, CFG, sair), [("fechar", oid)])
 
     def test_acelerado_entra_no_risco(self):
@@ -486,6 +512,120 @@ class Composto(unittest.TestCase):
         P.real(st, {"ALGO": 0.0921}, self.CFGC, NOW)
         self.fecha(st, 0.05, 10, NOW + 4000)
         self.assertGreaterEqual(st["papel_panico"]["composto"], 0.05)
+
+
+class OrdemParada(unittest.TestCase):
+    """(01/11) a ordem limite fica parada na Bybit; verificar, cancelar e /parar."""
+    def setUp(self):
+        from engine import executor as X
+        self.X, self.calls, self.sent = X, [], []
+        self.estado_ordem = ("New", 0.0, None)
+
+    def post(self, path, body):
+        self.calls.append((path, dict(body)))
+        if self.falha and path == "/v5/order/create" and self.falha(body):
+            raise self.X.ExecError(self.msg)
+        return {"orderId": f"o{len(self.calls)}"}
+
+    def corre(self, fn, st, ex, req=None, free=20.4, falha=None, msg="", fills=(0.0924, 216.0), now=NOW):
+        X = self.X
+        self.falha, self.msg = falha, msg
+        ps = [mock.patch.object(X, "instrument", return_value={"tick": "0.0001", "base_step": "0.1", "min_amt": 5.0}),
+              mock.patch.object(X, "post", side_effect=self.post),
+              mock.patch.object(X, "wallet", return_value={}),
+              mock.patch.object(X, "usdc_free", return_value=free),
+              mock.patch.object(X, "usdc_debt", return_value=0.0),
+              mock.patch.object(X, "order_state", side_effect=lambda oid, sym: self.estado_ordem),
+              mock.patch.object(X, "fills", return_value=fills),
+              mock.patch.object(X, "_match_children"),
+              mock.patch.object(X, "get", return_value={"spotLeverage": "1"}),
+              mock.patch.object(X.time, "sleep"),
+              mock.patch("engine.config.load", return_value={"real_autorizados": ["PANICO_L10"]})]
+        for p in ps:
+            p.start()
+        try:
+            return fn(st, req or {"op": f"PANICO-ALGO-{T_SIG}"}, ex, now, lambda t, html=False: self.sent.append(t))
+        finally:
+            for p in ps:
+                p.stop()
+
+    def plano(self, **kw):
+        p = {"asset": "ALGO", "symbol": "ALGOUSDC", "lim": 0.0924, "atr": 0.0024, "risco_usdc": None, "tudo_usdc": 20.0,
+             "alav": [5, 10], "t_sig": T_SIG, "valido_ate": T_SIG + 3 * H4, "tipo": "mercado"}
+        p.update(kw)
+        return {"papel_panico": {"real": {f"PANICO-ALGO-{T_SIG}": p}}}
+
+    def test_poe_ordem_limite_gtc_com_stop_e_objetivo(self):
+        ex = {"ops": {}}
+        self.assertEqual(self.corre(self.X.do_panico_ordem, self.plano(), ex), "ok")
+        b = [b for p, b in self.calls if p == "/v5/order/create"][0]
+        self.assertEqual((b["orderType"], b["timeInForce"], b["price"]), ("Limit", "GTC", "0.0924"))
+        self.assertEqual((b["stopLoss"], b["takeProfit"]), ("0.0876", "0.1020"))
+        self.assertEqual(b.get("isLeverage"), 1)                                   # 20 USDC x alavancagem
+        op = ex["ops"][f"PANICO-ALGO-{T_SIG}"]
+        self.assertEqual(op["status"], "pendente")
+        self.assertTrue(5 <= op["alavancagem"] <= 10)
+        self.assertIn("Ordem limite na Bybit", self.sent[0])
+
+    def test_executa_logo_se_o_preco_ja_estiver_abaixo(self):
+        self.estado_ordem = ("Filled", 216.0, 0.0924)
+        ex = {"ops": {}}
+        self.corre(self.X.do_panico_ordem, self.plano(), ex)
+        op = ex["ops"][f"PANICO-ALGO-{T_SIG}"]
+        self.assertEqual(op["status"], "aberta")
+        self.assertEqual(op["sair_em"], NOW // H4 * H4 + 18 * H4)
+        self.assertIn("Compra no pânico executada", self.sent[-1])
+
+    def test_verificar_a_espera_e_depois_executada(self):
+        ex = {"ops": {}}
+        self.corre(self.X.do_panico_ordem, self.plano(), ex)
+        self.assertTrue(self.corre(self.X.do_panico_verificar, self.plano(), ex).startswith("à espera"))
+        self.estado_ordem = ("Filled", 216.0, 0.0924)
+        self.assertEqual(self.corre(self.X.do_panico_verificar, self.plano(), ex), "executada")
+        self.assertEqual(ex["ops"][f"PANICO-ALGO-{T_SIG}"]["entrada"], 0.0924)
+
+    def test_cancelar_quando_caduca(self):
+        ex = {"ops": {}}
+        self.corre(self.X.do_panico_ordem, self.plano(), ex)
+        self.estado_ordem = ("Cancelled", 0.0, None)
+        self.assertEqual(self.corre(self.X.do_panico_cancelar, self.plano(), ex), "cancelada")
+        self.assertEqual(ex["ops"][f"PANICO-ALGO-{T_SIG}"]["status"], "cancelada")
+        self.assertTrue(any(p == "/v5/order/cancel" for p, b in self.calls))
+        self.assertIn("caducou sem executar", self.sent[-1])
+
+    def test_cancelar_parcialmente_executada_fica_aberta(self):
+        ex = {"ops": {}}
+        self.corre(self.X.do_panico_ordem, self.plano(), ex)
+        self.estado_ordem = ("PartiallyFilledCanceled", 100.0, 0.0924)
+        self.corre(self.X.do_panico_cancelar, self.plano(), ex, fills=(0.0924, 99.9))
+        op = ex["ops"][f"PANICO-ALGO-{T_SIG}"]
+        self.assertEqual((op["status"], op["qty"]), ("aberta", 99.9))
+        self.assertIn("(parcial)", self.sent[-1])
+
+    def test_sem_margem_poe_ordem_sem_alavancagem(self):
+        ex = {"ops": {}}
+        self.corre(self.X.do_panico_ordem, self.plano(), ex, falha=lambda b: b.get("isLeverage"), msg="Insufficient margin")
+        b = [b for p, b in self.calls if p == "/v5/order/create"][-1]
+        self.assertNotIn("isLeverage", b)
+        self.assertAlmostEqual(float(b["qty"]) * 0.0924, 19.99, delta=0.15)
+        self.assertEqual(ex["ops"][f"PANICO-ALGO-{T_SIG}"]["alavancagem"], 1)
+
+    def test_nao_autorizada_ou_caducada_nao_poe(self):
+        ex = {"ops": {}}
+        self.corre(self.X.do_panico_ordem, self.plano(valido_ate=NOW + 30), ex)
+        self.assertFalse([1 for p, b in self.calls if p == "/v5/order/create"])
+        self.assertEqual(ex["ops"][f"PANICO-ALGO-{T_SIG}"]["status"], "recusada")
+
+    def test_parar_cancela_a_ordem_pendente(self):
+        ex = {"ops": {}}
+        self.corre(self.X.do_panico_ordem, self.plano(), ex)
+        self.estado_ordem = ("Cancelled", 0.0, None)
+        self.corre(self.X.do_stop_all, self.plano(), ex, req={"op": ""})
+        self.assertEqual(ex["ops"][f"PANICO-ALGO-{T_SIG}"]["status"], "cancelada")
+
+    def test_acoes_registadas(self):
+        for a in ("panico_ordem", "panico_verificar", "panico_cancelar"):
+            self.assertIn(a, self.X.ACTIONS)
 
 
 class Registo(unittest.TestCase):

@@ -154,8 +154,13 @@ REPETIR_S = 900
 
 
 def real(state, precos, cfg, now):
-    """Pede ao executor as compras reais quando o preco ao vivo chega ao limite de um sinal pendente
-    e a saida por tempo das abertas. Nao faz nada sem autorizacao, execucao pronta e modo automatico."""
+    """Dinheiro real da compra no panico (so com autorizacao, execucao pronta e modo automatico).
+
+    (01/11, Rui: "na corretora nao tenho nenhuma ordem limite") a ordem limite fica MESMO na Bybit, como no
+    estudo: quando nasce um sinal, o executor poe a ordem limite com stop e objetivo anexados; se ha varios
+    sinais, so o mais perto do preco (o saldo e de uma operacao de cada vez). O scanner pede a verificacao
+    quando o preco toca no limite (e de 30 em 30 min), o cancelamento quando a ordem caduca e o fecho por
+    tempo (72 h depois da execucao) ou quando a Bybit ja executou o stop ou o objetivo."""
     from . import acelerado, auto, execucao, promo
     st = state.get("papel_panico")
     if not st:
@@ -163,27 +168,44 @@ def real(state, precos, cfg, now):
     rl = st.setdefault("real", {})
     estados = state.get("auto_ops") or {}
     pedidos = []
+
+    def pedir(acao, oid):
+        if execucao.request(state, acao, oid, now):
+            pedidos.append((acao, oid))
+            return True
+        return False
     for oid, p in rl.items():
         p["estado"] = estados.get(oid)
+        if p["estado"] is None and now - p["criado"] > 3600:   # o executor nunca respondeu: nao fica preso
+            p["estado"] = "recusada"
         ex_ = p.get("exec") or {}
+        if ex_.get("sair_em"):
+            p["sair_em"] = ex_["sair_em"]
         px = (precos or {}).get(p["asset"])
+        if p["estado"] == "pendente":
+            if now >= p["valido_ate"]:
+                if now - (p.get("pediu_cancelar") or 0) >= REPETIR_S and pedir("panico_cancelar", oid):
+                    p["pediu_cancelar"] = int(now)
+            elif now - (p.get("verif") or 0) >= (300 if px and px <= p["lim"] * 1.002 else 1800):
+                if pedir("panico_verificar", oid):
+                    p["verif"] = int(now)
         if p["estado"] == "aberta" and not p.get("pediu_fecho"):
             motivo = None
-            if now >= p["sair_em"]:
+            if p.get("sair_em") and now >= p["sair_em"]:
                 motivo = "tempo (72 h)"
             elif px and ex_.get("stop") and px <= ex_["stop"]:
                 motivo = "stop"                    # a ordem de stop da Bybit ja disparou: o fecho limpa o resto
             elif px and ex_.get("alvo") and px >= ex_["alvo"]:
                 motivo = "objetivo"
-            if motivo and execucao.request(state, "fechar", oid, now):
+            if motivo and pedir("fechar", oid):
                 p.update(pediu_fecho=int(now), motivo_fecho=motivo, px_fecho=px)
-                pedidos.append(("fechar", oid))
         if p["estado"] == "fechada" and not p.get("analisada") and ex_.get("entrada"):
             p["analisada"] = True
             _aviso(st, analise(p, st))
             if p.get("r_conta") is not None:
                 st["composto"] = round(max(0.05, st.get("composto", 1.0) * (1 + p["r_conta"])), 4)
-    for oid in [k for k, p in rl.items() if p.get("estado") in ("fechada", "recusada") and now - p["criado"] > 30 * 86400]:
+    for oid in [k for k, p in rl.items() if p.get("estado") in ("fechada", "recusada", "cancelada")
+                and now - p["criado"] > 30 * 86400]:
         rl.pop(oid)
     autorizada = promo.AUTORIZADOS is not None and ESTRATEGIA in promo.AUTORIZADOS
     if not autorizada or not execucao.READY or not auto.active(state) or state.get("halt"):
@@ -192,41 +214,31 @@ def real(state, precos, cfg, now):
     tudo = pr.get("modo") == "tudo"
     max_reais = 1 if tudo else MAX_REAIS
     abertas_todas = sum(1 for v in estados.values() if v == "aberta")
-    minhas = sum(1 for p in rl.values() if p.get("estado") in (None, "aberta") and not p.get("pediu_fecho"))
-    cands = {**(st.get("pend_real") or {}), **(st.get("pend") or {})}
-    for a, pd in sorted(cands.items()):
+    minhas = sum(1 for p in rl.values() if p.get("estado") in (None, "pendente", "aberta") and not p.get("pediu_fecho"))
+    if minhas >= max_reais or abertas_todas >= int(cfg.get("max_open_positions") or 4):
+        return pedidos
+    cands = []
+    for a, pd in {**(st.get("pend_real") or {}), **(st.get("pend") or {})}.items():
         oid = f"PANICO-{a}-{pd['t_sig']}"
         valido = pd["t_sig"] + (1 + VALIDA) * H4
         px = (precos or {}).get(a)
-        if not px or px > pd["lim"] or now > valido:
+        if not px or now >= valido - 300 or oid in rl:
             continue
-        p = rl.get(oid)
-        if p:
-            # recusada pela Bybit (o preco fugiu entre o scan e a ordem): tenta outra vez mais tarde
-            if p.get("estado") != "recusada" or p.get("tentativas", 1) >= TENTATIVAS or now - p["criado"] < REPETIR_S:
-                continue
-        elif minhas >= max_reais or abertas_todas >= int(cfg.get("max_open_positions") or 4):
-            continue
+        cands.append((px / pd["lim"] - 1, a, pd, oid, valido))
+    for _, a, pd, oid, valido in sorted(cands)[:max(0, max_reais - minhas)]:
         cc = {} if tudo else acelerado.cfg_para(ESTRATEGIA, state, cfg)
         risco = cc.get("max_risk_usdc")
         if not risco and not tudo:
             continue
-        barra = int(now // H4 * H4)
-        novo = {"asset": a, "symbol": f"{a}{cfg.get('quote') or 'USDC'}", "lim": pd["lim"], "atr": pd["atr"],
-                "risco_usdc": risco, "t_sig": pd["t_sig"], "valido_ate": valido, "sair_em": barra + HOLD * H4,
-                "criado": int(now), "tentativas": (p or {}).get("tentativas", 0) + 1,
-                "acelerado_pct": cc.get("acelerado_pct"),
-                # (31/10, Rui: "leva-me esses 20$ a outro patamar") juros compostos: o teto cresce (e encolhe)
-                # com o resultado das operacoes reais fechadas; um deposito novo nao entra sozinho
-                "tudo_usdc": round(float(pr.get("max_usdc") or 0) * (st.get("composto", 1.0) if pr.get("composto") else 1.0), 2)
-                if tudo else None,
-                "alav": list(pr.get("alavancagem") or []) if tudo and pr.get("alavancagem") else None}
-        rl[oid] = novo
-        if execucao.request(state, "panico_comprar", oid, now):
-            pedidos.append(("panico_comprar", oid))
-            if not p:
-                minhas += 1
-                abertas_todas += 1
+        rl[oid] = {"asset": a, "symbol": f"{a}{cfg.get('quote') or 'USDC'}", "lim": pd["lim"], "atr": pd["atr"],
+                   "risco_usdc": risco, "t_sig": pd["t_sig"], "valido_ate": valido, "sair_em": None,
+                   "criado": int(now), "tipo": pd.get("tipo"), "acelerado_pct": cc.get("acelerado_pct"),
+                   # (31/10, Rui: "leva-me esses 20$ a outro patamar") juros compostos: o teto cresce (e encolhe)
+                   # com o resultado das operacoes reais fechadas; um deposito novo nao entra sozinho
+                   "tudo_usdc": round(float(pr.get("max_usdc") or 0) * (st.get("composto", 1.0) if pr.get("composto") else 1.0), 2)
+                   if tudo else None,
+                   "alav": list(pr.get("alavancagem") or []) if tudo and pr.get("alavancagem") else None}
+        pedir("panico_ordem", oid)
     return pedidos
 
 
