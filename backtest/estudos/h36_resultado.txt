@@ -1,0 +1,49 @@
+H36 short das altcoins mais fracas contra o BTC com BTC < SMA50 | 253 moedas (com delistadas)
+dias com regime ligado: 990 de 2121
+
+Variante RS7 H3d:
+  M1: ops 593 | R medio -0.017 (acaso p97,5 -0.001, mediana -0.029) | sem top5% -0.071 | custos x2 -0.045 | ganhas 46%
+       conta A (1 posicao, valor todo): x0.00 (-100%/ano) queda 100% ops 125 | conta B (risco 1%): x0.89 queda 19% (acaso p97,5 x0.98)
+       BTC comprado sempre: x1.53 (+18%/ano) queda 77% | ret/queda A -1.00 vs BTC 0.24 | falha
+  M2: ops 513 | R medio +0.006 (acaso p97,5 +0.006, mediana -0.028) | sem top5% -0.036 | custos x2 -0.022 | ganhas 54%
+       conta A (1 posicao, valor todo): x1.80 (+25%/ano) queda 68% ops 112 | conta B (risco 1%): x1.02 queda 12% (acaso p97,5 x1.02)
+       BTC comprado sempre: x1.30 (+10%/ano) queda 53% | ret/queda A 0.36 vs BTC 0.19 | falha
+  -> CHUMBA
+
+Variante RS7 H10d:
+  M1: ops 593 | R medio +0.008 (acaso p97,5 +0.048, mediana +0.003) | sem top5% -0.094 | custos x2 -0.019 | ganhas 46%
+       conta A (1 posicao, valor todo): x0.84 (-7%/ano) queda 75% ops 59 | conta B (risco 1%): x0.95 queda 35% (acaso p97,5 x1.14)
+       BTC comprado sempre: x1.53 (+18%/ano) queda 77% | ret/queda A -0.09 vs BTC 0.24 | falha
+  M2: ops 513 | R medio +0.034 (acaso p97,5 +0.021, mediana -0.026) | sem top5% -0.046 | custos x2 +0.007 | ganhas 50%
+       conta A (1 posicao, valor todo): x1.19 (+7%/ano) queda 83% ops 54 | conta B (risco 1%): x1.14 queda 27% (acaso p97,5 x1.04)
+       BTC comprado sempre: x1.30 (+10%/ano) queda 53% | ret/queda A 0.08 vs BTC 0.19 | falha
+  -> CHUMBA
+
+Variante RS30 H3d:
+  M1: ops 345 | R medio -0.006 (acaso p97,5 +0.046, mediana +0.002) | sem top5% -0.068 | custos x2 -0.041 | ganhas 53%
+       conta A (1 posicao, valor todo): x0.15 (-52%/ano) queda 85% ops 112 | conta B (risco 1%): x0.97 queda 11% (acaso p97,5 x1.16)
+       BTC comprado sempre: x1.53 (+18%/ano) queda 77% | ret/queda A -0.61 vs BTC 0.24 | falha
+  M2: ops 322 | R medio -0.024 (acaso p97,5 -0.001, mediana -0.038) | sem top5% -0.087 | custos x2 -0.056 | ganhas 49%
+       conta A (1 posicao, valor todo): x0.43 (-27%/ano) queda 88% ops 100 | conta B (risco 1%): x0.92 queda 14% (acaso p97,5 x0.99)
+       BTC comprado sempre: x1.30 (+10%/ano) queda 53% | ret/queda A -0.31 vs BTC 0.19 | falha
+  -> CHUMBA
+
+Variante RS30 H10d:
+  M1: ops 345 | R medio +0.017 (acaso p97,5 +0.085, mediana +0.026) | sem top5% -0.097 | custos x2 -0.017 | ganhas 47%
+       conta A (1 posicao, valor todo): x0.88 (-5%/ano) queda 72% ops 58 | conta B (risco 1%): x1.00 queda 26% (acaso p97,5 x1.26)
+       BTC comprado sempre: x1.53 (+18%/ano) queda 77% | ret/queda A -0.07 vs BTC 0.24 | falha
+  M2: ops 322 | R medio -0.002 (acaso p97,5 +0.053, mediana -0.004) | sem top5% -0.102 | custos x2 -0.035 | ganhas 47%
+       conta A (1 posicao, valor todo): x0.14 (-53%/ano) queda 92% ops 54 | conta B (risco 1%): x0.97 queda 19% (acaso p97,5 x1.15)
+       BTC comprado sempre: x1.30 (+10%/ano) queda 53% | ret/queda A -0.58 vs BTC 0.19 | falha
+  -> CHUMBA
+
+Veredicto: CHUMBA (nenhuma das 4 variantes cumpre o criterio nas duas metades)
+
+Notas (cacador noturno, 01/11/2026):
+- Nenhuma variante passa em R medio na metade 2021-24 (todas negativas ou abaixo do acaso) nem sem as 5% melhores.
+  So RS7 H10d na metade recente fica acima do acaso (+0,034R; conta B x1,14), mas falha em 2021-24 e com custos a dobrar fica em +0,007R.
+- A conta A (valor todo) e destruida por poucos shorts em moedas com ATR enorme (ex.: MIR, ANC no colapso Terra:
+  stop a ~100% de distancia). Mesmo sem estes casos, o R medio por operacao nao paga custos: a decisao nao muda.
+- Leitura: em queda do BTC as altcoins fracas caem, mas o acaso (qualquer altcoin liquida no mesmo dia) cai quase o
+  mesmo; o "mais fraca contra o BTC" nao acrescenta vantagem depois de 0,7% de custos ida e volta + juro.
+- Ressalva declarada: nao foi verificado se cada moeda tinha futuros perpetuos (limite superior).
