@@ -44,6 +44,9 @@ class PapelPanico(unittest.TestCase):
         self.assertEqual(r["n"], 1)
         self.assertEqual(st["papel_panico"]["fechadas"][0]["motivo"], "objetivo")
         self.assertAlmostEqual(st["papel_panico"]["fechadas"][0]["r"], 2.0, delta=0.1)
+        # (01/11) conta simulada de 50 USD com risco 1%: +2R = +2%
+        self.assertAlmostEqual(r["conta_sim"]["valor_usd"], 51.0, delta=0.1)
+        self.assertIn("Conta simulada", st["papel_panico"]["avisos"][-1])
 
     def test_ordem_nao_executada_conta_e_nao_repete_o_sinal(self):
         c4 = velas()

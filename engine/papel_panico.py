@@ -108,8 +108,11 @@ def update(state, c4s, eu, now):
         if op:
             fim = _seguir(op, [b for b in c4 if b["t"] >= op["t_fill"]])
             if fim:
+                # (01/11, H32/relatorio Missao 20 USD) conta simulada: todos os sinais, risco 1% por operacao
+                st["conta_sim"] = round(st.get("conta_sim", CONTA_SIM) * (1 + RISCO_SIM * fim[0]), 4)
                 _aviso(st, f"📝 Papel — compra no pânico em {a} fechada ({fim[1]}){' — pânico ' + op['tipo'] if op.get('tipo') else ''}: {fim[0]:+.2f}R. "
-                           f"Já vão {len(st['fechadas']) + 1} operações em papel.")
+                           f"Já vão {len(st['fechadas']) + 1} operações em papel. Conta simulada (50 USD, risco 1% por "
+                           f"operação): {st['conta_sim']:.2f} USD ({100 * (st['conta_sim'] / CONTA_SIM - 1):+.1f}%).")
                 st["fechadas"].append({"asset": a, "t_sig": op["t_sig"], "t_fill": op["t_fill"], "entrada": op["entrada"],
                                        "r": fim[0], "motivo": fim[1], "t_fim": op.get("visto"), "tipo": op.get("tipo")})
                 ab.pop(a)
@@ -302,6 +305,9 @@ def analise(p, st):
     return "\n".join(L)
 
 
+CONTA_SIM, RISCO_SIM = 50.0, 0.01
+
+
 def resumo(st):
     fc = (st or {}).get("fechadas") or []
     rs = [x["r"] for x in fc]
@@ -315,6 +321,9 @@ def resumo(st):
                              key=lambda x: x["asset"]),
             "ordens_nao_executadas": (st or {}).get("perdidas", 0), "ultimas": fc[-10:],
             "real_composto_pct": round(100 * ((st or {}).get("composto", 1.0) - 1), 1),
+            "conta_sim": {"inicio_usd": CONTA_SIM, "risco_pct": 100 * RISCO_SIM,
+                          "valor_usd": round((st or {}).get("conta_sim", CONTA_SIM), 2),
+                          "regra": "todos os sinais, risco 1% por operação (arquitetura do relatório Missão 20 USD)"},
             "por_tipo": {t: {"n": len(v), "r_medio": round(sum(v) / len(v), 3) if v else None}
                          for t in ("mercado", "isolado") for v in [[x["r"] for x in fc if x.get("tipo") == t]]},
             "meta": "60 operações ou 3 meses com média positiva antes de qualquer proposta de dinheiro real"}
