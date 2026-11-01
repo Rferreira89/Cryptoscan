@@ -252,6 +252,10 @@ def resumo(st):
             "n": len(rs), "r_medio": round(sum(rs) / len(rs), 3) if rs else None,
             "acerto_pct": round(100 * sum(1 for r in rs if r > 0) / len(rs)) if rs else None,
             "abertas": sorted((st or {}).get("abertas") or {}), "pendentes": sorted((st or {}).get("pend") or {}),
+            # (01/11) ordens limite a espera (papel e real), para os agentes do escritorio mostrarem a distancia
+            "ordens": sorted([{"asset": a, "lim": v["lim"], "ate": v["t_sig"] + (1 + VALIDA) * H4}
+                              for a, v in {**((st or {}).get("pend_real") or {}), **((st or {}).get("pend") or {})}.items()],
+                             key=lambda x: x["asset"]),
             "ordens_nao_executadas": (st or {}).get("perdidas", 0), "ultimas": fc[-10:],
             "real_composto_pct": round(100 * ((st or {}).get("composto", 1.0) - 1), 1),
             "meta": "60 operações ou 3 meses com média positiva antes de qualquer proposta de dinheiro real"}

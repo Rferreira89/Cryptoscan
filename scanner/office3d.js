@@ -2035,15 +2035,43 @@ function p3Click(hit) { let o = hit.object; while (o && !o.userData.agent) o = o
 // ---------- ciclo ----------
 function project(v) { const p = v.clone().project(cam), r = R.domElement; return { x: (p.x + 1) / 2 * r.clientWidth, y: (1 - p.y) / 2 * r.clientHeight, ok: p.z < 1 }; }
 function placeOverlays(dt) {
-  if (P3.on) { labels.forEach(l => l.el.style.display = "none"); people.forEach(p => p.name.style.display = "none"); bubble.style.display = "none"; if (dirBub) dirBub.style.display = "none"; p3Overlays(); return; }
+  if (P3.on) { labels.forEach(l => l.el.style.display = "none"); people.forEach(p => { p.name.style.display = "none"; if (p.card) p.card.style.display = "none"; }); bubble.style.display = "none"; if (dirBub) dirBub.style.display = "none"; p3Overlays(); return; }
   p3Hide();
-  if (P2.on) { labels.forEach(l => l.el.style.display = "none"); people.forEach(p => p.name.style.display = "none"); bubble.style.display = "none"; if (dirBub) dirBub.style.display = "none"; p2Overlays(dt); return; }
+  if (P2.on) { labels.forEach(l => l.el.style.display = "none"); people.forEach(p => { p.name.style.display = "none"; if (p.card) p.card.style.display = "none"; }); bubble.style.display = "none"; if (dirBub) dirBub.style.display = "none"; p2Overlays(dt); return; }
   labels.forEach(l => { const s = project(l.p); l.el.style.left = s.x + "px"; l.el.style.top = s.y + "px";
     l.el.style.display = s.ok && !(l.maxD && cam.position.distanceTo(l.near) > l.maxD) ? "" : "none"; });
   people.forEach(p => { const s = project(p.g.position.clone().setY(p.g.position.y + 2.5)); p.name.style.left = s.x + "px"; p.name.style.top = s.y + "px"; p.name.style.display = API().sel() === p.a.id ? "" : "none";
     p.name.textContent = p.a.nm + (p.mode === "sleep" && !p.path.length ? " 💤" : ""); });
   try { placeDirBubble(dt); } catch (e) { }
   const od = API().data(); if (!od) return;
+  // (01/11) cartao fixo por agente com a leitura ao vivo (o balao rotativo continua para as mensagens longas)
+  const mainOffice = !(ctl.target.x > 21 || ctl.target.x < -16);
+  cardT -= dt;
+  const W0 = R.domElement.clientWidth, H0 = R.domElement.clientHeight, hudEl = document.getElementById("hud"), top0 = hudEl ? hudEl.offsetHeight + 2 : 0;
+  const placed = [], fila = [];
+  if (bubble && bubble.style.display !== "none" && bubble.offsetWidth)          // o balao rotativo tambem ocupa espaco
+    placed.push({ x: bubble.offsetLeft, y: bubble.offsetTop, w: bubble.offsetWidth, h: bubble.offsetHeight });
+  people.forEach(p => {
+    if (!p.card) { p.card = document.createElement("div"); p.card.className = "ocard3"; overlay.appendChild(p.card); }
+    const o = od[p.a.id] || {};
+    if (cardT <= 0) { p.card.innerHTML = o.card ? `<span class="nm">${p.a.nm.split(" ·")[0]}</span> ${o.card}` : ""; p.card.style.borderLeftColor = p.a.c; }
+    const s = project(p.g.position.clone().setY(p.g.position.y + 2.2));
+    const show = mainOffice && s.ok && o.card && bubWho !== p.a.id && s.x > -40 && s.x < W0 + 40 && s.y > top0 && s.y < H0 - 60;
+    if (!show) { p.card.style.display = "none"; return; }
+    p.card.style.display = ""; fila.push({ p, s });
+  });
+  // sem cartoes por cima uns dos outros: o de cima fica, os outros sobem ou descem ate haver espaco
+  fila.sort((a, b) => a.s.y - b.s.y).forEach(({ p, s }) => {
+    const w = p.card.offsetWidth, h = p.card.offsetHeight;
+    let x = Math.max(4, Math.min(W0 - w - 4, s.x - w / 2)), y = s.y - h;
+    for (let k = 0; k < 6; k++) {
+      const hit = placed.find(r => x < r.x + r.w + 3 && x + w + 3 > r.x && y < r.y + r.h + 3 && y + h + 3 > r.y);
+      if (!hit) break; y = hit.y + hit.h + 4;
+    }
+    if (y < top0 || y + h > H0 - 60) { p.card.style.display = "none"; return; }
+    placed.push({ x, y, w, h }); p.card.style.left = x + "px"; p.card.style.top = y + "px";
+  });
+  if (cardT <= 0) cardT = 3;
   bubble.style.display = ctl.target.x > 21 || ctl.target.x < -16 ? "none" : "";
   bubAt -= dt; const sel = API().sel();
   if (bubAt <= 0 || (sel && bubWho !== sel)) {
@@ -2055,7 +2083,7 @@ function placeOverlays(dt) {
   const s = project(p.g.position.clone().setY(p.g.position.y + 2.7)); const w = bubble.offsetWidth, W = R.domElement.clientWidth;
   bubble.style.left = Math.max(4, Math.min(W - w - 4, s.x - w / 2)) + "px"; const hud = document.getElementById("hud"), top = hud ? hud.offsetHeight + 4 : 4; bubble.style.top = Math.max(top, s.y - bubble.offsetHeight) + "px";
 }
-let ledT = 0, tvT = 0, composer = null, bloom = null;
+let ledT = 0, tvT = 0, composer = null, bloom = null, cardT = 0;
 function frame() {
   if (!running) return; requestAnimationFrame(frame);
   if (document.body.classList.contains("sheet-open") || !visible || document.hidden) return;

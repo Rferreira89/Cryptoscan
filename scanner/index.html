@@ -271,6 +271,8 @@ html,body{max-width:100%;overflow-x:hidden}
 .obub b{color:var(--bg)}
 .obub3{position:absolute;max-width:62%;background:#0c0a24e6;color:#fff;font:12px/1.35 system-ui,sans-serif;padding:6px 9px;border-radius:8px;border:1.5px solid #4FD1C5;box-shadow:0 0 14px #4FD1C566;pointer-events:none}
 .obub3 b{color:#fff}
+.ocard3{position:absolute;width:118px;background:#0c0a24f2;color:#dfe6ff;font:9.5px/1.28 system-ui,sans-serif;padding:3px 6px;border-radius:6px;border:1px solid #2b2470;border-left:3px solid #4FD1C5;pointer-events:none;box-shadow:0 2px 8px #000a;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+.ocard3 .nm{color:#fff;font-weight:700}
 .dlg{margin:8px 0;display:flex;flex-direction:column;gap:5px}.dlg>b{font-size:12.5px;color:var(--mut)}
 .dl{max-width:88%;padding:6px 9px;border-radius:10px;background:var(--card);border:1px solid #ffffff1a;font-size:12.5px;line-height:1.35}
 .dl i{display:block;font-style:normal;font-weight:700;font-size:11px;color:var(--mut)}
@@ -309,7 +311,7 @@ html,body{max-width:100%;overflow-x:hidden}
 @media (prefers-reduced-motion:reduce){.typing i,.bot .eye{animation:none}.bub{transition:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module" src="office3d.js?v=20261024a"></script>
+<script type="module" src="office3d.js?v=20261101a"></script>
 </head>
 <body class="w3d">
 <div id="world">
@@ -1066,6 +1068,23 @@ function officeData(){
   out.juiz={on:false,msgs:[rb?`Histórico: ${num(rb.r_real,2)}R contra ${num(rb.r_acaso_mediana,2)}R ao acaso → <b>${rb.vantagem?"bate o acaso":"não bate o acaso"}</b>`:"A carregar…"].concat(lg?[`Ao vivo: ${lg.n} sinais fechados → <b>${lg.n<30?"amostra curta":(lg.vantagem?"bate o acaso":"não bate")}</b>`]:[]),more:["Cada operação é comparada com 1000 séries de entradas ao acaso, com o mesmo stop e objetivos.","Detalhe completo na secção “Contra o acaso”."],nx:"atualiza "+inTxt(nextRun(AGENTS[6].cron))};
   // Auditor
   out.aud={on:false,msgs:["Revê registos, preços, calendário e testes à procura de erros silenciosos."],more:["Só corrige o calendário; tudo o resto é relatado para decidires."],nx:"acorda "+inTxt(nextRun(AGENTS[7].cron))};
+  // (01/11, Rui: agentes com a leitura ao vivo por cima, como no video) uma linha de mercado por agente
+  try{const PP=(D&&D.papel_panico)||{},PF=(D&&D.papel_fases)||{},AM=(D&&D.amplitude)||{},IX=(D&&D.indice)||{},MS=(D&&D.mesa)||[];
+    const fase=PF.fase||((D&&D.mercado)||{}).regime||"–",btc=curPrice("BTC");
+    const ords=(PP.ordens||[]).map(o=>{const c=curPrice(o.asset);return{a:o.asset,d:c?(c/o.lim-1)*100:null}}).filter(o=>o.d!=null).sort((x,y)=>x.d-y.d);
+    const ex=((D&&D.execucao)||{}).abertas||[];
+    const tag=(t,col)=>`<span style="color:${col}">${t}</span>`;
+    out.scan.card=`${tag("Análise","#4FD1C5")} fase <b>${esc(fase)}</b>${MS.length?" · "+MS.slice(0,2).map(x=>`${esc(x.asset)} RSI ${num(x.rsi,0)}`).join(", "):""}`;
+    out.mon.card=ex.length?`${tag("Real","#FFA94D")} `+ex.map(o=>{const c=curPrice(o.asset);const pl=c&&o.entrada?(c/o.entrada-1)*100*(o.lado==="SHORT"?-1:1):null;return`<b>${esc(o.asset)}</b> ${pl==null?"":(pl>0?"+":"")+num(pl,1)+"%"}`}).join(" · ")
+      :ords.length?`${tag("Pânico","#FFA94D")} `+ords.slice(0,2).map(o=>`<b>${esc(o.a)}</b> ${o.d<=0?"na ordem":"a "+num(o.d,1)+"%"}`).join(" · "):`${tag("Pânico","#FFA94D")} sem sinal agora`;
+    const sb=PF.subida||{},lt=PF.lateral||{};
+    out.vig.card=`${tag("Fase","#8AA0B4")} <b>${esc(fase)}</b>${sb.comprado&&sb.aberto_pct!=null?` · trio ${sb.aberto_pct>0?"+":""}${num(sb.aberto_pct,1)}%`:""}`;
+    out.news.card=`${tag("Eventos","#F2C265")} ${ne?esc(ne.name.replace(/\s*\(.*\)/,""))+" "+hm(ne.t):"nenhum"}`;
+    out.afin.card=`${tag("Mercado","#9F7AEA")} ${esc(AM.estado||"–")}${AM.queda_forte_pct!=null?` · ${num(AM.queda_forte_pct,0)}% a cair`:""}`;
+    out.inv.card=`${tag("Estudos","#63B3ED")} ${iv?esc((iv.v||"a estudar").slice(0,40)):"…"}`;
+    out.juiz.card=`${tag("Prova","#FF8A80")} pânico ${PP.n||0} fechadas${PP.r_medio!=null?` ${PP.r_medio>0?"+":""}${num(PP.r_medio,2)}R`:""} · ${(PP.abertas||[]).length} abertas`;
+    out.aud.card=`${tag("Short lateral","#68D391")} ${fase==="lateral"?"ativo":"parado"} · ${lt.n||0} fechadas`;
+  }catch(e){}
   return out;
 }
 
