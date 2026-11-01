@@ -1841,12 +1841,27 @@ def do_panico_cancelar(state, req, ex, now, send):
     return "cancelada"
 
 
+def do_panico_refazer(state, req, ex, now, send):
+    """(01/11, Rui: "Refaz a ordem") cancela a ordem pendente (sem aviso) e volta a po-la com as regras atuais
+    (alavancagem a descer passo a passo). Se entretanto executou, fica aberta e nada e refeito."""
+    oid = req["op"]
+    o = ex["ops"].get(oid) or {}
+    if o.get("status") != "pendente":
+        return "nada a refazer"
+    res = do_panico_cancelar(state, {"op": oid, "motivo": "silencio"}, ex, now, send)
+    if res != "cancelada":
+        return res
+    ex["ops"].pop(oid, None)
+    return "refeita: " + str(do_panico_ordem(state, {"op": oid}, ex, now, send))
+
+
 ACTIONS = {"vender": do_short, "teste_short": do_test_short, "limpar_short": do_clean_short, "ordens": do_orders, "teste_alav": do_test_lev, "teste_margem": do_test_margin, "teste2": do_test2, "limpar": do_clean, "diag": do_diag, "comprar": do_buy, "breakeven": do_breakeven, "fechar": do_close,
            "parar": do_stop_all, "teste": do_test,
            "nucleo_comprar": do_nucleo_comprar, "nucleo_vender": do_nucleo_vender,
            "nucleo_reforcar": do_nucleo_reforcar, "nucleo_acertar": do_nucleo_acertar,
            "panico_comprar": do_panico_comprar, "panico_ordem": do_panico_ordem,
-           "panico_verificar": do_panico_verificar, "panico_cancelar": do_panico_cancelar}
+           "panico_verificar": do_panico_verificar, "panico_cancelar": do_panico_cancelar,
+           "panico_refazer": do_panico_refazer}
 
 
 def main(state_path, ex_in, out):

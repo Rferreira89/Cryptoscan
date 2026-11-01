@@ -183,6 +183,12 @@ def real(state, precos, cfg, now):
             p["sair_em"] = ex_["sair_em"]
         px = (precos or {}).get(p["asset"])
         if p["estado"] == "pendente":
+            # (01/11, SEI) ordem posta sem a alavancagem pedida antes de existir a descida passo a passo: refaz uma vez
+            pedida = (p.get("alav") or [1])[0]
+            if (ex_.get("alavancagem") or 1) < pedida and not p.get("refeita") and now < p["valido_ate"] - 600:
+                if pedir("panico_refazer", oid):
+                    p["refeita"] = int(now)
+                continue
             if now >= p["valido_ate"]:
                 if now - (p.get("pediu_cancelar") or 0) >= REPETIR_S and pedir("panico_cancelar", oid):
                     p["pediu_cancelar"] = int(now)

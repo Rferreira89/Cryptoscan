@@ -620,6 +620,35 @@ class OrdemParada(unittest.TestCase):
         self.assertEqual(op["alavancagem"], 3)
         self.assertIn("ficou 3x", self.sent[0])
 
+    def test_refazer_cancela_e_volta_a_por(self):
+        ex = {"ops": {}}
+        self.corre(self.X.do_panico_ordem, self.plano(), ex, falha=lambda b: b.get("isLeverage"), msg="170131 Insufficient balance.")
+        self.assertEqual(ex["ops"][f"PANICO-ALGO-{T_SIG}"]["alavancagem"], 1)
+        self.estado_ordem = ("Cancelled", 0.0, None)
+        n0, s0 = len(self.calls), len(self.sent)
+        res = self.corre(self.X.do_panico_refazer, self.plano(), ex,
+                         falha=lambda b: b.get("isLeverage") and float(b["qty"]) * 0.0924 > 61, msg="170131 Insufficient balance.")
+        self.assertTrue(res.startswith("refeita"))
+        self.assertTrue(any(p == "/v5/order/cancel" for p, b in self.calls[n0:]))
+        self.assertEqual(ex["ops"][f"PANICO-ALGO-{T_SIG}"]["alavancagem"], 3)
+        self.assertFalse(any("caducou" in t for t in self.sent[s0:]))            # cancelamento sem aviso
+
+    def test_scanner_pede_refazer_uma_vez(self):
+        promo_ant, ready_ant = promo.AUTORIZADOS, execucao.READY
+        promo.AUTORIZADOS, execucao.READY = {"PANICO_L10"}, True
+        try:
+            cfgt = dict(CFG, panico_real={"modo": "tudo", "max_usdc": 20, "alavancagem": [5, 10]})
+            st = estado()
+            P.real(st, {"ALGO": 0.0950}, cfgt, NOW)
+            oid = f"PANICO-ALGO-{T_SIG}"
+            st["exec_req"], st["auto_ops"] = [], {oid: "pendente"}
+            st["papel_panico"]["real"][oid]["exec"] = {"status": "pendente", "alavancagem": 1, "lim": 0.0924}
+            self.assertEqual(P.real(st, {"ALGO": 0.0950}, cfgt, NOW + 60), [("panico_refazer", oid)])
+            st["exec_req"] = []
+            self.assertNotIn(("panico_refazer", oid), P.real(st, {"ALGO": 0.0950}, cfgt, NOW + 120))
+        finally:
+            promo.AUTORIZADOS, execucao.READY = promo_ant, ready_ant
+
     def test_nao_autorizada_ou_caducada_nao_poe(self):
         ex = {"ops": {}}
         self.corre(self.X.do_panico_ordem, self.plano(valido_ate=NOW + 30), ex)
