@@ -23,12 +23,12 @@ def _st(state):
     return state.setdefault("nucleo", {"pos": {}, "plano": {}, "pedidos": {}})
 
 
-def sinal(daily):
-    """(acima, fecho, media) com as ultimas DIAS velas diarias fechadas, ou None."""
-    if not daily or len(daily) < DIAS:
+def sinal(daily, dias=DIAS):
+    """(acima, fecho, media) com as ultimas `dias` velas diarias fechadas, ou None."""
+    if not daily or len(daily) < dias:
         return None
-    c = [x["c"] for x in daily[-DIAS:]]
-    m = sum(c) / DIAS
+    c = [x["c"] for x in daily[-dias:]]
+    m = sum(c) / dias
     return c[-1] > m, c[-1], m
 
 
@@ -43,11 +43,14 @@ def decidir(state, daily, precos, capital, livre, cfg, now):
     fr = float(cfg.get("nucleo_fracao") or FRACAO)
     alvo = round((capital or 0) * fr / len(moedas), 2)
     ligado = bool(cfg.get("nucleo_ligado"))
+    # (01/11, Rui: "tem de haver operacoes reais") media configuravel: 50 dias em BTC (H33 V2, a melhor das
+    # regras de conta unica no pior periodo: +21%/ano e +15%/ano)
+    dias = int(cfg.get("nucleo_dias") or DIAS)
     pedidos, livre_rest = [], max(0.0, (livre or 0) * 0.98)
     for a in moedas:
-        s = sinal(daily.get(a))
+        s = sinal(daily.get(a), dias)
         pos = (st.get("pos") or {}).get(a)
-        p = {"acima": None, "fecho": None, "media": None, "alvo_usdc": alvo, "preco": precos.get(a)}
+        p = {"acima": None, "fecho": None, "media": None, "alvo_usdc": alvo, "preco": precos.get(a), "dias": dias}
         if s:
             p.update(acima=s[0], fecho=round(s[1], 8), media=round(s[2], 8))
         if pos and precos.get(a):

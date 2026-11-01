@@ -32,6 +32,17 @@ class Decisao(unittest.TestCase):
         self.assertEqual(nucleo.decidir(st, {"BTC": velas(120)}, {}, 221.6, 100, {"nucleo_ligado": True,
                                         "nucleo_moedas": ["BTC"]}, NOW + 60), [])           # nao repete em 6 horas
 
+    def test_media_de_50_dias_so_btc_valor_todo(self):
+        # (01/11) BTC acima da media de 50 dias e abaixo da de 200: com nucleo_dias=50 compra com tudo
+        d = [{"t": NOW - (210 - i) * 86400, "c": 200.0 if i < 100 else 100.0} for i in range(209)] + \
+            [{"t": NOW - 86400, "c": 120.0}]
+        cfg = {"nucleo_ligado": True, "nucleo_moedas": ["BTC"], "nucleo_fracao": 1.0, "nucleo_dias": 50}
+        st = {}
+        self.assertEqual(nucleo.decidir(st, {"BTC": d}, {"BTC": 120}, 20.0, 20.0, cfg, NOW), [("nucleo_comprar", "NUCLEO-BTC")])
+        self.assertEqual(st["nucleo"]["plano"]["BTC"]["comprar_usdc"], 19.6)
+        self.assertEqual(st["nucleo"]["plano"]["BTC"]["dias"], 50)
+        self.assertEqual(nucleo.decidir({}, {"BTC": d}, {"BTC": 120}, 20.0, 20.0, dict(cfg, nucleo_dias=200), NOW), [])
+
     def test_sem_historico_nao_decide(self):
         self.assertIsNone(nucleo.sinal(velas(120, n=50)))
 

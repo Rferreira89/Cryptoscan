@@ -1415,7 +1415,7 @@ def do_nucleo_comprar(state, req, ex, now, send, junta=None):
         return "ok"
     nuc[a] = {"qty": q, "entrada": avg, "usdc": round(avg * q, 2), "t": now}
     send(f"🧱 <b>Núcleo: comprei {a}</b> — {avg * q:.2f} USDC a {avg:.6g} ({q:.6g} {a}). Spot, sem alavancagem. "
-         f"Fica enquanto o fecho diário estiver acima da média de 200 dias ({plano.get('media'):.6g}).", html=True)
+         f"Fica enquanto o fecho diário estiver acima da média de {plano.get('dias') or 200} dias ({plano.get('media'):.6g}).", html=True)
     return "ok"
 
 
@@ -1435,7 +1435,8 @@ def do_nucleo_vender(state, req, ex, now, send):
                                              "t_entrada": pos.get("t"), "t_saida": now, "pnl_usdc": pnl})
     ex["nucleo_hist"] = ex["nucleo_hist"][-100:]
     nuc.pop(a, None)
-    send(f"🧱 Núcleo: vendi {a} para USDC — o fecho diário ficou abaixo da média de 200 dias. "
+    dias = ((((state.get("nucleo") or {}).get("plano") or {}).get(a)) or {}).get("dias") or 200
+    send(f"🧱 Núcleo: vendi {a} para USDC — o fecho diário ficou abaixo da média de {dias} dias. "
          + (f"Venda a {avg:.6g}, resultado {pnl:+.2f} USDC." if avg else "Já não havia moedas para vender."))
     return "ok"
 

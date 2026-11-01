@@ -12,8 +12,11 @@
   "venue_vol_por_ordem": 200,
   "campeoes_por_fase": true,
   "cooldown_after_losses": 0,
-  "nucleo_ligado": false,
-  "nucleo_reforcar": false,
+  "nucleo_ligado": true,
+  "nucleo_reforcar": true,
+  "nucleo_moedas": ["BTC"],
+  "nucleo_fracao": 1.0,
+  "nucleo_dias": 50,
   "campeoes_estudo": {
     "lateral": [
       "SHORT_TURTLE"
