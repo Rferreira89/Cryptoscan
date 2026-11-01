@@ -1,0 +1,37 @@
+69 moedas, 3729 sinais
+H32 PANICO_L10 com uma conta e o valor todo
+ A B1: ops 62  R medio +0.067  conta x0.99 (1x)  x0.13 (3x)  queda max 3x 98%
+ A B2: ops 93  R medio -0.230  conta x0.07 (1x)  x0.00 (3x)  queda max 3x 100%
+ B B1: ops 64  R medio +0.090  conta x1.33 (1x)  x0.36 (3x)  queda max 3x 96%
+ B B2: ops 97  R medio -0.176  conta x0.10 (1x)  x0.00 (3x)  queda max 3x 100%
+ M B1: ops 71  R medio +0.014  conta x0.88 (1x)  x0.07 (3x)  queda max 3x 98%
+ M B2: ops 107  R medio -0.151  conta x0.09 (1x)  x0.00 (3x)  queda max 3x 100%
+ T B1: ops 1324  R medio -0.053  conta x0.00 (1x)  x0.00 (3x)  queda max 3x 100%
+ T B2: ops 1446  R medio +0.061  conta x248.99 (1x)  x0.00 (3x)  queda max 3x 100%
+Decisao: B (vigiada) MELHOR nas duas metades -> propor ao Rui
+
+--- Verificacao e analise (mesmo dia, depois do resultado: exploratorio, nao pre-registado)
+Replica do H23 por moeda (todas as operacoes, sem sobrepor na mesma moeda): B1 522 ops +0,080R | B2 522 ops +0,076R
+R por posicao na vaga (sinais no mercado nas 72h antes): 0 -> B1 -0,14 / B2 +0,01 | 1-10 -> +0,21 / +0,11 | 11-40 -> +0,01 / +0,04 | >40 -> +0,11 / +0,09
+A conta unica fica com ~25 primeiras-de-vaga em 60-90 operacoes e com re-sinais da mesma moeda (-0,35/-0,42R).
+----- H32b
+base A B1 ops 62 R 0.07 1x: x0.99 dd59% | 3x: x0.13 dd98% | risco 2%: x1.09 dd12% | risco 5%: x1.17 dd28%
+base A B2 ops 93 R -0.224 1x: x0.07 dd93% | 3x: x0.00 dd100% | risco 2%: x0.65 dd40% | risco 5%: x0.31 dd73%
+base B B1 ops 63 R 0.095 1x: x1.33 dd49% | 3x: x0.37 dd95% | risco 2%: x1.11 dd12% | risco 5%: x1.24 dd28%
+base B B2 ops 97 R -0.195 1x: x0.08 dd93% | 3x: x0.00 dd100% | risco 2%: x0.67 dd38% | risco 5%: x0.35 dd72%
+1a da moeda + vaga A B1 ops 50 R 0.252 1x: x2.03 dd32% | 3x: x2.14 dd78% | risco 2%: x1.26 dd8% | risco 5%: x1.69 dd18%
+1a da moeda + vaga A B2 ops 61 R -0.144 1x: x0.26 dd80% | 3x: x0.00 dd100% | risco 2%: x0.83 dd24% | risco 5%: x0.60 dd51%
+1a da moeda + vaga B B1 ops 50 R 0.236 1x: x1.92 dd36% | 3x: x1.68 dd82% | risco 2%: x1.25 dd9% | risco 5%: x1.67 dd21%
+1a da moeda + vaga B B2 ops 62 R -0.125 1x: x0.31 dd79% | 3x: x0.01 dd100% | risco 2%: x0.85 dd22% | risco 5%: x0.64 dd48%
+stop medio % 9.1
+----- slots
+base K 2 B1 ops 119 R 0.134 conta 1x x1.71 dd41%
+base K 2 B2 ops 178 R -0.17 conta 1x x0.14 dd87%
+base K 4 B1 ops 221 R 0.18 conta 1x x2.05 dd31%
+base K 4 B2 ops 313 R -0.133 conta 1x x0.23 dd80%
+1a da moeda + vaga K 2 B1 ops 90 R 0.267 conta 1x x2.34 dd26%
+1a da moeda + vaga K 2 B2 ops 108 R -0.082 conta 1x x0.58 dd65%
+1a da moeda + vaga K 4 B1 ops 160 R 0.225 conta 1x x1.95 dd20%
+1a da moeda + vaga K 4 B2 ops 177 R -0.031 conta 1x x0.84 dd47%
+
+CONCLUSAO: a vantagem de +0,08R so existe tomando TODOS os sinais. Com capital limitado (1, 2 ou 4 posicoes) a metade recente (B2) perde em todas as variantes; com o valor todo a 3x a conta vai a zero em todas. A ordem limite NAO e o problema (B vigiada ~ A). Recomendacao: suspender o dinheiro real no PANICO_L10 ate uma estrategia passar o teste ao nivel da conta (novo criterio obrigatorio).
