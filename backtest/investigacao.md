@@ -21,6 +21,21 @@ avaliada uma única vez). Janela desde 2026-10-03 (decisão do Rui): últimos 24
 meses, 18 de desenho e 6 de reserva; menos de 40 operações fora da amostra
 dá "AMOSTRA INSUFICIENTE".
 
+## CRITÉRIO DA CONTA — obrigatório desde 2026-11-01 (decisão do Rui)
+
+O H32 mostrou que a compra no pânico (+0,08R por sinal, aprovada pelo critério único) PERDE dinheiro
+quando operada como o Rui opera: uma conta, uma posição, o valor todo (metade recente −0,22R, a conta
+perde 93% a 1x e vai a zero a 3x). A vantagem só existia tomando todos os sinais ao mesmo tempo.
+A partir de agora, nenhuma hipótese recebe "PARA PAPEL" nem "CANDIDATA" sem passar também:
+1. Simulação AO NÍVEL DA CONTA: uma conta com capital pequeno, no máximo 1 posição (o valor todo) e
+   também com 2 posições; quando há vários sinais ao mesmo tempo, escolher ao acaso (várias repetições),
+   juros compostos, custos reais. Ver `backtest/estudos/h32_uma_conta.py` e `h33_conta_tendencia.py`.
+2. Nas duas metades: conta a crescer a 1x e retorno/queda máxima melhor do que BTC comprado sempre
+   (no H33, 2024-03 a 2026-10, BTC comprado sempre deu +43%/ano com 28% de queda máxima e nenhuma
+   regra testada lhe ganhou).
+3. Reportar também a 3x só como informação: com o valor todo, stop de X% custa 3·X% da conta.
+Uma estratégia que só ganha "em média por sinal" não serve a uma conta de 20$.
+
 ## Fila de hipóteses pedidas pelo Rui (testar por esta ordem, antes de escolher outras)
 
 1. (TESTADA em 2026-10-11, ver entrada "Oversold Bounce no 4H": NÃO
