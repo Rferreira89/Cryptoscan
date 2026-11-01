@@ -46,11 +46,14 @@ def decidir(state, daily, precos, capital, livre, cfg, now):
     # (01/11, Rui: "tem de haver operacoes reais") media configuravel: 50 dias em BTC (H33 V2, a melhor das
     # regras de conta unica no pior periodo: +21%/ano e +15%/ano)
     dias = int(cfg.get("nucleo_dias") or DIAS)
+    # (01/11, Rui: "tem de ser alavancado") alavancagem da margem spot; 2x = o maximo crescimento no H33 V2
+    # (1x +21%/+15% ao ano, 2x +26%/+18%, 3x +13%/+6%, 5x -44%/-41%): acima de 3x nunca
+    alav = max(1.0, min(3.0, float(cfg.get("nucleo_alavancagem") or 1)))
     pedidos, livre_rest = [], max(0.0, (livre or 0) * 0.98)
     for a in moedas:
         s = sinal(daily.get(a), dias)
         pos = (st.get("pos") or {}).get(a)
-        p = {"acima": None, "fecho": None, "media": None, "alvo_usdc": alvo, "preco": precos.get(a), "dias": dias}
+        p = {"acima": None, "fecho": None, "media": None, "alvo_usdc": alvo, "preco": precos.get(a), "dias": dias, "alav": alav}
         if s:
             p.update(acima=s[0], fecho=round(s[1], 8), media=round(s[2], 8))
         if pos and precos.get(a):

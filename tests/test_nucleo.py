@@ -106,6 +106,42 @@ class Execucao(unittest.TestCase):
         self.assertEqual(ex["nucleo_hist"][-1]["moeda"], "BTC")
         self.assertIn("comprei BTC", msgs[0])
 
+    def test_compra_alavancada_2x_e_paga_o_emprestimo(self):
+        # (01/11, Rui: "tem de ser alavancado") 2x com margem: compra o dobro, regista o emprestimo e paga-o na venda
+        posts, msgs, divida = [], [], [0.0]
+        st = {"nucleo": {"plano": {"BTC": {"acima": True, "comprar_usdc": 19.6, "media": 82000, "dias": 50, "alav": 2}}}}
+        ex = {"ops": {}, "feitos": []}
+
+        def post(path, body):
+            posts.append((path, dict(body)))
+            if path == "/v5/order/create" and body.get("side") == "Buy":
+                divida[0] = 19.6
+            if path == "/v5/order/create" and body.get("side") == "Sell":
+                divida[0] = 0.3                                   # a venda abate quase tudo
+            return {"orderId": "o"}
+        with mock.patch.object(X, "instrument", return_value={"tick": "0.01", "base_step": "0.000001", "min_amt": 5}), \
+                mock.patch.object(X, "wallet", return_value={}), mock.patch.object(X, "usdc_free", return_value=20.0), \
+                mock.patch.object(X, "usdc_debt", side_effect=lambda w: divida[0]), \
+                mock.patch.object(X, "_alavancagem_conta", return_value=2.0), \
+                mock.patch.object(X, "last_price", return_value=83000.0), mock.patch.object(X, "post", post), \
+                mock.patch.object(X, "held", return_value=0.000471), \
+                mock.patch.object(X, "fills", return_value=(83100.0, 0.000471)), mock.patch.object(X.time, "sleep", lambda s: None):
+            self.assertEqual(X.do_nucleo_comprar(st, {"op": "NUCLEO-BTC"}, ex, NOW, lambda t, html=False: msgs.append(t)), "ok")
+            compra = posts[0][1]
+            self.assertEqual(compra["isLeverage"], 1)
+            self.assertAlmostEqual(float(compra["qty"]) * 83249, 39.2, delta=0.1)     # o dobro dos 19,6 USDC
+            self.assertEqual(ex["nucleo"]["BTC"]["emprestado"], 19.6)
+            self.assertIn("Margem 2x", msgs[0])
+            self.assertIn("50 dias", msgs[0])
+            self.assertEqual(X.do_nucleo_vender(st, {"op": "NUCLEO-BTC"}, ex, NOW, lambda t, html=False: msgs.append(t)), "ok")
+        self.assertIn(("/v5/account/repay", {"coin": "USDC", "amount": "0.30"}), posts)
+
+    def test_alavancagem_tem_teto_de_3x(self):
+        cfg = {"nucleo_ligado": True, "nucleo_moedas": ["BTC"], "nucleo_fracao": 1.0, "nucleo_alavancagem": 10}
+        st = {}
+        nucleo.decidir(st, {"BTC": velas(120)}, {"BTC": 120}, 20.0, 20.0, cfg, NOW)
+        self.assertEqual(st["nucleo"]["plano"]["BTC"]["alav"], 3.0)
+
     def test_operacao_ativa_nunca_vende_o_nucleo(self):
         op = {"status": "aberta", "symbol": "SOLUSDC", "asset": "SOL", "entrada": 100, "qty": 0.1,
               "partes": [{"qty": 0.05}, {"qty": 0.05}], "criado": NOW}

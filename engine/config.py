@@ -71,6 +71,7 @@ DEFAULTS = {
     "nucleo_fracao": 0.70,
     "nucleo_moedas": ["BTC", "ETH", "SOL"],
     "nucleo_dias": 200,
+    "nucleo_alavancagem": 1,
     # reforco do nucleo depois de depositos (engine/nucleo.py): so com o OK do Rui
     "nucleo_reforcar": False,
     # campeoes aprovados por estudo de dois periodos (engine/promo.champions): so com o OK do Rui

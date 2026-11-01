@@ -1392,11 +1392,28 @@ def do_nucleo_comprar(state, req, ex, now, send, junta=None):
         return "USDC insuficiente"
     px = last_price(sym)
     lim = float(fmt(px * (1 + LIMIT_SLIP), inst["tick"]))
-    qty = floor_to(usdc / lim, inst["base_step"])
-    r = post("/v5/order/create", {"category": "spot", "symbol": sym, "side": "Buy", "orderType": "Limit",
-                                  "timeInForce": "IOC", "price": fmt(lim, inst["tick"]),
-                                  "qty": fmt(qty, inst["base_step"]),
-                                  "orderLinkId": f"{LINK}nb{a}{now % 1000000}"[:36]})
+    # (01/11) alavancagem da margem spot (plano["alav"], no maximo 3x): compra com emprestimo de USDC
+    alav = max(1.0, min(3.0, float(plano.get("alav") or 1)))
+    if alav > 1 and _alavancagem_conta(int(math.ceil(alav))) < alav:
+        alav = 1.0
+    debt0 = usdc_debt(wallet()) if alav > 1 else 0.0
+    qty = floor_to(usdc * alav / lim, inst["base_step"])
+    body = {"category": "spot", "symbol": sym, "side": "Buy", "orderType": "Limit",
+            "timeInForce": "IOC", "price": fmt(lim, inst["tick"]),
+            "qty": fmt(qty, inst["base_step"]),
+            "orderLinkId": f"{LINK}nb{a}{now % 1000000}"[:36]}
+    if alav > 1:
+        body["isLeverage"] = 1
+    try:
+        r = post("/v5/order/create", body)
+    except ExecError as e:
+        if alav <= 1 or not any(k in str(e).lower() for k in ("insufficient", "margin", "borrow", "balance")):
+            raise
+        alav = 1.0                                    # sem margem disponivel: compra sem alavancagem
+        body.pop("isLeverage", None)
+        body.update(qty=fmt(floor_to(usdc / lim, inst["base_step"]), inst["base_step"]),
+                    orderLinkId=f"{LINK}nb{a}{now % 1000000}s"[:36])
+        r = post("/v5/order/create", body)
     try:
         avg, q = fills(r["orderId"], sym, a)
     except ExecError as e:
@@ -1406,15 +1423,18 @@ def do_nucleo_comprar(state, req, ex, now, send, junta=None):
     ex.setdefault("nucleo_log", []).append({"moeda": a, "acao": "reforço" if junta else "compra", "usdc": round(avg * q, 2),
                                             "preco": avg, "t": now})
     ex["nucleo_log"] = ex["nucleo_log"][-60:]
+    emp = round(max(0.0, usdc_debt(wallet()) - debt0), 4) if alav > 1 else 0.0
+    txt_alav = f"Margem {alav:g}x (emprestados {emp:.2f} USDC)." if alav > 1 else "Spot, sem alavancagem."
     if junta:
         q0, e0 = float(junta.get("qty") or 0), float(junta.get("entrada") or avg)
         tq = q0 + q
-        nuc[a] = {"qty": tq, "entrada": round((q0 * e0 + q * avg) / tq, 8), "usdc": round((q0 * e0 + q * avg), 2), "t": junta.get("t") or now}
+        nuc[a] = {"qty": tq, "entrada": round((q0 * e0 + q * avg) / tq, 8), "usdc": round((q0 * e0 + q * avg), 2), "t": junta.get("t") or now,
+                  "emprestado": round(float(junta.get("emprestado") or 0) + emp, 4), "alav": alav}
         send(f"🧱 <b>Núcleo: reforcei {a}</b> — mais {avg * q:.2f} USDC a {avg:.6g}, para voltar à sua parte do capital "
-             f"(agora {tq:.6g} {a}). Spot, sem alavancagem.", html=True)
+             f"(agora {tq:.6g} {a}). {txt_alav}", html=True)
         return "ok"
-    nuc[a] = {"qty": q, "entrada": avg, "usdc": round(avg * q, 2), "t": now}
-    send(f"🧱 <b>Núcleo: comprei {a}</b> — {avg * q:.2f} USDC a {avg:.6g} ({q:.6g} {a}). Spot, sem alavancagem. "
+    nuc[a] = {"qty": q, "entrada": avg, "usdc": round(avg * q, 2), "t": now, "emprestado": emp, "alav": alav}
+    send(f"🧱 <b>Núcleo: comprei {a}</b> — {avg * q:.2f} USDC a {avg:.6g} ({q:.6g} {a}). {txt_alav} "
          f"Fica enquanto o fecho diário estiver acima da média de {plano.get('dias') or 200} dias ({plano.get('media'):.6g}).", html=True)
     return "ok"
 
@@ -1431,6 +1451,14 @@ def do_nucleo_vender(state, req, ex, now, send):
     oid = sell_all(sym, q, inst, f"ns{a}{now % 1000000}")
     avg, sold = (fills(oid, sym, a, side="Sell") if oid else (None, 0.0))
     pnl = round(sold * (avg - pos["entrada"]), 2) if avg else None
+    if pos.get("emprestado"):                     # (01/11) margem: a venda abate a divida; paga o que faltar
+        try:
+            time.sleep(1)
+            d = usdc_debt(wallet())
+            if d > 0.005:
+                repay_usdc(min(d, float(pos["emprestado"])))
+        except ExecError as e:
+            send(f"⚠️ Núcleo: vendi {a} mas não confirmei o pagamento do empréstimo ({str(e)[:60]}). Verifica na app.")
     ex.setdefault("nucleo_hist", []).append({"moeda": a, "entrada": pos["entrada"], "saida": avg, "qty": sold,
                                              "t_entrada": pos.get("t"), "t_saida": now, "pnl_usdc": pnl})
     ex["nucleo_hist"] = ex["nucleo_hist"][-100:]
