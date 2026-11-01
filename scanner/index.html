@@ -1088,7 +1088,8 @@ function officeData(){
     out.news.card=`${tag("Eventos","#F2C265")} ${ne?esc(ne.name.replace(/\s*\(.*\)/,""))+" "+hm(ne.t):"nenhum"}`;
     out.afin.card=`${tag("Mercado","#9F7AEA")} ${esc(AM.estado||"–")}${AM.queda_forte_pct!=null?` · ${num(AM.queda_forte_pct,0)}% a cair`:""}`;
     out.inv.card=`${tag("Estudos","#63B3ED")} ${iv?esc((iv.v||"a estudar").slice(0,40)):"…"}`;
-    out.juiz.card=`${tag("Prova","#FF8A80")} pânico ${PP.n||0} fechadas${PP.r_medio!=null?` ${PP.r_medio>0?"+":""}${num(PP.r_medio,2)}R`:""} · ${(PP.abertas||[]).length} abertas`;
+    const pt=PP.por_tipo||{},fr=x=>x&&x.n?`${x.n} ${x.r_medio>0?"+":""}${num(x.r_medio,2)}R`:"0";
+    out.juiz.card=`${tag("Prova","#FF8A80")} pânico ${PP.n||0}/60${PP.r_medio!=null?` ${PP.r_medio>0?"+":""}${num(PP.r_medio,2)}R`:""} · mercado ${fr(pt.mercado)} · isolado ${fr(pt.isolado)}`;
     out.aud.card=`${tag("Short lateral","#68D391")} ${fase==="lateral"?"ativo":"parado"} · ${lt.n||0} fechadas`;
   }catch(e){}
   return out;

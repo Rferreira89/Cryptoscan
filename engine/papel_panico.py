@@ -40,6 +40,22 @@ def sinal(c4, funding):
             "queda_3d_pct": round((b["c"] / c4[-19]["c"] - 1) * 100, 1)}
 
 
+BTC_QUEDA = -0.03          # (01/11) H28: o panico de uma moeda sozinha correu pior do que o do mercado todo
+
+
+def tipo_panico(c4_btc, t_sig):
+    """'mercado' se o BTC caiu 3% ou mais nas 6 velas de 4H ate ao sinal, 'isolado' se nao, None sem dados."""
+    if not c4_btc:
+        return None
+    ts = [b["t"] for b in c4_btc]
+    if t_sig not in ts:
+        return None
+    k = ts.index(t_sig)
+    if k < 6:
+        return None
+    return "mercado" if c4_btc[k]["c"] / c4_btc[k - 6]["c"] - 1 <= BTC_QUEDA else "isolado"
+
+
 def _r(e, px, risk, fout):
     return round(((px - e) - (F_LIM * e + fout * px)) / risk, 3)
 
@@ -63,6 +79,9 @@ def _seguir(op, barras):
 def update(state, c4s, eu, now):
     st = state.setdefault("papel_panico", {"pend": {}, "abertas": {}, "fechadas": [], "perdidas": 0, "desde": int(now)})
     pend, ab = st["pend"], st["abertas"]
+    for op in ab.values():                    # (01/11) as abertas antes da etiqueta tambem ficam marcadas
+        if "tipo" not in op:
+            op["tipo"] = tipo_panico((c4s or {}).get("BTC"), op.get("t_sig"))
     for a, c4 in (c4s or {}).items():
         if not c4:
             continue
@@ -78,7 +97,7 @@ def update(state, c4s, eu, now):
                                    f"objetivo {e + 2 * (e - stop):.6g}, saída em 72 h). Só papel, sem dinheiro.")
                         ab[a] = {"entrada": e, "stop": stop, "alvo": e + 2 * (e - stop), "risco": e - stop,
                                  "t_sig": p["t_sig"], "t_fill": b["t"], "funding": p["funding"],
-                                 "queda_3d_pct": p["queda_3d_pct"]}
+                                 "queda_3d_pct": p["queda_3d_pct"], "tipo": p.get("tipo")}
                     pend.pop(a)
                     break
             else:
@@ -89,14 +108,15 @@ def update(state, c4s, eu, now):
         if op:
             fim = _seguir(op, [b for b in c4 if b["t"] >= op["t_fill"]])
             if fim:
-                _aviso(st, f"📝 Papel — compra no pânico em {a} fechada ({fim[1]}): {fim[0]:+.2f}R. "
+                _aviso(st, f"📝 Papel — compra no pânico em {a} fechada ({fim[1]}){' — pânico ' + op['tipo'] if op.get('tipo') else ''}: {fim[0]:+.2f}R. "
                            f"Já vão {len(st['fechadas']) + 1} operações em papel.")
                 st["fechadas"].append({"asset": a, "t_sig": op["t_sig"], "t_fill": op["t_fill"], "entrada": op["entrada"],
-                                       "r": fim[0], "motivo": fim[1], "t_fim": op.get("visto")})
+                                       "r": fim[0], "motivo": fim[1], "t_fim": op.get("visto"), "tipo": op.get("tipo")})
                 ab.pop(a)
         if a not in pend and a not in ab and c4[-1]["t"] > st.setdefault("ultimo", {}).get(a, 0):
             s = sinal(c4, ((eu or {}).get("moedas") or {}).get(a, {}).get("funding"))
             if s:
+                s["tipo"] = tipo_panico((c4s or {}).get("BTC"), s["t_sig"])
                 pend[a] = s
                 st["ultimo"][a] = s["t_sig"]
         elif a in ab and c4[-1]["t"] > st.setdefault("ultimo_real", {}).get(a, 0):
@@ -105,6 +125,7 @@ def update(state, c4s, eu, now):
             s = sinal(c4, ((eu or {}).get("moedas") or {}).get(a, {}).get("funding"))
             st["ultimo_real"][a] = c4[-1]["t"]
             if s:
+                s["tipo"] = tipo_panico((c4s or {}).get("BTC"), s["t_sig"])
                 st.setdefault("pend_real", {})[a] = s
     pr_ = st.setdefault("pend_real", {})
     for a in [k for k, v in pr_.items() if (c4s or {}).get(k) and c4s[k][-1]["t"] >= v["t_sig"] + VALIDA * H4]:
@@ -258,4 +279,6 @@ def resumo(st):
                              key=lambda x: x["asset"]),
             "ordens_nao_executadas": (st or {}).get("perdidas", 0), "ultimas": fc[-10:],
             "real_composto_pct": round(100 * ((st or {}).get("composto", 1.0) - 1), 1),
+            "por_tipo": {t: {"n": len(v), "r_medio": round(sum(v) / len(v), 3) if v else None}
+                         for t in ("mercado", "isolado") for v in [[x["r"] for x in fc if x.get("tipo") == t]]},
             "meta": "60 operações ou 3 meses com média positiva antes de qualquer proposta de dinheiro real"}

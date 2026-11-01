@@ -59,3 +59,28 @@ class PapelPanico(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TipoPanico(unittest.TestCase):
+    """(01/11) cada compra no panico marcada como panico do mercado ou isolado."""
+    def btc(self, queda):
+        from engine import papel_panico as P
+        H4 = P.H4
+        c = [100.0] * 20 + [100.0 * (1 + queda)]
+        return [{"t": 1000 + i * H4, "o": x, "h": x, "l": x, "c": x} for i, x in enumerate(c)], 1000 + 20 * H4
+
+    def test_mercado_e_isolado(self):
+        from engine import papel_panico as P
+        b, t = self.btc(-0.05)
+        self.assertEqual(P.tipo_panico(b, t), "mercado")
+        b, t = self.btc(-0.01)
+        self.assertEqual(P.tipo_panico(b, t), "isolado")
+        self.assertIsNone(P.tipo_panico([], t))
+        self.assertIsNone(P.tipo_panico(b, t + 1))
+
+    def test_resumo_separa(self):
+        from engine import papel_panico as P
+        st = {"fechadas": [{"r": 2.0, "tipo": "mercado"}, {"r": -1.0, "tipo": "isolado"}, {"r": 1.0, "tipo": "mercado"}]}
+        r = P.resumo(st)
+        self.assertEqual(r["por_tipo"]["mercado"], {"n": 2, "r_medio": 1.5})
+        self.assertEqual(r["por_tipo"]["isolado"], {"n": 1, "r_medio": -1.0})
