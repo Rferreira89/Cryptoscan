@@ -5,8 +5,9 @@ quedas, compressão, oversold bounce 4H, day trade 1H, bounce com outras
 saídas, sweep a mercado, funding negativo, quebra com compradores,
 capitulação do mercado, atraso face ao BTC, resiliente, impulso de
 amplitude; mais 11 no diário de afinação, H1 a H11). Atualizado em
-2026-10-31 (sem hipótese nova nesta corrida; autópsia de BOUNCE_V1; a
-afinação não testou nada depois da H11 de 2026-10-30). O contador global do programa (`engine/hipoteses.py`, com os
+2026-11-01 (sem hipótese nova nesta corrida; sem mortos novos; a
+afinação não testou nada depois da H11 de 2026-10-30; os estudos H32–H35
+da sessão com o Rui de 2026-11-01 contam no contador global). O contador global do programa (`engine/hipoteses.py`, com os
 estudos fora do programa em `backtest/hipoteses_offline.json`, contra dados
 que incluem esta reserva) já vai em 59 ou mais, sem contar os estudos
 H10–H21 de 26–27/10 em `backtest/estudos/`. Quanto maior este número,
@@ -1740,3 +1741,52 @@ reserva fica em 23 (a afinação não testou nada depois da H11).
   +0,82R, chega às 20 em breve); (2) a morte rápida contar acontecimentos
   e não operações na mesma vela; (3) passar esta corrida a semanal
   enquanto não houver dados novos.
+
+## 2026-11-01 — Sem hipótese nova hoje (sem mortos novos; fila vazia)
+
+**Veredicto da corrida: nenhuma hipótese testada.** O contador desta
+reserva fica em 23 (a afinação não testou nada depois da H11). Os estudos
+H32–H35 de hoje (sessão com o Rui, `backtest/estudos/`) contam no contador
+global, que já passa de 59, e também usaram dados que incluem esta reserva.
+
+- **Histórico** (ramo `history`): atualizado em 2026-10-25 12:30 UTC, 6
+  dias e 23 horas de atraso (no limite dos 7; não foi preciso correr o
+  workflow, mas na próxima corrida será). Só velas de 4H, 1H e funding;
+  nenhuma fonte nova com histórico.
+- **Arena** (scan.json do ramo `data`, 2026-11-01 11:52 UTC): **8
+  lutadores a competir** (SHORT_TURTLE_SHORT, BOUNCE_AMPLITUDE,
+  REVERSAO_INTERVALO, MAIORES_RECUO, BOUNCE_MACRO_R2, MAIORES_TENDENCIA,
+  SHORT_SQUEEZE, VOLUME_ACUMULACAO_R2), `recrutar` falso. Nenhum morto
+  novo desde BOUNCE_V1 (2026-10-30), que já tem linha na tabela dos
+  sucessores. Fila do Rui vazia.
+- **Combate de 90 dias** (`forma.json`, ramo `arena`, 2026-11-01 11:23
+  UTC, 42 moedas): BOUNCE_AMPLITUDE 15 op., 15 ganhadoras, +0,722R (acaso
+  mediana −0,453R, p95 −0,082R; validação fora 14 op., +0,768R, passa) —
+  continua o único lutador acima do acaso, e o corte dos clones
+  (`engine/arena.py`, linhas 373–376) continua a comparar com
+  representantes mortos. REVERSAO_INTERVALO 19 op., +0,031R (p95 do acaso
+  +0,027R, validação fora −0,184R, não passa); MAIORES_RECUO 17 op.,
+  −0,019R (abaixo do p95 +0,060R). Os outros têm 4 ou menos operações.
+- **Nota sobre o critério da conta (novo hoje)**: a tendência BTC ligada
+  hoje com dinheiro real (média de 50 dias, valor todo, margem 2x) é a V2
+  do H33, que CHUMBOU: na metade recente +15%/ano contra +43%/ano do BTC
+  comprado sempre, p=0,418 contra o acaso, e a 2x +18%/ano com 52% de
+  queda máxima (`backtest/estudos/h33_resultado.txt`). Não é uma
+  estratégia validada; fica registado para a próxima sessão com o Rui.
+- **Porque não há hipótese nova**: as mesmas razões de 2026-10-21 a
+  2026-10-31. Sem fonte nova com histórico, as entradas de compra com
+  lógica económica com estes dados já foram testadas ou estão no ringue, e
+  desde hoje qualquer candidata tem ainda de passar o critério da conta
+  (bater o BTC comprado sempre nas duas metades), que nenhuma regra testada
+  passou. Com 23 hipóteses contra esta reserva (cerca de 69% de
+  probabilidade de pelo menos um falso positivo a 5%), uma hipótese fraca
+  só acrescenta ruído. Décima segunda corrida seguida sem hipótese nova.
+- Proposta para a próxima corrida: atualizar o histórico (passa dos 7
+  dias); autópsia se morrer alguém; aplicar o critério da conta à
+  BOUNCE_AMPLITUDE (o único lutador acima do acaso) como estudo
+  informativo, não como hipótese nova; hipótese nova só com uma fonte nova
+  com histórico (liquidações quando o arquivo tiver meses). Para a sessão
+  com o Rui: (1) corte dos clones só com representantes vivos; (2) morte
+  rápida a contar acontecimentos e não operações na mesma vela; (3) rever
+  o dinheiro real na tendência BTC 2x à luz do H33; (4) passar esta
+  corrida a semanal enquanto não houver dados novos.
