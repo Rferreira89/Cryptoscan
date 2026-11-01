@@ -2049,14 +2049,19 @@ function placeOverlays(dt) {
   const mainOffice = !(ctl.target.x > 21 || ctl.target.x < -16);
   cardT -= dt;
   const W0 = R.domElement.clientWidth, H0 = R.domElement.clientHeight, hudEl = document.getElementById("hud"), top0 = hudEl ? hudEl.offsetHeight + 2 : 0;
-  const camSig = [cam.position.x, cam.position.y, cam.position.z, ctl.target.x, ctl.target.z].map(v => v.toFixed(1)).join() + W0 + "x" + H0 + "t" + top0;
+  const camSig = [cam.position.x, cam.position.y, cam.position.z, ctl.target.x, ctl.target.z].map(v => v.toFixed(2)).join() + W0 + "x" + H0 + "t" + top0;
   const conteudo = cardT <= 0;
   people.forEach(p => {
     if (!p.card) { p.card = document.createElement("div"); p.card.className = "ocard3"; overlay.appendChild(p.card); }
     const o = od[p.a.id] || {};
     if (conteudo) { const h = o.card ? `<span class="nm">${p.a.nm.split(" ·")[0]}</span> ${o.card}` : ""; if (p.card.innerHTML !== h) p.card.innerHTML = h; p.card.style.borderLeftColor = p.a.c; }
   });
-  if (camSig !== cardSig || conteudo) {
+  // camara a mexer (dedo ou inercia): os cartoes escondem-se; meio segundo parada, arrumam-se UMA vez e aparecem
+  const agora = performance.now();
+  if (camSig !== cardMov) { cardMov = camSig; cardMovAt = agora; }
+  const parada = agora - cardMovAt > 500;
+  if (!parada) { if (cardSig !== "") { cardSig = ""; people.forEach(p => p.card && (p.card.style.opacity = "0")); } }
+  else if (camSig !== cardSig || conteudo) {
     cardSig = camSig;
     const placed = [], fila = [];
     people.forEach(p => {
@@ -2075,7 +2080,7 @@ function placeOverlays(dt) {
         if (!hit) break; y = hit.y + hit.h + 4;
       }
       if (y < top0 || y + h > H0 - 60) { p.card.style.display = "none"; return; }
-      placed.push({ x, y, w, h }); p.card.style.transform = `translate(${Math.round(x)}px,${Math.round(y)}px)`;
+      placed.push({ x, y, w, h }); p.card.style.transform = `translate(${Math.round(x)}px,${Math.round(y)}px)`; p.card.style.opacity = "1";
     });
   }
   if (cardT <= 0) cardT = 5;
@@ -2136,7 +2141,7 @@ function animateVida(dt, nowMs) {
   opSig = sig;
 }
 
-let ledT = 0, tvT = 0, composer = null, bloom = null, cardT = 0, cardSig = "";
+let ledT = 0, tvT = 0, composer = null, bloom = null, cardT = 0, cardSig = "", cardMov = "", cardMovAt = 0;
 function frame() {
   if (!running) return; requestAnimationFrame(frame);
   if (document.body.classList.contains("sheet-open") || !visible || document.hidden) return;
