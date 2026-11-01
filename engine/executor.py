@@ -1654,6 +1654,44 @@ def _alavancagem_conta(need):
     return lev
 
 
+def _panico_link(p, now, sufixo):
+    """(01/11) orderLinkId unico por tentativa: a Bybit guarda os ids ja usados (mesmo de ordens recusadas) e
+    o id antigo (so com o instante do sinal) deu '170141 Duplicate clientOrderId' na TIA e na CRV."""
+    return f"{_panico_prefixo(p)}{int(now) % 100000:05d}{sufixo}"[:36]
+
+
+def _panico_prefixo(p):
+    return f"{LINK}P-{p['asset'][:6]}-{int(p['t_sig']) % 1000000:06d}-"
+
+
+def _panico_orfas(state, ex, now, send, adotar=None):
+    """Ordens limite de compra do programa abertas na Bybit que o registo nao conhece: a do sinal que se esta a
+    tratar (adotar=oid) passa a ser seguida; as outras sao canceladas (nunca ficam ordens sem dono)."""
+    try:
+        lst = get("/v5/order/realtime", {"category": "spot", "orderFilter": "Order", "limit": 50}).get("list") or []
+    except ExecError:
+        return None
+    seguidas = {o.get("orderId") for o in ex["ops"].values() if isinstance(o, dict) and o.get("status") in ("pendente", "aberta")}
+    real = ((state.get("papel_panico") or {}).get("real") or {})
+    adotada = None
+    for o in lst:
+        lid = o.get("orderLinkId") or ""
+        if o.get("side") != "Buy" or o.get("orderId") in seguidas or not (lid.startswith(f"{LINK}P-") or lid.startswith(f"{LINK}PANICO")):
+            continue
+        p = real.get(adotar) if adotar else None
+        if p and (lid.startswith(_panico_prefixo(p)) or lid.startswith(f"{LINK}{_tag(adotar)}")) and adotada is None:
+            adotada = o
+            continue
+        try:
+            post("/v5/order/cancel", {"category": "spot", "symbol": o["symbol"], "orderId": o["orderId"]})
+            send(f"🧹 Cancelei uma ordem limite do programa em {o.get('symbol')} que tinha ficado sem registo "
+                 f"({o.get('price')}). Nada foi comprado.")
+        except ExecError as e:
+            send(f"⚠️ Ordem do programa sem registo em {o.get('symbol')} ({o.get('price')}) e não a consegui "
+                 f"cancelar: {str(e)[:80]}. Cancela-a na app.")
+    return adotada
+
+
 def do_panico_ordem(state, req, ex, now, send):
     from . import config
     oid = req["op"]
@@ -1678,6 +1716,16 @@ def do_panico_ordem(state, req, ex, now, send):
     if stop <= 0:
         return recusa("stop inválido")
     alvo = lim + 2 * (lim - stop)
+    ja = _panico_orfas(state, ex, now, send, adotar=oid)
+    if ja:                                                 # a ordem deste sinal ja esta na Bybit: passa a ser seguida
+        q = float(ja.get("qty") or 0)
+        ex["ops"][oid] = {"asset": asset, "symbol": symbol, "status": "pendente", "orderId": ja["orderId"], "lim": lim,
+                          "stop": stop, "alvo": alvo, "qty_ordem": q, "usdc_ordem": round(q * lim, 2), "anexo": True,
+                          "criado": now, "t": now, "estrategia": PANICO, "alavancagem": 3 if ja.get("isLeverage") in (1, "1") else 1,
+                          "proprio": p.get("tudo_usdc"), "valido_ate": p["valido_ate"], "debt0": usdc_debt(wallet()),
+                          "tipo": p.get("tipo"), "adotada": True}
+        send(f"📌 A ordem limite de {asset} a {lim:.6g} já estava na Bybit: passou a ser seguida pelo programa.")
+        return "adotada"
     inst = instrument(symbol)
     w = wallet()
     free = usdc_free(w)
@@ -1693,7 +1741,7 @@ def do_panico_ordem(state, req, ex, now, send):
         q = floor_to(sz / lim, inst["base_step"])
         body = {"category": "spot", "symbol": symbol, "side": "Buy", "orderType": "Limit", "timeInForce": "GTC",
                 "price": fmt(lim, inst["tick"]), "qty": fmt(q, inst["base_step"]),
-                "orderLinkId": f"{LINK}{_tag(oid)}{sufixo}"[:36]}
+                "orderLinkId": _panico_link(p, now, sufixo)}
         if mg:
             body["isLeverage"] = 1
         if anexar:
@@ -1729,7 +1777,14 @@ def do_panico_ordem(state, req, ex, now, send):
             size, margin, alav = proprio or size, False, 1
             bid, q = colocar(size, False, "-M")
     except ExecError as e:
-        return recusa(f"a Bybit recusou: {str(e)[:120]}")
+        if "duplicate" in str(e).lower():
+            ja = _panico_orfas(state, ex, now, lambda *a, **k: None, adotar=oid)
+            if ja:
+                bid, q, anexo = ja["orderId"], float(ja.get("qty") or 0), True
+            else:
+                return recusa(f"a Bybit recusou: {str(e)[:120]}")
+        else:
+            return recusa(f"a Bybit recusou: {str(e)[:120]}")
     o = {"asset": asset, "symbol": symbol, "status": "pendente", "orderId": bid, "lim": lim, "stop": stop, "alvo": alvo,
          "qty_ordem": q, "usdc_ordem": round(size, 2), "anexo": anexo, "criado": now, "t": now, "estrategia": PANICO,
          "alavancagem": alav if margin else 1, "proprio": proprio, "valido_ate": p["valido_ate"], "debt0": debt0,

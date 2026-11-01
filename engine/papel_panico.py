@@ -228,8 +228,15 @@ def real(state, precos, cfg, now):
         oid = f"PANICO-{a}-{pd['t_sig']}"
         valido = pd["t_sig"] + (1 + VALIDA) * H4
         px = (precos or {}).get(a)
-        if not px or now >= valido - 300 or oid in rl:
+        if not px or now >= valido - 300:
             continue
+        ant = rl.get(oid)
+        if ant:
+            # (01/11, TIA e CRV) recusada por erro da Bybit: volta a tentar 15 min depois, no maximo 3 vezes
+            mot = str(((ant.get("exec") or {}).get("motivo")) or "")
+            if not (ant.get("estado") == "recusada" and mot.startswith("a Bybit recusou")
+                    and ant.get("tentativas", 1) < TENTATIVAS and now - ant["criado"] >= REPETIR_S):
+                continue
         cands.append((px / pd["lim"] - 1, a, pd, oid, valido))
     for _, a, pd, oid, valido in sorted(cands)[:max(0, max_reais - minhas)]:
         cc = {} if tudo else acelerado.cfg_para(ESTRATEGIA, state, cfg)
@@ -239,6 +246,7 @@ def real(state, precos, cfg, now):
         rl[oid] = {"asset": a, "symbol": f"{a}{cfg.get('quote') or 'USDC'}", "lim": pd["lim"], "atr": pd["atr"],
                    "risco_usdc": risco, "t_sig": pd["t_sig"], "valido_ate": valido, "sair_em": None,
                    "criado": int(now), "tipo": pd.get("tipo"), "acelerado_pct": cc.get("acelerado_pct"),
+                   "tentativas": (rl.get(oid) or {}).get("tentativas", 0) + 1,
                    # (31/10, Rui: "leva-me esses 20$ a outro patamar") juros compostos: o teto cresce (e encolhe)
                    # com o resultado das operacoes reais fechadas; um deposito novo nao entra sozinho
                    "tudo_usdc": round(float(pr.get("max_usdc") or 0) * (st.get("composto", 1.0) if pr.get("composto") else 1.0), 2)

@@ -87,6 +87,24 @@ class Gatilho(unittest.TestCase):
         st["exec_req"], st["auto_ops"] = [], {f"PANICO-ENA-{T_SIG}": "pendente"}
         self.assertNotIn("panico_ordem", [a for a, _ in P.real(st, {"ALGO": 0.0960, "ENA": 0.1740}, cfgt, NOW + 60)])
 
+    def test_recusa_da_bybit_tenta_outra_vez_15_min_depois(self):
+        st = estado()
+        P.real(st, {"ALGO": 0.0950}, CFG, NOW)
+        oid = f"PANICO-ALGO-{T_SIG}"
+        st["exec_req"], st["auto_ops"] = [], {oid: "recusada"}
+        st["papel_panico"]["real"][oid]["exec"] = {"status": "recusada", "motivo": "a Bybit recusou: 170141 Duplicate clientOrderId."}
+        self.assertEqual(P.real(st, {"ALGO": 0.0950}, CFG, NOW + 60), [])
+        self.assertEqual(P.real(st, {"ALGO": 0.0950}, CFG, NOW + P.REPETIR_S + 1), [("panico_ordem", oid)])
+        self.assertEqual(st["papel_panico"]["real"][oid]["tentativas"], 2)
+
+    def test_recusa_por_regra_nao_repete(self):
+        st = estado()
+        P.real(st, {"ALGO": 0.0950}, CFG, NOW)
+        oid = f"PANICO-ALGO-{T_SIG}"
+        st["exec_req"], st["auto_ops"] = [], {oid: "recusada"}
+        st["papel_panico"]["real"][oid]["exec"] = {"status": "recusada", "motivo": "valor abaixo do mínimo"}
+        self.assertEqual(P.real(st, {"ALGO": 0.0950}, CFG, NOW + P.REPETIR_S + 1), [])
+
     def pendente(self):
         st = estado()
         P.real(st, {"ALGO": 0.0950}, CFG, NOW)
@@ -648,6 +666,51 @@ class OrdemParada(unittest.TestCase):
             self.assertNotIn(("panico_refazer", oid), P.real(st, {"ALGO": 0.0950}, cfgt, NOW + 120))
         finally:
             promo.AUTORIZADOS, execucao.READY = promo_ant, ready_ant
+
+    def test_link_unico_por_tentativa(self):
+        p = self.plano()["papel_panico"]["real"][f"PANICO-ALGO-{T_SIG}"]
+        a, b = self.X._panico_link(p, NOW, "-L0"), self.X._panico_link(p, NOW + 300, "-L0")
+        self.assertNotEqual(a, b)
+        self.assertTrue(a.startswith("cs-P-ALGO-"))
+        self.assertLessEqual(len(a), 36)
+
+    def test_duplicado_procura_e_adota_a_ordem_que_ja_esta_na_bybit(self):
+        X = self.X
+        p = self.plano()["papel_panico"]["real"][f"PANICO-ALGO-{T_SIG}"]
+        aberta = {"orderId": "ja1", "symbol": "ALGOUSDC", "side": "Buy", "qty": "216", "price": "0.0924",
+                  "isLeverage": "1", "orderLinkId": X._panico_prefixo(p) + "12345-L0"}
+        listas = iter([{"list": []}, {"list": [aberta]}])
+        ex = {"ops": {}}
+        def get(path, prm=None):
+            return next(listas) if path == "/v5/order/realtime" else {"spotLeverage": "1"}
+        with mock.patch.object(X, "get", side_effect=get):
+            self.corre_sem_get(X.do_panico_ordem, self.plano(), ex, falha=lambda b: True, msg="170141 Duplicate clientOrderId.")
+        op = ex["ops"][f"PANICO-ALGO-{T_SIG}"]
+        self.assertEqual((op["status"], op["orderId"]), ("pendente", "ja1"))
+
+    def test_orfa_de_outro_sinal_e_cancelada(self):
+        X = self.X
+        orfa = {"orderId": "velha", "symbol": "TIAUSDC", "side": "Buy", "qty": "40", "price": "0.47",
+                "orderLinkId": "cs-PANICO-1793491200-L0"}
+        ex = {"ops": {}}
+        def get(path, prm=None):
+            return {"list": [orfa]} if path == "/v5/order/realtime" else {"spotLeverage": "1"}
+        with mock.patch.object(X, "get", side_effect=get):
+            self.corre_sem_get(X.do_panico_ordem, self.plano(), ex)
+        self.assertTrue(any(p == "/v5/order/cancel" and b.get("orderId") == "velha" for p, b in self.calls))
+        self.assertTrue(any("sem registo" in t for t in self.sent))
+        self.assertEqual(ex["ops"][f"PANICO-ALGO-{T_SIG}"]["status"], "pendente")
+
+    def corre_sem_get(self, fn, st, ex, **kw):
+        X = self.X
+        with mock.patch.object(X, "instrument", return_value={"tick": "0.0001", "base_step": "0.1", "min_amt": 5.0}), \
+                mock.patch.object(X, "post", side_effect=self.post), mock.patch.object(X, "wallet", return_value={}), \
+                mock.patch.object(X, "usdc_free", return_value=20.4), mock.patch.object(X, "usdc_debt", return_value=0.0), \
+                mock.patch.object(X, "order_state", side_effect=lambda oid, sym: self.estado_ordem), \
+                mock.patch.object(X, "_match_children"), mock.patch.object(X.time, "sleep"), \
+                mock.patch("engine.config.load", return_value={"real_autorizados": ["PANICO_L10"]}):
+            self.falha, self.msg = kw.get("falha"), kw.get("msg", "")
+            return fn(st, {"op": f"PANICO-ALGO-{T_SIG}"}, ex, NOW, lambda t, html=False: self.sent.append(t))
 
     def test_nao_autorizada_ou_caducada_nao_poe(self):
         ex = {"ops": {}}
