@@ -2044,36 +2044,45 @@ function placeOverlays(dt) {
     p.name.textContent = p.a.nm + (p.mode === "sleep" && !p.path.length ? " 💤" : ""); });
   try { placeDirBubble(dt); } catch (e) { }
   const od = API().data(); if (!od) return;
-  // (01/11) cartao fixo por agente com a leitura ao vivo (o balao rotativo continua para as mensagens longas)
+  // (01/11) cartao por agente, preso a SECRETARIA (nao a pessoa que anda): fica parado e nao pisca.
+  // A arrumacao so se refaz quando a camara mexe; o conteudo muda de 5 em 5 s.
   const mainOffice = !(ctl.target.x > 21 || ctl.target.x < -16);
   cardT -= dt;
   const W0 = R.domElement.clientWidth, H0 = R.domElement.clientHeight, hudEl = document.getElementById("hud"), top0 = hudEl ? hudEl.offsetHeight + 2 : 0;
-  const placed = [], fila = [];
-  if (bubble && bubble.style.display !== "none" && bubble.offsetWidth)          // o balao rotativo tambem ocupa espaco
-    placed.push({ x: bubble.offsetLeft, y: bubble.offsetTop, w: bubble.offsetWidth, h: bubble.offsetHeight });
+  const camSig = [cam.position.x, cam.position.y, cam.position.z, ctl.target.x, ctl.target.z].map(v => v.toFixed(1)).join() + W0 + "x" + H0 + "t" + top0;
+  const conteudo = cardT <= 0;
   people.forEach(p => {
     if (!p.card) { p.card = document.createElement("div"); p.card.className = "ocard3"; overlay.appendChild(p.card); }
     const o = od[p.a.id] || {};
-    if (cardT <= 0) { p.card.innerHTML = o.card ? `<span class="nm">${p.a.nm.split(" ·")[0]}</span> ${o.card}` : ""; p.card.style.borderLeftColor = p.a.c; }
-    const s = project(p.g.position.clone().setY(p.g.position.y + 2.2));
-    const show = mainOffice && s.ok && o.card && bubWho !== p.a.id && s.x > -40 && s.x < W0 + 40 && s.y > top0 && s.y < H0 - 60;
-    if (!show) { p.card.style.display = "none"; return; }
-    p.card.style.display = ""; fila.push({ p, s });
+    if (conteudo) { const h = o.card ? `<span class="nm">${p.a.nm.split(" ·")[0]}</span> ${o.card}` : ""; if (p.card.innerHTML !== h) p.card.innerHTML = h; p.card.style.borderLeftColor = p.a.c; }
   });
-  // sem cartoes por cima uns dos outros: o de cima fica, os outros sobem ou descem ate haver espaco
-  fila.sort((a, b) => a.s.y - b.s.y).forEach(({ p, s }) => {
-    const w = p.card.offsetWidth, h = p.card.offsetHeight;
-    let x = Math.max(4, Math.min(W0 - w - 4, s.x - w / 2)), y = s.y - h;
-    for (let k = 0; k < 6; k++) {
-      const hit = placed.find(r => x < r.x + r.w + 3 && x + w + 3 > r.x && y < r.y + r.h + 3 && y + h + 3 > r.y);
-      if (!hit) break; y = hit.y + hit.h + 4;
-    }
-    if (y < top0 || y + h > H0 - 60) { p.card.style.display = "none"; return; }
-    placed.push({ x, y, w, h }); p.card.style.left = x + "px"; p.card.style.top = y + "px";
-  });
-  if (cardT <= 0) cardT = 3;
-  bubble.style.display = ctl.target.x > 21 || ctl.target.x < -16 ? "none" : "";
-  bubAt -= dt; const sel = API().sel();
+  if (camSig !== cardSig || conteudo) {
+    cardSig = camSig;
+    const placed = [], fila = [];
+    people.forEach(p => {
+      const o = od[p.a.id] || {}, d = DESK[p.a.id];
+      const anc = d ? new THREE.Vector3(d.p.x, 2.05, d.p.z) : p.g.position.clone().setY(2.2);
+      const s = project(anc);
+      const show = mainOffice && s.ok && o.card && s.x > -60 && s.x < W0 + 60 && s.y > top0 && s.y < H0 - 60;
+      if (!show) { p.card.style.display = "none"; return; }
+      p.card.style.display = ""; fila.push({ p, s });
+    });
+    fila.sort((a, b) => a.s.y - b.s.y).forEach(({ p, s }) => {
+      const w = p.card.offsetWidth, h = p.card.offsetHeight;
+      let x = Math.max(4, Math.min(W0 - w - 4, s.x - w / 2)), y = s.y - h;
+      for (let k = 0; k < 6; k++) {
+        const hit = placed.find(r => x < r.x + r.w + 3 && x + w + 3 > r.x && y < r.y + r.h + 3 && y + h + 3 > r.y);
+        if (!hit) break; y = hit.y + hit.h + 4;
+      }
+      if (y < top0 || y + h > H0 - 60) { p.card.style.display = "none"; return; }
+      placed.push({ x, y, w, h }); p.card.style.transform = `translate(${Math.round(x)}px,${Math.round(y)}px)`;
+    });
+  }
+  if (cardT <= 0) cardT = 5;
+  const sel = API().sel();
+  bubble.style.display = (ctl.target.x > 21 || ctl.target.x < -16 || !sel) ? "none" : "";
+  if (!sel) { bubWho = null; return; }
+  bubAt -= dt;
   if (bubAt <= 0 || (sel && bubWho !== sel)) {
     const cand = sel ? people.filter(p => p.a.id === sel) : people.filter(p => od[p.a.id].on || Math.random() < .3);
     const p = cand[(bubI++) % Math.max(1, cand.length)] || people[0]; bubWho = p.a.id; bubAt = 4.5;
@@ -2083,7 +2092,51 @@ function placeOverlays(dt) {
   const s = project(p.g.position.clone().setY(p.g.position.y + 2.7)); const w = bubble.offsetWidth, W = R.domElement.clientWidth;
   bubble.style.left = Math.max(4, Math.min(W - w - 4, s.x - w / 2)) + "px"; const hud = document.getElementById("hud"), top = hud ? hud.offsetHeight + 4 : 4; bubble.style.top = Math.max(top, s.y - bubble.offsetHeight) + "px";
 }
-let ledT = 0, tvT = 0, composer = null, bloom = null, cardT = 0;
+// ---------- (01/11) vida no escritorio: fita LED, dia e noite, celebracao ----------
+let fitaTex = null, fitaAt = 0, hemiL = null, luzAt = 0, opSig = null;
+function textoFita() {
+  const D = API().D() || {}, U = D.universe || [];
+  const px = a => { const r = U.find(x => x.asset === a); return r && r.price ? r : null; };
+  const f = (r, a) => r ? `${a} ${Math.round(r.price) >= 100 ? Math.round(r.price).toLocaleString("pt-PT") : r.price.toPrecision(4)} ${(r.chg_24h || 0) >= 0 ? "▲" : "▼"}${Math.abs(r.chg_24h || 0).toFixed(1)}%` : "";
+  const PP = D.papel_panico || {}, PF = D.papel_fases || {}, ex = ((D.execucao || {}).abertas) || [];
+  const partes = ["BTC", "ETH", "SOL", "XRP", "BNB", "DOGE"].map(a => f(px(a), a)).filter(Boolean);
+  partes.push(`FASE: ${(PF.fase || "–").toUpperCase()}`);
+  partes.push(ex.length ? `DINHEIRO REAL: ${ex.map(o => o.asset).join(", ")}` : "DINHEIRO REAL: À ESPERA DE SINAL");
+  partes.push(`PÂNICO: ${(PP.ordens || []).length ? (PP.ordens || []).map(o => o.asset).join(", ") + " EM ORDEM" : "SEM SINAL"}`);
+  partes.push(`PROVA ${PP.n || 0}/60`);
+  if (D.next_event) partes.push(`EVENTO: ${D.next_event.name}`);
+  return "   ◆   " + partes.join("   ◆   ") + "   ";
+}
+function drawFita(g) {
+  g.fillStyle = "#050814"; g.fillRect(0, 0, 4096, 96);
+  for (let x = 0; x < 4096; x += 8) for (let y = 4; y < 96; y += 8) { g.fillStyle = "#0b1226"; g.fillRect(x, y, 5, 5); }
+  g.font = "bold 54px monospace"; g.textBaseline = "middle";
+  let t = textoFita(); const w0 = g.measureText(t).width; while (g.measureText(t).width < 4096) t += t.slice(0, Math.max(1, Math.floor(t.length * Math.min(1, (4096 - g.measureText(t).width) / w0))));
+  let x = 0;
+  for (const seg of t.split(/(▲[\d.]+%|▼[\d.]+%|◆)/)) { if (!seg) continue;
+    g.fillStyle = seg.startsWith("▲") ? "#68D391" : seg.startsWith("▼") ? "#FC8181" : seg === "◆" ? "#B794F4" : "#F6C453"; g.fillText(seg, x, 50); x += g.measureText(seg).width; if (x > 4096) break; }
+}
+function buildFita() {
+  fitaTex = canvasTex(4096, 96, drawFita); fitaTex.wrapS = THREE.RepeatWrapping; fitaTex.repeat.set(.5, 1);
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(34, .8), new THREE.MeshBasicMaterial({ map: fitaTex, toneMapped: false }));
+  m.position.set(-1, 3.25, -12.35); scene.add(m);                        // parede do fundo (vista do computador)
+  boxM(34.4, .12, .08, mat("#1b1450", .3), -1, 3.7, -12.4); boxM(34.4, .12, .08, mat("#1b1450", .3), -1, 2.8, -12.4);
+}
+function animateVida(dt, nowMs) {
+  if (fitaTex) { fitaTex.offset.x = (fitaTex.offset.x + dt * .018) % 1;
+    if (nowMs - fitaAt > 20000) { fitaAt = nowMs; drawFita(fitaTex.userData.c.getContext("2d")); fitaTex.needsUpdate = true; } }
+  if (hemiL && nowMs - luzAt > 60000) { luzAt = nowMs;           // dia e noite pela hora de Lisboa
+    const h = +new Date().toLocaleString("en-GB", { timeZone: "Europe/Lisbon", hour: "2-digit", hour12: false });
+    const noite = h >= 21 || h < 7, tarde = h >= 18 && h < 21;
+    hemiL.intensity = noite ? 1.05 : tarde ? 1.4 : 1.75; hemiL.color.set(noite ? 0x9fb3ff : tarde ? 0xffd9b0 : 0xffffff); }
+  // operacao real aberta ou fechada, ou operacao de papel fechada: confetes na mesa de operacoes
+  const D = API().D(); if (!D) return;
+  const sig = JSON.stringify([((D.execucao || {}).abertas || []).map(o => o.id), (D.papel_panico || {}).n, ((D.papel_fases || {}).lateral || {}).n]);
+  if (opSig !== null && sig !== opSig) { const d = DESK.mon; burst(d ? d.p : V(-10.5, -4.8)); if (fitaTex) { fitaAt = 0; } }
+  opSig = sig;
+}
+
+let ledT = 0, tvT = 0, composer = null, bloom = null, cardT = 0, cardSig = "";
 function frame() {
   if (!running) return; requestAnimationFrame(frame);
   if (document.body.classList.contains("sheet-open") || !visible || document.hidden) return;
@@ -2112,6 +2165,7 @@ function frame() {
   if (cofreScr) { cofreScr.visible = !P2.on && !P3.on; cofreScr.quaternion.copy(cam.quaternion); cofreScr.scale.setScalar(cam.aspect < .8 ? 1.4 : 1); }
   if (misScr) { misScr.visible = !P2.on && !P3.on; misScr.quaternion.copy(cam.quaternion); misScr.scale.setScalar(cam.aspect < .8 ? 1.5 : 1); }
   animateArena(dt, t); animateRewards(dt, t); secPeople.forEach(p => animate(p, dt, t)); stPeople.forEach(p => animate(p, dt, t)); staffPeople.forEach(p => animate(p, dt, t)); dirPeople.forEach(p => animate(p, dt, t)); acPeople.forEach(p => animate(p, dt, t));
+  try { animateVida(dt, nowMs); } catch (e) { }
   ctl.update(); if (composer) composer.render(); else R.render(scene, cam); placeOverlays(dt);
 }
 function resize() {
@@ -2150,7 +2204,7 @@ function init(container) {
       if (cx !== t.x || cz !== t.z || t.y !== P2H) { const dx = cx - t.x, dz = cz - t.z, dy = P2H - t.y; t.set(cx, P2H, cz); cam.position.x += dx; cam.position.z += dz; cam.position.y += dy; } return; }
     const t = ctl.target, cx = Math.max(-28.5, Math.min(Math.max(48, ST_WALL + stLen + 2, acEnd + 1), t.x)), cz = t.x < -19.5 ? Math.max(-5, Math.min(5, t.z)) : Math.max(t.x > 19 ? -14 : -8.5, Math.min(t.x > 19 ? 14 : 11.5, t.z));
     if (cx !== t.x || cz !== t.z || t.y !== 0) { const dx = cx - t.x, dz = cz - t.z, dy = -t.y; t.set(cx, 0, cz); cam.position.x += dx; cam.position.z += dz; cam.position.y += dy; } });
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x6b6f78, 1.75));
+  hemiL = new THREE.HemisphereLight(0xffffff, 0x6b6f78, 1.75); scene.add(hemiL);
   const dl = new THREE.DirectionalLight(0xfff4e8, 1.35); dl.position.set(8, 20, 10); scene.add(dl);
   // sombras suaves (desligadas em telemoveis fracos, ver qualidade abaixo)
   const lowEnd = (navigator.hardwareConcurrency || 4) <= 4 && /iPhone|Android/.test(navigator.userAgent) && Math.min(screen.width, screen.height) < 380;
@@ -2164,7 +2218,7 @@ function init(container) {
     bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), .28, .4, .92); composer.addPass(bloom); composer.addPass(new OutputPass());
   } catch (e) { composer = null; }
   monTex = canvasTex(256, 160, drawMon);
-  buildRoom(); buildAccessories(); Object.keys(DESK).forEach(buildDesk); buildRadar(); buildBoard(); updateRadar(); buildArena(); buildRewards(); buildSectors(); buildStrategyRoom(); buildStaff(); buildDirector(); buildMemorial(); buildAcademy(); buildOpsMoney(); updateMoney(); buildMission(); buildCofre(); arenaSig = ""; updateArena();
+  buildRoom(); buildAccessories(); Object.keys(DESK).forEach(buildDesk); buildRadar(); buildBoard(); updateRadar(); buildArena(); buildRewards(); buildSectors(); buildStrategyRoom(); buildStaff(); buildDirector(); buildMemorial(); buildAcademy(); buildOpsMoney(); updateMoney(); buildMission(); buildCofre(); try { buildFita(); } catch (e) { } arenaSig = ""; updateArena();
   people = API().agents.map(makePerson);
   // ao abrir: quem esta em pausa ja esta num sitio de descanso (sem marcha em
   // grupo pelo corredor), cada um com a sua faixa e o seu ritmo

@@ -271,8 +271,13 @@ html,body{max-width:100%;overflow-x:hidden}
 .obub b{color:var(--bg)}
 .obub3{position:absolute;max-width:62%;background:#0c0a24e6;color:#fff;font:12px/1.35 system-ui,sans-serif;padding:6px 9px;border-radius:8px;border:1.5px solid #4FD1C5;box-shadow:0 0 14px #4FD1C566;pointer-events:none}
 .obub3 b{color:#fff}
-.ocard3{position:absolute;width:118px;background:#0c0a24f2;color:#dfe6ff;font:9.5px/1.28 system-ui,sans-serif;padding:3px 6px;border-radius:6px;border:1px solid #2b2470;border-left:3px solid #4FD1C5;pointer-events:none;box-shadow:0 2px 8px #000a;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+.ocard3{position:absolute;left:0;top:0;will-change:transform;transition:transform .45s ease;width:118px;background:#0c0a24f2;color:#dfe6ff;font:9.5px/1.28 system-ui,sans-serif;padding:3px 6px;border-radius:6px;border:1px solid #2b2470;border-left:3px solid #4FD1C5;pointer-events:none;box-shadow:0 2px 8px #000a;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
 .ocard3 .nm{color:#fff;font-weight:700}
+#fita{margin-top:5px;overflow:hidden;border-radius:7px;background:#050814e6;border:1px solid #2b2470;height:20px;position:relative;pointer-events:none}
+#fita .fi{position:absolute;white-space:nowrap;font:600 11px/20px ui-monospace,Menlo,monospace;color:#F6C453;animation:fita linear infinite;will-change:transform}
+#fita .up{color:#68D391}#fita .dn{color:#FC8181}#fita .sep{color:#B794F4;margin:0 10px}
+@keyframes fita{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){#fita .fi{animation:none}}
 .dlg{margin:8px 0;display:flex;flex-direction:column;gap:5px}.dlg>b{font-size:12.5px;color:var(--mut)}
 .dl{max-width:88%;padding:6px 9px;border-radius:10px;background:var(--card);border:1px solid #ffffff1a;font-size:12.5px;line-height:1.35}
 .dl i{display:block;font-style:normal;font-weight:700;font-size:11px;color:var(--mut)}
@@ -311,7 +316,7 @@ html,body{max-width:100%;overflow-x:hidden}
 @media (prefers-reduced-motion:reduce){.typing i,.bot .eye{animation:none}.bub{transition:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module" src="office3d.js?v=20261101a"></script>
+<script type="module" src="office3d.js?v=20261101c"></script>
 </head>
 <body class="w3d">
 <div id="world">
@@ -319,6 +324,7 @@ html,body{max-width:100%;overflow-x:hidden}
 <div id="hud">
 <div class="hud-top"><h1>Cryptoscan</h1><button id="sub" title="Atualizar agora">A carregar…</button></div>
 <div id="hudstats"></div>
+<div id="fita" aria-label="Cotações e estado ao vivo"><div class="fi"></div></div>
 <div id="alerts"></div>
 </div>
 <div id="odetail" class="agentcard" hidden></div>
@@ -1210,7 +1216,17 @@ $("sh-close").addEventListener("click",closeSheet);
 $("zonebar").addEventListener("click",e=>{const b=e.target.closest("button");if(b)openPanel(b.dataset.p)});
 // arrastar a pega para baixo fecha
 (()=>{let y0=null;const h=document.querySelector(".sh-head");h.addEventListener("touchstart",e=>{y0=e.touches[0].clientY},{passive:true});h.addEventListener("touchend",e=>{if(y0!=null&&e.changedTouches[0].clientY-y0>60)closeSheet();y0=null})})();
-function renderHud(){if(!D)return;const C=D.config||{},J=(D.journal||{}).rows||[];
+function renderFita(){const el=document.querySelector("#fita .fi");if(!el||!D)return;const U=D.universe||[];
+  const f=a=>{const r=U.find(x=>x.asset===a);if(!r||!r.price)return"";const p=curPrice(a)||r.price,c=r.chg_24h||0;return`${a} ${p>=100?Math.round(p).toLocaleString("pt-PT"):num(p,p>=1?2:4)} <span class="${c>=0?"up":"dn"}">${c>=0?"▲":"▼"}${num(Math.abs(c),1)}%</span>`};
+  const PP=D.papel_panico||{},PF=D.papel_fases||{},ex=((D.execucao||{}).abertas)||[];
+  const it=["BTC","ETH","SOL","XRP","BNB","DOGE","ADA","LINK"].map(f).filter(Boolean);
+  it.push(`FASE ${esc((PF.fase||"–").toUpperCase())}`);
+  it.push(ex.length?`REAL: ${ex.map(o=>esc(o.asset)).join(", ")}`:"REAL: À ESPERA DE SINAL");
+  it.push(`PÂNICO: ${(PP.ordens||[]).length?(PP.ordens||[]).map(o=>esc(o.asset)).join(", ")+" EM ORDEM":"SEM SINAL"}`);
+  it.push(`PROVA ${PP.n||0}/60`);if(D.next_event)it.push(`EVENTO ${esc(D.next_event.name)} ${hm(D.next_event.t)}`);
+  const h=it.join('<span class="sep">◆</span>')+'<span class="sep">◆</span>';
+  if(el.dataset.h!==h){el.dataset.h=h;el.innerHTML=h+h;el.style.animationDuration=Math.max(25,it.length*4.5)+"s"}}
+function renderHud(){if(!D)return;try{renderFita()}catch(_){}const C=D.config||{},J=(D.journal||{}).rows||[];
   const dec=new Set(J.filter(r=>r.executed===false||r.user_closed_flag).map(r=>r.id));
   const act=(D.active_signals||[]).filter(s=>s.mode!=="PAPER"&&!dec.has(s.id));
   const open=act.filter(s=>s.status==="TRIGGERED"),wait=act.filter(s=>s.status!=="TRIGGERED"),tro=trendOps();
