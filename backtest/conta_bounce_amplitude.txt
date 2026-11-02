@@ -1,0 +1,23 @@
+BOUNCE_AMPLITUDE, criterio da conta; fim do historico 2026-11-02 16:00 moedas 68
+
+H1 2021-08-01..2024-02-29: 120 op. (todas), R medio -0.149, acerto 48%, ret. medio no preco -0.17%
+  BTC comprado sempre: x1.44 (+15%/ano), queda max 77%, ret/queda 0.57
+  1 posicao(oes) 1x: mediana x0.76 (-10%/ano), queda max 35%, 18 op., cresce em 0% das repeticoes, ret/queda -0.70
+  1 posicao(oes) 3x: mediana x0.36 (-33%/ano), queda max 77%, 18 op., cresce em 0% das repeticoes, ret/queda -0.84
+  2 posicao(oes) 1x: mediana x0.78 (-9%/ano), queda max 30%, 30 op., cresce em 0% das repeticoes, ret/queda -0.74
+  2 posicao(oes) 3x: mediana x0.42 (-28%/ano), queda max 68%, 30 op., cresce em 0% das repeticoes, ret/queda -0.85
+
+H2 2024-03-01..2026-11-02: 291 op. (todas), R medio -0.201, acerto 47%, ret. medio no preco -0.68%
+  BTC comprado sempre: x1.27 (+9%/ano), queda max 53%, ret/queda 0.51
+  1 posicao(oes) 1x: mediana x0.43 (-27%/ano), queda max 62%, 31 op., cresce em 0% das repeticoes, ret/queda -0.91
+  1 posicao(oes) 3x: mediana x0.06 (-66%/ano), queda max 96%, 31 op., cresce em 0% das repeticoes, ret/queda -0.98
+  2 posicao(oes) 1x: mediana x0.54 (-20%/ano), queda max 50%, 55 op., cresce em 0% das repeticoes, ret/queda -0.92
+  2 posicao(oes) 3x: mediana x0.12 (-54%/ano), queda max 90%, 55 op., cresce em 0% das repeticoes, ret/queda -0.97
+
+Contra o acaso (metodo do ringue, mesma geometria, entradas ao acaso perto de cada sinal):
+  H1: 120 op., 57 ganhadoras, R medio -0.149, acaso mediana -0.265, p95 -0.153 -> MORTA
+  H2: 291 op., 138 ganhadoras, R medio -0.201, acaso mediana -0.272, p95 -0.199 -> MORTA
+  ultimos 90 dias: 2 op., 2 ganhadoras, R medio +1.194, acaso mediana -0.19, p95 1.341 -> A COMPETIR
+  24 meses: 187 op., 98 ganhadoras, R medio -0.081, acaso mediana -0.177, p95 -0.092 -> MORTA
+
+VEREDICTO DO CRITERIO DA CONTA: CHUMBA

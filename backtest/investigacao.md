@@ -1,18 +1,20 @@
 # Diário de investigação
 
-**Hipóteses testadas contra esta reserva: 23** (12 neste diário: compra de
+**Hipóteses testadas contra esta reserva: 24** (12 neste diário: compra de
 quedas, compressão, oversold bounce 4H, day trade 1H, bounce com outras
 saídas, sweep a mercado, funding negativo, quebra com compradores,
 capitulação do mercado, atraso face ao BTC, resiliente, impulso de
-amplitude; mais 11 no diário de afinação, H1 a H11). Atualizado em
-2026-11-01 (sem hipótese nova nesta corrida; sem mortos novos; a
-afinação não testou nada depois da H11 de 2026-10-30; os estudos H32–H35
-da sessão com o Rui de 2026-11-01 contam no contador global). O contador global do programa (`engine/hipoteses.py`, com os
+amplitude; mais 12 no diário de afinação, H1 a H12). Atualizado em
+2026-11-02 (sem hipótese nova nesta corrida; sem mortos novos; a
+afinação testou a H12 em 2026-11-01; o estudo da conta da
+BOUNCE_AMPLITUDE de hoje avalia um lutador que já existe, com a regra
+fixada antes e sem grelha, e só podia reprovar, por isso não entra no
+contador). O contador global do programa (`engine/hipoteses.py`, com os
 estudos fora do programa em `backtest/hipoteses_offline.json`, contra dados
 que incluem esta reserva) já vai em 59 ou mais, sem contar os estudos
 H10–H21 de 26–27/10 em `backtest/estudos/`. Quanto maior este número,
 maior a probabilidade de uma hipótese passar por sorte: com 23 testes, a
-probabilidade de pelo menos um falso positivo a 5% já ronda os 69% (e as
+probabilidade de pelo menos um falso positivo a 5% já ronda os 71% (e as
 várias configurações de cada grelha aumentam-na ainda mais).
 
 Uma hipótese por entrada, com o veredicto. Método: `tools/research.py`
@@ -1799,3 +1801,86 @@ global, que já passa de 59, e também usaram dados que incluem esta reserva.
   rápida a contar acontecimentos e não operações na mesma vela; (3) rever
   o dinheiro real na tendência BTC 2x à luz do H33; (4) passar esta
   corrida a semanal enquanto não houver dados novos.
+
+## 2026-11-02 — Sem hipótese nova hoje; a BOUNCE_AMPLITUDE chumba no critério da conta (estudo informativo)
+
+**Veredicto da corrida: nenhuma hipótese nova testada.** O contador desta
+reserva passa a 24 (a afinação testou a H12 em 2026-11-01: rejeitada).
+Com 24 testes contra a mesma reserva, a probabilidade de pelo menos um
+falso positivo a 5% ronda os 71%.
+
+- **Histórico** (ramo `history`): estava em 2026-10-25 (8 dias de
+  atraso); corri o workflow "Historico para backtest" e passou a
+  2026-11-02 16:00 UTC (68 moedas com 1500 ou mais velas de 4H). Continua
+  só com 4H, 1H e funding: nenhuma fonte nova com histórico (o combate já
+  lê interesse em aberto de 35 moedas, mas só ao vivo, sem histórico).
+- **Arena** (scan.json do ramo `data`, 2026-11-02 11:50 UTC): **8
+  lutadores a competir** (SHORT_TURTLE_SHORT, BOUNCE_AMPLITUDE,
+  MAIORES_RECUO, REVERSAO_INTERVALO, MAIORES_TENDENCIA, BOUNCE_MACRO_R2,
+  SHORT_SQUEEZE, VOLUME_ACUMULACAO_R2), `recrutar` falso. Nenhum morto
+  novo desde BOUNCE_V1 (2026-10-30, já na tabela). Fila do Rui vazia.
+- **Combate de 90 dias** (`forma.json`, ramo `arena`, 2026-11-02 11:23
+  UTC, 44 moedas): BOUNCE_AMPLITUDE 15 op., 15 ganhadoras, +0,814R (acaso
+  mediana −0,41R, p95 −0,05R) — continua o único lutador vivo acima do
+  acaso. REVERSAO_INTERVALO 23 op., −0,022R (p95 +0,023R) e MAIORES_RECUO
+  17 op., −0,019R (p95 +0,106R) ficam abaixo do p95.
+
+### Estudo informativo: critério da conta na BOUNCE_AMPLITUDE
+
+Proposto na corrida de ontem. Não é hipótese nova: é o lutador do ringue
+tal como está (`tools/arena_ringue.sig_amplitude`: RSI 4H abaixo de 30 a
+virar, só quando pelo menos 25% das moedas estão em sobrevenda; saída G0;
+BTC acima da SMA200 diária; 0,25% de comissão + 0,1% de deslize por lado).
+Regra fixada ANTES de correr, sem grelha (`tools/conta_bounce_amplitude.py`,
+teste de look-ahead em `tests/test_conta_bounce_amplitude.py`): uma conta,
+juros compostos, 1 posição com o valor todo (e 2 posições como
+informação), sinais na mesma vela escolhidos ao acaso (200 repetições);
+metades H1 = 2021-08-01 a 2024-02-29 e H2 = 2024-03-01 a 2026-11-02;
+passa se, nas duas metades a 1x, a conta crescer e o rácio
+retorno/queda máxima bater o BTC comprado sempre.
+
+| | H1 2021-08 a 2024-02 | H2 2024-03 a 2026-11 |
+|---|---|---|
+| Todas as operações | 120 op., −0,149R, 48% de acerto | 291 op., −0,201R, 47% de acerto |
+| Contra o acaso (método do ringue) | mediana −0,265R, p95 −0,153R (no p95) | mediana −0,272R, p95 −0,199R (no p95) |
+| Conta, 1 posição, 1x (mediana) | ×0,76 (−10%/ano), queda 35%, 18 op. | ×0,43 (−27%/ano), queda 62%, 31 op. |
+| Conta, 1 posição, 3x (informação) | ×0,36, queda 77% | ×0,06, queda 96% |
+| Conta, 2 posições, 1x | ×0,78, queda 30% | ×0,54, queda 50% |
+| BTC comprado sempre | ×1,44 (+15%/ano), queda 77% | ×1,27 (+9%/ano), queda 53% |
+
+Nos últimos 24 meses: 187 op., −0,081R (acaso p95 −0,092R).
+Em nenhuma das 200 repetições a conta cresce, em nenhuma metade.
+
+**Veredicto do estudo: CHUMBA no critério da conta.** Leitura:
+- O momento de entrada é melhor do que o acaso (fica no p95 ou logo
+  acima, nas duas metades e nos 24 meses), mas a operação em si perde
+  (−0,15R a −0,20R): a vantagem sobre o acaso é ser "menos má", não
+  ganhar. Com uma conta e o valor todo, perde nas duas metades.
+- Os +0,81R com 15 de 15 do combate vêm de uma janela curta e de poucos
+  acontecimentos (as capitulações gerais juntam muitas moedas na mesma
+  vela). No histórico local, nos mesmos 90 dias, só há 2 operações com o
+  filtro do BTC (8 sem ele); o combate usa outro universo (44 moedas da
+  Bybit UE, dados da Binance), e a fração de moedas em sobrevenda muda
+  com o universo. Não é um defeito provado, mas os 15/15 não se
+  reproduzem no histórico.
+- Consequência para a AUTORIZAÇÃO de 2026-11-01: a condição (1), passar
+  o critério da conta nas duas metades, falha. Mesmo que a
+  BOUNCE_AMPLITUDE chegue a 30 operações em papel com média positiva, não
+  cumpre as duas condições para dinheiro real.
+
+- **Porque não há hipótese nova**: as mesmas razões de 2026-10-21 a
+  2026-11-01 (sem fonte nova com histórico; as entradas de compra com
+  lógica económica com estes dados já foram testadas ou estão no ringue;
+  o critério da conta, que nenhuma regra testada passou, torna ainda menos
+  útil uma hipótese fraca). Décima terceira corrida seguida sem hipótese
+  nova.
+- Proposta para a próxima corrida: autópsia se morrer alguém; hipótese
+  nova só com uma fonte nova com histórico (guardar o interesse em aberto
+  que o combate já lê, para ter meses de histórico; liquidações quando o
+  arquivo tiver meses). Para a sessão com o Rui: (1) a BOUNCE_AMPLITUDE
+  não serve para dinheiro real (chumba no critério da conta e perde
+  −0,15R a −0,20R em 5 anos); (2) aplicar o critério da conta a cada
+  lutador antes de o deixar qualificar-se no combate; (3) corte dos
+  clones só com representantes vivos; (4) rever o dinheiro real na
+  tendência BTC 2x à luz do H33; (5) passar esta corrida a semanal
+  enquanto não houver dados novos.
