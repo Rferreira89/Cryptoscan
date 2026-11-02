@@ -43,7 +43,7 @@ def decidir(state, daily, precos, capital, livre, cfg, now):
     fr = float(cfg.get("nucleo_fracao") or FRACAO)
     alvo = round((capital or 0) * fr / len(moedas), 2)
     ligado = bool(cfg.get("nucleo_ligado"))
-    # (02/11, Rui: "estamos travados") 150 dias em BTC (1x +32%/+12% ao ano, 2x +53%/+8%); antes 50 dias (H33 V2, a melhor das
+    # (02/11) volta aos 50 dias (decisao do Claude como gestor: esperar a confirmacao da subida); 150 dias esteve ligado 02/11 22h (H33 V2, a melhor das
     # regras de conta unica no pior periodo: +21%/ano e +15%/ano)
     dias = int(cfg.get("nucleo_dias") or DIAS)
     # (01/11, Rui: "tem de ser alavancado") alavancagem da margem spot; 2x = o maximo crescimento no H33 V2
