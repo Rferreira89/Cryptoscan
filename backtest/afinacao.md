@@ -1,7 +1,7 @@
 # Diário de afinação dos sinais
 
 Hipóteses testadas sobre as estratégias que já estão ao vivo, uma por
-entrada, com o veredicto. Hipóteses testadas até agora: 10 (H1 a H10).
+entrada, com o veredicto. Hipóteses testadas até agora: 12 (H1 a H12).
 
 ## Decisões do Rui (valem para todas as execuções)
 
@@ -1402,3 +1402,153 @@ Notas para as próximas execuções:
   mesmos dados (diários agendados); 59 no contador global, mais os estudos
   H10–H25 de 26–29/10. Com 23 tentativas, a probabilidade de pelo menos um
   falso positivo a 5% ronda os 69%.
+
+### 2026-11-02 — H12: short da quebra do mínimo de 55 velas na lateral, no método do ringue (SHORT_MIN55)
+
+**Escrito antes de correr qualquer teste.**
+
+- Situação: regime atual (scan.json, `mercado`) **lateral** desde
+  2026-10-17. Nenhum campeão vivo (`promo.campeoes` vazio); 8 lutadores a
+  competir. Combate de 90 dias (forma.json de 2026-11-02 09:23 UTC, 44
+  moedas): acima do acaso só a sobrevenda (BOUNCE_G0 +0,74R, AMPLITUDE
+  +0,71R, V2, V3, DESALAV, SQUEEZE, CAPITULACAO); fora dela,
+  REVERSAO_INTERVALO +0,02R (p95 −0,003R, validação fora falha). Ringue
+  longo (longo.json de 2026-11-02 04:02 UTC): **subida** — sobrevenda e
+  PULLBACK (+0,73R, suspenso), TURTLE/RETESTE abaixo do p95; **lateral** —
+  sobrevenda (AMPLITUDE +0,77R, V2, G0, V3, DESALAV), SHORT_TURTLE +0,30R
+  em 249 op. mas abaixo do p95 do acaso (+0,78R; metades +0,61R / 0,00R),
+  SHORT_MAIORES_TENDENCIA 10 op. abaixo do p95; **queda** — só shorts
+  (SHORT_X30 +0,33R, SHORT_ISOLADA +0,28R, SHORT_FALSO_ROMP +0,27R; os dois
+  primeiros mortos no combate). Regimes sem campeão vivo: **todos**; sem
+  família fora da sobrevenda que ganhe acima do acaso: **lateral** (o de
+  hoje) e **subida**.
+- Hipótese (família **rompimento para baixo / tendência curta em short**):
+  o estudo H29 (31/10, 254 moedas com delistadas) achou um único sinal fora
+  da sobrevenda acima do acaso nas duas metades numa fase: o short na quebra
+  do mínimo de 55 velas de 4H na lateral (+0,08R / +0,10R, p≈0). Está em
+  papel fora do ringue (`engine/papel_fases.py`), com outra definição de
+  fase e sem o teste do ringue. Lógica: na lateral, quem quebra o fundo de
+  9 dias é quem perde suporte; sem maré de subida do BTC a puxá-lo de volta,
+  a perda de suporte continua alguns dias. As Tartarugas em short
+  (SHORT_TURTLE, 20 dias, 2R/5R, até 20 dias) acertam a direção na lateral
+  mas o acaso com a mesma geometria longa ganha mais: saídas curtas (2R, 3
+  dias) testam se a vantagem está no gatilho e não na geometria. Pergunta
+  de hoje: passa no método do ringue (0,25% + 0,1% de slippage por lado,
+  operação única por moeda, entradas ao acaso com a mesma geometria)?
+- Regra (no espelho, como todos os shorts do ringue; só velas fechadas):
+  fecho de 4H abaixo do mínimo dos mínimos das N velas anteriores; stop a
+  2 ATR(42) de 4H acima da entrada (distância 0,5% a 25%); objetivo único a
+  2R; saída por tempo ao fim de D dias; fase do BTC (`_fase_btc`, a mesma do
+  ringue e do `mercado`) nas fases dadas; sem filtro da SMA200 (shorts).
+- Grelha (6, escrita antes de testar):
+  S1 N=55, 2R, D=3, só lateral (a regra do H29 com a fase do ringue);
+  S2 S1 com a fase do H29 (`papel_fases.fase` = lateral) em vez da do ringue;
+  S3 S1 em lateral e queda (fora da subida);
+  S4 N=120 (20 dias, o gatilho do SHORT_TURTLE) com estas saídas curtas;
+  S5 S1 com objetivo a 1,5R;
+  S6 S1 com D=5.
+- Método: `tools/arena_ringue.generic_trades` no espelho (`engine/short.mirror`),
+  `judge` e percentil contra 1000 carteiras de entradas ao acaso com a mesma
+  geometria. Histórico do ramo `history` (4H até 2026-10-25). Janelas: **B
+  (decide)** 2021-08-01 a 2024-10-10; **A (confirma)** 2024-10-11 até ao
+  fim; **C** últimos 90 dias; **L** últimos 365 dias por regime.
+- Critérios (todos): em B ≥ 40 op., R médio > 0, acima do p95 do acaso e
+  R > 0 sem a melhor moeda; em A ≥ 20 op., R médio > 0 e acima do p95 do
+  acaso; correlação dos resultados diários com a SHORT_TURTLE < 0,7 em B e
+  em A. Escolha: a de maior R médio em B entre as que passam. Se passar,
+  entra no ringue como SHORT_MIN55 em SHORT_SIGS (o ringue decide). Além
+  disso, para qualquer proposta ao Rui (não para entrar no ringue), o
+  critério da conta (1 e 2 posições, valor todo, escolha ao acaso, juros
+  compostos, nas duas metades contra o BTC comprado sempre) é medido e
+  reportado. REAL_OK não se mexe.
+- Previsão honesta: provável que o R desça para perto de zero: o H29 não
+  tinha slippage (0,2% ida e volta ≈ −0,03R a −0,05R com stops de 2 ATR42)
+  e usava 254 moedas; aqui são ~70. A favor: é a única pista fora da
+  sobrevenda com as duas metades acima do acaso. Contra: a pista foi achada
+  nos mesmos dados (H29 fez 30 testes), por isso B e A aqui **não** são
+  independentes do H29; um "passa" vale menos do que pareceria.
+- Hipóteses testadas até agora (com esta): 12 neste diário; 24 contra os
+  mesmos dados (diários agendados); 59 no contador global de estudos
+  offline (total 83 no ringue longo).
+
+**Resultados** (ramo `history`, 4H até 2026-10-25 16:00 UTC; 70 moedas além
+do BTC, ROBO de fora por histórico curto; shorts no espelho, sem filtro do
+BTC; `backtest/afinacao_h12_short_min55.json`; código
+`tools/afinacao_h12_short_min55.py`; teste do gatilho, do nível sem a vela
+do sinal, do stop a 2 ATR42, do objetivo, da fase e sem look-ahead em
+`tests/test_afinacao_h12.py`). Percentil = posição do R médio face a 1000
+carteiras de entradas ao acaso com a mesma geometria.
+
+| Config. | B: op. | B: R médio | B: acaso p95 | B: perc. | A: op. | A: R médio | A: acaso p95 | A: perc. | C 90 d: op. / R | L 365 d lateral: op. / R / p95 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| S1 N55, fase do ringue | 1768 | +0,073 | +0,146 | 11,4 | 2660 | −0,079 | +0,156 | 0,0 | 351 / −0,33 | 1486 / −0,09 / +0,19 |
+| S2 N55, fase do H29 | 680 | +0,122 | +0,140 | 91,8 | 767 | +0,143 | +0,213 | 52,4 | 69 / −0,56 | 497 / +0,00 / +0,26 |
+| S3 N55, lateral + queda | 2244 | +0,080 | +0,152 | 4,7 | 3246 | −0,030 | +0,161 | 0,0 | 351 / −0,33 | 1457 / −0,09 / +0,19 |
+| S4 N120 (Tartarugas, saídas curtas) | 1148 | +0,104 | +0,198 | 7,4 | 1787 | −0,104 | +0,224 | 0,0 | 217 / −0,38 | 967 / −0,09 / +0,27 |
+| S5 N55, objetivo 1,5R | 1850 | +0,046 | +0,117 | 7,3 | 2766 | −0,088 | +0,119 | 0,0 | 371 / −0,31 | 1547 / −0,10 / +0,16 |
+| S6 N55, 5 dias | 1727 | +0,053 | +0,214 | 0,0 | 2505 | −0,054 | +0,220 | 0,0 | 324 / −0,37 | 1386 / −0,05 / +0,26 |
+
+- **O gatilho é pior do que o acaso em todas as configurações e nas duas
+  metades.** As entradas ao acaso nas mesmas moedas, na mesma altura e com a
+  mesma geometria ganham +0,07R a +0,18R (mediana); o sinal fica abaixo da
+  mediana do acaso em quase todos os casos. Na lateral, vender no fundo de
+  9 ou 20 dias é vender tarde: o preço tende a voltar para dentro (o mesmo
+  que o SHORT_FALSO_ROMP aproveita do outro lado).
+- Só a S2 (a fase do H29) chega perto em B (+0,12R, percentil 92) e na
+  parte que o ringue chama lateral (+0,20R, percentil 99,7), mas em A cai
+  para o percentil 52 e na lateral do ringue para o 8. A diferença face ao
+  H29 vem do teste: o H29 comparava com entradas ao acaso de toda a fase e
+  período; o ringue compara com entradas ao acaso perto de cada sinal (±90
+  velas), que é o teste certo para dizer se o **gatilho** acrescenta.
+- **Combate de 90 dias**: −0,31R a −0,56R em todas (69 a 371 op.). O short
+  em papel do `engine/papel_fases.py` (a regra da S2, que ainda não tem
+  operações porque a fase do H29 está hoje em "subida") perderia neste
+  mercado.
+- Critério da conta (informação; nenhuma passou o critério do acaso): a 1
+  posição com o valor todo a conta perde em A em 5 das 6 (×0,41 a ×0,87;
+  a S6 dá ×1,38 com 62% de queda máxima, pior do que o BTC comprado sempre,
+  ×1,34 com 53%); em B só a S5 a 1 posição (×2,50, queda 40%) bate o BTC
+  (×1,46, queda 77%), sem confirmação em A (×0,54). Falha nas duas metades.
+- Correlação com a SHORT_TURTLE: não calculada (o sinal das Tartarugas
+  demora ~30 s por moeda e nenhuma configuração passou os critérios do
+  acaso, que vêm primeiro).
+- Critérios (melhor em B que passe): **nenhuma** passa "acima do p95 do
+  acaso" em B; em A só a S2 tem R > 0 (+0,14R), mas no percentil 52 do
+  acaso (falha).
+
+**Veredicto: REJEITADA** (pelo critério pré-registado: abaixo do p95 do
+acaso em B e em A em todas as configurações). Nada entra no ringue; REAL_OK
+não se mexe.
+
+Notas para as próximas execuções:
+
+- Para a sessão com o Rui: o short em papel da lateral (`papel_fases`,
+  pista do H29) **não bate o acaso no teste do ringue** (perto de cada
+  sinal) e perde −0,56R nos últimos 90 dias. Proposta: deixá-lo correr em
+  papel até às 60 operações como está fixado, mas sem expectativa, e não o
+  usar como argumento para dinheiro real.
+- Observação de método: nos shorts do espelho a mediana do acaso foi
+  positiva em todas as janelas (+0,04R a +0,21R). Parte é a queda real das
+  altcoins em 2025-26; parte pode ser a convexidade do espelho (1/p sobe
+  mais do que p desce). O teste é justo (sinal e acaso têm o mesmo viés),
+  mas o R absoluto dos shorts do ringue pode estar inflacionado face a um
+  short real com juro do empréstimo; vale medir numa execução própria.
+- Quatro execuções seguidas (H9 a H12) sem nada fora da sobrevenda que bata
+  o acaso nas duas metades. Os rompimentos (em compra ou em venda) perdem
+  para entradas ao acaso perto deles; o que tem funcionado é comprar ou
+  vender **contra** o movimento curto (sobrevenda, falso rompimento).
+- Regime atual **lateral**; regimes sem campeão vivo: **todos** (nenhum
+  campeão hoje). Fora da sobrevenda, sem família que ganhe acima do acaso:
+  **lateral** e **subida**; na **queda** só os shorts da sobrecompra e o
+  SHORT_FALSO_ROMP (em papel).
+- Proposta para a próxima execução (H13): **falso rompimento na lateral em
+  compra** — a vela de 4H fura o mínimo de 20 dias e volta a fechar acima
+  (`sig_falso_rompimento`, que hoje só corre em short e só na queda), com a
+  fase do ringue = lateral. É a imagem ao espelho do único short fora da
+  sobrevenda que ganha e encaixa no achado de hoje (os fundos quebrados na
+  lateral voltam para dentro). Confirmar antes que não está no ringue nem
+  nos estudos H29/H31 com esta forma; se estiver, medir o viés do espelho.
+- Hipóteses testadas até agora: 12 neste diário (H1 a H12); 24 contra os
+  mesmos dados (diários agendados); 59 no contador global de estudos
+  offline. Com 24 tentativas, a probabilidade de pelo menos um falso
+  positivo a 5% ronda os 71%.
