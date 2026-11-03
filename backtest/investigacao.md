@@ -5,9 +5,9 @@ quedas, compressão, oversold bounce 4H, day trade 1H, bounce com outras
 saídas, sweep a mercado, funding negativo, quebra com compradores,
 capitulação do mercado, atraso face ao BTC, resiliente, impulso de
 amplitude; mais 12 no diário de afinação, H1 a H12). Atualizado em
-2026-11-02 (sem hipótese nova nesta corrida; sem mortos novos; a
+2026-11-03 (sem hipótese nova nesta corrida nem na de 2026-11-02; sem mortos novos; a
 afinação testou a H12 em 2026-11-01; o estudo da conta da
-BOUNCE_AMPLITUDE de hoje avalia um lutador que já existe, com a regra
+BOUNCE_AMPLITUDE de 2026-11-02 avalia um lutador que já existe, com a regra
 fixada antes e sem grelha, e só podia reprovar, por isso não entra no
 contador). O contador global do programa (`engine/hipoteses.py`, com os
 estudos fora do programa em `backtest/hipoteses_offline.json`, contra dados
@@ -1884,3 +1884,42 @@ Em nenhuma das 200 repetições a conta cresce, em nenhuma metade.
   clones só com representantes vivos; (4) rever o dinheiro real na
   tendência BTC 2x à luz do H33; (5) passar esta corrida a semanal
   enquanto não houver dados novos.
+
+## 2026-11-03 — Sem hipótese nova hoje (sem mortos novos; fila vazia)
+
+**Veredicto da corrida: nenhuma hipótese testada.** O contador desta
+reserva fica em 24 (a afinação não testou nada depois da H12). Com 24
+testes contra a mesma reserva, a probabilidade de pelo menos um falso
+positivo a 5% ronda os 71%.
+
+- **Histórico** (ramo `history`): atualizado em 2026-11-02 12:41 UTC
+  (1 dia de atraso, dentro do limite; não foi preciso correr o
+  workflow). Continua só com 4H, 1H e funding. O arquivo de liquidações
+  (ramo `liquidacoes`) tem 3 dias: ainda não serve para testar nada.
+- **Arena** (scan.json do ramo `data`, 2026-11-03): **8 lutadores a
+  competir** (SHORT_TURTLE_SHORT, BOUNCE_AMPLITUDE, MAIORES_RECUO,
+  REVERSAO_INTERVALO, MAIORES_TENDENCIA, SHORT_SQUEEZE,
+  VOLUME_ACUMULACAO_R2, BOUNCE_MACRO_R2), `recrutar` falso. Nenhum morto
+  novo desde BOUNCE_V1 (2026-10-30, já na tabela). Fila do Rui vazia.
+- **Combate de 90 dias** (`forma.json`, ramo `arena`, 2026-11-03 11:23
+  UTC, 46 moedas): BOUNCE_AMPLITUDE 16 op., 16 ganhadoras, +0,856R (acaso
+  mediana −0,443R, p95 −0,071R) — continua o único lutador acima do
+  acaso no combate, mas chumbou ontem no critério da conta (−0,15R a
+  −0,20R por operação em 5 anos de histórico local). REVERSAO_INTERVALO
+  24 op., −0,037R (p95 −0,022R) e MAIORES_RECUO 17 op., −0,019R (p95
+  +0,079R) ficam abaixo do p95.
+- **Porque não há hipótese nova**: as mesmas razões de 2026-10-21 a
+  2026-11-02. Os dados com histórico (velas 4H/1H, fluxo comprador,
+  funding) já foram explorados nas entradas de compra com lógica
+  económica (quedas, sobrevenda, quebras, recuos, funding, fluxo,
+  capitulação, amplitude, força relativa, rotação, padrões de mecha e de
+  base — ver também `backtest/estudos/` H10–H37). Considerei efeitos de
+  calendário (dia da semana, hora): não têm lógica económica que pague
+  0,7% de custos ida e volta e seriam pesca de dados. Décima quarta
+  corrida seguida sem hipótese nova.
+- Proposta para a próxima corrida: autópsia se morrer alguém; hipótese
+  nova só com uma fonte nova com histórico (liquidações e interesse em
+  aberto quando tiverem pelo menos 2–3 meses). Para a sessão com o Rui,
+  mantém-se a lista de 2026-11-02, com destaque para (1) passar esta
+  corrida a semanal enquanto não houver dados novos e (2) corte dos
+  clones só com representantes vivos.
