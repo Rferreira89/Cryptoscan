@@ -1,0 +1,49 @@
+H40 short do gato morto (ressalto depois de colapso) em altcoins | 252 moedas (com delistadas)
+
+Variante X30 H5d:
+  M1: ops 5034 | R medio -0.147 (acaso p97,5 -0.115, mediana -0.132) | sem top5% -0.249 | custos x2 -0.198 | ganhas 45%
+       conta A (1 posicao, valor todo): x0.01 (-81%/ano) queda 99% ops 170 | conta B (risco 1%): x0.00 queda 100% (acaso p97,5 x0.00)
+       BTC comprado sempre: x1.53 (+18%/ano) queda 77% | ret/queda A -0.82 vs BTC 0.24 | falha
+  M2: ops 4856 | R medio -0.020 (acaso p97,5 -0.010, mediana -0.028) | sem top5% -0.137 | custos x2 -0.078 | ganhas 49%
+       conta A (1 posicao, valor todo): x0.08 (-62%/ano) queda 95% ops 163 | conta B (risco 1%): x0.00 queda 101% (acaso p97,5 x0.00)
+       BTC comprado sempre: x1.25 (+9%/ano) queda 53% | ret/queda A -0.65 vs BTC 0.16 | falha
+  -> CHUMBA
+
+Variante X30 H15d:
+  M1: ops 3677 | R medio -0.185 (acaso p97,5 -0.149, mediana -0.175) | sem top5% -0.334 | custos x2 -0.236 | ganhas 39%
+       conta A (1 posicao, valor todo): x0.03 (-74%/ano) queda 97% ops 84 | conta B (risco 1%): x0.00 queda 100% (acaso p97,5 x0.00)
+       BTC comprado sempre: x1.53 (+18%/ano) queda 77% | ret/queda A -0.76 vs BTC 0.24 | falha
+  M2: ops 3275 | R medio +0.026 (acaso p97,5 +0.035, mediana +0.001) | sem top5% -0.152 | custos x2 -0.031 | ganhas 46%
+       conta A (1 posicao, valor todo): x0.37 (-31%/ano) queda 82% ops 82 | conta B (risco 1%): x0.01 queda 101% (acaso p97,5 x0.14)
+       BTC comprado sempre: x1.25 (+9%/ano) queda 53% | ret/queda A -0.38 vs BTC 0.16 | falha
+  -> CHUMBA
+
+Variante X45 H5d:
+  M1: ops 2381 | R medio -0.161 (acaso p97,5 -0.111, mediana -0.134) | sem top5% -0.258 | custos x2 -0.208 | ganhas 44%
+       conta A (1 posicao, valor todo): x0.09 (-60%/ano) queda 96% ops 138 | conta B (risco 1%): x0.00 queda 100% (acaso p97,5 x0.02)
+       BTC comprado sempre: x1.53 (+18%/ano) queda 77% | ret/queda A -0.63 vs BTC 0.24 | falha
+  M2: ops 2433 | R medio -0.097 (acaso p97,5 -0.055, mediana -0.083) | sem top5% -0.196 | custos x2 -0.150 | ganhas 46%
+       conta A (1 posicao, valor todo): x0.05 (-67%/ano) queda 95% ops 136 | conta B (risco 1%): x0.01 queda 100% (acaso p97,5 x0.04)
+       BTC comprado sempre: x1.25 (+9%/ano) queda 53% | ret/queda A -0.70 vs BTC 0.16 | falha
+  -> CHUMBA
+
+Variante X45 H15d:
+  M1: ops 1786 | R medio -0.199 (acaso p97,5 -0.130, mediana -0.173) | sem top5% -0.349 | custos x2 -0.245 | ganhas 37%
+       conta A (1 posicao, valor todo): x0.05 (-68%/ano) queda 95% ops 76 | conta B (risco 1%): x0.00 queda 100% (acaso p97,5 x0.02)
+       BTC comprado sempre: x1.53 (+18%/ano) queda 77% | ret/queda A -0.72 vs BTC 0.24 | falha
+  M2: ops 1705 | R medio -0.099 (acaso p97,5 -0.071, mediana -0.117) | sem top5% -0.258 | custos x2 -0.151 | ganhas 43%
+       conta A (1 posicao, valor todo): x0.48 (-24%/ano) queda 80% ops 70 | conta B (risco 1%): x0.02 queda 99% (acaso p97,5 x0.05)
+       BTC comprado sempre: x1.25 (+9%/ano) queda 53% | ret/queda A -0.30 vs BTC 0.16 | falha
+  -> CHUMBA
+
+Veredicto: CHUMBA (nenhuma das 4 variantes cumpre o criterio nas duas metades)
+
+Notas (cacador noturno, 03/11/2026):
+- Nenhuma variante passa: o R medio e negativo em 7 das 8 metades e fica abaixo do percentil 97,5 do acaso em
+  todas; sem as 5% melhores e com custos a dobrar e negativo em todas; as contas A e B perdem em todas.
+- Verificacao (X30 H5d, todas as datas): stop mediano a 15% da entrada, retorno medio por operacao -1,7% antes
+  do R (mediana -1,3%). O ressalto depois do colapso tende a continuar alguns dias em vez de falhar: e o
+  espelho da vantagem da compra no panico (+0,08R por sinal), nao o contrario.
+- Leitura: "quem ficou preso vende no ressalto" nao aparece em velas diarias com saida a 5-15 dias; o primeiro
+  dia vermelho do ressalto nao marca o fim dele.
+- Ressalva declarada: nao foi verificado se cada moeda tinha futuros perpetuos (limite superior); mesmo assim chumba.
