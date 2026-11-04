@@ -1,21 +1,19 @@
 # Diário de investigação
 
-**Hipóteses testadas contra esta reserva: 24** (12 neste diário: compra de
+**Hipóteses testadas contra esta reserva: 25** (12 neste diário: compra de
 quedas, compressão, oversold bounce 4H, day trade 1H, bounce com outras
 saídas, sweep a mercado, funding negativo, quebra com compradores,
 capitulação do mercado, atraso face ao BTC, resiliente, impulso de
-amplitude; mais 12 no diário de afinação, H1 a H12). Atualizado em
-2026-11-03 (sem hipótese nova nesta corrida nem na de 2026-11-02; sem mortos novos; a
-afinação testou a H12 em 2026-11-01; o estudo da conta da
-BOUNCE_AMPLITUDE de 2026-11-02 avalia um lutador que já existe, com a regra
-fixada antes e sem grelha, e só podia reprovar, por isso não entra no
-contador). O contador global do programa (`engine/hipoteses.py`, com os
-estudos fora do programa em `backtest/hipoteses_offline.json`, contra dados
-que incluem esta reserva) já vai em 59 ou mais, sem contar os estudos
-H10–H21 de 26–27/10 em `backtest/estudos/`. Quanto maior este número,
-maior a probabilidade de uma hipótese passar por sorte: com 23 testes, a
-probabilidade de pelo menos um falso positivo a 5% já ronda os 71% (e as
-várias configurações de cada grelha aumentam-na ainda mais).
+amplitude; mais 13 no diário de afinação, H1 a H13). Atualizado em
+2026-11-04 (sem hipótese nova nesta corrida; autópsia de BOUNCE_MACRO_R2
+sem sucessor; a afinação testou a H13 em 2026-11-04). O contador global do
+programa (`engine/hipoteses.py` mais `backtest/hipoteses_offline.json`,
+contra dados que incluem esta reserva) já vai em 87 (ringue longo,
+2026-11-04), mais os estudos H38–H41 de 03–04/11 em `backtest/estudos/`.
+Quanto maior este número, maior a probabilidade de uma hipótese passar por
+sorte: com 25 testes, a probabilidade de pelo menos um falso positivo a 5%
+já ronda os 72% (e as várias configurações de cada grelha aumentam-na
+ainda mais).
 
 Uma hipótese por entrada, com o veredicto. Método: `tools/research.py`
 (decisão no fecho, execução na abertura seguinte, 0,25% de comissão + 0,1% de
@@ -206,6 +204,7 @@ o Rui), e o morto fica registado. Um por corrida, na segunda vaga.
 | BOUNCE_LSR | 2026-10-23 09:15 UTC (clone de BOUNCE_MACRO, correlação 0,96) | não é desempenho: no combate de 90 dias tinha 28 op., +0,108R, com o acaso a mediana −0,42R e p95 −0,17R (acima do p95). Foi morta como clone de BOUNCE_MACRO, que já estava morta desde 2026-10-19: é o mesmo defeito do corte dos clones de 2026-10-22, outra vez (ver entrada de 2026-10-23) | sem sucessor (seria outro clone; a correção é no corte dos clones, numa sessão com o Rui) | — |
 | BOUNCE_DESALAV | 2026-10-29 10:55 UTC (clone de BOUNCE_V2, correlação 0,96) | não é desempenho: no combate de 90 dias tinha 20 op., 17 ganhadoras, +0,451R, com o acaso a mediana −0,434R e p95 −0,134R (acima do p95; validação interna 19 op. fora, +0,348R). Foi morta ao chegar às 20 operações como clone de BOUNCE_V2, que está morta desde 2026-10-22: terceira vez o mesmo defeito do corte dos clones (ver entrada de 2026-10-29) | sem sucessor (seria outro clone; a correção é no corte dos clones, numa sessão com o Rui) | — |
 | BOUNCE_V1 | 2026-10-30 19:40 UTC (forma recente, morte rápida; 10 op., −0,703R) | a saída, não a entrada: no mesmo combate e nas mesmas moedas o gatilho com a saída G0 tem 24 op., +0,59R (acima do p95 do acaso); a saída V1 (plano do sistema ao vivo: 1.º objetivo mais longe, até 30 dias, stop na entrada só depois do 1.º objetivo) devolve as subidas na lateral (stops depois de +1,0R a +1,5R a favor); 9 das 16 operações locais nasceram no mesmo dia (2026-10-09), um só acontecimento (ver entrada de 2026-10-31) | sem sucessor (a correção é a saída G0, que já existe e está morta como clone; um sucessor seria outro clone) | — |
+| BOUNCE_MACRO_R2 | 2026-11-04 06:40 UTC (forma recente, morte rápida; 10 op., −0,614R) | a mesma função de BOUNCE_MACRO (`sig_macro`), regressada a 2026-10-26: 7 op. em só 4 dias (3 na mesma vela de 26/10), 5 stops; o filtro macro tira as melhores sobrevendas (no combate de 90 dias, X30 sem filtro +0,06R contra −0,12R com filtro) e a família X30 na lateral passou de +0,21R para −0,31R entre as duas metades do ringue longo; o regresso foi decidido com uma prova que já não se aguentava (ver entrada de 2026-11-04) | sem sucessor (a correção é tirar o filtro, que é o BOUNCE_X30, morto como clone; e a família perde na metade recente) | — |
 
 ## Hipóteses anteriores a este diário (até 2026-10-02, período 2021-2026)
 
@@ -1923,3 +1922,86 @@ positivo a 5% ronda os 71%.
   mantém-se a lista de 2026-11-02, com destaque para (1) passar esta
   corrida a semanal enquanto não houver dados novos e (2) corte dos
   clones só com representantes vivos.
+
+## 2026-11-04 — Sem hipótese nova hoje; autópsia de BOUNCE_MACRO_R2 (sem sucessor)
+
+**Veredicto da corrida: nenhuma hipótese testada.** O contador desta
+reserva passa a 25 (a afinação testou a H13 hoje: rejeitada). Com 25
+testes contra a mesma reserva, a probabilidade de pelo menos um falso
+positivo a 5% ronda os 72%.
+
+- **Histórico** (ramo `history`): atualizado em 2026-11-02 12:41 UTC (2
+  dias de atraso, dentro do limite). Continua só com 4H, 1H e funding; o
+  arquivo de liquidações (ramo `liquidacoes`, velas de 5m) começa a
+  2026-10-19: cerca de 2 semanas, ainda curto para testar.
+- **Arena** (scan.json do ramo `data`, 2026-11-04): **7 lutadores a
+  competir** (SHORT_TURTLE_SHORT, BOUNCE_AMPLITUDE, REVERSAO_INTERVALO,
+  MAIORES_RECUO, MAIORES_TENDENCIA, SHORT_SQUEEZE, VOLUME_ACUMULACAO_R2),
+  `recrutar` falso (mínimo 5). Um morto novo: BOUNCE_MACRO_R2. Fila do Rui
+  vazia.
+- **Combate de 90 dias** (`forma.json`, ramo `arena`, 2026-11-04 11:23
+  UTC, 45 moedas): BOUNCE_AMPLITUDE 13 op., +0,879R (acaso p95 −0,015R) —
+  continua o único lutador vivo acima do acaso, mas chumbou no critério da
+  conta (2026-11-02). REVERSAO_INTERVALO 22 op., +0,041R (p95 −0,013R,
+  ligeiramente acima; ver se a validação fora confirma) e MAIORES_RECUO
+  17 op., −0,019R (p95 +0,098R).
+
+### Autópsia de BOUNCE_MACRO_R2 (sem sucessor)
+
+Dados: `state.json` do ramo `data` (arena → longo → recentes, forma,
+mortos, renascidos) e `forma.json` do ramo `arena`.
+
+- **Quem é**: a mesma função de BOUNCE_MACRO (`sig_macro` em
+  `tools/arena_ringue.py`: X30, RSI 4H abaixo de 30 a virar, só com a
+  macro "favorável": VIX < 20, S&P 500 ≥ −0,5% em 24h, dólar ≤ +0,5% em 5
+  dias). BOUNCE_MACRO morreu a 2026-10-19 (já autopsiado em 2026-10-20);
+  regressou como BOUNCE_MACRO_R2 a 2026-10-26 05:35 UTC pela regra do
+  regresso (`engine/arena.rebirth`, mesmo regime lateral) e morreu a
+  2026-11-04 06:40 UTC por morte rápida (10 op., −0,614R).
+- **As operações** (ringue longo, desde o regresso): 26/10 12:00 −1,02R;
+  26/10 16:00 −1,02R, +0,02R, −1,02R (três na mesma vela); 29/10 −1,02R;
+  31/10 −1,02R; 01/11 +0,94R. Sete operações em 4 dias, 5 stops, um só
+  objetivo. No combate de 90 dias (forma): 7 op., 1 ganhadora, −0,739R,
+  abaixo da mediana do acaso (−0,558R). É uma morte rápida contada em
+  operações mas que, em acontecimentos, são 4 ou 5 (o mesmo defeito já
+  apontado: morte rápida a contar operações na mesma vela).
+- **Onde perde**: (1) a causa da autópsia de 2026-10-20 mantém-se — o
+  filtro macro tira as melhores sobrevendas: no mesmo combate de 90 dias o
+  gatilho sem filtro (BOUNCE_X30) tem 127 op., +0,059R, e o BOUNCE_MACRO
+  original 101 op., −0,119R; (2) a família X30 piorou na lateral: no ringue
+  longo (365 dias, regime lateral) BOUNCE_MACRO dá +0,213R na primeira
+  metade e −0,309R na segunda (reservado −0,559R em 16 op.), e BOUNCE_X30
+  +0,203R e −0,372R. O filtro não é a única razão: o próprio gatilho
+  deixou de ganhar na metade recente.
+- **Defeito do regresso**: a regra de `engine/arena.rebirth` deixa
+  regressar uma família morta no mesmo regime se o ringue longo mostrar
+  média positiva e acima do p95 do acaso nesse regime; não olha para as
+  metades. Hoje esse mesmo registo dá −0,052R com a metade recente a
+  −0,309R, por isso a prova que justificou o regresso a 26/10 já não se
+  aguenta (e é provável que já viesse quase toda da primeira metade). Não
+  mexo em `engine/`: fica para a sessão com o Rui (exigir as duas metades
+  positivas para um regresso).
+- **Porque não há sucessor**: a correção única que ataca a causa seria
+  tirar o filtro macro, e isso é o BOUNCE_X30 (morto como clone a
+  2026-10-22); o contrário (comprar depois de medo) já existe
+  (BOUNCE_MEDO). E as duas variantes perdem na metade recente da lateral
+  e chumbam no critério da conta como a BOUNCE_AMPLITUDE (−0,15R a −0,20R
+  por operação em 5 anos). Um sucessor seria outro clone da família do
+  bounce sem resolver a perda recente.
+
+- **Porque não há hipótese nova**: as mesmas razões de 2026-10-21 a
+  2026-11-03 (sem fonte nova com histórico suficiente; as entradas de
+  compra com lógica económica com estes dados já foram testadas ou estão
+  no ringue; o critério da conta, que nenhuma regra testada passou, torna
+  ainda menos útil uma hipótese fraca). Os estudos de 03–04/11 com o Rui
+  (H38–H41: custos de futuros, tendência em várias classes de ativos, short
+  do gato morto, quebras nas altcoins em subida) também não deixam uma
+  ideia nova para esta reserva. Décima quinta corrida seguida sem hipótese
+  nova.
+- Proposta para a próxima corrida: autópsia se morrer alguém; hipótese
+  nova só com uma fonte nova com histórico (liquidações a partir de 2–3
+  meses de arquivo). Para a sessão com o Rui: (1) regresso dos mortos só
+  com as duas metades do ringue longo positivas; (2) morte rápida a contar
+  acontecimentos e não operações na mesma vela; (3) corte dos clones só
+  com representantes vivos; (4) passar esta corrida a semanal enquanto não
+  houver dados novos.
