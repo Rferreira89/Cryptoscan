@@ -202,8 +202,54 @@ def correr(st, now):
                     "abertas": sorted(st["abertas"]), "n": len(st["fechadas"]),
                     "r_medio": round(sum(x["r"] for x in st["fechadas"]) / len(st["fechadas"]), 3) if st["fechadas"] else None,
                     "conta_sim_pct": round(100 * (st["conta_sim"] / CONTA0 - 1), 2)}
+    try:
+        st["desempenho"] = {k: metricas([x["r"] for x in st["fechadas"] if f(x)])
+                            for k, f in (("mercado", lambda x: x.get("tipo") == "mercado"),
+                                         ("isolado", lambda x: x.get("tipo") != "mercado"), ("todos", lambda x: True))}
+        m = alerta_vantagem(st)
+        if m:
+            msgs.append(m)
+    except Exception as e:
+        print("desempenho erro:", type(e).__name__)
     del st["fechadas"][:-1000]
     return msgs
+
+
+# (04/11) Calibracao: o que o teste prometeu (H40, custos de futuros, duas metades) contra o que acontece ao vivo
+REF_H40 = {"mercado": (0.174, 0.406), "isolado": (-0.126, 0.076)}
+
+
+def metricas(rs):
+    """Expectativa, acerto, profit factor e intervalo de 95% da media (R por operacao), so com resultados reais."""
+    n = len(rs)
+    if not n:
+        return {"n": 0}
+    m = sum(rs) / n
+    sd = (sum((r - m) ** 2 for r in rs) / (n - 1)) ** 0.5 if n > 1 else None
+    ganhos, perdas = sum(r for r in rs if r > 0), -sum(r for r in rs if r < 0)
+    se = sd / n ** 0.5 if sd is not None else None
+    return {"n": n, "r_medio": round(m, 3), "acerto_pct": round(100 * sum(r > 0 for r in rs) / n),
+            "profit_factor": round(ganhos / perdas, 2) if perdas else None,
+            "ic95": [round(m - 1.96 * se, 3), round(m + 1.96 * se, 3)] if se is not None else None}
+
+
+def alerta_vantagem(st):
+    """Com 20+ operacoes em papel do panico do mercado: avisa (uma vez por patamar de 10) se o intervalo de 95%
+    ja exclui o que o teste prometeu (vantagem em duvida) ou se confirma media positiva."""
+    d = (st.get("desempenho") or {}).get("mercado") or {}
+    n, ic = d.get("n", 0), d.get("ic95")
+    if n < 20 or not ic or st.get("alerta_n") == n // 10:
+        return None
+    st["alerta_n"] = n // 10
+    lo, hi = REF_H40["mercado"]
+    if ic[1] < 0:
+        return (f"🚨 Calibração OKX: {n} operações em papel do pânico do mercado com média {d['r_medio']:+.2f}R "
+                f"(95%: {ic[0]:+.2f} a {ic[1]:+.2f}R). A vantagem do teste ({lo:+.2f} a {hi:+.2f}R) não se está a confirmar: "
+                "proponho suspender o dinheiro real até ver a causa.")
+    if ic[0] > 0:
+        return f"✅ Calibração OKX: {n} operações em papel, média {d['r_medio']:+.2f}R, 95% acima de zero. A vantagem confirma-se ao vivo."
+    return (f"📏 Calibração OKX: {n} operações em papel, média {d['r_medio']:+.2f}R (95%: {ic[0]:+.2f} a {ic[1]:+.2f}R; "
+            f"teste {lo:+.2f} a {hi:+.2f}R). Ainda sem conclusão.")
 
 
 RADAR_QUEDA = -0.05      # so pede o financiamento a quem ja caiu 5% em 3 dias (metade do caminho para o sinal)

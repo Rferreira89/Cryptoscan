@@ -25,6 +25,19 @@ if __name__ == "__main__":
     unittest.main()
 
 
+class Calibracao(unittest.TestCase):
+    def test_metricas_e_alerta(self):
+        from tools import okx_agente as A
+        m = A.metricas([2.0, -1.0, 2.0, -1.0])
+        self.assertEqual((m["n"], m["r_medio"], m["acerto_pct"], m["profit_factor"]), (4, 0.5, 50, 2.0))
+        self.assertEqual(A.metricas([]), {"n": 0})
+        st = {"desempenho": {"mercado": A.metricas([-1.0] * 15 + [0.5] * 5)}}
+        self.assertIn("🚨", A.alerta_vantagem(st))
+        self.assertIsNone(A.alerta_vantagem(st))                  # uma vez por patamar
+        st = {"desempenho": {"mercado": A.metricas([1.0, -0.2] * 6)}}
+        self.assertIsNone(A.alerta_vantagem(st))                  # menos de 20
+
+
 class Classe(unittest.TestCase):
     def test_cripto_pela_categoria_da_okx(self):
         from tools import okx_agente as A

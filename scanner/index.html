@@ -1054,7 +1054,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261104k";
+const PAGE_V="20261104l";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -1591,7 +1591,9 @@ function renderCentro(){const el=$("cgrid");if(!el)return;const O=OKX_PUB||{},K=
   const mkB=`<div class="cb"><h2>🌍 Mercado</h2><div class="kpis"><div class="kpi"><b>${btc.price?Math.round(btc.price).toLocaleString("pt-PT"):"–"}</b><span>BTC · ${btc.chg_24h>0?"+":""}${num(btc.chg_24h,1)}% em 24h</span></div><div class="kpi"><b>${((D||{}).market_regime||{}).btc||"–"}</b><span>regime do BTC</span></div>${top?`<div class="kpi"><b class="up">${esc(top.asset)} +${num(top.chg_24h,1)}%</b><span>mais subiu</span></div>`:""}${bot?`<div class="kpi"><b class="dn">${esc(bot.asset)} ${num(bot.chg_24h,1)}%</b><span>mais caiu</span></div>`:""}</div></div>`;
   const RD=O.radar||{},RL=RD.lista||[];
   const rdB=`<div class="cb"><h2>🧭 Radar · mais perto de dar sinal <small>220 criptos da OKX, de hora a hora · BTC ${RD.btc_24h==null?"–":(RD.btc_24h>0?"+":"")+RD.btc_24h+"%"} em 24 h</small></h2>${RL.length?RL.slice(0,6).map(x=>`<div class="op"><div class="l1"><span>${esc(x.a)}</span><span class="dn">${x.q}% em 3 dias</span></div><div class="l3" style="display:block">${x.falta.length?"Falta: "+x.falta.map(esc).join(" · "):"✅ Todas as condições cumpridas"}</div></div>`).join(""):`<div class="note">Nenhuma moeda caiu 5% ou mais em 3 dias: não há pânico em formação.</div>`}</div>`;
-  el.innerHTML=contas+opsB+rdB+agB+convB+arB+mkB;}
+  const DS=O.desempenho||{},lin=(k,nm,ref)=>{const d=DS[k]||{};return `<div class="op"><div class="l1"><span>${nm}</span><span class="${d.r_medio>0?"up":d.r_medio<0?"dn":""}">${d.n?(d.r_medio>0?"+":"")+d.r_medio+"R":"–"}</span></div><div class="l3"><span>${d.n||0} op. · acerto ${d.acerto_pct??"–"}% · PF ${d.profit_factor??"–"}</span><span>teste ${ref}</span></div></div>`};
+  const dsB=`<div class="cb"><h2>📏 Ao vivo contra o teste <small>papel da OKX, resultado médio por operação (R)</small></h2>${lin("mercado","Pânico do mercado (o que vai a dinheiro real)","+0,17 a +0,41R")}${lin("isolado","Pânico isolado (só papel)","−0,13 a +0,08R")}<div class="note" style="margin-top:6px">Com 20 operações o programa avisa no Telegram se a vantagem se confirma ou não.</div></div>`;
+  el.innerHTML=contas+opsB+rdB+dsB+agB+convB+arB+mkB;}
 async function openCentro(){$("centro").classList.add("on");await loadOKXPub();renderCentro()}
 function closeCentro(){$("centro").classList.remove("on")}
 $("cclose").addEventListener("click",closeCentro);
