@@ -17,10 +17,12 @@ def pedido(base, path):
         with urllib.request.urlopen(req, timeout=20) as r:
             return json.loads(r.read())
     except urllib.error.HTTPError as e:
+        corpo = e.read()
         try:
-            return json.loads(e.read())
+            return json.loads(corpo)
         except Exception:
-            return {"code": str(e.code), "msg": "HTTP (resposta sem JSON)"}
+            txt = corpo[:160].decode("utf-8", "replace").replace("\n", " ")
+            return {"code": str(e.code), "msg": f"HTTP sem JSON | servidor={e.headers.get('Server')} | {txt}"}
     except Exception as e:
         return {"code": "rede", "msg": type(e).__name__}
 
@@ -37,7 +39,25 @@ def telegram(txt):
         print("telegram falhou:", type(e).__name__)
 
 
+def publico():
+    """Pedido publico (sem chave): distingue bloqueio do servidor/regiao de problema da chave."""
+    try:
+        req = urllib.request.Request("https://www.okx.com/api/v5/public/time", headers={"User-Agent": "cryptoscan/1.0"})
+        with urllib.request.urlopen(req, timeout=20) as r:
+            print("pedido publico OKX: OK", r.status)
+    except urllib.error.HTTPError as e:
+        print("pedido publico OKX:", e.code, e.headers.get("Server"), e.read()[:120].decode("utf-8", "replace"))
+    except Exception as e:
+        print("pedido publico OKX: falhou", type(e).__name__)
+    try:
+        with urllib.request.urlopen("https://api.ipify.org", timeout=15) as r:
+            print("IP de saida do servidor:", r.read().decode()[:40])
+    except Exception as e:
+        print("IP de saida: nao lido", type(e).__name__)
+
+
 def main():
+    publico()
     falta = [n for n, v in (("OKX_API_KEY", K), ("OKX_API_SECRET", S), ("OKX_PASSPHRASE", P)) if not v]
     if falta:
         print("FALTAM SEGREDOS:", ", ".join(falta))
@@ -45,7 +65,7 @@ def main():
         return 1
     for base in BASES:
         r = pedido(base, "/api/v5/account/config")
-        print(base, "->", r.get("code"), (r.get("msg") or "")[:80])
+        print(base, "->", r.get("code"), (r.get("msg") or "")[:220])
         if r.get("code") == "0":
             cfg = (r.get("data") or [{}])[0]
             perm = cfg.get("perm", "")
