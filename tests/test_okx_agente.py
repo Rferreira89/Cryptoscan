@@ -153,5 +153,30 @@ class Execucao(unittest.TestCase):
         self.assertIn("/api/v5/trade/cancel-order", [p for p, _ in posts])
         self.assertNotIn("HUMA", st["real"]["ops"])
 
+    def test_recuo_real_so_ligado_e_com_metade_do_risco(self):
+        from unittest import mock
+        posts, msgs = [], []
+        now = 2_000_000_000
+
+        def privado(metodo, path, corpo=None):
+            if metodo == "POST":
+                posts.append((path, corpo))
+                return {"code": "0", "data": [{"ordId": "1", "sCode": "0"}]}
+            if "balance" in path:
+                return {"code": "0", "data": [{"totalEq": "20"}]}
+            return {"code": "0", "data": []}
+        sig = {"t_sig": now - H4, "lim": 0.0236, "atr": 0.001, "tipo": "recuo"}
+        for ligado, espera in ((False, 0), (True, 1)):
+            posts.clear(); st = {}
+            with mock.patch.object(self.E, "_chaves", return_value=("k", "s", "p")), mock.patch.object(self.E, "privado", privado), \
+                    mock.patch.object(self.E, "cfg", return_value=dict(self.E.CFG_PADRAO, real=True, risco_pct=2.0, recuo_real=ligado)), \
+                    mock.patch.object(self.E, "xperps", return_value={"HUMA": self.info()}):
+                self.E.correr(st, [("HUMA", sig)], now, msgs)
+            self.assertEqual(sum(1 for p, _ in posts if p == "/api/v5/trade/order"), espera)
+        self.assertEqual(st["real"]["ops"]["HUMA"]["estrategia"], "recuo")
+        ordem = [c for p, c in posts if p == "/api/v5/trade/order"][0]
+        self.assertLessEqual(float(ordem["sz"]) * 10.0 * 0.002, 0.2 + 1e-9)       # 1% de 20 USD, nao 2%
+        self.assertIn("recuo na subida", msgs[-1])
+
 
 H4 = 14400

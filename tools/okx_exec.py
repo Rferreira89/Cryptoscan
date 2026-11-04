@@ -14,7 +14,8 @@ import base64, datetime, hashlib, hmac, json, math, os, time, urllib.error, urll
 import okx_agente as A
 
 H4 = 14400
-CFG_PADRAO = {"real": False, "so_mercado": True, "risco_pct": 1.0, "risco_max_pct": 2.0, "alavancagem": 10, "max_posicoes": 40, "travao_queda_pct": 25}
+CFG_PADRAO = {"real": False, "so_mercado": True, "risco_pct": 1.0, "risco_max_pct": 2.0, "alavancagem": 10, "max_posicoes": 40, "travao_queda_pct": 25,
+              "recuo_real": False, "recuo_risco_pct": 1.0}
 
 
 def cfg():
@@ -200,7 +201,8 @@ def correr(st, novos, now, msgs):
     reconciliar(R, now, msgs)
     for base in list(R["ops"]):
         op = R["ops"][base]
-        if c.get("so_mercado", True) and op.get("estado") == "pendente" and ((st.get("pend") or {}).get(base) or {}).get("tipo") == "isolado":
+        if c.get("so_mercado", True) and op.get("estado") == "pendente" and op.get("estrategia") != "recuo" \
+                and ((st.get("pend") or {}).get(base) or {}).get("tipo") == "isolado":
             # (04/11, H40) ordem posta antes do filtro num panico isolado: cancela SO se ainda nao executou
             cx = privado("POST", "/api/v5/trade/cancel-order", {"instId": op["inst"], "ordId": op["ordId"]})
             if cx.get("code") == "0" and ((cx.get("data") or [{}])[0].get("sCode") in ("0", None)):
@@ -226,7 +228,10 @@ def correr(st, novos, now, msgs):
         chave = f"{base}:{sig['t_sig']}"
         if base in R["ops"] or chave in tent or len(R["ops"]) >= c["max_posicoes"] or now >= sig["t_sig"] + 3 * H4 - 300:
             continue
-        if c.get("so_mercado", True) and sig.get("tipo") != "mercado":
+        recuo = sig.get("tipo") == "recuo"
+        if recuo and not c.get("recuo_real"):
+            continue
+        if c.get("so_mercado", True) and sig.get("tipo") not in ("mercado", "recuo"):
             # (04/11, H40) o panico isolado perdeu na metade recente (-0,126R); o do mercado todo deu +0,17R/+0,41R
             chave_i = f"i:{base}:{sig['t_sig']}"
             if chave_i not in R.setdefault("avisados", []):
@@ -242,7 +247,13 @@ def correr(st, novos, now, msgs):
             continue
         avisados = R.setdefault("avisados", [])
         n0 = len(msgs)
-        op = abrir(base, sig, info, eq, c, now, msgs)
+        # (04/11, OK do Rui) H46 recuo na subida com dinheiro real antes das 30 em papel, mas com metade do risco (1%)
+        cc = {**c, "risco_pct": float(c.get("recuo_risco_pct") or 1.0),
+              "risco_max_pct": min(float(c.get("risco_max_pct", 2.0)), 2.0)} if recuo else c
+        op = abrir(base, sig, info, eq, cc, now, msgs)
+        if op and recuo:
+            op["estrategia"] = "recuo"
+            msgs[-1] = msgs[-1].replace("OKX real — ", "OKX real (recuo na subida, H46) — ", 1)
         if op:
             R["ops"][base] = op
             tent.append(chave)

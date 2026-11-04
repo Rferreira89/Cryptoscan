@@ -1,7 +1,8 @@
 """(04/11) H46 em papel ao vivo na OKX: recuo curto numa altcoin em tendencia de subida com o mercado a subir.
 Rui: "temos de ter trades todas as semanas". No teste (backtest/estudos/h46_resultado.txt) a variante RSI<30 ficou
 positiva nas duas metades mas por pouco (+0,048R e +0,147R; conta x1,03 e x1,43; sem as moedas retiradas): por isso
-SO PAPEL. Passa a dinheiro real so com a autorizacao previa do Rui (30 operacoes em papel com media positiva).
+papel E, desde 04/11 com o OK do Rui ("Sim, real a 1% de risco"), dinheiro real na OKX com metade do risco (1%),
+okx_config.json "recuo_real". A calibracao (metricas) mede se a vantagem se confirma.
 Regra (igual ao teste; media de 50 dias diaria em vez da de 300 velas de 4H, a mesma janela):
   BTC: fecho diario acima da media de 50 dias e essa media a subir face a 10 dias antes;
   moeda: o mesmo, e RSI(14) de 4H abaixo de 30 na ultima vela fechada;

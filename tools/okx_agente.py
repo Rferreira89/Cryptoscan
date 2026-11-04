@@ -184,9 +184,17 @@ def correr(st, now):
                           f"{100 * s['funding']:.3f}%, pânico {s.get('tipo') or '?'}; posição p/ 20 USD ~{nom} USD "
                           f"({'cabe' if cabe else 'abaixo do mínimo de ' + str(mn)})")
         msgs.insert(0, f"🔎 Agente OKX — {len(novos)} oportunidade(s) de compra no pânico (só papel), melhores primeiro:\n" + "\n".join(linhas))
+    try:                                         # (04/11) H46 recuo na subida (papel; real com okx_config "recuo_real")
+        import okx_recuo
+        msgs += okx_recuo.correr(st, radar, lista, now)
+    except Exception as e:
+        print("recuo erro:", type(e).__name__)
     try:                                         # (04/11) dinheiro real na OKX (okx_config.json "real": true)
         import okx_exec
-        okx_exec.correr(st, sorted(st["pend"].items(), key=lambda kv: nota(kv[1], kv[1].get("tipo")), reverse=True), now, msgs)
+        novos_real = sorted(st["pend"].items(), key=lambda kv: nota(kv[1], kv[1].get("tipo")), reverse=True)
+        novos_real += [(a, {**s_, "tipo": "recuo"}) for a, s_ in sorted(((st.get("recuo") or {}).get("pend") or {}).items())
+                       if a not in st["pend"]]
+        okx_exec.correr(st, novos_real, now, msgs)
     except Exception as e:
         msgs.append(f"⚠️ OKX real: erro na execução ({type(e).__name__}); nada novo foi enviado.")
         print("okx_exec erro:", type(e).__name__, str(e)[:120])
@@ -198,11 +206,6 @@ def correr(st, now):
             msgs.append(m)
     except Exception as e:
         print("radar erro:", type(e).__name__)
-    try:                                         # (04/11) H46 recuo na subida, so papel
-        import okx_recuo
-        msgs += okx_recuo.correr(st, radar, lista, now)
-    except Exception as e:
-        print("recuo erro:", type(e).__name__)
     st["resumo"] = {"t": int(now), "contratos": len(lista), "analisados": vistas, "pendentes": sorted(st["pend"]),
                     "abertas": sorted(st["abertas"]), "n": len(st["fechadas"]),
                     "r_medio": round(sum(x["r"] for x in st["fechadas"]) / len(st["fechadas"]), 3) if st["fechadas"] else None,
