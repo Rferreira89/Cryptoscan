@@ -299,6 +299,13 @@
    "pergunta": "Short no ressalto (RSI4H>70/65) de altcoins em descida com o BTC em descida",
    "resultado": "CHUMBA: RSI>70 +0,149R em 2021-23 mas -0,086R e conta x0,30 em 2023-26; RSI>65 conta x0,24 (queda 95%) em 2023-26.",
    "ficheiro": "backtest/estudos/h47_short_ressalto_descida.py"
+  },
+  {
+   "id": "H48",
+   "data": "2026-11-04",
+   "pergunta": "Short das altcoins mais fracas contra o BTC (fundo 10%/20% do retorno relativo de 30 dias) no ressalto até à média de 20 velas de 4H, só com o BTC em descida; 251 moedas com as retiradas, 2021-2026",
+   "resultado": "CHUMBA nas 4 variantes: R médio perto de zero (-0,025 a +0,039R) e NEGATIVO sem as 5% melhores em todas; conta a 2% de risco x0,28 a x0,93 exceto Q10 1R/36h em 2023-26 (x1,31) que perde em 2021-23 (x0,51). Bate o acaso (shorts ao acaso em descida perdem ainda mais), mas não ganha.",
+   "ficheiro": "backtest/estudos/h48_short_fracas_media.py"
   }
  ]
 }

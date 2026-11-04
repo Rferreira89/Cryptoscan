@@ -2021,3 +2021,6 @@ Altcoin e BTC acima da média de ~50 dias a subir, RSI(14) de 4H < L; limite 1% 
 
 ## H47 (04/11) — short no ressalto em mercado de descida
 Espelho da H46 só no regime de descida (BTC e moeda abaixo da média de ~50 dias a descer, RSI 4H > L). RSI>70: 2021-23 198 op. +0,149R x1,46; 2023-26 364 op. −0,086R x0,30 (queda 85%). RSI>65: x1,25 e x0,24. CHUMBA: ganhou no mercado de 2022 e perde no recente. Os shorts continuam sem prova, mesmo com filtro de regime.
+
+## H48 (04/11) — short das altcoins mais fracas no ressalto até à média, só em descida
+BTC abaixo da média de ~50 dias a descer; moeda no fundo Q (10% ou 20%) do retorno de 30 dias contra o BTC e ≥2% abaixo da média de 20 velas de 4H; venda limite NA média (ressalto, não quebra), stop 2×ATR, 2R/72 h ou 1R/36 h; custos de futuros da OKX e financiamento contra o short; 251 moedas COM as 184 retiradas, 2021-2026. Nas 4 variantes o R médio fica perto de zero e é negativo sem as 5% melhores; a conta (2% de risco ou valor todo) encolhe em pelo menos uma metade (melhor: Q10 1R/36h, x0,51 em 2021-23 e x1,31 em 2023-26). Bate o acaso (shorts ao acaso em descida ainda perdem mais), mas não ganha. CHUMBA. Ver h48_resultado.txt. Os shorts continuam sem prova: a fraqueza relativa e a entrada no ressalto não chegam.
