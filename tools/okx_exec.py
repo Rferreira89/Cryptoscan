@@ -205,17 +205,27 @@ def correr(st, novos, now, msgs):
         msgs.append(f"🛑 OKX real: a conta está {c['travao_queda_pct']}% abaixo do máximo; travão ligado, sem ordens novas.")
         return
     xp = xperps()
-    tent = R.setdefault("tentados", [])
+    tent = R.setdefault("colocados", [])          # so os sinais com ordem posta (uma recusa por tamanho volta a tentar)
     for base, sig in novos:
         chave = f"{base}:{sig['t_sig']}"
         if base in R["ops"] or chave in tent or len(R["ops"]) >= c["max_posicoes"] or now >= sig["t_sig"] + 3 * H4 - 300:
             continue
-        tent.append(chave)
-        del tent[:-500]
         info = xp.get(base)
         if not info:
-            msgs.append(f"⏭️ OKX real — {base}: não há X-Perp negociável na tua conta; fica só em papel.")
+            chave_x = f"x:{base}:{sig['t_sig']}"
+            if chave_x not in R.setdefault("avisados", []):
+                R["avisados"].append(chave_x)
+                msgs.append(f"⏭️ OKX real — {base}: não há X-Perp negociável na tua conta; fica só em papel.")
             continue
+        avisados = R.setdefault("avisados", [])
+        n0 = len(msgs)
         op = abrir(base, sig, info, eq, c, now, msgs)
         if op:
             R["ops"][base] = op
+            tent.append(chave)
+            del tent[:-500]
+        elif chave in avisados:                   # a mesma recusa nao se repete no Telegram de hora a hora
+            del msgs[n0:]
+        else:
+            avisados.append(chave)
+            del avisados[:-500]
