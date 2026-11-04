@@ -1627,7 +1627,7 @@ function buildFloor2() {
   const ft = canvasTex(512, 420, p2DrawFunnel); P2.tex.funil = ft;
   const fs = new THREE.Mesh(new THREE.PlaneGeometry(4.4, 3.6), new THREE.MeshBasicMaterial({ map: ft, toneMapped: false, side: THREE.DoubleSide })); fs.position.set(22.6, 2.6, 0); G.add(fs); P2.scr.push(fs);
   boxM(.2, 2.2, .2, mat("#222"), 22.6, 1.1, 0, G);
-  p2Label("🔬 Laboratório de Estratégias · 2.º piso", "#B794F4", new THREE.Vector3(22.6, P2H + 4.8, 0), "room");
+  p2Label("🔬 Laboratório de Estratégias · piso 1", "#B794F4", new THREE.Vector3(22.6, P2H + 4.8, 0), "room");
   // investigadores
   const TEAM = [["Ana", 1], ["Bruno", 0], ["Carla", 1], ["Duarte", 0], ["Eva", 1], ["Filipe", 0], ["Gil", 0], ["Helena", 1]];
   TEAM.forEach(([nm, fem], i) => { const hh = hsh(nm + "lab"), col = FCOL[(i * 3) % FCOL.length];
@@ -1823,7 +1823,7 @@ function goFloor(n) {
   ctl.maxDistance = 70;
   if (!P2.g) buildFloor2();
   P2.on = n === 2; P2.g.visible = P2.on;
-  if (!P2.on) { p2HideOverlays(); resize.done = false; ctl.target.set(0, 0, 0); resize(); ctl.update(); }
+  if (!P2.on) { p2HideOverlays(); return goFloor(0); }
   else { updateFloor2(); const T = new THREE.Vector3(cam.aspect < .8 ? 2 : 3.5, P2H, 0); ctl.target.copy(T);
     if (cam.aspect < .8) cam.position.set(T.x - 50, T.y + 50, 0); else cam.position.set(T.x + 1, T.y + 30, 35); ctl.update(); }
   try { window.dispatchEvent(new CustomEvent("piso", { detail: P2.on ? 2 : 1 })); } catch (_) { }
@@ -2217,7 +2217,7 @@ function buildFloor0() {
     .forEach(([k, nm, fem, x]) => { p0Desk(x, -8.4, P0C.analise, Math.PI); p0Person(k, nm, fem, P0C.analise, x, -9.35, 0); });
   [["c_caio", "Caio · caçador noturno", 0, -7], ["c_iris", "Íris · investigação", 1, 0], ["c_artur", "Artur · arena", 0, 7]]
     .forEach(([k, nm, fem, x]) => { p0Desk(x, 8.4, P0C.pesquisa, 0); p0Person(k, nm, fem, P0C.pesquisa, x, 9.35, Math.PI); });
-  p0Label("🏢 Centro de operações · todos os agentes", "#9fd3ff", new THREE.Vector3(0, P0H + 7.2, -12));
+  p0Label("🏢 Piso 0 · Centro de operações · todos os agentes", "#9fd3ff", new THREE.Vector3(0, P0H + 7.2, -12));
   p0Label("💰 Mesa do dinheiro real", P0C.dinheiro, new THREE.Vector3(0, P0H + 1.4, 3.4));
   p0Label("📡 Análise", P0C.analise, new THREE.Vector3(-15, P0H + 1.6, -8.4)); p0Label("🔬 Pesquisa", P0C.pesquisa, new THREE.Vector3(-15, P0H + 1.6, 8.4));
   p4Load(true);
@@ -2495,7 +2495,9 @@ function init(container) {
     ray.setFromCamera(m, cam);
     if (!P2.on && !P4.on && !P0.on && misScr && ray.intersectObject(misScr, false)[0]) { showMission(); return; }
     if (!P2.on && !P4.on && !P0.on && cofreScr && ray.intersectObject(cofreScr, false)[0]) { showCofre(); return; }
-    if (P0.on) { const h0 = ray.intersectObjects(P0.people.map(p => p.g), true)[0]; if (h0) { let o = h0.object; while (o && !o.userData.agent) o = o.parent;
+    if (P0.on) { const hs = ray.intersectObjects(P0.scr, false)[0];
+      if (hs) { const k = Object.keys(P0.tex).find(k => hs.object.material.map === P0.tex[k]); const Z = { dinheiro: "ops", analise: "srv", pesquisa: "lab" }[k]; if (Z && API().openZone) API().openZone(Z); return; }
+      const h0 = ray.intersectObjects(P0.people.map(p => p.g), true)[0]; if (h0) { let o = h0.object; while (o && !o.userData.agent) o = o.parent;
         const p = P0.people.find(q => q.a.id === (o && o.userData.agent)), f = p && p0Conversas().find(x => x[0] === p.key);
         if (f) { P0.talk = { p, to: P0.people.find(q => q.key === f[1]) || p, txt: f[2] }; P0.talkAt = 8; } } return; }
     if (P4.on) { const h4 = ray.intersectObjects(P4.people.map(p => p.g), true)[0]; if (h4) { let o = h4.object; while (o && !o.userData.agent) o = o.parent;
@@ -2520,7 +2522,7 @@ function init(container) {
   return true;
 }
 // voltar a vista inicial (botao no ecra)
-function resetView() { p2Leave(); resize.done = false; ctl.target.set(0, 0, 0); resize(); ctl.update(); }
+function resetView() { goFloor(0); }   // (04/11) so ha 2 pisos: a vista inicial e o centro de operacoes
 function goArena() { p2Leave(); const tx = ARENA_C.x + 2, dx = tx - ctl.target.x, dz = ARENA_C.z - ctl.target.z; ctl.target.set(tx, 0, ARENA_C.z); cam.position.x += dx; cam.position.z += dz;
   const d = cam.position.clone().sub(ctl.target), want = 30; if (d.length() > want) cam.position.copy(ctl.target.clone().add(d.setLength(want))); ctl.update(); }
 function goRewards() { p2Leave(); const T = V(TRO_X0 + TRO_LEN / 2, TRO_ZC + .35), dx = T.x - ctl.target.x, dz = T.z - ctl.target.z; ctl.target.copy(T); cam.position.x += dx; cam.position.z += dz;

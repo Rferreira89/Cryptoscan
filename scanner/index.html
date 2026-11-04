@@ -316,7 +316,7 @@ html,body{max-width:100%;overflow-x:hidden}
 @media (prefers-reduced-motion:reduce){.typing i,.bot .eye{animation:none}.bub{transition:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module" src="office3d.js?v=20261104e"></script>
+<script type="module" src="office3d.js?v=20261104f"></script>
 </head>
 <body class="w3d">
 <div id="world">
@@ -332,7 +332,7 @@ html,body{max-width:100%;overflow-x:hidden}
 <nav id="zonebar" aria-label="Centro de comando">
 <button data-p="ops" class="cmd"><i style="background:#4FD1C5"></i>Centro de comando<span id="zb-ops"></span></button>
 </nav>
-<button id="floorbtn" aria-label="Subir ao 2.º piso: Laboratório de Estratégias">🔬 2.º piso · Laboratório</button>
+<button id="floorbtn" aria-label="Mudar de piso">🔬 Piso 1 · Laboratório</button>
 <button id="gomenu" aria-haspopup="true" aria-expanded="false">🧭 Ir para…</button>
 <div id="golist" hidden role="menu"></div>
 <button id="homeview" aria-label="Voltar à vista inicial" title="Vista inicial">⌂</button>
@@ -1017,7 +1017,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261104e";
+const PAGE_V="20261104f";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -1449,14 +1449,14 @@ function openFiltro(){const F=D&&D.filtro_novo,el=$("hoje"),FN={subida:"Subida",
     if(F.clones)h+=`<div class="it"><i>✂️</i><span><b>${F.clones} clones cortados</b><br><small>${Object.entries(F.lista_clones||{}).map(([k,v])=>`${esc(personaOf(k))} → clone de ${esc(personaOf(v.de))} (${String(v.corr).replace(".",",")})`).join(" · ")}</small></span></div>`;
     ["lateral","queda","subida"].forEach(r=>{const x=(F.fases||{})[r]||{};h+=`<div class="it"><i>${(D.mercado||{}).regime===r?"▶":"·"}</i><span><b>Fase ${FN[r]}</b> — filtro atual: ${(x.atual||[]).map(k=>esc(personaOf(k))).join(", ")||"ninguém"} · novo: <b>${(x.novo||[]).map(k=>esc(personaOf(k))).join(", ")||"ninguém"}</b><br><small>${(x.detalhe||[]).map(d=>`${esc(personaOf(d.id))}: ${d.dias??"–"} dias, intervalo ${sg(d.ic_inf)}R, reservado (últimos 25%) ${d.reservado&&d.reservado.n?d.reservado.n+" op. "+sg(d.reservado.avg_r)+"R":"sem operações"}, sem a melhor moeda ${sg(d.sem_melhor_moeda)}R`).join("<br>")||"—"}</small></span></div>`})}
   el.querySelector(".hj").innerHTML=h;el.hidden=false}
-const GOTO=[["🏢","Vista inicial","escritório principal",O=>O.resetView()],["🏁","Painel da missão","capital, gráfico e percentagens",O=>O.showMission()],["🧱","Cofre do núcleo","BTC, ETH e SOL",O=>O.showCofre()],["📋","O que aconteceu hoje","resumo do dia",()=>openHoje()],["📈","Gráficos","velas interativas com o núcleo e as operações",()=>openGraf()],["🔍","Pós-morte","o que as operações reais ensinam",()=>openPM()],["🕊️","Caminho para a liberdade","quanto falta, com os teus depósitos",()=>openLiberdade()],["🌡️","Índice e radar","alta ou baixa, e quem está perto de dar sinal",()=>openIndice()],["🧪","Filtro novo","troca automática, lutadores ao acaso, clones",()=>openFiltro()],null,
-  ["🏢","Centro de operações","todos os agentes juntos",O=>O.goFloor(0)],["🏬","Escritório completo","o 1.º piso com todas as salas",O=>O.goFloor(1)],["🌐","4.º piso · Mesa OKX","cripto, ações e matérias-primas",O=>O.goFloor(4)],["🏆","3.º piso · Mesa de elite","só quem opera dinheiro real",O=>O.goFloor(3)],["🔬","2.º piso · Laboratório","pesquisa de estratégias",O=>O.goFloor(2)],["🧭","Diretor de Trading","decisões de entrada",O=>O.goDirector()],["⚔️","Arena","as estratégias a lutar",O=>O.goArena()],["💼","Sala de estratégia","quem provou no combate",O=>O.goStrategy()],
-  ["🎓","Academia","quem ainda está a aprender",O=>O.goAcademy()],["📊","Setores","moedas por setor",O=>O.goSectors()],["🏆","Recompensas","conquistas reais",O=>O.goRewards()],["🕯️","Memorial","quem morreu na arena",O=>O.goMemorial()]];
+const GOTO=[["🏢","Piso 0 · Centro de operações","dinheiro real, análise e pesquisa",O=>O.goFloor(0)],["🔬","Piso 1 · Laboratório","onde nascem e morrem as estratégias",O=>O.goFloor(2)],null,
+  ["💰","Operações e contas","Bybit e OKX: posições, ordens e saldo",()=>openPanel("ops","#s-okx")],["📋","O que aconteceu hoje","resumo do dia",()=>openHoje()],["📈","Gráficos","velas interativas com as operações",()=>openGraf()],
+  ["🌡️","Índice e radar","alta ou baixa, e quem está perto de dar sinal",()=>openIndice()],["🔍","Pós-morte","o que as operações reais ensinam",()=>openPM()],["🕊️","Caminho para a liberdade","quanto falta, com os teus depósitos",()=>openLiberdade()]];
 $("golist").innerHTML=GOTO.map((g,i)=>g?`<button role="menuitem" data-i="${i}"><span style="font-size:18px">${g[0]}</span><span>${g[1]}<small>${g[2]}</small></span></button>`:"<hr>").join("");
 $("gomenu").addEventListener("click",()=>{const l=$("golist"),open=l.hidden;l.hidden=!open;$("gomenu").setAttribute("aria-expanded",open)});
 $("golist").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const O=window.Office3D,g=GOTO[+b.dataset.i];$("golist").hidden=true;$("gomenu").setAttribute("aria-expanded","false");try{g[3](O||{})}catch(_){}});
-$("floorbtn").addEventListener("click",()=>{const O=window.Office3D;if(O&&O.goFloor)O.goFloor(O.floor()===0?1:O.floor()>=2?0:2)});
-addEventListener("piso",e=>{const b=$("floorbtn"),d=e.detail,up=d>=2;b.classList.toggle("on",up||d===0);b.textContent=d===0?"🏬 Escritório completo":up?"🏢 Centro de operações":"🔬 2.º piso · Laboratório"});
+$("floorbtn").addEventListener("click",()=>{const O=window.Office3D;if(O&&O.goFloor)O.goFloor(O.floor()===0?2:0)});
+addEventListener("piso",e=>{const b=$("floorbtn"),d=e.detail;b.classList.toggle("on",d===0);b.textContent=d===0?"🔬 Piso 1 · Laboratório":"🏢 Piso 0 · Centro de operações"});
 $("homeview").addEventListener("click",()=>{if(window.Office3D&&window.Office3D.resetView)window.Office3D.resetView()});
 $("arenaview").addEventListener("click",()=>{if(window.Office3D&&window.Office3D.goArena)window.Office3D.goArena()});
 $("rewview").addEventListener("click",()=>{if(window.Office3D&&window.Office3D.goRewards)window.Office3D.goRewards()});
