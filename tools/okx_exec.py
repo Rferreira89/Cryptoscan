@@ -197,14 +197,16 @@ def correr(st, novos, now, msgs):
             op.pop(k, None)
     if not all(_chaves()):
         return
+    reconciliar(R, now, msgs)
     for base in list(R["ops"]):
         op = R["ops"][base]
         if c.get("so_mercado", True) and op.get("estado") == "pendente" and ((st.get("pend") or {}).get(base) or {}).get("tipo") == "isolado":
-            # (04/11, H40) ordem posta antes do filtro num panico isolado: cancela enquanto nao executou
-            privado("POST", "/api/v5/trade/cancel-order", {"instId": op["inst"], "ordId": op["ordId"]})
-            msgs.append(f"🛑 OKX real — {base}: cancelei a ordem limite (pânico isolado; pelo H40 só operamos o pânico do mercado todo).")
-            R["hist"].append({"asset": base, **R["ops"].pop(base), "estado": "cancelada", "motivo": "H40 isolado"})
-            continue
+            # (04/11, H40) ordem posta antes do filtro num panico isolado: cancela SO se ainda nao executou
+            cx = privado("POST", "/api/v5/trade/cancel-order", {"instId": op["inst"], "ordId": op["ordId"]})
+            if cx.get("code") == "0" and ((cx.get("data") or [{}])[0].get("sCode") in ("0", None)):
+                msgs.append(f"🛑 OKX real — {base}: cancelei a ordem limite (pânico isolado; pelo H40 só operamos o pânico do mercado todo).")
+                R["hist"].append({"asset": base, **R["ops"].pop(base), "estado": "cancelada", "motivo": "H40 isolado"})
+                continue
         if acompanhar(base, R["ops"][base], now, msgs):
             R["hist"].append({"asset": base, **R["ops"].pop(base)})
     del R["hist"][:-500]
@@ -250,3 +252,35 @@ def correr(st, novos, now, msgs):
         else:
             avisados.append(chave)
             del avisados[:-500]
+
+
+def reconciliar(R, now, msgs):
+    """(04/11) posicoes abertas na OKX que o programa nao esta a seguir (ex.: a HUMA executou antes do cancelamento):
+    adota-as para a saida por tempo e confirma que tem stop; se nao tiver, poe o stop do plano original."""
+    pos = privado("GET", "/api/v5/account/positions?instType=FUTURES")
+    if pos.get("code") != "0":
+        return
+    seguidas = {o["inst"] for o in R["ops"].values()}
+    for x in pos.get("data") or []:
+        if not float(x.get("pos") or 0) or x.get("instId") in seguidas:
+            continue
+        inst, base = x["instId"], x["instId"].split("-")[0]
+        ant = next((h for h in reversed(R["hist"]) if h.get("inst") == inst), {})
+        t_fill = int(int(x.get("cTime") or now * 1000) / 1000)
+        op = {"inst": inst, "ordId": ant.get("ordId"), "estado": "aberta", "entrada": float(x.get("avgPx") or 0), "t_fill": t_fill,
+              "sair_em": t_fill + 18 * H4, "stop": ant.get("stop"), "alvo": ant.get("alvo"), "alav": int(float(x.get("lever") or 0) or 0),
+              "t_sig": ant.get("t_sig"), "criado": int(now), "adotada": True}
+        R["ops"][base] = op
+        if ant:
+            R["hist"].remove(ant)
+        algos = privado("GET", f"/api/v5/trade/orders-algo-pending?instId={inst}&ordType=conditional")
+        algos2 = privado("GET", f"/api/v5/trade/orders-algo-pending?instId={inst}&ordType=oco")
+        tem_stop = any(a.get("slTriggerPx") for a in (algos.get("data") or []) + (algos2.get("data") or []))
+        if not tem_stop and op["stop"]:
+            r = privado("POST", "/api/v5/trade/order-algo", {"instId": inst, "tdMode": "isolated", "side": "sell", "ordType": "oco",
+                                                            "sz": x.get("pos"), "reduceOnly": True,
+                                                            "slTriggerPx": str(op["stop"]), "slOrdPx": "-1",
+                                                            "tpTriggerPx": str(op["alvo"]), "tpOrdPx": "-1"})
+            tem_stop = r.get("code") == "0"
+        msgs.append(f"🔁 OKX real — {base}: posição aberta a {op['entrada']:.6g} encontrada e adotada (sai no stop, no objetivo ou ao fim de 72 h). "
+                    + ("Stop confirmado ✅" if tem_stop else "⚠️ NÃO consegui confirmar o stop: verifica na app da OKX."))
