@@ -211,8 +211,11 @@ def main(caminho):
     if primeira:
         msgs.insert(0, f"🤖 Agente OKX ligado: analisa {r['analisados']} perpétuos de cripto da OKX de hora a hora "
                        "(compra no pânico, só papel). Avisa aqui quando houver oportunidades.")
+    import re
     for m in msgs:
         telegram(m)
+        if "OKX real" in m:                      # registo publico: sem numeros (podem ser valores da conta)
+            print("msg:", re.sub(r"\d", "#", m)[:200])
     return 0
 
 
