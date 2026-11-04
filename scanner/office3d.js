@@ -1823,13 +1823,13 @@ function goFloor(n) {
   ctl.maxDistance = 70;
   if (!P2.g) buildFloor2();
   P2.on = n === 2; P2.g.visible = P2.on;
-  if (!P2.on) { p2HideOverlays(); return goFloor(0); }
+  if (!P2.on) { p2HideOverlays(); resize.done = false; ctl.target.set(0, 0, 0); resize(); ctl.update(); }
   else { updateFloor2(); const T = new THREE.Vector3(cam.aspect < .8 ? 2 : 3.5, P2H, 0); ctl.target.copy(T);
     if (cam.aspect < .8) cam.position.set(T.x - 50, T.y + 50, 0); else cam.position.set(T.x + 1, T.y + 30, 35); ctl.update(); }
   try { window.dispatchEvent(new CustomEvent("piso", { detail: P2.on ? 2 : 1 })); } catch (_) { }
   return P2.on;
 }
-function p2Leave() { if (P0.on) { ctl.maxDistance = 70; p0Off(); }
+function p2Leave() { if (P0.on) { ctl.maxDistance = 70; p0Off(); try { window.dispatchEvent(new CustomEvent("piso", { detail: 1 })); } catch (_) { } }
   if (P4.on) { ctl.maxDistance = 70; p4Off(); try { window.dispatchEvent(new CustomEvent("piso", { detail: 1 })); } catch (_) { } }
   if (P3.on) { ctl.maxDistance = 70; P3.on = false; P3.g.visible = false; p3Hide(); try { window.dispatchEvent(new CustomEvent("piso", { detail: 1 })); } catch (_) { } }
   if (!P2.on) return; P2.on = false; P2.g.visible = false; p2HideOverlays(); try { window.dispatchEvent(new CustomEvent("piso", { detail: 1 })); } catch (_) { } }
@@ -2217,7 +2217,7 @@ function buildFloor0() {
     .forEach(([k, nm, fem, x]) => { p0Desk(x, -8.4, P0C.analise, Math.PI); p0Person(k, nm, fem, P0C.analise, x, -9.35, 0); });
   [["c_caio", "Caio · caçador noturno", 0, -7], ["c_iris", "Íris · investigação", 1, 0], ["c_artur", "Artur · arena", 0, 7]]
     .forEach(([k, nm, fem, x]) => { p0Desk(x, 8.4, P0C.pesquisa, 0); p0Person(k, nm, fem, P0C.pesquisa, x, 9.35, Math.PI); });
-  p0Label("🏢 Piso 0 · Centro de operações · todos os agentes", "#9fd3ff", new THREE.Vector3(0, P0H + 7.2, -12));
+  p0Label("🏢 Piso 1 · Centro de operações · todos os agentes", "#9fd3ff", new THREE.Vector3(0, P0H + 7.2, -12));
   p0Label("💰 Mesa do dinheiro real", P0C.dinheiro, new THREE.Vector3(0, P0H + 1.4, 3.4));
   p0Label("📡 Análise", P0C.analise, new THREE.Vector3(-15, P0H + 1.6, -8.4)); p0Label("🔬 Pesquisa", P0C.pesquisa, new THREE.Vector3(-15, P0H + 1.6, 8.4));
   p4Load(true);
@@ -2518,11 +2518,10 @@ function init(container) {
   new IntersectionObserver(es => { visible = es[0].isIntersecting; }).observe(box);
   addEventListener("resize", resize); resize();
   clock = new THREE.Clock(); running = true; frame();
-  try { goFloor(0); } catch (e) { console.warn("centro de operacoes:", e); }
   return true;
 }
 // voltar a vista inicial (botao no ecra)
-function resetView() { goFloor(0); }   // (04/11) so ha 2 pisos: a vista inicial e o centro de operacoes
+function resetView() { p2Leave(); resize.done = false; ctl.target.set(0, 0, 0); resize(); ctl.update(); }
 function goArena() { p2Leave(); const tx = ARENA_C.x + 2, dx = tx - ctl.target.x, dz = ARENA_C.z - ctl.target.z; ctl.target.set(tx, 0, ARENA_C.z); cam.position.x += dx; cam.position.z += dz;
   const d = cam.position.clone().sub(ctl.target), want = 30; if (d.length() > want) cam.position.copy(ctl.target.clone().add(d.setLength(want))); ctl.update(); }
 function goRewards() { p2Leave(); const T = V(TRO_X0 + TRO_LEN / 2, TRO_ZC + .35), dx = T.x - ctl.target.x, dz = T.z - ctl.target.z; ctl.target.copy(T); cam.position.x += dx; cam.position.z += dz;
