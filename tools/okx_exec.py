@@ -14,7 +14,7 @@ import base64, datetime, hashlib, hmac, json, math, os, time, urllib.error, urll
 import okx_agente as A
 
 H4 = 14400
-CFG_PADRAO = {"real": False, "risco_pct": 1.0, "risco_max_pct": 2.0, "alavancagem": 10, "max_posicoes": 40, "travao_queda_pct": 25}
+CFG_PADRAO = {"real": False, "so_mercado": True, "risco_pct": 1.0, "risco_max_pct": 2.0, "alavancagem": 10, "max_posicoes": 40, "travao_queda_pct": 25}
 
 
 def cfg():
@@ -216,6 +216,13 @@ def correr(st, novos, now, msgs):
     for base, sig in novos:
         chave = f"{base}:{sig['t_sig']}"
         if base in R["ops"] or chave in tent or len(R["ops"]) >= c["max_posicoes"] or now >= sig["t_sig"] + 3 * H4 - 300:
+            continue
+        if c.get("so_mercado", True) and sig.get("tipo") != "mercado":
+            # (04/11, H40) o panico isolado perdeu na metade recente (-0,126R); o do mercado todo deu +0,17R/+0,41R
+            chave_i = f"i:{base}:{sig['t_sig']}"
+            if chave_i not in R.setdefault("avisados", []):
+                R["avisados"].append(chave_i)
+                msgs.append(f"⏭️ OKX real — {base}: pânico isolado (o BTC não caiu): fica só em papel (H40).")
             continue
         info = xp.get(base)
         if not info:

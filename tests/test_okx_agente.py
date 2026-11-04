@@ -91,7 +91,7 @@ class Execucao(unittest.TestCase):
                 return {"code": "0", "data": [{"state": "live"}]}
             return {"code": "0", "data": []}
         st = {}
-        sig = {"t_sig": now - H4, "lim": 0.0236, "atr": 0.001}
+        sig = {"t_sig": now - H4, "lim": 0.0236, "atr": 0.001, "tipo": "mercado"}
         with mock.patch.object(self.E, "_chaves", return_value=("k", "s", "p")), mock.patch.object(self.E, "privado", privado), \
                 mock.patch.object(self.E, "cfg", return_value=dict(self.E.CFG_PADRAO, real=True)), \
                 mock.patch.object(self.E, "xperps", return_value={"HUMA": self.info()}):
@@ -103,6 +103,8 @@ class Execucao(unittest.TestCase):
             self.assertIn("HUMA", st["real"]["ops"])
             self.E.correr(st, [("HUMA", sig)], now + 60, msgs)                 # o mesmo sinal nao repete
             self.assertEqual(sum(1 for p, _ in posts if p == "/api/v5/trade/order"), 1)
+            self.E.correr(st, [("ISO", {"t_sig": now - H4, "lim": 1.0, "atr": 0.01, "tipo": "isolado"})], now + 120, msgs)
+            self.assertNotIn("ISO", st["real"]["ops"])                          # H40: panico isolado fica em papel
             self.E.correr(st, [], now + 3 * H4, msgs)                          # caducou: cancela
         self.assertIn("/api/v5/trade/cancel-order", [p for p, _ in posts])
         self.assertNotIn("HUMA", st["real"]["ops"])
