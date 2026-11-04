@@ -26,7 +26,7 @@ def contratos():
         if i.get("state") != "live" or i.get("settleCcy") != "USDT" or i.get("ctType") != "linear":
             continue
         base = i["instId"].split("-")[0]
-        if base not in spot and base not in FORA:    # nao e cripto: acao, indice ou materia-prima
+        if not A.e_cripto(i, spot) and base not in FORA:    # nao e cripto: acao, indice ou materia-prima
             out[base] = i["instId"]
     return out
 

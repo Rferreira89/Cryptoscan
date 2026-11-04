@@ -25,6 +25,15 @@ if __name__ == "__main__":
     unittest.main()
 
 
+class Classe(unittest.TestCase):
+    def test_cripto_pela_categoria_da_okx(self):
+        from tools import okx_agente as A
+        self.assertTrue(A.e_cripto({"instId": "0G-USDT-SWAP", "instCategory": "1"}, set()))     # cripto sem spot
+        self.assertFalse(A.e_cripto({"instId": "NVDA-USDT-SWAP", "instCategory": "3"}, {"NVDA"}))
+        self.assertTrue(A.e_cripto({"instId": "BTC-USDT-SWAP"}, {"BTC"}))                      # sem o campo: regra antiga
+        self.assertFalse(A.e_cripto({"instId": "XAU-USDT-SWAP"}, {"BTC"}))
+
+
 class Radar(unittest.TestCase):
     def test_radar_diz_o_que_falta_e_relata_uma_vez_por_dia(self):
         import time as _t

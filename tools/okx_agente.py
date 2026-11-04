@@ -40,17 +40,26 @@ def get(path, tent=3):
     return []
 
 
+def e_cripto(i, spot):
+    """(04/11) A OKX marca a classe do contrato em instCategory (1 = cripto; 3 = acoes, 4 = materias-primas...).
+    Antes usava-se so "a base existe no spot", o que punha criptos novas sem spot (0G, AERO, ENSO, SOON...) no agente
+    das acoes e fora da compra no panico. Sem o campo, fica a regra antiga."""
+    cat = str(i.get("instCategory") or "")
+    if cat:
+        return cat == "1"
+    return i["instId"].split("-")[0] in spot
+
+
 def moedas():
-    """Perpetuos USDT de cripto (a base tem de existir no spot da OKX: exclui acoes e materias-primas)."""
+    """Perpetuos USDT de cripto (instCategory 1; sem esse campo, a base tem de existir no spot da OKX)."""
     spot = {i["baseCcy"] for i in get("/api/v5/public/instruments?instType=SPOT") if i.get("state") == "live"}
     out = {}
     for i in get("/api/v5/public/instruments?instType=SWAP"):
         if i.get("state") != "live" or i.get("settleCcy") != "USDT" or i.get("ctType") != "linear":
             continue
-        base = i["instId"].split("-")[0]
-        if base in spot:
-            out[base] = {"inst": i["instId"], "ctVal": float(i.get("ctVal") or 0), "minSz": float(i.get("minSz") or 0),
-                         "lotSz": float(i.get("lotSz") or 0)}
+        if e_cripto(i, spot):
+            out[i["instId"].split("-")[0]] = {"inst": i["instId"], "ctVal": float(i.get("ctVal") or 0),
+                                              "minSz": float(i.get("minSz") or 0), "lotSz": float(i.get("lotSz") or 0)}
     return out
 
 
