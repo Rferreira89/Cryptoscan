@@ -14,7 +14,7 @@ import base64, datetime, hashlib, hmac, json, math, os, time, urllib.error, urll
 import okx_agente as A
 
 H4 = 14400
-CFG_PADRAO = {"real": False, "risco_pct": 1.0, "alavancagem": 10, "max_posicoes": 40, "travao_queda_pct": 25}
+CFG_PADRAO = {"real": False, "risco_pct": 1.0, "risco_max_pct": 2.0, "alavancagem": 10, "max_posicoes": 40, "travao_queda_pct": 25}
 
 
 def cfg():
@@ -99,7 +99,11 @@ def plano(sig, info, eq, c):
         return None
     sz = _passo(risco / por_contrato, info["lotSz"] or info["minSz"] or 1)
     if sz < (info["minSz"] or 0) or sz <= 0:
-        return None
+        # (04/11) com 20 USD a ordem minima as vezes obriga a arriscar mais: aceita ate risco_max_pct (2%; no H38 o
+        # risco de 2% em todos os sinais ainda fez crescer a conta nas duas metades: x1,43 e x1,11)
+        sz = info["minSz"] or 0
+        if sz <= 0 or sz * por_contrato > eq * c.get("risco_max_pct", 2.0) / 100:
+            return None
     nominal = sz * info["ctVal"] * lim
     # a liquidacao (~1/alav) tem de ficar bem abaixo do stop: alav <= 1 / (1,5 x distancia do stop)
     dist = (lim - stop) / lim
@@ -112,7 +116,7 @@ def plano(sig, info, eq, c):
 def abrir(base, sig, info, eq, c, now, msgs):
     p = plano(sig, info, eq, c)
     if not p:
-        msgs.append(f"⏭️ OKX real — {base}: o risco de {c['risco_pct']}% não chega à ordem mínima do contrato; não entrei.")
+        msgs.append(f"⏭️ OKX real — {base}: a ordem mínima do contrato obrigava a arriscar mais de {c.get('risco_max_pct', 2.0)}% da conta; não entrei.")
         return None
     privado("POST", "/api/v5/account/set-leverage", {"instId": info["inst"], "lever": str(p["alav"]), "mgnMode": "isolated"})
     cl = f"cs{base[:8]}{int(sig['t_sig']) % 100000000}".replace("-", "")[:32]
@@ -132,7 +136,7 @@ def abrir(base, sig, info, eq, c, now, msgs):
         return None
     msgs.append(f"📌 OKX real — {base}: ordem limite de compra a {p['px_s']} ({p['sz_s']} contratos, ~{p['nominal']} USD, "
                 f"{p['alav']}x isolada). Stop {p['stop_s']} e objetivo {p['alvo_s']} anexados; risco ~{p['risco_usd']} USD "
-                f"({c['risco_pct']}% da conta). Válida 8 h.")
+                f"({100 * p['risco_usd'] / eq:.1f}% da conta). Válida 8 h.")
     return {"inst": info["inst"], "ordId": d.get("ordId"), "clOrdId": cl, "estado": "pendente", "t_sig": sig["t_sig"],
             "valido_ate": sig["t_sig"] + 3 * H4, "criado": int(now), **{k: p[k] for k in ("lim", "stop", "alvo", "sz", "nominal", "alav")}}
 

@@ -61,6 +61,10 @@ class Execucao(unittest.TestCase):
         largo = self.E.plano({"lim": 1.0, "atr": 0.075}, self.info(ctVal=1.0), 20.0, dict(self.E.CFG_PADRAO))   # stop a 15%
         self.assertEqual(largo["alav"], 4)
         self.assertIsNone(self.E.plano({"lim": 100.0, "atr": 0.01}, self.info(ctVal=1000.0), 20.0, dict(self.E.CFG_PADRAO)))
+        # minimo obriga a 1,5%: aceita (teto 2%)
+        p2 = self.E.plano({"lim": 1.0, "atr": 0.0375}, self.info(ctVal=4.0, tick=0.0001), 20.0, dict(self.E.CFG_PADRAO))
+        self.assertEqual(p2["sz"], 1.0)
+        self.assertLessEqual(p2["risco_usd"], 0.4)
 
     def test_desligado_nao_envia_ordens(self):
         from unittest import mock
