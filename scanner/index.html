@@ -1017,7 +1017,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261104c";
+const PAGE_V="20261104d";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -1234,13 +1234,15 @@ function renderHud(){if(!D)return;try{renderFita()}catch(_){}const C=D.config||{
   const open=act.filter(s=>s.status==="TRIGGERED"),wait=act.filter(s=>s.status!=="TRIGGERED"),tro=trendOps();
   const mine=J.filter(r=>r.executed===true&&r.status==="CLOSED"),R=r=>r.user_r!=null?r.user_r:r.result_r,w=mine.filter(r=>R(r)>0).length;
   const btc=(D.universe||[]).find(r=>r.asset==="BTC")||{};
-  $("hudstats").innerHTML=[["Capital USDC",C.capital_usdc!=null?num(C.capital_usdc,2):"–"],["Abertas",(open.length+tro.length)+"/"+(C.max_open_positions||2)],["Ganhas/perdidas",`<span class="up">${w}</span> / <span class="dn">${mine.length-w}</span>`],[`BTC <span class="${btc.chg_24h>=0?"up":"dn"}">${btc.chg_24h>=0?"+":""}${num(btc.chg_24h,1)}%</span>`,btc.price?Math.round(btc.price).toLocaleString("pt-PT"):"–"]].map(([k,v])=>`<div class="hs">${k}<b>${v}</b></div>`).join("");
+  const OK_=window.OKXK;$("hudstats").innerHTML=[[OK_?"Bybit · OKX":"Capital USDC",(C.capital_usdc!=null?num(C.capital_usdc,2):"–")+(OK_?` · ${num(OK_.equity_usd,2)}`:"")],["Abertas",(open.length+tro.length)+"/"+(C.max_open_positions||2)],["Ganhas/perdidas",`<span class="up">${w}</span> / <span class="dn">${mine.length-w}</span>`],[`BTC <span class="${btc.chg_24h>=0?"up":"dn"}">${btc.chg_24h>=0?"+":""}${num(btc.chg_24h,1)}%</span>`,btc.price?Math.round(btc.price).toLocaleString("pt-PT"):"–"]].map(([k,v])=>`<div class="hs">${k}<b>${v}</b></div>`).join("");
   const chips=[`<button class="al hoje" data-hoje="1">📋 Hoje</button>`];
   if(D.indice)chips.push(`<button class="al hoje" data-idx="1" style="background:#15122a;border:1px solid ${IDXC(D.indice.valor)};color:${IDXC(D.indice.valor)}">🌡️ ${D.indice.valor} · ${esc(D.indice.rotulo)}</button>`);
   if(D.halt)chips.push(`<button class="al stop" data-go="ctrl">⛔ Travão ativo</button>`);
   wait.forEach(s=>chips.push(`<button class="al buy" data-go="ops" data-id="${esc(s.id)}">${s.direction==="SHORT"?"🔻 SHORT":"🟢 COMPRA"} ${esc(s.asset)} · à espera de entrada</button>`));
   open.forEach(s=>{const cur=curPrice(s.asset),p=s.position||{},pl=cur&&p.entry?(cur/p.entry-1)*100*(s.direction==="SHORT"?-1:1):null;chips.push(`<button class="al open" data-go="ops" data-id="${esc(s.id)}">● ${esc(s.asset)} ${pl==null?"aberta":(pl>0?"+":"")+num(pl,1)+"%"}</button>`)});
   tro.forEach(r=>{const cur=curPrice(r.asset),e=r.exec_price||r.entry,pl=cur&&e?(cur/e-1)*100:null;chips.push(`<button class="al open" data-go="ops" data-id="${esc(r.id)}">● ${esc(r.asset)} ${pl==null?"aberta":(pl>0?"+":"")+num(pl,1)+"%"}</button>`)});
+  ((OK_&&OK_.posicoes)||[]).forEach(p=>chips.push(`<button class="al open" data-go="ops">● ${esc(p.asset)} OKX ${(p.pnl_pct>0?"+":"")+num(p.pnl_pct,1)}%</button>`));
+  ((OK_&&OK_.ordens)||[]).forEach(o=>chips.push(`<button class="al buy" data-go="ops">🟢 ${esc(o.asset)} OKX · à espera de entrada</button>`));
   if(!chips.length)chips.push(`<button class="al watch" data-go="ops">Sem sinais agora · ${(D.counts||{}).deep_checked||0} moedas analisadas</button>`);
   $("alerts").innerHTML=chips.join("");$("zb-ops").textContent=(act.length+tro.length)||"";
   // estado do sistema (zona de Controlo)
@@ -1477,6 +1479,7 @@ async function renderOKX(){const el=$("okx");if(!el)return;let O=null;
   if(!O||!O.resumo){el.innerHTML=`<div class="banner">O agente OKX ainda não publicou dados.</div>`;return}
   // (04/11) dinheiro e posicoes da conta OKX: ficheiro cifrado (abre com a mesma palavra-passe do cofre)
   let K=null;try{const r=await fetch(URL_OKX.replace("okx.json","cofre_okx.json")+"?t="+Date.now(),{cache:"no-store"});if(r.ok)K=await CIFRA.json(await r.json())}catch(_){}
+  if(K){window.OKXK=K;try{renderHud()}catch(_){}}
   const usd=v=>v==null?"—":(+v).toFixed(2)+" USD",sg=v=>v==null?"":(v>0?"+":"")+(+v).toFixed(2);
   const kposH=K&&K.posicoes&&K.posicoes.length?`<div class="tw"><table><tr><th>Posição</th><th>Entrada</th><th>Atual</th><th>Valor</th><th>Resultado</th><th>Alav.</th></tr>${K.posicoes.map(p=>`<tr><td><b>${esc(p.asset)}</b></td><td>${f(p.entrada)}</td><td>${f(p.atual)}</td><td>${usd(p.valor_usd)}</td><td class="${p.pnl_usd>=0?"up":"dn"}">${sg(p.pnl_usd)} USD (${sg(p.pnl_pct)}%)</td><td>${p.alav||"—"}x</td></tr>`).join("")}</table></div>`:"";
   const kordH=K&&K.ordens&&K.ordens.length?`<div class="note">Ordens à espera: ${K.ordens.map(o=>`${esc(o.asset)} a ${f(o.preco)}`).join(", ")}</div>`:"";
