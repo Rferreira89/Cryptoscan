@@ -98,6 +98,10 @@ def main():
                         linhas.append(f"{d.get('ccy')} {float(d.get('eq')):.2f}")
             print("saldo lido:", "sim" if b.get("code") == "0" else "nao", "| moedas com saldo:", len(linhas),
                   "| quais:", [l.split()[0] for l in linhas])
+            op_ = pedido(base, "/api/v5/trade/orders-pending?instType=FUTURES")
+            print("ordens pendentes:", [x.get("instId") for x in (op_.get("data") or [])])
+            ps_ = pedido(base, "/api/v5/account/positions?instType=FUTURES")
+            print("posicoes abertas:", [x.get("instId") for x in (ps_.get("data") or []) if float(x.get("pos") or 0)])
             for tt in ("SWAP", "FUTURES"):
                 ai = pedido(base, f"/api/v5/account/instruments?instType={tt}")
                 ids = [x.get("instId") for x in (ai.get("data") or [])]

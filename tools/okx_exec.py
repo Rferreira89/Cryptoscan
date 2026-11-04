@@ -121,6 +121,12 @@ def abrir(base, sig, info, eq, c, now, msgs):
                                                 "slTriggerPx": p["stop_s"], "slOrdPx": "-1"}]}
     r = privado("POST", "/api/v5/trade/order", corpo)
     d = (r.get("data") or [{}])[0]
+    if d.get("sCode") == "51016":               # clOrdId repetido: a ordem ja existe (estado perdido) -> adota-a
+        q = privado("GET", f"/api/v5/trade/order?instId={info['inst']}&clOrdId={cl}")
+        qd = (q.get("data") or [{}])[0]
+        if qd.get("ordId"):
+            d = {"ordId": qd["ordId"], "sCode": "0"}
+            r = {"code": "0"}
     if r.get("code") != "0" or d.get("sCode") not in ("0", None):
         msgs.append(f"⚠️ OKX real — {base}: a OKX recusou a ordem ({d.get('sCode') or r.get('code')}: {(d.get('sMsg') or r.get('msg') or '')[:90]}).")
         return None
