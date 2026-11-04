@@ -174,6 +174,12 @@ def correr(st, now):
                           f"{100 * s['funding']:.3f}%, pânico {s.get('tipo') or '?'}; posição p/ 20 USD ~{nom} USD "
                           f"({'cabe' if cabe else 'abaixo do mínimo de ' + str(mn)})")
         msgs.insert(0, f"🔎 Agente OKX — {len(novos)} oportunidade(s) de compra no pânico (só papel), melhores primeiro:\n" + "\n".join(linhas))
+    try:                                         # (04/11) dinheiro real na OKX (okx_config.json "real": true)
+        import okx_exec
+        okx_exec.correr(st, sorted(st["pend"].items(), key=lambda kv: nota(kv[1], kv[1].get("tipo")), reverse=True), now, msgs)
+    except Exception as e:
+        msgs.append(f"⚠️ OKX real: erro na execução ({type(e).__name__}); nada novo foi enviado.")
+        print("okx_exec erro:", type(e).__name__, str(e)[:120])
     st["resumo"] = {"t": int(now), "contratos": len(lista), "analisados": vistas, "pendentes": sorted(st["pend"]),
                     "abertas": sorted(st["abertas"]), "n": len(st["fechadas"]),
                     "r_medio": round(sum(x["r"] for x in st["fechadas"]) / len(st["fechadas"]), 3) if st["fechadas"] else None,

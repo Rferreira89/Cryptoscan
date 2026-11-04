@@ -1,4 +1,4 @@
-name: Agente OKX (oportunidades, so papel)
+name: Agente OKX (oportunidades; dinheiro real com okx_config.json)
 # (04/11) Varre os perpetuos de cripto da OKX Europa de hora a hora (tools/okx_agente.py). Nao envia ordens.
 on:
   schedule:
@@ -17,6 +17,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Varrer a OKX
         env:
+          OKX_API_KEY: ${{ secrets.OKX_API_KEY }}
+          OKX_API_SECRET: ${{ secrets.OKX_API_SECRET }}
+          OKX_PASSPHRASE: ${{ secrets.OKX_PASSPHRASE }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           PUSH_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
