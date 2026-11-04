@@ -1787,6 +1787,18 @@ function p2Click(hit) {
   else if (p.room) p2Say(p, `<b>${p.nm}</b> · chefe de ${esc3(P2R[p.room].n)}<br>${esc3({ ideias: "Aqui nascem e morrem as hipóteses. Só passa ao backtest o que tem lógica de mercado.", backtest: "Testo cada estratégia no último ano, só nas alturas iguais à de agora.", acaso: "Se entradas ao calhas dão o mesmo, não há vantagem nenhuma.", custos: "Spread, comissões e deslize da Bybit UE: abaixo de +0,15R não paga as contas.", comite: "Só aprovo quem ganha nas duas metades do ano e bate o acaso.", real: "Aqui só conta o dinheiro que entrou mesmo na conta." }[p.room])}`, 6);
 }
 function goFloor(n) {
+  if (n === 0) {                          // centro de operacoes (vista de entrada)
+    if (P2.g) { P2.on = false; P2.g.visible = false; p2HideOverlays(); }
+    if (P3.g) { P3.on = false; P3.g.visible = false; p3Hide(); }
+    p4Off();
+    if (!P0.g) buildFloor0();
+    P0.on = true; P0.g.visible = true; p4Load(true); p0Draw();
+    const T = new THREE.Vector3(0, P0H, 0); ctl.target.copy(T); ctl.maxDistance = 80;
+    if (cam.aspect < .8) cam.position.set(0, T.y + 34, 26); else cam.position.set(0, T.y + 20, 24); ctl.update();
+    try { window.dispatchEvent(new CustomEvent("piso", { detail: 0 })); } catch (_) { }
+    return true;
+  }
+  p0Off();
   if (n === 4) {                          // 4.o piso: mesa OKX
     if (P2.g) { P2.on = false; P2.g.visible = false; p2HideOverlays(); }
     if (P3.g) { P3.on = false; P3.g.visible = false; p3Hide(); }
@@ -1817,7 +1829,8 @@ function goFloor(n) {
   try { window.dispatchEvent(new CustomEvent("piso", { detail: P2.on ? 2 : 1 })); } catch (_) { }
   return P2.on;
 }
-function p2Leave() { if (P4.on) { ctl.maxDistance = 70; p4Off(); try { window.dispatchEvent(new CustomEvent("piso", { detail: 1 })); } catch (_) { } }
+function p2Leave() { if (P0.on) { ctl.maxDistance = 70; p0Off(); }
+  if (P4.on) { ctl.maxDistance = 70; p4Off(); try { window.dispatchEvent(new CustomEvent("piso", { detail: 1 })); } catch (_) { } }
   if (P3.on) { ctl.maxDistance = 70; P3.on = false; P3.g.visible = false; p3Hide(); try { window.dispatchEvent(new CustomEvent("piso", { detail: 1 })); } catch (_) { } }
   if (!P2.on) return; P2.on = false; P2.g.visible = false; p2HideOverlays(); try { window.dispatchEvent(new CustomEvent("piso", { detail: 1 })); } catch (_) { } }
 
@@ -2129,9 +2142,140 @@ function p4Overlays() { const W = R.domElement.clientWidth, hud = document.getEl
 function p4Hide() { P4.labels.forEach(l => l.el.style.display = "none"); if (P4.bub) P4.bub.style.display = "none"; }
 function p4Off() { if (P4.g) { P4.on = false; P4.g.visible = false; p4Hide(); } }
 
+
+// ---------- Centro de operacoes (04/11, pedido do Rui: "o escritorio deveria ter outra disposicao... quero todos a
+// interagir com todos") ----------
+// Uma sala compacta, a vista de entrada: a mesa do dinheiro real ao centro (tendencia BTC na Bybit, panico na OKX,
+// risco e execucao), a fila da analise a norte (scanner, macro, noticias, mentor) e a fila da pesquisa a sul
+// (cacador noturno, investigacao, arena). Os agentes falam uns com os outros com os numeros reais e vao a
+// secretaria uns dos outros quando ha alguma coisa para passar.
+const P0H = 26;
+const P0 = { on: false, g: null, people: [], labels: [], scr: [], tex: {}, talk: null, talkAt: 0, i: 0, visit: null, visitAt: 12 };
+const P0C = { dinheiro: "#68D391", analise: "#63B3ED", pesquisa: "#B794F4" };
+function p0D() { return (API() && API().D && API().D()) || {}; }
+function p0Frame(g, title, c) { g.fillStyle = "#07101c"; g.fillRect(0, 0, 640, 400); g.strokeStyle = c; g.lineWidth = 5; g.strokeRect(3, 3, 634, 394);
+  g.fillStyle = c; g.fillRect(0, 0, 640, 52); g.fillStyle = "#07101c"; g.font = "800 25px system-ui"; g.fillText(title, 18, 36); }
+function p0Screen(k, g) { const D = p0D(), O = P4.data || {}, K = window.OKXK, R = O.resumo || {}, ops = ((O.real || {}).ops) || {}, MR = (O.macro || {}).resumo || {};
+  const btc = (D.universe || []).find(r => r.asset === "BTC") || {}, N = (D.nucleo && D.nucleo.plano && D.nucleo.plano.BTC) || {};
+  if (k === "dinheiro") { p0Frame(g, "💰 Dinheiro real · Bybit + OKX", P0C.dinheiro);
+    const rows = [["Bybit · capital", (D.config || {}).capital_usdc != null ? Number(D.config.capital_usdc).toFixed(2) + " USDC" : "cifrado"],
+      ["OKX · valor da conta", K ? Number(K.equity_usd).toFixed(2) + " USD" : "cifrado"],
+      ["BTC a 2x (Bybit)", N.acima ? "COMPRADO" : `fora · média ${N.media ? Math.round(N.media) : "–"}`, N.acima ? "#68D391" : "#F6E05E"]];
+    ((K && K.posicoes) || []).slice(0, 4).forEach(p => rows.push([`OKX ${p.asset}`, `${p.pnl_pct > 0 ? "+" : ""}${p.pnl_pct}%`, p.pnl_pct >= 0 ? "#68D391" : "#FF8A80"]));
+    if (!K) Object.entries(ops).slice(0, 4).forEach(([a, o]) => rows.push([`OKX ${a}`, o.estado, "#F6E05E"]));
+    rows.push(["Sinais de pânico (OKX)", (R.pendentes || []).join(", ") || "nenhum", "#4FD1C5"]);
+    p4Rows(g, rows); return; }
+  if (k === "analise") { p0Frame(g, "📡 Análise · todos os mercados", P0C.analise);
+    const U = (D.universe || []).slice().sort((a, b) => (b.chg_24h || 0) - (a.chg_24h || 0));
+    const rows = [["BTC", `${btc.price ? Math.round(btc.price) : "–"} (${btc.chg_24h > 0 ? "+" : ""}${btc.chg_24h != null ? btc.chg_24h.toFixed(1) : "–"}%)`],
+      ["Regime", (D.market_regime || {}).btc || "–"], ["Criptos analisadas (Bybit + OKX)", `${(D.counts || {}).deep_checked || 0} + ${R.analisados || 0}`],
+      ["Ações e matérias-primas (OKX)", `${MR.analisados || 0} · ${(MR.abertas || []).length} em subida`]];
+    U.slice(0, 2).forEach(r => rows.push([`Mais subiu: ${r.asset}`, `+${(r.chg_24h || 0).toFixed(1)}%`, "#68D391"]));
+    U.slice(-2).forEach(r => rows.push([`Mais caiu: ${r.asset}`, `${(r.chg_24h || 0).toFixed(1)}%`, "#FF8A80"]));
+    rows.push(["Próximo evento", D.next_event ? String(D.next_event.name).slice(0, 26) : "nenhum"]);
+    p4Rows(g, rows); return; }
+  if (k === "pesquisa") { p0Frame(g, "🔬 Pesquisa · à procura da próxima vantagem", P0C.pesquisa); const A = D.arena || {}, PP = D.papel_panico || {};
+    p4Rows(g, [["Lutadores vivos na arena", `${A.vivos || 0}`], ["Pânico em papel (Bybit)", `${PP.n || 0} op. · ${PP.r_medio == null ? "–" : (PP.r_medio > 0 ? "+" : "") + PP.r_medio + "R"}`],
+      ["Pânico em papel (OKX)", `${R.n || 0} op. · ${R.r_medio == null ? "–" : R.r_medio + "R"}`], ["Macro em papel (OKX)", `${MR.n || 0} op.`],
+      ["Melhor estratégia (H40)", "pânico do mercado todo", "#68D391"], ["Caçador noturno", "uma hipótese por noite"], ["Critério", "ganhar nas 2 metades, ao nível da conta"]]); return; }
+}
+function p0Draw() { Object.entries(P0.tex).forEach(([k, t]) => { p0Screen(k, t.userData.c.getContext("2d")); t.needsUpdate = true; }); }
+function p0Label(text, c, pos) { const el = document.createElement("div"); el.textContent = text;
+  el.style.cssText = `position:absolute;transform:translate(-50%,-100%);pointer-events:none;white-space:nowrap;font:700 11px system-ui,sans-serif;color:${c};padding:2px 8px;border-radius:99px;background:#07101cd0;border:1px solid ${c}77;display:none`;
+  overlay.appendChild(el); const l = { el, p: pos }; P0.labels.push(l); return l; }
+function p0Person(key, nm, fem, col, x, z, face) { const hh = hsh(nm); STYLE[key] = { skin: SKINS[hh % 5], hair: HAIRS[(hh >> 2) % 6], hs: fem ? (hh % 2 ? "long" : "bun") : ["short", "buzz", "curly"][hh % 3], top: col, jacket: "#17202c", legs: "#1d1b2e", glasses: hh % 3 === 0 ? 1 : 0, beard: !fem && hh % 2 ? 1 : 0 };
+  DESK[key] = { z: "srv", p: V(0, 0), f: 1 };
+  const p = makePerson({ id: key, nm, c: col }); scene.remove(p.g); p.name.remove(); P0.g.add(p.g);
+  p.g.traverse(o => { if (o.isMesh) o.castShadow = false; }); p.g.position.set(x, 0, z); p.home = new THREE.Vector3(x, 0, z); p.homeFace = face;
+  p.mode = "desk"; p.sit = true; p.face = face; p.path = []; p.nm = nm; p.key = key; p.tag = p0Label(nm, col, new THREE.Vector3()); P0.people.push(p); return p; }
+function p0Desk(x, z, col, rot) { const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = rot || 0; P0.g.add(g);
+  boxM(1.7, .06, .85, mat("#24303d"), 0, .75, 0, g); [[-.75, -.35], [.75, -.35], [-.75, .35], [.75, .35]].forEach(([a, b]) => boxM(.06, .72, .06, mat("#1a1a1a"), a, .36, b, g));
+  boxM(.9, .55, .05, mat("#111"), 0, 1.15, -.2, g); const m = new THREE.Mesh(new THREE.PlaneGeometry(.82, .47), new THREE.MeshBasicMaterial({ color: col, toneMapped: false })); m.position.set(0, 1.15, -.17); g.add(m);
+  const ch = new THREE.Group(); ch.position.set(0, 0, .95); g.add(ch); boxM(.55, .08, .55, mat("#222"), 0, .48, 0, ch); boxM(.55, .7, .08, mat("#222"), 0, .85, .27, ch); }
+function p0Screen3d(k, x, y, z, w, h) { const tx = canvasTex(640, 400, gg => p0Screen(k, gg)); P0.tex[k] = tx;
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: tx, toneMapped: false, side: THREE.DoubleSide })); m.position.set(x, y, z); P0.g.add(m); P0.scr.push(m); }
+function buildFloor0() {
+  P0.g = new THREE.Group(); P0.g.position.y = P0H; P0.g.visible = false; scene.add(P0.g); const G = P0.g;
+  boxM(36, .3, 26, mat("#1d2631"), 0, -.16, 0, G);
+  const fl = new THREE.Mesh(new THREE.PlaneGeometry(36, 26), mat("#323d49")); fl.rotation.x = -Math.PI / 2; fl.position.set(0, .005, 0); fl.receiveShadow = true; G.add(fl);
+  const rail = mat("#9fd3ff", .05, .1); boxM(36, 1.1, .04, rail, 0, .55, -13, G); boxM(36, 1.1, .04, rail, 0, .55, 13, G); boxM(.04, 1.1, 26, rail, -18, .55, 0, G); boxM(.04, 1.1, 26, rail, 18, .55, 0, G);
+  [["analise", -11.5, -3.5], ["pesquisa", 3.5, 11.5]].forEach(([k, z0, z1]) => { const rug = new THREE.Mesh(new THREE.PlaneGeometry(34, z1 - z0), mat(new THREE.Color(P0C[k]).multiplyScalar(.22).getStyle())); rug.rotation.x = -Math.PI / 2; rug.position.set(0, .012, (z0 + z1) / 2); G.add(rug); });
+  // mesa redonda do dinheiro real
+  const tb = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, .1, 40), mat("#2a3b30")); tb.position.set(0, .78, 0); G.add(tb); boxM(.5, .74, .5, mat("#222"), 0, .37, 0, G);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(3.02, .04, 8, 60), new THREE.MeshBasicMaterial({ color: P0C.dinheiro, toneMapped: false })); ring.rotation.x = Math.PI / 2; ring.position.set(0, .84, 0); G.add(ring);
+  const lt = new THREE.PointLight(new THREE.Color(P0C.dinheiro), 16, 18); lt.position.set(0, 5, 0); G.add(lt);
+  p0Screen3d("dinheiro", 0, 5.6, 0, 5.2, 3.25); p0Screen3d("analise", 0, 3.4, -12.4, 7.2, 4.5); p0Screen3d("pesquisa", 0, 2.2, 12.4, 5.2, 3.25);
+  [["analise", -12], ["pesquisa", 12]].forEach(([k, z]) => { const l = new THREE.PointLight(new THREE.Color(P0C[k]), 10, 16); l.position.set(0, 4, z * .6); G.add(l); });
+  // equipa do dinheiro real a volta da mesa
+  const MESA = [["c_bento", "Bento · tendência BTC (Bybit)", 0, "#F7931A"], ["c_nuno", "Nuno · pânico OKX", 0, "#4FD1C5"], ["c_ines", "Inês · executora OKX", 1, "#4FD1C5"],
+    ["c_ivo", "Ivo · executor Bybit", 0, "#68D391"], ["c_rosa", "Rosa · gestora de risco", 1, "#FF8A80"]];
+  MESA.forEach(([k, nm, fem, col], i) => { const a = -Math.PI / 2 + i * (2 * Math.PI / MESA.length), x = Math.cos(a) * 4, z = Math.sin(a) * 4;
+    const ch = new THREE.Group(); ch.position.set(x, 0, z); ch.rotation.y = Math.atan2(-x, -z) + Math.PI; G.add(ch); boxM(.55, .08, .55, mat("#222"), 0, .48, 0, ch); boxM(.55, .7, .08, mat("#222"), 0, .85, .27, ch);
+    p0Person(k, nm, fem, col, x, z, Math.atan2(-x, -z)); });
+  // analise (norte) e pesquisa (sul), viradas para a mesa
+  [["c_sofia", "Sofia · scanner Bybit", 1, -10.5], ["c_mateus", "Mateus · ações e matérias-primas", 0, -3.5], ["c_nadia", "Nádia · notícias", 1, 3.5], ["c_miguel", "Miguel · mentor", 0, 10.5]]
+    .forEach(([k, nm, fem, x]) => { p0Desk(x, -8.4, P0C.analise, Math.PI); p0Person(k, nm, fem, P0C.analise, x, -9.35, 0); });
+  [["c_caio", "Caio · caçador noturno", 0, -7], ["c_iris", "Íris · investigação", 1, 0], ["c_artur", "Artur · arena", 0, 7]]
+    .forEach(([k, nm, fem, x]) => { p0Desk(x, 8.4, P0C.pesquisa, 0); p0Person(k, nm, fem, P0C.pesquisa, x, 9.35, Math.PI); });
+  p0Label("🏢 Centro de operações · todos os agentes", "#9fd3ff", new THREE.Vector3(0, P0H + 7.2, -12));
+  p0Label("💰 Mesa do dinheiro real", P0C.dinheiro, new THREE.Vector3(0, P0H + 1.4, 3.4));
+  p0Label("📡 Análise", P0C.analise, new THREE.Vector3(-15, P0H + 1.6, -8.4)); p0Label("🔬 Pesquisa", P0C.pesquisa, new THREE.Vector3(-15, P0H + 1.6, 8.4));
+  p4Load(true);
+}
+function p0Conversas() { const D = p0D(), O = P4.data || {}, K = window.OKXK, R = O.resumo || {}, ops = ((O.real || {}).ops) || {}, MR = (O.macro || {}).resumo || {};
+  const btc = (D.universe || []).find(r => r.asset === "BTC") || {}, N = (D.nucleo && D.nucleo.plano && D.nucleo.plano.BTC) || {}, pend = R.pendentes || [];
+  const U = (D.universe || []).slice().sort((a, b) => (b.chg_24h || 0) - (a.chg_24h || 0)), top = U[0], bot = U[U.length - 1];
+  const pos = (K && K.posicoes) || [], abertas = Object.entries(ops);
+  const c = [];
+  c.push(["c_sofia", "c_bento", `BTC a ${btc.price ? Math.round(btc.price) : "–"} (${btc.chg_24h > 0 ? "+" : ""}${btc.chg_24h != null ? btc.chg_24h.toFixed(1) : "–"}%). Regime ${(D.market_regime || {}).btc || "–"}.`]);
+  c.push(["c_bento", "c_rosa", N.acima ? "O BTC fechou acima da média de 50 dias: estamos comprados a 2x." : `Ainda abaixo da média de 50 dias${N.media ? " (" + Math.round(N.media) + ")" : ""}: fico de fora até confirmar.`]);
+  c.push(["c_nuno", "c_ines", pend.length ? `Pânico em ${pend.join(", ")}. Só passa a real se o BTC também tiver caído 3% em 24 h.` : `Varri ${R.analisados || 0} perpétuos: nenhum pânico nesta hora.`]);
+  if (pos.length) c.push(["c_ines", "c_rosa", `Posição aberta em ${pos.map(p => `${p.asset} (${p.pnl_pct > 0 ? "+" : ""}${p.pnl_pct}%)`).join(", ")}. Stop e objetivo na OKX.`]);
+  else if (abertas.length) c.push(["c_ines", "c_rosa", `Tenho ${abertas.length} operação(ões) na OKX: ${abertas.map(([a, o]) => a + " " + o.estado).join(", ")}.`]);
+  else c.push(["c_ines", "c_nuno", "Sem ordens abertas. Quando houver pânico do mercado todo, ponho a ordem limite 1% abaixo com stop anexado."]);
+  c.push(["c_rosa", "c_ines", "Risco de 2% por operação, margem isolada, a liquidação sempre bem abaixo do stop. Travão a 45% de queda."]);
+  c.push(["c_ivo", "c_bento", "Na Bybit está tudo pronto: quando a regra mandar, compro e confirmo o stop."]);
+  c.push(["c_mateus", "c_miguel", `${(MR.abertas || []).length} de ${MR.analisados || 0} ações e matérias-primas em subida. Tudo em papel até haver prova.`]);
+  if (top) c.push(["c_sofia", "c_miguel", `A que mais subiu foi ${top.asset} (+${(top.chg_24h || 0).toFixed(1)}%). Perseguir subidas perdeu no H35: não entramos.`]);
+  if (bot) c.push(["c_sofia", "c_nuno", `${bot.asset} caiu ${(bot.chg_24h || 0).toFixed(1)}%. Vê se o financiamento está extremo.`]);
+  c.push(["c_nadia", "c_rosa", D.next_event ? `Próximo evento de risco: ${D.next_event.name}. Perto dele não abrimos compras na Bybit.` : "Sem eventos de risco nos próximos dias."]);
+  c.push(["c_miguel", "c_caio", "Às 21:47 junto tudo no relatório. Caio, o que testas esta noite?"]);
+  c.push(["c_caio", "c_iris", "Uma ideia nova para a OKX com custos de futuros: longs e shorts, ao nível da conta."]);
+  c.push(["c_iris", "c_artur", `Na arena há ${(D.arena || {}).vivos || 0} lutadores vivos. Quem perde morre de vez.`]);
+  c.push(["c_artur", "c_nuno", "O pânico do mercado todo é o único que passou os dois períodos (+0,17R e +0,41R)."]);
+  return c; }
+function p0Tick(dt, t) { if (!P0.g) return; P0.people.forEach(p => animate(p, dt, t)); P0.scr.forEach(s => s.quaternion.copy(cam.quaternion)); p4Load(false);
+  if (!P0.drawAt || t - P0.drawAt > 30) { P0.drawAt = t; p0Draw(); }
+  P0.talkAt -= dt;
+  if (P0.talkAt <= 0) { const cs = p0Conversas(); if (cs.length) { const [a, b, txt] = cs[(P0.i++) % cs.length], pa = P0.people.find(p => p.key === a), pb = P0.people.find(p => p.key === b);
+      if (pa && pb) { P0.talk = { p: pa, to: pb, txt };
+        // vira-se para quem fala; de vez em quando levanta-se e vai a secretaria do outro
+        const away = !pa.path.length && !P0.visit && Math.random() < .35 && pa.home.distanceTo(pb.home) > 3;
+        if (away) { const d = pb.home.clone().sub(pa.home).setY(0), L = d.length(); const alvo = pa.home.clone().add(d.multiplyScalar((L - 1.3) / L));
+          pa.mode = "visita"; pa.sit = false; pa.path = [alvo]; P0.visit = { p: pa, back: t + 9 }; }
+        else if (!pa.path.length && pa.mode === "desk") pa.face = Math.atan2(pb.home.x - pa.home.x, pb.home.z - pa.home.z);
+      } }
+    P0.talkAt = 5.5; }
+  const v = P0.visit; if (v && t > v.back && !v.p.path.length) { v.p.mode = "desk"; v.p.path = [v.p.home.clone()]; v.p.face = v.p.homeFace; P0.visit = null; }
+  P0.people.forEach(p => { if (p.mode === "desk" && !p.path.length && P0.talk && P0.talk.p !== p && Math.abs(p.face - p.homeFace) > 1e-6 && Math.random() < .002) p.face = p.homeFace; }); }
+function p0Overlays() { const W = R.domElement.clientWidth, hud = document.getElementById("hud"), top = hud ? hud.offsetHeight + 4 : 4, wp = new THREE.Vector3();
+  P0.labels.forEach(l => { let pos = l.p; const p = P0.people.find(q => q.tag === l);
+    if (p) { p.g.getWorldPosition(wp); pos = wp.clone().setY(wp.y + 2.3); if (cam.position.distanceTo(wp) > 55) { l.el.style.display = "none"; return; } }
+    const s = project(pos); l.el.style.left = s.x + "px"; l.el.style.top = s.y + "px"; l.el.style.display = s.ok ? "" : "none"; });
+  if (!P0.bub) { P0.bub = document.createElement("div"); P0.bub.className = "obub3"; P0.bub.style.maxWidth = "min(72%, 330px)"; overlay.appendChild(P0.bub); }
+  const T = P0.talk; if (!T) { P0.bub.style.display = "none"; return; }
+  const e3 = x => String(x).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+  P0.bub.innerHTML = `<b>${e3(T.p.nm.split(" · ")[0])}</b> → ${e3(T.to.nm.split(" · ")[0])}<br>${e3(T.txt)}`; P0.bub.style.borderColor = "#68D391";
+  T.p.g.getWorldPosition(wp); const s = project(wp.setY(wp.y + 2.8)), w = P0.bub.offsetWidth;
+  P0.bub.style.display = s.ok ? "" : "none"; P0.bub.style.left = Math.max(4, Math.min(W - w - 4, s.x - w / 2)) + "px"; P0.bub.style.top = Math.max(top, s.y - P0.bub.offsetHeight) + "px"; }
+function p0Hide() { P0.labels.forEach(l => l.el.style.display = "none"); if (P0.bub) P0.bub.style.display = "none"; }
+function p0Off() { if (P0.g) { P0.on = false; P0.g.visible = false; p0Hide(); } }
+
 // ---------- ciclo ----------
 function project(v) { const p = v.clone().project(cam), r = R.domElement; return { x: (p.x + 1) / 2 * r.clientWidth, y: (1 - p.y) / 2 * r.clientHeight, ok: p.z < 1 }; }
 function placeOverlays(dt) {
+  if (P0.on) { labels.forEach(l => l.el.style.display = "none"); people.forEach(p => { p.name.style.display = "none"; if (p.card) p.card.style.display = "none"; }); bubble.style.display = "none"; if (dirBub) dirBub.style.display = "none"; p3Hide(); p4Hide(); p0Overlays(); return; }
+  p0Hide();
   if (P4.on) { labels.forEach(l => l.el.style.display = "none"); people.forEach(p => { p.name.style.display = "none"; if (p.card) p.card.style.display = "none"; }); bubble.style.display = "none"; if (dirBub) dirBub.style.display = "none"; p3Hide(); p4Overlays(); return; }
   p4Hide();
   if (P3.on) { labels.forEach(l => l.el.style.display = "none"); people.forEach(p => { p.name.style.display = "none"; if (p.card) p.card.style.display = "none"; }); bubble.style.display = "none"; if (dirBub) dirBub.style.display = "none"; p3Overlays(); return; }
@@ -2267,8 +2411,9 @@ function frame() {
   if (P2.on) p2Tick(dt, t);
   if (P3.on) p3Tick(dt, t);
   if (P4.on) p4Tick(dt, t);
-  if (cofreScr) { cofreScr.visible = !P2.on && !P3.on && !P4.on; cofreScr.quaternion.copy(cam.quaternion); cofreScr.scale.setScalar(cam.aspect < .8 ? 1.4 : 1); }
-  if (misScr) { misScr.visible = !P2.on && !P3.on && !P4.on; misScr.quaternion.copy(cam.quaternion); misScr.scale.setScalar(cam.aspect < .8 ? 1.5 : 1); }
+  if (P0.on) p0Tick(dt, t);
+  if (cofreScr) { cofreScr.visible = !P2.on && !P3.on && !P4.on && !P0.on; cofreScr.quaternion.copy(cam.quaternion); cofreScr.scale.setScalar(cam.aspect < .8 ? 1.4 : 1); }
+  if (misScr) { misScr.visible = !P2.on && !P3.on && !P4.on && !P0.on; misScr.quaternion.copy(cam.quaternion); misScr.scale.setScalar(cam.aspect < .8 ? 1.5 : 1); }
   animateArena(dt, t); animateRewards(dt, t); secPeople.forEach(p => animate(p, dt, t)); stPeople.forEach(p => animate(p, dt, t)); staffPeople.forEach(p => animate(p, dt, t)); dirPeople.forEach(p => animate(p, dt, t)); acPeople.forEach(p => animate(p, dt, t));
   try { animateVida(dt, nowMs); } catch (e) { }
   ctl.update(); if (composer) composer.render(); else R.render(scene, cam); placeOverlays(dt);
@@ -2303,7 +2448,9 @@ function init(container) {
   ctl.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_ROTATE };
   ctl.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
   // nao sair do escritorio: o ponto para onde se olha fica dentro das paredes
-  ctl.addEventListener("change", () => { if (P4.on) { const t = ctl.target, cx = Math.max(-19, Math.min(23, t.x)), cz = Math.max(-11, Math.min(11, t.z));
+  ctl.addEventListener("change", () => { if (P0.on) { const t = ctl.target, cx = Math.max(-16, Math.min(16, t.x)), cz = Math.max(-11, Math.min(11, t.z));
+      if (cx !== t.x || cz !== t.z || t.y !== P0H) { const dx = cx - t.x, dz = cz - t.z, dy = P0H - t.y; t.set(cx, P0H, cz); cam.position.x += dx; cam.position.z += dz; cam.position.y += dy; } return; }
+    if (P4.on) { const t = ctl.target, cx = Math.max(-19, Math.min(23, t.x)), cz = Math.max(-11, Math.min(11, t.z));
       if (cx !== t.x || cz !== t.z || t.y !== P4H) { const dx = cx - t.x, dz = cz - t.z, dy = P4H - t.y; t.set(cx, P4H, cz); cam.position.x += dx; cam.position.z += dz; cam.position.y += dy; } return; }
     if (P3.on) { const t = ctl.target, cx = Math.max(-19, Math.min(23, t.x)), cz = Math.max(-11, Math.min(11, t.z));
       if (cx !== t.x || cz !== t.z || t.y !== P3H) { const dx = cx - t.x, dz = cz - t.z, dy = P3H - t.y; t.set(cx, P3H, cz); cam.position.x += dx; cam.position.z += dz; cam.position.y += dy; } return; }
@@ -2346,8 +2493,11 @@ function init(container) {
     if (!down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 8) return;
     const r = R.domElement.getBoundingClientRect(); m.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1);
     ray.setFromCamera(m, cam);
-    if (!P2.on && !P4.on && misScr && ray.intersectObject(misScr, false)[0]) { showMission(); return; }
-    if (!P2.on && !P4.on && cofreScr && ray.intersectObject(cofreScr, false)[0]) { showCofre(); return; }
+    if (!P2.on && !P4.on && !P0.on && misScr && ray.intersectObject(misScr, false)[0]) { showMission(); return; }
+    if (!P2.on && !P4.on && !P0.on && cofreScr && ray.intersectObject(cofreScr, false)[0]) { showCofre(); return; }
+    if (P0.on) { const h0 = ray.intersectObjects(P0.people.map(p => p.g), true)[0]; if (h0) { let o = h0.object; while (o && !o.userData.agent) o = o.parent;
+        const p = P0.people.find(q => q.a.id === (o && o.userData.agent)), f = p && p0Conversas().find(x => x[0] === p.key);
+        if (f) { P0.talk = { p, to: P0.people.find(q => q.key === f[1]) || p, txt: f[2] }; P0.talkAt = 8; } } return; }
     if (P4.on) { const h4 = ray.intersectObjects(P4.people.map(p => p.g), true)[0]; if (h4) { let o = h4.object; while (o && !o.userData.agent) o = o.parent;
         const p = P4.people.find(q => q.a.id === (o && o.userData.agent)), f = p && p4Falas().find(x => x[0] === p); if (f) { P4.talk = { p, txt: f[1] }; P4.talkAt = 7; } } return; }
     if (P3.on) { const h3 = ray.intersectObjects(P3.people.map(p => p.g), true)[0]; if (h3) p3Click(h3); return; }
@@ -2366,6 +2516,7 @@ function init(container) {
   new IntersectionObserver(es => { visible = es[0].isIntersecting; }).observe(box);
   addEventListener("resize", resize); resize();
   clock = new THREE.Clock(); running = true; frame();
+  try { goFloor(0); } catch (e) { console.warn("centro de operacoes:", e); }
   return true;
 }
 // voltar a vista inicial (botao no ecra)
@@ -2380,4 +2531,4 @@ function goStrategy() { p2Leave(); const T = V(ST_WALL + stLen / 2 + .6, 0), dx 
   const d = cam.position.clone().sub(ctl.target), want = 17 + stLen * .35; cam.position.copy(ctl.target.clone().add(d.setLength(want))); ctl.update(); }
 function goTo(x, z, want = 14) { p2Leave(); const T = V(x, z), dx = T.x - ctl.target.x, dz = T.z - ctl.target.z; ctl.target.copy(T); cam.position.x += dx; cam.position.z += dz;
   const d = cam.position.clone().sub(ctl.target); cam.position.copy(ctl.target.clone().add(d.setLength(want))); ctl.update(); }
-window.Office3D = { init, supported, refresh: () => { tvT = 0; }, resetView, goArena, goRewards, goSectors, goStrategy, goMemorial, goAcademy, goDirector, goTo, goFloor, floor: () => P4.on ? 4 : P3.on ? 3 : P2.on ? 2 : 1, showMission, showCofre, meetNow: () => { P2MEET.next = 0; } };
+window.Office3D = { init, supported, refresh: () => { tvT = 0; }, resetView, goArena, goRewards, goSectors, goStrategy, goMemorial, goAcademy, goDirector, goTo, goFloor, floor: () => P0.on ? 0 : P4.on ? 4 : P3.on ? 3 : P2.on ? 2 : 1, showMission, showCofre, meetNow: () => { P2MEET.next = 0; } };
