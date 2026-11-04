@@ -59,7 +59,9 @@ def publico():
     except urllib.error.HTTPError as e:
         print("privado sem chave:", e.code, e.read()[:120].decode("utf-8", "replace").replace("\n", " "))
     print("formato dos segredos: chave", len(K), "carateres; segredo", len(S), "; frase", len(P),
-          "; so ASCII:", all(c.isascii() and c.isprintable() for c in K + S + P))
+          "| so ASCII normal -> chave:", all(c.isascii() and c.isprintable() for c in K),
+          "segredo:", all(c.isascii() and c.isprintable() for c in S), "frase:", all(c.isascii() and c.isprintable() for c in P),
+          "| posicoes estranhas na frase:", [i + 1 for i, c in enumerate(P) if not (c.isascii() and c.isprintable())])
     try:
         with urllib.request.urlopen("https://api.ipify.org", timeout=15) as r:
             print("IP de saida do servidor:", r.read().decode()[:40])
