@@ -21,7 +21,10 @@ def pedido(base, path):
         try:
             return json.loads(corpo)
         except Exception:
-            txt = corpo[:160].decode("utf-8", "replace").replace("\n", " ")
+            import re as _re
+            t_ = corpo.decode("utf-8", "replace")
+            m_ = _re.search(r"(Error\s*\d{3,4}|error code:?\s*\d+|cf-error-code[^<]{0,40}|<title>[^<]{0,80})", t_, _re.I)
+            txt = (m_.group(0) if m_ else t_[:120]).replace("\n", " ")
             return {"code": str(e.code), "msg": f"HTTP sem JSON | servidor={e.headers.get('Server')} | {txt}"}
     except Exception as e:
         return {"code": "rede", "msg": type(e).__name__}
@@ -49,6 +52,14 @@ def publico():
         print("pedido publico OKX:", e.code, e.headers.get("Server"), e.read()[:120].decode("utf-8", "replace"))
     except Exception as e:
         print("pedido publico OKX: falhou", type(e).__name__)
+    try:                                         # privado SEM chave: deve dar JSON 401 se o Cloudflare deixar passar
+        req = urllib.request.Request("https://www.okx.com/api/v5/account/config", headers={"User-Agent": "cryptoscan/1.0"})
+        with urllib.request.urlopen(req, timeout=20) as r:
+            print("privado sem chave:", r.status, r.read()[:120])
+    except urllib.error.HTTPError as e:
+        print("privado sem chave:", e.code, e.read()[:120].decode("utf-8", "replace").replace("\n", " "))
+    print("formato dos segredos: chave", len(K), "carateres; segredo", len(S), "; frase", len(P),
+          "; so ASCII:", all(c.isascii() and c.isprintable() for c in K + S + P))
     try:
         with urllib.request.urlopen("https://api.ipify.org", timeout=15) as r:
             print("IP de saida do servidor:", r.read().decode()[:40])
