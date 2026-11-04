@@ -356,6 +356,7 @@ html,body{max-width:100%;overflow-x:hidden}
 <section class="panel on" id="pn-ops" data-p="ops" data-h="Mesa de operações" data-t="Mesa de operações">
 <div id="gestor"></div>
 <details class="sec" id="s-diretor"><summary>🧭 Diretor de Trading<span id="n-diretor"></span></summary><div id="diretor"></div></details>
+<details class="sec" id="s-okx" open><summary>🌐 OKX — agentes de todos os mercados<span id="n-okx"></span></summary><div id="okx"></div></details>
 <div id="radar" aria-label="Radar de oportunidades"></div>
 <p id="rnote"></p>
 <h2>As tuas operações</h2><div id="bynote" class="note" style="margin:0 0 8px"></div><div id="ops"></div>
@@ -1016,7 +1017,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261021d";
+const PAGE_V="20261104a";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -1468,7 +1469,30 @@ $("acview").addEventListener("click",()=>{if(window.Office3D&&window.Office3D.go
 loadAcaso();
 async function checkVersion(){try{const t=await (await fetch("./index.html?nocache="+Date.now(),{cache:"no-store"})).text();const m=t.match(/PAGE_V="(\w+)"/);if(m&&m[1]!==PAGE_V)location.replace("./?v="+m[1])}catch(_){}}
 checkVersion();setInterval(checkVersion,600000);
-load();setInterval(load,60000);
+
+// (04/11) OKX: agente cripto (compra no panico, dinheiro real) e agente macro (acoes/indices/materias-primas, papel)
+const URL_OKX="https://raw.githubusercontent.com/Rferreira89/Cryptoscan/okx/okx.json";
+async function renderOKX(){const el=$("okx");if(!el)return;let O=null;
+  try{const r=await fetch(URL_OKX+"?t="+Date.now(),{cache:"no-store"});if(r.ok)O=await r.json()}catch(_){}
+  if(!O||!O.resumo){el.innerHTML=`<div class="banner">O agente OKX ainda não publicou dados.</div>`;return}
+  const R=O.resumo,M=(O.macro||{}),MR=M.resumo||{},X=(O.real||{}),ops=X.ops||{},hist=(X.hist||[]).slice(-10).reverse();
+  const f=v=>v==null?"—":(+v).toPrecision(5).replace(/\.?0+$/,"");
+  const est={pendente:"ordem à espera",aberta:"posição aberta",fechada:"fechada"};
+  const rowsReal=Object.entries(ops).map(([a,o])=>`<tr><td><b>${esc(a)}</b></td><td>${est[o.estado]||esc(o.estado)}</td><td>${f(o.entrada||o.lim)}</td><td>${f(o.stop)}</td><td>${f(o.alvo)}</td><td>${o.alav||"—"}x</td></tr>`).join("");
+  const rowsHist=hist.map(o=>`<tr><td>${esc(o.asset)}</td><td>${esc(o.motivo||o.estado||"")}</td><td>${o.ret_pct==null?"—":(o.ret_pct>0?"+":"")+o.ret_pct+"%"}</td></tr>`).join("");
+  const pend=(R.pendentes||[]).map(a=>`<span class="chip">${esc(a)}</span>`).join(" ")||"nenhum";
+  const mab=(MR.abertas||[]).map(a=>`<span class="chip">${esc(a)}</span>`).join(" ")||"nenhum";
+  $("n-okx").textContent=Object.keys(ops).length?` · ${Object.keys(ops).length} real`:"";
+  el.innerHTML=`<div class="banner"><b>Agente cripto (dinheiro real)</b>Varre ${R.analisados||0} perpétuos de cripto de hora a hora (última passagem ${hm(R.t)}). Compra no pânico: ordem limite 1% abaixo, stop e objetivo anexados, risco 1% por operação, margem isolada.</div>
+  <div class="stats"><div class="stat"><b>${(R.pendentes||[]).length}</b>sinais</div><div class="stat"><b>${Object.keys(ops).length}</b>reais abertas</div><div class="stat"><b>${R.n||0}</b>fechadas (papel)</div><div class="stat"><b>${R.r_medio==null?"—":(R.r_medio>0?"+":"")+R.r_medio+"R"}</b>média (papel)</div><div class="stat"><b>${(R.conta_sim_pct>0?"+":"")+(R.conta_sim_pct||0)}%</b>conta simulada</div></div>
+  <div class="note">Sinais atuais: ${pend}</div>
+  ${rowsReal?`<div class="tw"><table><tr><th>Moeda</th><th>Estado</th><th>Entrada</th><th>Stop</th><th>Objetivo</th><th>Alav.</th></tr>${rowsReal}</table></div>`:`<div class="note">Sem ordens reais abertas neste momento.</div>`}
+  ${rowsHist?`<div class="tw"><table><tr><th>Fechadas (real)</th><th>Saída</th><th>Preço</th></tr>${rowsHist}</table></div>`:""}
+  <div class="banner"><b>Agente macro (papel, experimental)</b>Ações, índices e matérias-primas da OKX: ${MR.analisados||0} analisados. Compra quando fecha acima da média de 50 dias a subir; sai abaixo. ${MR.n?`${MR.n} fechadas, média ${MR.ret_medio_pct}%.`:"Ainda sem operações fechadas."}</div>
+  <div class="note">Em tendência agora: ${mab}</div>`;
+}
+setInterval(()=>{renderOKX().catch(()=>{})},120000);
+load();setInterval(load,60000);renderOKX().catch(()=>{});
 setInterval(async()=>{if(!D)return;const m=await liveBybitAll();if(m&&applyBybit(D)){try{render()}catch(_){}}},30000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)load()});
 
