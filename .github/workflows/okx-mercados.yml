@@ -1,0 +1,13 @@
+name: OKX - lista de contratos (publico)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  listar:
+    runs-on: [self-hosted, eu]
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Listar
+        run: python3 tools/okx_mercados.py
