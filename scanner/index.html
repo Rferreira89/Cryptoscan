@@ -1017,7 +1017,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261104b";
+const PAGE_V="20261104c";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -1475,6 +1475,13 @@ const URL_OKX="https://raw.githubusercontent.com/Rferreira89/Cryptoscan/okx/okx.
 async function renderOKX(){const el=$("okx");if(!el)return;let O=null;
   try{const r=await fetch(URL_OKX+"?t="+Date.now(),{cache:"no-store"});if(r.ok)O=await r.json()}catch(_){}
   if(!O||!O.resumo){el.innerHTML=`<div class="banner">O agente OKX ainda não publicou dados.</div>`;return}
+  // (04/11) dinheiro e posicoes da conta OKX: ficheiro cifrado (abre com a mesma palavra-passe do cofre)
+  let K=null;try{const r=await fetch(URL_OKX.replace("okx.json","cofre_okx.json")+"?t="+Date.now(),{cache:"no-store"});if(r.ok)K=await CIFRA.json(await r.json())}catch(_){}
+  const usd=v=>v==null?"—":(+v).toFixed(2)+" USD",sg=v=>v==null?"":(v>0?"+":"")+(+v).toFixed(2);
+  const kposH=K&&K.posicoes&&K.posicoes.length?`<div class="tw"><table><tr><th>Posição</th><th>Entrada</th><th>Atual</th><th>Valor</th><th>Resultado</th><th>Alav.</th></tr>${K.posicoes.map(p=>`<tr><td><b>${esc(p.asset)}</b></td><td>${f(p.entrada)}</td><td>${f(p.atual)}</td><td>${usd(p.valor_usd)}</td><td class="${p.pnl_usd>=0?"up":"dn"}">${sg(p.pnl_usd)} USD (${sg(p.pnl_pct)}%)</td><td>${p.alav||"—"}x</td></tr>`).join("")}</table></div>`:"";
+  const kordH=K&&K.ordens&&K.ordens.length?`<div class="note">Ordens à espera: ${K.ordens.map(o=>`${esc(o.asset)} a ${f(o.preco)}`).join(", ")}</div>`:"";
+  const kfH=K&&K.fechadas&&K.fechadas.length?`<div class="tw"><table><tr><th>Fechada</th><th>Entrada</th><th>Saída</th><th>Resultado</th></tr>${K.fechadas.slice(0,8).map(x=>`<tr><td>${esc(x.asset)}</td><td>${f(x.entrada)}</td><td>${f(x.saida)}</td><td class="${x.pnl_usd>=0?"up":"dn"}">${sg(x.pnl_usd)} USD</td></tr>`).join("")}</table></div>`:"";
+  const contaH=K?`<div class="banner"><b>💰 A tua conta OKX</b>Atualizada ${hm(K.t)}.</div><div class="stats"><div class="stat"><b>${usd(K.equity_usd)}</b>valor total</div><div class="stat"><b class="${K.pnl_aberto_usd>=0?"up":"dn"}">${sg(K.pnl_aberto_usd)} USD</b>em aberto</div><div class="stat"><b class="${K.pnl_fechado_usd>=0?"up":"dn"}">${sg(K.pnl_fechado_usd)} USD</b>fechado</div><div class="stat"><b>${(K.posicoes||[]).length}</b>posições</div></div>${kposH}${kordH}${kfH}`:`<div class="note">O saldo e as posições da OKX aparecem aqui depois da próxima passagem do agente (dados cifrados com a tua palavra-passe).</div>`;
   const R=O.resumo,M=(O.macro||{}),MR=M.resumo||{},X=(O.real||{}),ops=X.ops||{},hist=(X.hist||[]).slice(-10).reverse();
   const f=v=>v==null?"—":(+v).toPrecision(5).replace(/\.?0+$/,"");
   const est={pendente:"ordem à espera",aberta:"posição aberta",fechada:"fechada"};
@@ -1483,7 +1490,7 @@ async function renderOKX(){const el=$("okx");if(!el)return;let O=null;
   const pend=(R.pendentes||[]).map(a=>`<span class="chip">${esc(a)}</span>`).join(" ")||"nenhum";
   const mab=(MR.abertas||[]).map(a=>`<span class="chip">${esc(a)}</span>`).join(" ")||"nenhum";
   $("n-okx").textContent=Object.keys(ops).length?` · ${Object.keys(ops).length} real`:"";
-  el.innerHTML=`<div class="banner"><b>Agente cripto (dinheiro real)</b>Varre ${R.analisados||0} perpétuos de cripto de hora a hora (última passagem ${hm(R.t)}). Compra no pânico: ordem limite 1% abaixo, stop e objetivo anexados, risco 1% por operação, margem isolada.</div>
+  el.innerHTML=contaH+`<div class="banner"><b>Agente cripto (dinheiro real)</b>Varre ${R.analisados||0} perpétuos de cripto de hora a hora (última passagem ${hm(R.t)}). Compra no pânico: ordem limite 1% abaixo, stop e objetivo anexados, risco 1% por operação, margem isolada.</div>
   <div class="stats"><div class="stat"><b>${(R.pendentes||[]).length}</b>sinais</div><div class="stat"><b>${Object.keys(ops).length}</b>reais abertas</div><div class="stat"><b>${R.n||0}</b>fechadas (papel)</div><div class="stat"><b>${R.r_medio==null?"—":(R.r_medio>0?"+":"")+R.r_medio+"R"}</b>média (papel)</div><div class="stat"><b>${(R.conta_sim_pct>0?"+":"")+(R.conta_sim_pct||0)}%</b>conta simulada</div></div>
   <div class="note">Sinais atuais: ${pend}</div>
   ${rowsReal?`<div class="tw"><table><tr><th>Moeda</th><th>Estado</th><th>Entrada</th><th>Stop</th><th>Objetivo</th><th>Alav.</th></tr>${rowsReal}</table></div>`:`<div class="note">Sem ordens reais abertas neste momento.</div>`}

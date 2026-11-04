@@ -284,3 +284,35 @@ def reconciliar(R, now, msgs):
             tem_stop = r.get("code") == "0"
         msgs.append(f"🔁 OKX real — {base}: posição aberta a {op['entrada']:.6g} encontrada e adotada (sai no stop, no objetivo ou ao fim de 72 h). "
                     + ("Stop confirmado ✅" if tem_stop else "⚠️ NÃO consegui confirmar o stop: verifica na app da OKX."))
+
+
+def cofre(caminho):
+    """(04/11, Rui: "na interface deveria dizer o dinheiro e as operacoes que tenho na OKX") dados privados da conta
+    OKX para a app. So grava se houver DATA_KEY: o ficheiro e cifrado logo a seguir (engine.cifra); nunca em claro."""
+    if not os.environ.get("DATA_KEY") or not all(_chaves()):
+        return False
+    b = privado("GET", "/api/v5/account/balance")
+    if b.get("code") != "0":
+        return False
+    d0 = (b.get("data") or [{}])[0]
+    moedas = [{"ccy": x.get("ccy"), "eq": float(x.get("eq") or 0), "disponivel": float(x.get("availBal") or 0)}
+              for x in d0.get("details") or [] if float(x.get("eq") or 0) > 0]
+    pos = []
+    for x in (privado("GET", "/api/v5/account/positions?instType=FUTURES").get("data") or []):
+        if not float(x.get("pos") or 0):
+            continue
+        pos.append({"asset": x["instId"].split("-")[0], "inst": x["instId"], "contratos": float(x.get("pos") or 0),
+                    "entrada": float(x.get("avgPx") or 0), "atual": float(x.get("markPx") or 0) or None,
+                    "valor_usd": float(x.get("notionalUsd") or 0), "margem_usd": float(x.get("imr") or x.get("margin") or 0),
+                    "pnl_usd": float(x.get("upl") or 0), "pnl_pct": round(100 * float(x.get("uplRatio") or 0), 2),
+                    "alav": float(x.get("lever") or 0), "liquidacao": float(x.get("liqPx") or 0) or None})
+    ordens = [{"asset": x["instId"].split("-")[0], "preco": float(x.get("px") or 0), "contratos": float(x.get("sz") or 0),
+               "lado": x.get("side")} for x in (privado("GET", "/api/v5/trade/orders-pending?instType=FUTURES").get("data") or [])]
+    fech = [{"asset": x["instId"].split("-")[0], "entrada": float(x.get("openAvgPx") or 0), "saida": float(x.get("closeAvgPx") or 0),
+             "pnl_usd": float(x.get("realizedPnl") or x.get("pnl") or 0), "t": int(int(x.get("uTime") or 0) / 1000)}
+            for x in (privado("GET", "/api/v5/account/positions-history?instType=FUTURES&limit=30").get("data") or [])]
+    out = {"t": int(time.time()), "equity_usd": float(d0.get("totalEq") or 0), "moedas": moedas, "posicoes": pos,
+           "ordens": ordens, "fechadas": fech, "pnl_aberto_usd": round(sum(p["pnl_usd"] for p in pos), 4),
+           "pnl_fechado_usd": round(sum(f["pnl_usd"] for f in fech), 4)}
+    json.dump(out, open(caminho, "w"))
+    return True

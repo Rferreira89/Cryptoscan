@@ -22,6 +22,7 @@ jobs:
           OKX_PASSPHRASE: ${{ secrets.OKX_PASSPHRASE }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DATA_KEY: ${{ secrets.DATA_KEY }}
           PUSH_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
         run: |
           rm -rf /tmp/okx && mkdir -p /tmp/okx
@@ -30,7 +31,12 @@ jobs:
           fi
           python3 tools/okx_agente.py /tmp/okx/okx.json
           python3 tools/okx_macro.py /tmp/okx/okx.json || echo "agente macro falhou"
+          # (04/11) dinheiro e posicoes da OKX para a app: SEMPRE cifrado (DATA_KEY); se a cifra falhar, apaga
+          python3 -m pip install -q --user cryptography==43.0.3 2>/dev/null || true
+          if (cd tools && python3 -c "import okx_exec,sys; sys.exit(0 if okx_exec.cofre('/tmp/okx/cofre_okx.json') else 1)"); then
+            python3 -m engine.cifra fechar /tmp/okx/cofre_okx.json && grep -q '"cifra"' /tmp/okx/cofre_okx.json || rm -f /tmp/okx/cofre_okx.json
+          fi
           cd /tmp/okx && git init -q -b okx && git config user.name cryptoscan-bot \
             && git config user.email bot@users.noreply.github.com \
-            && git add okx.json && git commit -q -m "okx $(date -u +%FT%TZ)" \
+            && git add okx.json && { [ -f cofre_okx.json ] && git add cofre_okx.json || true; } && git commit -q -m "okx $(date -u +%FT%TZ)" \
             && git push -q -f "$PUSH_URL" okx:okx
