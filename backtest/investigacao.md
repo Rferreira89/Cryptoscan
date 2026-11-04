@@ -2005,3 +2005,7 @@ mortos, renascidos) e `forma.json` do ramo `arena`.
   acontecimentos e não operações na mesma vela; (3) corte dos clones só
   com representantes vivos; (4) passar esta corrida a semanal enquanto não
   houver dados novos.
+
+
+## H43 (04/11) — mais operações do pânico do mercado?
+V1 sem financiamento, V2 queda -7%, V3 financiamento p10; risco 2%, custos de futuros. Todas dão mais operações mas a conta fica pior do que a H40 nas duas metades (V1 rebenta a conta: queda >95%). CHUMBA: a H40 fica como está. Ver h43_resultado.txt.

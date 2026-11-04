@@ -264,6 +264,13 @@
   {
    "id": "H42-RISCO-PANICO-MERCADO",
    "resultado": "informativo: panico do mercado todo com custos de futuros: risco 1% x1,27/x2,08 (queda 22%/16%); 2% x1,47/x3,32 (40%/31%); 3% x1,57/x4,44 (55%/44%); 5% x1,37/x5,22 (76%/67%). ~4,9 operacoes por semana. Escolhido 2% com teto de 30 posicoes (pedido do Rui, 04/11)."
+  },
+  {
+   "id": "H43",
+   "data": "2026-11-04",
+   "pergunta": "Mais operacoes do panico do mercado sem perder vantagem (sem financiamento / queda -7% / p10)?",
+   "resultado": "CHUMBA: todas as variantes dao mais operacoes mas conta pior que a H40 nas duas metades (V1 rebenta a conta). H40 fica.",
+   "ficheiro": "backtest/estudos/h43_mais_panicos.py"
   }
  ]
 }
