@@ -3,7 +3,12 @@ Repositorio PUBLICO: o log so mostra estado e permissoes, nunca valores. Os sald
 import base64, datetime, hashlib, hmac, json, os, sys, urllib.request, urllib.error
 
 K, S, P = (os.environ.get(v, "").strip() for v in ("OKX_API_KEY", "OKX_API_SECRET", "OKX_PASSPHRASE"))
-BASES = ("https://www.okx.com", "https://eea.okx.com", "https://my.okx.com")
+BASES = ("https://eea.okx.com", "https://my.okx.com", "https://www.okx.com")   # a conta do Rui e da OKX EEA
+
+# (04/11) o servidor europeu tem IPv6 e a OKX via o IPv6 (fora da lista da chave): forcar IPv4 (2.28.62.236)
+import socket as _socket
+_gai = _socket.getaddrinfo
+_socket.getaddrinfo = lambda host, port, family=0, *a, **k: _gai(host, port, _socket.AF_INET, *a, **k)
 
 
 def pedido(base, path):
