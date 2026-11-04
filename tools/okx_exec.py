@@ -137,8 +137,9 @@ def abrir(base, sig, info, eq, c, now, msgs):
     msgs.append(f"📌 OKX real — {base}: ordem limite de compra a {p['px_s']} ({p['sz_s']} contratos, ~{p['nominal']} USD, "
                 f"{p['alav']}x isolada). Stop {p['stop_s']} e objetivo {p['alvo_s']} anexados; risco ~{p['risco_usd']} USD "
                 f"({100 * p['risco_usd'] / eq:.1f}% da conta). Válida 8 h.")
+    # repositorio publico: o estado guarda so precos e ids, nunca tamanhos nem valores da conta
     return {"inst": info["inst"], "ordId": d.get("ordId"), "clOrdId": cl, "estado": "pendente", "t_sig": sig["t_sig"],
-            "valido_ate": sig["t_sig"] + 3 * H4, "criado": int(now), **{k: p[k] for k in ("lim", "stop", "alvo", "sz", "nominal", "alav")}}
+            "valido_ate": sig["t_sig"] + 3 * H4, "criado": int(now), **{k: p[k] for k in ("lim", "stop", "alvo", "alav")}}
 
 
 def acompanhar(base, op, now, msgs):
@@ -151,9 +152,10 @@ def acompanhar(base, op, now, msgs):
             if st == "partially_filled":
                 privado("POST", "/api/v5/trade/cancel-order", {"instId": op["inst"], "ordId": op["ordId"]})
             op.update(estado="aberta", entrada=float(d.get("avgPx") or op["lim"]), t_fill=int(int(d.get("fillTime") or now * 1000) / 1000),
-                      sz_exec=float(d.get("accFillSz") or op["sz"]))
+                      )
+            sz_exec = d.get("accFillSz") or "?"
             op["sair_em"] = op["t_fill"] + 18 * H4
-            msgs.append(f"✅ OKX real — {base}: compra executada a {op['entrada']:.6g} ({op['sz_exec']:g} contratos). "
+            msgs.append(f"✅ OKX real — {base}: compra executada a {op['entrada']:.6g} ({sz_exec} contratos). "
                         f"Stop e objetivo na OKX; saída por tempo dentro de 72 h.")
         elif st in ("canceled", "mmp_canceled"):
             msgs.append(f"⌛ OKX real — {base}: a ordem foi cancelada sem executar.")
@@ -179,7 +181,9 @@ def acompanhar(base, op, now, msgs):
             px = hd.get("closeAvgPx")
             msgs.append(f"🏁 OKX real — {base} fechou ({motivo})" + (f" a {float(px):.6g}" if px else "") +
                         (f": resultado {float(pnl):+.3f} USD." if pnl not in (None, "") else "."))
-            op.update(estado="fechada", motivo=motivo, pnl=float(pnl) if pnl not in (None, "") else None, fechado=int(now))
+            saida = float(px) if px else None
+            op.update(estado="fechada", motivo=motivo, saida=saida, fechado=int(now),
+                      ret_pct=round(100 * (saida / op["entrada"] - 1), 2) if saida and op.get("entrada") else None)
             return True
     return False
 
@@ -188,6 +192,9 @@ def correr(st, novos, now, msgs):
     """novos: [(base, sinal)] do agente nesta passagem. st: okx.json (chave 'real' so com ids e precos publicos)."""
     c = cfg()
     R = st.setdefault("real", {"ops": {}, "hist": [], "pico": None})
+    for op in list(R["ops"].values()) + R["hist"]:  # limpeza: tamanhos e valores nunca ficam no estado publico
+        for k in ("sz", "nominal", "sz_exec", "pnl", "risco_usd"):
+            op.pop(k, None)
     if not all(_chaves()):
         return
     for base in list(R["ops"]):
