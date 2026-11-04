@@ -25,6 +25,28 @@ if __name__ == "__main__":
     unittest.main()
 
 
+class Radar(unittest.TestCase):
+    def test_radar_diz_o_que_falta_e_relata_uma_vez_por_dia(self):
+        import time as _t
+        from unittest import mock
+        from tools import okx_agente as A
+        c = lambda px: [{"t": 1000 + i * 14400, "o": p, "h": p, "l": p, "c": p} for i, p in enumerate(px)]
+        caiu = c([1.0] * 31 + [0.92] * 18)                # -8% em 3 dias
+        parado = c([1.0] * 49)
+        btc = c([100.0] * 40 + [101.0] * 9)
+        fund = [(i, -0.0001) for i in range(300)]
+        with mock.patch.object(A, "funding", return_value=fund), mock.patch.object(A.time, "sleep"):
+            R = A.radar_quase([("XYZ", {"inst": "XYZ-USDT-SWAP"}, caiu), ("ABC", {"inst": "ABC-USDT-SWAP"}, parado)], btc, {})
+        self.assertEqual([x["a"] for x in R["lista"]], ["XYZ"])
+        self.assertTrue(any("queda de 3 dias -8.0%" in f for f in R["lista"][0]["falta"]))
+        self.assertTrue(any("BTC" in f for f in R["lista"][0]["falta"]))
+        st = {"radar": R}
+        hora19 = 86400 * 20000 + 19 * 3600 + 120
+        self.assertIn("XYZ", A.relatorio_radar(st, hora19))
+        self.assertIsNone(A.relatorio_radar(st, hora19 + 600))     # so uma vez por dia
+        self.assertIsNone(A.relatorio_radar({"radar": R}, hora19 - 3600))
+
+
 class Macro(unittest.TestCase):
     def test_entra_so_acima_da_media_a_subir(self):
         from tools import okx_macro as M

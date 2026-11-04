@@ -118,13 +118,14 @@ def correr(st, now):
     st.setdefault("conta_sim", CONTA0); st.setdefault("ultimo", {}); cache = st.setdefault("funding", {})
     lista = moedas()
     btc = velas(lista["BTC"]["inst"]) if "BTC" in lista else []
-    msgs, novos, vistas = [], [], 0
+    msgs, novos, vistas, radar = [], [], 0, []
     for a, info in sorted(lista.items()):
         c4 = velas(info["inst"])
         time.sleep(0.12)
         if len(c4) < P.ATR_N + 20:
             continue
         vistas += 1
+        radar.append((a, info, c4))
         p = st["pend"].get(a)
         if p:                                                           # ordem limite a espera (2 velas)
             for b in c4:
@@ -180,12 +181,72 @@ def correr(st, now):
     except Exception as e:
         msgs.append(f"⚠️ OKX real: erro na execução ({type(e).__name__}); nada novo foi enviado.")
         print("okx_exec erro:", type(e).__name__, str(e)[:120])
+    try:
+        st["radar"] = radar_quase(radar, btc, cache)
+        m = relatorio_radar(st, now)
+        if m:
+            msgs.append(m)
+    except Exception as e:
+        print("radar erro:", type(e).__name__)
     st["resumo"] = {"t": int(now), "contratos": len(lista), "analisados": vistas, "pendentes": sorted(st["pend"]),
                     "abertas": sorted(st["abertas"]), "n": len(st["fechadas"]),
                     "r_medio": round(sum(x["r"] for x in st["fechadas"]) / len(st["fechadas"]), 3) if st["fechadas"] else None,
                     "conta_sim_pct": round(100 * (st["conta_sim"] / CONTA0 - 1), 2)}
     del st["fechadas"][:-1000]
     return msgs
+
+
+RADAR_QUEDA = -0.05      # so pede o financiamento a quem ja caiu 5% em 3 dias (metade do caminho para o sinal)
+RADAR_HORA = 19          # relatorio diario no Telegram a esta hora UTC
+
+
+def radar_quase(radar, btc, cache):
+    """(04/11) Pedido do Rui: "nao perder operacoes". Para cada moeda, quao perto esta de cada condicao do sinal:
+    queda de 3 dias (precisa <= -10%), financiamento negativo e no 5% mais baixo dos ultimos 90 dias, e o BTC a cair 3%
+    em 24 h (pânico do mercado, o que vai a dinheiro real). Devolve as 8 mais perto, so com precos e percentagens."""
+    btc_24h = round(100 * (btc[-1]["c"] / btc[-7]["c"] - 1), 1) if len(btc) > 7 else None
+    out = []
+    for a, info, c4 in radar:
+        q = c4[-1]["c"] / c4[-19]["c"] - 1
+        if q > RADAR_QUEDA:
+            continue
+        f = funding(info["inst"], cache) if q <= RADAR_QUEDA else []
+        conh = [x for x in f if x[0] <= c4[-1]["t"] + H4]
+        fv = conh[-1][1] if conh else None
+        p5 = P._pct5([x[1] for x in conh[-271:-1]]) if len(conh) >= 271 else None
+        falta = []
+        if q > -0.10:
+            falta.append(f"queda de 3 dias {100 * q:.1f}% (precisa de -10%)")
+        if fv is None or p5 is None:
+            falta.append("sem histórico de financiamento suficiente")
+        elif fv >= 0 or fv > p5:
+            falta.append(f"financiamento {100 * fv:.3f}% (precisa de negativo e ≤ {100 * p5:.3f}%)")
+        if btc_24h is None:
+            falta.append("sem dados do BTC")
+        elif btc_24h > 100 * P.BTC_QUEDA:
+            falta.append(f"BTC {btc_24h:+.1f}% em 24 h (dinheiro real só com o BTC a cair 3%)")
+        # distancia: quanto falta em cada condicao, normalizado
+        d = max(0.0, q + 0.10) / 0.10 + (0 if fv is not None and p5 is not None and fv < 0 and fv <= p5 else 1)
+        out.append({"a": a, "q": round(100 * q, 1), "f": None if fv is None else round(100 * fv, 4),
+                    "p5": None if p5 is None else round(100 * p5, 4), "falta": falta, "d": round(d, 3)})
+        time.sleep(0.05)
+    out.sort(key=lambda x: x["d"])
+    return {"btc_24h": btc_24h, "lista": out[:8]}
+
+
+def relatorio_radar(st, now):
+    """Uma vez por dia (19 h UTC): as moedas mais perto do sinal e o que lhes falta, para o Rui ver que nada passa."""
+    dia = int(now // 86400)
+    if time.gmtime(now).tm_hour != RADAR_HORA or st.get("radar_dia") == dia:
+        return None
+    st["radar_dia"] = dia
+    R = st.get("radar") or {}
+    L = R.get("lista") or []
+    cab = f"🧭 Radar diário OKX — 220 criptos analisadas de hora a hora. BTC {R.get('btc_24h')}% em 24 h.\n"
+    if not L:
+        return cab + "Nenhuma moeda caiu 5% ou mais em 3 dias: não há nenhum pânico em formação. Nada perdido."
+    linhas = [f"• {x['a']}: " + ("TODAS as condições cumpridas" if not x["falta"] else "falta " + "; ".join(x["falta"])) for x in L[:5]]
+    return cab + "As mais perto de dar sinal de compra:\n" + "\n".join(linhas)
 
 
 def telegram(txt):

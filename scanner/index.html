@@ -1054,7 +1054,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261104j";
+const PAGE_V="20261104k";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -1589,7 +1589,9 @@ function renderCentro(){const el=$("cgrid");if(!el)return;const O=OKX_PUB||{},K=
   const viv=(((D||{}).arena||{}).classificacao||[]).filter(b=>b.estado!=="MORTA"&&b.id!=="REJEITADOS").slice(0,6);
   const arB=`<div class="cb"><h2>⚔️ Arena <small>${((D||{}).arena||{}).vivos||0} vivos</small></h2><div class="ring">${viv.map(b=>`<div><b>${esc((b.persona||b.id).replace(" Jr.",""))}</b><br><small>${esc(b.id)} · ${b.n||0} op. · ${b.avg_r==null?"–":(b.avg_r>0?"+":"")+num(b.avg_r,2)+"R"}</small></div>`).join("")||`<div class="note">Sem lutadores vivos.</div>`}</div></div>`;
   const mkB=`<div class="cb"><h2>🌍 Mercado</h2><div class="kpis"><div class="kpi"><b>${btc.price?Math.round(btc.price).toLocaleString("pt-PT"):"–"}</b><span>BTC · ${btc.chg_24h>0?"+":""}${num(btc.chg_24h,1)}% em 24h</span></div><div class="kpi"><b>${((D||{}).market_regime||{}).btc||"–"}</b><span>regime do BTC</span></div>${top?`<div class="kpi"><b class="up">${esc(top.asset)} +${num(top.chg_24h,1)}%</b><span>mais subiu</span></div>`:""}${bot?`<div class="kpi"><b class="dn">${esc(bot.asset)} ${num(bot.chg_24h,1)}%</b><span>mais caiu</span></div>`:""}</div></div>`;
-  el.innerHTML=contas+opsB+agB+convB+arB+mkB;}
+  const RD=O.radar||{},RL=RD.lista||[];
+  const rdB=`<div class="cb"><h2>🧭 Radar · mais perto de dar sinal <small>220 criptos da OKX, de hora a hora · BTC ${RD.btc_24h==null?"–":(RD.btc_24h>0?"+":"")+RD.btc_24h+"%"} em 24 h</small></h2>${RL.length?RL.slice(0,6).map(x=>`<div class="op"><div class="l1"><span>${esc(x.a)}</span><span class="dn">${x.q}% em 3 dias</span></div><div class="l3" style="display:block">${x.falta.length?"Falta: "+x.falta.map(esc).join(" · "):"✅ Todas as condições cumpridas"}</div></div>`).join(""):`<div class="note">Nenhuma moeda caiu 5% ou mais em 3 dias: não há pânico em formação.</div>`}</div>`;
+  el.innerHTML=contas+opsB+rdB+agB+convB+arB+mkB;}
 async function openCentro(){$("centro").classList.add("on");await loadOKXPub();renderCentro()}
 function closeCentro(){$("centro").classList.remove("on")}
 $("cclose").addEventListener("click",closeCentro);
