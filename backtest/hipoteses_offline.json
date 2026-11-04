@@ -278,6 +278,13 @@
    "pergunta": "Short no excesso de longs (financiamento >= p95 e subida de 3 dias >= 10%), espelho da H40, com custos de futuros",
    "resultado": "CHUMBA: R medio negativo em quase todas as variantes e a conta rebenta nas duas metades (euforia do BTC -0,32R). Shorts continuam sem prova.",
    "ficheiro": "backtest/estudos/h44_short_excesso.py"
+  },
+  {
+   "id": "H45",
+   "data": "2026-11-04",
+   "pergunta": "A H40 (panico do mercado) ganha com os custos da Bybit UE (0,25%/lado + deslize)?",
+   "resultado": "PASSA: B1 166 op +0,118R conta x1,24 queda 44%; B2 227 op +0,343R x2,58 queda 38% (risco 2%). Dinheiro real na Bybit depende do Rui (config.json).",
+   "ficheiro": "backtest/estudos/h45_panico_bybit.py"
   }
  ]
 }

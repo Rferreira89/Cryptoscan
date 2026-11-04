@@ -2012,3 +2012,6 @@ V1 sem financiamento, V2 queda -7%, V3 financiamento p10; risco 2%, custos de fu
 
 ## H44 (04/11) — short no excesso de longs (espelho da H40)
 Financiamento ≥ p95 e positivo + subida de 3 dias ≥ 10%, short limite 1% acima, stop 2×ATR, objetivo 2R, 72 h, custos de futuros, risco 2%. 3091 operações: V1 todos −0,158R/−0,011R; V2 com euforia do BTC −0,319R/−0,323R; V3 isolado −0,092R/+0,092R. A conta rebenta em todas. CHUMBA: os shorts continuam sem prova (junta-se a H39, H40 gato morto e às famílias SHORT antigas).
+
+## H45 (04/11) — pânico do mercado com custos da Bybit
+Mesmas regras da H40, custos da Bybit UE (limite 0,25%; stop e tempo 0,35%), risco 2%. B1: 166 op., +0,118R, 57% ganhas, conta x1,24, queda 44%. B2: 227 op., +0,343R, 61%, x2,58, queda 38%. PASSA nas duas metades (pior do que na OKX por causa dos custos). Ligar na Bybit com dinheiro real mexe no config.json: decisão do Rui.
