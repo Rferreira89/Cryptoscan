@@ -2018,3 +2018,6 @@ Mesmas regras da H40, custos da Bybit UE (limite 0,25%; stop e tempo 0,35%), ris
 
 ## H46 (04/11) — recuo na subida (long, mercado a subir)
 Altcoin e BTC acima da média de ~50 dias a subir, RSI(14) de 4H < L; limite 1% abaixo, stop 2×ATR, 2R, 72 h, custos de futuros, risco 2%. 69 moedas 2021-2026 (sem as retiradas: viés a favor). RSI<30: 2021-23 115 op. +0,048R x1,03 (queda 42%); 2023-26 282 op. +0,147R x1,43 (queda 45%); semanas com operação 27/135 e 43/152. RSI<35 chumba (x0,79 e x0,21). Passa por pouco: SÓ PAPEL ao vivo na OKX (tools/okx_recuo.py); dinheiro real só com 30 operações em papel e média positiva.
+
+## H47 (04/11) — short no ressalto em mercado de descida
+Espelho da H46 só no regime de descida (BTC e moeda abaixo da média de ~50 dias a descer, RSI 4H > L). RSI>70: 2021-23 198 op. +0,149R x1,46; 2023-26 364 op. −0,086R x0,30 (queda 85%). RSI>65: x1,25 e x0,24. CHUMBA: ganhou no mercado de 2022 e perde no recente. Os shorts continuam sem prova, mesmo com filtro de regime.
