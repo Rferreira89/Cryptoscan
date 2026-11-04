@@ -314,11 +314,47 @@ html,body{max-width:100%;overflow-x:hidden}
 .bot .eye{transform-origin:center;transform-box:fill-box}
 .desk.idle .zz{display:inline}.zz{display:none;color:var(--mut);font-size:11px;margin-left:4px}
 @media (prefers-reduced-motion:reduce){.typing i,.bot .eye{animation:none}.bub{transition:none}}
+
+/* (04/11) Sala de controlo: tudo o que interessa em cartoes grandes e legiveis (pedido do Rui: "nao se percebe nada") */
+#centro{position:fixed;inset:0;z-index:30;background:linear-gradient(180deg,#071120,#0b1a2c);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(10px + env(safe-area-inset-top)) 12px calc(90px + env(safe-area-inset-bottom));display:none}
+#centro.on{display:block}
+#centro .ctop{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 10px}
+#centro .ctop h1{font:800 20px/1.1 Archivo,system-ui;margin:0}
+#centro .ctop button{background:#17324A;color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-weight:700}
+#centro .cg{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:12px}
+#centro .cb{background:#0F2233;border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+#centro .cb h2{font:800 15px/1.2 Archivo,system-ui;margin:0 0 8px;display:flex;flex-wrap:wrap;gap:2px 8px;justify-content:space-between;align-items:baseline}
+#centro .cb h2 small{flex-basis:100%}
+#centro .cb h2 small{font-weight:600;color:var(--mut);font-size:12px}
+#centro .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+#centro .kpi{background:#0a1a2a;border-radius:12px;padding:8px 10px}
+#centro .kpi b{display:block;font-size:20px}
+#centro .kpi span{color:var(--mut);font-size:12px}
+#centro .op{border-top:1px solid var(--line);padding:9px 0}
+#centro .op:first-of-type{border-top:0}
+#centro .op .l1{display:flex;justify-content:space-between;font-weight:800}
+#centro .bar{position:relative;height:10px;border-radius:6px;background:linear-gradient(90deg,#5a1f27 0 var(--e),#1f4a33 var(--e) 100%);margin:7px 0 4px}
+#centro .bar i{position:absolute;top:-4px;width:18px;height:18px;margin-left:-9px;border-radius:50%;background:#F6E05E;border:2px solid #0F2233;left:var(--p)}
+#centro .bar u{position:absolute;top:-3px;width:3px;height:16px;background:#E6EDF3;left:var(--e)}
+#centro .l3{display:flex;justify-content:space-between;font-size:12px;color:var(--mut)}
+#centro .ag{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+#centro .a{background:#0a1a2a;border-radius:12px;padding:8px 10px;border-left:4px solid var(--c)}
+#centro .a b{display:block;font-size:13.5px}
+#centro .a em{display:block;font-style:normal;color:var(--mut);font-size:11.5px;margin-bottom:3px}
+#centro .a span{font-size:12.5px}
+#centro .a.on{box-shadow:0 0 0 1px var(--c),0 0 14px -4px var(--c)}
+#centro .feed div{padding:6px 0;border-top:1px solid var(--line);font-size:13px}
+#centro .feed div:first-child{border-top:0}
+#centro .feed b{color:var(--c)}
+#centro .ring{display:flex;gap:8px;flex-wrap:wrap}
+#centro .ring div{flex:1 1 140px;background:#1a1030;border:1px solid #4a2a6a;border-radius:12px;padding:8px 10px}
+#centro .up{color:var(--up)}#centro .dn{color:var(--dn)}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <script type="module" src="office3d.js?v=20261104h"></script>
 </head>
 <body class="w3d">
+<div id="centro" aria-label="Sala de controlo"><div class="ctop"><h1>🏢 Sala de controlo</h1><button id="cclose">🏬 Escritório 3D</button></div><div class="cg" id="cgrid"></div></div>
 <div id="world">
 <div id="office"></div>
 <div id="hud">
@@ -332,7 +368,7 @@ html,body{max-width:100%;overflow-x:hidden}
 <nav id="zonebar" aria-label="Centro de comando">
 <button data-p="ops" class="cmd"><i style="background:#4FD1C5"></i>Centro de comando<span id="zb-ops"></span></button>
 </nav>
-<button id="floorbtn" aria-label="Mudar de piso">🏢 Piso 1 · Centro de operações</button>
+<button id="floorbtn" aria-label="Abrir a sala de controlo">🏢 Sala de controlo</button>
 <button id="gomenu" aria-haspopup="true" aria-expanded="false">🧭 Ir para…</button>
 <div id="golist" hidden role="menu"></div>
 <button id="homeview" aria-label="Voltar à vista inicial" title="Vista inicial">⌂</button>
@@ -977,6 +1013,7 @@ async function load(){
     if(!r.ok) throw new Error("HTTP "+r.status);
     D=await CIFRA.json(await r.json());normUserClosed(D);
     try{await liveBybitAll();applyBybit(D)}catch(_){}
+    try{if($("centro").classList.contains("on"))renderCentro()}catch(_){}
     if(!capSet&&D.config&&D.config.capital_usdc&&!$("cap").value){$("cap").value=D.config.capital_usdc;$("capnote").textContent="definido no programa; muda com /capital no Telegram"}
     const age=Math.round((Date.now()/1000-Math.max(D.generated_at,D.monitored_at||0))/60);
     const src=Object.entries(D.sources).map(([n,s])=>n+(s.ok?" ✓":" ✗")).join(" · ")+" · Bybit UE"+(D.venue_source&&D.venue_source.ok?" ✓":" ✗");
@@ -1017,7 +1054,7 @@ document.querySelectorAll("details.sec").forEach(d=>{try{const v=localStorage.ge
   d.addEventListener("toggle",()=>{try{localStorage.setItem("sec:"+d.id,d.open?"1":"0")}catch(_){}})});
 // Atualizacao automatica: o iPhone guarda a pagina em cache; se houver
 // uma versao mais recente publicada, recarrega sozinha.
-const PAGE_V="20261104h";
+const PAGE_V="20261104i";
 
 // ---------- Escritorio ----------
 // Agentes reais e os seus horarios (hora de Lisboa). Nada aqui e simulado:
@@ -1449,15 +1486,15 @@ function openFiltro(){const F=D&&D.filtro_novo,el=$("hoje"),FN={subida:"Subida",
     if(F.clones)h+=`<div class="it"><i>✂️</i><span><b>${F.clones} clones cortados</b><br><small>${Object.entries(F.lista_clones||{}).map(([k,v])=>`${esc(personaOf(k))} → clone de ${esc(personaOf(v.de))} (${String(v.corr).replace(".",",")})`).join(" · ")}</small></span></div>`;
     ["lateral","queda","subida"].forEach(r=>{const x=(F.fases||{})[r]||{};h+=`<div class="it"><i>${(D.mercado||{}).regime===r?"▶":"·"}</i><span><b>Fase ${FN[r]}</b> — filtro atual: ${(x.atual||[]).map(k=>esc(personaOf(k))).join(", ")||"ninguém"} · novo: <b>${(x.novo||[]).map(k=>esc(personaOf(k))).join(", ")||"ninguém"}</b><br><small>${(x.detalhe||[]).map(d=>`${esc(personaOf(d.id))}: ${d.dias??"–"} dias, intervalo ${sg(d.ic_inf)}R, reservado (últimos 25%) ${d.reservado&&d.reservado.n?d.reservado.n+" op. "+sg(d.reservado.avg_r)+"R":"sem operações"}, sem a melhor moeda ${sg(d.sem_melhor_moeda)}R`).join("<br>")||"—"}</small></span></div>`})}
   el.querySelector(".hj").innerHTML=h;el.hidden=false}
-const GOTO=[["🏬","Piso 0 · Escritório","ringues, painéis e todas as salas",O=>O.resetView()],["🏢","Piso 1 · Centro de operações","os agentes juntos a conversar",O=>O.goFloor(0)],null,
+const GOTO=[["🏢","Sala de controlo","contas, operações, agentes e arena em cartões",()=>openCentro()],["🏬","Escritório 3D","ringues, painéis e todas as salas",O=>{closeCentro();O.resetView()}],["👥","Centro de operações 3D","os agentes juntos a conversar",O=>{closeCentro();O.goFloor(0)}],null,
   ["⚔️","Arena","os ringues: as estratégias a lutar",O=>O.goArena()],["🧭","Diretor de Trading","decisões de entrada",O=>O.goDirector()],["💼","Sala de estratégia","quem provou no combate",O=>O.goStrategy()],["🏆","Recompensas","conquistas reais",O=>O.goRewards()],["📊","Setores","moedas por setor",O=>O.goSectors()],["🏁","Painel da missão","capital, gráfico e percentagens",O=>O.showMission()],null,
   ["💰","Operações e contas","Bybit e OKX: posições, ordens e saldo",()=>openPanel("ops","#s-okx")],["📋","O que aconteceu hoje","resumo do dia",()=>openHoje()],["📈","Gráficos","velas interativas com as operações",()=>openGraf()],
   ["🌡️","Índice e radar","alta ou baixa, e quem está perto de dar sinal",()=>openIndice()],["🔍","Pós-morte","o que as operações reais ensinam",()=>openPM()],["🕊️","Caminho para a liberdade","quanto falta, com os teus depósitos",()=>openLiberdade()]];
 $("golist").innerHTML=GOTO.map((g,i)=>g?`<button role="menuitem" data-i="${i}"><span style="font-size:18px">${g[0]}</span><span>${g[1]}<small>${g[2]}</small></span></button>`:"<hr>").join("");
 $("gomenu").addEventListener("click",()=>{const l=$("golist"),open=l.hidden;l.hidden=!open;$("gomenu").setAttribute("aria-expanded",open)});
 $("golist").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const O=window.Office3D,g=GOTO[+b.dataset.i];$("golist").hidden=true;$("gomenu").setAttribute("aria-expanded","false");try{g[3](O||{})}catch(_){}});
-$("floorbtn").addEventListener("click",()=>{const O=window.Office3D;if(!O||!O.goFloor)return;if(O.floor()===0)O.resetView();else O.goFloor(0)});
-addEventListener("piso",e=>{const b=$("floorbtn"),d=e.detail;b.classList.toggle("on",d===0);b.textContent=d===0?"🏬 Piso 0 · Escritório":"🏢 Piso 1 · Centro de operações"});
+$("floorbtn").addEventListener("click",()=>openCentro());
+addEventListener("piso",e=>{});
 $("homeview").addEventListener("click",()=>{if(window.Office3D&&window.Office3D.resetView)window.Office3D.resetView()});
 $("arenaview").addEventListener("click",()=>{if(window.Office3D&&window.Office3D.goArena)window.Office3D.goArena()});
 $("rewview").addEventListener("click",()=>{if(window.Office3D&&window.Office3D.goRewards)window.Office3D.goRewards()});
@@ -1480,7 +1517,7 @@ async function renderOKX(){const el=$("okx");if(!el)return;let O=null;
   if(!O||!O.resumo){el.innerHTML=`<div class="banner">O agente OKX ainda não publicou dados.</div>`;return}
   // (04/11) dinheiro e posicoes da conta OKX: ficheiro cifrado (abre com a mesma palavra-passe do cofre)
   let K=null;try{const r=await fetch(URL_OKX.replace("okx.json","cofre_okx.json")+"?t="+Date.now(),{cache:"no-store"});if(r.ok)K=await CIFRA.json(await r.json())}catch(_){}
-  if(K){window.OKXK=K;try{renderHud()}catch(_){}}
+  if(K){window.OKXK=K;try{renderHud()}catch(_){}try{renderCentro()}catch(_){}}
   const usd=v=>v==null?"—":(+v).toFixed(2)+" USD",sg=v=>v==null?"":(v>0?"+":"")+(+v).toFixed(2);
   const kposH=K&&K.posicoes&&K.posicoes.length?`<div class="tw"><table><tr><th>Posição</th><th>Entrada</th><th>Atual</th><th>Valor</th><th>Resultado</th><th>Alav.</th></tr>${K.posicoes.map(p=>`<tr><td><b>${esc(p.asset)}</b></td><td>${f(p.entrada)}</td><td>${f(p.atual)}</td><td>${usd(p.valor_usd)}</td><td class="${p.pnl_usd>=0?"up":"dn"}">${sg(p.pnl_usd)} USD (${sg(p.pnl_pct)}%)</td><td>${p.alav||"—"}x</td></tr>`).join("")}</table></div>`:"";
   const kordH=K&&K.ordens&&K.ordens.length?`<div class="note">Ordens à espera: ${K.ordens.map(o=>`${esc(o.asset)} a ${f(o.preco)}`).join(", ")}</div>`:"";
@@ -1503,6 +1540,61 @@ async function renderOKX(){const el=$("okx");if(!el)return;let O=null;
   <div class="note">Em tendência agora: ${mab}</div>`;
 }
 setInterval(()=>{renderOKX().catch(()=>{})},120000);
+
+// (04/11) Sala de controlo (2D): contas, operacoes reais (do stop ao objetivo), o que cada agente faz agora,
+// as conversas entre agentes, a arena e o mercado. Abre no botao de baixo; volta ao escritorio 3D no topo.
+let OKX_PUB=null;
+async function loadOKXPub(){try{const r=await fetch(URL_OKX+"?t="+Date.now(),{cache:"no-store"});if(r.ok)OKX_PUB=await r.json()}catch(_){}return OKX_PUB}
+function centroAgentes(){const O=OKX_PUB||{},K=window.OKXK,R=O.resumo||{},MR=(O.macro||{}).resumo||{},N=(D&&D.nucleo&&D.nucleo.plano&&D.nucleo.plano.BTC)||{};
+  const btc=((D||{}).universe||[]).find(r=>r.asset==="BTC")||{},pos=(K&&K.posicoes)||[],ops=Object.entries(((O.real||{}).ops)||{}),A=(D||{}).arena||{};
+  return [
+   ["💰","Bento","Tendência BTC · Bybit","#F7931A",N.acima?"Comprado a 2x no BTC":`À espera: BTC ${btc.price?Math.round(btc.price).toLocaleString("pt-PT"):"–"} abaixo da média de 50 dias (${N.media?Math.round(N.media).toLocaleString("pt-PT"):"–"})`,!!N.acima],
+   ["🔎","Nuno","Pânico do mercado · OKX","#4FD1C5",(R.pendentes||[]).length?`Pânico em ${(R.pendentes||[]).join(", ")}`:`Analisou ${R.analisados||0} criptos: sem pânico`,(R.pendentes||[]).length>0],
+   ["📌","Inês","Executora · OKX","#4FD1C5",pos.length?`${pos.length} posição(ões): ${pos.map(p=>p.asset).join(", ")}`:ops.length?`${ops.map(([a,o])=>a+" ("+o.estado+")").join(", ")}`:"Sem ordens abertas",pos.length>0||ops.length>0],
+   ["✅","Ivo","Executor · Bybit","#68D391",N.acima?"BTC comprado na Bybit":"Pronto: compra quando o Bento mandar",!!N.acima],
+   ["🛡️","Rosa","Gestora de risco","#FF8A80","Risco 2% por operação · margem isolada · travão a 45%",true],
+   ["📡","Sofia","Scanner · Bybit","#63B3ED",`${((D||{}).counts||{}).deep_checked||0} moedas de 5 em 5 min · regime ${((D||{}).market_regime||{}).btc||"–"}`,true],
+   ["📈","Mateus","Ações e matérias-primas · OKX","#F6AD55",`${(MR.abertas||[]).length} de ${MR.analisados||0} em subida (papel)`,(MR.abertas||[]).length>0],
+   ["📰","Nádia","Notícias","#63B3ED",(D||{}).next_event?`Próximo evento: ${(D||{}).next_event.name}`:"Sem eventos de risco",true],
+   ["🧑‍🏫","Miguel","Mentor","#63B3ED","Relatório no Telegram às 21:47",false],
+   ["🌙","Caio","Caçador noturno","#B794F4","Testa 1 estratégia nova por noite (23:37)",false],
+   ["🔬","Íris","Investigação","#B794F4","Testa ideias todos os dias (11:52)",false],
+   ["⚔️","Artur","Arena","#FC8181",`${A.vivos||0} lutadores vivos · quem perde morre`,true]]}
+function renderCentro(){const el=$("cgrid");if(!el)return;const O=OKX_PUB||{},K=window.OKXK,R=O.resumo||{},ops=((O.real||{}).ops)||{},C=(D||{}).config||{};
+  const N=(D&&D.nucleo&&D.nucleo.plano&&D.nucleo.plano.BTC)||{},btc=((D||{}).universe||[]).find(r=>r.asset==="BTC")||{};
+  const f=v=>v==null?"–":(+v).toPrecision(5).replace(/\.?0+$/,""),sg=v=>v==null?"":(v>0?"+":"")+(+v).toFixed(2);
+  // contas
+  const contas=`<div class="cb"><h2>💰 As tuas contas</h2><div class="kpis"><div class="kpi"><b>${C.capital_usdc!=null?num(C.capital_usdc,2):"🔒"}</b><span>Bybit · USDC</span></div><div class="kpi"><b>${K?num(K.equity_usd,2):"🔒"}</b><span>OKX · USD</span></div><div class="kpi"><b class="${K&&K.pnl_aberto_usd>=0?"up":"dn"}">${K?sg(K.pnl_aberto_usd):"–"}</b><span>OKX · resultado em aberto</span></div><div class="kpi"><b class="${K&&K.pnl_fechado_usd>=0?"up":"dn"}">${K?sg(K.pnl_fechado_usd):"–"}</b><span>OKX · resultado fechado</span></div></div>${K?"":`<div class="note" style="margin-top:6px">🔒 Abre os dados cifrados com a tua palavra-passe para ver os valores.</div>`}</div>`;
+  // operacoes
+  const L=[];((K&&K.posicoes)||[]).forEach(p=>{const o=ops[p.asset]||{};L.push({a:p.asset,onde:"OKX",e:p.entrada,st:o.stop,al:o.alvo,px:p.atual,pct:p.pnl_pct,usd:p.pnl_usd,alav:p.alav})});
+  if(!K)Object.entries(ops).forEach(([a,o])=>L.push({a,onde:"OKX",e:o.entrada||o.lim,st:o.stop,al:o.alvo,estado:o.estado,alav:o.alav}));
+  if(N.acima)L.push({a:"BTC",onde:"Bybit",px:btc.price,alav:2});
+  const opH=L.length?L.map(o=>{const ok=o.st&&o.al&&o.e,pc=v=>Math.max(0,Math.min(100,(v-o.st)/(o.al-o.st)*100));
+    return `<div class="op"><div class="l1"><span>${esc(o.a)} <small style="color:var(--mut)">· ${o.onde} · compra ${o.alav?o.alav+"x":""}</small></span><span class="${o.pct==null?"":o.pct>=0?"up":"dn"}">${o.pct==null?(o.estado?esc(o.estado):"aberta"):(o.pct>0?"+":"")+o.pct+"%"+(o.usd!=null?" · "+sg(o.usd)+" USD":"")}</span></div>
+    ${ok?`<div class="bar" style="--e:${pc(o.e)}%;--p:${o.px?pc(o.px):pc(o.e)}%"><u></u><i></i></div><div class="l3"><span class="dn">stop ${f(o.st)}</span><span>entrada ${f(o.e)}${o.px?" · agora "+f(o.px):""}</span><span class="up">objetivo ${f(o.al)}</span></div>`:""}</div>`}).join(""):`<div class="note">Sem operações abertas. Entram sozinhas quando houver sinal (pânico do mercado na OKX ou BTC acima da média na Bybit).</div>`;
+  const opsB=`<div class="cb"><h2>📌 Operações reais <small>do stop (vermelho) ao objetivo (verde) · ● preço atual</small></h2>${opH}</div>`;
+  // agentes
+  const agH=centroAgentes().map(([e,n,r,c,t,on])=>`<div class="a${on?" on":""}" style="--c:${c}"><b>${e} ${esc(n)}</b><em>${esc(r)}</em><span>${esc(t)}</span></div>`).join("");
+  const agB=`<div class="cb"><h2>👥 O que cada agente está a fazer <small>atualiza sozinho</small></h2><div class="ag">${agH}</div></div>`;
+  // conversas
+  const U=((D||{}).universe||[]).slice().sort((a,b)=>(b.chg_24h||0)-(a.chg_24h||0)),top=U[0],bot=U[U.length-1],pend=R.pendentes||[];
+  const conv=[["Sofia","Bento","#63B3ED",`BTC a ${btc.price?Math.round(btc.price).toLocaleString("pt-PT"):"–"} (${btc.chg_24h>0?"+":""}${num(btc.chg_24h,1)}%).`],
+    ["Bento","Rosa","#F7931A",N.acima?"Acima da média: estamos comprados a 2x.":"Ainda abaixo da média de 50 dias: fico de fora até confirmar."],
+    ["Nuno","Inês","#4FD1C5",pend.length?`Pânico em ${pend.join(", ")}: só entra se o BTC também tiver caído 3% em 24 h.`:"Sem pânico nesta hora."],
+    ["Inês","Rosa","#4FD1C5",L.length?`${L.length} operação(ões) aberta(s), todas com stop e objetivo.`:"Sem ordens: à espera de sinal."]];
+  if(top)conv.push(["Sofia","Miguel","#63B3ED",`${top.asset} subiu ${num(top.chg_24h,1)}%. Perseguir subidas perdeu nos testes: não entramos.`]);
+  if(bot)conv.push(["Sofia","Nuno","#63B3ED",`${bot.asset} caiu ${num(bot.chg_24h,1)}%. Vê o financiamento.`]);
+  const convB=`<div class="cb"><h2>💬 Conversas entre agentes</h2><div class="feed">${conv.map(([a,b,c,t])=>`<div style="--c:${c}"><b>${a}</b> → ${b}: ${esc(t)}</div>`).join("")}</div></div>`;
+  // arena e mercado
+  const viv=(((D||{}).arena||{}).classificacao||[]).filter(b=>b.estado!=="MORTA"&&b.id!=="REJEITADOS").slice(0,6);
+  const arB=`<div class="cb"><h2>⚔️ Arena <small>${((D||{}).arena||{}).vivos||0} vivos</small></h2><div class="ring">${viv.map(b=>`<div><b>${esc((b.persona||b.id).replace(" Jr.",""))}</b><br><small>${esc(b.id)} · ${b.n||0} op. · ${b.avg_r==null?"–":(b.avg_r>0?"+":"")+num(b.avg_r,2)+"R"}</small></div>`).join("")||`<div class="note">Sem lutadores vivos.</div>`}</div></div>`;
+  const mkB=`<div class="cb"><h2>🌍 Mercado</h2><div class="kpis"><div class="kpi"><b>${btc.price?Math.round(btc.price).toLocaleString("pt-PT"):"–"}</b><span>BTC · ${btc.chg_24h>0?"+":""}${num(btc.chg_24h,1)}% em 24h</span></div><div class="kpi"><b>${((D||{}).market_regime||{}).btc||"–"}</b><span>regime do BTC</span></div>${top?`<div class="kpi"><b class="up">${esc(top.asset)} +${num(top.chg_24h,1)}%</b><span>mais subiu</span></div>`:""}${bot?`<div class="kpi"><b class="dn">${esc(bot.asset)} ${num(bot.chg_24h,1)}%</b><span>mais caiu</span></div>`:""}</div></div>`;
+  el.innerHTML=contas+opsB+agB+convB+arB+mkB;}
+async function openCentro(){$("centro").classList.add("on");await loadOKXPub();renderCentro()}
+function closeCentro(){$("centro").classList.remove("on")}
+$("cclose").addEventListener("click",closeCentro);
+openCentro();   // abre logo na sala de controlo: o escritorio 3D fica a um toque
+setInterval(async()=>{if($("centro").classList.contains("on")){await loadOKXPub();renderCentro()}},30000);
 load();setInterval(load,60000);renderOKX().catch(()=>{});
 setInterval(async()=>{if(!D)return;const m=await liveBybitAll();if(m&&applyBybit(D)){try{render()}catch(_){}}},30000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)load()});
