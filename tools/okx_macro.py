@@ -14,6 +14,9 @@ sys.path.insert(0, os.path.dirname(__file__))
 import okx_agente as A                           # noqa: E402  (mesma ligacao IPv4, pedidos e Telegram)
 
 N, SUBIDA_DIAS, CUSTO = 50, 10, 0.001
+# (04/11) ETF alavancados/inversos e de volatilidade: perdem valor com o tempo por construcao; a tendencia neles engana
+FORA = {"SQQQ", "TQQQ", "SOXS", "SOXL", "UVXY", "VXX", "TSLL", "TSLQ", "NVDL", "NVDD", "SPXU", "SPXL", "UPRO", "SDS", "QID",
+        "LABU", "LABD", "MSTU", "MSTZ", "CONL"}
 
 
 def contratos():
@@ -23,7 +26,7 @@ def contratos():
         if i.get("state") != "live" or i.get("settleCcy") != "USDT" or i.get("ctType") != "linear":
             continue
         base = i["instId"].split("-")[0]
-        if base not in spot:                     # nao e cripto: acao, indice ou materia-prima
+        if base not in spot and base not in FORA:    # nao e cripto: acao, indice ou materia-prima
             out[base] = i["instId"]
     return out
 

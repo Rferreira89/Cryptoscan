@@ -182,7 +182,8 @@ def correr(st, now):
         msgs.append(f"⚠️ OKX real: erro na execução ({type(e).__name__}); nada novo foi enviado.")
         print("okx_exec erro:", type(e).__name__, str(e)[:120])
     try:
-        st["radar"] = radar_quase(radar, btc, cache)
+        tem = set(st["abertas"]) | set(st["pend"]) | set((st.get("real") or {}).get("ops") or {})
+        st["radar"] = radar_quase([x for x in radar if x[0] not in tem], btc, cache)
         m = relatorio_radar(st, now)
         if m:
             msgs.append(m)
