@@ -96,7 +96,13 @@ def main():
                 for d in (b.get("data") or [{}])[0].get("details") or []:
                     if float(d.get("eq") or 0) > 0:
                         linhas.append(f"{d.get('ccy')} {float(d.get('eq')):.2f}")
-            print("saldo lido:", "sim" if b.get("code") == "0" else "nao", "| moedas com saldo:", len(linhas))
+            print("saldo lido:", "sim" if b.get("code") == "0" else "nao", "| moedas com saldo:", len(linhas),
+                  "| quais:", [l.split()[0] for l in linhas])
+            for tt in ("SWAP", "FUTURES"):
+                ai = pedido(base, f"/api/v5/account/instruments?instType={tt}")
+                ids = [x.get("instId") for x in (ai.get("data") or [])]
+                print(f"negociaveis pela conta {tt}:", ai.get("code"), len(ids), "| exemplos:", ids[:6],
+                      "| USDT-SWAP:", sum(1 for x in ids if x.endswith("-USDT-SWAP")), "| XPERP:", sum(1 for x in ids if "XPERP" in x))
             telegram("✅ OKX ligada ao Cryptoscan (" + base.split('//')[1] + ").\nPermissões: " + perm +
                      ("\n🚨 A CHAVE TEM PERMISSÃO DE LEVANTAR: apaga-a e cria outra sem 'Levantar'." if levantar else
                       "\nSem permissão de levantar ✅") + "\nSaldo na conta de negociação: " +
