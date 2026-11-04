@@ -1787,6 +1787,17 @@ function p2Click(hit) {
   else if (p.room) p2Say(p, `<b>${p.nm}</b> · chefe de ${esc3(P2R[p.room].n)}<br>${esc3({ ideias: "Aqui nascem e morrem as hipóteses. Só passa ao backtest o que tem lógica de mercado.", backtest: "Testo cada estratégia no último ano, só nas alturas iguais à de agora.", acaso: "Se entradas ao calhas dão o mesmo, não há vantagem nenhuma.", custos: "Spread, comissões e deslize da Bybit UE: abaixo de +0,15R não paga as contas.", comite: "Só aprovo quem ganha nas duas metades do ano e bate o acaso.", real: "Aqui só conta o dinheiro que entrou mesmo na conta." }[p.room])}`, 6);
 }
 function goFloor(n) {
+  if (n === 4) {                          // 4.o piso: mesa OKX
+    if (P2.g) { P2.on = false; P2.g.visible = false; p2HideOverlays(); }
+    if (P3.g) { P3.on = false; P3.g.visible = false; p3Hide(); }
+    if (!P4.g) buildFloor4();
+    P4.on = true; P4.g.visible = true; p4Load(true);
+    const T = new THREE.Vector3(2, P4H, 0); ctl.target.copy(T); ctl.maxDistance = 95;
+    if (cam.aspect < .8) cam.position.set(T.x - 45, T.y + 45, 0); else cam.position.set(T.x - .5, T.y + 28, 26); ctl.update();
+    try { window.dispatchEvent(new CustomEvent("piso", { detail: 4 })); } catch (_) { }
+    return true;
+  }
+  p4Off();
   if (n === 3) {                          // 3.o piso: mesa de elite
     if (P2.g) { P2.on = false; P2.g.visible = false; p2HideOverlays(); }
     if (!P3.g) buildFloor3();
@@ -1806,7 +1817,8 @@ function goFloor(n) {
   try { window.dispatchEvent(new CustomEvent("piso", { detail: P2.on ? 2 : 1 })); } catch (_) { }
   return P2.on;
 }
-function p2Leave() { if (P3.on) { ctl.maxDistance = 70; P3.on = false; P3.g.visible = false; p3Hide(); try { window.dispatchEvent(new CustomEvent("piso", { detail: 1 })); } catch (_) { } }
+function p2Leave() { if (P4.on) { ctl.maxDistance = 70; p4Off(); try { window.dispatchEvent(new CustomEvent("piso", { detail: 1 })); } catch (_) { } }
+  if (P3.on) { ctl.maxDistance = 70; P3.on = false; P3.g.visible = false; p3Hide(); try { window.dispatchEvent(new CustomEvent("piso", { detail: 1 })); } catch (_) { } }
   if (!P2.on) return; P2.on = false; P2.g.visible = false; p2HideOverlays(); try { window.dispatchEvent(new CustomEvent("piso", { detail: 1 })); } catch (_) { } }
 
 // ---------- 3.o piso: Mesa de Elite (so quem opera dinheiro real) ----------
@@ -2032,9 +2044,96 @@ function p3Click(hit) { let o = hit.object; while (o && !o.userData.agent) o = o
      p.k === "TURTLE_FORTES" ? ((((D.radar || {}).rompimentos || [])[0]) || {}).asset : null)) : null);
   if (coin && typeof window.openGraf === "function") setTimeout(() => window.openGraf(coin), 900); }
 
+
+// ---------- 4.o piso: Mesa OKX — cripto e acoes (04/11, pedido do Rui) ----------
+// Duas salas: a mesa cripto (dinheiro real: compra no panico nos perpetuos de cripto da OKX) e a mesa de acoes,
+// indices e materias-primas (agente macro, so papel). Os ecras usam o okx.json publico (ramo "okx"): so precos e
+// resultados em %, nunca valores da conta.
+const P4H = 19.2;
+const P4 = { on: false, g: null, people: [], labels: [], scr: [], tex: {}, talk: null, talkAt: 0, i: 0, data: null, at: 0 };
+const P4C = { cripto: "#4FD1C5", macro: "#F6AD55" };
+const URL_OKX3 = "https://raw.githubusercontent.com/Rferreira89/Cryptoscan/okx/okx.json";
+async function p4Load(force) { if (!force && Date.now() - P4.at < 120000) return; P4.at = Date.now();
+  try { const r = await fetch(URL_OKX3 + "?t=" + Date.now(), { cache: "no-store" }); if (r.ok) { P4.data = await r.json(); p4Draw(); } } catch (_) { } }
+function p4Frame(g, title, c) { g.fillStyle = "#06121a"; g.fillRect(0, 0, 640, 400); g.strokeStyle = c; g.lineWidth = 5; g.strokeRect(3, 3, 634, 394);
+  g.fillStyle = c; g.fillRect(0, 0, 640, 52); g.fillStyle = "#06121a"; g.font = "800 25px system-ui"; g.fillText(title, 18, 36); }
+function p4Rows(g, rows, y0 = 90, lh = 29) { rows.slice(0, 10).forEach(([a, b, col], i) => { const y = y0 + i * lh; g.font = "600 20px system-ui"; g.fillStyle = "#e6f6f4"; g.fillText(String(a).slice(0, 34), 18, y);
+  g.textAlign = "right"; g.fillStyle = col || "#9fb8c0"; g.fillText(String(b), 622, y); g.textAlign = "left"; }); }
+const p4f = v => v == null ? "–" : Number(v).toPrecision(4).replace(".", ",");
+function p4Screen(k, g) { const O = P4.data || {}, R = O.resumo || {}, X = O.real || {}, ops = X.ops || {}, M = O.macro || {}, MR = M.resumo || {};
+  if (k === "cripto") { p4Frame(g, "🌐 OKX cripto · dinheiro real", P4C.cripto);
+    const est = { pendente: "à espera", aberta: "aberta", fechada: "fechada" };
+    const rows = Object.entries(ops).map(([a, o]) => [`${a} · ${est[o.estado] || o.estado}`, `entrada ${p4f(o.entrada || o.lim)} · stop ${p4f(o.stop)}`, o.estado === "aberta" ? "#68D391" : "#F6E05E"]);
+    if (!rows.length) rows.push(["Sem ordens reais abertas", "à procura de pânico", "#9fb8c0"]);
+    rows.push(["Sinais nesta hora", (R.pendentes || []).join(", ") || "nenhum", "#4FD1C5"]);
+    rows.push([`Perpétuos analisados`, String(R.analisados || 0)]);
+    rows.push(["Papel: operações fechadas", `${R.n || 0} · média ${R.r_medio == null ? "–" : p4f(R.r_medio) + "R"}`]);
+    rows.push(["Conta simulada (20 USD)", `${(R.conta_sim_pct > 0 ? "+" : "") + (R.conta_sim_pct || 0)}%`, (R.conta_sim_pct || 0) >= 0 ? "#68D391" : "#FF8A80"]);
+    p4Rows(g, rows); return; }
+  if (k === "macro") { p4Frame(g, "📈 OKX ações e matérias-primas · papel", P4C.macro);
+    const ab = MR.abertas || [];
+    p4Rows(g, [["Analisados", String(MR.analisados || 0)], ["Em tendência de subida", String(ab.length), "#F6AD55"],
+      ...ab.slice(0, 6).map(a => ["  " + a, "acima da média 50d", "#68D391"]),
+      ["Fechadas (papel)", `${MR.n || 0}${MR.ret_medio_pct != null ? " · média " + p4f(MR.ret_medio_pct) + "%" : ""}`]]); return; }
+}
+function p4Draw() { Object.entries(P4.tex).forEach(([k, t]) => { p4Screen(k, t.userData.c.getContext("2d")); t.needsUpdate = true; }); }
+function p4Label(text, c, pos) { const el = document.createElement("div"); el.textContent = text;
+  el.style.cssText = `position:absolute;transform:translate(-50%,-100%);pointer-events:none;white-space:nowrap;font:700 11px system-ui,sans-serif;color:${c};padding:2px 8px;border-radius:99px;background:#06121ad0;border:1px solid ${c}77;display:none`;
+  overlay.appendChild(el); const l = { el, p: pos }; P4.labels.push(l); return l; }
+function p4Desk(x, z, col) { const g = new THREE.Group(); g.position.set(x, 0, z); P4.g.add(g);
+  boxM(1.7, .06, .85, mat("#22303a"), 0, .75, 0, g); [[-.75, -.35], [.75, -.35], [-.75, .35], [.75, .35]].forEach(([a, b]) => boxM(.06, .72, .06, mat("#1a1a1a"), a, .36, b, g));
+  [-.42, .42].forEach(dx => { boxM(.78, .5, .04, mat("#111"), dx, 1.12, -.22, g); const m = new THREE.Mesh(new THREE.PlaneGeometry(.72, .44), new THREE.MeshBasicMaterial({ color: col, toneMapped: false })); m.position.set(dx, 1.12, -.19); g.add(m); });
+  const ch = new THREE.Group(); ch.position.set(0, 0, .95); g.add(ch); boxM(.55, .08, .55, mat("#222"), 0, .48, 0, ch); boxM(.55, .7, .08, mat("#222"), 0, .85, .27, ch); }
+function p4Person(key, nm, fem, col, x, z) { const hh = hsh(nm); STYLE[key] = { skin: SKINS[hh % 5], hair: HAIRS[(hh >> 2) % 6], hs: fem ? (hh % 2 ? "long" : "bun") : ["short", "buzz", "curly"][hh % 3], top: col, jacket: "#13222b", legs: "#1d1b2e", glasses: hh % 3 === 0 ? 1 : 0, beard: !fem && hh % 2 ? 1 : 0 };
+  DESK[key] = { z: "srv", p: V(0, 0), f: 1 };
+  const p = makePerson({ id: key, nm, c: col }); scene.remove(p.g); p.name.remove(); P4.g.add(p.g);
+  p.g.traverse(o => { if (o.isMesh) o.castShadow = false; }); p.g.position.set(x, 0, z + .95); p.mode = "desk"; p.sit = true; p.face = Math.PI; p.path = []; p.nm = nm;
+  p.tag = p4Label(nm, col, new THREE.Vector3()); P4.people.push(p); return p; }
+function buildFloor4() {
+  P4.g = new THREE.Group(); P4.g.position.y = P4H; P4.g.visible = false; scene.add(P4.g); const G = P4.g;
+  boxM(46, .3, 28, mat("#1f2a33"), 2, -.16, 0, G);
+  const fl = new THREE.Mesh(new THREE.PlaneGeometry(46, 28), mat("#33414c")); fl.rotation.x = -Math.PI / 2; fl.position.set(2, .005, 0); fl.receiveShadow = true; G.add(fl);
+  const rail = mat("#9fd3ff", .05, .1); boxM(46, 1, .04, rail, 2, .5, -14, G); boxM(46, 1, .04, rail, 2, .5, 14, G); boxM(.04, 1, 28, rail, -21, .5, 0, G); boxM(.04, 1, 28, rail, 25, .5, 0, G);
+  [["cripto", -19, -1], ["macro", 5, 23]].forEach(([k, x0, x1]) => { const c = P4C[k], cx = (x0 + x1) / 2;
+    const rug = new THREE.Mesh(new THREE.PlaneGeometry(x1 - x0 - .4, 22), mat(new THREE.Color(c).multiplyScalar(.25).getStyle())); rug.rotation.x = -Math.PI / 2; rug.position.set(cx, .015, 0); G.add(rug);
+    const c4 = [V(x0, -11.5), V(x1, -11.5), V(x1, 11.5), V(x0, 11.5), V(x0, -11.5)]; line(c4.map(p => p.clone().setY(.03)), new THREE.Color(c), G);
+    const lt = new THREE.PointLight(new THREE.Color(c), 14, 22); lt.position.set(cx, 4, 0); G.add(lt);
+    const tx = canvasTex(640, 400, gg => p4Screen(k, gg)); P4.tex[k] = tx;
+    const scr = new THREE.Mesh(new THREE.PlaneGeometry(7.2, 4.5), new THREE.MeshBasicMaterial({ map: tx, toneMapped: false, side: THREE.DoubleSide })); scr.position.set(cx, 4.2, -6.5); G.add(scr); P4.scr.push(scr);
+    p4Label(k === "cripto" ? "🌐 Mesa cripto OKX · dinheiro real" : "📈 Mesa ações, índices e matérias-primas · papel", c, new THREE.Vector3(cx, P4H + 7, -9)); });
+  [["okx_c1", "Nuno · caçador de pânico", 0, -15], ["okx_c2", "Inês · executora OKX", 1, -10], ["okx_c3", "Óscar · gestor de risco", 0, -5]].forEach(([k, nm, fem, x]) => { p4Desk(x, 2, P4C.cripto); p4Person(k, nm, fem, P4C.cripto, x, 2).role = k; });
+  [["okx_m1", "Mateus · ações", 0, 9], ["okx_m2", "Olívia · ouro e petróleo", 1, 14], ["okx_m3", "Ricardo · índices", 0, 19]].forEach(([k, nm, fem, x]) => { p4Desk(x, 2, P4C.macro); p4Person(k, nm, fem, P4C.macro, x, 2).role = k; });
+  p4Label("🌐 4.º piso · Mesa OKX — cripto, ações e matérias-primas", "#9fd3ff", new THREE.Vector3(2, P4H + 9, -13));
+  p4Load(true);
+}
+function p4Falas() { const O = P4.data || {}, R = O.resumo || {}, X = O.real || {}, ops = X.ops || {}, MR = (O.macro || {}).resumo || {}, out = [], who = k => P4.people.find(p => p.role === k);
+  const n = Object.keys(ops).length;
+  if (who("okx_c1")) out.push([who("okx_c1"), (R.pendentes || []).length ? `Pânico em ${(R.pendentes || []).join(", ")}: financiamento extremo e queda de 10% em 3 dias.` : `Varri ${R.analisados || 0} perpétuos de cripto: nenhum pânico nesta hora.`]);
+  if (who("okx_c2")) out.push([who("okx_c2"), n ? `${n} ordem(ns) real(is) na OKX, sempre com stop e objetivo anexados.` : "Sem ordens reais abertas: só entro quando há sinal."]);
+  if (who("okx_c3")) out.push([who("okx_c3"), "Risco de 1% por operação (até 2% se o mínimo obrigar), margem isolada, travão a 25% de queda."]);
+  if (who("okx_m1")) out.push([who("okx_m1"), `${(MR.abertas || []).length} de ${MR.analisados || 0} ações e matérias-primas em tendência de subida. Tudo em papel até haver prova.`]);
+  if (who("okx_m2")) out.push([who("okx_m2"), "Ouro, prata e petróleo: só compro acima da média de 50 dias a subir; os shorts perderam nos testes."]);
+  if (who("okx_m3")) out.push([who("okx_m3"), MR.n ? `${MR.n} operações fechadas em papel, média ${p4f(MR.ret_medio_pct)}%.` : "Ainda sem operações fechadas: a medir."]);
+  return out; }
+function p4Tick(dt, t) { if (!P4.g) return; P4.people.forEach(p => animate(p, dt, t)); P4.scr.forEach(s => s.quaternion.copy(cam.quaternion)); p4Load(false);
+  P4.talkAt -= dt; if (P4.talkAt <= 0) { const f = p4Falas(); if (f.length) { const [p, txt] = f[(P4.i++) % f.length]; P4.talk = { p, txt }; } P4.talkAt = 5; } }
+function p4Overlays() { const W = R.domElement.clientWidth, hud = document.getElementById("hud"), top = hud ? hud.offsetHeight + 4 : 4, wp = new THREE.Vector3();
+  P4.labels.forEach(l => { let pos = l.p; const p = P4.people.find(q => q.tag === l);
+    if (p) { p.g.getWorldPosition(wp); pos = wp.clone().setY(wp.y + 2.3); if (cam.position.distanceTo(wp) > 60) { l.el.style.display = "none"; return; } }
+    const s = project(pos); l.el.style.left = s.x + "px"; l.el.style.top = s.y + "px"; l.el.style.display = s.ok ? "" : "none"; });
+  if (!P4.bub) { P4.bub = document.createElement("div"); P4.bub.className = "obub3"; P4.bub.style.maxWidth = "min(70%, 320px)"; overlay.appendChild(P4.bub); }
+  const T = P4.talk; if (!T) { P4.bub.style.display = "none"; return; }
+  P4.bub.innerHTML = `<b>${T.p.nm}</b><br>${String(T.txt).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]))}`; P4.bub.style.borderColor = "#4FD1C5";
+  T.p.g.getWorldPosition(wp); const s = project(wp.setY(wp.y + 2.8)), w = P4.bub.offsetWidth;
+  P4.bub.style.display = s.ok ? "" : "none"; P4.bub.style.left = Math.max(4, Math.min(W - w - 4, s.x - w / 2)) + "px"; P4.bub.style.top = Math.max(top, s.y - P4.bub.offsetHeight) + "px"; }
+function p4Hide() { P4.labels.forEach(l => l.el.style.display = "none"); if (P4.bub) P4.bub.style.display = "none"; }
+function p4Off() { if (P4.g) { P4.on = false; P4.g.visible = false; p4Hide(); } }
+
 // ---------- ciclo ----------
 function project(v) { const p = v.clone().project(cam), r = R.domElement; return { x: (p.x + 1) / 2 * r.clientWidth, y: (1 - p.y) / 2 * r.clientHeight, ok: p.z < 1 }; }
 function placeOverlays(dt) {
+  if (P4.on) { labels.forEach(l => l.el.style.display = "none"); people.forEach(p => { p.name.style.display = "none"; if (p.card) p.card.style.display = "none"; }); bubble.style.display = "none"; if (dirBub) dirBub.style.display = "none"; p3Hide(); p4Overlays(); return; }
+  p4Hide();
   if (P3.on) { labels.forEach(l => l.el.style.display = "none"); people.forEach(p => { p.name.style.display = "none"; if (p.card) p.card.style.display = "none"; }); bubble.style.display = "none"; if (dirBub) dirBub.style.display = "none"; p3Overlays(); return; }
   p3Hide();
   if (P2.on) { labels.forEach(l => l.el.style.display = "none"); people.forEach(p => { p.name.style.display = "none"; if (p.card) p.card.style.display = "none"; }); bubble.style.display = "none"; if (dirBub) dirBub.style.display = "none"; p2Overlays(dt); return; }
@@ -2167,8 +2266,9 @@ function frame() {
   if (radar) { radar.sweep.rotation.z -= dt * 1.4; radar.blips.children.forEach((b, i) => { if (b.geometry.type === "SphereGeometry") b.scale.setScalar(1 + Math.sin(t * 4 + i) * .15); }); }
   if (P2.on) p2Tick(dt, t);
   if (P3.on) p3Tick(dt, t);
-  if (cofreScr) { cofreScr.visible = !P2.on && !P3.on; cofreScr.quaternion.copy(cam.quaternion); cofreScr.scale.setScalar(cam.aspect < .8 ? 1.4 : 1); }
-  if (misScr) { misScr.visible = !P2.on && !P3.on; misScr.quaternion.copy(cam.quaternion); misScr.scale.setScalar(cam.aspect < .8 ? 1.5 : 1); }
+  if (P4.on) p4Tick(dt, t);
+  if (cofreScr) { cofreScr.visible = !P2.on && !P3.on && !P4.on; cofreScr.quaternion.copy(cam.quaternion); cofreScr.scale.setScalar(cam.aspect < .8 ? 1.4 : 1); }
+  if (misScr) { misScr.visible = !P2.on && !P3.on && !P4.on; misScr.quaternion.copy(cam.quaternion); misScr.scale.setScalar(cam.aspect < .8 ? 1.5 : 1); }
   animateArena(dt, t); animateRewards(dt, t); secPeople.forEach(p => animate(p, dt, t)); stPeople.forEach(p => animate(p, dt, t)); staffPeople.forEach(p => animate(p, dt, t)); dirPeople.forEach(p => animate(p, dt, t)); acPeople.forEach(p => animate(p, dt, t));
   try { animateVida(dt, nowMs); } catch (e) { }
   ctl.update(); if (composer) composer.render(); else R.render(scene, cam); placeOverlays(dt);
@@ -2203,7 +2303,9 @@ function init(container) {
   ctl.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_ROTATE };
   ctl.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
   // nao sair do escritorio: o ponto para onde se olha fica dentro das paredes
-  ctl.addEventListener("change", () => { if (P3.on) { const t = ctl.target, cx = Math.max(-19, Math.min(23, t.x)), cz = Math.max(-11, Math.min(11, t.z));
+  ctl.addEventListener("change", () => { if (P4.on) { const t = ctl.target, cx = Math.max(-19, Math.min(23, t.x)), cz = Math.max(-11, Math.min(11, t.z));
+      if (cx !== t.x || cz !== t.z || t.y !== P4H) { const dx = cx - t.x, dz = cz - t.z, dy = P4H - t.y; t.set(cx, P4H, cz); cam.position.x += dx; cam.position.z += dz; cam.position.y += dy; } return; }
+    if (P3.on) { const t = ctl.target, cx = Math.max(-19, Math.min(23, t.x)), cz = Math.max(-11, Math.min(11, t.z));
       if (cx !== t.x || cz !== t.z || t.y !== P3H) { const dx = cx - t.x, dz = cz - t.z, dy = P3H - t.y; t.set(cx, P3H, cz); cam.position.x += dx; cam.position.z += dz; cam.position.y += dy; } return; }
     if (P2.on) { const t = ctl.target, cx = Math.max(-44, Math.min(23, t.x)), cz = Math.max(-11, Math.min(11, t.z));
       if (cx !== t.x || cz !== t.z || t.y !== P2H) { const dx = cx - t.x, dz = cz - t.z, dy = P2H - t.y; t.set(cx, P2H, cz); cam.position.x += dx; cam.position.z += dz; cam.position.y += dy; } return; }
@@ -2244,8 +2346,10 @@ function init(container) {
     if (!down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 8) return;
     const r = R.domElement.getBoundingClientRect(); m.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1);
     ray.setFromCamera(m, cam);
-    if (!P2.on && misScr && ray.intersectObject(misScr, false)[0]) { showMission(); return; }
-    if (!P2.on && cofreScr && ray.intersectObject(cofreScr, false)[0]) { showCofre(); return; }
+    if (!P2.on && !P4.on && misScr && ray.intersectObject(misScr, false)[0]) { showMission(); return; }
+    if (!P2.on && !P4.on && cofreScr && ray.intersectObject(cofreScr, false)[0]) { showCofre(); return; }
+    if (P4.on) { const h4 = ray.intersectObjects(P4.people.map(p => p.g), true)[0]; if (h4) { let o = h4.object; while (o && !o.userData.agent) o = o.parent;
+        const p = P4.people.find(q => q.a.id === (o && o.userData.agent)), f = p && p4Falas().find(x => x[0] === p); if (f) { P4.talk = { p, txt: f[1] }; P4.talkAt = 7; } } return; }
     if (P3.on) { const h3 = ray.intersectObjects(P3.people.map(p => p.g), true)[0]; if (h3) p3Click(h3); return; }
     if (P2.on) { const h2 = ray.intersectObjects(P2.people.concat(P2.heads).map(p => p.g), true)[0]; if (h2) p2Click(h2); return; }
     const hit = ray.intersectObjects(people.map(p => p.g), true)[0];
@@ -2276,4 +2380,4 @@ function goStrategy() { p2Leave(); const T = V(ST_WALL + stLen / 2 + .6, 0), dx 
   const d = cam.position.clone().sub(ctl.target), want = 17 + stLen * .35; cam.position.copy(ctl.target.clone().add(d.setLength(want))); ctl.update(); }
 function goTo(x, z, want = 14) { p2Leave(); const T = V(x, z), dx = T.x - ctl.target.x, dz = T.z - ctl.target.z; ctl.target.copy(T); cam.position.x += dx; cam.position.z += dz;
   const d = cam.position.clone().sub(ctl.target); cam.position.copy(ctl.target.clone().add(d.setLength(want))); ctl.update(); }
-window.Office3D = { init, supported, refresh: () => { tvT = 0; }, resetView, goArena, goRewards, goSectors, goStrategy, goMemorial, goAcademy, goDirector, goTo, goFloor, floor: () => P3.on ? 3 : P2.on ? 2 : 1, showMission, showCofre, meetNow: () => { P2MEET.next = 0; } };
+window.Office3D = { init, supported, refresh: () => { tvT = 0; }, resetView, goArena, goRewards, goSectors, goStrategy, goMemorial, goAcademy, goDirector, goTo, goFloor, floor: () => P4.on ? 4 : P3.on ? 3 : P2.on ? 2 : 1, showMission, showCofre, meetNow: () => { P2MEET.next = 0; } };
