@@ -1,7 +1,7 @@
 # Diário de afinação dos sinais
 
 Hipóteses testadas sobre as estratégias que já estão ao vivo, uma por
-entrada, com o veredicto. Hipóteses testadas até agora: 12 (H1 a H12).
+entrada, com o veredicto. Hipóteses testadas até agora: 13 (H1 a H13).
 
 ## Decisões do Rui (valem para todas as execuções)
 
@@ -1552,3 +1552,146 @@ Notas para as próximas execuções:
   mesmos dados (diários agendados); 59 no contador global de estudos
   offline. Com 24 tentativas, a probabilidade de pelo menos um falso
   positivo a 5% ronda os 71%.
+
+### 2026-11-04 — H13: Tartarugas com o filtro do Sistema 1 (TURTLE_S1)
+
+**Escrito antes de correr qualquer teste.**
+
+- Porque não a H13 proposta a 02/11 (falso rompimento em compra na
+  lateral): já está respondida. A auditoria S/R de 22/10
+  (`backtest/estudos/sr_resultado.txt`, FALSO_ROMP) deu −0,20R na lateral
+  nas duas metades (361 e 418 op.). Repeti-la seria gastar uma tentativa.
+- Situação (scan.json de 04/11): regime **lateral**; **nenhum campeão vivo**
+  (`promo.campeoes` vazio). Ringue longo (365 d): na subida e na lateral só
+  ganham acima do p95 lutadores da sobrevenda; na queda só os shorts da
+  sobrecompra e o SHORT_FALSO_ROMP. Família de tendência sem nada acima do
+  acaso em nenhum regime.
+- Hipótese (família **tendência / rompimento**, correção de um lutador
+  morto): o TURTLE morre porque o acaso com a mesma geometria (2R/5R, 20
+  dias, stop que segue) ganha mais do que ele (combate de 90 d: +0,23R com
+  p95 do acaso +0,83R; longo: subida +0,30R / p95 +0,90R, lateral +0,12R /
+  p95 +0,95R): o **gatilho** não acrescenta. A regra original das
+  Tartarugas (Sistema 1, Dennis/Faith) tinha um filtro que o ringue não
+  usa: **só se toma o rompimento de 20 dias se o rompimento anterior na
+  mesma moeda tiver sido perdedor** (o preço andou 2N contra antes de uma
+  saída pelo mínimo de 10 dias com lucro). Lógica: depois de um rompimento
+  falhado os compradores apressados já saíram (oferta limpa); um
+  rompimento logo a seguir a um ganhador apanha um movimento já esticado e
+  concorrido. Na lateral, onde a maioria dos rompimentos falha, o filtro
+  deve cortar os rompimentos que repetem o que acabou de funcionar.
+- Regra (só velas fechadas): o gatilho do TURTLE (fecho de 4H acima do
+  máximo dos 20 dias diários completos anteriores, com o fecho anterior
+  abaixo; stop 2N; 2R/5R metade em cada; stop que segue; 20 dias). Filtro:
+  percorrem-se os dias diários fechados da moeda e simula-se uma sequência
+  de rompimentos hipotéticos (tomados ou não): no dia j com máximo acima do
+  máximo dos 20 dias antes, entrada = max(nível, abertura), stop = entrada
+  − 2N(20); nos dias seguintes, mínimo ≤ stop → **perdedor**; mínimo abaixo
+  do mínimo dos 10 dias anteriores → saída (não perdedor); o seguinte
+  rompimento hipotético só começa depois de o anterior se resolver. O sinal
+  só passa se o último rompimento hipotético resolvido foi perdedor e não
+  há nenhum ainda aberto.
+- Grelha (6, escrita antes de testar; T0 e T5 são controlos e não podem
+  ser escolhidos):
+  T0 TURTLE sem filtro (referência, mesmas moedas e janelas);
+  T1 TURTLE + filtro S1, todas as fases (compras só com o BTC acima da
+  média de 200 dias, como no ringue);
+  T2 T1 só na fase lateral (`_fase_btc`);
+  T3 T1 só na fase subida;
+  T4 Sistema 1 completo: T1 ou rompimento do máximo de 55 dias (a "rede"
+  das Tartarugas para não perder as grandes tendências);
+  T5 controlo invertido: só depois de um rompimento anterior NÃO perdedor
+  (se T5 ≈ T1, o filtro não faz nada).
+- Método: `tools/arena_ringue.generic_trades` (0,25% de comissão + 0,1% de
+  slippage por lado, uma operação de cada vez por moeda), `judge` e
+  percentil contra 1000 carteiras de entradas ao acaso com a mesma
+  geometria (com o stop que segue). Histórico do ramo `history` (4H).
+  Janelas: **B (decide)** 2021-08-01 a 2024-10-10; **A (confirma)**
+  2024-10-11 até ao fim; **C** últimos 90 dias; **L** últimos 365 dias por
+  regime.
+- Critérios (todos, para T1–T4): em B ≥ 40 op., R médio > 0, acima do p95
+  do acaso e R > 0 sem a melhor moeda; em A ≥ 20 op., R médio > 0 e acima
+  do p95 do acaso; e percentil acima do de T0 nas duas metades (o filtro
+  tem de acrescentar). Escolha: a de maior R médio em B entre as que
+  passam. Se passar, entra no ringue como TURTLE_S1 em NEW_SIGS (o ringue
+  decide). REAL_OK não se mexe.
+- Previsão honesta: provável falhar. A regra é pública desde 2007 e o
+  acaso com a geometria das Tartarugas é um adversário muito forte
+  (p95 ≈ +0,8R a +0,9R no último ano). O filtro corta ~metade dos sinais,
+  o que alarga o intervalo do acaso.
+- Hipóteses testadas até agora (com esta): 13 neste diário; 25 contra os
+  mesmos dados (diários agendados); 63 no contador global de estudos
+  offline (total 88 no ringue longo).
+
+**Correção de definição antes de ver qualquer R** (só com contagens de
+sinais na SOL): na primeira versão, 24 dos 35 rompimentos do TURTLE tinham
+um rompimento hipotético "ainda aberto" — em muitos casos o próprio
+rompimento atual, que furou o máximo num dia anterior sem a vela de 4H
+fechar acima. Um rompimento hipotético aberto há 3 dias ou menos passa a
+contar como o atual (não como o anterior); os mais antigos (continuações de
+uma tendência em curso, 4 a 50 dias) continuam a bloquear, como no Sistema
+1 original (já se estaria dentro).
+
+**Resultados** (ramo `history`, 4H até 2026-11-02 16:00 UTC; 68 moedas
+além do BTC; compras só com o BTC acima da média de 200 dias;
+`backtest/afinacao_h13_turtle_s1.json`; código
+`tools/afinacao_h13_turtle_s1.py`; teste do filtro, da igualdade ao TURTLE
+sem filtro, da fase e sem look-ahead em `tests/test_afinacao_h13.py`).
+Percentil = posição do R médio face a 1000 carteiras de entradas ao acaso
+com a mesma geometria.
+
+| Config. | B: op. | B: R médio | B: acaso p95 | B: perc. | A: op. | A: R médio | A: acaso p95 | A: perc. | C 90 d: op. / R / perc. | L 365 d: subida / lateral (op., R, perc.) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| T0 TURTLE (controlo) | 692 | +0,029 | +0,556 | 0,0 | 664 | +0,197 | +0,601 | 0,0 | 204 / +0,23 / 0 | 56, +0,32, 29 / 149, +0,21, 0 |
+| T1 filtro S1 | 153 | −0,082 | +0,580 | 0,0 | 150 | +0,485 | +0,816 | 7,8 | 44 / +0,44 / 24 | 8, +0,29, 47 / 37, +0,51, 23 |
+| T2 S1, só lateral | 75 | +0,052 | +0,703 | 0,1 | 112 | +0,488 | +0,791 | 19,9 | 39 / +0,43 / 18 | — / 40, +0,46, 24 |
+| T3 S1, só subida | 85 | −0,170 | +0,605 | 0,0 | 50 | +0,508 | +1,054 | 9,2 | 10 / +0,03 / 26 | 10, +0,03, 26 / — |
+| T4 Sistema 1 completo (+55 d) | 561 | +0,018 | +0,632 | 0,0 | 526 | +0,176 | +0,659 | 0,0 | 183 / +0,09 / 0 | 50, +0,10, 5 / 134, +0,10, 0 |
+| T5 controlo invertido | 213 | −0,009 | +0,474 | 0,0 | 298 | +0,192 | +0,545 | 0,1 | 96 / +0,46 / 20 | 33, +0,52, 70 / 63, +0,43, 8 |
+
+- **Nenhuma configuração chega perto do acaso.** Entradas ao acaso nas
+  mesmas moedas e alturas, com a geometria das Tartarugas, dão +0,43R a
+  +0,77R de mediana; o rompimento dá +0,03R (B) e +0,20R (A) sem filtro. O
+  ganho do TURTLE está todo na geometria (stop largo, 5R, 20 dias, stop que
+  segue), não no gatilho: confirma o que o ringue já dizia.
+- **O filtro do Sistema 1 não é estável**: em A melhora muito (T1 +0,49R
+  contra +0,20R do T0, percentil 8 contra 0), em B piora (−0,08R contra
+  +0,03R). O controlo invertido (T5) fica igual ao T0 em B e em A. Não há
+  efeito que se repita nas duas metades.
+- Na lateral (T2), a parte em que mais confiava, B dá +0,05R (percentil
+  0,1) e A +0,49R (percentil 20): positivo, mas muito abaixo do acaso nas
+  duas.
+- Observação: C 90 d e L 365 d quase iguais porque as compras só correm
+  com o BTC acima da média de 200 dias, o que cortou quase todo o resto do
+  último ano.
+
+**Veredicto: REJEITADA** (pelo critério pré-registado: abaixo do p95 do
+acaso em B e em A em todas as configurações; o filtro não acrescenta nas
+duas metades). Nada entra no ringue; REAL_OK não se mexe.
+
+Notas para as próximas execuções:
+
+- Lição: na família de tendência o adversário não é o mercado, é a
+  geometria. Com 2R/5R, stop que segue e 20 dias, as entradas ao acaso
+  ganham +0,4R a +0,8R por operação nos períodos com o BTC acima da média
+  de 200 dias. Um gatilho de tendência só bate isto se escolher entradas
+  muito melhores do que o acaso; rompimentos (20 d, 55 d, com ou sem
+  filtro, H3, H6, H12, H13) não o fazem. Para a sessão com o Rui: a
+  geometria das Tartarugas aplicada a entradas sem gatilho ganha no
+  combate; isto **não** é vantagem do sinal (o acaso tem o mesmo viés: é a
+  maré do BTC acima da média de 200 dias), por isso não serve de argumento
+  para dinheiro real.
+- Regime atual **lateral**; regimes sem campeão vivo: **todos** (nenhum
+  campeão hoje). Fora da sobrevenda, sem família que bata o acaso:
+  **subida** e **lateral**; na **queda** só os shorts da sobrecompra e o
+  SHORT_FALSO_ROMP (em papel).
+- Proposta para a próxima execução (H14): medir o viés do espelho nos
+  shorts (nota da H12): repetir o combate dos shorts que ganham na queda
+  (SHORT_X30, SHORT_ISOLADA, SHORT_FALSO_ROMP) com o short real (preço
+  real, juro do empréstimo de 20%/ano) em vez do espelho, para saber se a
+  única cobertura fora da sobrevenda é real ou um efeito da convexidade.
+  Não é uma hipótese de sinal nova (não sobe o contador de falsos
+  positivos), e decide se vale a pena continuar a procurar shorts.
+- Hipóteses testadas até agora: 13 neste diário (H1 a H13); 25 contra os
+  mesmos dados (diários agendados); 63 no contador global de estudos
+  offline. Com 25 tentativas, a probabilidade de pelo menos um falso
+  positivo a 5% ronda os 72%.
