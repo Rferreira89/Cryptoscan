@@ -285,6 +285,13 @@
    "pergunta": "A H40 (panico do mercado) ganha com os custos da Bybit UE (0,25%/lado + deslize)?",
    "resultado": "PASSA: B1 166 op +0,118R conta x1,24 queda 44%; B2 227 op +0,343R x2,58 queda 38% (risco 2%). Dinheiro real na Bybit depende do Rui (config.json).",
    "ficheiro": "backtest/estudos/h45_panico_bybit.py"
+  },
+  {
+   "id": "H46",
+   "data": "2026-11-04",
+   "pergunta": "Long no recuo (RSI4H<30) de altcoins em tendencia de subida com o BTC a subir",
+   "resultado": "PASSA POR POUCO (RSI<30): 2021-23 115 op +0,048R x1,03 q42%; 2023-26 282 op +0,147R x1,43 q45%; RSI<35 chumba. Sem moedas retiradas (vies a favor). Papel ao vivo na OKX (tools/okx_recuo.py).",
+   "ficheiro": "backtest/estudos/h46_recuo_tendencia.py"
   }
  ]
 }

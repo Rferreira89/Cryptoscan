@@ -198,6 +198,11 @@ def correr(st, now):
             msgs.append(m)
     except Exception as e:
         print("radar erro:", type(e).__name__)
+    try:                                         # (04/11) H46 recuo na subida, so papel
+        import okx_recuo
+        msgs += okx_recuo.correr(st, radar, lista, now)
+    except Exception as e:
+        print("recuo erro:", type(e).__name__)
     st["resumo"] = {"t": int(now), "contratos": len(lista), "analisados": vistas, "pendentes": sorted(st["pend"]),
                     "abertas": sorted(st["abertas"]), "n": len(st["fechadas"]),
                     "r_medio": round(sum(x["r"] for x in st["fechadas"]) / len(st["fechadas"]), 3) if st["fechadas"] else None,

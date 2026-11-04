@@ -2015,3 +2015,6 @@ Financiamento ≥ p95 e positivo + subida de 3 dias ≥ 10%, short limite 1% aci
 
 ## H45 (04/11) — pânico do mercado com custos da Bybit
 Mesmas regras da H40, custos da Bybit UE (limite 0,25%; stop e tempo 0,35%), risco 2%. B1: 166 op., +0,118R, 57% ganhas, conta x1,24, queda 44%. B2: 227 op., +0,343R, 61%, x2,58, queda 38%. PASSA nas duas metades (pior do que na OKX por causa dos custos). Ligar na Bybit com dinheiro real mexe no config.json: decisão do Rui.
+
+## H46 (04/11) — recuo na subida (long, mercado a subir)
+Altcoin e BTC acima da média de ~50 dias a subir, RSI(14) de 4H < L; limite 1% abaixo, stop 2×ATR, 2R, 72 h, custos de futuros, risco 2%. 69 moedas 2021-2026 (sem as retiradas: viés a favor). RSI<30: 2021-23 115 op. +0,048R x1,03 (queda 42%); 2023-26 282 op. +0,147R x1,43 (queda 45%); semanas com operação 27/135 e 43/152. RSI<35 chumba (x0,79 e x0,21). Passa por pouco: SÓ PAPEL ao vivo na OKX (tools/okx_recuo.py); dinheiro real só com 30 operações em papel e média positiva.
