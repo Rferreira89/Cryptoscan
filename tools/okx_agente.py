@@ -1,0 +1,214 @@
+"""(04/11) Agente OKX — varre todos os contratos perpetuos de cripto da OKX Europa e procura as melhores
+oportunidades da compra no panico (H23 L10, a estrategia com melhor prova ao nivel da conta; com custos de
+futuros +0,105R por operacao no historico, H38). Pedido do Rui: "um agente especializado que varra o mercado
+todo e nos de as melhores oportunidades".
+
+SO PAPEL nesta versao: nao envia ordens. Avisa no Telegram e regista cada oportunidade e o resultado, numa conta
+simulada de 20 USD com risco de 1% por operacao (a conta real do Rui na OKX). O dinheiro real liga-se quando a
+estrategia cumprir a autorizacao previa do Rui (30 operacoes em papel com media positiva).
+
+Dados: so a API publica da OKX (velas de 4H e financiamento dos perpetuos USDT), sem chave.
+Estado: okx.json no ramo "okx" (repositorio publico: so precos publicos e resultados em R e %, nunca dinheiro real).
+"""
+import json, os, socket, sys, time, urllib.request
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from engine import papel_panico as P            # noqa: E402  (mesma regra e mesmas saidas do papel da Bybit)
+
+_gai = socket.getaddrinfo                        # o servidor europeu tem IPv6; a chave da OKX esta presa ao IPv4
+socket.getaddrinfo = lambda h, p, f=0, *a, **k: _gai(h, p, socket.AF_INET, *a, **k)
+BASE = "https://eea.okx.com"
+H4 = 14400
+CONTA0, RISCO = 20.0, 0.01
+CUSTO_LIM, CUSTO_MKT = 0.0002, 0.0010            # futuros: 0,02% maker; 0,05% taker + 0,05% deslize
+
+
+def get(path, tent=3):
+    for k in range(tent):
+        try:
+            req = urllib.request.Request(BASE + path, headers={"User-Agent": "cryptoscan/1.0"})
+            with urllib.request.urlopen(req, timeout=25) as r:
+                d = json.loads(r.read())
+            if d.get("code") == "0":
+                return d.get("data") or []
+            if d.get("code") == "50011":            # limite de pedidos: espera
+                time.sleep(2)
+                continue
+            return []
+        except Exception:
+            time.sleep(1 + k)
+    return []
+
+
+def moedas():
+    """Perpetuos USDT de cripto (a base tem de existir no spot da OKX: exclui acoes e materias-primas)."""
+    spot = {i["baseCcy"] for i in get("/api/v5/public/instruments?instType=SPOT") if i.get("state") == "live"}
+    out = {}
+    for i in get("/api/v5/public/instruments?instType=SWAP"):
+        if i.get("state") != "live" or i.get("settleCcy") != "USDT" or i.get("ctType") != "linear":
+            continue
+        base = i["instId"].split("-")[0]
+        if base in spot:
+            out[base] = {"inst": i["instId"], "ctVal": float(i.get("ctVal") or 0), "minSz": float(i.get("minSz") or 0),
+                         "lotSz": float(i.get("lotSz") or 0)}
+    return out
+
+
+def velas(inst):
+    d = get(f"/api/v5/market/candles?instId={inst}&bar=4H&limit=300")
+    c4 = [{"t": int(x[0]) // 1000, "o": float(x[1]), "h": float(x[2]), "l": float(x[3]), "c": float(x[4])}
+          for x in reversed(d) if len(x) > 8 and x[8] == "1"]          # so velas fechadas (confirm = 1)
+    return c4
+
+
+def funding(inst, cache):
+    """[(t_s, taxa)] por ordem; guarda em cache e so pede o que falta."""
+    tem = cache.get(inst) or []
+    novos, depois = [], ""
+    for _ in range(4):                                                  # ate 400 registos (~133 dias)
+        d = get(f"/api/v5/public/funding-rate-history?instId={inst}&limit=100{depois}")
+        if not d:
+            break
+        lote = [(int(x["fundingTime"]) // 1000, float(x["realizedRate"] or x["fundingRate"])) for x in d]
+        novos += lote
+        if tem and min(t for t, _ in lote) <= tem[-1][0]:
+            break
+        depois = f"&after={d[-1]['fundingTime']}"
+        time.sleep(0.12)
+    junta = {t: r for t, r in tem}
+    junta.update({t: r for t, r in novos})
+    cache[inst] = sorted(junta.items())[-400:]
+    return cache[inst]
+
+
+def r_futuros(e, px, risco, custo_saida):
+    return round(((px - e) - (CUSTO_LIM * e + custo_saida * px)) / risco, 3)
+
+
+def seguir(op, c4):
+    """Como engine/papel_panico._seguir, com custos de futuros."""
+    for b in c4:
+        if b["t"] <= op.get("visto", 0):
+            continue
+        op["visto"] = b["t"]
+        primeira = b["t"] == op["t_fill"]
+        if b["l"] <= op["stop"] and (not primeira or b["o"] > op["stop"]):
+            return r_futuros(op["entrada"], op["stop"], op["risco"], CUSTO_MKT), "stop"
+        if b["h"] >= op["alvo"]:
+            return r_futuros(op["entrada"], op["alvo"], op["risco"], CUSTO_LIM), "objetivo"
+        if b["t"] >= op["t_fill"] + (P.HOLD - 1) * H4:
+            return r_futuros(op["entrada"], b["c"], op["risco"], CUSTO_MKT), "tempo"
+    return None
+
+
+def nota(s, tipo):
+    """Qualidade para ordenar: panico do mercado todo primeiro (H28), depois financiamento e queda mais extremos."""
+    return (1 if tipo == "mercado" else 0, -s["funding"] * 1e4, -s["queda_3d_pct"])
+
+
+def tamanho(conta, lim, stop, info):
+    """Nominal para arriscar 1% da conta e se cabe na ordem minima do contrato."""
+    nominal = RISCO * conta / ((lim - stop) / lim)
+    minimo = info["ctVal"] * info["minSz"] * lim
+    return round(nominal, 2), round(minimo, 2), nominal >= minimo
+
+
+def correr(st, now):
+    st.setdefault("pend", {}); st.setdefault("abertas", {}); st.setdefault("fechadas", [])
+    st.setdefault("conta_sim", CONTA0); st.setdefault("ultimo", {}); cache = st.setdefault("funding", {})
+    lista = moedas()
+    btc = velas(lista["BTC"]["inst"]) if "BTC" in lista else []
+    msgs, novos, vistas = [], [], 0
+    for a, info in sorted(lista.items()):
+        c4 = velas(info["inst"])
+        time.sleep(0.12)
+        if len(c4) < P.ATR_N + 20:
+            continue
+        vistas += 1
+        p = st["pend"].get(a)
+        if p:                                                           # ordem limite a espera (2 velas)
+            for b in c4:
+                if p["t_sig"] < b["t"] <= p["t_sig"] + P.VALIDA * H4 and b["l"] <= p["lim"]:
+                    e = min(p["lim"], b["o"])
+                    stop = e - 2 * p["atr"]
+                    st["abertas"][a] = {**p, "entrada": e, "stop": stop, "alvo": e + 2 * (e - stop), "risco": e - stop,
+                                        "t_fill": b["t"], "visto": b["t"] - 1}
+                    st["pend"].pop(a)
+                    msgs.append(f"📝 OKX papel — {a}: a ordem limite executou a {e:.6g} (stop {stop:.6g}, objetivo {e + 2 * (e - stop):.6g}).")
+                    break
+            else:
+                if c4[-1]["t"] >= p["t_sig"] + P.VALIDA * H4:
+                    st["pend"].pop(a)
+        op = st["abertas"].get(a)
+        if op:
+            fim = seguir(op, [b for b in c4 if b["t"] >= op["t_fill"]])
+            if fim:
+                st["conta_sim"] = round(st["conta_sim"] * (1 + RISCO * fim[0]), 4)
+                st["fechadas"].append({"asset": a, "t_sig": op["t_sig"], "r": fim[0], "motivo": fim[1], "tipo": op.get("tipo"),
+                                       "t_fim": op.get("visto")})
+                st["abertas"].pop(a)
+                rs = [x["r"] for x in st["fechadas"]]
+                msgs.append(f"📝 OKX papel — {a} fechou ({fim[1]}): {fim[0]:+.2f}R. {len(rs)} operações, média {sum(rs) / len(rs):+.2f}R; "
+                            f"conta simulada de 20 USD: {100 * (st['conta_sim'] / CONTA0 - 1):+.1f}%.")
+        if a in st["pend"] or a in st["abertas"] or c4[-1]["t"] <= st["ultimo"].get(a, 0):
+            continue
+        st["ultimo"][a] = c4[-1]["t"]
+        if c4[-1]["c"] / c4[-19]["c"] - 1 > -0.10:                      # sem queda de 10% em 3 dias nao vale pedir o financiamento
+            continue
+        s = P.sinal(c4, funding(info["inst"], cache))
+        if not s:
+            continue
+        s["tipo"] = P.tipo_panico(btc, s["t_sig"])
+        st["pend"][a] = s
+        novos.append((a, s, info))
+    for k in [k for k in cache if k.split("-")[0] not in lista]:
+        cache.pop(k)
+    if novos:
+        novos.sort(key=lambda x: nota(x[1], x[1].get("tipo")), reverse=True)
+        linhas = []
+        for a, s, info in novos[:8]:
+            stop = s["lim"] - 2 * s["atr"]
+            nom, mn, cabe = tamanho(st["conta_sim"], s["lim"], stop, info)
+            linhas.append(f"• {a}: compra limite {s['lim']:.6g} (válida 8 h), stop {stop:.6g} ({100 * (stop / s['lim'] - 1):.1f}%), "
+                          f"objetivo {s['lim'] + 2 * (s['lim'] - stop):.6g}; queda 3 dias {s['queda_3d_pct']}%, financiamento "
+                          f"{100 * s['funding']:.3f}%, pânico {s.get('tipo') or '?'}; posição p/ 20 USD ~{nom} USD "
+                          f"({'cabe' if cabe else 'abaixo do mínimo de ' + str(mn)})")
+        msgs.insert(0, f"🔎 Agente OKX — {len(novos)} oportunidade(s) de compra no pânico (só papel), melhores primeiro:\n" + "\n".join(linhas))
+    st["resumo"] = {"t": int(now), "contratos": len(lista), "analisados": vistas, "pendentes": sorted(st["pend"]),
+                    "abertas": sorted(st["abertas"]), "n": len(st["fechadas"]),
+                    "r_medio": round(sum(x["r"] for x in st["fechadas"]) / len(st["fechadas"]), 3) if st["fechadas"] else None,
+                    "conta_sim_pct": round(100 * (st["conta_sim"] / CONTA0 - 1), 2)}
+    del st["fechadas"][:-1000]
+    return msgs
+
+
+def telegram(txt):
+    t, c = (os.environ.get("TELEGRAM_BOT_TOKEN") or "").strip(), (os.environ.get("TELEGRAM_CHAT_ID") or "").strip()
+    if not t or not c:
+        return
+    try:
+        urllib.request.urlopen(urllib.request.Request(f"https://api.telegram.org/bot{t}/sendMessage",
+                                                      data=json.dumps({"chat_id": c, "text": txt[:4000]}).encode(),
+                                                      headers={"Content-Type": "application/json"}), timeout=20)
+    except Exception as e:                       # nunca imprimir a mensagem do erro: pode conter o URL com o token
+        print("telegram falhou:", type(e).__name__)
+
+
+def main(caminho):
+    st = json.load(open(caminho)) if os.path.exists(caminho) else {}
+    primeira = not st
+    msgs = correr(st, time.time())
+    json.dump(st, open(caminho, "w"), separators=(",", ":"))
+    r = st["resumo"]
+    print(f"contratos {r['contratos']} | analisados {r['analisados']} | pendentes {r['pendentes']} | abertas {r['abertas']} | "
+          f"fechadas {r['n']} | R medio {r['r_medio']} | conta simulada {r['conta_sim_pct']:+.2f}%")
+    if primeira:
+        msgs.insert(0, f"🤖 Agente OKX ligado: analisa {r['analisados']} perpétuos de cripto da OKX de hora a hora "
+                       "(compra no pânico, só papel). Avisa aqui quando houver oportunidades.")
+    for m in msgs:
+        telegram(m)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1] if len(sys.argv) > 1 else "okx.json"))
