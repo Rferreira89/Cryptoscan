@@ -198,6 +198,13 @@ def correr(st, novos, now, msgs):
     if not all(_chaves()):
         return
     for base in list(R["ops"]):
+        op = R["ops"][base]
+        if c.get("so_mercado", True) and op.get("estado") == "pendente" and ((st.get("pend") or {}).get(base) or {}).get("tipo") == "isolado":
+            # (04/11, H40) ordem posta antes do filtro num panico isolado: cancela enquanto nao executou
+            privado("POST", "/api/v5/trade/cancel-order", {"instId": op["inst"], "ordId": op["ordId"]})
+            msgs.append(f"🛑 OKX real — {base}: cancelei a ordem limite (pânico isolado; pelo H40 só operamos o pânico do mercado todo).")
+            R["hist"].append({"asset": base, **R["ops"].pop(base), "estado": "cancelada", "motivo": "H40 isolado"})
+            continue
         if acompanhar(base, R["ops"][base], now, msgs):
             R["hist"].append({"asset": base, **R["ops"].pop(base)})
     del R["hist"][:-500]
