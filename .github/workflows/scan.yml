@@ -58,6 +58,10 @@ jobs:
             # scan completo no primeiro minuto de cada 5 minutos; nos
             # restantes minutos, so acompanhamento das operacoes abertas
             if [ $(( NOW % 300 )) -lt 60 ]; then MODE=scan; else MODE=monitor; fi
+            # (04/11) o agendamento do GitHub atrasa ou salta: o ciclo tambem lanca o agente OKX uma vez por hora
+            if [ $(( NOW % 3600 )) -ge 420 ] && [ $(( NOW % 3600 )) -lt 480 ]; then
+              gh workflow run okx-agente.yml --repo "${{ github.repository }}" --ref main >/dev/null 2>&1 || echo "agente OKX nao lancado"
+            fi
             echo "::group::$MODE $(date -u +%FT%TZ)"
             # codigo mais recente em cada ciclo
             git fetch -q origin main && git reset -q --hard FETCH_HEAD || true
