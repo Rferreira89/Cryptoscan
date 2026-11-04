@@ -101,7 +101,11 @@ def main():
             op_ = pedido(base, "/api/v5/trade/orders-pending?instType=FUTURES")
             print("ordens pendentes:", [x.get("instId") for x in (op_.get("data") or [])])
             ps_ = pedido(base, "/api/v5/account/positions?instType=FUTURES")
-            print("posicoes abertas:", [x.get("instId") for x in (ps_.get("data") or []) if float(x.get("pos") or 0)])
+            print("posicoes abertas:", [(x.get("instId"), "LONG (compra)" if float(x.get("pos") or 0) > 0 else "SHORT (venda)", x.get("posSide"))
+                                        for x in (ps_.get("data") or []) if float(x.get("pos") or 0)])
+            for t_ in ("conditional", "oco"):
+                al_ = pedido(base, f"/api/v5/trade/orders-algo-pending?instType=FUTURES&ordType={t_}")
+                print("ordens de protecao", t_, [(x.get("instId"), x.get("side"), "stop" if x.get("slTriggerPx") else "", "alvo" if x.get("tpTriggerPx") else "") for x in (al_.get("data") or [])])
             for tt in ("SWAP", "FUTURES"):
                 ai = pedido(base, f"/api/v5/account/instruments?instType={tt}")
                 ids = [x.get("instId") for x in (ai.get("data") or [])]
