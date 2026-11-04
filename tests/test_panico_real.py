@@ -19,6 +19,31 @@ def estado(**kw):
     return st
 
 
+class ModoRisco(unittest.TestCase):
+    """(04/11) H45: so o panico do mercado, 2% da conta por operacao, teto de 3% para a ordem minima."""
+    def setUp(self):
+        self.ant = (promo.AUTORIZADOS, execucao.READY)
+        promo.AUTORIZADOS, execucao.READY = {"PANICO_L10"}, True
+
+    def tearDown(self):
+        promo.AUTORIZADOS, execucao.READY = self.ant
+
+    CFGR = dict(CFG, panico_real={"modo": "risco", "max_usdc": 20, "risco_pct": 2, "risco_max_pct": 3,
+                                  "so_mercado": True, "composto": True})
+
+    def test_isolado_nao_entra_mercado_entra_com_2pct(self):
+        st = estado()
+        st["papel_panico"]["pend"]["ALGO"]["tipo"] = "isolado"
+        self.assertEqual(P.real(st, {"ALGO": 0.0921}, self.CFGR, NOW), [])
+        st = estado()
+        st["papel_panico"]["pend"]["ALGO"]["tipo"] = "mercado"
+        st["papel_panico"]["composto"] = 1.5
+        out = P.real(st, {"ALGO": 0.0921}, self.CFGR, NOW)
+        self.assertEqual(out, [("panico_ordem", f"PANICO-ALGO-{T_SIG}")])
+        p = st["papel_panico"]["real"][f"PANICO-ALGO-{T_SIG}"]
+        self.assertEqual((p["risco_usdc"], p["risco_max_usdc"], p["tudo_usdc"]), (0.6, 0.9, None))
+
+
 class Gatilho(unittest.TestCase):
     def setUp(self):
         self.ant = (promo.AUTORIZADOS, execucao.READY)

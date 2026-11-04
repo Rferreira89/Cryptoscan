@@ -231,6 +231,11 @@ def real(state, precos, cfg, now):
         return pedidos
     pr = (cfg or {}).get("panico_real") or {}
     tudo = pr.get("modo") == "tudo"
+    # (04/11, OK do Rui) H45: o panico do mercado ganha com os custos da Bybit. Modo "risco": arrisca risco_pct da conta
+    # (max_usdc com juros compostos) em cada operacao, com stop e objetivo na Bybit; "so_mercado" so aceita o panico do
+    # mercado todo (BTC -3% em 24 h), o unico com prova (H40/H45)
+    modo_risco = pr.get("modo") == "risco"
+    base_conta = float(pr.get("max_usdc") or 0) * (st.get("composto", 1.0) if pr.get("composto") else 1.0)
     max_reais = 1 if tudo else MAX_REAIS
     abertas_todas = sum(1 for v in estados.values() if v == "aberta")
     minhas = sum(1 for p in rl.values() if p.get("estado") in (None, "pendente", "aberta") and not p.get("pediu_fecho"))
@@ -238,6 +243,8 @@ def real(state, precos, cfg, now):
         return pedidos
     cands = []
     for a, pd in {**(st.get("pend_real") or {}), **(st.get("pend") or {})}.items():
+        if pr.get("so_mercado") and pd.get("tipo") != "mercado":
+            continue
         oid = f"PANICO-{a}-{pd['t_sig']}"
         valido = pd["t_sig"] + (1 + VALIDA) * H4
         px = (precos or {}).get(a)
@@ -252,13 +259,14 @@ def real(state, precos, cfg, now):
                 continue
         cands.append((px / pd["lim"] - 1, a, pd, oid, valido))
     for _, a, pd, oid, valido in sorted(cands)[:max(0, max_reais - minhas)]:
-        cc = {} if tudo else acelerado.cfg_para(ESTRATEGIA, state, cfg)
-        risco = cc.get("max_risk_usdc")
+        cc = {} if tudo or modo_risco else acelerado.cfg_para(ESTRATEGIA, state, cfg)
+        risco = round(base_conta * float(pr.get("risco_pct") or 2) / 100, 2) if modo_risco else cc.get("max_risk_usdc")
         if not risco and not tudo:
             continue
         rl[oid] = {"asset": a, "symbol": f"{a}{cfg.get('quote') or 'USDC'}", "lim": pd["lim"], "atr": pd["atr"],
                    "risco_usdc": risco, "t_sig": pd["t_sig"], "valido_ate": valido, "sair_em": None,
                    "criado": int(now), "tipo": pd.get("tipo"), "acelerado_pct": cc.get("acelerado_pct"),
+                   "risco_max_usdc": round(base_conta * float(pr.get("risco_max_pct") or 3) / 100, 2) if modo_risco else None,
                    "tentativas": (rl.get(oid) or {}).get("tentativas", 0) + 1,
                    # (31/10, Rui: "leva-me esses 20$ a outro patamar") juros compostos: o teto cresce (e encolhe)
                    # com o resultado das operacoes reais fechadas; um deposito novo nao entra sozinho

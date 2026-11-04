@@ -1761,6 +1761,10 @@ def do_panico_ordem(state, req, ex, now, send):
     size, alav, proprio, frac = _panico_tamanho(p, lim, stop, free)
     lev = _alavancagem_conta(alav)
     size = min(size, math.floor(free * 0.98 * max(1.0, min(lev, alav)) * 100) / 100)
+    # (04/11) modo risco: a ordem minima da Bybit pode passar o risco pedido; aceita-a so se o risco ficar <= ao teto
+    if size < inst["min_amt"] and p.get("risco_max_usdc") and inst["min_amt"] * frac <= float(p["risco_max_usdc"]) \
+            and inst["min_amt"] <= free * 0.98 * max(1.0, min(lev, alav)):
+        size = float(inst["min_amt"])
     if size < inst["min_amt"]:
         return recusa(f"valor ({size:.2f} USDC) abaixo do mínimo da Bybit ({inst['min_amt']:g}); USDC livre {free:.2f}")
     margin = size > free * 0.98
