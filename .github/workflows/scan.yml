@@ -61,6 +61,8 @@ jobs:
             # (04/11) o agendamento do GitHub atrasa ou salta: o ciclo tambem lanca o agente OKX uma vez por hora
             if [ $(( NOW % 3600 )) -ge 420 ] && [ $(( NOW % 3600 )) -lt 480 ]; then
               gh workflow run okx-agente.yml --repo "${{ github.repository }}" --ref main >/dev/null 2>&1 || echo "agente OKX nao lancado"
+              # (04/11) vigia: batimento do agente OKX e stops das operacoes reais
+              timeout 60 python3 tools/vigia.py || echo "vigia falhou"
             fi
             echo "::group::$MODE $(date -u +%FT%TZ)"
             # codigo mais recente em cada ciclo

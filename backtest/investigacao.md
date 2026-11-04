@@ -2009,3 +2009,6 @@ mortos, renascidos) e `forma.json` do ramo `arena`.
 
 ## H43 (04/11) — mais operações do pânico do mercado?
 V1 sem financiamento, V2 queda -7%, V3 financiamento p10; risco 2%, custos de futuros. Todas dão mais operações mas a conta fica pior do que a H40 nas duas metades (V1 rebenta a conta: queda >95%). CHUMBA: a H40 fica como está. Ver h43_resultado.txt.
+
+## H44 (04/11) — short no excesso de longs (espelho da H40)
+Financiamento ≥ p95 e positivo + subida de 3 dias ≥ 10%, short limite 1% acima, stop 2×ATR, objetivo 2R, 72 h, custos de futuros, risco 2%. 3091 operações: V1 todos −0,158R/−0,011R; V2 com euforia do BTC −0,319R/−0,323R; V3 isolado −0,092R/+0,092R. A conta rebenta em todas. CHUMBA: os shorts continuam sem prova (junta-se a H39, H40 gato morto e às famílias SHORT antigas).

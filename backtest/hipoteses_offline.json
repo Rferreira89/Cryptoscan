@@ -271,6 +271,13 @@
    "pergunta": "Mais operacoes do panico do mercado sem perder vantagem (sem financiamento / queda -7% / p10)?",
    "resultado": "CHUMBA: todas as variantes dao mais operacoes mas conta pior que a H40 nas duas metades (V1 rebenta a conta). H40 fica.",
    "ficheiro": "backtest/estudos/h43_mais_panicos.py"
+  },
+  {
+   "id": "H44",
+   "data": "2026-11-04",
+   "pergunta": "Short no excesso de longs (financiamento >= p95 e subida de 3 dias >= 10%), espelho da H40, com custos de futuros",
+   "resultado": "CHUMBA: R medio negativo em quase todas as variantes e a conta rebenta nas duas metades (euforia do BTC -0,32R). Shorts continuam sem prova.",
+   "ficheiro": "backtest/estudos/h44_short_excesso.py"
   }
  ]
 }
