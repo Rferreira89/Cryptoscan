@@ -2365,7 +2365,7 @@ function placeOverlays(dt) {
       const o = od[p.a.id] || {}, d = DESK[p.a.id];
       const anc = d ? new THREE.Vector3(d.p.x, 2.05, d.p.z) : p.g.position.clone().setY(2.2);
       const s = project(anc);
-      const show = mainOffice && s.ok && o.card && s.x > -60 && s.x < W0 + 60 && s.y > top0 && s.y < H0 - 60;
+      const show = mainOffice && s.ok && o.card && (W0 > 700 || API().sel() === p.a.id) && s.x > -60 && s.x < W0 + 60 && s.y > top0 && s.y < H0 - 60;
       if (!show) { p.card.style.display = "none"; return; }
       p.card.style.display = ""; fila.push({ p, s });
     });
