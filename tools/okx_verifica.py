@@ -11,7 +11,8 @@ def pedido(base, path):
         f"{datetime.datetime.now(datetime.timezone.utc).microsecond // 1000:03d}Z"
     sig = base64.b64encode(hmac.new(S.encode(), (ts + "GET" + path).encode(), hashlib.sha256).digest()).decode()
     req = urllib.request.Request(base + path, headers={"OK-ACCESS-KEY": K, "OK-ACCESS-SIGN": sig, "OK-ACCESS-TIMESTAMP": ts,
-                                                       "OK-ACCESS-PASSPHRASE": P, "Content-Type": "application/json"})
+                                                       "OK-ACCESS-PASSPHRASE": P, "Content-Type": "application/json",
+                                                       "User-Agent": "cryptoscan/1.0", "Accept": "application/json"})
     try:
         with urllib.request.urlopen(req, timeout=20) as r:
             return json.loads(r.read())
@@ -19,21 +20,21 @@ def pedido(base, path):
         try:
             return json.loads(e.read())
         except Exception:
-            return {"code": str(e.code), "msg": "HTTP"}
+            return {"code": str(e.code), "msg": "HTTP (resposta sem JSON)"}
     except Exception as e:
-        return {"code": "rede", "msg": str(e)[:80]}
+        return {"code": "rede", "msg": type(e).__name__}
 
 
 def telegram(txt):
-    t, c = os.environ.get("TELEGRAM_BOT_TOKEN"), os.environ.get("TELEGRAM_CHAT_ID")
+    t, c = (os.environ.get("TELEGRAM_BOT_TOKEN") or "").strip(), (os.environ.get("TELEGRAM_CHAT_ID") or "").strip()
     if not t or not c:
         return
     data = json.dumps({"chat_id": c, "text": txt}).encode()
     try:
         urllib.request.urlopen(urllib.request.Request(f"https://api.telegram.org/bot{t}/sendMessage", data=data,
                                                       headers={"Content-Type": "application/json"}), timeout=20)
-    except Exception as e:
-        print("telegram falhou:", str(e)[:60])
+    except Exception as e:                       # nunca imprimir a mensagem: pode conter o URL com o token
+        print("telegram falhou:", type(e).__name__)
 
 
 def main():
