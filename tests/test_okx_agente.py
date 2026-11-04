@@ -23,3 +23,17 @@ class Agente(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Macro(unittest.TestCase):
+    def test_entra_so_acima_da_media_a_subir(self):
+        from tools import okx_macro as M
+        sobe = [{"t": i, "c": 100 + i} for i in range(80)]
+        entra, sai, forca, px, m = M.sinal(sobe)
+        self.assertTrue(entra)
+        self.assertFalse(sai)
+        desce = [{"t": i, "c": 200 - i} for i in range(80)]
+        entra, sai, *_ = M.sinal(desce)
+        self.assertFalse(entra)
+        self.assertTrue(sai)
+        self.assertIsNone(M.sinal(sobe[:30]))

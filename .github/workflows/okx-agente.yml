@@ -26,6 +26,7 @@ jobs:
             git show FETCH_HEAD:okx.json > /tmp/okx/okx.json || rm -f /tmp/okx/okx.json
           fi
           python3 tools/okx_agente.py /tmp/okx/okx.json
+          python3 tools/okx_macro.py /tmp/okx/okx.json || echo "agente macro falhou"
           cd /tmp/okx && git init -q -b okx && git config user.name cryptoscan-bot \
             && git config user.email bot@users.noreply.github.com \
             && git add okx.json && git commit -q -m "okx $(date -u +%FT%TZ)" \
