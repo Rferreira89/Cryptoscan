@@ -22,6 +22,18 @@ def anos(cap, dep, r, alvo, maxm=1200):
     return round(m / 12, 1) if c >= alvo else None
 
 
+def cfg_privado(state, cfg):
+    """(05/11, S2, OK do Rui) o deposito mensal sai do config.json PUBLICO e passa a viver no estado cifrado
+    (state["privado"], so no cofre). Na transicao copia-o uma vez do config para o estado; depois o estado manda."""
+    cfg = dict(cfg or {})
+    priv = state.setdefault("privado", {})
+    if "deposito_mensal" not in priv and cfg.get("deposito_mensal"):
+        priv["deposito_mensal"] = float(cfg["deposito_mensal"])
+    if "deposito_mensal" in priv:
+        cfg["deposito_mensal"] = priv["deposito_mensal"]
+    return cfg
+
+
 def resumo(equity, evol, cfg):
     cfg = cfg or {}
     dep = float(cfg.get("deposito_mensal") or 0)

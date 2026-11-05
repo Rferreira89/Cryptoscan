@@ -227,7 +227,8 @@ class Compounding(unittest.TestCase):
     def test_live_config(self):
         c = config.load("config.json")
         self.assertTrue(c["compound"])
-        self.assertEqual(c["capital_usdc"], 84)
+        # (05/11, S2) o capital saiu do config.json publico: vem do saldo da conta (estado cifrado); aqui so o valor por defeito
+        self.assertNotIn("capital_usdc", __import__("json").load(open("config.json")))
         # todas as vagas cheias nunca passam do capital (sem margem emprestada)
         self.assertLessEqual(c["stake_pct"] * c["max_open_positions"], 100)
 

@@ -1226,7 +1226,7 @@ def main():
     try:                                     # (23/10) caminho para a liberdade: resumo e mensagem de domingo
         from . import liberdade
         res["liberdade"] = liberdade.resumo((res.get("conta") or {}).get("equity") or (res.get("config") or {}).get("capital_usdc"),
-                                            res.get("evolucao"), (res.get("config") or {}).get("liberdade"))
+                                            res.get("evolucao"), liberdade.cfg_privado(state, (res.get("config") or {}).get("liberdade")))
         txt = liberdade.semanal(state, res, res["generated_at"])
         if txt and alerts.configured():
             alerts.send(txt, html=True)

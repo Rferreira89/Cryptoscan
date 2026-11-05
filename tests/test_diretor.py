@@ -4,6 +4,22 @@ from unittest import mock
 
 from engine import consultas, diretor, run
 
+
+# (05/11, S2) as entradas so passam com o saldo real confirmado (engine/execucao.sem_capital); estes testes
+# verificam outra logica e simulam uma volta COM leitura fresca da conta.
+from unittest import mock as _mock_s2  # noqa: E402
+from engine import execucao as _execucao_s2  # noqa: E402
+_patch_s2 = _mock_s2.patch.object(_execucao_s2, "sem_capital", return_value=False)
+
+
+def setUpModule():
+    _patch_s2.start()
+
+
+def tearDownModule():
+    _patch_s2.stop()
+
+
 H4 = 14400
 NOW = 1_800_000_000 - (1_800_000_000 % H4) + 600     # 10 min depois do fecho de uma vela
 

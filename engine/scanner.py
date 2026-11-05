@@ -296,6 +296,8 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
     promo.AUTORIZADOS = None if ra is None else set(ra)
     ledger.fix_stop_exits(state)
     conta = apply_account(state, eu, now)
+    # (05/11, S2) so ha entradas novas com o saldo real lido nesta volta (engine/execucao.request); nunca com reserva
+    state["capital_confirmado"] = bool(conta and conta.get("equity"))
     real_view = ledger.apply_real(state.get("ledger", []), (conta or {}).get("reais"))
     state.setdefault("meta_base", {"t": int(now), "capital": (conta or {}).get("equity")
                                    or state.get("capital") or cfg.get("capital_usdc")})

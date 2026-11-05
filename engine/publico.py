@@ -22,7 +22,7 @@ SCAN_FORA = {"conta", "meta_base", "meta", "reais", "contributo", "nucleo", "evo
              "execucao", "posmortem", "risco"}
 STATE_FORA = {"capital", "capital_t", "capital_auto", "conta_livre", "conta_mov", "conta_saldos",
               "evolucao", "risco", "nucleo", "meta_base", "reconc", "saltos_avisados", "exec_abertas",
-              "exec_req", "auto_ops", "chave_negociacao_expira"}
+              "exec_req", "auto_ops", "chave_negociacao_expira", "privado"}
 
 
 # (05/11, auditoria do Rui) valores em dinheiro escritos DENTRO de textos (ex.: "faltam 77.55 USDC",

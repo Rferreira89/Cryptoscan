@@ -4,6 +4,22 @@ from unittest import mock
 
 from engine import execucao, executor as X, inbox, run
 
+
+# (05/11, S2) as entradas so passam com o saldo real confirmado (engine/execucao.sem_capital); estes testes
+# verificam outra logica e simulam uma volta COM leitura fresca da conta.
+from unittest import mock as _mock_s2  # noqa: E402
+from engine import execucao as _execucao_s2  # noqa: E402
+_patch_s2 = _mock_s2.patch.object(_execucao_s2, "sem_capital", return_value=False)
+
+
+def setUpModule():
+    _patch_s2.start()
+
+
+def tearDownModule():
+    _patch_s2.stop()
+
+
 NOW = 1_800_000_000
 PLAN = {"entry_zone": [99.0, 100.0], "stop": 95.0, "tp": [105.0, 110.0, 115.0],
         "partials": [50, 30, 20], "position_usdc": 20.0}
