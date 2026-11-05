@@ -1,4 +1,5 @@
 name: OKX - verificar chave (so leitura)
+# (05/11, SO neste ramo cancelar-h40-05nov, autorizacao expressa do Rui) corre o cancelamento das 5 ordens H40
 # (04/11) Confirma que a chave da OKX funciona a partir do servidor europeu. Nao envia ordens.
 on:
   workflow_dispatch:
@@ -17,4 +18,4 @@ jobs:
           OKX_PASSPHRASE: ${{ secrets.OKX_PASSPHRASE }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python3 tools/okx_verifica.py
+        run: python3 tools/okx_cancelar.py
