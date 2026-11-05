@@ -5,8 +5,8 @@ quedas, compressão, oversold bounce 4H, day trade 1H, bounce com outras
 saídas, sweep a mercado, funding negativo, quebra com compradores,
 capitulação do mercado, atraso face ao BTC, resiliente, impulso de
 amplitude; mais 13 no diário de afinação, H1 a H13). Atualizado em
-2026-11-04 (sem hipótese nova nesta corrida; autópsia de BOUNCE_MACRO_R2
-sem sucessor; a afinação testou a H13 em 2026-11-04). O contador global do
+2026-11-05 (sem hipótese nova nesta corrida nem na anterior; a afinação
+testou a H13 em 2026-11-04). O contador global do
 programa (`engine/hipoteses.py` mais `backtest/hipoteses_offline.json`,
 contra dados que incluem esta reserva) já vai em 87 (ringue longo,
 2026-11-04), mais os estudos H38–H41 de 03–04/11 em `backtest/estudos/`.
@@ -2030,3 +2030,42 @@ BTC a menos de 4% da média de ~50 dias, RSI 4H da moeda < 25/20, long com as sa
 
 ## H50 (05/11) — aperto dos shorts
 Financiamento ≤ p5 e negativo SEM queda (3 dias ≥ 0%), long com as saídas da H40. Sem filtro: −0,007R/−0,121R (x0,55/x0,05). Com o BTC acima da média: −0,013R/−0,025R (x0,74/x0,74). CHUMBA: o financiamento negativo só tem valor junto com a capitulação (H40).
+
+## 2026-11-05 — Sem hipótese nova hoje (sem mortos novos; fila vazia)
+
+**Veredicto da corrida: nenhuma hipótese testada.** O contador desta
+reserva fica em 25 (a afinação não testou nada depois da H13). Com 25
+testes contra a mesma reserva, a probabilidade de pelo menos um falso
+positivo a 5% ronda os 72%.
+
+- **Histórico** (ramo `history`): atualizado em 2026-11-02 12:41 UTC (3
+  dias de atraso, dentro do limite de 7; não foi preciso correr o
+  workflow). Continua só com 4H, 1H e funding. O arquivo de liquidações
+  (ramo `liquidacoes`, último registo 2026-11-05 00:00 UTC) começa a
+  2026-10-19: pouco mais de 2 semanas, ainda curto.
+- **Arena** (scan.json do ramo `data`, 2026-11-05): **7 lutadores a
+  competir** (SHORT_TURTLE_SHORT, BOUNCE_AMPLITUDE, MAIORES_RECUO,
+  REVERSAO_INTERVALO, VOLUME_ACUMULACAO_R2, MAIORES_TENDENCIA,
+  SHORT_SQUEEZE), `recrutar` falso. Nenhum morto novo desde
+  BOUNCE_MACRO_R2 (2026-11-04, já na tabela). Fila do Rui vazia.
+- **Combate de 90 dias** (`forma.json`, ramo `arena`, 2026-11-05 11:23
+  UTC, 53 moedas): BOUNCE_AMPLITUDE 16 op., 16 ganhadoras, +0,822R (acaso
+  mediana −0,410R, p95 −0,061R) — continua o único lutador vivo acima do
+  acaso, mas chumbou no critério da conta (2026-11-02). REVERSAO_INTERVALO
+  27 op., −0,038R (p95 −0,028R) voltou a ficar abaixo do p95; MAIORES_RECUO
+  17 op., −0,019R (p95 +0,072R). Os outros quatro têm 3 a 5 operações.
+- **Porque não há hipótese nova**: as mesmas razões de 2026-10-21 a
+  2026-11-04. Os estudos de 04–05/11 (H43–H50: pânico do mercado,
+  recuo na subida, reversão na lateral, aperto dos shorts com funding
+  negativo sem queda, vários shorts) esgotaram as variantes de compra com
+  funding e RSI que ainda restavam; repetir uma delas aqui seria uma
+  variante cosmética. Sem fonte nova com histórico suficiente, inventar
+  uma hipótese só aumentaria o risco de falso positivo. Décima sexta
+  corrida seguida sem hipótese nova.
+- Proposta para a próxima corrida: autópsia se morrer alguém; hipótese
+  nova só com fonte nova (liquidações a partir de 2–3 meses de arquivo,
+  ou seja, não antes de meados de dezembro). Mantém-se para a sessão com o
+  Rui: (1) passar esta corrida a semanal enquanto não houver dados novos;
+  (2) regresso dos mortos só com as duas metades do ringue longo
+  positivas; (3) morte rápida a contar acontecimentos; (4) corte dos
+  clones só com representantes vivos.
