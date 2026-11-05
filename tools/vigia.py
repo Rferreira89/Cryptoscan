@@ -3,7 +3,9 @@ Corre de hora a hora dentro do ciclo do scanner da Bybit (um processo diferente 
 falha de um seja vista pelo outro). So le o estado publico (precos e ids, sem valores da conta) e avisa no Telegram:
   - o agente da OKX nao corre ha mais de 2,5 h (batimento parado);
   - uma operacao real aberta na OKX sem stop registado;
-  - uma operacao real que ja passou da saida por tempo (72 h) ha mais de 2 h e continua aberta.
+  - uma operacao real que ja passou da saida por tempo (72 h) ha mais de 2 h e continua aberta;
+  - (05/11) uma ordem limite real que ja caducou (8 h) ha mais de 2 h e continua pendente (ordem presa: se a
+    consulta ou o cancelamento falharem, o agente fica a espera em silencio e a ordem pode executar fora da regra).
 Cada aviso repete no maximo de 6 em 6 horas (ficheiro local do ciclo)."""
 import json, os, sys, time, urllib.request
 
@@ -19,6 +21,12 @@ def problemas(st, now):
         out.append(("batimento", f"⚠️ Vigia: o agente da OKX não corre há {int((now - t) // 3600)} h "
                                   f"{int((now - t) % 3600 // 60)} min. Posições continuam protegidas pelo stop na OKX."))
     for a, o in ((st.get("real") or {}).get("ops") or {}).items():
+        if o.get("estado") == "pendente":
+            if o.get("valido_ate") and now - o["valido_ate"] > ATRASO_SAIDA_S:
+                h = int((now - o["valido_ate"]) // 3600)
+                out.append((f"presa-{a}", f"⚠️ Vigia: a ordem limite de {a} na OKX caducou há {h} h e o programa ainda a "
+                                          "tem como pendente. Confirma na app da OKX se ficou presa e cancela-a se for o caso."))
+            continue
         if o.get("estado") != "aberta":
             continue
         if not o.get("stop"):
