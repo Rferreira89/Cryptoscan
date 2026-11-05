@@ -1,6 +1,4 @@
 name: OKX - lista de contratos (publico)
-# (05/11, SO no ramo prep-tf-short) ensaio manual do TF-SHORT U2 autorizado pelo Rui: so leitura da API publica,
-# sem segredos, sem chave, sem ordens, sem gravar estado nem fazer push. O main continua com a versao original.
 on:
   workflow_dispatch:
 permissions:
@@ -8,8 +6,8 @@ permissions:
 jobs:
   listar:
     runs-on: [self-hosted, eu]
-    timeout-minutes: 20
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - name: Ensaio TF-SHORT U2 (so leitura)
-        run: python3 tools/okx_tfshort.py --ensaio
+      - name: Listar
+        run: python3 tools/okx_mercados.py
