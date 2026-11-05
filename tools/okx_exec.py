@@ -163,10 +163,12 @@ def acompanhar(base, op, now, msgs):
                         f"Stop e objetivo na OKX; saída por tempo dentro de 72 h.")
         elif st in ("canceled", "mmp_canceled"):
             msgs.append(f"⌛ OKX real — {base}: a ordem foi cancelada sem executar.")
+            op.update(estado="cancelada", motivo="cancelada sem executar", fechado=int(now))
             return True
         elif st == "live" and now >= op["valido_ate"]:
             privado("POST", "/api/v5/trade/cancel-order", {"instId": op["inst"], "ordId": op["ordId"]})
             msgs.append(f"⌛ OKX real — {base}: a ordem limite caducou (8 h) sem executar; cancelei-a. Nada comprado.")
+            op.update(estado="cancelada", motivo="caducou (8 h) sem executar", fechado=int(now))
             return True
         return False
     if op["estado"] == "aberta":
@@ -192,13 +194,80 @@ def acompanhar(base, op, now, msgs):
     return False
 
 
+def migrar_publico(R, now):
+    """(05/11, OK do Rui) o okx.json e PUBLICO: (1) o maximo da conta em USD ("pico") passa a ficar so cifrado
+    (pico_cifrado, com DATA_KEY); sem chave fica como esta e o travao FECHA as entradas novas (estado_pico);
+    (2) ordens canceladas que ficaram no historico como "pendente" passam a "cancelada"."""
+    if "pico" in R and _chave_ativa():
+        v = R.pop("pico")
+        if v and not R.get("pico_cifrado"):
+            guardar_pico(R, float(v))
+    for h in R.get("hist") or []:
+        if h.get("estado") == "pendente":                # no historico so ha operacoes acabadas
+            h.update(estado="cancelada", motivo=h.get("motivo") or "cancelada sem executar (registo corrigido)")
+
+
+def _chave_ativa():
+    try:
+        from engine import cifra
+        return cifra.ativa()
+    except Exception:
+        return False
+
+
+def ler_pico(R):
+    env = R.get("pico_cifrado")
+    if not env:
+        return None
+    try:
+        from engine import cifra
+        return float(cifra.decifrar_bytes(env).decode())
+    except Exception:
+        return None
+
+
+def estado_pico(R, c, eq):
+    """(05/11, OK do Rui: fail-closed) ("ok", pico) para operar, ou ("fechado", motivo) para NAO abrir ordens novas.
+    - maximo cifrado legivel -> ok;
+    - sem chave, chave errada ou envelope estragado -> fechado (nunca recomeca sozinho do saldo atual);
+    - sem maximo nenhum -> fechado, SEMPRE: um estado vazio pode ser uma conta nova ou um estado perdido, e o programa
+      nao consegue provar qual e (05/11, Rui). O primeiro maximo exige inicializacao explicita e autorizada;
+    - inicializacao/recomeco manual: okx_config "travao_reiniciar_pico": "<data>" (com o OK do Rui) poe o maximo no saldo
+      atual UMA vez por cada valor novo (fica registado em pico_reiniciado)."""
+    pedido = c.get("travao_reiniciar_pico")
+    if pedido and R.get("pico_reiniciado") != pedido and _chave_ativa():
+        guardar_pico(R, eq)
+        if R.get("pico_cifrado"):
+            R["pico_reiniciado"] = pedido
+            return "ok", eq
+    if not _chave_ativa():
+        return "fechado", "sem a chave DATA_KEY o máximo da conta não pode ser lido"
+    if "pico" in R:
+        return "fechado", "o máximo antigo ainda não foi cifrado"
+    if R.get("pico_cifrado"):
+        v = ler_pico(R)
+        return ("ok", v) if v else ("fechado", "o máximo cifrado não abre (chave diferente ou ficheiro alterado)")
+    if R.get("hist") or R.get("ops"):
+        return "fechado", "o máximo da conta desapareceu do estado"
+    return "fechado", "máximo da conta por inicializar (precisa de inicialização autorizada: travao_reiniciar_pico)"
+
+
+def guardar_pico(R, v):
+    try:
+        from engine import cifra
+        R["pico_cifrado"] = cifra.cifrar_bytes(f"{float(v):.8f}".encode())
+    except Exception:
+        R.pop("pico_cifrado", None)                      # sem DATA_KEY: nunca grava o valor em claro
+
+
 def correr(st, novos, now, msgs):
     """novos: [(base, sinal)] do agente nesta passagem. st: okx.json (chave 'real' so com ids e precos publicos)."""
     c = cfg()
-    R = st.setdefault("real", {"ops": {}, "hist": [], "pico": None})
+    R = st.setdefault("real", {"ops": {}, "hist": []})
     for op in list(R["ops"].values()) + R["hist"]:  # limpeza: tamanhos e valores nunca ficam no estado publico
         for k in ("sz", "nominal", "sz_exec", "pnl", "risco_usd"):
             op.pop(k, None)
+    migrar_publico(R, now)
     if not all(_chaves()):
         return
     reconciliar(R, now, msgs)
@@ -221,8 +290,13 @@ def correr(st, novos, now, msgs):
     if not eq:
         msgs.append("⚠️ OKX real: não consegui ler o saldo da conta; nenhuma ordem nova.")
         return
-    R["pico"] = max(R.get("pico") or eq, eq)
-    if eq < R["pico"] * (1 - c["travao_queda_pct"] / 100):
+    est, v = estado_pico(R, c, eq)
+    if est != "ok":
+        msgs.append(f"🔒 OKX real: travão em modo seguro ({v}); nenhuma ordem nova. As posições abertas continuam a ser geridas.")
+        return
+    pico = max(v, eq)
+    guardar_pico(R, pico)
+    if eq < pico * (1 - c["travao_queda_pct"] / 100):
         msgs.append(f"🛑 OKX real: a conta está {c['travao_queda_pct']}% abaixo do máximo; travão ligado, sem ordens novas.")
         return
     xp = xperps()
