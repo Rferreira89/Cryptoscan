@@ -165,3 +165,91 @@ def degradacao(rs, ref_r_min, ref_queda_max, n_min=20):
     if q > 1.5 * ref_queda_max:
         return f"queda de {q:.1f}R acima de 1,5x a maxima do backtest ({ref_queda_max:.1f}R): proposta de suspensao"
     return None
+
+
+# ---------- (05/11) ordens antigas sem etiqueta ----------
+def dono_legado(corretora, cl_id, estrategia_estado=None):
+    """Dono das ordens criadas ANTES das etiquetas (o prefixo "cs" nao diz a estrategia).
+    OKX: clOrdId "cs<MOEDA><t>": H46 se o estado do agente a marcou como "recuo", senao H40 (pânico).
+    Bybit: orderLinkId "cs-nb..." = tendencia BTC (nucleo); "cs-P-"/"cs-PANICO" = H45; "cs-d..." = ordem de diagnostico;
+    outro "cs-..." = estrategias do scanner. Desconhecido -> None (alerta de posicao sem dono, nunca adivinha)."""
+    cl = cl_id or ""
+    novo = dono(cl)
+    if novo:
+        return novo
+    if corretora == "okx" and cl.startswith("cs") and len(cl) > 2:
+        return "h46" if estrategia_estado == "recuo" else "h40"
+    if corretora == "bybit" and cl.startswith("cs-"):
+        r = cl[3:]
+        if r.startswith("nb"):
+            return "btc"
+        if r.startswith("P-") or r.startswith("PANICO"):
+            return "h45"
+        if r.startswith("d"):
+            return "diag"
+        return "scan"
+    return None
+
+
+# ---------- (05/11) tendencia BTC: saida pela regra diaria em vez de stop ----------
+def ordem_valida_estrategia(ordem, estrategia):
+    """Como ordem_valida, mas aceita SEM stop uma estrategia registada com saida "regra_diaria" se for compra a vista
+    sem emprestimo (alav 1): e o caso da tendencia BTC (sai no fecho diario abaixo da media; nao ha liquidacao porque
+    nao ha divida). Com alavancagem > 1 o stop volta a ser obrigatorio."""
+    if (estrategia or {}).get("saida") == "regra_diaria":
+        if not dono(ordem.get("cl_id")) and not dono_legado("bybit", ordem.get("cl_id")):
+            return False, "sem etiqueta de estrategia"
+        if ordem.get("lado") != "long" or float(ordem.get("alav") or 1) > 1 or ordem.get("emprestimo"):
+            return False, "saida pela regra diaria so a vista, long e sem emprestimo"
+        return True, ""
+    return ordem_valida(ordem)
+
+
+# ---------- (05/11) Bybit: tamanho a vista ----------
+def tamanho_avista(capital, preco, base_step, min_usdc, risco_pct=None, stop=None, fracao=None, alav_max_estr=1.0):
+    """Bybit a vista/margem: quantidade em moeda base arredondada para baixo ao passo, com ordem minima em USDC.
+    Pelo risco (risco_pct + stop) ou por fracao do capital (tendencia BTC). Alavancagem efetiva minima, teto da estrategia."""
+    if capital <= 0 or preco <= 0:
+        return {"cabe": False, "motivo": "capital ou preco invalido"}
+    if fracao is not None:
+        nominal = capital * float(fracao)
+    else:
+        dist = abs(preco - stop) / preco if stop else 0
+        if dist <= 0:
+            return {"cabe": False, "motivo": "stop invalido"}
+        nominal = risco_pct / 100 * capital / dist
+    teto = min(ALAV_TETO, float(alav_max_estr))
+    nominal = min(nominal, teto * capital)
+    q = math.floor(nominal / preco / base_step + 1e-9) * base_step
+    nom = q * preco
+    if nom < min_usdc or q <= 0:
+        return {"cabe": False, "motivo": "abaixo da ordem minima", "nocional_alvo": round(nominal, 4)}
+    alav = max(1, math.ceil(nom / capital - 1e-9))
+    return {"cabe": True, "qty": q, "nocional": round(nom, 4), "alav": alav, "emprestimo": alav > 1}
+
+
+# ---------- (05/11) registos derivados da configuracao atual (nao mudam o comportamento) ----------
+def registo_okx(cfg):
+    """Registo da OKX a partir do okx_config.json: os tetos sao EXATAMENTE os limites que o okx_exec ja aplica
+    (max_posicoes, risco por operacao, alavancagem), para nao mudar a H46 nem a H40 por acidente."""
+    n, alav = int(cfg.get("max_posicoes") or 1), float(cfg.get("alavancagem") or 1)
+    rmax = max(float(cfg.get("risco_pct") or 1), float(cfg.get("recuo_risco_pct") or 1))
+    return {"corretora": "okx",
+            "tetos": {"bruta_max": alav, "risco_aberto_max": round(n * rmax, 4)},
+            "estrategias": {
+                "h46": {"estado": "real" if cfg.get("recuo_real") else "papel", "real": bool(cfg.get("recuo_real")),
+                        "fracao": 1.0, "risco_pct": float(cfg.get("recuo_risco_pct") or 1), "max_pos": n, "bruta_max": alav, "alav_max": alav},
+                "h40": {"estado": "real" if cfg.get("panico_real") else "papel", "real": bool(cfg.get("panico_real")),
+                        "fracao": 1.0 if not cfg.get("recuo_real") else 0.0, "risco_pct": float(cfg.get("risco_pct") or 1),
+                        "max_pos": n, "bruta_max": alav, "alav_max": alav}}}
+
+
+def registo_bybit(cfg):
+    """Registo da Bybit a partir do config.json: a tendencia BTC (nucleo) com saida pela regra diaria."""
+    alav = float(cfg.get("nucleo_alavancagem") or 1)
+    real = bool(cfg.get("nucleo_ligado"))
+    return {"corretora": "bybit",
+            "tetos": {"bruta_max": max(1.0, alav), "risco_aberto_max": 100.0},
+            "estrategias": {"btc": {"estado": "real" if real else "papel", "real": real, "fracao": float(cfg.get("nucleo_fracao") or 1),
+                                    "risco_pct": 3.0, "max_pos": len(cfg.get("nucleo_moedas") or ["BTC"]), "bruta_max": max(1.0, alav),
+                                    "alav_max": alav, "saida": "regra_diaria", "dias": int(cfg.get("nucleo_dias") or 200)}}}

@@ -95,3 +95,72 @@ class Monitor(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Legado(unittest.TestCase):
+    def test_okx(self):
+        self.assertEqual(M.dono_legado("okx", "csTRUMP93880000"), "h40")
+        self.assertEqual(M.dono_legado("okx", "csWLD93880000", "recuo"), "h46")
+        self.assertEqual(M.dono_legado("okx", M.etiqueta("tfs", 1, 1)), "tfs")
+        self.assertIsNone(M.dono_legado("okx", "manual123"))
+
+    def test_bybit(self):
+        self.assertEqual(M.dono_legado("bybit", "cs-nbBTC123456"), "btc")
+        self.assertEqual(M.dono_legado("bybit", "cs-P-FIL-1793"), "h45")
+        self.assertEqual(M.dono_legado("bybit", "cs-PANICOabc"), "h45")
+        self.assertEqual(M.dono_legado("bybit", "cs-dlimite_t12345"), "diag")
+        self.assertEqual(M.dono_legado("bybit", "cs-ENA1793000000-v0"), "scan")
+        self.assertIsNone(M.dono_legado("bybit", "web-manual"))
+
+
+class TendenciaBTC(unittest.TestCase):
+    EST = {"saida": "regra_diaria"}
+
+    def test_sem_stop_so_a_vista_sem_emprestimo(self):
+        self.assertTrue(M.ordem_valida_estrategia({"cl_id": "cs-nbBTC1", "lado": "long", "alav": 1}, self.EST)[0])
+        self.assertFalse(M.ordem_valida_estrategia({"cl_id": "cs-nbBTC1", "lado": "long", "alav": 2}, self.EST)[0])
+        self.assertFalse(M.ordem_valida_estrategia({"cl_id": "cs-nbBTC1", "lado": "long", "alav": 1, "emprestimo": True}, self.EST)[0])
+        self.assertFalse(M.ordem_valida_estrategia({"cl_id": "cs-nbBTC1", "lado": "short", "alav": 1}, self.EST)[0])
+
+    def test_outras_estrategias_continuam_a_exigir_stop(self):
+        self.assertEqual(M.ordem_valida_estrategia({"cl_id": M.etiqueta("tfs", 1, 1), "px": 10, "lado": "short"}, {})[1], "sem stop")
+
+
+class BybitAVista(unittest.TestCase):
+    def test_tendencia_btc_opcao_b(self):
+        t = M.tamanho_avista(19.6, 76097.0, 0.000001, 5.0, fracao=1.0)
+        self.assertTrue(t["cabe"]); self.assertEqual(t["alav"], 1); self.assertFalse(t["emprestimo"])
+        self.assertLessEqual(t["nocional"], 19.6)
+
+    def test_pelo_risco_e_minimo(self):
+        t = M.tamanho_avista(20.0, 100.0, 0.01, 5.0, risco_pct=1.0, stop=92.0)    # alvo 2,5 USDC < minimo 5
+        self.assertFalse(t["cabe"])
+        t = M.tamanho_avista(200.0, 100.0, 0.01, 5.0, risco_pct=1.0, stop=92.0)
+        self.assertTrue(t["cabe"]); self.assertEqual(t["alav"], 1)
+
+
+class TetosSemMudarH46(unittest.TestCase):
+    CFG = {"real": True, "risco_pct": 2.0, "alavancagem": 10, "max_posicoes": 30, "travao_queda_pct": 45, "risco_max_pct": 3.0,
+           "so_mercado": True, "recuo_real": True, "recuo_risco_pct": 1.0, "panico_real": False}
+
+    def test_registo_valido_e_igual_a_config(self):
+        r = M.registo_okx(self.CFG)
+        self.assertEqual(M.valida_registo(r), [])
+        self.assertTrue(M.e_real(r, "h46")); self.assertFalse(M.e_real(r, "h40"))
+        self.assertEqual(r["estrategias"]["h46"]["max_pos"], 30); self.assertEqual(r["tetos"]["bruta_max"], 10)
+
+    def test_tetos_nunca_bloqueiam_o_que_a_h46_ja_pode_fazer(self):
+        r = M.registo_okx(self.CFG); e = r["estrategias"]["h46"]; cap = 20.0
+        ab = []
+        for k in range(30):                    # 30 posicoes a 1% de risco, cada uma no maximo de margem que a OKX deixa
+            nova = {"cod": "h46", "nocional": cap * 10 / 30, "risco_usd": 0.01 * cap}
+            self.assertTrue(M.cabe_nos_tetos(ab, nova, cap, r["tetos"], e)[0], k)
+            ab.append(nova)
+        self.assertEqual(M.cabe_nos_tetos(ab, {"cod": "h46", "nocional": 0.1, "risco_usd": 0.2}, cap, r["tetos"], e)[1],
+                         "maximo de posicoes da estrategia")          # a 31.a ja era recusada pelo okx_exec (max_posicoes)
+
+    def test_bybit(self):
+        r = M.registo_bybit({"nucleo_ligado": True, "nucleo_moedas": ["BTC"], "nucleo_fracao": 1.0, "nucleo_dias": 50, "nucleo_alavancagem": 2})
+        self.assertEqual(M.valida_registo(r), []); self.assertEqual(r["estrategias"]["btc"]["saida"], "regra_diaria")
+        rb = M.registo_bybit({"nucleo_ligado": True, "nucleo_moedas": ["BTC"], "nucleo_fracao": 1.0, "nucleo_dias": 200, "nucleo_alavancagem": 1})
+        self.assertEqual(rb["tetos"]["bruta_max"], 1.0)
