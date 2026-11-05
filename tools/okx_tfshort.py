@@ -219,28 +219,6 @@ def main(caminho, ensaio=True):
     return 0
 
 
-def main_ensaio():
-    """So leitura: recolhe dados publicos e imprime o relatorio do ensaio. Nao grava estado, nao usa chave."""
-    t0 = time.time()
-    dados, infos = recolher()
-    falhas = [] if infos else ["lista de X-Perps vazia (API publica sem resposta?)"]
-    rel = ensaio(dados, infos, falhas=falhas)
-    rel["segundos"] = round(time.time() - t0)
-    linhas = rel.pop("linhas")
-    print(json.dumps(rel, ensure_ascii=False, indent=1))
-    print("moeda | s | sinal | liquidez M USD | vol diaria % | alvo USD (20) | minimo USD | cabe | financiamento: n, soma %")
-    for x in sorted(linhas, key=lambda x: (not x["sinal_short"], x["moeda"])):
-        print(f"{x['moeda']} | {x['s']} | {'SHORT' if x['sinal_short'] else '-'} | {x['liq_musd']} | {x['vol_diaria_pct']} | "
-              f"{x['alvo_usd']} | {x['minimo_usd']} | {'sim' if x['cabe'] else 'nao'} | {x['fund_ultimas']}, {x['fund_soma_pct']}")
-    return 0
-
-
-if __name__ == "__main__":
-    import sys
-    if "--ensaio" in sys.argv:
-        sys.exit(main_ensaio())
-    sys.exit(main(sys.argv[1] if len(sys.argv) > 1 else "/tmp/okx_tfshort.json", ensaio="--gravar" not in sys.argv))
-
 
 # ---------- ensaio so de leitura (05/11, autorizado pelo Rui: universo, minimos, financiamento, falhas) ----------
 def ensaio(dados, infos, capital=CONTA0, falhas=None):
@@ -285,3 +263,27 @@ def ensaio(dados, infos, capital=CONTA0, falhas=None):
             "sinais_hoje": len(sinais), "cabem_em_capital": sum(1 for x in sinais if x["cabe"]),
             "elegiveis_que_caberiam": sum(1 for x in linhas if x["cabe"]), "capital_teste_usd": capital,
             "linhas": linhas, "falhas": falhas}
+
+
+def main_ensaio():
+    """So leitura: recolhe dados publicos e imprime o relatorio do ensaio. Nao grava estado, nao usa chave."""
+    t0 = time.time()
+    dados, infos = recolher()
+    falhas = [] if infos else ["lista de X-Perps vazia (API publica sem resposta?)"]
+    rel = ensaio(dados, infos, falhas=falhas)
+    rel["segundos"] = round(time.time() - t0)
+    linhas = rel.pop("linhas")
+    print(json.dumps(rel, ensure_ascii=False, indent=1))
+    print("moeda | s | sinal | liquidez M USD | vol diaria % | alvo USD (20) | minimo USD | cabe | financiamento: n, soma %")
+    for x in sorted(linhas, key=lambda x: (not x["sinal_short"], x["moeda"])):
+        print(f"{x['moeda']} | {x['s']} | {'SHORT' if x['sinal_short'] else '-'} | {x['liq_musd']} | {x['vol_diaria_pct']} | "
+              f"{x['alvo_usd']} | {x['minimo_usd']} | {'sim' if x['cabe'] else 'nao'} | {x['fund_ultimas']}, {x['fund_soma_pct']}")
+    return 0
+
+
+if __name__ == "__main__":
+    import sys
+    if "--ensaio" in sys.argv:
+        sys.exit(main_ensaio())
+    sys.exit(main(sys.argv[1] if len(sys.argv) > 1 else "/tmp/okx_tfshort.json", ensaio="--gravar" not in sys.argv))
+

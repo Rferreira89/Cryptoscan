@@ -120,3 +120,12 @@ class Ensaio(unittest.TestCase):
         self.assertTrue(any("DDD" in x and "difere" in x for x in r["falhas"]))
         self.assertTrue(any("DDD" in x and "financiamento" in x for x in r["falhas"]))
         self.assertFalse(any(x.startswith("AAA") for x in r["falhas"]))
+
+    def test_corre_como_script(self):
+        """(05/11) o ensaio no servidor falhou porque ensaio() estava definido depois do arranque do script."""
+        import runpy, sys
+        from unittest import mock
+        with mock.patch.object(T, "recolher", return_value=({}, {})):
+            src = open(T.__file__, encoding="utf-8").read()
+            self.assertLess(src.index("def ensaio("), src.index('if __name__ == "__main__":'))
+            self.assertLess(src.index("def main_ensaio("), src.index('if __name__ == "__main__":'))
