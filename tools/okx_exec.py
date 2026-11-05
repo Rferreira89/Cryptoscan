@@ -15,7 +15,10 @@ import okx_agente as A
 
 H4 = 14400
 CFG_PADRAO = {"real": False, "so_mercado": True, "risco_pct": 1.0, "risco_max_pct": 2.0, "alavancagem": 10, "max_posicoes": 40, "travao_queda_pct": 25,
-              "recuo_real": False, "recuo_risco_pct": 1.0}
+              "recuo_real": False, "recuo_risco_pct": 1.0,
+              # (05/11, OK do Rui) interruptor proprio da H40 (panico): so abre ordens reais com true explicito;
+              # ausente = so papel (seguro)
+              "panico_real": False}
 
 
 def cfg():
@@ -230,6 +233,16 @@ def correr(st, novos, now, msgs):
             continue
         recuo = sig.get("tipo") == "recuo"
         if recuo and not c.get("recuo_real"):
+            continue
+        h40 = sig.get("tipo") in ("mercado", "isolado", None)      # sinais do panico do agente (tools/okx_agente.py)
+        if not recuo and not h40:
+            continue                                              # estrategia desconhecida: nunca abre ordens reais
+        if h40 and not c.get("panico_real", False):
+            # (05/11, OK do Rui) H40 suspensa do dinheiro real: o sinal fica so em papel (a H46 continua)
+            chave_p = f"p:{base}:{sig['t_sig']}"
+            if chave_p not in R.setdefault("avisados", []):
+                R["avisados"].append(chave_p)
+                msgs.append(f"📝 OKX — {base}: sinal de pânico (H40) só em papel; a H40 está suspensa do dinheiro real.")
             continue
         if c.get("so_mercado", True) and sig.get("tipo") not in ("mercado", "recuo"):
             # (04/11, H40) o panico isolado perdeu na metade recente (-0,126R); o do mercado todo deu +0,17R/+0,41R

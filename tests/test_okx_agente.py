@@ -137,7 +137,7 @@ class Execucao(unittest.TestCase):
         st = {}
         sig = {"t_sig": now - H4, "lim": 0.0236, "atr": 0.001, "tipo": "mercado"}
         with mock.patch.object(self.E, "_chaves", return_value=("k", "s", "p")), mock.patch.object(self.E, "privado", privado), \
-                mock.patch.object(self.E, "cfg", return_value=dict(self.E.CFG_PADRAO, real=True)), \
+                mock.patch.object(self.E, "cfg", return_value=dict(self.E.CFG_PADRAO, real=True, panico_real=True)), \
                 mock.patch.object(self.E, "xperps", return_value={"HUMA": self.info()}):
             self.E.correr(st, [("HUMA", sig)], now, msgs)
             ordem = [c for p, c in posts if p == "/api/v5/trade/order"][0]
@@ -177,6 +177,82 @@ class Execucao(unittest.TestCase):
         ordem = [c for p, c in posts if p == "/api/v5/trade/order"][0]
         self.assertLessEqual(float(ordem["sz"]) * 10.0 * 0.002, 0.2 + 1e-9)       # 1% de 20 USD, nao 2%
         self.assertIn("recuo na subida", msgs[-1])
+
+    def test_h40_suspensa_nao_abre_mas_h46_continua(self):
+        from unittest import mock
+        posts, msgs = [], []
+        now = 2_000_000_000
+
+        def privado(metodo, path, corpo=None):
+            if metodo == "POST":
+                posts.append((path, corpo))
+                return {"code": "0", "data": [{"ordId": "1", "sCode": "0"}]}
+            if "balance" in path:
+                return {"code": "0", "data": [{"totalEq": "20"}]}
+            return {"code": "0", "data": []}
+        st = {}
+        panico = {"t_sig": now - H4, "lim": 0.0236, "atr": 0.001, "tipo": "mercado"}
+        recuo = {"t_sig": now - H4, "lim": 1.0, "atr": 0.01, "tipo": "recuo"}
+        with mock.patch.object(self.E, "_chaves", return_value=("k", "s", "p")), mock.patch.object(self.E, "privado", privado), \
+                mock.patch.object(self.E, "cfg", return_value=dict(self.E.CFG_PADRAO, real=True, recuo_real=True, panico_real=False)), \
+                mock.patch.object(self.E, "xperps", return_value={"HUMA": self.info(), "XYZ": self.info(inst="XYZ-USD_UM_XPERP-1", ctVal=1.0)}):
+            self.E.correr(st, [("HUMA", panico), ("XYZ", recuo)], now, msgs)
+        self.assertNotIn("HUMA", st["real"]["ops"])                         # H40 so em papel
+        self.assertIn("XYZ", st["real"]["ops"])                             # H46 continua real
+        self.assertEqual(st["real"]["ops"]["XYZ"]["estrategia"], "recuo")
+        self.assertTrue(any("só em papel" in m for m in msgs))
+
+    def test_h40_sem_interruptor_na_configuracao_fica_em_papel(self):
+        from unittest import mock
+        posts = []
+        now = 2_000_000_000
+
+        def privado(metodo, path, corpo=None):
+            if metodo == "POST":
+                posts.append(path)
+                return {"code": "0", "data": [{"ordId": "1", "sCode": "0"}]}
+            if "balance" in path:
+                return {"code": "0", "data": [{"totalEq": "20"}]}
+            return {"code": "0", "data": []}
+        cfg_sem = {k: v for k, v in dict(self.E.CFG_PADRAO, real=True).items() if k != "panico_real"}
+        st = {}
+        sinais = [("HUMA", {"t_sig": now - H4, "lim": 0.0236, "atr": 0.001, "tipo": "mercado"}),
+                  ("ABC", {"t_sig": now - H4, "lim": 0.0236, "atr": 0.001, "tipo": "outra"})]       # desconhecida
+        with mock.patch.object(self.E, "_chaves", return_value=("k", "s", "p")), mock.patch.object(self.E, "privado", privado), \
+                mock.patch.object(self.E, "cfg", return_value=cfg_sem), \
+                mock.patch.object(self.E, "xperps", return_value={"HUMA": self.info(), "ABC": self.info(inst="ABC-USD_UM_XPERP-1")}):
+            self.E.correr(st, sinais, now, [])
+        self.assertNotIn("/api/v5/trade/order", posts)                    # nada aberto
+        self.assertFalse(self.E.CFG_PADRAO["panico_real"])
+
+    def test_ordens_existentes_continuam_geridas_com_h40_suspensa(self):
+        from unittest import mock
+        posts = []
+        now = 2_000_000_000
+
+        def privado(metodo, path, corpo=None):
+            if metodo == "POST":
+                posts.append(path)
+                return {"code": "0", "data": [{"sCode": "0"}]}
+            if "trade/order?" in path:
+                return {"code": "0", "data": [{"state": "live"}]}
+            return {"code": "0", "data": []}
+        st = {"real": {"ops": {"HUMA": {"inst": "HUMA-USD_UM_XPERP-1", "ordId": "9", "estado": "pendente", "t_sig": now - 4 * H4,
+                                        "valido_ate": now - 10, "criado": now - 4 * H4, "lim": 1, "stop": 0.9, "alvo": 1.2, "alav": 3}},
+                       "hist": [], "pico": None}}
+        with mock.patch.object(self.E, "_chaves", return_value=("k", "s", "p")), mock.patch.object(self.E, "privado", privado), \
+                mock.patch.object(self.E, "cfg", return_value=dict(self.E.CFG_PADRAO, real=True, panico_real=False)), \
+                mock.patch.object(self.E, "reconciliar", lambda *a: None):
+            self.E.correr(st, [], now, [])
+        self.assertIn("/api/v5/trade/cancel-order", posts)              # ordem caducada continua a ser tratada
+        self.assertNotIn("HUMA", st["real"]["ops"])
+        self.assertNotIn("/api/v5/trade/close-position", posts)           # nada fechado a forca
+
+    def test_config_real_da_okx(self):
+        import json, os
+        c = json.load(open(os.path.join(os.path.dirname(__file__), "..", "okx_config.json")))
+        self.assertEqual((c["real"], c["recuo_real"], c["panico_real"]), (True, True, False))   # (05/11) H40 em papel, H46 real
+        self.assertEqual((c["risco_pct"], c["alavancagem"], c["max_posicoes"], c["recuo_risco_pct"]), (2.0, 10, 30, 1.0))
 
 
 H4 = 14400
