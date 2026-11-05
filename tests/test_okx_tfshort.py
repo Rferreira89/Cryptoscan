@@ -102,3 +102,21 @@ class SemOrdens(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Ensaio(unittest.TestCase):
+    def test_relatorio_universo_minimos_e_falhas(self):
+        f = desce()
+        dados = {"AAA": {"velas": velas(f), "px": f[-1], "fund": [(1, 0.0001)]},
+                 "BBB": {"velas": velas(f[:100]), "px": f[99], "fund": []},
+                 "CCC": {"velas": velas(f, usd=1e6), "px": f[-1], "fund": []},
+                 "DDD": {"velas": velas(f), "px": f[-1] * 1.05, "fund": []}}
+        infos = {a: INFO for a in ("AAA", "BBB", "CCC", "DDD", "EEE", "BTC")}
+        r = T.ensaio(dados, infos)
+        self.assertEqual(r["xperps_cripto"], 6); self.assertEqual(r["excluidas"], ["BTC"])
+        self.assertEqual(r["sem_velas_globais"], ["EEE"]); self.assertEqual(r["historia_curta"], ["BBB"])
+        self.assertEqual(r["iliquidas"], 1); self.assertEqual(r["elegiveis"], 2)
+        self.assertEqual(r["sinais_hoje"], 2)
+        self.assertTrue(any("DDD" in x and "difere" in x for x in r["falhas"]))
+        self.assertTrue(any("DDD" in x and "financiamento" in x for x in r["falhas"]))
+        self.assertFalse(any(x.startswith("AAA") for x in r["falhas"]))
