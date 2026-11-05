@@ -1,33 +1,40 @@
 name: Historico de derivados (OI e long/short)
-# (05/11, OK do Rui) Fase 1 do plano de expansao das estrategias: open interest e racios long/short
-# desde 2021 (data.binance.vision, publico) para o ramo "derivados". Incremental: corre a pedido e todos os
-# dias; cada execucao so descarrega os dias que faltam. So dados: nao mexe em nada do que opera.
+# (05/11, OK do Rui) Fase 1: open interest e racios long/short desde 2021 (data.binance.vision, publico)
+# para o ramo "derivados". So dados: nao mexe em nada do que opera.
+# (05/11 14:17, autorizacao limitada do Rui para o Passo 1 da Fase 2) nesta versao, que vive SO no ramo de
+# trabalho fase2-dados: a pedido, recolha completa (OI em 30 min, financiamento, liquidacoes, moedas vivas e
+# retiradas) para um ramo de dados NOVO, "derivados-fase2". Nao toca no ramo "derivados" nem no main, nao usa
+# segredos (so a autorizacao automatica do GitHub para escrever no ramo de dados) e nao lanca outros workflows.
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "41 3 * * *"
 permissions:
   contents: write
 concurrency:
-  group: derivados
+  group: derivados-fase2
   cancel-in-progress: false
 jobs:
-  derivados:
+  fase2:
     runs-on: ubuntu-latest
-    timeout-minutes: 330
+    timeout-minutes: 340
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Descarregar
+      - name: Testes da recolha
+        run: python -m unittest tests.test_fetch_derivados -v
+      - name: Descarregar (retoma onde parou)
         run: |
-          git clone -q --depth 1 -b derivados "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" der 2>/dev/null || mkdir -p der
+          git clone -q --depth 1 -b derivados-fase2 "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" dados 2>/dev/null || mkdir -p dados
           git clone -q --depth 1 -b history "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" hist
-          BASES=$(ls hist/funding | sed 's/\.csv\.gz$//' | tr '\n' ' ')
-          DERIVADOS_LIMITE_S=18000 python -m tools.fetch_derivados der $BASES
-      - name: Publicar no ramo derivados
+          git clone -q --depth 1 -b history-delistadas "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" ret
+          VIVAS=$(ls hist/funding | sed 's/\.csv\.gz$//' | paste -sd, -)
+          RETIRADAS=$(ls ret | grep '\.csv\.gz$' | sed 's/\.csv\.gz$//' | paste -sd, -)
+          DERIVADOS_LIMITE_S=18000 python -m tools.fetch_derivados --fase2 dados --vivas "$VIVAS" --retiradas "$RETIRADAS"
+      - name: Publicar no ramo derivados-fase2
         run: |
-          cd der && rm -rf .git && git init -q -b derivados && git config user.name cryptoscan-bot && git config user.email bot@users.noreply.github.com
-          git add . && git commit -q -m "derivados $(date -u +%F)"
-          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" derivados:derivados
+          cd dados && rm -rf .git && find . -name '*.tmp' -delete
+          git init -q -b derivados-fase2 && git config user.name cryptoscan-bot && git config user.email bot@users.noreply.github.com
+          git add . && git commit -q -m "derivados-fase2 $(date -u +%FT%TZ)"
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" derivados-fase2:derivados-fase2
+          du -sh . ; find . -type f -not -path './.git/*' | wc -l
