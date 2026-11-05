@@ -169,6 +169,8 @@ def correr(st, now):
         if not s:
             continue
         s["tipo"] = P.tipo_panico(btc, s["t_sig"])
+        if s["lim"] - 2 * s["atr"] <= 0:                                 # (05/11, AKE) stop abaixo de zero: sinal invalido
+            continue
         st["pend"][a] = s
         novos.append((a, s, info))
     for k in [k for k in cache if k.split("-")[0] not in lista]:
@@ -306,7 +308,7 @@ def relatorio_radar(st, now):
     st["radar_dia"] = dia
     R = st.get("radar") or {}
     L = R.get("lista") or []
-    cab = f"🧭 Radar diário OKX — 220 criptos analisadas de hora a hora. BTC {R.get('btc_24h')}% em 24 h.\n"
+    cab = f"🧭 Radar diário OKX — {(st.get('resumo') or {}).get('analisados') or 'todas as'} criptos analisadas de hora a hora. BTC {R.get('btc_24h')}% em 24 h.\n"
     if not L:
         return cab + "Nenhuma moeda caiu 5% ou mais em 3 dias: não há nenhum pânico em formação. Nada perdido."
     linhas = [f"• {x['a']}: " + ("TODAS as condições cumpridas" if not x["falta"] else "falta " + "; ".join(x["falta"])) for x in L[:5]]
