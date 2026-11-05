@@ -7,6 +7,11 @@ name: Historico de derivados (OI e long/short)
 # segredos (so a autorizacao automatica do GitHub para escrever no ramo de dados) e nao lanca outros workflows.
 on:
   workflow_dispatch:
+    inputs:
+      modo:
+        description: "recolha (descarrega e publica) ou listar_liquidacoes (so lista o arquivo; nao escreve dados)"
+        required: false
+        default: recolha
 permissions:
   contents: write
 concurrency:
@@ -23,7 +28,11 @@ jobs:
           python-version: "3.12"
       - name: Testes da recolha
         run: python -m unittest tests.test_fetch_derivados -v
+      - name: Listar o arquivo de liquidacoes (so leitura)
+        if: ${{ inputs.modo == 'listar_liquidacoes' }}
+        run: python -m tools.fetch_derivados --listar-liquidacoes
       - name: Descarregar (retoma onde parou)
+        if: ${{ inputs.modo != 'listar_liquidacoes' }}
         run: |
           git clone -q --depth 1 -b derivados-fase2 "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" dados 2>/dev/null || mkdir -p dados
           git clone -q --depth 1 -b history "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" hist
@@ -32,6 +41,7 @@ jobs:
           RETIRADAS=$(ls ret | grep '\.csv\.gz$' | sed 's/\.csv\.gz$//' | paste -sd, -)
           DERIVADOS_LIMITE_S=18000 python -m tools.fetch_derivados --fase2 dados --vivas "$VIVAS" --retiradas "$RETIRADAS"
       - name: Publicar no ramo derivados-fase2
+        if: ${{ inputs.modo != 'listar_liquidacoes' }}
         run: |
           cd dados && rm -rf .git && find . -name '*.tmp' -delete
           git init -q -b derivados-fase2 && git config user.name cryptoscan-bot && git config user.email bot@users.noreply.github.com

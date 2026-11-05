@@ -56,6 +56,14 @@ class Fase2(unittest.TestCase):
         self.assertEqual(F.datas_do_indice(ch), ["2025-01-01", "2025-01-02"])
         self.assertEqual(F.datas_do_indice(["a/X-fundingRate-2024-03.zip"], mensal=True), ["2024-03"])
 
+    def test_listar_liquidacoes_so_le_o_indice(self):
+        sub = lambda r: [r + "metrics/", r + "liquidationSnapshot/"] if r == "data/futures/um/daily/" else []
+        lst = lambda p: [p + "BTCUSDT-liquidationSnapshot-2023-01-01.zip", p + "BTCUSDT-liquidationSnapshot-2024-03-31.zip"] if "BTCUSDT" in p else []
+        r = F.listar_liquidacoes(("BTCUSDT",), listar=lst, subpastas=sub)
+        self.assertEqual(r["tipos"]["data/futures/um/daily/"], ["liquidationSnapshot", "metrics"])
+        c = r["candidatos"]["data/futures/um/daily/liquidationSnapshot/BTCUSDT/"]
+        self.assertEqual((c["ficheiros"], c["primeiro"], c["ultimo"]), (2, "2023-01-01", "2024-03-31"))
+
     def test_funde_nunca_perde_velas(self):
         self.assertEqual(F.funde({1: ["1", "a"], 2: ["2", "b"]}, {2: ["2", "c"], 3: ["3", "d"]}),
                          {1: ["1", "a"], 2: ["2", "c"], 3: ["3", "d"]})

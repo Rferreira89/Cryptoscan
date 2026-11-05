@@ -196,6 +196,47 @@ def lista_s3(prefixo):
     return out
 
 
+def prefixos_s3(prefixo):
+    """Subpastas (CommonPrefixes) imediatamente abaixo de um prefixo do arquivo."""
+    out, marker = [], ""
+    for _ in range(50):
+        url = f"{S3}?delimiter=/&prefix={prefixo}" + (f"&marker={marker}" if marker else "")
+        xml = _get(url, 60).decode()
+        p = re.findall(r"<Prefix>([^<]+)</Prefix>", xml)
+        p = [x for x in p if x != prefixo]
+        out += p
+        if "<IsTruncated>true</IsTruncated>" not in xml or not p:
+            break
+        marker = p[-1]
+    return out
+
+
+def listar_liquidacoes(simbolos=("BTCUSDT", "ETHUSDT", "SOLUSDT"), listar=None, subpastas=None):
+    """(05/11 15:23, autorizacao do Rui: so listar e localizar) Procura no indice do arquivo onde estao as
+    liquidacoes historicas. Nao descarrega nada e nao escreve dados: devolve o que encontrou, para o relatorio."""
+    listar = listar or lista_s3
+    subpastas = subpastas or prefixos_s3
+    out = {"tipos": {}, "candidatos": {}}
+    for raiz in ("data/futures/um/daily/", "data/futures/um/monthly/", "data/futures/cm/daily/", "data/futures/cm/monthly/"):
+        try:
+            out["tipos"][raiz] = sorted(x[len(raiz):].strip("/") for x in subpastas(raiz))
+        except Exception as e:
+            out["tipos"][raiz] = f"erro {type(e).__name__}"
+    for raiz, tipos in out["tipos"].items():
+        if not isinstance(tipos, list):
+            continue
+        for t in tipos:
+            if "liq" not in t.lower():
+                continue
+            for s in simbolos:
+                sym = s if "/um/" in raiz else s.replace("USDT", "USD_PERP")
+                chaves = [c for c in listar(f"{raiz}{t}/{sym}/") if c.endswith(".zip")]
+                datas = datas_do_indice(chaves, "monthly" in raiz)
+                out["candidatos"][f"{raiz}{t}/{sym}/"] = {"ficheiros": len(chaves), "primeiro": datas[0] if datas else None,
+                                                          "ultimo": datas[-1] if datas else None}
+    return out
+
+
 def datas_do_indice(chaves, mensal=False):
     """Datas (YYYY-MM-DD ou YYYY-MM) dos .zip de uma lista de chaves."""
     pad = r"-(\d{4}-\d{2})\.zip$" if mensal else r"-(\d{4}-\d{2}-\d{2})\.zip$"
@@ -437,6 +478,9 @@ def main_fase2(pasta, vivas, retiradas):
 
 
 if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] == "--listar-liquidacoes":
+        print(json.dumps(listar_liquidacoes(), indent=1, sort_keys=True))
+        sys.exit(0)
     if len(sys.argv) > 1 and sys.argv[1] == "--fase2":
         a = sys.argv[2:]
         pasta = a[0]
