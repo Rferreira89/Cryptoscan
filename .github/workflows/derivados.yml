@@ -1,0 +1,33 @@
+name: Historico de derivados (OI e long/short)
+# (05/11, OK do Rui) Fase 1 do plano de expansao das estrategias: open interest e racios long/short
+# desde 2021 (data.binance.vision, publico) para o ramo "derivados". Incremental: corre a pedido e todos os
+# dias; cada execucao so descarrega os dias que faltam. So dados: nao mexe em nada do que opera.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "41 3 * * *"
+permissions:
+  contents: write
+concurrency:
+  group: derivados
+  cancel-in-progress: false
+jobs:
+  derivados:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Descarregar
+        run: |
+          git clone -q --depth 1 -b derivados "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" der 2>/dev/null || mkdir -p der
+          git clone -q --depth 1 -b history "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" hist
+          BASES=$(ls hist/funding | sed 's/\.csv\.gz$//' | tr '\n' ' ')
+          DERIVADOS_LIMITE_S=18000 python -m tools.fetch_derivados der $BASES
+      - name: Publicar no ramo derivados
+        run: |
+          cd der && rm -rf .git && git init -q -b derivados && git config user.name cryptoscan-bot && git config user.email bot@users.noreply.github.com
+          git add . && git commit -q -m "derivados $(date -u +%F)"
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" derivados:derivados
