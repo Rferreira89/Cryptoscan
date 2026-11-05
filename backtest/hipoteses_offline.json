@@ -306,6 +306,20 @@
    "pergunta": "Short das altcoins mais fracas contra o BTC (fundo 10%/20% do retorno relativo de 30 dias) no ressalto até à média de 20 velas de 4H, só com o BTC em descida; 251 moedas com as retiradas, 2021-2026",
    "resultado": "CHUMBA nas 4 variantes: R médio perto de zero (-0,025 a +0,039R) e NEGATIVO sem as 5% melhores em todas; conta a 2% de risco x0,28 a x0,93 exceto Q10 1R/36h em 2023-26 (x1,31) que perde em 2021-23 (x0,51). Bate o acaso (shorts ao acaso em descida perdem ainda mais), mas não ganha.",
    "ficheiro": "backtest/estudos/h48_short_fracas_media.py"
+  },
+  {
+   "id": "H49",
+   "data": "2026-11-05",
+   "pergunta": "Long de reversao (RSI4H<25/20) em mercado lateral (BTC a menos de 4% da media de 50 dias)",
+   "resultado": "CHUMBA: 2021-23 -0,31R/-0,28R; conta a encolher em todas as variantes.",
+   "ficheiro": "backtest/estudos/h49_lateral_reversao.py"
+  },
+  {
+   "id": "H50",
+   "data": "2026-11-05",
+   "pergunta": "Aperto dos shorts: financiamento extremo negativo sem queda de preco -> long",
+   "resultado": "CHUMBA: R medio negativo nas duas metades em ambas as variantes (V1 conta x0,05 em B2).",
+   "ficheiro": "backtest/estudos/h50_aperto_shorts.py"
   }
  ]
 }
