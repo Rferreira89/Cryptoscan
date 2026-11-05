@@ -1,0 +1,29 @@
+name: OKX - TF-SHORT U2 em papel (preparado; NAO ATIVO)
+# (05/11) Preparado no ramo isolado prep-tf-short com o OK do Rui para a PREPARACAO; so fica ativo depois de um merge
+# autorizado (o GitHub so corre horarios a partir do main). So papel: API publica da OKX e volume publico da Binance,
+# SEM chaves da OKX e SEM ordens. Estado no ramo okx-tfshort (sinais, conta simulada de 20 USD, qualidade dos dados).
+on:
+  schedule:
+    - cron: "23 0 * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: okx-tfshort
+  cancel-in-progress: false
+jobs:
+  papel:
+    runs-on: [self-hosted, eu]
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Volta de papel
+        run: |
+          rm -rf /tmp/tfs && mkdir -p /tmp/tfs
+          git clone -q --depth 1 -b okx-tfshort "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" /tmp/tfs 2>/dev/null || mkdir -p /tmp/tfs
+          python3 tools/okx_tfshort.py /tmp/tfs/okx_tfshort.json --gravar
+      - name: Publicar o estado no ramo okx-tfshort
+        run: |
+          cd /tmp/tfs && rm -rf .git && git init -q -b okx-tfshort && git config user.name cryptoscan-bot && git config user.email bot@users.noreply.github.com
+          git add okx_tfshort.json && git commit -q -m "tf-short papel $(date -u +%FT%TZ)"
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" okx-tfshort:okx-tfshort
