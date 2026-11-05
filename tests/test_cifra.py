@@ -28,7 +28,10 @@ class Cifra(unittest.TestCase):
     def test_ida_e_volta_e_selo(self):
         env = C.cifrar_bytes(b'{"equity": 347.31}', "segredo-teste")
         self.assertTrue(C.e_envelope(env))
-        self.assertNotIn("347", json.dumps(env))
+        # (05/11) o envelope e base64 aleatorio e pode conter digitos como "347" por acaso (falha intermitente);
+        # o valor em claro tem "." e o nome do campo tem aspas, que o base64 e o envelope nunca contem
+        self.assertNotIn("347.31", json.dumps(env))
+        self.assertNotIn('"equity"', json.dumps(env))
         self.assertEqual(C.decifrar_bytes(env, "segredo-teste"), b'{"equity": 347.31}')
         with self.assertRaises(C.Invalido):
             C.decifrar_bytes(env, "outra")
@@ -47,7 +50,8 @@ class Cifra(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d, mock.patch.dict(os.environ, {"DATA_KEY": "pw-teste"}):
             p = os.path.join(d, "state.json")
             C.gravar_texto(p, '{"capital": 120.55}')
-            self.assertNotIn("120", open(p).read())
+            self.assertNotIn("120.55", open(p).read())
+            self.assertNotIn('"capital"', open(p).read())
             self.assertEqual(json.loads(C.ler_texto(p)), {"capital": 120.55})
             C._main(["abrir", p])
             self.assertEqual(json.load(open(p)), {"capital": 120.55})
@@ -61,6 +65,16 @@ class Cifra(unittest.TestCase):
             self.assertEqual(dd["deriv"], [1])
             C._main(["abrir-campo", q, "conta"])
             self.assertEqual(json.load(open(q))["conta"], {"equity": 9})
+
+    def test_envelope_com_digitos_por_acaso_nao_falha(self):
+        """(05/11) Reproducao da falha intermitente: com esta semente o selo contem "120" por acaso."""
+        import random
+        rng = random.Random(1017)
+        with mock.patch.object(C.os, "urandom", lambda k: bytes(rng.getrandbits(8) for _ in range(k))):
+            env = json.dumps(C.cifrar_bytes(b'{"capital": 120.55}', "pw-teste"), separators=(",", ":"))
+        self.assertIn("120", env)                       # o caso que fazia o teste antigo falhar
+        self.assertNotIn("120.55", env)                 # o valor em claro nunca aparece
+        self.assertNotIn('"capital"', env)
 
 
 if __name__ == "__main__":
