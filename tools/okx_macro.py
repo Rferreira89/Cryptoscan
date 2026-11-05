@@ -50,7 +50,9 @@ def sinal(d):
 def correr(st):
     M = st.setdefault("macro", {"abertas": {}, "fechadas": [], "ultimo": {}})
     msgs, novos, vistos, sem_hist = [], [], 0, 0
-    for base, inst in sorted(contratos().items()):
+    lista = contratos()
+    retirar_fora(M, lista)
+    for base, inst in sorted(lista.items()):
         d = diario(inst)
         time.sleep(0.12)
         s = sinal(d)
@@ -81,6 +83,19 @@ def correr(st):
                    "ret_medio_pct": round(sum(rs) / len(rs), 2) if rs else None}
     del M["fechadas"][:-1000]
     return msgs
+
+
+def retirar_fora(M, lista):
+    """(05/11) Operacoes em papel de contratos que deixaram de pertencer a este agente (passaram a cripto pelo
+    instCategory, ou ETF alavancados agora em FORA) nunca mais eram vistas e ficavam abertas para sempre, a sujar o
+    resumo. Saem para "retiradas", sem resultado (nao contam na media). So com a lista lida (API em baixo nao apaga)."""
+    if not lista:
+        return []
+    fora = sorted(b for b in M["abertas"] if b not in lista)
+    for b in fora:
+        M.setdefault("retiradas", []).append({"asset": b, **M["abertas"].pop(b), "motivo": "fora do agente macro"})
+    del M.setdefault("retiradas", [])[:-200]
+    return fora
 
 
 def main(caminho):
