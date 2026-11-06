@@ -100,8 +100,6 @@ class Preservacao(unittest.TestCase):
             src = open(os.path.join(raiz, f), encoding="utf-8").read()
             self.assertNotIn("import registo", src, f); self.assertNotIn("registo as G", src, f)
 
-if __name__ == "__main__":
-    unittest.main()
 
 
 class Completar(unittest.TestCase):
@@ -141,11 +139,12 @@ class Completar(unittest.TestCase):
     def test_relatorio_semanal_separa_os_blocos(self):
         import relatorio_semanal as RS
         ops, rec, ag = MG.migrar(STATE, OKX, TFS, self.FORMA, self.LIGA)
-        t = RS.texto({"ops": ops, "agregados": ag, "reconciliacao": rec}, "2026-S45")
-        for titulo in ("Real: operações executadas", "Sinais reais que não chegaram", "Papel", "Sombra", "Investigação: arena", "Liga semanal",
-                       "Campos em falta", "Alertas", "Preservação: todas as fontes conferem"):
+        t = RS.texto(ops, G.abertas_reais(STATE, OKX), ag, rec, "2026-S45")
+        for titulo in ("1. REAL — executadas e fechadas", "2. REAL — posições abertas", "3. REAL — executadas com resultado",
+                       "4. PAPEL", "5. SOMBRA", "6. BACKTESTS E INVESTIGAÇÃO", "Alertas",
+                       "Preservação: todas as fontes conferem"):
             self.assertIn(titulo, t)
-        bloco_real = t.split("## Real")[1].split("## ")[0]
+        bloco_real = t.split("1. REAL")[1].split("2. REAL")[0]
         self.assertIn("LIQUIDITY_SWEEP", bloco_real); self.assertNotIn("PANICO_BYBIT", bloco_real)
 
 
@@ -164,3 +163,60 @@ class SEIDesconhecida(unittest.TestCase):
         self.assertEqual((m["fechadas"], m["com_r"], m["sem_r"]), (2, 1, 1))
         self.assertEqual(m["soma_r"], 1.06)                                   # os +1,31 do sinal nao entram
         self.assertEqual(m["expectativa_r"], 1.06)
+
+
+class SeisBlocos(unittest.TestCase):
+    """(06/11) O relatorio separa real fechadas / real abertas / real desconhecido / papel / sombra / investigacao e
+    nunca conta duas vezes a mesma operacao."""
+    def setUp(self):
+        from tools import relatorio_semanal as RS
+        self.RS = RS
+        self.state = {"ledger": [
+            {"id": "A-X-1", "status": "CLOSED", "executed": True, "real_r": -1.0, "asset": "A", "side": "LONG", "opened_at": 1},
+            {"id": "B-X-2", "status": "CLOSED", "executed": True, "real_r": None, "result_r": 1.31, "asset": "B",
+             "side": "SHORT", "opened_at": 2, "real": {"fechada": False}},
+            {"id": "C-X-3", "status": "OPEN", "executed": True, "asset": "C", "side": "LONG", "opened_at": 3},
+            {"id": "D-X-4", "status": "CLOSED", "executed": False, "result_r": 0.5, "asset": "D", "side": "LONG", "opened_at": 4}]}
+        self.sombra = {"fechadas": [{"moeda": "E", "t": 5, "t_saida": 6, "R": 0.7, "motivo": "alvo", "custos_usd": 0.01}]}
+
+    def ops(self):
+        return G.do_ledger(self.state) + G.do_tfs_sombra(self.sombra)
+
+    def test_cada_operacao_num_so_bloco(self):
+        b = self.RS.blocos(self.ops(), G.abertas_reais(self.state, {}), [])
+        self.assertEqual([o["id_origem"] for o in b["real_fechadas"]], ["A-X-1"])
+        self.assertEqual([o["id_origem"] for o in b["real_desconhecido"]], ["B-X-2"])
+        self.assertEqual([a["id"] for a in b["real_abertas"]], ["C-X-3"])
+        self.assertEqual(sorted(o["classe"] for o in b["sombra"]), ["sinal_nao_executado", "sombra"])
+        self.assertEqual(b["papel"], []); self.assertEqual(b["investigacao"], [])
+
+    def test_r_do_sinal_nunca_conta_como_real(self):
+        t = self.RS.texto(self.ops(), G.abertas_reais(self.state, {}), [], {})
+        bloco1 = t.split("2. REAL")[0]
+        self.assertIn("-1.00", bloco1); self.assertNotIn("1.31", bloco1)
+        self.assertIn("NÃO conta", t.split("3. REAL")[1].split("4. PAPEL")[0])
+
+    def test_duplicado_entre_fontes_conta_uma_vez(self):
+        ops = self.ops()
+        copia = dict(ops[0]); copia["fonte"] = "outra"
+        ops.append(copia)
+        self.assertEqual(len(G.duplicados(ops)), 1)
+        b = self.RS.blocos(ops, [], [])
+        self.assertEqual(len(b["real_fechadas"]), 1)
+
+    def test_estrategias_diferentes_mesmo_par_nao_sao_duplicado(self):
+        o1 = G.op("S1", "papel", "bybit", "X", "f1", "1", {}, R=1, t_entrada=10)
+        o2 = G.op("S2", "papel", "bybit", "X", "f2", "2", {}, R=1, t_entrada=10)
+        self.assertEqual(G.duplicados([o1, o2]), [])
+
+    def test_sem_dinheiro_no_texto(self):
+        t = self.RS.texto(self.ops(), [], [], {})
+        self.assertNotIn("USD", t)
+
+    def test_partes_respeitam_limite_do_telegram(self):
+        ps = self.RS.partes("linha\n" * 2000)
+        self.assertTrue(all(len(p) <= 3900 for p in ps)); self.assertEqual("".join(ps), "linha\n" * 2000)
+
+
+if __name__ == "__main__":
+    unittest.main()

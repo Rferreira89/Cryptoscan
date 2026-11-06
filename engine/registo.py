@@ -138,6 +138,67 @@ def do_tfshort(st):
     return out
 
 
+def do_tfs_sombra(st):
+    """TF-SHORT em SOMBRA (tools/tfs_sombra.py): ordens que o executor enviaria, simuladas sem tocar na OKX."""
+    out = []
+    for i, r in enumerate((st or {}).get("fechadas") or []):
+        out.append(op("TF-SHORT sombra", "sombra", "okx", r.get("moeda"), "okx_tfshort_sombra",
+                      f"sombra-{r.get('moeda')}-{r.get('t')}-{i}", r, R=r.get("R"), lado="SHORT",
+                      t_entrada=r.get("t"), t_saida=r.get("t_saida"), motivo=r.get("motivo"),
+                      custos={"comissao": r.get("custos_usd"), "financiamento": r.get("fund_usd")}))
+    return out
+
+
+def abertas_reais(state, okx):
+    """Posicoes reais ainda abertas (nao sao operacoes fechadas; nunca entram nas metricas)."""
+    out = []
+    for r in (state or {}).get("ledger") or []:
+        if r.get("executed") is True and r.get("status") != "CLOSED" and r.get("mode") in (None, "REAL"):
+            out.append({"corretora": "bybit", "id": r.get("id"), "moeda": r.get("asset"), "lado": r.get("side"),
+                        "desde": r.get("opened_at") or r.get("issued_at")})
+    for k, v in (((okx or {}).get("real") or {}).get("ops") or {}).items():
+        out.append({"corretora": "okx", "id": k, "moeda": (v or {}).get("asset"), "lado": "LONG",
+                    "desde": (v or {}).get("t_fill") or (v or {}).get("criado")})
+    # tendencia BTC (nucleo): o estado so existe na copia privada; na publica fica None = "nao visivel", nunca 0
+    nb = (state or {}).get("nucleo")
+    for a, v in ((nb or {}).get("pos") or {}).items():
+        if v:
+            out.append({"corretora": "bybit", "id": f"nucleo-{a}", "moeda": a, "lado": "LONG", "desde": (v or {}).get("desde")})
+    return out
+
+
+def nucleo_visivel(state):
+    return isinstance((state or {}).get("nucleo"), dict)
+
+
+def duplicados(ops):
+    """Mesma operacao vinda de duas fontes na MESMA classe (contaria duas vezes): (classe, estrategia, corretora, moeda,
+    lado, t_entrada). Devolve as chaves repetidas; o relatorio mostra-as como alerta e conta-as uma so vez."""
+    vistos, rep = {}, []
+    for o in ops:
+        if o["t_entrada"] is None:
+            continue
+        k = (o["classe"], o["estrategia"], o["corretora"], o["moeda"], o["lado"], int(o["t_entrada"]))
+        if k in vistos and vistos[k] != o["fonte"]:
+            rep.append(k)
+        vistos.setdefault(k, o["fonte"])
+    return rep
+
+
+def sem_duplicados(ops):
+    """Remove (so para as contas) a segunda copia de cada chave de duplicados(); o registo original fica intacto."""
+    vistos, out = set(), []
+    for o in ops:
+        k = None if o["t_entrada"] is None else (o["classe"], o["estrategia"], o["corretora"], o["moeda"], o["lado"],
+                                                 int(o["t_entrada"]))
+        if k is not None and k in vistos:
+            continue
+        if k is not None:
+            vistos.add(k)
+        out.append(o)
+    return out
+
+
 def de_lista(ops, estrategia, origem="investigacao", corretora=None, fonte="investigacao"):
     """Operacoes de um backtest/estudo (lista de dicts com R) como origem 'investigacao'."""
     return [op(estrategia, origem, corretora, o.get("a") or o.get("moeda"), fonte, f"{fonte}-{i}", o,
