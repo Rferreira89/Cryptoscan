@@ -1695,3 +1695,136 @@ Notas para as próximas execuções:
   mesmos dados (diários agendados); 63 no contador global de estudos
   offline. Com 25 tentativas, a probabilidade de pelo menos um falso
   positivo a 5% ronda os 72%.
+
+### 2026-11-06 — H14: viés do espelho nos shorts (preço real contra espelho)
+
+**Escrito antes de correr qualquer teste.**
+
+- Situação (scan.json de 06/11): regime **lateral** (desde 2026-10-15);
+  **nenhum campeão vivo** (`promo.campeoes` vazio, 28 suspensos por "não
+  pagou as contas do mês"). Combate de 90 d (`forma.json`, 46 moedas): acima
+  do p95 do acaso só lutadores da sobrevenda (BOUNCE_AMPLITUDE +0,82R em 15
+  op., BOUNCE_G0/V2/V3, DESALAV, CAPITULACAO, BOUNCE_X30_*). Ringue longo
+  (`longo.json`, 365 d, 50 moedas): subida e lateral só sobrevenda acima do
+  p95; **queda** só shorts: SHORT_X30 (87 op., +0,34R, p95 +0,10R),
+  SHORT_ISOLADA (74, +0,30R, p95 +0,12R), SHORT_FALSO_ROMP (76, +0,23R, p95
+  +0,03R). SHORT_TURTLE na lateral +0,36R em 274 op., mas p95 +0,73R.
+- Porque esta e não uma família nova: é a proposta da H13. Os shorts são a
+  **única** cobertura fora da sobrevenda, e o ringue avalia-os no espelho
+  (velas 1/preço). Se o espelho inflacionar o R, essa cobertura é ilusória
+  e a procura de shorts mudaria. Mede lutadores existentes (não é um sinal
+  novo): não sobe o contador de falsos positivos.
+- Hipótese (lógica): ao vivo o short executa nos níveis do espelho
+  convertidos (stop = 1/stop_m, objetivos = 1/tp_m). Num short real a perda
+  no stop é −1R, mas o ganho por unidade é (p − p_saída)/(p_stop − p) =
+  R_espelho × m_stop/m_saída < R_espelho. Quanto mais largo o stop e mais
+  longe o objetivo, maior o encolhimento (SHORT_TURTLE: stop 2N, 5R). Junta-se
+  o juro do empréstimo da margem spot (20%/ano sobre o valor, toda a duração;
+  conservador). O acaso no espelho tem o mesmo viés, por isso o percentil
+  pode aguentar-se mesmo que o R absoluto caia.
+- Grelha (4 lutadores, exatamente as funções de `SHORT_SIGS`):
+  M1 SHORT_X30, M2 SHORT_ISOLADA, M3 SHORT_FALSO_ROMP (só na fase queda por
+  construção), M4 SHORT_TURTLE. Para cada sinal do espelho: (a) operação no
+  espelho como no ringue (`generic_trades`); (b) a mesma operação em preço
+  real com `engine/trade` `side="SHORT"` (mesmos níveis convertidos, entrada
+  na abertura seguinte, 0,25% de comissão e 0,1% de slippage por lado,
+  breakeven, stop que segue e tempo máximo iguais); (c) (b) menos o juro.
+  Acaso: (a) contra entradas ao acaso no espelho (como o ringue); (b) contra
+  shorts reais ao acaso com a geometria real (`arena.control_rs`,
+  side="SHORT", mesma moeda, ±90 velas).
+- Janelas: **L** últimos 365 d por regime (queda para M1–M3, lateral para
+  M4; os outros regimes informativos); **B** 2021-08-01 a 2024-10-10 e **A**
+  2024-10-11 ao fim, no mesmo regime. Histórico do ramo `history` (4H).
+- Critérios (escritos antes):
+  1. **Viés material** se R real (sem juro) − R espelho ≤ −0,05R em L.
+  2. **Cobertura real confirmada** para M1–M3 na queda (M4 na lateral) se em
+     L: n ≥ 20, R real com juro > 0, R real sem juro acima do p95 dos shorts
+     reais ao acaso, e as duas metades (por tempo) com R real > 0; e em A o
+     R real com juro > 0.
+  3. Consequência: viés material e cobertura que cai → proposta ao Rui de
+     passar o juízo dos shorts no ringue para preço real (mexe no método de
+     todos os shorts: não o faço sozinho). Nada entra no ringue (não há
+     lutador novo); REAL_OK não se mexe.
+- Previsão: viés pequeno em M1–M3 (stop curto, objetivo na média de 20;
+  −0,02R a −0,06R) e grande em M4 (≥ −0,15R).
+- Hipóteses testadas até agora: 14 entradas neste diário (H1 a H14; a H14
+  é uma medição, não um sinal novo); 25 contra os mesmos dados (diários
+  agendados, sem mudança); 63 no contador global de estudos offline.
+
+**Resultados** (ramo `history`, 4H até 2026-11-02 16:00 UTC; 67 moedas além
+do BTC; shorts sem filtro do BTC, como no ringue;
+`backtest/afinacao_h14_espelho.json`; código `tools/afinacao_h14_espelho.py`;
+testes do −1R no stop, do ganho encolhido, do juro, do diário sem
+look-ahead e da entrada na vela seguinte em `tests/test_afinacao_h14.py`).
+"Real" = mesma operação em preço real (`side="SHORT"`); "real−juro" = menos
+20%/ano sobre o valor durante toda a operação. Percentil e p95 do real são
+contra shorts reais ao acaso com a mesma geometria.
+
+| Lutador / regime (janela) | op. | R espelho | R real | R real−juro | viés | p95 acaso espelho / real | perc. espelho / real | metades (real−juro) |
+|---|---|---|---|---|---|---|---|---|
+| M1 SHORT_X30, queda (L 365 d) | 110 | +0,354 | +0,276 | +0,257 | −0,078 | +0,101 / +0,038 | 100 / 100 | +0,431 / +0,083 |
+| M1 SHORT_X30, queda (B 2021-24) | 102 | −0,059 | −0,110 | −0,126 | −0,051 | +0,025 / −0,030 | 76 / 75 | +0,085 / −0,338 |
+| M2 SHORT_ISOLADA, queda (L) | 93 | +0,294 | +0,221 | +0,202 | −0,073 | +0,136 / +0,063 | 100 / 100 | +0,414 / **−0,006** |
+| M2 SHORT_ISOLADA, queda (B) | 74 | −0,107 | −0,149 | −0,164 | −0,042 | +0,044 / −0,007 | 56 / 56 | +0,016 / −0,343 |
+| M3 SHORT_FALSO_ROMP, queda (L) | 97 | +0,263 | +0,150 | +0,137 | −0,113 | −0,003 / −0,074 | 100 / 100 | +0,193 / +0,082 |
+| M3 SHORT_FALSO_ROMP, queda (B) | 116 | +0,025 | −0,039 | −0,053 | −0,064 | +0,003 / −0,060 | 97 / 97 | −0,111 / +0,004 |
+| M4 SHORT_TURTLE, lateral (L) | 409 | +0,351 | +0,149 | +0,093 | −0,202 | +0,770 / +0,482 | 0 / 0 | +0,302 / −0,115 |
+| M4 SHORT_TURTLE, lateral (B) | 640 | +0,324 | +0,088 | +0,044 | −0,236 | +0,690 / +0,391 | 0 / 0 | +0,126 / −0,038 |
+| M4 SHORT_TURTLE, lateral (A 2024-26) | 853 | +0,135 | −0,061 | −0,107 | −0,196 | +0,774 / +0,412 | 0 / 0 | −0,305 / +0,090 |
+
+(Na queda, A = L: toda a queda de 2024-26 cai no último ano. Todos os
+shorts no último ano, informativo: SHORT_X30 875 op., −0,129R espelho /
+−0,193R real−juro; SHORT_ISOLADA 731 op., −0,116R / −0,180R.)
+
+- **O viés existe e é material em todos** (critério 1: ≤ −0,05R): −0,07R a
+  −0,08R na sobrecompra (stop médio ~8–9%), −0,11R no falso rompimento e
+  −0,16R a −0,24R nas Tartarugas (stop médio 13–16%, objetivo 5R; o juro
+  pesa mais +0,05R porque ficam ~13 dias). A previsão acertou no sentido e
+  subestimou a sobrecompra (previa −0,02R a −0,06R).
+- **O percentil face ao acaso quase não muda**: o acaso no espelho tem o
+  mesmo viés (o p95 desce 0,06R a 0,29R quando passa a real). O teste
+  contra o acaso do ringue é justo; o que está inflacionado é o **R
+  absoluto**, que é o que paga as contas e o que entra no critério "R médio
+  > 0".
+- Critério 2 (cobertura real na queda, último ano): **M1 SHORT_X30 passa**
+  (+0,26R real−juro, p95 real +0,04R, metades +0,43/+0,08R); **M3
+  SHORT_FALSO_ROMP passa** (+0,14R, p95 real −0,07R, metades +0,19/+0,08R);
+  **M2 SHORT_ISOLADA falha** (segunda metade −0,006R); **M4 SHORT_TURTLE
+  falha** (+0,09R contra p95 real +0,48R, como já falhava no espelho).
+- Mas em **B (2021-24)** a mesma queda dá R real negativo nos três
+  (−0,13R, −0,16R, −0,05R): a cobertura da queda assenta num só episódio
+  (2025-26), como a H5 já tinha visto. A segunda metade do último ano já só
+  dá +0,08R nos dois que passam.
+
+**Veredicto: viés CONFIRMADO; cobertura da queda real mas frágil.** Pelos
+critérios escritos: SHORT_X30 e SHORT_FALSO_ROMP mantêm-se acima do acaso
+em preço real com juro no último ano; SHORT_ISOLADA e SHORT_TURTLE não.
+Nada entra no ringue (não é lutador novo); REAL_OK não se mexe; o ringue
+não foi alterado.
+
+Notas para as próximas execuções:
+
+- **Para a sessão com o Rui** (mexe no método de todos os shorts, não o
+  faço sozinho): passar o juízo dos shorts no ringue para preço real
+  (simular a operação com `trade` `side="SHORT"` nos níveis convertidos, e o
+  acaso também em real, com o juro). Muda o R de todos os shorts em −0,04R
+  a −0,24R; o percentil quase não muda. Até lá, ler o R dos shorts no
+  `forma.json`/`longo.json` como otimista em ~0,08R (sobrecompra) e ~0,2R
+  (Tartarugas).
+- Regime atual **lateral**; regimes sem campeão vivo: **todos** (nenhum
+  campeão hoje). Fora da sobrevenda: **subida** e **lateral** sem nada
+  acima do acaso; **queda** só SHORT_X30 e SHORT_FALSO_ROMP, reais no último
+  ano mas negativos em 2021-24.
+- Proposta para a próxima execução (H15): a lateral é o regime atual e
+  continua sem nenhuma família fora da sobrevenda. Candidata: **compra na
+  reentrada no intervalo depois de um falso rompimento em baixa do mínimo de
+  20 dias só com o BTC lateral E o volume da vela de falha ≥ 2× a média**
+  (a auditoria S/R de 22/10 testou o falso rompimento sem filtro de volume
+  e sem filtro de fase). Antes de pré-registar: confirmar que não está nos
+  estudos H28/H31 (filtro de volume) — se estiver, procurar antes uma
+  família de fluxo (OI do `forma.json`: `oi_moedas`) para a lateral.
+- Hipóteses testadas até agora: 14 entradas neste diário (H1 a H14; a H14
+  é uma medição de lutadores existentes); 25 contra os mesmos dados
+  (diários agendados, sem mudança); 63 no contador global de estudos
+  offline. Com 25 tentativas, a probabilidade de pelo menos um falso
+  positivo a 5% ronda os 72%.
