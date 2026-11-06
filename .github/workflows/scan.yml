@@ -59,11 +59,18 @@ jobs:
             # restantes minutos, so acompanhamento das operacoes abertas
             if [ $(( NOW % 300 )) -lt 60 ]; then MODE=scan; else MODE=monitor; fi
             # (04/11) o agendamento do GitHub atrasa ou salta: o ciclo tambem lanca o agente OKX uma vez por hora
-            if [ $(( NOW % 3600 )) -ge 420 ] && [ $(( NOW % 3600 )) -lt 480 ]; then
-              gh workflow run okx-agente.yml --repo "${{ github.repository }}" --ref main >/dev/null 2>&1 || echo "agente OKX nao lancado"
+            # (06/11, OK do Rui) antes era so no minuto hh:07; se o scan das hh:05 demorava, a hora ficava sem agente
+            # nem vigia (05/11: 3 h 45 min parado). Agora: uma vez por hora, no primeiro ciclo entre hh:07 e hh:30;
+            # se o lancamento falhar, tenta no ciclo seguinte.
+            # >>> lancamento-okx
+            SH=$(( NOW % 3600 )); HORA=$(( NOW / 3600 ))
+            if [ "$SH" -ge 420 ] && [ "$SH" -lt 1800 ] && [ "$HORA" != "${OKX_HORA:-}" ]; then
+              OKX_HORA=$HORA
+              gh workflow run okx-agente.yml --repo "${{ github.repository }}" --ref main >/dev/null 2>&1 || { echo "agente OKX nao lancado"; OKX_HORA=; }
               # (04/11) vigia: batimento do agente OKX e stops das operacoes reais
               timeout 60 python3 tools/vigia.py || echo "vigia falhou"
             fi
+            # <<< lancamento-okx
             # (06/11, OK do Rui) o horario do GitHub nao lancou o paper TF-SHORT nem a recolha de dados novos: o ciclo
             # lanca-os uma vez por dia, depois da hora marcada (00:23 e 00:47 UTC), so se ainda nao houve execucao hoje.
             # Verifica so nos ciclos de scan (de 5 em 5 minutos). So lanca workflows de dados publicos e papel.
