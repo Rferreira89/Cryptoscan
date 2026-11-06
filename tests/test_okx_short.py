@@ -240,3 +240,22 @@ class Isolamento(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SenhaDaSombra(unittest.TestCase):
+    def test_imitacoes_continuam_bloqueadas(self):
+        class Falsa(Corretora):
+            senha = object()                                   # outra senha qualquer
+        class Texto(Corretora):
+            senha = "_SOMBRA"
+        for cli in (Falsa(), Texto()):
+            with self.assertRaises(S.EnvioBloqueado):
+                S._enviar(cli, {"short_real": True}, "POST", "/api/v5/trade/order", {})
+            self.assertEqual(cli.escritas(), [])
+
+    def test_so_a_corretora_sombra_do_repositorio_aceita_escritas(self):
+        import okx_sombra as W
+        c = W.CorretoraSombra({"precos": {"X": 1.0}})
+        d = S._enviar(c, {}, "POST", "/api/v5/trade/order", {"instId": "X", "side": "sell", "sz": "1", "clOrdId": "a", "ordType": "market"})
+        self.assertTrue(d)                                     # simulacao em memoria: sem rede
+        self.assertFalse(hasattr(c, "urlopen"))

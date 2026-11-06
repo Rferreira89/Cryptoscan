@@ -26,6 +26,9 @@ VALIDADE_ORDEM_S = 8 * 3600
 ESCRITA = ("/api/v5/trade/", "/api/v5/account/set-leverage", "/api/v5/account/position/margin-balance")
 
 
+_SOMBRA = object()                    # senha da corretora sombra (simulacao sem rede); ver _enviar
+
+
 class EnvioBloqueado(RuntimeError):
     """Tentativa de mudar a conta com o interruptor desligado."""
 
@@ -46,7 +49,10 @@ def real_permitido(cfg):
 def _enviar(cli, cfg, metodo, path, corpo=None):
     """Unica porta para a corretora. Leituras passam; escritas so com o interruptor absoluto E o de configuracao."""
     escrita = metodo != "GET"                              # qualquer POST/DELETE muda a conta
-    if escrita and not real_permitido(cfg):
+    # unica excecao: a corretora SOMBRA deste repositorio (tools/okx_sombra.CorretoraSombra), simulacao em memoria
+    # sem rede, identificada pelo objeto-senha _SOMBRA (nao e um nome nem uma configuracao que se possa imitar)
+    sombra = getattr(cli, "senha", None) is _SOMBRA
+    if escrita and not sombra and not real_permitido(cfg):
         raise EnvioBloqueado(f"short real desligado: {metodo} {path} nao enviado")
     try:
         r = cli(metodo, path, corpo)
