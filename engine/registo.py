@@ -13,17 +13,27 @@ id_origem, bruto."""
 import copy
 
 ORIGENS = ("real", "papel", "sombra", "investigacao")
+# classe: o que aconteceu de facto. So "executada" e dinheiro real; as outras nunca se somam com ela.
+CLASSES = {"executada": "real", "sinal_nao_executado": "sombra", "papel": "papel", "sombra": "sombra",
+           "investigacao": "investigacao"}
+CAMPOS_CHAVE = ("R", "lado", "t_entrada", "t_saida", "regime")
 CUSTOS = ("comissao", "spread", "deslize", "financiamento")
 SEMANA = 7 * 86400
 
 
 def op(estrategia, origem, corretora, moeda, fonte, id_origem, bruto, R=None, lado=None, t_entrada=None,
-       t_saida=None, motivo=None, regime=None, custos=None):
+       t_saida=None, motivo=None, regime=None, custos=None, classe=None):
     if origem not in ORIGENS:
         raise ValueError(f"origem invalida: {origem}")
+    classe = classe or {"real": "executada"}.get(origem, origem)
+    if CLASSES.get(classe) != origem:
+        raise ValueError(f"classe {classe} nao combina com a origem {origem}")
     c = {k: None for k in CUSTOS}
     c.update(custos or {})
-    return {"estrategia": estrategia, "origem": origem, "corretora": corretora, "moeda": moeda,
+    vals = {"R": R, "lado": lado, "t_entrada": t_entrada, "t_saida": t_saida, "regime": regime}
+    falta = [k for k in CAMPOS_CHAVE if vals[k] in (None, "")] + [f"custos.{k}" for k in CUSTOS if c[k] is None]
+    return {"estrategia": estrategia, "origem": origem, "classe": classe, "em_falta": falta,
+            "corretora": corretora, "moeda": moeda,
             "lado": (lado or "").upper() or None, "t_entrada": t_entrada, "t_saida": t_saida,
             "R": None if R is None else float(R), "motivo": motivo, "regime": regime, "custos": c,
             "fonte": fonte, "id_origem": str(id_origem), "bruto": copy.deepcopy(bruto)}
@@ -40,10 +50,20 @@ def do_ledger(state):
         real = r.get("executed") is True
         rid = r.get("id") or ""
         estr = r.get("strategy") or (rid.split("-")[1] if rid.count("-") >= 2 else "?")
-        out.append(op(estr, "real" if real else "sombra", "bybit", r.get("asset"), "state.ledger",
-                      r.get("id") or f"ledger-{i}", r, R=r.get("real_r") if real else r.get("result_r"),
+        # R real: real_r; se o Rui fechou a mao, user_result_r (campo da fonte, nunca inventado)
+        Rreal = r.get("real_r") if r.get("real_r") is not None else r.get("user_result_r")
+        o = op(estr, "real" if real else "sombra", "bybit", r.get("asset"), "state.ledger",
+                      r.get("id") or f"ledger-{i}", r, R=Rreal if real else r.get("result_r"),
+                      classe="executada" if real else "sinal_nao_executado",
                       lado=r.get("side"), t_entrada=r.get("opened_at"), t_saida=r.get("closed_at"),
-                      motivo=r.get("reason"), regime=r.get("regime")))
+                      motivo=r.get("reason"), regime=r.get("regime"))
+        if real:
+            o["R_sinal"] = r.get("result_r")                 # o R do sinal (simulado), so para comparar
+            o["r_fonte"] = "real_r" if r.get("real_r") is not None else ("user_result_r" if Rreal is not None else None)
+            rr = r.get("real")
+            if isinstance(rr, dict) and rr.get("fechada") is False:
+                o["alerta"] = "execucao real marcada como NAO fechada na fonte: confirmar na conta da Bybit"
+        out.append(o)
     return out
 
 
@@ -118,12 +138,52 @@ def de_lista(ops, estrategia, origem="investigacao", corretora=None, fonte="inve
             for i, o in enumerate(ops)]
 
 
+# ---------- agregados (arena e liga): nao sao operacoes; ficam ao lado, intactos ----------
+def agregado(estrategia, origem, fonte, bruto, n=None, media_r=None, soma_r=None, acerto=None, veredicto=None,
+             derivado_de=None):
+    return {"estrategia": estrategia, "origem": origem, "fonte": fonte, "n": n, "media_r": media_r, "soma_r": soma_r,
+            "acerto_pct": acerto, "veredicto": veredicto, "derivado_de": derivado_de, "bruto": copy.deepcopy(bruto)}
+
+
+def do_arena(state, forma=None, liga=None):
+    """(agregados, controlos). forma (ramo arena, forma.json): combates nos ultimos 90 dias, re-simulados de hora a
+    hora = INVESTIGACAO. liga (scan.json): tabela semanal calculada a partir das operacoes de papel/sombra que ja estao
+    no registo -> 'derivado', nunca somado de novo. arena.ctrl: resultados ao acaso com a mesma geometria, por sinal."""
+    ag = []
+    for nome, v in ((forma or {}).get("lutadores") or {}).items():
+        n, w = v.get("n"), v.get("wins")
+        ag.append(agregado(nome, "investigacao", "arena.forma", v, n=n, media_r=v.get("avg_r"), soma_r=v.get("total_r"),
+                           acerto=round(100 * w / n, 1) if n and w is not None else None, veredicto=v.get("veredicto")))
+    for row in (liga or {}).get("tabela") or []:
+        ag.append(agregado(row.get("id"), "papel", "liga", row, n=row.get("n"), media_r=row.get("avg_r"),
+                           derivado_de="operacoes de papel e sombra do state (ja migradas)"))
+    ar = state.get("arena") or {}
+    for chave in ("status", "mortos", "renascidos", "longo", "forma"):
+        if ar.get(chave):
+            ag.append(agregado(None, "investigacao", f"arena.estado.{chave}", ar[chave]))
+    controlos = {k: list(v) for k, v in (ar.get("ctrl") or {}).items()}
+    return ag, controlos
+
+
+def juntar_controlos(ops, controlos):
+    """Junta a cada operacao os seus controlos ao acaso (mesma geometria), sem mudar o R da operacao."""
+    for o in ops:
+        c = controlos.get(o["id_origem"])
+        if c:
+            srt = sorted(c)
+            o["controlo_acaso"] = {"n": len(c), "mediana_r": srt[len(srt) // 2], "p95_r": srt[int(0.95 * (len(srt) - 1))]}
+    return ops
+
+
 # ---------- metricas uniformes ----------
 def metricas(ops):
     """Metricas de UMA estrategia numa UMA origem. Operacoes sem R contam em 'sem_r' e ficam fora das contas de R."""
     origens = {o["origem"] for o in ops}
     if len(origens) > 1:
         raise ValueError(f"origens misturadas: {sorted(origens)} (real e simulado nunca se somam)")
+    classes = {o.get("classe") for o in ops}
+    if len(classes) > 1:
+        raise ValueError(f"classes misturadas: {sorted(map(str, classes))}")
     rs = [o["R"] for o in ops if o["R"] is not None]
     ts = [o["t_saida"] or o["t_entrada"] for o in ops if (o["t_saida"] or o["t_entrada"])]
     eq = pk = dd = 0.0
@@ -140,7 +200,12 @@ def metricas(ops):
             if o["R"] is not None:
                 g.setdefault(o[chave] or "?", []).append(o["R"])
         return {k: {"n": len(v), "soma_r": round(sum(v), 4), "media_r": round(sum(v) / len(v), 4)} for k, v in sorted(g.items())}
-    return {"origem": next(iter(origens)) if origens else None, "fechadas": len(ops), "com_r": len(rs),
+    falta = {}
+    for o in ops:
+        for k in o.get("em_falta") or []:
+            falta[k] = falta.get(k, 0) + 1
+    return {"origem": next(iter(origens)) if origens else None, "classe": next(iter(classes)) if classes else None,
+            "campos_em_falta": falta, "fechadas": len(ops), "com_r": len(rs),
             "sem_r": len(ops) - len(rs), "soma_r": round(sum(rs), 4), "expectativa_r": round(sum(rs) / len(rs), 4) if rs else None,
             "profit_factor": round(ganhos / perdas, 3) if perdas else (None if not ganhos else float("inf")),
             "queda_max_r": round(dd, 4), "acerto_pct": round(100 * sum(1 for r in rs if r > 0) / len(rs), 1) if rs else None,
@@ -148,10 +213,10 @@ def metricas(ops):
 
 
 def tabela(ops):
-    """{(estrategia, origem): metricas} para tudo o que foi migrado."""
+    """{(estrategia, classe): metricas} para tudo o que foi migrado (classe e mais fina do que a origem)."""
     g = {}
     for o in ops:
-        g.setdefault((o["estrategia"], o["origem"]), []).append(o)
+        g.setdefault((o["estrategia"], o["classe"]), []).append(o)
     return {k: metricas(v) for k, v in sorted(g.items())}
 
 

@@ -33,7 +33,7 @@ TFS = {"sinais": {"fechadas": [{"moeda": "DOGE", "t": 1, "t_saida": 2, "R": 0.4,
 
 class Forma(unittest.TestCase):
     def test_origens_e_campos(self):
-        ops, _ = MG.migrar(STATE, OKX, TFS)
+        ops, _, _ = MG.migrar(STATE, OKX, TFS)
         por = {(o["estrategia"], o["origem"]) for o in ops}
         self.assertIn(("LIQUIDITY_SWEEP", "real"), por); self.assertIn(("PULLBACK", "sombra"), por)
         self.assertIn(("H40", "real"), por); self.assertIn(("H40", "papel"), por)
@@ -46,15 +46,15 @@ class Forma(unittest.TestCase):
             G.op("X", "imaginaria", "okx", "A", "f", "1", {})
 
     def test_custos_quando_existem(self):
-        ops, _ = MG.migrar(STATE, OKX, TFS)
+        ops, _, _ = MG.migrar(STATE, OKX, TFS)
         c = [o for o in ops if o["estrategia"] == "TF-SHORT conta"][0]["custos"]
         self.assertEqual((c["comissao"], c["financiamento"]), (0.004, 0.001)); self.assertIsNone(c["spread"])
 
 
 class Metricas(unittest.TestCase):
     def test_uniformes(self):
-        ops, _ = MG.migrar(STATE, OKX, TFS)
-        m = G.tabela(ops)[("LIQUIDITY_SWEEP", "real")]
+        ops, _, _ = MG.migrar(STATE, OKX, TFS)
+        m = G.tabela(ops)[("LIQUIDITY_SWEEP", "executada")]
         self.assertEqual((m["fechadas"], m["com_r"]), (2, 2)); self.assertAlmostEqual(m["soma_r"], 0.03)
         self.assertAlmostEqual(m["expectativa_r"], 0.015); self.assertAlmostEqual(m["profit_factor"], round(1.06 / 1.03, 3))
         self.assertAlmostEqual(m["queda_max_r"], 1.03); self.assertEqual(m["acerto_pct"], 50.0)
@@ -63,23 +63,23 @@ class Metricas(unittest.TestCase):
         self.assertAlmostEqual(p["queda_max_r"], 1.0); self.assertAlmostEqual(p["profit_factor"], 0.5)
 
     def test_sem_r_fica_fora_das_contas(self):
-        ops, _ = MG.migrar(STATE, OKX, TFS)
-        m = G.tabela(ops)[("SHORT_TURTLE", "real")]
+        ops, _, _ = MG.migrar(STATE, OKX, TFS)
+        m = G.tabela(ops)[("SHORT_TURTLE", "executada")]
         self.assertEqual((m["fechadas"], m["sem_r"], m["expectativa_r"]), (1, 1, None))
 
     def test_real_e_simulado_nunca_se_somam(self):
-        ops, _ = MG.migrar(STATE, OKX, TFS)
+        ops, _, _ = MG.migrar(STATE, OKX, TFS)
         h40 = [o for o in ops if o["estrategia"] == "H40"]
         with self.assertRaises(ValueError):
             G.metricas(h40)
         t = G.tabela(ops)
-        self.assertEqual(t[("H40", "real")]["fechadas"], 1); self.assertEqual(t[("H40", "papel")]["fechadas"], 1)
+        self.assertEqual(t[("H40", "executada")]["fechadas"], 1); self.assertEqual(t[("H40", "papel")]["fechadas"], 1)
 
 
 class Preservacao(unittest.TestCase):
     def test_nada_se_perde(self):
         antes = copy.deepcopy((STATE, OKX, TFS))
-        ops, rec = MG.migrar(STATE, OKX, TFS)
+        ops, rec, _ = MG.migrar(STATE, OKX, TFS)
         self.assertTrue(all(r["ok"] for r in rec.values()), rec)
         self.assertEqual(rec["state.ledger"]["originais"], 4); self.assertEqual(rec["state.ledger"]["soma_r_migrada"], 0.03)
         self.assertEqual((STATE, OKX, TFS), antes)                        # os originais nao sao alterados
@@ -89,7 +89,7 @@ class Preservacao(unittest.TestCase):
         self.assertEqual(STATE["ledger"][0]["real_r"], -1.03)             # copia, nao referencia
 
     def test_reconciliacao_deteta_perdas(self):
-        ops, _ = MG.migrar(STATE, OKX, TFS)
+        ops, _, _ = MG.migrar(STATE, OKX, TFS)
         falta = [o for o in ops if o["id_origem"] != "PUMP-LIQUIDITY_SWEEP-1"]
         rec = G.reconciliar({"state.ledger": ([r for r in STATE["ledger"] if r["status"] == "CLOSED"], "real_r")}, falta)
         self.assertFalse(rec["state.ledger"]["ok"])
@@ -102,3 +102,48 @@ class Preservacao(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Completar(unittest.TestCase):
+    FORMA = {"lutadores": {"PULLBACK": {"n": 47, "wins": 22, "avg_r": -0.119, "total_r": -5.59, "veredicto": "MORTA"}}}
+    LIGA = {"tabela": [{"id": "BOUNCE_AMPLITUDE", "n": 12, "avg_r": 0.72}]}
+
+    def test_classes_e_campos_em_falta(self):
+        ops, _, _ = MG.migrar(STATE, OKX, TFS)
+        c = {o["id_origem"]: o for o in ops}
+        self.assertEqual(c["PUMP-LIQUIDITY_SWEEP-1"]["classe"], "executada")
+        self.assertEqual(c["BNB-PULLBACK-3"]["classe"], "sinal_nao_executado")
+        self.assertIn("regime", c["PUMP-LIQUIDITY_SWEEP-1"]["em_falta"]); self.assertNotIn("R", c["PUMP-LIQUIDITY_SWEEP-1"]["em_falta"])
+        self.assertIn("R", c["SEI-SHORT_TURTLE-5"]["em_falta"])
+        with self.assertRaises(ValueError):
+            G.op("X", "real", "okx", "A", "f", "1", {}, classe="papel")       # classe tem de combinar com a origem
+
+    def test_r_de_fecho_manual_e_alerta_de_execucao_aberta(self):
+        st = {"ledger": [
+            {"id": "paper-NEAR-1", "status": "CLOSED", "executed": True, "real_r": None, "user_result_r": -0.64, "result_r": -1.0, "asset": "NEAR", "strategy": "TREND_DAILY"},
+            {"id": "SEI-SHORT_TURTLE-2", "status": "CLOSED", "executed": True, "real_r": None, "result_r": 1.307, "real": {"fechada": False, "n": 1}, "asset": "SEI", "strategy": "SHORT_TURTLE"}]}
+        ops, _, _ = MG.migrar(st, {}, {})
+        near, sei = ops
+        self.assertEqual((near["R"], near["r_fonte"], near["R_sinal"]), (-0.64, "user_result_r", -1.0))
+        self.assertIsNone(sei["R"]); self.assertEqual(sei["R_sinal"], 1.307); self.assertIn("NAO fechada", sei["alerta"])
+
+    def test_arena_e_liga_preservadas_e_sem_contar_duas_vezes(self):
+        st = dict(STATE, arena={"ctrl": {"PUMP-LIQUIDITY_SWEEP-1": [-1.0, 0.5, 2.0]}, "status": {"BREAKOUT": "MORTA"}})
+        ops, rec, ag = MG.migrar(st, OKX, TFS, self.FORMA, self.LIGA)
+        self.assertTrue(rec["arena.forma"]["ok"]); self.assertTrue(rec["liga"]["ok"]); self.assertTrue(rec["arena.ctrl"]["ok"])
+        self.assertEqual(rec["arena.ctrl"]["ligados_a_operacoes"], 1)
+        o = [x for x in ops if x["id_origem"] == "PUMP-LIQUIDITY_SWEEP-1"][0]
+        self.assertEqual(o["controlo_acaso"]["n"], 3); self.assertEqual(o["R"], -1.03)        # o R da operacao nao muda
+        self.assertEqual(len(ops), len(MG.migrar(STATE, OKX, TFS)[0]))                          # agregados nao viram operacoes
+        liga = [a for a in ag if a["fonte"] == "liga"][0]; self.assertTrue(liga["derivado_de"])
+        self.assertEqual([a for a in ag if a["fonte"] == "arena.forma"][0]["origem"], "investigacao")
+
+    def test_relatorio_semanal_separa_os_blocos(self):
+        import relatorio_semanal as RS
+        ops, rec, ag = MG.migrar(STATE, OKX, TFS, self.FORMA, self.LIGA)
+        t = RS.texto({"ops": ops, "agregados": ag, "reconciliacao": rec}, "2026-S45")
+        for titulo in ("Real: operações executadas", "Sinais reais que não chegaram", "Papel", "Sombra", "Investigação: arena", "Liga semanal",
+                       "Campos em falta", "Alertas", "Preservação: todas as fontes conferem"):
+            self.assertIn(titulo, t)
+        bloco_real = t.split("## Real")[1].split("## ")[0]
+        self.assertIn("LIQUIDITY_SWEEP", bloco_real); self.assertNotIn("PANICO_BYBIT", bloco_real)
