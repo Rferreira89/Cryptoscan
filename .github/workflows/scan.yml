@@ -64,6 +64,21 @@ jobs:
               # (04/11) vigia: batimento do agente OKX e stops das operacoes reais
               timeout 60 python3 tools/vigia.py || echo "vigia falhou"
             fi
+            # (06/11, OK do Rui) o horario do GitHub nao lancou o paper TF-SHORT nem a recolha de dados novos: o ciclo
+            # lanca-os uma vez por dia, depois da hora marcada (00:23 e 00:47 UTC), so se ainda nao houve execucao hoje.
+            # Verifica so nos ciclos de scan (de 5 em 5 minutos). So lanca workflows de dados publicos e papel.
+            if [ "$MODE" = scan ]; then
+              HOJE=$(date -u +%F); SEG=$(( NOW % 86400 ))
+              for par in "okx-tfshort-papel.yml:1380" "okx-recolha.yml:2820"; do
+                WF=${par%%:*}; DESDE=${par##*:}
+                if [ "$SEG" -ge "$DESDE" ]; then
+                  N=$(gh run list --repo "${{ github.repository }}" -w "$WF" --created ">=$HOJE" --json databaseId -q 'length' 2>/dev/null || echo erro)
+                  if [ "$N" = 0 ]; then
+                    gh workflow run "$WF" --repo "${{ github.repository }}" --ref main >/dev/null 2>&1 && echo "lancado $WF" || echo "$WF nao lancado"
+                  fi
+                fi
+              done
+            fi
             echo "::group::$MODE $(date -u +%FT%TZ)"
             # codigo mais recente em cada ciclo
             git fetch -q origin main && git reset -q --hard FETCH_HEAD || true
