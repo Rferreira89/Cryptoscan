@@ -5,8 +5,9 @@ quedas, compressão, oversold bounce 4H, day trade 1H, bounce com outras
 saídas, sweep a mercado, funding negativo, quebra com compradores,
 capitulação do mercado, atraso face ao BTC, resiliente, impulso de
 amplitude; mais 13 no diário de afinação, H1 a H13). Atualizado em
-2026-11-05 (sem hipótese nova nesta corrida nem na anterior; a afinação
-testou a H13 em 2026-11-04). O contador global do
+2026-11-06 (sem hipótese nova nesta corrida nem nas anteriores desde
+2026-10-20; a afinação testou a H13 em 2026-11-04 e a H14 em 2026-11-06,
+uma medição de lutadores existentes que não conta como hipótese nova). O contador global do
 programa (`engine/hipoteses.py` mais `backtest/hipoteses_offline.json`,
 contra dados que incluem esta reserva) já vai em 87 (ringue longo,
 2026-11-04), mais os estudos H38–H41 de 03–04/11 em `backtest/estudos/`.
@@ -2072,3 +2073,46 @@ positivo a 5% ronda os 72%.
 
 ## H51 (05/11, caçador noturno) — long nas mais fortes contra o BTC no recuo até à média curta
 Espelho long da H48 no regime oposto: BTC acima da média de ~50 dias (subida ou lateral); moeda no topo Q (10% ou 20%) do retorno de 30 dias contra o BTC e ≥2% acima da média de 20 velas de 4H; compra limite NA média (recuo, não quebra), stop 2×ATR, 2R/72 h ou 1R/36 h; custos de futuros da OKX e financiamento contra o long; 251 moedas COM as 184 retiradas, velas de 4H 2021-2026. Ganha em 2021-23 (Q20 2R/72h: +0,094R, conta x4,48 a 2%) e não ganha em 2023-26 (+0,022R, x0,28, queda 94%). Em todas as variantes o R médio é negativo sem as 5% melhores operações e a conta encolhe com custos a dobrar em pelo menos uma metade; a melhor na metade recente (Q20 1R/36h, x1,47) tem queda de 75% e x0,67 com custos a dobrar. ~75% das operações caem em dias sem H40, mas não ganham. CHUMBA. Ver h51_resultado.txt. Com a H35, H41 e H46, a força relativa nas compras não deixa vantagem depois de custos no mercado recente.
+
+## 2026-11-06 — Sem hipótese nova hoje (sem mortos novos; fila vazia)
+
+**Veredicto da corrida: nenhuma hipótese testada.** O contador desta
+reserva fica em 25 (a H14 da afinação, de hoje, mede o viés do espelho nos
+shorts já existentes; não é um sinal novo). Com 25 testes contra a mesma
+reserva, a probabilidade de pelo menos um falso positivo a 5% ronda os 72%.
+
+- **Histórico** (ramo `history`): atualizado em 2026-11-02 12:41 UTC (4
+  dias de atraso, dentro do limite de 7; não foi preciso correr o
+  workflow). Continua só com 4H, 1H e funding. O arquivo de liquidações
+  (ramo `liquidacoes`, último registo 2026-11-06 00:05 UTC) começa a
+  2026-10-19: menos de 3 semanas, ainda curto.
+- **Arena** (scan.json do ramo `data`, 2026-11-06): **8 lutadores a
+  competir** (SHORT_TURTLE_SHORT, BOUNCE_AMPLITUDE, MAIORES_RECUO,
+  REVERSAO_INTERVALO, VOLUME_ACUMULACAO_R2, MAIORES_TENDENCIA,
+  SHORT_SQUEEZE e BREAKOUT_R2, que regressou a 2026-11-05), `recrutar`
+  falso (mínimo 5). Nenhum morto novo desde BOUNCE_MACRO_R2 (2026-11-04,
+  já na tabela). Fila do Rui vazia. Nota: CAPITULACAO_R2 aparece em
+  `renascidos` (desde 2026-11-02) mas não na classificação nem nos mortos;
+  fica para a sessão com o Rui verificar (não mexo em `engine/`).
+- **Combate de 90 dias** (`forma.json`, ramo `arena`, 2026-11-06, 54
+  moedas): BOUNCE_AMPLITUDE 16 op., 16 ganhadoras, +0,822R (acaso mediana
+  −0,44R, p95 −0,094R) — continua o único lutador vivo acima do acaso, mas
+  chumbou no critério da conta (2026-11-02). REVERSAO_INTERVALO 27 op.,
+  −0,035R (p95 −0,043R, ligeiramente acima, com a validação fora a
+  piorar); MAIORES_RECUO 17 op., −0,019R (p95 +0,06R). Os outros cinco têm
+  1 a 6 operações, todos negativos.
+- **Porque não há hipótese nova**: as mesmas razões de 2026-10-21 a
+  2026-11-05. Os estudos H43–H51 (04–05/11) esgotaram as variantes de
+  compra com funding, RSI e força relativa que restavam; a próxima ideia
+  para a lateral (falso rompimento do mínimo de 20 dias com volume) é a H15
+  já proposta pelo agente de afinação, e testá-la aqui em duplicado só
+  somaria uma tentativa ao contador. Sem fonte nova com histórico
+  suficiente, inventar uma hipótese só aumentaria o risco de falso
+  positivo. Décima sétima corrida seguida sem hipótese nova.
+- Proposta para a próxima corrida: autópsia se morrer alguém; hipótese
+  nova só com fonte nova (liquidações com 2–3 meses de arquivo, não antes
+  de meados de dezembro). Mantém-se para a sessão com o Rui: (1) passar
+  esta corrida a semanal enquanto não houver dados novos; (2) regresso dos
+  mortos só com as duas metades do ringue longo positivas; (3) morte
+  rápida a contar acontecimentos; (4) corte dos clones só com
+  representantes vivos; (5) o caso CAPITULACAO_R2 fora da classificação.
