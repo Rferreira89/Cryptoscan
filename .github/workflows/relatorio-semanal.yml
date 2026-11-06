@@ -1,0 +1,36 @@
+name: Relatorio semanal unico (so leitura)
+# (06/11, OK do Rui) Ao domingo: junta as copias publicas dos agentes (state/scan, okx, TF-SHORT papel e sombra, arena)
+# no registo unico e envia o relatorio pelo Telegram em seis blocos separados (real fechadas, real abertas, real com
+# resultado desconhecido, papel, sombra, investigacao). So leitura: sem chaves das corretoras, sem ordens, nao escreve
+# em nenhum ramo. Lancado tambem pelo ciclo do scan (o horario do GitHub falha).
+on:
+  schedule:
+    - cron: "17 8 * * 0"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: relatorio-semanal
+  cancel-in-progress: false
+jobs:
+  relatorio:
+    runs-on: [self-hosted, eu]
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Juntar as copias publicas
+        run: |
+          rm -rf /tmp/rs && mkdir -p /tmp/rs
+          for par in data:state.json data:scan.json okx:okx.json okx-tfshort:okx_tfshort.json okx-tfshort:okx_tfshort_sombra.json arena:forma.json; do
+            R=${par%%:*}; F=${par##*:}
+            git fetch -q --depth 1 origin "$R" 2>/dev/null && git show FETCH_HEAD:"$F" > /tmp/rs/"$F" 2>/dev/null || rm -f /tmp/rs/"$F"
+          done
+          ls /tmp/rs
+      - name: Relatorio
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python3 tools/relatorio_semanal.py --state /tmp/rs/state.json --scan /tmp/rs/scan.json --okx /tmp/rs/okx.json \
+            --tfshort /tmp/rs/okx_tfshort.json --sombra /tmp/rs/okx_tfshort_sombra.json --forma /tmp/rs/forma.json --enviar > /dev/null
+          echo "relatorio enviado"
