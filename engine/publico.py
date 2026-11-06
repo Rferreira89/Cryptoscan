@@ -22,15 +22,27 @@ SCAN_FORA = {"conta", "meta_base", "meta", "reais", "contributo", "nucleo", "evo
              "execucao", "posmortem", "risco"}
 STATE_FORA = {"capital", "capital_t", "capital_auto", "conta_livre", "conta_mov", "conta_saldos",
               "evolucao", "risco", "nucleo", "meta_base", "reconc", "saltos_avisados", "exec_abertas",
-              "exec_req", "auto_ops", "chave_negociacao_expira"}
+              "exec_req", "auto_ops", "chave_negociacao_expira", "privado"}
+
+
+# (05/11, auditoria do Rui) valores em dinheiro escritos DENTRO de textos (ex.: "faltam 77.55 USDC",
+# "posicao de 4.11 USDC"): as chaves ja eram removidas, os textos nao. Qualquer numero seguido de moeda passa a
+# "[valor]" (inclui minimos da corretora: remover a mais e aceitavel).
+TEXTO_DINHEIRO = re.compile(r"(?<![\w.])[-+]?\d+(?:[ .,]\d+)*\s?(?:USDC|USDT|USD|EUR|€)(?![A-Za-z])")
+
+
+def limpar_texto(t):
+    return TEXTO_DINHEIRO.sub("[valor]", t)
 
 
 def limpar(x):
-    """Copia sem as chaves de dinheiro, a qualquer profundidade."""
+    """Copia sem as chaves de dinheiro, a qualquer profundidade, e sem valores em moeda dentro dos textos."""
     if isinstance(x, dict):
         return {k: limpar(v) for k, v in x.items() if not (isinstance(k, str) and DINHEIRO.search(k))}
     if isinstance(x, list):
         return [limpar(v) for v in x]
+    if isinstance(x, str):
+        return limpar_texto(x)
     return x
 
 

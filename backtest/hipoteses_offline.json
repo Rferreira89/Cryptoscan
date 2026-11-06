@@ -320,6 +320,13 @@
    "pergunta": "Aperto dos shorts: financiamento extremo negativo sem queda de preco -> long",
    "resultado": "CHUMBA: R medio negativo nas duas metades em ambas as variantes (V1 conta x0,05 em B2).",
    "ficheiro": "backtest/estudos/h50_aperto_shorts.py"
+  },
+  {
+   "id": "H51",
+   "data": "2026-11-05",
+   "pergunta": "Long nas altcoins mais fortes contra o BTC no recuo ate a media curta, so com o BTC acima da media de ~50 dias (subida ou lateral)",
+   "resultado": "CHUMBA: nas 4 variantes (Q10/Q20 x 2R/72h, 1R/36h) o R medio e negativo sem as 5% melhores e a conta encolhe em 2023-26 (melhor: Q20 1R/36h risco 2% x1,47 mas custos a dobrar x0,67 e queda 75%). 251 moedas com as retiradas, 2021-2026.",
+   "ficheiro": "backtest/estudos/h51_forca_media.py"
   }
  ]
 }

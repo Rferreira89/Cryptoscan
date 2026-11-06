@@ -170,6 +170,9 @@ def pick(state, events, now):
         if not short and not execucao.READY:
             falhou(e, s, "a execução não está ligada (chave de negociação)")
             continue
+        if execucao.sem_capital(state):
+            falhou(e, s, "sem saldo real confirmado da conta nesta volta")
+            continue
         if not execucao.request(state, "vender" if short else "comprar", e["id"], now):
             falhou(e, s, "já havia um pedido de execução em curso para esta operação")
             continue

@@ -2069,3 +2069,6 @@ positivo a 5% ronda os 72%.
   (2) regresso dos mortos só com as duas metades do ringue longo
   positivas; (3) morte rápida a contar acontecimentos; (4) corte dos
   clones só com representantes vivos.
+
+## H51 (05/11, caçador noturno) — long nas mais fortes contra o BTC no recuo até à média curta
+Espelho long da H48 no regime oposto: BTC acima da média de ~50 dias (subida ou lateral); moeda no topo Q (10% ou 20%) do retorno de 30 dias contra o BTC e ≥2% acima da média de 20 velas de 4H; compra limite NA média (recuo, não quebra), stop 2×ATR, 2R/72 h ou 1R/36 h; custos de futuros da OKX e financiamento contra o long; 251 moedas COM as 184 retiradas, velas de 4H 2021-2026. Ganha em 2021-23 (Q20 2R/72h: +0,094R, conta x4,48 a 2%) e não ganha em 2023-26 (+0,022R, x0,28, queda 94%). Em todas as variantes o R médio é negativo sem as 5% melhores operações e a conta encolhe com custos a dobrar em pelo menos uma metade; a melhor na metade recente (Q20 1R/36h, x1,47) tem queda de 75% e x0,67 com custos a dobrar. ~75% das operações caem em dias sem H40, mas não ganham. CHUMBA. Ver h51_resultado.txt. Com a H35, H41 e H46, a força relativa nas compras não deixa vantagem depois de custos no mercado recente.

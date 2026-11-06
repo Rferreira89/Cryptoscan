@@ -131,7 +131,21 @@ def abertas(ex):
     return out
 
 
+# (05/11, S2, OK do Rui: fail-closed) acoes que abrem posicao: so com o saldo real da conta confirmado nesta volta
+ENTRADAS = {"comprar", "vender", "nucleo_comprar", "nucleo_reforcar", "panico_comprar", "panico_ordem", "panico_refazer"}
+
+
+def sem_capital(state):
+    """True se nesta volta nao ha saldo real confirmado da Bybit (leitura fresca do servidor europeu)."""
+    return not state.get("capital_confirmado")
+
+
 def request(state, acao, op, now):
+    if acao in ENTRADAS and sem_capital(state):
+        b = state.setdefault("entradas_bloqueadas", [])
+        b.append({"t": int(now), "acao": acao, "op": str(op)[-40:], "motivo": "sem saldo real confirmado"})
+        del b[:-50]
+        return None                                   # nunca abre com capital de reserva; fechos e saidas passam sempre
     q = state.setdefault("exec_req", [])
     if any(r["acao"] == acao and r.get("op") == op for r in q):
         return None

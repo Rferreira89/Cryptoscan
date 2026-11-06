@@ -1,0 +1,28 @@
+name: Dados novos (recolha diaria publica; preparado, NAO ATIVO)
+# (05/11, L1) So fica ativo depois de um merge autorizado pelo Rui. So APIs publicas (OKX Europa e volume publico da
+# Binance), sem chaves e sem ordens. ACUMULA no ramo dados-novos (nunca reescreve o historico): e a base das avaliacoes
+# futuras, que so usam dados posteriores ao registo de cada hipotese.
+on:
+  schedule:
+    - cron: "47 0 * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: dados-novos
+  cancel-in-progress: false
+jobs:
+  recolha:
+    runs-on: [self-hosted, eu]
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Recolher e acrescentar
+        run: |
+          rm -rf /tmp/dn
+          if git clone -q -b dados-novos "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" /tmp/dn 2>/dev/null; then :; else
+            mkdir -p /tmp/dn && cd /tmp/dn && git init -q -b dados-novos && cd -; fi
+          python3 tools/recolha_dados.py /tmp/dn
+          cd /tmp/dn && git config user.name cryptoscan-bot && git config user.email bot@users.noreply.github.com
+          git add -A && (git commit -q -m "dados $(date -u +%F)" || echo "sem linhas novas")
+          git push -q "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" dados-novos:dados-novos

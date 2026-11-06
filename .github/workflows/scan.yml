@@ -59,10 +59,32 @@ jobs:
             # restantes minutos, so acompanhamento das operacoes abertas
             if [ $(( NOW % 300 )) -lt 60 ]; then MODE=scan; else MODE=monitor; fi
             # (04/11) o agendamento do GitHub atrasa ou salta: o ciclo tambem lanca o agente OKX uma vez por hora
-            if [ $(( NOW % 3600 )) -ge 420 ] && [ $(( NOW % 3600 )) -lt 480 ]; then
-              gh workflow run okx-agente.yml --repo "${{ github.repository }}" --ref main >/dev/null 2>&1 || echo "agente OKX nao lancado"
+            # (06/11, OK do Rui) antes era so no minuto hh:07; se o scan das hh:05 demorava, a hora ficava sem agente
+            # nem vigia (05/11: 3 h 45 min parado). Agora: uma vez por hora, no primeiro ciclo entre hh:07 e hh:30;
+            # se o lancamento falhar, tenta no ciclo seguinte.
+            # >>> lancamento-okx
+            SH=$(( NOW % 3600 )); HORA=$(( NOW / 3600 ))
+            if [ "$SH" -ge 420 ] && [ "$SH" -lt 1800 ] && [ "$HORA" != "${OKX_HORA:-}" ]; then
+              OKX_HORA=$HORA
+              gh workflow run okx-agente.yml --repo "${{ github.repository }}" --ref main >/dev/null 2>&1 || { echo "agente OKX nao lancado"; OKX_HORA=; }
               # (04/11) vigia: batimento do agente OKX e stops das operacoes reais
               timeout 60 python3 tools/vigia.py || echo "vigia falhou"
+            fi
+            # <<< lancamento-okx
+            # (06/11, OK do Rui) o horario do GitHub nao lancou o paper TF-SHORT nem a recolha de dados novos: o ciclo
+            # lanca-os uma vez por dia, depois da hora marcada (00:23 e 00:47 UTC), so se ainda nao houve execucao hoje.
+            # Verifica so nos ciclos de scan (de 5 em 5 minutos). So lanca workflows de dados publicos e papel.
+            if [ "$MODE" = scan ]; then
+              HOJE=$(date -u +%F); SEG=$(( NOW % 86400 ))
+              for par in "okx-tfshort-papel.yml:1380" "okx-recolha.yml:2820"; do
+                WF=${par%%:*}; DESDE=${par##*:}
+                if [ "$SEG" -ge "$DESDE" ]; then
+                  N=$(gh run list --repo "${{ github.repository }}" -w "$WF" --created ">=$HOJE" --json databaseId -q 'length' 2>/dev/null || echo erro)
+                  if [ "$N" = 0 ]; then
+                    gh workflow run "$WF" --repo "${{ github.repository }}" --ref main >/dev/null 2>&1 && echo "lancado $WF" || echo "$WF nao lancado"
+                  fi
+                fi
+              done
             fi
             echo "::group::$MODE $(date -u +%FT%TZ)"
             # codigo mais recente em cada ciclo
@@ -112,9 +134,15 @@ jobs:
             echo "::endgroup::"
             # combate da arena de hora a hora (o agendamento do GitHub falha
             # muitas vezes; o ciclo do scanner garante-o)
-            if [ $(( $(date +%s) % 3600 )) -ge 1380 ] && [ $(( $(date +%s) % 3600 )) -lt 1440 ]; then
-              gh workflow run arena.yml --repo "${{ github.repository }}" --ref main || echo "arena nao lancada"
+            # (06/11, OK do Rui) antes so no minuto hh:23 (05/11 23h ficou sem combate); agora uma vez por hora, no
+            # primeiro ciclo entre hh:23 e hh:50; se o lancamento falhar, tenta no ciclo seguinte.
+            # >>> lancamento-arena
+            NOW=$(date +%s); SH=$(( NOW % 3600 )); HORA=$(( NOW / 3600 ))
+            if [ "$SH" -ge 1380 ] && [ "$SH" -lt 3000 ] && [ "$HORA" != "${ARENA_HORA:-}" ]; then
+              ARENA_HORA=$HORA
+              gh workflow run arena.yml --repo "${{ github.repository }}" --ref main || { echo "arena nao lancada"; ARENA_HORA=; }
             fi
+            # <<< lancamento-arena
             # dados da Binance e da conta no servidor europeu, de 15 em 15 min
             # (conta o tempo desde o ultimo pedido: um ciclo demorado nao o salta)
             if [ $(( $(date +%s) - ${LAST_EU:-0} )) -ge 870 ]; then

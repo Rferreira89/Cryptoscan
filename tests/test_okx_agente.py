@@ -89,6 +89,14 @@ class Execucao(unittest.TestCase):
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "tools"))
         import okx_exec
         self.E = okx_exec
+        # (05/11) o travao e fail-closed sem DATA_KEY: estes testes simulam o agente com a chave presente
+        from unittest import mock
+        p = mock.patch.dict(os.environ, {"DATA_KEY": "teste-agente"})
+        p.start(); self.addCleanup(p.stop)
+        # estes testes verificam H40/H46 numa conta com o maximo ja inicializado (o travao tem testes proprios em
+        # tests/test_okx_seguranca.py)
+        q = mock.patch.object(okx_exec, "estado_pico", lambda R, c, eq: ("ok", eq))
+        q.start(); self.addCleanup(q.stop)
 
     def info(self, **kw):
         i = {"inst": "HUMA-USD_UM_XPERP-310101", "ctVal": 10.0, "minSz": 1.0, "lotSz": 1.0, "tick": 0.00001, "ctType": "linear", "lever": 20}

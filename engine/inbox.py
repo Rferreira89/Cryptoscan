@@ -184,6 +184,9 @@ def apply(state, updates, chat_id, res=None):
                 elif rec.get("side") == "SHORT" and not execucao.READY_SHORT:
                     out.append(("A venda a descoberto pelo botão ainda não está ligada "
                                 "(falta o teste real). Faz esta à mão.", cq["id"]))
+                elif execucao.sem_capital(state):
+                    out.append(("Sem saldo real confirmado da Bybit nesta volta: não abro posições novas até o "
+                                "servidor europeu voltar a ler a conta.", cq["id"]))
                 elif execucao.request(state, "vender" if rec.get("side") == "SHORT" else "comprar",
                                       parts[1], __import__("time").time()):
                     out.append((f"⏳ Pedido recebido: a executar {rec['asset']} no servidor "
