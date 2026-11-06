@@ -90,8 +90,12 @@ def apply_real(led, reais):
         if (r.get("real") or {}).get("fechada") and not v.get("fechada"):
             continue                          # ja fechada antes: nao estragar com uma leitura parcial
         r["real"] = v
-        if v.get("fechada") and v.get("pnl_usdc") is not None and r.get("risk_usdc"):
-            r["real_r"] = round(v["pnl_usdc"] / r["risk_usdc"], 2)
+        # (06/11) R real so com fecho total E custos completos; risco: o do plano (risk_usdc) ou o risco inicial real
+        # (quantidade executada x distancia do stop). Sem isso fica None: incompleta, nunca inventada.
+        risco = r.get("risk_usdc") or v.get("risco_usdc")
+        if v.get("fechada") and v.get("pnl_usdc") is not None and risco:
+            r["real_r"] = round(v["pnl_usdc"] / risco, 2)
+            r["real_r_fonte"] = "risk_usdc" if r.get("risk_usdc") else "risco inicial real"
     feitas = [r for r in led or [] if r.get("real_r") is not None]
     if not feitas:
         return {"n": 0}
