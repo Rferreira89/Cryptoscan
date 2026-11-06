@@ -10,21 +10,22 @@ import unittest
 YML = os.path.join(os.path.dirname(__file__), "..", ".github", "workflows", "scan.yml")
 
 
-def bloco():
+def bloco(nome="okx"):
     with open(YML, encoding="utf-8") as f:
         s = f.read()
-    m = re.search(r"# >>> lancamento-okx\n(.*?)\n\s*# <<< lancamento-okx", s, re.S)
-    return m.group(1).replace("${{ github.repository }}", "dono/repo") if m else None
+    m = re.search(rf"# >>> lancamento-{nome}\n(.*?)\n\s*# <<< lancamento-{nome}", s, re.S)
+    # o relogio vem da simulacao, nao de date
+    return m.group(1).replace("${{ github.repository }}", "dono/repo").replace("NOW=$(date +%s); ", "") if m else None
 
 
 @unittest.skipUnless(shutil.which("bash"), "sem bash")
 class LancamentoOKX(unittest.TestCase):
-    def correr(self, tempos, falha_gh=()):
+    def correr(self, tempos, falha_gh=(), nome="okx"):
         """Corre o bloco para cada NOW (segundos); devolve os NOW em que o agente foi lancado e o vigia correu."""
         script = ("LOG=\"\"\n"
                   "gh() { if [ -n \"$FALHA\" ] && echo \" $FALHA \" | grep -q \" $NOW \"; then return 1; fi; LOG=\"$LOG agente:$NOW\"; }\n"
                   "timeout() { LOG=\"$LOG vigia:$NOW\"; }\n"
-                  f"for NOW in {' '.join(map(str, tempos))}; do\n{bloco()}\ndone\necho $LOG\n")
+                  f"for NOW in {' '.join(map(str, tempos))}; do\n{bloco(nome)}\ndone\necho $LOG\n")
         env = dict(os.environ, FALHA=" ".join(map(str, falha_gh)))
         out = subprocess.run(["bash", "-c", script], capture_output=True, text=True, timeout=20, env=env).stdout.split()
         return ([int(x.split(":")[1]) for x in out if x.startswith("agente:")],
@@ -57,6 +58,20 @@ class LancamentoOKX(unittest.TestCase):
         h = 3600 * 500000
         ag, _ = self.correr([h + 1805, h + 3000])
         self.assertEqual(ag, [])
+
+
+    # (06/11, OK do Rui) a arena tinha a mesma janela de um minuto (hh:23); 05/11 23h ficou sem combate
+    def test_arena_uma_vez_por_hora_entre_hh23_e_hh50(self):
+        self.assertIsNotNone(bloco("arena"))
+        with open(YML, encoding="utf-8") as f:
+            self.assertNotIn("-lt 1440", f.read())
+        h = 3600 * 500000
+        ag, _ = self.correr([h + 1385, h + 1500, h + 3005, h + 3600 + 1200, h + 3600 + 1505], nome="arena")
+        self.assertEqual(ag, [h + 1385, h + 3600 + 1505])          # hh:24:05 saltado o minuto hh:23 -> ainda lanca
+        ag, _ = self.correr([h + s for s in range(5, 3600, 60)], nome="arena")
+        self.assertEqual(len(ag), 1)
+        ag, _ = self.correr([h + 1385, h + 1445], falha_gh=[h + 1385], nome="arena")
+        self.assertEqual(ag, [h + 1445])
 
 
 if __name__ == "__main__":

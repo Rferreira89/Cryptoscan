@@ -134,9 +134,15 @@ jobs:
             echo "::endgroup::"
             # combate da arena de hora a hora (o agendamento do GitHub falha
             # muitas vezes; o ciclo do scanner garante-o)
-            if [ $(( $(date +%s) % 3600 )) -ge 1380 ] && [ $(( $(date +%s) % 3600 )) -lt 1440 ]; then
-              gh workflow run arena.yml --repo "${{ github.repository }}" --ref main || echo "arena nao lancada"
+            # (06/11, OK do Rui) antes so no minuto hh:23 (05/11 23h ficou sem combate); agora uma vez por hora, no
+            # primeiro ciclo entre hh:23 e hh:50; se o lancamento falhar, tenta no ciclo seguinte.
+            # >>> lancamento-arena
+            NOW=$(date +%s); SH=$(( NOW % 3600 )); HORA=$(( NOW / 3600 ))
+            if [ "$SH" -ge 1380 ] && [ "$SH" -lt 3000 ] && [ "$HORA" != "${ARENA_HORA:-}" ]; then
+              ARENA_HORA=$HORA
+              gh workflow run arena.yml --repo "${{ github.repository }}" --ref main || { echo "arena nao lancada"; ARENA_HORA=; }
             fi
+            # <<< lancamento-arena
             # dados da Binance e da conta no servidor europeu, de 15 em 15 min
             # (conta o tempo desde o ultimo pedido: um ciclo demorado nao o salta)
             if [ $(( $(date +%s) - ${LAST_EU:-0} )) -ge 870 ]; then
