@@ -1,0 +1,611 @@
+{
+ "moedas": 68,
+ "fora": {
+  "ROBO": "historico curto (1458 velas)"
+ },
+ "fim": 1793635200,
+ "lutadores": {
+  "M1": {
+   "chave": "SHORT_X30",
+   "janelas": {
+    "L365": {
+     "todos": {
+      "n": 875,
+      "r_espelho": -0.129,
+      "r_real": -0.177,
+      "r_real_juro": -0.193,
+      "vies": -0.048,
+      "juro_medio_r": 0.016,
+      "horas_media": 42.2,
+      "stop_medio_pct": 8.0,
+      "metades_real_juro": [
+       -0.198,
+       -0.188
+      ],
+      "acaso_espelho": {
+       "mediana": -0.182,
+       "p95": -0.138,
+       "percentil": 97.5
+      },
+      "acaso_real": {
+       "mediana": -0.217,
+       "p95": -0.177,
+       "percentil": 94.9
+      }
+     },
+     "subida": {
+      "n": 113,
+      "r_espelho": -0.244,
+      "r_real": -0.298,
+      "r_real_juro": -0.31,
+      "vies": -0.054,
+      "juro_medio_r": 0.011,
+      "horas_media": 33.8,
+      "stop_medio_pct": 7.6,
+      "metades_real_juro": [
+       -0.621,
+       -0.004
+      ],
+      "acaso_espelho": {
+       "mediana": -0.228,
+       "p95": -0.097,
+       "percentil": 41.9
+      },
+      "acaso_real": {
+       "mediana": -0.261,
+       "p95": -0.139,
+       "percentil": 31.4
+      }
+     },
+     "lateral": {
+      "n": 652,
+      "r_espelho": -0.191,
+      "r_real": -0.232,
+      "r_real_juro": -0.248,
+      "vies": -0.041,
+      "juro_medio_r": 0.016,
+      "horas_media": 41.5,
+      "stop_medio_pct": 7.94,
+      "metades_real_juro": [
+       -0.27,
+       -0.226
+      ],
+      "acaso_espelho": {
+       "mediana": -0.197,
+       "p95": -0.15,
+       "percentil": 56.4
+      },
+      "acaso_real": {
+       "mediana": -0.228,
+       "p95": -0.184,
+       "percentil": 43.6
+      }
+     },
+     "queda": {
+      "n": 110,
+      "r_espelho": 0.354,
+      "r_real": 0.276,
+      "r_real_juro": 0.257,
+      "vies": -0.078,
+      "juro_medio_r": 0.019,
+      "horas_media": 54.9,
+      "stop_medio_pct": 8.75,
+      "metades_real_juro": [
+       0.431,
+       0.083
+      ],
+      "acaso_espelho": {
+       "mediana": -0.043,
+       "p95": 0.101,
+       "percentil": 100.0
+      },
+      "acaso_real": {
+       "mediana": -0.096,
+       "p95": 0.038,
+       "percentil": 100.0
+      }
+     }
+    },
+    "B": {
+     "todos": {
+      "n": 1705
+     },
+     "queda": {
+      "n": 102,
+      "r_espelho": -0.059,
+      "r_real": -0.11,
+      "r_real_juro": -0.126,
+      "vies": -0.051,
+      "juro_medio_r": 0.016,
+      "horas_media": 41.2,
+      "stop_medio_pct": 6.71,
+      "metades_real_juro": [
+       0.085,
+       -0.338
+      ],
+      "acaso_espelho": {
+       "mediana": -0.121,
+       "p95": 0.025,
+       "percentil": 76.5
+      },
+      "acaso_real": {
+       "mediana": -0.165,
+       "p95": -0.03,
+       "percentil": 75.4
+      }
+     }
+    },
+    "A": {
+     "todos": {
+      "n": 1812
+     },
+     "queda": {
+      "n": 110,
+      "r_espelho": 0.354,
+      "r_real": 0.276,
+      "r_real_juro": 0.257,
+      "vies": -0.078,
+      "juro_medio_r": 0.019,
+      "horas_media": 54.9,
+      "stop_medio_pct": 8.75,
+      "metades_real_juro": [
+       0.431,
+       0.083
+      ],
+      "acaso_espelho": {
+       "mediana": -0.043,
+       "p95": 0.101,
+       "percentil": 100.0
+      },
+      "acaso_real": {
+       "mediana": -0.096,
+       "p95": 0.038,
+       "percentil": 100.0
+      }
+     }
+    }
+   }
+  },
+  "M2": {
+   "chave": "SHORT_ISOLADA",
+   "janelas": {
+    "L365": {
+     "todos": {
+      "n": 731,
+      "r_espelho": -0.116,
+      "r_real": -0.165,
+      "r_real_juro": -0.18,
+      "vies": -0.049,
+      "juro_medio_r": 0.015,
+      "horas_media": 42.4,
+      "stop_medio_pct": 8.48,
+      "metades_real_juro": [
+       -0.267,
+       -0.093
+      ],
+      "acaso_espelho": {
+       "mediana": -0.172,
+       "p95": -0.124,
+       "percentil": 97.4
+      },
+      "acaso_real": {
+       "mediana": -0.206,
+       "p95": -0.162,
+       "percentil": 93.5
+      }
+     },
+     "subida": {
+      "n": 81,
+      "r_espelho": -0.067,
+      "r_real": -0.136,
+      "r_real_juro": -0.146,
+      "vies": -0.069,
+      "juro_medio_r": 0.01,
+      "horas_media": 32.2,
+      "stop_medio_pct": 8.31,
+      "metades_real_juro": [
+       -0.463,
+       0.164
+      ],
+      "acaso_espelho": {
+       "mediana": -0.215,
+       "p95": -0.071,
+       "percentil": 95.4
+      },
+      "acaso_real": {
+       "mediana": -0.251,
+       "p95": -0.117,
+       "percentil": 92.3
+      }
+     },
+     "lateral": {
+      "n": 557,
+      "r_espelho": -0.192,
+      "r_real": -0.234,
+      "r_real_juro": -0.248,
+      "vies": -0.042,
+      "juro_medio_r": 0.015,
+      "horas_media": 41.8,
+      "stop_medio_pct": 8.39,
+      "metades_real_juro": [
+       -0.363,
+       -0.134
+      ],
+      "acaso_espelho": {
+       "mediana": -0.19,
+       "p95": -0.134,
+       "percentil": 47.9
+      },
+      "acaso_real": {
+       "mediana": -0.221,
+       "p95": -0.17,
+       "percentil": 34.5
+      }
+     },
+     "queda": {
+      "n": 93,
+      "r_espelho": 0.294,
+      "r_real": 0.221,
+      "r_real_juro": 0.202,
+      "vies": -0.073,
+      "juro_medio_r": 0.019,
+      "horas_media": 55.0,
+      "stop_medio_pct": 9.16,
+      "metades_real_juro": [
+       0.414,
+       -0.006
+      ],
+      "acaso_espelho": {
+       "mediana": -0.035,
+       "p95": 0.136,
+       "percentil": 100.0
+      },
+      "acaso_real": {
+       "mediana": -0.089,
+       "p95": 0.063,
+       "percentil": 100.0
+      }
+     }
+    },
+    "B": {
+     "todos": {
+      "n": 1282
+     },
+     "queda": {
+      "n": 74,
+      "r_espelho": -0.107,
+      "r_real": -0.149,
+      "r_real_juro": -0.164,
+      "vies": -0.042,
+      "juro_medio_r": 0.015,
+      "horas_media": 36.6,
+      "stop_medio_pct": 7.1,
+      "metades_real_juro": [
+       0.016,
+       -0.343
+      ],
+      "acaso_espelho": {
+       "mediana": -0.126,
+       "p95": 0.044,
+       "percentil": 56.5
+      },
+      "acaso_real": {
+       "mediana": -0.164,
+       "p95": -0.007,
+       "percentil": 56.4
+      }
+     }
+    },
+    "A": {
+     "todos": {
+      "n": 1503
+     },
+     "queda": {
+      "n": 93,
+      "r_espelho": 0.294,
+      "r_real": 0.221,
+      "r_real_juro": 0.202,
+      "vies": -0.073,
+      "juro_medio_r": 0.019,
+      "horas_media": 55.0,
+      "stop_medio_pct": 9.16,
+      "metades_real_juro": [
+       0.414,
+       -0.006
+      ],
+      "acaso_espelho": {
+       "mediana": -0.035,
+       "p95": 0.136,
+       "percentil": 100.0
+      },
+      "acaso_real": {
+       "mediana": -0.089,
+       "p95": 0.063,
+       "percentil": 100.0
+      }
+     }
+    }
+   }
+  },
+  "M3": {
+   "chave": "SHORT_FALSO_ROMP",
+   "janelas": {
+    "L365": {
+     "todos": {
+      "n": 97,
+      "r_espelho": 0.263,
+      "r_real": 0.15,
+      "r_real_juro": 0.137,
+      "vies": -0.113,
+      "juro_medio_r": 0.013,
+      "horas_media": 37.0,
+      "stop_medio_pct": 7.54,
+      "metades_real_juro": [
+       0.193,
+       0.082
+      ],
+      "acaso_espelho": {
+       "mediana": -0.168,
+       "p95": -0.003,
+       "percentil": 100.0
+      },
+      "acaso_real": {
+       "mediana": -0.228,
+       "p95": -0.074,
+       "percentil": 100.0
+      }
+     },
+     "subida": {
+      "n": 0
+     },
+     "lateral": {
+      "n": 0
+     },
+     "queda": {
+      "n": 97,
+      "r_espelho": 0.263,
+      "r_real": 0.15,
+      "r_real_juro": 0.137,
+      "vies": -0.113,
+      "juro_medio_r": 0.013,
+      "horas_media": 37.0,
+      "stop_medio_pct": 7.54,
+      "metades_real_juro": [
+       0.193,
+       0.082
+      ],
+      "acaso_espelho": {
+       "mediana": -0.168,
+       "p95": -0.003,
+       "percentil": 100.0
+      },
+      "acaso_real": {
+       "mediana": -0.228,
+       "p95": -0.074,
+       "percentil": 100.0
+      }
+     }
+    },
+    "B": {
+     "todos": {
+      "n": 116
+     },
+     "queda": {
+      "n": 116,
+      "r_espelho": 0.025,
+      "r_real": -0.039,
+      "r_real_juro": -0.053,
+      "vies": -0.064,
+      "juro_medio_r": 0.014,
+      "horas_media": 30.0,
+      "stop_medio_pct": 4.09,
+      "metades_real_juro": [
+       -0.111,
+       0.004
+      ],
+      "acaso_espelho": {
+       "mediana": -0.165,
+       "p95": 0.003,
+       "percentil": 96.9
+      },
+      "acaso_real": {
+       "mediana": -0.216,
+       "p95": -0.06,
+       "percentil": 96.9
+      }
+     }
+    },
+    "A": {
+     "todos": {
+      "n": 97
+     },
+     "queda": {
+      "n": 97,
+      "r_espelho": 0.263,
+      "r_real": 0.15,
+      "r_real_juro": 0.137,
+      "vies": -0.113,
+      "juro_medio_r": 0.013,
+      "horas_media": 37.0,
+      "stop_medio_pct": 7.54,
+      "metades_real_juro": [
+       0.193,
+       0.082
+      ],
+      "acaso_espelho": {
+       "mediana": -0.168,
+       "p95": -0.003,
+       "percentil": 100.0
+      },
+      "acaso_real": {
+       "mediana": -0.228,
+       "p95": -0.074,
+       "percentil": 100.0
+      }
+     }
+    }
+   }
+  },
+  "M4": {
+   "chave": "SHORT_TURTLE",
+   "janelas": {
+    "L365": {
+     "todos": {
+      "n": 658,
+      "r_espelho": 0.2,
+      "r_real": 0.021,
+      "r_real_juro": -0.031,
+      "vies": -0.179,
+      "juro_medio_r": 0.052,
+      "horas_media": 302.6,
+      "stop_medio_pct": 13.9,
+      "metades_real_juro": [
+       0.179,
+       -0.241
+      ],
+      "acaso_espelho": {
+       "mediana": 0.605,
+       "p95": 0.669,
+       "percentil": 0.0
+      },
+      "acaso_real": {
+       "mediana": 0.349,
+       "p95": 0.402,
+       "percentil": 0.0
+      }
+     },
+     "subida": {
+      "n": 31,
+      "r_espelho": -1.007,
+      "r_real": -1.008,
+      "r_real_juro": -1.024,
+      "vies": -0.001,
+      "juro_medio_r": 0.016,
+      "horas_media": 105.2,
+      "stop_medio_pct": 14.07,
+      "metades_real_juro": [
+       -1.029,
+       -1.019
+      ],
+      "acaso_espelho": {
+       "mediana": -0.542,
+       "p95": -0.298,
+       "percentil": 0.0
+      },
+      "acaso_real": {
+       "mediana": -0.606,
+       "p95": -0.402,
+       "percentil": 0.0
+      }
+     },
+     "lateral": {
+      "n": 409,
+      "r_espelho": 0.351,
+      "r_real": 0.149,
+      "r_real_juro": 0.093,
+      "vies": -0.202,
+      "juro_medio_r": 0.056,
+      "horas_media": 305.1,
+      "stop_medio_pct": 12.9,
+      "metades_real_juro": [
+       0.302,
+       -0.115
+      ],
+      "acaso_espelho": {
+       "mediana": 0.681,
+       "p95": 0.77,
+       "percentil": 0.0
+      },
+      "acaso_real": {
+       "mediana": 0.411,
+       "p95": 0.482,
+       "percentil": 0.0
+      }
+     },
+     "queda": {
+      "n": 218,
+      "r_espelho": 0.087,
+      "r_real": -0.074,
+      "r_real_juro": -0.122,
+      "vies": -0.161,
+      "juro_medio_r": 0.048,
+      "horas_media": 326.0,
+      "stop_medio_pct": 15.75,
+      "metades_real_juro": [
+       0.163,
+       -0.407
+      ],
+      "acaso_espelho": {
+       "mediana": 0.616,
+       "p95": 0.731,
+       "percentil": 0.0
+      },
+      "acaso_real": {
+       "mediana": 0.364,
+       "p95": 0.457,
+       "percentil": 0.0
+      }
+     }
+    },
+    "B": {
+     "todos": {
+      "n": 914
+     },
+     "lateral": {
+      "n": 640,
+      "r_espelho": 0.324,
+      "r_real": 0.088,
+      "r_real_juro": 0.044,
+      "vies": -0.236,
+      "juro_medio_r": 0.045,
+      "horas_media": 247.6,
+      "stop_medio_pct": 13.14,
+      "metades_real_juro": [
+       0.126,
+       -0.038
+      ],
+      "acaso_espelho": {
+       "mediana": 0.612,
+       "p95": 0.69,
+       "percentil": 0.0
+      },
+      "acaso_real": {
+       "mediana": 0.329,
+       "p95": 0.391,
+       "percentil": 0.0
+      }
+     }
+    },
+    "A": {
+     "todos": {
+      "n": 1264
+     },
+     "lateral": {
+      "n": 853,
+      "r_espelho": 0.135,
+      "r_real": -0.061,
+      "r_real_juro": -0.107,
+      "vies": -0.196,
+      "juro_medio_r": 0.046,
+      "horas_media": 286.8,
+      "stop_medio_pct": 16.5,
+      "metades_real_juro": [
+       -0.305,
+       0.09
+      ],
+      "acaso_espelho": {
+       "mediana": 0.708,
+       "p95": 0.774,
+       "percentil": 0.0
+      },
+      "acaso_real": {
+       "mediana": 0.363,
+       "p95": 0.412,
+       "percentil": 0.0
+      }
+     }
+    }
+   }
+  }
+ }
+}
