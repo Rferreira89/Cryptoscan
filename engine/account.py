@@ -441,9 +441,17 @@ def agregar(r, execs, juros, protecao):
     q_in = v_in = q_out = v_out = fee_usdc = fee_base = 0.0
     tipos_saida = []
     usadas = 0
+    # (06/11, risco NEAR) entradas manuais no mesmo par (compras na app antes do fecho) nao sao desta operacao:
+    # so contam como ENTRADA as execucoes de ordens do programa (orderLinkId "cs-"). Saidas contam todas (fecho
+    # manual da posicao do programa e legitimo). Dados antigos sem orderLinkId: aceites e assinalados.
+    tem_link = any(e.get("link") is not None for e in execs if e["lado"] == op_side)
+    manuais = 0
     for e in sorted(execs, key=lambda e: e["t"]):
         if q_in and q_out >= 0.98 * (q_in - (fee_base if not short else 0)):
             break                                   # fechada: execucoes posteriores sao de outra operacao (ex.: manual)
+        if e["lado"] == op_side and tem_link and not str(e.get("link") or "").startswith("cs-"):
+            manuais += 1
+            continue                                # entrada manual: fora desta operacao
         usadas += 1
         if e["fee_moeda"].upper() == asset:
             fee_base += e["fee"]
@@ -473,6 +481,7 @@ def agregar(r, execs, juros, protecao):
            "juros_valor_moeda": None if juros is None else round(juros, 10), "preco_entrada": round(px_in, 10),
            "preco_saida": round(v_out / q_out, 10) if q_out else None, "saida_por": sorted(set(tipos_saida)) or None,
            "protecao": protecao, "custos_incompletos": bool(falta_juros),
+           "entradas_manuais_ignoradas": manuais, "origem_entrada_verificada": tem_link,
            "pnl_usdc": round(pnl, 6) if fechada and not falta_juros else None,
            "pnl_usdc_sem_juros": round(pnl, 6) if fechada and falta_juros else None}
     # risco inicial real: quantidade executada x distancia do stop do plano ao preco de entrada real
@@ -523,7 +532,8 @@ def reconciliar_pendentes(led, now, ler=None, juros=None, protecao=None, maximo=
                 vistas[k] = {"id": k, "t": (_f(e.get("execTime")) or 0) / 1000, "lado": e.get("side"),
                              "q": _f(e.get("execQty")) or 0.0, "px": _f(e.get("execPrice")) or 0.0,
                              "fee": _f(e.get("execFee")) or 0.0, "fee_moeda": e.get("feeCurrency") or "",
-                             "tipo": e.get("stopOrderType") or None}
+                             "tipo": e.get("stopOrderType") or None,
+                             "link": e.get("orderLinkId") if "orderLinkId" in e else None}
             a = b
             if agregar(r, list(vistas.values()), 0.0, None).get("fechada"):
                 break                                       # ja fechou: nao le mais (nem mistura o que vem depois)

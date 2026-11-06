@@ -168,10 +168,6 @@ class Publico(unittest.TestCase):
         self.assertEqual(pub["estado"], "fechada")
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class ParaNoFecho(unittest.TestCase):
     def test_execucoes_depois_do_fecho_total_nao_contam(self):
         led = [sei(id="paper-NEAR-1", asset="NEAR", pair="NEAR/USDC", side="LONG", kind="1D", stop=4.689, real=None)]
@@ -181,3 +177,51 @@ class ParaNoFecho(unittest.TestCase):
         r = led[0]["real"]
         self.assertTrue(r["fechada"]); self.assertEqual(r["n"], 2); self.assertAlmostEqual(r["preco_saida"], 5.143)
         self.assertLess(max(c[2] for c in by.chamadas), T_SEI + 10 * DIA)   # parou de ler depois do fecho
+
+
+def exl(i, t, lado, q, px, link, **kw):
+    e = ex(i, t, lado, q, px, **kw)
+    e["orderLinkId"] = link
+    return e
+
+
+class RiscoNear(unittest.TestCase):
+    """(06/11) Compras manuais na app no mesmo par, antes do fecho, nao entram no resultado da operacao do programa."""
+    def near(self):
+        return [sei(id="paper-NEAR-1", asset="NEAR", pair="NEAR/USDC", side="LONG", kind="1D", stop=4.689, real=None)]
+
+    def test_compra_manual_antes_do_fecho_ignorada(self):
+        led = self.near()
+        by = Bybit({"NEARUSDC": [exl(1, T_SEI + 60, "Buy", 1, 5.92, "cs-near1"),
+                                 exl(2, T_SEI + DIA, "Buy", 4, 5.5, ""),            # manual (app)
+                                 exl(3, T_SEI + 2 * DIA, "Sell", 1, 5.143, "cs-near1s")]})
+        correr(led, by)
+        r = led[0]["real"]
+        self.assertTrue(r["fechada"]); self.assertAlmostEqual(r["preco_entrada"], 5.92)
+        self.assertEqual(r["entradas_manuais_ignoradas"], 1); self.assertTrue(r["origem_entrada_verificada"])
+        self.assertAlmostEqual(r["pnl_usdc"], 5.143 - 5.92, places=6)
+
+    def test_fecho_manual_da_posicao_do_programa_conta(self):
+        led = self.near()
+        by = Bybit({"NEARUSDC": [exl(1, T_SEI + 60, "Buy", 1, 5.92, "cs-near1"),
+                                 exl(2, T_SEI + DIA, "Sell", 1, 6.1, "")]})        # fecho manual na app
+        correr(led, by)
+        self.assertTrue(led[0]["real"]["fechada"]); self.assertAlmostEqual(led[0]["real"]["preco_saida"], 6.1)
+
+    def test_dados_sem_orderlinkid_aceites_e_assinalados(self):
+        led = self.near()
+        by = Bybit({"NEARUSDC": [ex(1, T_SEI + 60, "Buy", 1, 5.92), ex(2, T_SEI + DIA, "Sell", 1, 6.1)]})
+        correr(led, by)
+        self.assertFalse(led[0]["real"]["origem_entrada_verificada"]); self.assertTrue(led[0]["real"]["fechada"])
+
+
+class Historico(unittest.TestCase):
+    def test_resultado_real_ja_fechado_nao_e_reescrito(self):
+        led = [sei(real_r=-1.0, real={"fechada": True, "pnl_usdc": -0.2, "custos_incompletos": False})]
+        self.assertEqual(A.pendentes(led), [])
+        L.apply_real(led, {led[0]["id"]: {"fechada": False, "n": 1}})
+        self.assertEqual(led[0]["real_r"], -1.0); self.assertTrue(led[0]["real"]["fechada"])
+
+
+if __name__ == "__main__":
+    unittest.main()
