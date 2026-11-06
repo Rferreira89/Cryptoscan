@@ -61,7 +61,7 @@ def blocos(ops, abertas, ag, nucleo_visivel=True):
     return b
 
 
-def texto(ops, abertas, ag, rec, semana="", nucleo_visivel=True):
+def texto(ops, abertas, ag, rec, semana="", nucleo_visivel=True, sombra=None):
     dup = G.duplicados(ops)
     b = blocos(ops, abertas, ag, nucleo_visivel)
     L = [f"Cryptoscan — relatório semanal único {semana}".rstrip(), ""]
@@ -77,6 +77,18 @@ def texto(ops, abertas, ag, rec, semana="", nucleo_visivel=True):
     L.append("")
     L += ["4. PAPEL (simulação ao vivo)"] + _tabela(b["papel"])
     L += ["5. SOMBRA (o que a estratégia faria; sem ordens)"] + _tabela(b["sombra"])
+    if sombra is not None:
+        ne = sombra.get("nao_executaveis") or []
+        mot = {}
+        for x in ne:
+            mot[x["motivo"]] = mot.get(x["motivo"], 0) + 1
+        mins = sorted(x["capital_minimo_usd"] for x in ne if x.get("motivo") == "abaixo_minimo_do_contrato"
+                      and x.get("capital_minimo_usd"))
+        L.append(f"TF-SHORT sombra: {len(sombra.get('abertas') or {})} abertas; sinais não executáveis com a conta de 20: "
+                 + (", ".join(f"{k} {v}" for k, v in sorted(mot.items())) or "nenhum"))
+        if mins:
+            L.append(f"Capital mínimo que teria permitido os sinais abaixo do mínimo: mediana {mins[len(mins) // 2]:.0f}")
+        L.append("")
     L += ["6. BACKTESTS E INVESTIGAÇÃO (re-simulações; não são operações ao vivo)"]
     L += _tabela(b["investigacao"])[:-1] if b["investigacao"] else []
     if b["arena"]:
@@ -119,9 +131,11 @@ def main():
     from tools.registo_migrar import migrar
     state, okx = _carregar(x.state), _carregar(x.okx)
     ops, rec, ag = migrar(state, okx, _carregar(x.tfshort), _carregar(x.forma), _carregar(x.scan).get("liga"))
-    ops += G.do_tfs_sombra(_carregar(x.sombra))
+    corpo = _carregar(x.sombra)
+    sombra = corpo.get("estado") if corpo else None
+    ops += G.do_tfs_sombra(sombra)
     semana = time.strftime("semana até %d/%m/%Y", time.gmtime())
-    txt = texto(ops, G.abertas_reais(state, okx), ag, rec, semana, G.nucleo_visivel(state))
+    txt = texto(ops, G.abertas_reais(state, okx), ag, rec, semana, G.nucleo_visivel(state), sombra)
     print(txt)
     if x.enviar:
         from engine import alerts

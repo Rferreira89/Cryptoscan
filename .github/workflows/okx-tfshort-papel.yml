@@ -6,6 +6,11 @@ on:
   schedule:
     - cron: "23 0 * * *"
   workflow_dispatch:
+    inputs:
+      iniciar_sombra:
+        description: "Inicializar o estado da sombra (so a primeira vez; autorizado pelo Rui em 06/11)"
+        type: boolean
+        default: false
 permissions:
   contents: write
 concurrency:
@@ -22,8 +27,14 @@ jobs:
           rm -rf /tmp/tfs && mkdir -p /tmp/tfs
           git clone -q --depth 1 -b okx-tfshort "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" /tmp/tfs 2>/dev/null || mkdir -p /tmp/tfs
           python3 tools/okx_tfshort.py /tmp/tfs/okx_tfshort.json --gravar
+      - name: Sombra TF-SHORT (so leitura publica; zero ordens; zero chamadas de escrita)
+        run: |
+          # (06/11, OK do Rui) o que um executor de short faria com 20 USD na OKX, simulado: livro de ordens real,
+          # minimos dos contratos, stops nas velas do X-Perp, custos e financiamento. Sem chaves da OKX.
+          INI=""; [ "${{ inputs.iniciar_sombra }}" = "true" ] && INI="--iniciar"
+          python3 tools/tfs_sombra.py /tmp/tfs/okx_tfshort.json /tmp/tfs/okx_tfshort_sombra.json --gravar $INI || echo "sombra falhou (o papel continua)"
       - name: Publicar o estado no ramo okx-tfshort
         run: |
           cd /tmp/tfs && rm -rf .git && git init -q -b okx-tfshort && git config user.name cryptoscan-bot && git config user.email bot@users.noreply.github.com
-          git add okx_tfshort.json && git commit -q -m "tf-short papel $(date -u +%FT%TZ)"
+          git add okx_tfshort.json && { [ -f okx_tfshort_sombra.json ] && git add okx_tfshort_sombra.json || true; } && git commit -q -m "tf-short papel $(date -u +%FT%TZ)"
           git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" okx-tfshort:okx-tfshort
