@@ -85,6 +85,13 @@ jobs:
                   fi
                 fi
               done
+              # (06/11, OK do Rui) relatorio semanal unico: ao domingo depois das 08:17 UTC, uma vez
+              if [ "$(date -u +%u)" = 7 ] && [ "$SEG" -ge 29820 ]; then
+                N=$(gh run list --repo "${{ github.repository }}" -w relatorio-semanal.yml --created ">=$HOJE" --json databaseId -q 'length' 2>/dev/null || echo erro)
+                if [ "$N" = 0 ]; then
+                  gh workflow run relatorio-semanal.yml --repo "${{ github.repository }}" --ref main >/dev/null 2>&1 && echo "lancado relatorio-semanal.yml" || echo "relatorio-semanal.yml nao lancado"
+                fi
+              fi
             fi
             echo "::group::$MODE $(date -u +%FT%TZ)"
             # codigo mais recente em cada ciclo
