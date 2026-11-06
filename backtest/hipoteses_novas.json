@@ -1,0 +1,20 @@
+[
+  {
+    "id": "H52",
+    "nome": "short na queda diaria com open interest a subir, em mercado em descida",
+    "registada_em": "2026-11-06T23:39:10Z",
+    "codigo": "backtest/estudos/novos/h52_short_oi_queda.py",
+    "lado": "SHORT",
+    "regime": "descida: mediana do retorno de 10 dias (fecho/fecho) das moedas do universo <= -3%, com >= 30 moedas; calculado so com dados posteriores ao registo (11 dias de aquecimento)",
+    "universo": "moedas do ramo dados-novos (todas com X-Perp na OKX EEA), volume_usd do dia >= 10 M e oi_xperp >= 250 mil USD",
+    "logica": "queda forte com OI em USD a subir = shorts novos a conduzir a queda (nao capitulacao de longs); em descida tende a continuar 1-3 dias. Testa se o OI acrescenta vantagem as familias SHORT ja chumbadas",
+    "entrada": "vela diaria D fechada com c/o-1 <= -4% e oi_usd_global(D)/oi_usd_global(D-1)-1 >= +5%; short taker na abertura de D+1",
+    "stop": "6% acima da entrada; se a maxima do dia tocar, sai ao pior de stop e abertura",
+    "saida": "fecho de D+3 se o stop nao tocar",
+    "tamanho": "risco 1% do capital por operacao (nocional = 1/6 do capital); no maximo 5 posicoes abertas, desempate pela maior subida do OI; uma posicao por moeda",
+    "custos": "taker 0,05% por lado + deslize 0,05% por lado; financiamento real do X-Perp (fund_xperp_24h) somado em cada dia em posicao (positivo recebe o short); velas do perpetuo global da OKX como aproximacao do X-Perp",
+    "criterio_sucesso": "com >= 30 operacoes: R medio liquido >= +0,10R E R medio sem as 5% melhores > 0 E sinais em >= 3 semanas UTC E >= 8 dias de sinal distintos",
+    "minimo_operacoes": 30,
+    "estado": "a acumular: 0 de 30"
+  }
+]

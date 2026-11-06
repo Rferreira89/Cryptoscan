@@ -2116,3 +2116,29 @@ reserva, a probabilidade de pelo menos um falso positivo a 5% ronda os 72%.
   mortos só com as duas metades do ringue longo positivas; (3) morte
   rápida a contar acontecimentos; (4) corte dos clones só com
   representantes vivos; (5) o caso CAPITULACAO_R2 fora da classificação.
+
+## 2026-11-06 (dados novos, caçador noturno) — registo da H52; início do acompanhamento
+
+Primeira noite com a regra do Rui de 06/11: hipóteses só avaliadas com dados
+recolhidos depois do registo (ramo `dados-novos`, lido apenas por
+`tools/recolha_dados.py → dados_para_avaliar`). Criado
+`backtest/hipoteses_novas.json`.
+
+- **Registada H52** (2026-11-06 23:39 UTC, SHORT, dia par): short na
+  abertura do dia seguinte a uma vela diária com queda ≤ −4% e open
+  interest global em USD a subir ≥ +5% (shorts novos a conduzir a queda, não
+  capitulação), só com o mercado em descida (mediana do retorno de 10 dias
+  do universo ≤ −3%). Stop 6%, saída no fecho de D+3, risco 1% por
+  operação, máximo 5 posições; custos taker 0,05% + deslize 0,05% por lado
+  e financiamento real do X-Perp. Universo: moedas do ramo com X-Perp na
+  OKX EEA, volume ≥ 10 M e OI do X-Perp ≥ 250 mil USD. Critério: com ≥ 30
+  operações, R médio ≥ +0,10R, positivo sem as 5% melhores, sinais em ≥ 3
+  semanas e ≥ 8 dias distintos. O OI diário é um dado que o histórico
+  antigo não tinha; a parte de preço é próxima das famílias SHORT chumbadas,
+  e se chumbar fecha também a família "OI a confirmar a queda". Código:
+  `backtest/estudos/novos/h52_short_oi_queda.py`.
+- **Acompanhamento**: H52 — a acumular: 0 de 30 (0 dias de dados depois do
+  registo; o regime precisa de 11 dias de aquecimento).
+- Nota: o ramo `dados-novos` não tem BTC, ETH nem SOL (164 moedas, só 15
+  validadas); por isso o regime é medido pela mediana do próprio universo.
+- Nenhum resultado em dados antigos foi usado como validação.
