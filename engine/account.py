@@ -361,6 +361,184 @@ def recuperar(led, now, maximo=RECUPERAR_MAX):
     return out
 
 
+# ---------- (06/11) conferencia incremental das operacoes reais, sem limite de dias ----------
+# Rui (06/11): "nao podemos ter operacoes reais cujo fecho desaparece do registo por passar um numero de dias".
+# Antes: a leitura so via os ultimos 6,5 dias e a recuperacao so pegava em operacoes SEM nenhum dado real (a SEI de
+# 23/10 ficou "fechada: falso" para sempre). Agora cada operacao real guarda as execucoes ja lidas (por execId, sem
+# duplicar) e ate onde leu (lido_ate), e continua a ler ate a Bybit mostrar o fecho total. Falha da API -> a operacao
+# fica "incompleta" e o cursor nao avanca; sem execucoes -> "sem_dados". Nunca se inventa um resultado.
+JANELA_S = 7 * 86400 - 60             # limite da Bybit por pedido de execucoes
+RECONCILIAR_MAX = 8                   # operacoes por leitura da conta (as mais atrasadas primeiro)
+
+
+class LeituraFalhou(Exception):
+    pass
+
+
+def execs_janela(symbol, a, b):
+    """Todas as execucoes spot de symbol entre a e b (s), com paginacao. Levanta LeituraFalhou (nunca engole)."""
+    out, cursor = [], None
+    for _ in range(20):
+        prm = {"category": "spot", "symbol": symbol, "limit": 100, "startTime": int(a * 1000), "endTime": int(b * 1000)}
+        if cursor:
+            prm["cursor"] = cursor
+        try:
+            res = get("/v5/execution/list", prm)
+        except AccountError as e:
+            raise LeituraFalhou(str(e)[:80])
+        out += res.get("list") or []
+        cursor = res.get("nextPageCursor")
+        if not cursor:
+            return out
+    raise LeituraFalhou("paginacao sem fim")
+
+
+def juros_margem(moeda, a, b):
+    """Juros do emprestimo (short em margem) da moeda entre a e b, ou None se a API nao os der."""
+    tot, x = 0.0, a
+    try:
+        while x < b:
+            y = min(b, x + 30 * 86400 - 60)
+            res = get("/v5/account/borrow-history", {"currency": moeda, "startTime": int(x * 1000),
+                                                     "endTime": int(y * 1000), "limit": 50})
+            for it in res.get("list") or []:
+                tot += _f(it.get("borrowCost")) or 0.0
+            x = y
+    except AccountError:
+        return None
+    return tot
+
+
+def ordens_protecao(symbol, a, b):
+    """Ordens de protecao (stop/objetivo) da altura: [{"tipo", "estado"}] ou None se a API falhar."""
+    try:
+        res = get("/v5/order/history", {"category": "spot", "symbol": symbol, "limit": 50,
+                                        "startTime": int(a * 1000), "endTime": int(min(b, a + JANELA_S) * 1000)})
+    except AccountError:
+        return None
+    out = []
+    for o in res.get("list") or []:
+        t = o.get("stopOrderType") or ("tpsl" if (o.get("orderType") or "").lower().startswith("tpsl") else "")
+        if t:
+            out.append({"tipo": t, "estado": o.get("orderStatus")})
+    return out
+
+
+def _limites(r, led, now):
+    """Janela da operacao: desde a emissao ate ao proximo sinal real do programa no mesmo par (para nao misturar
+    operacoes), ou ate agora."""
+    sym, t0 = symbol_of(r), (r.get("issued_at") or now) - 600
+    nxt = [x.get("issued_at") for x in led or [] if x is not r and symbol_of(x) == sym and x.get("executed") is True
+           and (x.get("issued_at") or 0) > (r.get("issued_at") or 0)]
+    return t0, (min(nxt) - 600) if nxt else now
+
+
+def agregar(r, execs, juros, protecao):
+    """Resultado real a partir das execucoes unicas. Campos com dinheiro tem nomes que a copia publica remove."""
+    short = r.get("side") == "SHORT"
+    op_side, back_side = ("Sell", "Buy") if short else ("Buy", "Sell")
+    asset = (r.get("asset") or "").upper()
+    q_in = v_in = q_out = v_out = fee_usdc = fee_base = 0.0
+    tipos_saida = []
+    usadas = 0
+    for e in sorted(execs, key=lambda e: e["t"]):
+        if q_in and q_out >= 0.98 * (q_in - (fee_base if not short else 0)):
+            break                                   # fechada: execucoes posteriores sao de outra operacao (ex.: manual)
+        usadas += 1
+        if e["fee_moeda"].upper() == asset:
+            fee_base += e["fee"]
+        else:
+            fee_usdc += e["fee"]
+        if e["lado"] == op_side:
+            q_in += e["q"]; v_in += e["q"] * e["px"]
+        elif e["lado"] == back_side:
+            q_out += e["q"]; v_out += e["q"] * e["px"]
+            if e.get("tipo"):
+                tipos_saida.append(e["tipo"])
+    if not q_in:
+        return {"estado": "sem_dados", "fechada": False, "n": 0}
+    px_in = v_in / q_in
+    net_in = q_in - (fee_base if not short else 0)
+    fechada = q_out >= 0.98 * net_in
+    pct = round(min(1.0, q_out / net_in) * 100, 1) if net_in else 0.0
+    falta_juros = short and juros is None
+    custos = fee_usdc + fee_base * px_in + (juros or 0.0) * (px_in if short else 0)
+    if short:
+        pnl = v_in - v_out - fee_usdc - fee_base * px_in - (juros or 0.0) * px_in
+    else:
+        pnl = v_out - v_in - fee_usdc
+    estado = "fechada" if fechada else ("parcial" if q_out > 0 else "aberta")
+    out = {"estado": estado, "fechada": fechada, "pct_fechado": pct, "n": usadas,
+           "compra_usdc": round(v_in, 6), "venda_usdc": round(v_out, 6), "comissoes_usdc": round(custos, 6),
+           "juros_valor_moeda": None if juros is None else round(juros, 10), "preco_entrada": round(px_in, 10),
+           "preco_saida": round(v_out / q_out, 10) if q_out else None, "saida_por": sorted(set(tipos_saida)) or None,
+           "protecao": protecao, "custos_incompletos": bool(falta_juros),
+           "pnl_usdc": round(pnl, 6) if fechada and not falta_juros else None,
+           "pnl_usdc_sem_juros": round(pnl, 6) if fechada and falta_juros else None}
+    # risco inicial real: quantidade executada x distancia do stop do plano ao preco de entrada real
+    if r.get("stop"):
+        out["risco_usdc"] = round(q_in * abs(float(r["stop"]) - px_in), 6)
+    return out
+
+
+def pendentes(led):
+    """Operacoes reais executadas ainda sem resultado real final: sem dados, parciais, abertas ou incompletas,
+    tenham a idade que tiverem."""
+    out = []
+    for r in led or []:
+        if r.get("executed") is not True or r.get("mode") not in (None, "REAL"):
+            continue
+        real = r.get("real") or {}
+        if r.get("real_r") is not None and real.get("fechada"):
+            continue
+        if real.get("fechada") and not real.get("custos_incompletos"):
+            continue
+        out.append(r)
+    return sorted(out, key=lambda r: (r.get("real") or {}).get("lido_ate") or r.get("issued_at") or 0)
+
+
+def reconciliar_pendentes(led, now, ler=None, juros=None, protecao=None, maximo=RECONCILIAR_MAX):
+    """{id: resultado real} das operacoes pendentes, lendo SO o que falta desde o ultimo cursor (lido_ate) e juntando
+    as execucoes por execId. ler/juros/protecao injetaveis (testes)."""
+    ler, juros, protecao = ler or execs_janela, juros or juros_margem, protecao or ordens_protecao
+    out = {}
+    for r in pendentes(led)[:maximo]:
+        sym = symbol_of(r)
+        t0, t1 = _limites(r, led, now)
+        ant = r.get("real") or {}
+        vistas = {e["id"]: e for e in ant.get("execs_valores") or []}
+        a = max(t0, ant.get("lido_ate") or t0)
+        falhas = []
+        while a < t1:
+            b = min(t1, a + JANELA_S)
+            try:
+                lote = ler(sym, a, b)
+            except LeituraFalhou as e:
+                falhas.append(f"execucoes {int(a)}-{int(b)}: {e}")
+                break                                       # o cursor fica onde a leitura falhou
+            for e in lote:
+                k = e.get("execId") or f"{e.get('orderId')}-{e.get('execTime')}-{e.get('execQty')}"
+                if k in vistas:
+                    continue                                # sem duplicados (reinicios, janelas sobrepostas)
+                vistas[k] = {"id": k, "t": (_f(e.get("execTime")) or 0) / 1000, "lado": e.get("side"),
+                             "q": _f(e.get("execQty")) or 0.0, "px": _f(e.get("execPrice")) or 0.0,
+                             "fee": _f(e.get("execFee")) or 0.0, "fee_moeda": e.get("feeCurrency") or "",
+                             "tipo": e.get("stopOrderType") or None}
+            a = b
+            if agregar(r, list(vistas.values()), 0.0, None).get("fechada"):
+                break                                       # ja fechou: nao le mais (nem mistura o que vem depois)
+        execs = sorted(vistas.values(), key=lambda e: e["t"])
+        short = r.get("side") == "SHORT"
+        jr = juros((r.get("asset") or "").upper(), t0, t1) if short and execs else (0.0 if execs else None)
+        res = agregar(r, execs, jr if short else None, protecao(sym, t0, t1) if execs else None)
+        res.update(execs_valores=execs, lido_ate=a, tentativas=int(ant.get("tentativas") or 0) + 1,
+                   falhas=falhas or None)
+        if falhas and not res.get("fechada"):
+            res["estado"] = "incompleta"
+        out[r["id"]] = res
+    return out
+
+
 def funding():
     """Saldos na conta Funding (onde caem os depositos na Bybit). O programa
     so negoceia com a Conta Unificada; o dinheiro aqui tem de ser transferido
@@ -513,11 +691,11 @@ def snapshot(state, now=None):
                                                     now - 6.5 * 86400), now)
         except Exception as e:
             reais = {"erro": str(e)[:100]}
-        try:                                 # D1 (21/10): as operacoes antigas, poucas de cada vez
+        try:                                 # (06/11) conferencia incremental sem limite de dias (substitui D1)
             if isinstance(reais, dict) and "erro" not in reais:
-                reais.update(recuperar(led, now))
+                reais.update(reconciliar_pendentes(led, now))
         except Exception as e:
-            print("recuperar:", e)
+            print("reconciliar:", type(e).__name__)
         tk = _tickers_ou_none()
         try:
             mv = movimentos(now, tk)
