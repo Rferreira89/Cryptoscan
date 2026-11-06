@@ -60,9 +60,16 @@ def do_ledger(state):
         if real:
             o["R_sinal"] = r.get("result_r")                 # o R do sinal (simulado), so para comparar
             o["r_fonte"] = "real_r" if r.get("real_r") is not None else ("user_result_r" if Rreal is not None else None)
-            rr = r.get("real")
-            if isinstance(rr, dict) and rr.get("fechada") is False:
-                o["alerta"] = "execucao real marcada como NAO fechada na fonte: confirmar na conta da Bybit"
+            rr = r.get("real") if isinstance(r.get("real"), dict) else {}
+            if Rreal is None:
+                # (06/11, Rui) executada, resultado DESCONHECIDO: fora de todas as metricas de rentabilidade ate haver
+                # reconciliacao com as execucoes da Bybit; o R do sinal (R_sinal) nunca conta como real
+                o["estado_reconciliacao"] = rr.get("estado") or ("fecho_real_nao_registado" if rr.get("fechada") is False
+                                                                 else "sem_dados_reais")
+                o["resultado"] = "desconhecido"
+            if rr.get("fechada") is False:
+                o["alerta"] = ("entrada real confirmada pela Bybit; fecho real desconhecido (o 'fechada: falso' da fonte "
+                               "pode estar desatualizado: a conferencia antiga parava 6,5 dias depois do sinal)")
         out.append(o)
     return out
 
@@ -176,6 +183,16 @@ def juntar_controlos(ops, controlos):
 
 
 # ---------- metricas uniformes ----------
+def notas(ops, anotacoes):
+    """Anotacoes manuais confirmadas (ex.: o Rui confirmou na app que a posicao nao esta aberta). Ficam ao lado do
+    registo, com quem e quando, e NUNCA mudam o R nem o resultado."""
+    for o in ops:
+        n = (anotacoes or {}).get(o["id_origem"])
+        if n:
+            o.setdefault("notas", []).append(dict(n))
+    return ops
+
+
 def metricas(ops):
     """Metricas de UMA estrategia numa UMA origem. Operacoes sem R contam em 'sem_r' e ficam fora das contas de R."""
     origens = {o["origem"] for o in ops}

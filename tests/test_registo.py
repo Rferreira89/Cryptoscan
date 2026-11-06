@@ -147,3 +147,20 @@ class Completar(unittest.TestCase):
             self.assertIn(titulo, t)
         bloco_real = t.split("## Real")[1].split("## ")[0]
         self.assertIn("LIQUIDITY_SWEEP", bloco_real); self.assertNotIn("PANICO_BYBIT", bloco_real)
+
+
+class SEIDesconhecida(unittest.TestCase):
+    def test_executada_resultado_desconhecido_fora_das_metricas(self):
+        st = {"ledger": [
+            {"id": "SEI-SHORT_TURTLE-1792785613", "status": "CLOSED", "executed": True, "real_r": None, "result_r": 1.307,
+             "real": {"fechada": False, "n": 1}, "asset": "SEI", "strategy": "SHORT_TURTLE", "side": "SHORT"},
+            {"id": "ICP-SHORT_TURTLE-9", "status": "CLOSED", "executed": True, "real_r": 1.06, "asset": "ICP", "strategy": "SHORT_TURTLE"}]}
+        ops, _, _ = MG.migrar(st, {}, {})
+        G.notas(ops, {"SEI-SHORT_TURTLE-1792785613": {"posicao_aberta": False, "confirmado_por": "Rui", "data": "2026-11-06"}})
+        sei = ops[0]
+        self.assertEqual((sei["classe"], sei["resultado"], sei["estado_reconciliacao"]), ("executada", "desconhecido", "fecho_real_nao_registado"))
+        self.assertIsNone(sei["R"]); self.assertEqual(sei["R_sinal"], 1.307); self.assertEqual(sei["notas"][0]["confirmado_por"], "Rui")
+        m = G.tabela(ops)[("SHORT_TURTLE", "executada")]
+        self.assertEqual((m["fechadas"], m["com_r"], m["sem_r"]), (2, 1, 1))
+        self.assertEqual(m["soma_r"], 1.06)                                   # os +1,31 do sinal nao entram
+        self.assertEqual(m["expectativa_r"], 1.06)
