@@ -125,7 +125,7 @@ class Completar(unittest.TestCase):
         ops, _, _ = MG.migrar(st, {}, {})
         near, sei = ops
         self.assertEqual((near["R"], near["r_fonte"], near["R_sinal"]), (-0.64, "user_result_r", -1.0))
-        self.assertIsNone(sei["R"]); self.assertEqual(sei["R_sinal"], 1.307); self.assertIn("NAO fechada", sei["alerta"])
+        self.assertIsNone(sei["R"]); self.assertEqual(sei["R_sinal"], 1.307); self.assertIn("fecho real desconhecido", sei["alerta"])
 
     def test_arena_e_liga_preservadas_e_sem_contar_duas_vezes(self):
         st = dict(STATE, arena={"ctrl": {"PUMP-LIQUIDITY_SWEEP-1": [-1.0, 0.5, 2.0]}, "status": {"BREAKOUT": "MORTA"}})
