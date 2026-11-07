@@ -1,0 +1,74 @@
+name: Kronos em sombra (hipotese K1; so leitura; zero ordens)
+# (07/11, pedido do Rui) Previsao das proximas 24 h com o modelo aberto Kronos-small e registo do que um executor
+# faria com 20 USD na OKX EEA, sem ordens: so API publica, sem chaves da OKX. Estado no ramo kronos-sombra.
+# Ativado em 07/11 (OK do Rui). Corre num servidor do GitHub (o da Europa tem menos de 1 GB de memoria).
+on:
+  schedule:
+    - cron: "31 0 * * *"
+  workflow_dispatch:
+    inputs:
+      iniciar:
+        description: "Inicializar o estado (so a primeira vez; com autorizacao do Rui)"
+        type: boolean
+        default: false
+permissions:
+  contents: write
+concurrency:
+  group: kronos-sombra
+  cancel-in-progress: false
+jobs:
+  kronos:
+    # (07/11) servidor do GitHub: o da Europa tem menos de 1 GB de memoria e nao aguenta o modelo
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    env:
+      KR: /home/runner/.kronos-cache
+      HF_HOME: /home/runner/.kronos-cache/hf
+    steps:
+      - uses: actions/checkout@v4
+      - name: A OKX EEA responde a partir deste servidor? (so leitura publica)
+        run: |
+          python3 - <<'PY'
+          import json, urllib.request
+          for nome, path in (("instrumentos", "/api/v5/public/instruments?instType=FUTURES"),
+                             ("velas BTC 1h", "/api/v5/market/history-candles?instId=BTC-USDT-SWAP&bar=1H&limit=5"),
+                             ("livro SOL", "/api/v5/public/instruments?instType=FUTURES&instFamily=SOL-USD_UM")):
+              try:
+                  r = urllib.request.urlopen(urllib.request.Request("https://eea.okx.com" + path, headers={"User-Agent": "cryptoscan/1.0"}), timeout=20)
+                  d = json.loads(r.read())
+                  print(nome, "HTTP", r.status, "code", d.get("code"), "linhas", len(d.get("data") or []))
+              except Exception as e:
+                  print(nome, "FALHOU", type(e).__name__, getattr(e, "code", ""))
+          PY
+      - name: Ambiente (torch CPU + codigo do Kronos na versao fixa)
+        run: |
+          set -e
+          mkdir -p "$KR"
+          if [ ! -x "$KR/venv/bin/python" ]; then
+            python3 -m venv "$KR/venv"
+            "$KR/venv/bin/pip" install -q --index-url https://download.pytorch.org/whl/cpu torch
+            "$KR/venv/bin/pip" install -q numpy pandas einops==0.8.1 "huggingface_hub>=0.33,<1" safetensors tqdm
+          fi
+          if [ ! -d "$KR/Kronos/.git" ]; then git clone -q https://github.com/shiyu-coder/Kronos.git "$KR/Kronos"; fi
+          git -C "$KR/Kronos" fetch -q origin 67b630e67f6a18c9e9be918d9b4337c960db1e9a 2>/dev/null || true
+          git -C "$KR/Kronos" checkout -q 67b630e67f6a18c9e9be918d9b4337c960db1e9a
+          "$KR/venv/bin/python" -c "import torch; print('torch', torch.__version__)"
+      - name: Ensaio (nao grava)
+        if: false
+        run: |
+          grep -E "MemTotal|MemAvailable" /proc/meminfo; nproc
+          KRONOS_THREADS=4 timeout 2400 "$KR/venv/bin/python" tools/kronos_sombra.py /tmp/kronos_ensaio.json --ensaio --kronos "$KR/Kronos"
+          grep -E "MemAvailable" /proc/meminfo
+      - name: Volta diaria (sombra)
+        run: |
+          set -e
+          rm -rf /tmp/ks && (git clone -q --depth 1 -b kronos-sombra "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" /tmp/ks || mkdir -p /tmp/ks)
+          if [ "${{ inputs.iniciar }}" = "true" ]; then
+            "$KR/venv/bin/python" tools/kronos_sombra.py /tmp/ks/kronos_sombra.json --so-iniciar
+          else
+            KRONOS_THREADS=4 timeout 2400 "$KR/venv/bin/python" tools/kronos_sombra.py /tmp/ks/kronos_sombra.json --gravar --kronos "$KR/Kronos"
+          fi
+          cd /tmp/ks
+          if [ ! -d .git ]; then git init -q -b kronos-sombra && git remote add origin "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git"; fi
+          git config user.name "cryptoscan-bot" && git config user.email "bot@users.noreply.github.com"
+          [ -f kronos_sombra.json ] && git add kronos_sombra.json && git commit -q -m "kronos sombra $(date -u +%F)" && git push -q origin HEAD:kronos-sombra || echo "nada a publicar"

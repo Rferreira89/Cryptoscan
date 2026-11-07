@@ -292,7 +292,7 @@ def main(argv):
     est, ok, motivo = carregar(est_p, iniciar=iniciar)
     res = volta(tfs, est, ok, motivo, Publico(), int(time.time()))
     print(json.dumps({"volta": {k: v for k, v in res.items() if k != "t"}, "resumo": resumo(est)}, ensure_ascii=False))
-    if gravar:
+    if gravar and ok:                                        # (07/11) estado invalido nunca e regravado (lavaria a soma)
         guardar(est_p, est)
     return 0
 

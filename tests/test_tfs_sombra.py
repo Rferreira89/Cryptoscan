@@ -193,3 +193,18 @@ class NoRegisto(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class NaoLava(unittest.TestCase):
+    def test_estado_adulterado_nao_e_regravado(self):
+        import contextlib, io
+        d = tempfile.mkdtemp(); p = os.path.join(d, "s.json"); t = os.path.join(d, "t.json")
+        json.dump(tfs(), open(t, "w"))
+        T.guardar(p, T.novo()); c = json.load(open(p)); c["estado"]["capital"] = 99; json.dump(c, open(p, "w"))
+        orig = T.Publico; T.Publico = Pub
+        try:
+            with contextlib.redirect_stdout(io.StringIO()):
+                T.main([t, p, "--gravar"])
+        finally:
+            T.Publico = orig
+        self.assertFalse(T.carregar(p)[1])

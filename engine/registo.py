@@ -149,6 +149,16 @@ def do_tfs_sombra(st):
     return out
 
 
+def do_kronos_sombra(st):
+    """Agente Kronos em SOMBRA (tools/kronos_sombra.py, hipotese K1). O R do controlo ingenuo fica so no bruto."""
+    out = []
+    for i, r in enumerate((st or {}).get("fechadas") or []):
+        out.append(op("Kronos K1 sombra", "sombra", "okx", r.get("moeda"), "kronos_sombra",
+                      f"kronos-{r.get('moeda')}-{r.get('dia')}-{i}", r, R=r.get("R"), lado=r.get("lado"),
+                      t_entrada=r.get("t_fill"), t_saida=r.get("t_saida"), motivo=r.get("motivo")))
+    return out
+
+
 def abertas_reais(state, okx):
     """Posicoes reais ainda abertas (nao sao operacoes fechadas; nunca entram nas metricas)."""
     out = []
