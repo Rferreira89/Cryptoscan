@@ -57,13 +57,17 @@ jobs:
           else
             echo "nada novo"
           fi
-      - name: Lancar o agente OKX (uma vez por hora)
+      - name: Lancar o agente OKX (so reserva)
         # (04/11) o agendamento do GitHub falhou para o agente OKX; este workflow corre de 15 em 15 min
+        # (07/11, OK do Rui) o lancamento principal e o do ciclo do scanner (hh:07-hh:30); aqui so de reserva, a partir
+        # de hh:30 e se nenhuma volta do agente comecou nesta hora (antes lancava sempre antes de hh:15: voltas duplicadas)
         if: always()
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if [ "$(date -u +%M)" -lt 15 ]; then
+          rm -f /tmp/eu-okx.json
+          git fetch -q origin okx 2>/dev/null && git show FETCH_HEAD:okx.json > /tmp/eu-okx.json 2>/dev/null || rm -f /tmp/eu-okx.json
+          if python3 tools/okx_reserva.py /tmp/eu-okx.json; then
             curl -sS -o /dev/null -w "agente OKX lancado: %{http_code}\n" -X POST \
               -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
               https://api.github.com/repos/${{ github.repository }}/actions/workflows/okx-agente.yml/dispatches \
