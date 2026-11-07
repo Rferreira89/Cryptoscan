@@ -105,12 +105,14 @@ class PrevisorKronos:
             for _ in range(n):
                 dfs.append(df); xs.append(xt); ys.append(yt); quem.append(m)
         out = {}
-        torch.set_num_threads(2)                             # o servidor e partilhado com os agentes de producao
+        torch.set_num_threads(int(os.environ.get("KRONOS_THREADS", "2")))
         for i in range(0, len(dfs), n):                      # uma moeda de cada vez (16 trajetorias): memoria baixa
+            t0 = time.time()
             res = self.pred.predict_batch(dfs[i:i + n], xs[i:i + n], ys[i:i + n], pred_len=horizonte, T=1.0, top_p=0.9,
                                           sample_count=1, verbose=False)
             for m, p in zip(quem[i:i + n], res):
                 out.setdefault(m, []).append(float(p["close"].iloc[-1]))
+            print(f"[kronos] {quem[i]}: {time.time() - t0:.0f}s", file=sys.stderr, flush=True)
         return out
 
 
@@ -267,6 +269,7 @@ def volta(est, ok_estado, motivo_estado, pub, previsor, agora):
         est["voltas"] = (est.get("voltas") or [])[-60:] + [res]
         return res
     series = {}
+    t0 = time.time()
     for m in UNIVERSO:
         v = pub.velas_perp(m)
         if v is None or len(v) < CONTEXTO or v[-1]["t"] < dia - 2 * H:
@@ -276,6 +279,7 @@ def volta(est, ok_estado, motivo_estado, pub, previsor, agora):
         res["entradas_bloqueadas"] = "sem dados"
         est["voltas"] = (est.get("voltas") or [])[-60:] + [res]
         return res
+    print(f"[kronos] dados de {len(series)} moedas em {time.time() - t0:.0f}s", file=sys.stderr, flush=True)
     traj = previsor.trajetorias(series)
     cands = []
     for m, v in series.items():
