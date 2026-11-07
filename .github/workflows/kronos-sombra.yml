@@ -21,13 +21,28 @@ concurrency:
   cancel-in-progress: false
 jobs:
   kronos:
-    runs-on: [self-hosted, eu]
+    # (07/11) servidor do GitHub: o da Europa tem menos de 1 GB de memoria e nao aguenta o modelo
+    runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
-      KR: ${{ github.workspace }}/../.kronos-cache
-      HF_HOME: ${{ github.workspace }}/../.kronos-cache/hf
+      KR: /home/runner/.kronos-cache
+      HF_HOME: /home/runner/.kronos-cache/hf
     steps:
       - uses: actions/checkout@v4
+      - name: A OKX EEA responde a partir deste servidor? (so leitura publica)
+        run: |
+          python3 - <<'PY'
+          import json, urllib.request
+          for nome, path in (("instrumentos", "/api/v5/public/instruments?instType=FUTURES"),
+                             ("velas BTC 1h", "/api/v5/market/history-candles?instId=BTC-USDT-SWAP&bar=1H&limit=5"),
+                             ("livro SOL", "/api/v5/public/instruments?instType=FUTURES&instFamily=SOL-USD_UM")):
+              try:
+                  r = urllib.request.urlopen(urllib.request.Request("https://eea.okx.com" + path, headers={"User-Agent": "cryptoscan/1.0"}), timeout=20)
+                  d = json.loads(r.read())
+                  print(nome, "HTTP", r.status, "code", d.get("code"), "linhas", len(d.get("data") or []))
+              except Exception as e:
+                  print(nome, "FALHOU", type(e).__name__, getattr(e, "code", ""))
+          PY
       - name: Ambiente (torch CPU + codigo do Kronos na versao fixa)
         run: |
           set -e
