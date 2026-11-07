@@ -1,0 +1,84 @@
+STATUS OK
+  binance  OK 776 pares
+  okx      OK 468 pares
+  kucoin   OK 800 pares
+  bybit-eu {'ok': True, 'pairs': 80}
+COUNTS {'pairs_seen': 960, 'eligible': 64, 'deep_checked': 64, 'data_valid': 51, 'data_invalid': 0, 'long': 0, 'short': 0, 'watch_short': 0, 'paper': 0, 'watchlist': 0, 'no_trade': 64}
+DERIVADOS {'ok': True, 'with_perp': 63, 'incomplete': 1, 'binance': 57}
+EUROPA {'ok': True, 't': 1794050093, 'moedas': 120} CONTA lida
+REGIME BTC BEAR
+  BTC      NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  ETH      NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  XRP      NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  SOL      NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  PEPE     NO TRADE  -     STRONG BULL -                -        score - | PULLBACK: estratégia desligada
+      rejeitado PULLBACK: estratégia desligada
+  NEAR     NO TRADE  -     NEUTRAL     -                -        score - | nenhuma estratégia aplicável em regime NEUTRAL
+  BNB      NO TRADE  -     NEUTRAL     -                -        score - | nenhuma estratégia aplicável em regime NEUTRAL
+  HYPE     NO TRADE  -     NEUTRAL     -                -        score - | nenhuma estratégia aplicável em regime NEUTRAL
+  UNI      NO TRADE  -     NEUTRAL     -                -        score - | nenhuma estratégia aplicável em regime NEUTRAL
+  DOGE     NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  SUI      NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  LINK     NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  ENA      NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  TRX      NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+  AAVE     NO TRADE  -     NEUTRAL     -                -        score - | nenhuma estratégia aplicável em regime NEUTRAL
+  WLD      NO TRADE  -     NEUTRAL     -                -        score - | nenhuma estratégia aplicável em regime NEUTRAL
+  TRUMP    NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  AVAX     NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  LTC      NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  ASTER    NO TRADE  -     BEAR        -                -        score - | LIQUIDITY_SWEEP: estratégia desligada
+      rejeitado LIQUIDITY_SWEEP: estratégia desligada
+  INJ      NO TRADE  -     NEUTRAL     -                -        score - | nenhuma estratégia aplicável em regime NEUTRAL
+  ARB      NO TRADE  -     NEUTRAL     -                -        score - | nenhuma estratégia aplicável em regime NEUTRAL
+  ADA      NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  PUMP     NO TRADE  -     NEUTRAL     -                -        score - | nenhuma estratégia aplicável em regime NEUTRAL
+  SEI      NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  LIT      NO TRADE  -     NEUTRAL     -                -        score - | BREAKOUT: LOW VOLUME BREAKOUT: volume da quebra 0.34x a média
+      rejeitado BREAKOUT: LOW VOLUME BREAKOUT: volume da quebra 0.34x a média
+  XLM      NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  BCH      NO TRADE  -     BEAR        -                -        score - | LIQUIDITY_SWEEP: estratégia desligada
+      rejeitado LIQUIDITY_SWEEP: estratégia desligada
+  DOT      NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  GRAM     NO TRADE  -     -           -                -        score - | dados inválidos ou histórico insuficiente
+  ONDO     NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  FIL      NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  SHIB     NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  HBAR     NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  XPL      NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  PENGU    NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  STRK     NO TRADE  -     RANGE       -                -        score - | RANGE: estratégia desligada
+      rejeitado RANGE: estratégia desligada
+  ZRO      NO TRADE  -     HIGH VOLATILITY -                -        score - | regime HIGH VOLATILITY: sem vantagem identificável
+  HUMA     NO TRADE  -     -           -                -        score - | spread elevado na Bybit UE
+  KOR      NO TRADE  -     -           -                -        score - | dados inválidos ou histórico insuficiente
+  POL      NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  WIF      NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  TIA      NO TRADE  -     HIGH VOLATILITY -                -        score - | regime HIGH VOLATILITY: sem vantagem identificável
+  W        NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+  PONS     NO TRADE  -     -           -                -        score - | dados inválidos ou histórico insuficiente
+  PYTH     NO TRADE  -     NEUTRAL     -                -        score - | nenhuma estratégia aplicável em regime NEUTRAL
+  RENDER   NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  ICP      NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+  APT      NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+  OP       NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+  ATOM     NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+  CRV      NO TRADE  -     HIGH VOLATILITY -                -        score - | regime HIGH VOLATILITY: sem vantagem identificável
+  ZAMA     NO TRADE  -     NEUTRAL     -                -        score - | nenhuma estratégia aplicável em regime NEUTRAL
+  BONK     NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  AERO     NO TRADE  -     -           -                -        score - | dados inválidos ou histórico insuficiente
+  CHIP     NO TRADE  -     -           -                -        score - | dados inválidos ou histórico insuficiente
+  ALGO     NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  KII      NO TRADE  -     -           -                -        score - | dados inválidos ou histórico insuficiente
+  GRASS    NO TRADE  -     -           -                -        score - | dados inválidos ou histórico insuficiente
+  VIRTUAL  NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  ICNT     NO TRADE  -     -           -                -        score - | dados inválidos ou histórico insuficiente
+  PENDLE   NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+  S        NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  SKY      NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+FILTRO DE MERCADO {'btc_above_sma200': True, 'close': 75844.0, 'sma200': 73242.53, 'distance_pct': 3.6, 'since': 1790942427}
+PAPEL TENDENCIA capital -3.04% n 1 posicoes []
+REGISTO {'REAL:BREAKOUT': {'n': 4, 'wins': 0, 'sum_r': -4.243}, 'REAL:PULLBACK': {'n': 2, 'wins': 0, 'sum_r': -2.605}, 'REAL:LIQUIDITY_SWEEP': {'n': 3, 'wins': 1, 'sum_r': -1.438}, 'REAL:BOUNCE_X30': {'n': 4, 'wins': 0, 'sum_r': -4.0}, 'REAL:BOUNCE_SQUEEZE': {'n': 4, 'wins': 2, 'sum_r': 0.059}, 'REAL:SHORT_TURTLE': {'n': 1, 'wins': 1, 'sum_r': 1.307}} TRAVAO None
+SINAIS ATIVOS 2
+  AVAX-SHORT_TURTLE-1792670417 TRIGGERED {'side': 'SHORT', 'leverage': {'use': 1.0, 'max_safe': 2.5, 'needed': 1.0, 'collateral_pct': 1.9, 'borrowed_pct': 0.0, 'liquidation_est': None}, 'position_usdc': 6.87, 'collateral_usdc': 6.87, 'borrowed_usdc': 0.0, 'risk_usdc': 0.89, 'entry_zone': [9.223516, 9.269726], 'entry_ref': 9.223516, 'stop': 10.369701371795477, 'tp': [7.584900741758108, 5.9791815468029625, 5.9791815468029625], 'tp_projected': [], 'partials': [100, 0, 0], 'rr': 2.68, 'rr_tp1': 1.34, 'rr_tp3': 2.68, 'stop_pct': 12.96, 'stop_atr': None, 'position_pct': 1.9, 'risk_pct': 0.25, 'breakeven': True, 'max_hold_s': 1728000, 'no_react_s': None, 'trail_r': 1.0}
+  ICP-SHORT_TURTLE-1792684818 TRIGGERED {'side': 'SHORT', 'leverage': {'use': 1.0, 'max_safe': 2.0, 'needed': 1.0, 'collateral_pct': 1.6, 'borrowed_pct': 0.0, 'liquidation_est': None}, 'position_usdc': 5.69, 'collateral_usdc': 5.69, 'borrowed_usdc': 0.0, 'risk_usdc': 0.89, 'entry_zone': [2.7445, 2.75825], 'entry_ref': 2.7445, 'stop': 3.1593271748802287, 'tp': [2.1765059292398896, 1.6600791740029788, 1.6600791740029788], 'tp_projected': [], 'partials': [100, 0, 0], 'rr': 2.5, 'rr_tp1': 1.29, 'rr_tp3': 2.5, 'stop_pct': 15.65, 'stop_atr': None, 'position_pct': 1.6, 'risk_pct': 0.25, 'breakeven': True, 'max_hold_s': 1728000, 'no_react_s': None, 'trail_r': 1.0}
