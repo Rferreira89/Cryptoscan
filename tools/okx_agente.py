@@ -327,10 +327,34 @@ def telegram(txt):
         print("telegram falhou:", type(e).__name__)
 
 
+# (07/11) O agente e lancado por dois caminhos (ciclo do scanner entre hh:07 e hh:30 e Europa antes de hh:15) e ainda
+# pelo horario do GitHub: em 24 h correu ~2,2 vezes por hora, a segunda volta poucos minutos depois da primeira, com
+# as mesmas velas de 4H fechadas (so muda de 4 em 4 h) e ~600 pedidos a OKX repetidos. Volta repetida = a anterior
+# comecou ha menos de 20 min E pelo menos 5 min depois do ultimo fecho de vela de 4H (ja tinha todas as velas fechadas).
+# Logo depois de um fecho nunca salta. Como o estado vem do ramo okx, se a primeira volta nao gravou, a segunda corre.
+JANELA_REPETIDA, MARGEM_FECHO = 20 * 60, 300
+
+
+def volta_repetida(st, now):
+    t = (st.get("resumo") or {}).get("t") or 0
+    if not t or not 0 <= now - t < JANELA_REPETIDA:
+        return False
+    return t >= now - now % H4 + MARGEM_FECHO
+
+
 def main(caminho):
     st = json.load(open(caminho)) if os.path.exists(caminho) else {}
     primeira = not st
-    msgs = correr(st, time.time())
+    now = time.time()
+    v = st.get("volta") or {}
+    if volta_repetida(st, now):
+        st["volta"] = {"t": int(now), "saltada": True, "saltadas": int(v.get("saltadas") or 0) + 1}
+        json.dump(st, open(caminho, "w"), separators=(",", ":"))
+        print(f"volta repetida: a anterior comecou ha {int((now - st['resumo']['t']) // 60)} min com as mesmas velas "
+              f"de 4H; saltada (sem pedidos a OKX). Total saltadas: {st['volta']['saltadas']}")
+        return 0
+    st["volta"] = {"t": int(now), "saltada": False, "saltadas": int(v.get("saltadas") or 0)}
+    msgs = correr(st, now)
     json.dump(st, open(caminho, "w"), separators=(",", ":"))
     r = st["resumo"]
     print(f"contratos {r['contratos']} | analisados {r['analisados']} | pendentes {r['pendentes']} | abertas {r['abertas']} | "

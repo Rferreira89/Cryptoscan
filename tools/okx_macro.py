@@ -101,6 +101,10 @@ def retirar_fora(M, lista):
 def main(caminho):
     st = json.load(open(caminho)) if os.path.exists(caminho) else {}
     primeira = "macro" not in st
+    v = st.get("volta") or {}
+    if v.get("saltada") and 0 <= time.time() - (v.get("t") or 0) < 900:   # (07/11) o agente saltou esta volta repetida
+        print("macro: volta repetida, saltada (velas diarias iguais as da volta anterior)")
+        return 0
     msgs = correr(st)
     json.dump(st, open(caminho, "w"), separators=(",", ":"))
     r = st["macro"]["resumo"]
