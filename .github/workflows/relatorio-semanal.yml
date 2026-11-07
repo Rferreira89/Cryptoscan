@@ -21,7 +21,7 @@ jobs:
       - name: Juntar as copias publicas
         run: |
           rm -rf /tmp/rs && mkdir -p /tmp/rs
-          for par in data:state.json data:scan.json okx:okx.json okx-tfshort:okx_tfshort.json okx-tfshort:okx_tfshort_sombra.json arena:forma.json; do
+          for par in data:state.json data:scan.json okx:okx.json okx-tfshort:okx_tfshort.json okx-tfshort:okx_tfshort_sombra.json kronos-sombra:kronos_sombra.json arena:forma.json; do
             R=${par%%:*}; F=${par##*:}
             git fetch -q --depth 1 origin "$R" 2>/dev/null && git show FETCH_HEAD:"$F" > /tmp/rs/"$F" 2>/dev/null || rm -f /tmp/rs/"$F"
           done
@@ -32,5 +32,5 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           python3 tools/relatorio_semanal.py --state /tmp/rs/state.json --scan /tmp/rs/scan.json --okx /tmp/rs/okx.json \
-            --tfshort /tmp/rs/okx_tfshort.json --sombra /tmp/rs/okx_tfshort_sombra.json --forma /tmp/rs/forma.json --enviar > /dev/null
+            --tfshort /tmp/rs/okx_tfshort.json --sombra /tmp/rs/okx_tfshort_sombra.json --kronos /tmp/rs/kronos_sombra.json --forma /tmp/rs/forma.json --enviar > /dev/null
           echo "relatorio enviado"

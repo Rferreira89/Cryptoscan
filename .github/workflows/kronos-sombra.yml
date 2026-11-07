@@ -1,0 +1,58 @@
+name: Kronos em sombra (hipotese K1; so leitura; preparado, NAO ATIVO)
+# (07/11, pedido do Rui) Previsao das proximas 24 h com o modelo aberto Kronos-small e registo do que um executor
+# faria com 20 USD na OKX EEA, sem ordens: so API publica, sem chaves da OKX. Estado no ramo kronos-sombra.
+# Antes do merge so corre o ENSAIO (push no ramo prep-kronos): calcula e mostra, nao grava nada.
+on:
+  push:
+    branches: [prep-kronos]
+    paths: ["tools/kronos_sombra.py", ".github/workflows/kronos-sombra.yml"]
+  schedule:
+    - cron: "31 0 * * *"
+  workflow_dispatch:
+    inputs:
+      iniciar:
+        description: "Inicializar o estado (so a primeira vez; com autorizacao do Rui)"
+        type: boolean
+        default: false
+permissions:
+  contents: write
+concurrency:
+  group: kronos-sombra
+  cancel-in-progress: false
+jobs:
+  kronos:
+    runs-on: [self-hosted, eu]
+    timeout-minutes: 45
+    env:
+      KR: ${{ github.workspace }}/../.kronos-cache
+      HF_HOME: ${{ github.workspace }}/../.kronos-cache/hf
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ambiente (torch CPU + codigo do Kronos na versao fixa)
+        run: |
+          set -e
+          mkdir -p "$KR"
+          if [ ! -x "$KR/venv/bin/python" ]; then
+            python3 -m venv "$KR/venv"
+            "$KR/venv/bin/pip" install -q --index-url https://download.pytorch.org/whl/cpu torch
+            "$KR/venv/bin/pip" install -q numpy pandas einops==0.8.1 "huggingface_hub>=0.33,<1" safetensors tqdm
+          fi
+          if [ ! -d "$KR/Kronos/.git" ]; then git clone -q https://github.com/shiyu-coder/Kronos.git "$KR/Kronos"; fi
+          git -C "$KR/Kronos" fetch -q origin 67b630e67f6a18c9e9be918d9b4337c960db1e9a 2>/dev/null || true
+          git -C "$KR/Kronos" checkout -q 67b630e67f6a18c9e9be918d9b4337c960db1e9a
+          "$KR/venv/bin/python" -c "import torch; print('torch', torch.__version__)"
+      - name: Ensaio (nao grava)
+        if: github.event_name == 'push'
+        run: |
+          "$KR/venv/bin/python" tools/kronos_sombra.py /tmp/kronos_ensaio.json --ensaio --kronos "$KR/Kronos"
+      - name: Volta diaria (sombra)
+        if: github.event_name != 'push'
+        run: |
+          set -e
+          rm -rf /tmp/ks && (git clone -q --depth 1 -b kronos-sombra "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" /tmp/ks || mkdir -p /tmp/ks)
+          INI=""; [ "${{ inputs.iniciar }}" = "true" ] && INI="--iniciar"
+          "$KR/venv/bin/python" tools/kronos_sombra.py /tmp/ks/kronos_sombra.json --gravar $INI --kronos "$KR/Kronos"
+          cd /tmp/ks
+          if [ ! -d .git ]; then git init -q -b kronos-sombra && git remote add origin "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git"; fi
+          git config user.name "cryptoscan-bot" && git config user.email "bot@users.noreply.github.com"
+          [ -f kronos_sombra.json ] && git add kronos_sombra.json && git commit -q -m "kronos sombra $(date -u +%F)" && git push -q origin HEAD:kronos-sombra || echo "nada a publicar"

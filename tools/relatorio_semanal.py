@@ -124,7 +124,7 @@ def _carregar(c):
 
 def main():
     a = argparse.ArgumentParser()
-    for k in ("state", "okx", "tfshort", "sombra", "forma", "scan"):
+    for k in ("state", "okx", "tfshort", "sombra", "kronos", "forma", "scan"):
         a.add_argument(f"--{k}")
     a.add_argument("--enviar", action="store_true")
     x = a.parse_args()
@@ -134,6 +134,7 @@ def main():
     corpo = _carregar(x.sombra)
     sombra = corpo.get("estado") if corpo else None
     ops += G.do_tfs_sombra(sombra)
+    ops += G.do_kronos_sombra((_carregar(x.kronos) or {}).get("estado"))
     semana = time.strftime("semana até %d/%m/%Y", time.gmtime())
     txt = texto(ops, G.abertas_reais(state, okx), ag, rec, semana, G.nucleo_visivel(state), sombra)
     print(txt)
