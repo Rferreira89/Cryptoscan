@@ -76,7 +76,7 @@ jobs:
             # Verifica so nos ciclos de scan (de 5 em 5 minutos). So lanca workflows de dados publicos e papel.
             if [ "$MODE" = scan ]; then
               HOJE=$(date -u +%F); SEG=$(( NOW % 86400 ))
-              for par in "okx-tfshort-papel.yml:1380" "okx-recolha.yml:2820"; do
+              for par in "okx-tfshort-papel.yml:1380" "okx-recolha.yml:2820" "kronos-sombra.yml:1860"; do
                 WF=${par%%:*}; DESDE=${par##*:}
                 if [ "$SEG" -ge "$DESDE" ]; then
                   N=$(gh run list --repo "${{ github.repository }}" -w "$WF" --created ">=$HOJE" --json databaseId -q 'length' 2>/dev/null || echo erro)
