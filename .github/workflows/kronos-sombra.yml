@@ -45,14 +45,15 @@ jobs:
         if: github.event_name == 'push'
         run: |
           grep -E "MemTotal|MemAvailable" /proc/meminfo; nproc
-          "$KR/venv/bin/python" tools/kronos_sombra.py /tmp/kronos_ensaio.json --ensaio --kronos "$KR/Kronos"
+          timeout 900 nice -n 15 "$KR/venv/bin/python" tools/kronos_sombra.py /tmp/kronos_ensaio.json --ensaio --kronos "$KR/Kronos"
+          grep -E "MemAvailable" /proc/meminfo
       - name: Volta diaria (sombra)
         if: github.event_name != 'push'
         run: |
           set -e
           rm -rf /tmp/ks && (git clone -q --depth 1 -b kronos-sombra "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" /tmp/ks || mkdir -p /tmp/ks)
           INI=""; [ "${{ inputs.iniciar }}" = "true" ] && INI="--iniciar"
-          "$KR/venv/bin/python" tools/kronos_sombra.py /tmp/ks/kronos_sombra.json --gravar $INI --kronos "$KR/Kronos"
+          timeout 900 nice -n 15 "$KR/venv/bin/python" tools/kronos_sombra.py /tmp/ks/kronos_sombra.json --gravar $INI --kronos "$KR/Kronos"
           cd /tmp/ks
           if [ ! -d .git ]; then git init -q -b kronos-sombra && git remote add origin "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git"; fi
           git config user.name "cryptoscan-bot" && git config user.email "bot@users.noreply.github.com"

@@ -374,6 +374,28 @@ def memoria_livre_mb():
 
 
 MEMORIA_MIN_MB = 1500                                       # abaixo disto nao corre: protege os agentes de producao
+MEMORIA_PARAR_MB = 700                                      # durante a volta: abaixo disto o agente termina-se a si proprio
+
+
+def vigia_memoria(limite_mb=MEMORIA_PARAR_MB, intervalo=0.5, ler=None, sair=None):
+    """Fio em segundo plano: se a memoria livre do servidor descer abaixo do limite, termina ESTE processo de imediato
+    (nada fica gravado; os agentes de producao continuam). Devolve o fio."""
+    import threading
+    ler = ler or memoria_livre_mb
+    sair = sair or (lambda: os._exit(3))
+
+    def correr():
+        while True:
+            livre = ler()
+            if livre is not None and livre < limite_mb:
+                print(json.dumps({"volta": None, "motivo": f"memoria livre {livre} MB < {limite_mb} MB: kronos terminado"}),
+                      flush=True)
+                sair()
+                return
+            time.sleep(intervalo)
+    t = threading.Thread(target=correr, daemon=True)
+    t.start()
+    return t
 
 
 def main(argv):
@@ -381,6 +403,7 @@ def main(argv):
     if livre is not None and livre < MEMORIA_MIN_MB:
         print(json.dumps({"volta": None, "motivo": f"memoria livre insuficiente ({livre} MB); nada feito"}))
         return 0
+    vigia_memoria()
     caminho = argv[0]
     gravar, iniciar, ensaio = "--gravar" in argv, "--iniciar" in argv, "--ensaio" in argv
     pasta = argv[argv.index("--kronos") + 1] if "--kronos" in argv else os.environ.get("KRONOS_CODIGO", "")

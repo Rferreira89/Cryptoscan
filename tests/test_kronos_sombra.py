@@ -193,6 +193,27 @@ class SoLeitura(unittest.TestCase):
             self.assertNotIn(proibido, src)
 
 
+class Memoria(unittest.TestCase):
+    def test_vigia_termina_quando_a_memoria_desce(self):
+        import threading
+        parou = threading.Event()
+        valores = iter([5000, 3000, 600])
+        t = K.vigia_memoria(700, 0.01, ler=lambda: next(valores, 600), sair=parou.set)
+        self.assertTrue(parou.wait(2)); t.join(1)
+
+    def test_nao_arranca_com_pouca_memoria(self):
+        orig = K.memoria_livre_mb
+        K.memoria_livre_mb = lambda: 800
+        try:
+            import io, contextlib
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                self.assertEqual(K.main(["/nao/existe.json", "--ensaio"]), 0)
+            self.assertIn("insuficiente", buf.getvalue())
+        finally:
+            K.memoria_livre_mb = orig
+
+
 class NoRegisto(unittest.TestCase):
     def test_entra_como_sombra_com_controlo_a_parte(self):
         from engine import registo as G
