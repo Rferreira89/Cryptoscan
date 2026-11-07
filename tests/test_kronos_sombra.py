@@ -214,6 +214,35 @@ class Memoria(unittest.TestCase):
             K.memoria_livre_mb = orig
 
 
+class InicioEGravacao(unittest.TestCase):
+    def test_so_iniciar_cria_uma_vez(self):
+        import io, contextlib
+        p = os.path.join(tempfile.mkdtemp(), "k.json")
+        with contextlib.redirect_stdout(io.StringIO()):
+            K.main([p, "--so-iniciar"])
+            self.assertTrue(K.carregar(p)[1])
+            K.guardar(p, dict(K.novo(), capital=21.0))
+            K.main([p, "--so-iniciar"])
+        self.assertEqual(K.carregar(p)[0]["capital"], 21.0)    # nao reinicia um estado existente
+
+    def test_estado_inexistente_ou_adulterado_nunca_e_gravado(self):
+        import io, contextlib
+        orig = K.PrevisorKronos
+        K.PrevisorKronos = lambda pasta, revisoes=None: type("P", (), {"revisoes": {}, "trajetorias": lambda self, s: {}})()
+        try:
+            d = tempfile.mkdtemp(); p = os.path.join(d, "k.json")
+            pub_orig = K.Publico; K.Publico = lambda: Pub(perp={})
+            with contextlib.redirect_stdout(io.StringIO()):
+                K.main([p, "--gravar"])
+            self.assertFalse(os.path.exists(p))
+            K.guardar(p, K.novo()); c = json.load(open(p)); c["estado"]["capital"] = 99; json.dump(c, open(p, "w"))
+            with contextlib.redirect_stdout(io.StringIO()):
+                K.main([p, "--gravar"])
+            self.assertFalse(K.carregar(p)[1])                    # continua adulterado: nao foi "lavado"
+        finally:
+            K.PrevisorKronos = orig; K.Publico = pub_orig
+
+
 class NoRegisto(unittest.TestCase):
     def test_entra_como_sombra_com_controlo_a_parte(self):
         from engine import registo as G

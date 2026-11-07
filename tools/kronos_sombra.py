@@ -409,6 +409,10 @@ def main(argv):
         return 0
     vigia_memoria()
     caminho = argv[0]
+    if "--so-iniciar" in argv:                               # inicializacao autorizada: so cria o estado vazio
+        if os.path.exists(caminho):
+            print(json.dumps({"iniciar": "o estado ja existe; nada feito"})); return 0
+        guardar(caminho, novo()); print(json.dumps({"iniciar": "estado criado"})); return 0
     gravar, iniciar, ensaio = "--gravar" in argv, "--iniciar" in argv, "--ensaio" in argv
     pasta = argv[argv.index("--kronos") + 1] if "--kronos" in argv else os.environ.get("KRONOS_CODIGO", "")
     est, ok, motivo = carregar(caminho, iniciar=iniciar or ensaio)
@@ -420,8 +424,8 @@ def main(argv):
     if ensaio:
         out["previsoes_hoje"] = [{k: p[k] for k in ("moeda", "f", "acordo", "lado")} for p in est["previsoes"][-len(UNIVERSO):]]
     print(json.dumps(out, ensure_ascii=False))
-    if gravar and not ensaio:
-        guardar(caminho, est)
+    if gravar and not ensaio and ok:                         # estado invalido (inexistente/adulterado) nunca e regravado:
+        guardar(caminho, est)                                # gravar recalcularia a soma e "lavaria" o estado
     return 0
 
 

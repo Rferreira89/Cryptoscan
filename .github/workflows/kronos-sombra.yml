@@ -1,11 +1,8 @@
-name: Kronos em sombra (hipotese K1; so leitura; preparado, NAO ATIVO)
+name: Kronos em sombra (hipotese K1; so leitura; zero ordens)
 # (07/11, pedido do Rui) Previsao das proximas 24 h com o modelo aberto Kronos-small e registo do que um executor
 # faria com 20 USD na OKX EEA, sem ordens: so API publica, sem chaves da OKX. Estado no ramo kronos-sombra.
-# Antes do merge so corre o ENSAIO (push no ramo prep-kronos): calcula e mostra, nao grava nada.
+# Ativado em 07/11 (OK do Rui). Corre num servidor do GitHub (o da Europa tem menos de 1 GB de memoria).
 on:
-  push:
-    branches: [prep-kronos]
-    paths: ["tools/kronos_sombra.py", ".github/workflows/kronos-sombra.yml"]
   schedule:
     - cron: "31 0 * * *"
   workflow_dispatch:
@@ -57,18 +54,20 @@ jobs:
           git -C "$KR/Kronos" checkout -q 67b630e67f6a18c9e9be918d9b4337c960db1e9a
           "$KR/venv/bin/python" -c "import torch; print('torch', torch.__version__)"
       - name: Ensaio (nao grava)
-        if: github.event_name == 'push'
+        if: false
         run: |
           grep -E "MemTotal|MemAvailable" /proc/meminfo; nproc
           KRONOS_THREADS=4 timeout 2400 "$KR/venv/bin/python" tools/kronos_sombra.py /tmp/kronos_ensaio.json --ensaio --kronos "$KR/Kronos"
           grep -E "MemAvailable" /proc/meminfo
       - name: Volta diaria (sombra)
-        if: github.event_name != 'push'
         run: |
           set -e
           rm -rf /tmp/ks && (git clone -q --depth 1 -b kronos-sombra "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" /tmp/ks || mkdir -p /tmp/ks)
-          INI=""; [ "${{ inputs.iniciar }}" = "true" ] && INI="--iniciar"
-          KRONOS_THREADS=4 timeout 2400 "$KR/venv/bin/python" tools/kronos_sombra.py /tmp/ks/kronos_sombra.json --gravar $INI --kronos "$KR/Kronos"
+          if [ "${{ inputs.iniciar }}" = "true" ]; then
+            "$KR/venv/bin/python" tools/kronos_sombra.py /tmp/ks/kronos_sombra.json --so-iniciar
+          else
+            KRONOS_THREADS=4 timeout 2400 "$KR/venv/bin/python" tools/kronos_sombra.py /tmp/ks/kronos_sombra.json --gravar --kronos "$KR/Kronos"
+          fi
           cd /tmp/ks
           if [ ! -d .git ]; then git init -q -b kronos-sombra && git remote add origin "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git"; fi
           git config user.name "cryptoscan-bot" && git config user.email "bot@users.noreply.github.com"
