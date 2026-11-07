@@ -44,6 +44,7 @@ jobs:
       - name: Ensaio (nao grava)
         if: github.event_name == 'push'
         run: |
+          grep -E "MemTotal|MemAvailable" /proc/meminfo; nproc
           "$KR/venv/bin/python" tools/kronos_sombra.py /tmp/kronos_ensaio.json --ensaio --kronos "$KR/Kronos"
       - name: Volta diaria (sombra)
         if: github.event_name != 'push'

@@ -105,9 +105,12 @@ class PrevisorKronos:
             for _ in range(n):
                 dfs.append(df); xs.append(xt); ys.append(yt); quem.append(m)
         out = {}
-        res = self.pred.predict_batch(dfs, xs, ys, pred_len=horizonte, T=1.0, top_p=0.9, sample_count=1, verbose=False)
-        for m, p in zip(quem, res):
-            out.setdefault(m, []).append(float(p["close"].iloc[-1]))
+        torch.set_num_threads(2)                             # o servidor e partilhado com os agentes de producao
+        for i in range(0, len(dfs), n):                      # uma moeda de cada vez (16 trajetorias): memoria baixa
+            res = self.pred.predict_batch(dfs[i:i + n], xs[i:i + n], ys[i:i + n], pred_len=horizonte, T=1.0, top_p=0.9,
+                                          sample_count=1, verbose=False)
+            for m, p in zip(quem[i:i + n], res):
+                out.setdefault(m, []).append(float(p["close"].iloc[-1]))
         return out
 
 
@@ -361,7 +364,23 @@ def resumo(est):
             "nao_executaveis": mot, "previsoes": acerto(est)}
 
 
+def memoria_livre_mb():
+    try:
+        for linha in open("/proc/meminfo"):
+            if linha.startswith("MemAvailable:"):
+                return int(linha.split()[1]) // 1024
+    except Exception:
+        return None
+
+
+MEMORIA_MIN_MB = 1500                                       # abaixo disto nao corre: protege os agentes de producao
+
+
 def main(argv):
+    livre = memoria_livre_mb()
+    if livre is not None and livre < MEMORIA_MIN_MB:
+        print(json.dumps({"volta": None, "motivo": f"memoria livre insuficiente ({livre} MB); nada feito"}))
+        return 0
     caminho = argv[0]
     gravar, iniciar, ensaio = "--gravar" in argv, "--iniciar" in argv, "--ensaio" in argv
     pasta = argv[argv.index("--kronos") + 1] if "--kronos" in argv else os.environ.get("KRONOS_CODIGO", "")
