@@ -80,3 +80,54 @@ class HipotesesNovas(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def h53():
+    spec = importlib.util.spec_from_file_location("h53", os.path.join(RAIZ, "backtest/estudos/novos/h53_long_desalavancagem.py"))
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
+def mercado_subida(n_dias=16, sinal_dia=12):
+    """40 moedas a subir 0,5%/dia; no dia sinal_dia a AAA cai 5% com OI -12% (contratos a cair, sinal) e a BBB cai 5%
+    com OI estavel (contratos a subir, controlo)."""
+    out = []
+    for k in range(40):
+        m = "AAA" if k == 0 else "BBB" if k == 1 else f"M{k:02d}"
+        p, oi = 100.0, 1e8
+        for i in range(n_dias):
+            o, c = p, p * 1.005
+            if m in ("AAA", "BBB") and i == sinal_dia:
+                c = p * 0.95
+                if m == "AAA":
+                    oi = 0.88e8
+            out.append({"data": f"2026-12-{i + 1:02d}", "moeda": m, "validado": 1, "o": o, "h": max(o, c) * 1.01,
+                        "l": min(o, c) * 0.99, "c": c, "volume_usd": 5e7, "px_xperp": c, "px_global": c,
+                        "fund_xperp_24h": 0.0001, "oi_usd_global": oi, "oi_xperp": 1e6})
+            p = c
+    return out
+
+
+class H53(unittest.TestCase):
+    def test_h53_sinal_e_controlo_a_acumular(self):
+        M = h53()
+        with tempfile.TemporaryDirectory() as d:
+            gravar(d, mercado_subida())
+            r = M.avaliar(d, "2026-11-30")
+            self.assertEqual(r["operacoes"], 1)
+            self.assertEqual(r["controlo"], 1)
+            self.assertEqual(r["estado"], "a acumular: 1 de 30 (controlo 1 de 10)")
+
+    def test_h53_ignora_dados_anteriores_ao_registo(self):
+        M = h53()
+        with tempfile.TemporaryDirectory() as d:
+            gravar(d, mercado_subida())
+            self.assertEqual(M.avaliar(d, "2026-12-05")["operacoes"], 0)
+            self.assertEqual(M.avaliar(d)["dias_de_dados"], 16)
+
+    def test_h53_so_le_via_dados_para_avaliar(self):
+        src = open(os.path.join(RAIZ, "backtest/estudos/novos/h53_long_desalavancagem.py"), encoding="utf-8").read()
+        self.assertIn("dados_para_avaliar", src)
+        for p in ("open(", "history", "/api/v5/trade"):
+            self.assertNotIn(p, src)

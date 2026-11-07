@@ -2185,3 +2185,27 @@ menos um falso positivo a 5% ronda os 72%.
   metades do ringue longo positivas; (3) morte rápida a contar
   acontecimentos; (4) corte dos clones só com representantes vivos; (5) o
   caso CAPITULACAO_R2 fora da classificação.
+
+## 2026-11-07 (dados novos, caçador noturno) — registo da H53; acompanhamento da H52
+
+- **Registo (dia ímpar, LONG)**: H53 (2026-11-07T23:39:18Z) — long taker na
+  abertura do dia seguinte a uma vela diária com queda entre −3% e −8% em
+  que o número de contratos abertos cai ≥ 5% (OI em USD a cair mais do que
+  o preço: longs a fechar ou liquidados, não vendedores novos), só com o
+  mercado a subir ou lateral (mediana do retorno de 10 dias do universo
+  ≥ −2%). Stop 6%, saída no fecho de D+3, risco 1% por operação, máximo 5
+  posições; custos taker 0,05% + deslize 0,05% por lado e financiamento
+  real do X-Perp contra o long. Universo igual ao da H52. Critério: com
+  ≥ 30 operações e ≥ 10 no grupo de controlo (mesma queda, contratos a
+  subir ou estáveis), R médio ≥ +0,10R, positivo sem as 5% melhores,
+  acima do controlo, sinais em ≥ 3 semanas e ≥ 8 dias distintos. A parte
+  de preço é um recuo (família chumbada nos dados antigos); o que se testa
+  é se o OI separa os recuos bons dos maus — por isso o controlo. Se
+  chumbar, fecha a família "recuo com desalavancagem". Código:
+  `backtest/estudos/novos/h53_long_desalavancagem.py`.
+- **Acompanhamento**: H52 — a acumular: 0 de 30 (0 dias de dados depois do
+  registo; o ramo tem 2026-11-05 e 2026-11-06, ambos anteriores). H53 — a
+  acumular: 0 de 30 (controlo 0 de 10). As duas precisam de 11 dias de
+  aquecimento para o regime: as primeiras operações possíveis só por volta
+  de 2026-11-19.
+- Nenhum resultado em dados antigos foi usado como validação.

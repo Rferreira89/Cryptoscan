@@ -16,5 +16,23 @@
     "criterio_sucesso": "com >= 30 operacoes: R medio liquido >= +0,10R E R medio sem as 5% melhores > 0 E sinais em >= 3 semanas UTC E >= 8 dias de sinal distintos",
     "minimo_operacoes": 30,
     "estado": "a acumular: 0 de 30"
+  },
+  {
+    "id": "H53",
+    "nome": "long no recuo diario feito por desalavancagem (contratos a cair), em mercado a subir ou lateral",
+    "registada_em": "2026-11-07T23:39:18Z",
+    "codigo": "backtest/estudos/novos/h53_long_desalavancagem.py",
+    "lado": "LONG",
+    "regime": "subida ou lateral: mediana do retorno de 10 dias (fecho/fecho) das moedas do universo >= -2%, com >= 30 moedas; calculado so com dados posteriores ao registo (11 dias de aquecimento)",
+    "universo": "moedas do ramo dados-novos (todas com X-Perp na OKX EEA), volume_usd do dia >= 10 M e oi_xperp >= 250 mil USD",
+    "logica": "queda moderada com o numero de contratos abertos a cair = longs a fechar/liquidados, nao vendedores novos; a venda mecanica esgota-se e, sem shorts novos, o preco recupera. Complemento da H52; testa se o OI separa os recuos bons dos maus (grupo de controlo com contratos a subir)",
+    "entrada": "vela diaria D fechada com -8% <= c/o-1 <= -3% e contratos (oi_usd_global(D)/oi_usd_global(D-1)) / (c(D)/c(D-1)) - 1 <= -5%; long taker na abertura de D+1",
+    "stop": "6% abaixo da entrada; se a minima do dia tocar, sai ao pior de stop e abertura",
+    "saida": "fecho de D+3 se o stop nao tocar",
+    "tamanho": "risco 1% do capital por operacao (nocional = 1/6 do capital); no maximo 5 posicoes abertas, desempate pela maior queda dos contratos; uma posicao por moeda",
+    "custos": "taker 0,05% por lado + deslize 0,05% por lado; financiamento real do X-Perp (fund_xperp_24h) subtraido em cada dia em posicao (positivo paga o long); velas do perpetuo global da OKX como aproximacao do X-Perp",
+    "criterio_sucesso": "com >= 30 operacoes e >= 10 no controlo (mesma queda, contratos >= 0%, mesmas saidas, sem limite de posicoes): R medio liquido >= +0,10R E R medio sem as 5% melhores > 0 E R medio > R medio do controlo E sinais em >= 3 semanas UTC E >= 8 dias de sinal distintos",
+    "minimo_operacoes": 30,
+    "estado": "a acumular: 0 de 30 (controlo 0 de 10)"
   }
 ]
