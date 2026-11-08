@@ -104,5 +104,22 @@ class TestShortSMA50Research(unittest.TestCase):
         self.assertEqual(result[0].volume, 60)
 
 
+    def test_approves_existing_short_in_bearish_regime(self):
+        start = datetime(2026, 1, 1, tzinfo=timezone.utc)
+        btc = []
+        asset = []
+
+        for index in range(55):
+            timestamp = start + timedelta(days=index)
+            btc_close = 200 - index
+            asset_close = 200 - (2 * index)
+
+            btc.append(DailyBar(timestamp, btc_close, btc_close + 1, btc_close - 1, btc_close))
+            asset.append(DailyBar(timestamp, asset_close, asset_close + 1, asset_close - 1, asset_close))
+
+        result = approve_existing_short_candidate(True, btc, asset)
+
+        self.assertTrue(result.approved)
+        self.assertEqual(result.reason, "paper_short_regime_approved")
 if __name__ == "__main__":
     unittest.main()
