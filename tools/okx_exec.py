@@ -18,7 +18,10 @@ CFG_PADRAO = {"real": False, "so_mercado": True, "risco_pct": 1.0, "risco_max_pc
               "recuo_real": False, "recuo_risco_pct": 1.0,
               # (05/11, OK do Rui) interruptor proprio da H40 (panico): so abre ordens reais com true explicito;
               # ausente = so papel (seguro)
-              "panico_real": False}
+              "panico_real": False,
+              # (08/11, OK do Rui) H40 de volta a real com risco limitado: 1% por operacao (sem tolerancia acima),
+              # no maximo 3 posicoes H40 e teto de risco aberto de 3% da conta somando TODAS as estrategias
+              "panico_risco_pct": 1.0, "panico_risco_max_pct": 1.0, "panico_max_posicoes": 3, "risco_total_max_pct": 3.0}
 
 
 def cfg():
@@ -337,7 +340,32 @@ def correr(st, novos, now, msgs):
         # (04/11, OK do Rui) H46 recuo na subida com dinheiro real antes das 30 em papel, mas com metade do risco (1%)
         cc = {**c, "risco_pct": float(c.get("recuo_risco_pct") or 1.0),
               "risco_max_pct": min(float(c.get("risco_max_pct", 2.0)), 2.0)} if recuo else c
+        if h40:
+            # (08/11, OK do Rui) H40 com risco limitado: 1% por operacao e no maximo 3 posicoes H40 ao mesmo tempo
+            cc = {**c, "risco_pct": float(c.get("panico_risco_pct", 1.0)),
+                  "risco_max_pct": float(c.get("panico_risco_max_pct", 1.0))}
+            n_h40 = sum(1 for o in R["ops"].values() if o.get("estrategia") != "recuo")
+            if n_h40 >= int(c.get("panico_max_posicoes", 3)):
+                chave_m = f"m:{base}:{sig['t_sig']}"
+                if chave_m not in avisados:
+                    avisados.append(chave_m)
+                    msgs.append(f"⏭️ OKX real — {base}: já há {n_h40} posições da H40 (máximo {c.get('panico_max_posicoes', 3)}); fica só em papel.")
+                continue
+        # (08/11) teto de risco aberto somando todas as estrategias (percentagens, nunca valores, no estado publico)
+        p = plano(sig, info, eq, cc)
+        aberto = sum(float(o.get("risco_pct") or (cc["risco_max_pct"] if o.get("estrategia") != "recuo" else 2.0))
+                     for o in R["ops"].values())
+        if p and aberto + 100 * p["risco_usd"] / eq > float(c.get("risco_total_max_pct", 3.0)) + 1e-9:
+            chave_r = f"r:{base}:{sig['t_sig']}"
+            if chave_r not in avisados:
+                avisados.append(chave_r)
+                msgs.append(f"⏭️ OKX real — {base}: o risco aberto passaria {c.get('risco_total_max_pct', 3.0)}% da conta; fica só em papel.")
+            continue
         op = abrir(base, sig, info, eq, cc, now, msgs)
+        if op and p:
+            op["risco_pct"] = round(100 * p["risco_usd"] / eq, 2)
+        if op and h40:
+            op["estrategia"] = "panico"
         if op and recuo:
             op["estrategia"] = "recuo"
             msgs[-1] = msgs[-1].replace("OKX real — ", "OKX real (recuo na subida, H46) — ", 1)
