@@ -1,5 +1,4 @@
-
-name: Research SHORT SMA50 tests
+name: Research SHORT SMA50 historical backtest
 
 on:
   push:
@@ -7,6 +6,7 @@ on:
       - research/short-regime-paper-20261108
     paths:
       - "tools/research_short_sma50.py"
+      - "tools/research_short_sma50_backtest.py"
       - "tests/test_research_short_sma50.py"
       - ".github/workflows/research-short-sma50.yml"
 
@@ -14,18 +14,54 @@ permissions:
   contents: read
 
 jobs:
-  paper-tests:
+  paper-backtest:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 90
 
     steps:
-      - name: Checkout repository
+      - name: Checkout research branch
         uses: actions/checkout@v4
+        with:
+          ref: research/short-regime-paper-20261108
+          path: project
+
+      - name: Checkout current historical data
+        uses: actions/checkout@v4
+        with:
+          ref: history
+          path: history
+          fetch-depth: 1
+
+      - name: Checkout delisted historical data
+        uses: actions/checkout@v4
+        with:
+          ref: history-delistadas
+          path: delistadas
+          fetch-depth: 1
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Run SHORT SMA50 research tests
+      - name: Run SMA50 research tests
+        working-directory: project
         run: python -m unittest discover -v -s tests -t . -p "test_research_short_sma50.py"
+
+      - name: Run historical PAPER backtest
+        working-directory: project
+        run: |
+          mkdir -p reports
+          python -m tools.research_short_sma50_backtest \
+            ../history \
+            ../delistadas \
+            reports/short_sma50_backtest.json
+
+      - name: Upload research report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: short-sma50-paper-backtest
+          path: project/reports/short_sma50_backtest.json
+          if-no-files-found: warn
+          retention-days: 30
