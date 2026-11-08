@@ -1,0 +1,31 @@
+
+name: Research SHORT SMA50 tests
+
+on:
+  push:
+    branches:
+      - research/short-regime-paper-20261108
+    paths:
+      - "tools/research_short_sma50.py"
+      - "tests/test_research_short_sma50.py"
+      - ".github/workflows/research-short-sma50.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  paper-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run SHORT SMA50 research tests
+        run: python -m unittest discover -v -s tests -t . -p "test_research_short_sma50.py"
