@@ -1,0 +1,75 @@
+name: Investigacao Kronos K1 fora da amostra (so leitura publica; ramo isolado)
+# (08/11, pedido do Rui) Auditoria do Kronos com dados que o modelo nunca viu (pre-treino ate 06/2024).
+# Corre so em servidores do GitHub, so neste ramo; nao toca em producao nem em nenhuma conta.
+on:
+  push:
+    branches: [inv-kronos-oos]
+    paths: ["backtest/estudos/kronos/k1_oos.py", ".github/workflows/kronos-oos.yml"]
+permissions:
+  contents: read
+concurrency:
+  group: kronos-oos
+  cancel-in-progress: true
+env:
+  MOEDAS: '["BTC","ETH","SOL","XRP","DOGE","ADA","AVAX","LINK","LTC","BCH","DOT","SUI","TRX","NEAR","APT","ARB","OP","UNI","AAVE","FIL"]'
+jobs:
+  dados:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          mkdir -p d
+          for m in $(echo "$MOEDAS" | python3 -c "import json,sys;print(' '.join(json.load(sys.stdin)))"); do
+            python3 backtest/estudos/kronos/k1_oos.py dados $m d
+          done
+      - uses: actions/upload-artifact@v4
+        with: {name: dados, path: d, retention-days: 7}
+  prever:
+    needs: dados
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        moeda: [BTC, ETH, SOL, XRP, DOGE, ADA, AVAX, LINK, LTC, BCH, DOT, SUI, TRX, NEAR, APT, ARB, OP, UNI, AAVE, FIL]
+        parte: [0, 1]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: {name: dados, path: d}
+      - uses: actions/cache@v4
+        with:
+          path: ~/.kronos-cache
+          key: kronos-venv-67b630e-v1
+      - name: Ambiente
+        run: |
+          KR=~/.kronos-cache
+          if [ ! -x "$KR/venv/bin/python" ]; then
+            python3 -m venv "$KR/venv"
+            "$KR/venv/bin/pip" install -q --index-url https://download.pytorch.org/whl/cpu torch
+            "$KR/venv/bin/pip" install -q numpy pandas einops==0.8.1 "huggingface_hub>=0.33,<1" safetensors tqdm
+          fi
+          [ -d "$KR/Kronos/.git" ] || git clone -q https://github.com/shiyu-coder/Kronos.git "$KR/Kronos"
+          git -C "$KR/Kronos" checkout -q 67b630e67f6a18c9e9be918d9b4337c960db1e9a
+      - name: Prever
+        env: {KRONOS_THREADS: "4", HF_HOME: /home/runner/.kronos-cache/hf}
+        run: ~/.kronos-cache/venv/bin/python backtest/estudos/kronos/k1_oos.py prever ${{ matrix.moeda }} ${{ matrix.parte }} d ~/.kronos-cache/Kronos 2> prever.log; tail -2 prever.log
+      - uses: actions/upload-artifact@v4
+        with: {name: "prev-${{ matrix.moeda }}-${{ matrix.parte }}", path: "d/prev_${{ matrix.moeda }}_${{ matrix.parte }}.json", retention-days: 7}
+  avaliar:
+    needs: prever
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: {path: art}
+      - run: |
+          mkdir -p d && cp art/dados/* d/ && find art -name 'prev_*.json' -exec cp {} d/ \;
+          ls d | wc -l
+          python3 backtest/estudos/kronos/k1_oos.py avaliar d | tee relatorio.txt
+      - uses: actions/upload-artifact@v4
+        with: {name: resultado, path: "relatorio.txt\nd/linhas.json", retention-days: 30}
