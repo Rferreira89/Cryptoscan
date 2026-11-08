@@ -259,8 +259,74 @@ class Execucao(unittest.TestCase):
     def test_config_real_da_okx(self):
         import json, os
         c = json.load(open(os.path.join(os.path.dirname(__file__), "..", "okx_config.json")))
-        self.assertEqual((c["real"], c["recuo_real"], c["panico_real"]), (True, True, False))   # (05/11) H40 em papel, H46 real
+        self.assertEqual((c["real"], c["recuo_real"], c["panico_real"]), (True, True, True))    # (08/11, OK do Rui) H40 real limitada
+        self.assertEqual((c["panico_risco_pct"], c["panico_risco_max_pct"], c["panico_max_posicoes"], c["risco_total_max_pct"],
+                          c["so_mercado"]), (1.0, 1.0, 3, 3.0, False))
         self.assertEqual((c["risco_pct"], c["alavancagem"], c["max_posicoes"], c["recuo_risco_pct"]), (2.0, 10, 30, 1.0))
+
+
+    def _corre(self, sinais, cfg_extra, ops=None, now=2_000_000_000):
+        from unittest import mock
+        posts, msgs = [], []
+
+        def privado(metodo, path, corpo=None):
+            if metodo == "POST":
+                posts.append((path, corpo))
+                return {"code": "0", "data": [{"ordId": str(len(posts)), "sCode": "0"}]}
+            if "balance" in path:
+                return {"code": "0", "data": [{"totalEq": "20"}]}
+            if "trade/order" in path:
+                return {"code": "0", "data": [{"state": "live"}]}
+            return {"code": "0", "data": []}
+        st = {"real": {"ops": dict(ops or {}), "hist": []}}
+        xp = {b: self.info(inst=f"{b}-USD_UM_XPERP-1") for b, _ in sinais}
+        xp.update({b: self.info(inst=o["inst"]) for b, o in (ops or {}).items()})
+        with mock.patch.object(self.E, "_chaves", return_value=("k", "s", "p")), mock.patch.object(self.E, "privado", privado), \
+                mock.patch.object(self.E, "cfg", return_value=dict(self.E.CFG_PADRAO, real=True, **cfg_extra)), \
+                mock.patch.object(self.E, "xperps", return_value=xp), \
+                mock.patch.object(self.E, "acompanhar", return_value=False):
+            self.E.correr(st, sinais, now, msgs)
+        ordens = [c for p_, c in posts if p_ == "/api/v5/trade/order"]
+        return st, ordens, msgs
+
+    def test_h40_limitada_isolado_entra_com_1pct(self):
+        now = 2_000_000_000
+        st, ordens, _ = self._corre([("ISO", {"t_sig": now - H4, "lim": 0.0236, "atr": 0.001, "tipo": "isolado"})],
+                                    dict(panico_real=True, so_mercado=False))
+        self.assertEqual(len(ordens), 1)
+        self.assertLessEqual(float(ordens[0]["sz"]) * 10.0 * 0.002, 0.2 + 1e-9)          # 1% de 20 USD
+        op = st["real"]["ops"]["ISO"]
+        self.assertEqual(op["estrategia"], "panico"); self.assertLessEqual(op["risco_pct"], 1.0)
+
+    def test_h40_minimo_acima_de_1pct_nao_entra(self):
+        now = 2_000_000_000
+        st, ordens, msgs = self._corre([("X", {"t_sig": now - H4, "lim": 1.0, "atr": 0.0375, "tipo": "mercado"})],
+                                       dict(panico_real=True, so_mercado=False))
+        # um contrato (10 x 0,075) arriscaria 3,75% da conta: o teto da H40 e 1% -> nao entra
+        self.assertEqual(ordens, []); self.assertNotIn("X", st["real"]["ops"])
+
+    def test_h40_maximo_3_posicoes(self):
+        now = 2_000_000_000
+        ops = {b: {"inst": f"{b}-USD_UM_XPERP-1", "ordId": "9", "estado": "aberta", "estrategia": "panico", "risco_pct": 0.5,
+                   "t_sig": now - H4} for b in ("A", "B", "C")}
+        st, ordens, msgs = self._corre([("D", {"t_sig": now - H4, "lim": 0.0236, "atr": 0.001, "tipo": "mercado"})],
+                                       dict(panico_real=True, so_mercado=False), ops=ops)
+        self.assertEqual(ordens, []); self.assertTrue(any("máximo 3" in m for m in msgs))
+
+    def test_teto_de_risco_total_3pct_inclui_h46(self):
+        now = 2_000_000_000
+        ops = {"R1": {"inst": "R1-USD_UM_XPERP-1", "ordId": "9", "estado": "aberta", "estrategia": "recuo", "risco_pct": 1.0, "t_sig": now - H4},
+               "P1": {"inst": "P1-USD_UM_XPERP-1", "ordId": "8", "estado": "aberta", "estrategia": "panico", "risco_pct": 1.0, "t_sig": now - H4},
+               "R2": {"inst": "R2-USD_UM_XPERP-1", "ordId": "7", "estado": "aberta", "estrategia": "recuo", "risco_pct": 0.9, "t_sig": now - H4}}
+        st, ordens, msgs = self._corre([("D", {"t_sig": now - H4, "lim": 0.0236, "atr": 0.001, "tipo": "mercado"})],
+                                       dict(panico_real=True, so_mercado=False), ops=ops)
+        self.assertEqual(ordens, []); self.assertTrue(any("risco aberto passaria 3.0%" in m for m in msgs))
+
+    def test_h40_desligada_continua_em_papel(self):
+        now = 2_000_000_000
+        st, ordens, _ = self._corre([("M", {"t_sig": now - H4, "lim": 0.0236, "atr": 0.001, "tipo": "mercado"})],
+                                    dict(panico_real=False))
+        self.assertEqual(ordens, [])
 
 
 H4 = 14400
