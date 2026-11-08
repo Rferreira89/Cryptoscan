@@ -5,7 +5,7 @@ quedas, compressão, oversold bounce 4H, day trade 1H, bounce com outras
 saídas, sweep a mercado, funding negativo, quebra com compradores,
 capitulação do mercado, atraso face ao BTC, resiliente, impulso de
 amplitude; mais 13 no diário de afinação, H1 a H13). Atualizado em
-2026-11-07 (sem hipótese nova nesta corrida nem nas anteriores desde
+2026-11-08 (sem hipótese nova nesta corrida nem nas anteriores desde
 2026-10-20; a afinação testou a H13 em 2026-11-04 e a H14 em 2026-11-06,
 uma medição de lutadores existentes que não conta como hipótese nova). O contador global do
 programa (`engine/hipoteses.py` mais `backtest/hipoteses_offline.json`,
@@ -2209,3 +2209,48 @@ menos um falso positivo a 5% ronda os 72%.
   aquecimento para o regime: as primeiras operações possíveis só por volta
   de 2026-11-19.
 - Nenhum resultado em dados antigos foi usado como validação.
+
+## 2026-11-08 — Sem hipótese nova hoje (sem mortos novos; fila vazia)
+
+**Veredicto da corrida: nenhuma hipótese testada.** O contador desta
+reserva fica em 25 (a afinação não registou hipótese nova depois da H14 de
+2026-11-06). Com 25 testes contra a mesma reserva, a probabilidade de pelo
+menos um falso positivo a 5% ronda os 72%.
+
+- **Histórico** (ramo `history`): continua em 2026-11-02 12:41 UTC (6 dias
+  de atraso, ainda dentro do limite de 7). Como amanhã passa o limite e
+  nada foi testado hoje, o workflow `history.yml` foi lançado nesta corrida
+  (2026-11-08 ~12:00 UTC) sem esperar pelo fim, para a próxima corrida já
+  ter a janela até ao presente.
+- **Arena** (scan.json do ramo `data`, 2026-11-08 ~11:50 UTC): **8
+  lutadores a competir** (SHORT_TURTLE_SHORT, BOUNCE_AMPLITUDE,
+  REVERSAO_INTERVALO, MAIORES_RECUO, VOLUME_ACUMULACAO_R2,
+  MAIORES_TENDENCIA, SHORT_SQUEEZE, BREAKOUT_R2), `recrutar` falso. Nenhum
+  morto novo desde BOUNCE_MACRO_R2 (2026-11-04, já na tabela). Fila do Rui
+  vazia.
+- **Combate de 90 dias** (`forma.json`, ramo `arena`, 2026-11-08 09:23
+  UTC, 43 moedas): BOUNCE_AMPLITUDE 14 op., 13 ganhadoras, +0,570R (acaso
+  mediana −0,442R, p95 −0,082R) — continua o único claramente acima do
+  acaso, mas chumbou no critério da conta (2026-11-02) e tem menos de 20
+  operações. REVERSAO_INTERVALO caiu para 23 op., −0,009R (p95 −0,010R):
+  ontem estava acima do p95 por pouco, hoje está praticamente no limite —
+  confirma que essa margem não é uma vantagem estável. MAIORES_RECUO 17
+  op., −0,019R (p95 +0,082R). Os outros têm 2 a 4 operações, todos
+  negativos; VOLUME_ACUMULACAO_R2, MAIORES_TENDENCIA, SHORT_SQUEEZE e
+  BREAKOUT_R2 aproximam-se da morte rápida se chegarem às 10 operações com
+  este ritmo.
+- **Porque não há hipótese nova**: as mesmas razões de 2026-10-21 a
+  2026-11-07 (famílias de entrada em 4H esgotadas contra esta reserva; a
+  ideia da lateral, H15, está do lado da afinação; sem fonte nova com
+  histórico suficiente — liquidações desde 2026-10-19, menos de 3
+  semanas; H52/H53 só avaliam dados posteriores ao registo). Décima nona
+  corrida seguida sem hipótese nova.
+- Proposta para a próxima corrida: confirmar que o histórico chegou ao
+  presente; autópsia se morrer alguém (os quatro lutadores com 2–4
+  operações negativas são os candidatos); hipótese nova só com fonte nova
+  (liquidações com 2–3 meses de arquivo, não antes de meados de dezembro).
+  Mantém-se para a sessão com o Rui: (1) passar esta corrida a semanal
+  enquanto não houver dados novos; (2) regresso dos mortos só com as duas
+  metades do ringue longo positivas; (3) morte rápida a contar
+  acontecimentos; (4) corte dos clones só com representantes vivos; (5) o
+  caso CAPITULACAO_R2 fora da classificação.
