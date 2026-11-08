@@ -52,13 +52,27 @@ def correr(st):
     msgs, novos, vistos, sem_hist = [], [], 0, 0
     lista = contratos()
     retirar_fora(M, lista)
+    ontem = int(time.time()) // 86400 * 86400 - 86400     # abertura da ultima vela diaria (1Dutc) ja fechada
+    curtos = M.setdefault("curtos", {})
     for base, inst in sorted(lista.items()):
+        # (08/11) as velas diarias so mudam uma vez por dia: quem ja tem a vela de ontem nao e pedido outra vez nesta
+        # volta (antes: ~230 pedidos e ~80 s de servidor em cada hora para as mesmas velas). Nada muda nas decisoes:
+        # entradas e saidas so acontecem com uma vela nova.
+        if M["ultimo"].get(base, 0) >= ontem:
+            vistos += 1
+            continue
+        if curtos.get(base, 0) >= ontem:
+            sem_hist += 1
+            continue
         d = diario(inst)
         time.sleep(0.12)
         s = sinal(d)
         if not s:
             sem_hist += 1
+            if d:
+                curtos[base] = d[-1]["t"]
             continue
+        curtos.pop(base, None)
         vistos += 1
         entra, sai, forca, px, m = s
         op = M["abertas"].get(base)
@@ -81,6 +95,8 @@ def correr(st):
     rs = [x["ret_pct"] for x in M["fechadas"]]
     M["resumo"] = {"analisados": vistos, "sem_historico": sem_hist, "abertas": sorted(M["abertas"]), "n": len(rs),
                    "ret_medio_pct": round(sum(rs) / len(rs), 2) if rs else None}
+    for b in [b for b in curtos if lista and b not in lista]:   # API em baixo (lista vazia) nao apaga
+        curtos.pop(b)
     del M["fechadas"][:-1000]
     return msgs
 
