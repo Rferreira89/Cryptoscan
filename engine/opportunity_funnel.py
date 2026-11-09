@@ -1,6 +1,7 @@
 """Opportunity Funnel: registo auditável de oportunidades.
 
-Instrumentação isolada. Não gera sinais nem envia ordens.
+Cria eventos em memória ou regista-os em JSONL.
+Não gera sinais nem envia ordens.
 """
 
 import json
@@ -35,16 +36,58 @@ SIDES = {"LONG", "SHORT", "NONE"}
 def _clean_metrics(metrics):
     if metrics is None:
         return {}
+
     if not isinstance(metrics, dict):
         raise ValueError("metrics tem de ser um dicionário")
 
     result = {}
+
     for key, value in metrics.items():
         if isinstance(value, bool):
             result[str(key)] = value
         elif isinstance(value, (int, float)) and math.isfinite(value):
             result[str(key)] = value
+
     return result
+
+
+def build_event(
+    *,
+    stage,
+    exchange,
+    market,
+    symbol,
+    side="NONE",
+    strategy=None,
+    reason=None,
+    scan_id=None,
+    metrics=None,
+):
+    """Constrói um evento em memória, sem qualquer escrita em disco."""
+
+    if stage not in STAGES:
+        raise ValueError(f"Etapa desconhecida: {stage}")
+
+    if side not in SIDES:
+        raise ValueError(f"Direção inválida: {side}")
+
+    if not exchange or not market or not symbol:
+        raise ValueError("exchange, market e symbol são obrigatórios")
+
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "event_id": str(uuid.uuid4()),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "scan_id": scan_id,
+        "exchange": str(exchange),
+        "market": str(market),
+        "symbol": str(symbol),
+        "side": side,
+        "strategy": strategy,
+        "stage": stage,
+        "reason": reason,
+        "metrics": _clean_metrics(metrics),
+    }
 
 
 def record_event(
@@ -60,27 +103,19 @@ def record_event(
     scan_id=None,
     metrics=None,
 ):
-    if stage not in STAGES:
-        raise ValueError(f"Etapa desconhecida: {stage}")
-    if side not in SIDES:
-        raise ValueError(f"Direção inválida: {side}")
-    if not exchange or not market or not symbol:
-        raise ValueError("exchange, market e symbol são obrigatórios")
+    """Regista um evento em JSONL."""
 
-    event = {
-        "schema_version": SCHEMA_VERSION,
-        "event_id": str(uuid.uuid4()),
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "scan_id": scan_id,
-        "exchange": str(exchange),
-        "market": str(market),
-        "symbol": str(symbol),
-        "side": side,
-        "strategy": strategy,
-        "stage": stage,
-        "reason": reason,
-        "metrics": _clean_metrics(metrics),
-    }
+    event = build_event(
+        stage=stage,
+        exchange=exchange,
+        market=market,
+        symbol=symbol,
+        side=side,
+        strategy=strategy,
+        reason=reason,
+        scan_id=scan_id,
+        metrics=metrics,
+    )
 
     destination = Path(path)
     destination.parent.mkdir(parents=True, exist_ok=True)
