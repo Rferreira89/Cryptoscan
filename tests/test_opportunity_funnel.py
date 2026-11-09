@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from engine.opportunity_funnel import record_event
+from engine.opportunity_funnel import build_event, record_event
 
 
 class TestOpportunityFunnel(unittest.TestCase):
@@ -14,6 +14,41 @@ class TestOpportunityFunnel(unittest.TestCase):
 
     def tearDown(self):
         self.temp.cleanup()
+
+    def test_constroi_evento_em_memoria(self):
+        event = build_event(
+            stage="signal_generated",
+            exchange="OKX",
+            market="CRYPTO",
+            symbol="BTC-USDT",
+            side="LONG",
+            strategy="H40",
+            scan_id="scan-test-001",
+        )
+
+        self.assertEqual(event["stage"], "signal_generated")
+        self.assertEqual(event["side"], "LONG")
+        self.assertEqual(event["scan_id"], "scan-test-001")
+        self.assertFalse(self.path.exists())
+
+    def test_rejeita_etapa_invalida_no_construtor(self):
+        with self.assertRaises(ValueError):
+            build_event(
+                stage="etapa_inventada",
+                exchange="OKX",
+                market="CRYPTO",
+                symbol="BTC-USDT",
+            )
+
+    def test_rejeita_metricas_invalidas(self):
+        with self.assertRaises(ValueError):
+            build_event(
+                stage="signal_generated",
+                exchange="OKX",
+                market="CRYPTO",
+                symbol="BTC-USDT",
+                metrics=["invalido"],
+            )
 
     def test_regista_evento(self):
         event = record_event(
