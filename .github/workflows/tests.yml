@@ -1,15 +1,37 @@
+
 name: Testes
+
 on:
   push:
-    branches: [main]
-    paths: ["engine/**", "tests/**"]
+    branches:
+      - main
+      - research/opportunity-funnel-20261109
+    paths:
+      - "engine/**"
+      - "tests/**"
+      - ".github/workflows/tests.yml"
+
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "engine/**"
+      - "tests/**"
+      - ".github/workflows/tests.yml"
+
 jobs:
   tests:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: python -m unittest discover -q -s tests -t .
+
+      - name: Executar testes
+        run: python -m unittest discover -q -s tests -t .
