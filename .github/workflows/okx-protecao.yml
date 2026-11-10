@@ -1,6 +1,7 @@
 name: OKX - verificar protecao das posicoes (so leitura; ramo de investigacao)
 # (10/11, ordem do Rui) So GET a OKX: posicoes e ordens de stop. Nada e criado, alterado ou cancelado.
 # Quantidades so no Telegram; o registo publico mostra so a classificacao.
+# (10/11) nova verificacao depois do merge autorizado
 on:
   push:
     branches: [inv-evolucao]
