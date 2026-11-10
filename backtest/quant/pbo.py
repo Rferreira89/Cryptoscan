@@ -75,6 +75,8 @@ def cscv(M, s=8, metrica="sharpe", embargo=0, nomes=None):
     t = len(M)
     n = len(M[0]) if t else 0
     out = {"t": t, "n": n, "s": s, "metrica": metrica, "embargo": embargo}
+    if t == 0:
+        return {**out, "estado": "insuficiente", "razao": "sem periodos com dados"}
     if n < 2:
         return {**out, "estado": "insuficiente", "razao": "precisa de pelo menos 2 configuracoes"}
     if s < 2 or s % 2:
@@ -105,13 +107,16 @@ def cscv(M, s=8, metrica="sharpe", embargo=0, nomes=None):
                         ("risco moderado de sobreajuste" if pbo > 0.2 else "selecao robusta fora da amostra")}
 
 
-def matriz_diaria(series, dias=None):
+def matriz_diaria(series, dias=None, periodo="comum"):
     """series: {nome: {dia: valor}}. Devolve (dias ordenados, nomes, M) com 0 nos dias sem operacao (a estrategia
-    estava disponivel mas nao fechou nada). Dias fora do intervalo comum a todas as series sao cortados para nao
-    misturar periodos em que uma configuracao ainda nao existia com zeros."""
+    estava disponivel mas nao fechou nada).
+    periodo='comum': so o intervalo em que todas as series existem (configuracoes testadas em periodos diferentes).
+    periodo='uniao': do primeiro ao ultimo dia de todas (configuracoes que correram em simultaneo, como a arena e as
+    variantes de um mesmo backtest sobre os mesmos dados)."""
     nomes = sorted(series)
-    ini = max(min(v) for v in series.values() if v)
-    fim = min(max(v) for v in series.values() if v)
+    vals = [v for v in series.values() if v]
+    ini = (max if periodo == "comum" else min)(min(v) for v in vals)
+    fim = (min if periodo == "comum" else max)(max(v) for v in vals)
     todos = dias or sorted({d for v in series.values() for d in v})
     todos = [d for d in todos if ini <= d <= fim]
     return todos, nomes, [[series[n].get(d, 0.0) for n in nomes] for d in todos]

@@ -18,6 +18,11 @@ jobs:
         with: { python-version: "3.12" }
       - name: Testes do modulo
         run: python -m unittest -q tests.test_quant
+      - name: Backtests registados (H40, H45, H46) a partir do ramo history
+        run: |
+          pip install -q numpy
+          mkdir -p /tmp/hist && git fetch -q --depth 1 origin history && git archive FETCH_HEAD | tar x -C /tmp/hist
+          python3 tools/quant_backtests.py /tmp/hist /tmp/bt.json
       - name: Copias publicas e estado completo
         env:
           DATA_KEY: ${{ secrets.DATA_KEY }}
@@ -53,20 +58,18 @@ jobs:
           PY
           python3 tools/quant_btc_horario.py $(cat /tmp/q/span.txt) /tmp/q/btc.json
           E=""; [ -f /tmp/q/estado_completo.json ] && E="--estado /tmp/q/estado_completo.json"
-          python3 tools/quant_avaliar.py /tmp/q $E --btc /tmp/q/btc.json --saida /tmp/q/resultado.json --md /tmp/q/resultado.md > /dev/null
+          python3 tools/quant_avaliar.py /tmp/q $E --btc /tmp/q/btc.json --backtests /tmp/bt.json --saida /tmp/q/resultado.json --md /tmp/q/resultado.md > /dev/null
           cat /tmp/q/resultado.md
           python3 - <<'PY'
           import json
           r = json.load(open("/tmp/q/resultado.json"))
           print("\n## Detalhe (JSON resumido)")
           for l in r["estrategias"]:
-              if l.get("n", 0) >= 10:
+              if l.get("n", 0) >= 30:
                   rs = l["residual"]
                   print(json.dumps({k: l[k] for k in ("ambiente", "estrategia", "n", "R_medio", "desde", "ate")},
-                                   ensure_ascii=False), json.dumps({k: rs.get(k) for k in ("estado", "n", "beta", "alfa", "p_alfa", "ic_alfa", "ic_beta", "r2", "regimes", "metades", "razao")}, default=str, ensure_ascii=False)[:1500])
-          p = r["pbo_arena"]
-          print("PBO", json.dumps({k: v for k, v in p.items() if k != "resultados"}, ensure_ascii=False)[:1500])
-          for x in p.get("resultados", []):
-              print("PBO", json.dumps(x, ensure_ascii=False)[:800])
+                                   ensure_ascii=False), json.dumps({k: rs.get(k) for k in ("estado", "n", "lags", "beta", "alfa", "p_alfa", "ic_alfa", "ic_beta", "r2", "retorno_total", "parte_btc", "retorno_residual", "regimes", "metades", "razao")}, default=str, ensure_ascii=False)[:2500], json.dumps({k: l["dsr_minimo"].get(k) for k in ("sr", "assimetria", "curtose", "sr0", "psr_zero", "dsr")}))
+          for fam, p in r["pbo"].items():
+              print("PBO", fam, json.dumps({k: v for k, v in p.items() if k != "resultados"}, ensure_ascii=False)[:600])
           PY
           rm -f /tmp/q/estado_completo.json

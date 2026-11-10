@@ -125,9 +125,12 @@ class PBO(unittest.TestCase):
     def test_posicoes_com_empates(self):
         self.assertEqual(P._posicoes([3, 1, 3, 2]), [3.5, 1, 3.5, 2])
 
-    def test_matriz_diaria_corta_ao_periodo_comum(self):
+    def test_matriz_diaria_corta_ao_periodo_comum_ou_usa_a_uniao(self):
         dias, nomes, M = P.matriz_diaria({"a": {"d1": 1, "d3": 2, "d5": 1}, "b": {"d2": 1, "d4": -1}})
         self.assertEqual(dias, ["d2", "d3", "d4"]); self.assertEqual(M, [[0.0, 1], [2, 0.0], [0.0, -1]])
+        dias, _, M = P.matriz_diaria({"a": {"d1": 1}, "b": {"d3": -1}}, periodo="uniao")
+        self.assertEqual(dias, ["d1", "d3"]); self.assertEqual(M, [[1, 0.0], [0.0, -1]])
+        self.assertEqual(P.cscv([], s=8)["razao"], "sem periodos com dados")
 
 
 class Residual(unittest.TestCase):
@@ -231,7 +234,7 @@ class Integracao(unittest.TestCase):
             self.assertEqual(len([l for l in r["estrategias"] if l["estrategia"] == "H40"]), 2)     # real e papel nunca somados
             self.assertTrue(all(l["dsr_minimo"]["estado"] == "insuficiente" for l in r["estrategias"] if l.get("n")))
             self.assertIn("H57", {l["estrategia"] for l in r["estrategias"]})
-            self.assertEqual(r["pbo_arena"]["estado"], "insuficiente")
+            self.assertTrue(all(p["estado"] == "insuficiente" for p in r["pbo"].values()))
             self.assertIn("Avaliacao quantitativa retrospetiva", QA.markdown(r))
 
     def test_operacoes_sem_hora_contam_no_dsr_mas_nao_no_residual(self):

@@ -75,8 +75,9 @@ def ols_hac(y, X, lags=None, nivel=0.95, correcao=True):
 
 # ---------------------------------------------------------------- precos do BTC
 class SerieBTC:
-    """Precos do BTC [(t_segundos, preco)] ordenados. preco_em(t) = ultimo preco conhecido ate t, so se for recente."""
-    def __init__(self, pontos, tolerancia_s=2 * 3600):
+    """Precos do BTC [(t_segundos, preco)] ordenados. preco_em(t) = ultimo preco conhecido ate t, so se tiver no maximo
+    tolerancia_s (5 h por defeito: cobre velas de 4H e de 1H; um preco mais velho nao e usado)."""
+    def __init__(self, pontos, tolerancia_s=5 * 3600):
         p = sorted((seg(t), float(v)) for t, v in pontos if v)
         self.t = [x[0] for x in p]; self.v = [x[1] for x in p]; self.tol = tolerancia_s
 
