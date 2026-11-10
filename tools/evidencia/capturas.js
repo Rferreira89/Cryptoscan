@@ -6,17 +6,17 @@ fs.mkdirSync(OUT, { recursive: true });
 const rel = { erros: [], avisos: [], pedidos_falhados: [], passos: [] };
 async function sessao(nome, vp, passos, extra = {}) {
   const b = await chromium.launch({ args: ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
-  const ctx = await b.newContext({ viewport: vp, deviceScaleFactor: 2, ...extra }); const p = await ctx.newPage();
+  const ctx = await b.newContext({ viewport: vp, deviceScaleFactor: 1.5, ...extra }); const p = await ctx.newPage();
   p.on("console", m => { if (m.type() === "error") rel.erros.push(`${nome}: ${m.text()}`); if (m.type() === "warning") rel.avisos.push(`${nome}: ${m.text()}`); });
   p.on("pageerror", e => rel.erros.push(`${nome} PAGEERROR: ${e.message}`));
   p.on("requestfailed", r => rel.pedidos_falhados.push(`${nome}: ${r.url().slice(0, 120)} ${r.failure() && r.failure().errorText}`));
   await p.goto(URL, { waitUntil: "domcontentloaded" }); await p.waitForFunction(() => document.body.classList.contains("carregado"), null, { timeout: 60000 }); await p.waitForTimeout(6000);
-  for (const [n, f] of passos) { try { await f(p); await p.waitForTimeout(2200); await p.screenshot({ path: `${OUT}/${nome}-${n}.png` }); rel.passos.push(`${nome}-${n}: ok`); } catch (e) { rel.passos.push(`${nome}-${n}: FALHOU ${e.message.slice(0, 160)}`); } }
+  for (const [n, f] of passos) { try { await f(p); await p.waitForTimeout(2200); await p.screenshot({ path: `${OUT}/${nome}-${n}.jpg`, type: "jpeg", quality: 82 }); rel.passos.push(`${nome}-${n}: ok`); } catch (e) { rel.passos.push(`${nome}-${n}: FALHOU ${e.message.slice(0, 160)}`); } }
   rel[nome] = await p.evaluate(() => { const A = window.CS_APP, c = A.ctx || {}; return { fps: A.of ? A.of.fps : null, qualidade: A.of ? A.of.qualidade : "2d",
     fontes: Object.fromEntries(Object.entries(c.fontes || {}).map(([k, f]) => [k, f.estado + (f.razao ? " (" + f.razao + ")" : "")])),
     okx: c.okx && c.okx.ligacao, bybit: c.bybit && c.bybit.ligacao, velas: Object.fromEntries(Object.entries(A.velas).map(([k, v]) => [k, v.fonte || v.erro])),
     agentes: Object.fromEntries(Object.entries(c.estados || {}).map(([k, s]) => [k, s.estado])), posicoes: (c.posicoes || []).map(p => `${p.corretora} ${p.ativo} ${p.lado}`),
-    botoes_sem_acao: [...document.querySelectorAll("button")].filter(b => !b.dataset.acao && !b.dataset.tab && !b.dataset.min && b.dataset.max === undefined && !b.dataset.vista && b.id !== "insp-fechar" && !b.closest(".of-overlay")).map(b => b.outerHTML.slice(0, 80)) }; });
+    botoes_sem_acao: [...document.querySelectorAll("button")].filter(b => !b.hasAttribute("data-acao") && !b.hasAttribute("data-tab") && !b.hasAttribute("data-min") && !b.hasAttribute("data-max") && !b.dataset.vista && b.id !== "insp-fechar" && !b.closest(".of-overlay")).map(b => b.outerHTML.slice(0, 80)) }; });
   await b.close();
 }
 (async () => {
@@ -35,5 +35,6 @@ async function sessao(nome, vp, passos, extra = {}) {
   await sessao("alta", { width: 1600, height: 960 }, [["visao-geral-3d-alta", async p => { await p.click("[data-vista='alta']"); await p.waitForTimeout(5000); }]]);
   await sessao("telemovel", { width: 390, height: 844 }, [["1-inicio", async () => {}], ["2-agente", c("[data-acao='agente:panico']")], ["3-2d", async p => { await p.click("#insp-fechar"); await p.click("[data-vista='2d']"); }]], { isMobile: true, hasTouch: true });
   fs.writeFileSync(`${OUT}/relatorio.json`, JSON.stringify(rel, null, 1));
-  console.log(JSON.stringify(rel, null, 1));
+  console.log("ERROS", JSON.stringify(rel.erros, null, 1)); console.log("PEDIDOS FALHADOS", JSON.stringify(rel.pedidos_falhados.slice(0, 30), null, 1)); console.log("PASSOS", JSON.stringify(rel.passos, null, 1));
+  for (const k of ["desktop", "alta", "telemovel"]) console.log(k.toUpperCase(), JSON.stringify(rel[k]));
 })();

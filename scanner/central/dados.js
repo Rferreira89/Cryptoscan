@@ -372,7 +372,9 @@ export async function velas(ativo, { inst = null, intervalo = "1h", n = 200, fet
     () => tentar("Binance (global, USDT)", `${MERCADO.binance}klines?symbol=${ativo}USDT&interval=${intervalo}&limit=${n}`,
       j => Array.isArray(j) ? j.map(x => ({ t: x[0] / 1000, o: +x[1], h: +x[2], l: +x[3], c: +x[4], v: +x[5] })) : null),
   ];
-  const ordem = inst ? [tent[1], tent[0], tent[2]] : tent;
+  tent.push(() => tentar(`OKX global (${ativo}-USDT-SWAP)`, `https://www.okx.com/api/v5/market/candles?instId=${ativo}-USDT-SWAP&bar=${ob}&limit=${Math.min(n, 300)}`,
+    j => j.code === "0" ? j.data.map(x => ({ t: +x[0] / 1000, o: +x[1], h: +x[2], l: +x[3], c: +x[4], v: +x[5] })).reverse() : null));
+  const ordem = inst ? [tent[1], tent[0], tent[3], tent[2]] : tent;
   for (const f of ordem) { const r = await f(); if (r) return r; }
   return { fonte: null, velas: [], erro: "nenhuma fonte de velas respondeu (rede ou bloqueio do browser)" };
 }

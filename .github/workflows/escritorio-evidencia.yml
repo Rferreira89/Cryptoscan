@@ -9,7 +9,7 @@ on:
     paths: ["scanner/**", "tools/evidencia/**", ".github/workflows/escritorio-evidencia.yml"]
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write          # so para guardar as capturas no ramo isolado escritorio-v2-capturas
 jobs:
   evidencia:
     runs-on: ubuntu-latest
@@ -43,7 +43,13 @@ jobs:
         run: |
           npm i --no-save playwright@1.48.2 >/dev/null 2>&1 && npx playwright install --with-deps chromium >/dev/null 2>&1
           (cd scanner && python3 -m http.server 8000 >/dev/null 2>&1 &) && sleep 2
-          OUT=capturas node tools/evidencia/capturas.js | tail -120
+          OUT=capturas node tools/evidencia/capturas.js
+      - name: "Guardar as capturas no ramo isolado (sem dinheiro, cofre fechado)"
+        run: |
+          cd capturas && git init -q && git checkout -q -b escritorio-v2-capturas
+          git config user.name "cryptoscan-bot" && git config user.email "bot@users.noreply.github.com"
+          git add -A && git commit -q -m "capturas do Operations Center $(date -u +%FT%TZ)"
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" escritorio-v2-capturas
       - uses: actions/upload-artifact@v4
         with:
           name: capturas-operations-center

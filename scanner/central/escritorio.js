@@ -412,7 +412,17 @@ export class Escritorio {
     this._animar(dt, t); this.ctl.update(); this._focoTick(dt);
     if (this.comp) this.comp.render(); else this.R.render(this.cena, this.cam);
     this._etiquetas();
-    this._fpsN++; if (agora - this._fpsT > 1000) { this.fps = Math.round(this._fpsN * 1000 / (agora - this._fpsT)); this._fpsN = 0; this._fpsT = agora; }
+    this._fpsN++; if (agora - this._fpsT > 1000) { this.fps = Math.round(this._fpsN * 1000 / (agora - this._fpsT)); this._fpsN = 0; this._fpsT = agora; this._adaptar(); }
+  }
+
+  // ---------- detalhe adaptativo: se o aparelho nao aguenta, tira bloom e sombras e baixa a resolucao (sem parar os dados)
+  _adaptar() {
+    this._lentos = this.fps < (this.qualidade === "alta" ? 24 : 14) ? (this._lentos || 0) + 1 : 0;
+    if (this._lentos < 5) return;
+    this._lentos = 0;
+    if (this.qualidade === "alta") { this.qualidade = "baixa"; this.comp = null; this.R.shadowMap.enabled = false; this.R.setPixelRatio(Math.min(1.25, globalThis.devicePixelRatio || 1)); }
+    else if (this.R.getPixelRatio() > .76) this.R.setPixelRatio(Math.max(.75, this.R.getPixelRatio() - .25));
+    this.redimensionar(); if (this.onDegradar) this.onDegradar(this.qualidade, this.R.getPixelRatio());
   }
 
   // ---------- navegacao
