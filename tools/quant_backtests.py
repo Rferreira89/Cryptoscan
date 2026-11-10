@@ -18,8 +18,22 @@ def _src(nome):
         return f.read()
 
 
+def _abrir(hist):
+    """open() dos estudos: os ficheiros .py que um estudo le e executa (exec em cadeia) tambem passam a apontar para
+    'hist' — senao o estudo interior leria o caminho antigo e podia usar dados velhos ou nenhuns."""
+    import io
+
+    def abrir(p, *a, **k):
+        caminho = os.path.join(RAIZ, p) if str(p).startswith("backtest/") else p
+        if str(p).endswith(".py") and not (a and "w" in a[0]):
+            with open(caminho, encoding="utf-8") as f:
+                return io.StringIO(f.read().replace(HIST_ORIGINAL, hist))
+        return open(caminho, *a, **k)
+    return abrir
+
+
 def _correr(src, hist):
-    g = {"__name__": "estudo", "open": lambda p, *a, **k: open(os.path.join(RAIZ, p) if p.startswith("backtest/") else p, *a, **k)}
+    g = {"__name__": "estudo", "open": _abrir(hist)}
     os.chdir(RAIZ)
     exec(compile(src.replace(HIST_ORIGINAL, hist), "estudo", "exec"), g)
     return g
