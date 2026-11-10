@@ -1,10 +1,10 @@
-name: Kronos em sombra (hipotese K1; so leitura; zero ordens)
+name: Kronos em sombra (DESLIGADO 10/11 — K1 rejeitado fora da amostra; so manual)
 # (07/11, pedido do Rui) Previsao das proximas 24 h com o modelo aberto Kronos-small e registo do que um executor
 # faria com 20 USD na OKX EEA, sem ordens: so API publica, sem chaves da OKX. Estado no ramo kronos-sombra.
+# (10/11, ordem do Rui) Sem horario nem lancamento pelo scan: o K1 foi rejeitado fora da amostra
+# (backtest/estudos/kronos/k1_oos_resultado.txt). Codigo, estado e resultados preservados; so corre a mao.
 # Ativado em 07/11 (OK do Rui). Corre num servidor do GitHub (o da Europa tem menos de 1 GB de memoria).
 on:
-  schedule:
-    - cron: "31 0 * * *"
   workflow_dispatch:
     inputs:
       iniciar:
