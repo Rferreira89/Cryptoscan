@@ -26,13 +26,14 @@ def avaliar(base, btc_pontos=None):
         grupos.setdefault((o["ambiente"], o["estrategia"]), []).append(o)
     linhas = []
     for (amb, est), L in sorted(grupos.items()):
-        L = sorted(L, key=lambda o: RS.seg(o["t_saida"] or 0))
+        L = sorted(L, key=lambda o: RS.seg(o.get("t_saida") or 0))
         rs = [o["R"] for o in L]
         d_min = D.dsr(rs, tent["minimo"])
         d_con = D.dsr(rs, tent["conservador"])
         res = RS.analisar(L, btc, "por_operacao")
-        linhas.append({"ambiente": amb, "estrategia": est, "n": len(L), "R_medio": sum(rs) / len(rs),
-                       "desde": RS.dia(min(RS.seg(o["t_saida"]) for o in L if o["t_saida"])), "ate": RS.dia(max(RS.seg(o["t_saida"]) for o in L if o["t_saida"])),
+        ts = [RS.seg(o["t_saida"]) for o in L if o.get("t_saida")]
+        linhas.append({"ambiente": amb, "estrategia": est, "n": len(L), "R_medio": sum(rs) / len(rs), "sem_hora": len(L) - len(ts),
+                       "desde": RS.dia(min(ts)) if ts else None, "ate": RS.dia(max(ts)) if ts else None,
                        "dsr_minimo": d_min, "dsr_conservador": d_con, "residual": {k: v for k, v in res.items() if k != "movel"} | {"movel": res.get("movel", [])}})
     for h in ALVO:
         if not any(l["estrategia"] == h for l in linhas):

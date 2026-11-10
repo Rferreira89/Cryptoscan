@@ -234,6 +234,13 @@ class Integracao(unittest.TestCase):
             self.assertEqual(r["pbo_arena"]["estado"], "insuficiente")
             self.assertIn("Avaliacao quantitativa retrospetiva", QA.markdown(r))
 
+    def test_operacoes_sem_hora_contam_no_dsr_mas_nao_no_residual(self):
+        from tools import quant_avaliar as QA
+        base = {"operacoes": [{"ambiente": "PAPEL", "estrategia": "ARENA:TREND_DAILY", "ativo": "A", "t_entrada": None, "t_saida": None, "R": 0.5}] * 3,
+                "btc": [], "notas": [], "forma": None}
+        l = [x for x in QA.avaliar(base)["estrategias"] if x["estrategia"] == "ARENA:TREND_DAILY"][0]
+        self.assertEqual((l["n"], l["sem_hora"], l["desde"]), (3, 3, None)); self.assertEqual(l["residual"]["estado"], "insuficiente")
+
     def test_arena_exclui_operacoes_executadas_em_real(self):
         t0 = 1_793_000_000
         st = {"ledger": [{"id": "a1", "kind": "4H", "status": "CLOSED", "result_r": 1, "entry": 1, "stop": .9, "tp": [1.2], "strategy": "PULLBACK", "asset": "A", "opened_at": t0, "closed_at": t0 + 9, "executed": True},
@@ -243,8 +250,10 @@ class Integracao(unittest.TestCase):
 
     def test_modulo_nao_toca_em_execucao_nem_estrategias(self):
         raiz = os.path.join(os.path.dirname(__file__), "..")
-        src = "".join(open(os.path.join(raiz, p), encoding="utf-8").read() for p in
-                      ["backtest/quant/dsr.py", "backtest/quant/pbo.py", "backtest/quant/residual.py", "backtest/quant/dados.py", "tools/quant_avaliar.py"])
+        src = ""
+        for p in ["backtest/quant/dsr.py", "backtest/quant/pbo.py", "backtest/quant/residual.py", "backtest/quant/dados.py", "tools/quant_avaliar.py"]:
+            with open(os.path.join(raiz, p), encoding="utf-8") as f:
+                src += f.read()
         for proibido in ("okx_exec", "executor", "privado(", "cancel-order", "/trade/order", "okx_config", "alerts.send", "urllib", "requests"):
             self.assertNotIn(proibido, src)
 
