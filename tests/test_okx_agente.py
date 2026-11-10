@@ -261,7 +261,7 @@ class Execucao(unittest.TestCase):
         c = json.load(open(os.path.join(os.path.dirname(__file__), "..", "okx_config.json")))
         self.assertEqual((c["real"], c["recuo_real"], c["panico_real"]), (True, True, True))    # (08/11, OK do Rui) H40 real limitada
         self.assertEqual((c["panico_risco_pct"], c["panico_risco_max_pct"], c["panico_max_posicoes"], c["risco_total_max_pct"],
-                          c["so_mercado"]), (1.0, 1.0, 3, 3.0, False))
+                          c["so_mercado"]), (1.0, 1.0, 3, 3.0, True))   # (10/11, OK do Rui) so o panico do mercado todo
         self.assertEqual((c["risco_pct"], c["alavancagem"], c["max_posicoes"], c["recuo_risco_pct"]), (2.0, 10, 30, 1.0))
 
 
