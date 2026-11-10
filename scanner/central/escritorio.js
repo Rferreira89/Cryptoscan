@@ -134,7 +134,7 @@ export class Escritorio {
       this.cena.add(ln);
       // nome da zona no chao, legivel na vista isometrica
       const tc = document.createElement("canvas"); tc.width = 1024; tc.height = 128; const tg = tc.getContext("2d");
-      tg.font = "600 64px Inter, system-ui, sans-serif"; tg.fillStyle = z.cor; tg.globalAlpha = .85; tg.fillText(z.nome.toUpperCase(), 8, 86);
+      let fs = 64; tg.font = `600 ${fs}px Inter, system-ui, sans-serif`; while (tg.measureText(z.nome.toUpperCase()).width > 1000 && fs > 30) { fs -= 4; tg.font = `600 ${fs}px Inter, system-ui, sans-serif`; } tg.fillStyle = z.cor; tg.globalAlpha = .85; tg.fillText(z.nome.toUpperCase(), 8, 86);
       const tt = new THREE.CanvasTexture(tc); tt.colorSpace = THREE.SRGBColorSpace;
       const rot = new THREE.Mesh(new THREE.PlaneGeometry(13, 1.6), new THREE.MeshBasicMaterial({ map: tt, transparent: true, depthWrite: false, toneMapped: false }));
       rot.rotation.order = "YXZ"; rot.rotation.set(-Math.PI / 2, Math.PI / 4, 0); rot.position.set(z.x[0] + 5.2, .05, z.z[1] - 1.4); this.cena.add(rot);

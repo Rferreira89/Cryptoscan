@@ -125,12 +125,20 @@ test("velas: sem nenhuma fonte devolve vazio com a razao", async () => {
   const r = await D.velas("BTC", { fetchFn: async () => { throw new TypeError("x"); } });
   assert.equal(r.velas.length, 0); assert.equal(r.fonte, null); assert.match(r.erro, /nenhuma fonte/);
 });
-test("velas: posicao OKX tenta primeiro o instrumento da OKX", async () => {
+test("velas: so fontes que o browser deixa ler (OKX global, Binance); Bybit UE e OKX EEA bloqueiam CORS", async () => {
   const pedidos = [];
-  const r = await D.velas("PARTI", { inst: "PARTI-USD_UM_XPERP-311010", fetchFn: async u => { pedidos.push(u);
+  const r = await D.velas("PARTI", { fetchFn: async u => { pedidos.push(u);
     return { ok: true, json: async () => ({ code: "0", data: Array.from({ length: 40 }, (_, i) => [String((40 - i) * 3600e3), "1", "2", "0.5", "1.5", "10"]) }) }; } });
-  assert.match(pedidos[0], /eea\.okx\.com.*PARTI-USD_UM_XPERP-311010/); assert.match(r.fonte, /OKX/); assert.equal(r.velas.length, 40);
+  assert.match(pedidos[0], /www\.okx\.com.*PARTI-USDT-SWAP/); assert.match(r.fonte, /OKX/); assert.equal(r.velas.length, 40);
   assert.ok(r.velas[0].t < r.velas[1].t);
+  const src = fs.readFileSync(path.join(AQUI, "..", "dados.js"), "utf8");
+  assert.ok(!src.includes("api.bybit.eu") && !src.includes("eea.okx.com"));
+});
+test("livro: OKX e depois Binance; sem nenhum, indisponivel com razao", async () => {
+  const L = await D.livro("BTC", { fetchFn: async u => ({ ok: true, json: async () => u.includes("okx") ? { code: "0", data: [{ ts: "1", bids: [["1", "2"]], asks: [["1.1", "2"]] }] } : {} }) });
+  assert.match(L.fonte, /OKX/);
+  const L2 = await D.livro("BTC", { fetchFn: async () => { throw new TypeError("x"); } });
+  assert.equal(L2.fonte, null); assert.match(L2.erro, /indisponível/);
 });
 
 // ------------------------------------------------------------------ agentes: estado visual = estado real

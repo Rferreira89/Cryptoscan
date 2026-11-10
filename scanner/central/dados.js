@@ -349,12 +349,13 @@ export function atrPct(c, n = 14) {
 }
 
 // ---------------------------------------------------------------- mercado publico (velas e livro), com fonte indicada
+// Mercado publico lido diretamente pelo browser. Testado no GitHub (10/11): a Bybit UE e a OKX EEA nao enviam
+// cabecalhos CORS, por isso o browser bloqueia-as; a OKX global e a Binance permitem. A fonte vai sempre no grafico.
 export const MERCADO = {
-  bybit: "https://api.bybit.eu/v5/market/",
-  okx: "https://eea.okx.com/api/v5/market/",
+  okx: "https://www.okx.com/api/v5/market/",
   binance: "https://data-api.binance.vision/api/v3/",
 };
-export async function velas(ativo, { inst = null, intervalo = "1h", n = 200, fetchFn = globalThis.fetch } = {}) {
+export async function velas(ativo, { intervalo = "1h", n = 200, fetchFn = globalThis.fetch } = {}) {
   const tentar = async (fonte, url, conv) => {
     try {
       const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 8000);
@@ -363,29 +364,29 @@ export async function velas(ativo, { inst = null, intervalo = "1h", n = 200, fet
       return c && c.length > 30 ? { fonte, velas: c } : null;
     } catch (_) { return null; }
   };
-  const bi = { "1h": "60", "4h": "240", "1d": "D" }[intervalo], ob = { "1h": "1H", "4h": "4H", "1d": "1Dutc" }[intervalo];
+  const ob = { "1h": "1H", "4h": "4H", "1d": "1Dutc" }[intervalo];
   const tent = [
-    () => tentar("Bybit UE (spot USDC)", `${MERCADO.bybit}kline?category=spot&symbol=${ativo}USDC&interval=${bi}&limit=${n}`,
-      j => j.retCode === 0 ? j.result.list.map(x => ({ t: +x[0] / 1000, o: +x[1], h: +x[2], l: +x[3], c: +x[4], v: +x[5] })).reverse() : null),
-    () => tentar(`OKX EEA (${inst || ativo + "-USDT-SWAP"})`, `${MERCADO.okx}candles?instId=${encodeURIComponent(inst || ativo + "-USDT-SWAP")}&bar=${ob}&limit=${Math.min(n, 300)}`,
+    () => tentar(`OKX (${ativo}-USDT-SWAP)`, `${MERCADO.okx}candles?instId=${ativo}-USDT-SWAP&bar=${ob}&limit=${Math.min(n, 300)}`,
       j => j.code === "0" ? j.data.map(x => ({ t: +x[0] / 1000, o: +x[1], h: +x[2], l: +x[3], c: +x[4], v: +x[5] })).reverse() : null),
     () => tentar("Binance (global, USDT)", `${MERCADO.binance}klines?symbol=${ativo}USDT&interval=${intervalo}&limit=${n}`,
       j => Array.isArray(j) ? j.map(x => ({ t: x[0] / 1000, o: +x[1], h: +x[2], l: +x[3], c: +x[4], v: +x[5] })) : null),
   ];
-  tent.push(() => tentar(`OKX global (${ativo}-USDT-SWAP)`, `https://www.okx.com/api/v5/market/candles?instId=${ativo}-USDT-SWAP&bar=${ob}&limit=${Math.min(n, 300)}`,
-    j => j.code === "0" ? j.data.map(x => ({ t: +x[0] / 1000, o: +x[1], h: +x[2], l: +x[3], c: +x[4], v: +x[5] })).reverse() : null));
-  const ordem = inst ? [tent[1], tent[0], tent[3], tent[2]] : tent;
-  for (const f of ordem) { const r = await f(); if (r) return r; }
-  return { fonte: null, velas: [], erro: "nenhuma fonte de velas respondeu (rede ou bloqueio do browser)" };
+  for (const f of tent) { const r = await f(); if (r) return r; }
+  return { fonte: null, velas: [], erro: "nenhuma fonte de velas respondeu (rede, ativo não listado ou bloqueio do browser)" };
 }
 
 export async function livro(ativo, { fetchFn = globalThis.fetch } = {}) {
   try {
-    const r = await fetchFn(`${MERCADO.bybit}orderbook?category=spot&symbol=${ativo}USDC&limit=25`, { cache: "no-store" });
+    const r = await fetchFn(`${MERCADO.okx}books?instId=${ativo}-USDT-SWAP&sz=25`, { cache: "no-store" });
+    const j = await r.json(), d = (j.data || [])[0];
+    if (j.code === "0" && d && d.bids.length) return { fonte: `OKX (${ativo}-USDT-SWAP)`, t: +d.ts / 1000, bids: d.bids.map(x => [+x[0], +x[1]]), asks: d.asks.map(x => [+x[0], +x[1]]) };
+  } catch (_) { /* tenta a seguinte */ }
+  try {
+    const r = await fetchFn(`${MERCADO.binance}depth?symbol=${ativo}USDT&limit=25`, { cache: "no-store" });
     const j = await r.json();
-    if (j.retCode !== 0 || !j.result || !(j.result.b || []).length) return { fonte: null, erro: "livro indisponível para este ativo na Bybit UE" };
-    return { fonte: "Bybit UE (spot USDC)", t: +j.result.ts / 1000, bids: j.result.b.map(x => [+x[0], +x[1]]), asks: j.result.a.map(x => [+x[0], +x[1]]) };
-  } catch (_) { return { fonte: null, erro: "livro indisponível (rede ou bloqueio do browser)" }; }
+    if ((j.bids || []).length) return { fonte: "Binance (global, USDT)", t: Date.now() / 1000, bids: j.bids.map(x => [+x[0], +x[1]]), asks: j.asks.map(x => [+x[0], +x[1]]) };
+  } catch (_) { /* sem livro */ }
+  return { fonte: null, erro: "livro de ordens indisponível para este ativo" };
 }
 
 // derivados.json: series por moeda com campos [t, preco, oi_musd, funding_ppm, ls_x100, ...]

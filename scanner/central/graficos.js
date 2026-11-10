@@ -28,7 +28,7 @@ export function velasCompleto(g, w, h, dados, { titulo = "", fonte = "", rsiOn =
   const C = (dados || []).slice(-120);
   if (C.length < 30) return indisponivel(g, w, h, titulo || "Gráfico", "sem velas desta fonte");
   g.fillStyle = COR.fundo; g.fillRect(0, 0, w, h);
-  const pad = 8, topo = 26, dir = 54;
+  const pad = 8, topo = 40, dir = 54;
   const hR = rsiOn ? h * .16 : 0, hM = macdOn ? h * .16 : 0, hV = h * .12;
   const hP = h - topo - hR - hM - hV - pad * 2;
   const x0 = pad, x1 = w - dir, bw = (x1 - x0) / C.length;
@@ -71,7 +71,7 @@ export function velasCompleto(g, w, h, dados, { titulo = "", fonte = "", rsiOn =
   g.fillStyle = COR.texto; g.font = "600 13px Inter, system-ui, sans-serif"; g.fillText(titulo, x0 + 2, 17);
   const tw = g.measureText(titulo).width;
   g.fillStyle = ch >= 0 ? COR.sobe : COR.desce; g.font = "12px Inter, system-ui, sans-serif"; g.fillText(`${fmt(u.c)}  ${ch >= 0 ? "+" : ""}${ch.toFixed(2)}% (janela)`, x0 + tw + 12, 17);
-  g.fillStyle = COR.fraco; g.textAlign = "right"; g.fillText(`${fonte} · MM20 MM50`, w - 6, 17); g.textAlign = "left";
+  g.fillStyle = COR.fraco; g.font = "10.5px Inter, system-ui, sans-serif"; g.fillText(`fonte: ${fonte} · MM20 (azul) MM50 (âmbar)`, x0 + 2, 32);
 }
 
 // serie simples (funding, OI): linha com zero, ultimo valor e titulo

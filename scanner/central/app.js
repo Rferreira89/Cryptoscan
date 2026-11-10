@@ -155,7 +155,7 @@ function renderInspector() {
     const R = e && p.stop && at ? (p.lado === "LONG" ? (at - e) / (e - p.stop) : (e - at) / (p.stop - e)) : null;
     el.innerHTML = `<div class="kv"><div><span>Estratégia</span><b>${esc(p.estrategia)}</b></div><div><span>Instrumento</span><b>${esc(p.inst || p.ativo)}</b></div>
       <div><span>Quantidade</span><b>${p.quantidade != null ? num(p.quantidade, 4) : "🔒"}</b></div><div><span>Entrada</span><b>${px(e)}</b></div>
-      <div><span>Preço atual</span><b>${px(at)}</b></div><div><span>R atual</span><b class="${R >= 0 ? "up" : "dn"}">${R == null ? "–" : sg(R) + "R"}</b></div>
+      <div><span>Preço atual</span><b>${px(at)}</b>${!p.atual && at ? `<small style="display:block;color:var(--fr);font-size:10.5px">último fecho 1H · ${esc((A.velas[p.ativo + ":1h"] || {}).fonte || "")}</small>` : ""}</div><div><span>R atual</span><b class="${R >= 0 ? "up" : "dn"}">${R == null ? "–" : sg(R) + "R"}</b></div>
       <div><span>Stop-loss</span><b>${px(p.stop)}</b></div><div><span>Take-profit</span><b>${px(p.alvo)}</b></div>
       <div><span>PnL não realizado</span><b class="${p.pnl_usd >= 0 ? "up" : "dn"}">${p.pnl_usd != null ? sg(p.pnl_usd) + " USD (" + sg(p.pnl_pct) + "%)" : "🔒"}</b></div>
       <div><span>Margem · alavancagem</span><b>${p.margem_usd != null ? num(p.margem_usd) + " USD · " : ""}${p.alav || "–"}x</b></div>
@@ -164,7 +164,8 @@ function renderInspector() {
       <dt>Aberta desde</dt><dd>${hora(p.desde)}</dd>${p.sair_em ? `<dt>Saída por tempo</dt><dd>${hora(p.sair_em)}</dd>` : ""}<dt>Fonte</dt><dd>${esc(p.fonte)}${p.parcial ? " · execução parcial" : ""}</dd></dl>
       <div class="graf" data-graf="${esc(p.ativo)}" data-inst="${esc(p.inst || "")}" data-linhas='${JSON.stringify([{ nome: "entrada", v: e, cor: "#C9D6E8" }, { nome: "stop", v: p.stop, cor: "#F0616D" }, { nome: "objetivo", v: p.alvo, cor: "#3FD68F" }])}'><canvas height="380"></canvas></div>
       <div class="acoes"><button data-acao="ativo:${esc(p.ativo)}">Análise do ativo</button></div>`;
-    desenharGraficos(el);
+    if (at == null && !S.reav) desenharGraficos(el).then(() => { if (A.sel === S && (A.velas[p.ativo + ":1h"] || {}).velas?.length) { S.reav = true; renderInspector(); } });
+    else desenharGraficos(el);
   } else if (S.k === "ativo") {
     const at = S.id, iv = S.extra || "1h";
     $("#insp-titulo").textContent = `${at} · análise técnica`;
@@ -259,10 +260,10 @@ const nomeAg = id => id === "centro" ? "Centro de comando" : ((AGENTES.find(a =>
 function sel(k, ops, rot = x => x) { return `<label>${k}<select data-filtro="${k}">${ops.map(o => `<option value="${esc(o)}" ${A.filtros[k] === o ? "selected" : ""}>${esc(rot(o))}</option>`).join("")}</select></label>`; }
 
 // ---------------------------------------------------------------- graficos do inspector (dados reais, com fonte)
-async function obterVelas(at, iv = "1h", inst = null) {
+async function obterVelas(at, iv = "1h") {
   const k = `${at}:${iv}`, v = A.velas[k];
   if (v && Date.now() - v.at < ({ "1h": 120e3, "4h": 600e3, "1d": 1800e3 }[iv])) return v;
-  const r = await Dd.velas(at, { intervalo: iv, inst }); r.at = Date.now(); A.velas[k] = r; return r;
+  const r = await Dd.velas(at, { intervalo: iv }); r.at = Date.now(); A.velas[k] = r; return r;
 }
 function ajustar(cv) { const w = cv.parentElement.clientWidth || 320, h = +cv.getAttribute("height"); const d = Math.min(2, devicePixelRatio || 1);
   cv.width = w * d; cv.height = h * d; cv.style.width = w + "px"; cv.style.height = h + "px"; const g = cv.getContext("2d"); g.setTransform(d, 0, 0, d, 0, 0); return [g, w, h]; }
@@ -270,8 +271,8 @@ async function desenharGraficos(root) {
   for (const box of root.querySelectorAll(".graf")) {
     const cv = box.querySelector("canvas"); let [g, w, h] = ajustar(cv);
     if (box.dataset.graf) {
-      Gx.indisponivel(g, w, h, "A carregar velas…", "Bybit UE → OKX EEA → Binance");
-      const r = await obterVelas(box.dataset.graf, box.dataset.iv || "1h", box.dataset.inst || null); [g, w, h] = ajustar(cv);
+      Gx.indisponivel(g, w, h, "A carregar velas…", "OKX → Binance");
+      const r = await obterVelas(box.dataset.graf, box.dataset.iv || "1h"); [g, w, h] = ajustar(cv);
       if (!r.velas.length) Gx.indisponivel(g, w, h, `${box.dataset.graf}: gráfico indisponível`, r.erro);
       else { Gx.velasCompleto(g, w, h, r.velas, { titulo: `${box.dataset.graf} · ${(box.dataset.iv || "1h").toUpperCase()}`, fonte: r.fonte, linhas: box.dataset.linhas ? JSON.parse(box.dataset.linhas) : [] });
              const a = Dd.atrPct(r.velas); const x = root.querySelector("#atr"); if (x) x.textContent = a == null ? "–" : num(a) + "% por vela"; }
