@@ -203,8 +203,39 @@ test("frontend: sem chaves, sem pedidos privados, sem ordens", () => {
                           "/v5/order/", "withdraw", "transfer", "method: \"POST\"", "method:'POST'", "method:\"POST\""])
     assert.ok(!src.includes(proibido), `encontrado no frontend: ${proibido}`);
 });
-test("escritorio: um so piso (sem escadas nem outros pisos)", () => {
+test("escritorio Atlas: um so piso, nove areas, sem escadas nem outros niveis", async () => {
   const src = fs.readFileSync(path.join(AQUI, "..", "escritorio.js"), "utf8");
-  assert.ok(!/escada|stairs|piso\s*[2-9]|P[0-4]H|floor[2-9]/i.test(src.replace(/UM SO PISO|sem escadas nem outros pisos/g, "")));
-  assert.equal((src.match(/new THREE\.PlaneGeometry\(66, 42\)/g) || []).length, 1);
+  assert.ok(!/escada|stairs|segundo piso|piso\s*[2-9]|floor[2-9]/i.test(src.replace(/sem escadas nem outros niveis/g, "")));
+  assert.equal((src.match(/new THREE\.PlaneGeometry\(W, D\)/g) || []).length, 1);            // uma unica laje
+  const { AREAS } = await import("../agentes.js");
+  assert.deepEqual(Object.keys(AREAS).sort(), ["cacador", "comando", "estrategia", "exchanges", "intel", "quant", "risco", "tecnica", "trading"]);
+  for (const a of AGENTES) assert.ok(AREAS[a.zona], `${a.id} sem area`);
+  for (const k of Object.keys(AREAS)) assert.ok(new RegExp(`\\b${k}:\\s*\\{ x:`).test(src), `area ${k} sem lugar no piso`);
+});
+
+// ------------------------------------------------------------------ ambientes e resultado
+test("ambientes: papel e sombra separados do real, cada um com a origem", () => {
+  const O = OKX(); O.resumo.abertas = ["BCH"]; O.macro.abertas = { AAPL: {} };
+  const s = D.simuladas(O, { papel_fases: { lateral: { abertas: ["ETH"] } } }, { sinais: { abertas: { DOGE: { entrada: 1, stop: 1.2, t: T0 } } } }, { estado: { abertas: { SUI: { px_fill: 2, stop: 2.4, t_fill: T0 } } } });
+  assert.deepEqual([...new Set(s.map(x => x.ambiente))].sort(), ["PAPEL", "SOMBRA"]);
+  assert.ok(s.every(x => x.origem && x.ativo && x.lado)); assert.equal(s.find(x => x.ativo === "SUI").ambiente, "SOMBRA");
+  assert.ok(!s.some(x => x.ativo === "PARTI"));                                                // a posicao real nao entra aqui
+});
+test("resultado: R das fechadas reais (OKX pelo preco de saida, Bybit pelo journal) e R atual", () => {
+  const O = OKX(); O.real.hist = [{ asset: "PENGU", estado: "fechada", entrada: 100, stop: 90, saida: 90, fechado: T0 - 100, estrategia: "panico" }, { asset: "X", estado: "cancelada", fechado: T0 }];
+  const f = D.fechadasR(O, SCAN());
+  assert.deepEqual(f.map(x => [x.corretora, x.R]), [["Bybit", 1.3], ["OKX", -1]]);
+  assert.deepEqual(D.acumulado(f).map(x => Math.round(x.v * 100) / 100), [1.3, 0.3]);
+  assert.equal(D.deHoje(f, T0).length, 1);
+  assert.equal(D.rAtual({ lado: "LONG", entrada: 100, stop: 90 }, 105), 0.5); assert.equal(D.rAtual({ lado: "SHORT", entrada: 100, stop: 110 }, 105), -0.5);
+  assert.equal(D.rAtual({ lado: "LONG", entrada: 100, stop: 90 }, null), null);
+});
+test("desempenho: cada numero traz o ambiente (backtest nunca passa por real)", () => {
+  const S = SCAN(); S.arena.classificacao = [{ id: "SHORT_TURTLE", estado: "A COMPETIR", n: 4, wins: 2, avg_r: 0.3 }];
+  const d = D.desempenho("SHORT_TURTLE", { O: OKX(), S });
+  assert.deepEqual(d.map(x => x.ambiente), ["REAL", "BACKTEST"]); assert.equal(d[0].n, 1);
+});
+test("suporte e resistencia: minimo e maximo das ultimas velas", () => {
+  const v = Array.from({ length: 60 }, (_, i) => ({ h: 10 + i, l: 5 + i }));
+  assert.deepEqual(D.suporteResistencia(v, 50), { suporte: 15, resistencia: 69, n: 50 });
 });

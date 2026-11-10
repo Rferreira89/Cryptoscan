@@ -1,15 +1,15 @@
-name: Operations Center - evidencia (ramo escritorio-v2; so leitura)
+name: Atlas - evidencia (ramo isolado; so leitura)
 # (10/11, pedido do Rui) Abre a nova interface num browser real, com os dados reais publicados pelos agentes e a rede
 # real (mercado publico da Bybit UE e da OKX EEA), tira capturas e regista erros de consola e desempenho. Cofre fechado:
 # as capturas nao tem dinheiro. O passo "cofre OKX" so diz se o ficheiro abre e quantos elementos tem (sem valores).
 # Nao toca no main, nas corretoras nem em ordens.
 on:
   push:
-    branches: [escritorio-v2]
+    branches: [escritorio-v2, atlas]
     paths: ["scanner/**", "tools/evidencia/**", ".github/workflows/escritorio-evidencia.yml"]
   workflow_dispatch:
 permissions:
-  contents: write          # so para guardar as capturas no ramo isolado escritorio-v2-capturas
+  contents: write          # so para guardar as capturas no ramo isolado atlas-capturas
 jobs:
   evidencia:
     runs-on: ubuntu-latest
@@ -46,10 +46,10 @@ jobs:
           OUT=capturas node tools/evidencia/capturas.js
       - name: "Guardar as capturas no ramo isolado (sem dinheiro, cofre fechado)"
         run: |
-          cd capturas && git init -q && git checkout -q -b escritorio-v2-capturas
+          cd capturas && git init -q && git checkout -q -b atlas-capturas
           git config user.name "cryptoscan-bot" && git config user.email "bot@users.noreply.github.com"
           git add -A && git commit -q -m "capturas do Operations Center $(date -u +%FT%TZ)"
-          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" escritorio-v2-capturas
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" atlas-capturas
       - uses: actions/upload-artifact@v4
         with:
           name: capturas-operations-center
