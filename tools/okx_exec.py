@@ -12,6 +12,9 @@ Repositorio publico: o log nunca mostra saldos; os valores vao so para o Telegra
 import base64, datetime, hashlib, hmac, json, math, os, time, urllib.error, urllib.request
 
 import okx_agente as A
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+from engine import guarda as G  # noqa: E402  (10/11: verificacoes puras antes da ordem)
 
 H4 = 14400
 CFG_PADRAO = {"real": False, "so_mercado": True, "risco_pct": 1.0, "risco_max_pct": 2.0, "alavancagem": 10, "max_posicoes": 40, "travao_queda_pct": 25,
@@ -361,6 +364,22 @@ def correr(st, novos, now, msgs):
                 avisados.append(chave_r)
                 msgs.append(f"⏭️ OKX real — {base}: o risco aberto passaria {c.get('risco_total_max_pct', 3.0)}% da conta; fica só em papel.")
             continue
+        # (10/11, investigacao) guarda antes da ordem: stop sao e do lado certo, sem duplicado, e os limites opcionais
+        # de cfg["guarda"] (desligados por omissao: ligar e decisao do Rui)
+        if p:
+            fech = [{"resultado": h.get("ret_pct"), "t": h.get("fechado")} for h in R["hist"]
+                    if h.get("estado") == "fechada"]
+            fech.sort(key=lambda f: f["t"] or 0)
+            n24 = sum(1 for o in list(R["ops"].values()) + R["hist"]
+                      if (o.get("criado") or 0) >= now - 86400 and o.get("ordId"))
+            pode, porque = G.verificar(c, lado="LONG", entrada=p["lim"], stop=p["stop"], ativo=base, t_sinal=sig["t_sig"],
+                                       agora=now, entradas_24h=n24, fechadas=fech, abertas=set(R["ops"]))
+            if not pode:
+                chave_g = f"g:{base}:{sig['t_sig']}"
+                if chave_g not in avisados:
+                    avisados.append(chave_g)
+                    msgs.append(f"⏭️ OKX real — {base}: guarda antes da ordem: {'; '.join(porque)}.")
+                continue
         op = abrir(base, sig, info, eq, cc, now, msgs)
         if op and p:
             op["risco_pct"] = round(100 * p["risco_usd"] / eq, 2)
