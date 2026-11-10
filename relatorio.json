@@ -1,0 +1,142 @@
+{
+ "erros": [],
+ "avisos": [],
+ "pedidos_falhados": [],
+ "passos": [
+  "desktop-1-visao-geral: ok",
+  "desktop-2-agente-ines: ok",
+  "desktop-3-okx: ok",
+  "desktop-4-posicao-parti: ok",
+  "desktop-5-ativo: ok",
+  "desktop-5b-ativo-btc-4h: ok",
+  "desktop-6-mercado-global: ok",
+  "desktop-7-zona-comando: ok",
+  "desktop-8-zona-corretoras: ok",
+  "desktop-9-fontes: ok",
+  "alta-visao-geral-3d-alta: ok",
+  "telemovel-1-inicio: ok",
+  "telemovel-2-agente: ok",
+  "telemovel-3-2d: ok"
+ ],
+ "desktop": {
+  "fps": 3,
+  "qualidade": "baixa",
+  "fontes": {
+   "scan": "ligado",
+   "cofreScan": "bloqueado (dados cifrados: abre o cofre com a palavra-passe)",
+   "state": "ligado",
+   "okx": "ligado",
+   "cofreOkx": "bloqueado (dados cifrados: abre o cofre com a palavra-passe)",
+   "cfgOkx": "ligado",
+   "derivados": "ligado",
+   "liquidez": "ligado",
+   "tfshort": "ligado"
+  },
+  "okx": "ligado_publico",
+  "bybit": "ligado_publico",
+  "velas": {
+   "BTC:4h": "OKX (BTC-USDT-SWAP)",
+   "CASHCAT:1h": "OKX (CASHCAT-USDT-SWAP)"
+  },
+  "agentes": {
+   "scanner": "procurar",
+   "panico": "analisar",
+   "recuo": "procurar",
+   "macro": "analisar",
+   "exec_okx": "monitorizar",
+   "risco": "risco",
+   "liquidez": "espera",
+   "exec_bybit": "espera",
+   "nucleo": "cifrado",
+   "diretor": "espera",
+   "arena": "calcular",
+   "tfshort": "espera",
+   "noticias": "comunicar"
+  },
+  "posicoes": [
+   "OKX CASHCAT LONG",
+   "OKX PARTI LONG"
+  ],
+  "botoes_sem_acao": []
+ },
+ "alta": {
+  "fps": 1,
+  "qualidade": "baixa",
+  "fontes": {
+   "scan": "ligado",
+   "cofreScan": "bloqueado (dados cifrados: abre o cofre com a palavra-passe)",
+   "state": "ligado",
+   "okx": "ligado",
+   "cofreOkx": "bloqueado (dados cifrados: abre o cofre com a palavra-passe)",
+   "cfgOkx": "ligado",
+   "derivados": "ligado",
+   "liquidez": "ligado",
+   "tfshort": "ligado"
+  },
+  "okx": "ligado_publico",
+  "bybit": "ligado_publico",
+  "velas": {
+   "BTC:4h": "OKX (BTC-USDT-SWAP)"
+  },
+  "agentes": {
+   "scanner": "procurar",
+   "panico": "analisar",
+   "recuo": "procurar",
+   "macro": "analisar",
+   "exec_okx": "monitorizar",
+   "risco": "risco",
+   "liquidez": "espera",
+   "exec_bybit": "espera",
+   "nucleo": "cifrado",
+   "diretor": "espera",
+   "arena": "calcular",
+   "tfshort": "espera",
+   "noticias": "comunicar"
+  },
+  "posicoes": [
+   "OKX CASHCAT LONG",
+   "OKX PARTI LONG"
+  ],
+  "botoes_sem_acao": []
+ },
+ "telemovel": {
+  "fps": null,
+  "qualidade": "2d",
+  "fontes": {
+   "scan": "ligado",
+   "cofreScan": "bloqueado (dados cifrados: abre o cofre com a palavra-passe)",
+   "state": "ligado",
+   "okx": "ligado",
+   "cofreOkx": "bloqueado (dados cifrados: abre o cofre com a palavra-passe)",
+   "cfgOkx": "ligado",
+   "derivados": "ligado",
+   "liquidez": "ligado",
+   "tfshort": "ligado"
+  },
+  "okx": "ligado_publico",
+  "bybit": "ligado_publico",
+  "velas": {
+   "BTC:4h": "OKX (BTC-USDT-SWAP)"
+  },
+  "agentes": {
+   "scanner": "procurar",
+   "panico": "analisar",
+   "recuo": "procurar",
+   "macro": "analisar",
+   "exec_okx": "monitorizar",
+   "risco": "risco",
+   "liquidez": "espera",
+   "exec_bybit": "espera",
+   "nucleo": "cifrado",
+   "diretor": "espera",
+   "arena": "calcular",
+   "tfshort": "espera",
+   "noticias": "comunicar"
+  },
+  "posicoes": [
+   "OKX CASHCAT LONG",
+   "OKX PARTI LONG"
+  ],
+  "botoes_sem_acao": []
+ }
+}
