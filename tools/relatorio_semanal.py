@@ -162,7 +162,10 @@ def main():
     ops += G.do_kronos_sombra((_carregar(x.kronos) or {}).get("estado"))
     semana = time.strftime("semana até %d/%m/%Y", time.gmtime())
     txt = texto(ops, G.abertas_reais(state, okx), ag, rec, semana, G.nucleo_visivel(state), sombra)
-    txt += saude_e_rejeicoes(ops, os.path.dirname(os.path.abspath(x.state)) if x.state else None)
+    try:                                     # blocos de leitura: uma falha aqui nunca impede o relatorio principal
+        txt += saude_e_rejeicoes(ops, os.path.dirname(os.path.abspath(x.state)) if x.state else None)
+    except Exception as e:                   # noqa: BLE001
+        txt += f"\n(blocos de saúde e rejeições indisponíveis: {type(e).__name__})\n"
     print(txt)
     if x.enviar:
         from engine import alerts
