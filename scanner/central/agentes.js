@@ -7,12 +7,12 @@
 import { frescura, texIdade, idade } from "./dados.js";
 
 export const ESTADOS = {
-  analisar:      { nome: "A analisar",               cor: "#5AA9FF", ativo: true },
-  procurar:      { nome: "A procurar oportunidades", cor: "#3EE0C4", ativo: true },
+  analisar:      { nome: "A analisar o mercado",     cor: "#4F8CFF", ativo: true },
+  procurar:      { nome: "A procurar oportunidades", cor: "#35D6F2", ativo: true },
   monitorizar:   { nome: "A monitorizar posições",   cor: "#3FD68F", ativo: true },
-  calcular:      { nome: "A executar cálculos",      cor: "#B59CFF", ativo: true },
-  risco:         { nome: "A avaliar risco",          cor: "#F5B83D", ativo: true },
-  comunicar:     { nome: "A comunicar resultados",   cor: "#7FE3FF", ativo: true },
+  calcular:      { nome: "A executar uma tarefa",    cor: "#7FA8FF", ativo: true },
+  risco:         { nome: "A avaliar risco",          cor: "#E8B84A", ativo: true },
+  comunicar:     { nome: "A comunicar",              cor: "#DCE6F2", ativo: true },
   espera:        { nome: "Em espera",                cor: "#8796AA", ativo: false },
   cifrado:       { nome: "Sem acesso (cofre fechado)", cor: "#6E7FA3", ativo: false },
   desligado:     { nome: "Desligado",                cor: "#4A5566", ativo: false },
@@ -20,20 +20,34 @@ export const ESTADOS = {
 };
 
 // zona da estacao no escritorio (escritorio.js) e o componente real que o agente representa
+// Paleta Atlas: grafite de base; ciano/azul para tecnologia; dourado para identidade e comando; branco para neutro.
+export const AREAS = {
+  comando:    { nome: "Command Center",             cor: "#E8B84A" },
+  trading:    { nome: "Trading Operations",         cor: "#35D6F2" },
+  intel:      { nome: "Market Intelligence",        cor: "#4F8CFF" },
+  quant:      { nome: "Quantitative Research",      cor: "#7FA8FF" },
+  tecnica:    { nome: "Technical Analysis",         cor: "#35D6F2" },
+  risco:      { nome: "Risk Management",            cor: "#E8B84A" },
+  exchanges:  { nome: "Exchange Operations",        cor: "#DCE6F2" },
+  estrategia: { nome: "Strategy Development",       cor: "#7FA8FF" },
+  cacador:    { nome: "Global Opportunity Hunting", cor: "#4F8CFF" },
+};
+
+// area da estacao no escritorio (escritorio.js) e o componente real que o agente representa
 export const AGENTES = [
-  { id: "scanner",    nome: "Sofia",  funcao: "Scanner de mercado · Bybit UE",            zona: "operacoes", cor: "#5AA9FF", componente: "scan.yml · engine/scanner.py (de 5 em 5 min)", fonte: "scan" },
-  { id: "panico",     nome: "Nuno",   funcao: "Caçador de pânico · OKX (H40)",            zona: "operacoes", cor: "#3EE0C4", componente: "okx-agente.yml · tools/okx_agente.py (de hora a hora)", fonte: "okx" },
-  { id: "recuo",      nome: "Rita",   funcao: "Recuo na subida · OKX (H46)",              zona: "operacoes", cor: "#45C9A6", componente: "tools/okx_recuo.py (com o agente OKX)", fonte: "okx" },
-  { id: "macro",      nome: "Mateus", funcao: "Ações, índices e metais · OKX (papel)",    zona: "operacoes", cor: "#E9A15B", componente: "agente macro OKX (com o agente OKX)", fonte: "okx" },
-  { id: "diretor",    nome: "Diana",  funcao: "Diretora de estratégia",                   zona: "comando",   cor: "#C8D3E6", componente: "engine/diretor (decisões do scanner)", fonte: "scan" },
-  { id: "risco",      nome: "Óscar",  funcao: "Gestor de risco",                          zona: "risco",     cor: "#F5B83D", componente: "okx_config.json · engine/risco.py", fonte: "okx" },
-  { id: "liquidez",   nome: "Leo",    funcao: "Liquidez e derivados",                     zona: "risco",     cor: "#8FB5FF", componente: "engine/derivhist.py · engine/liquidez.py", fonte: "derivados" },
-  { id: "exec_okx",   nome: "Inês",   funcao: "Execução e posições · OKX",                zona: "exchanges", cor: "#E6EDF7", componente: "tools/okx_exec.py (de hora a hora)", fonte: "okx" },
-  { id: "exec_bybit", nome: "Ivo",    funcao: "Execução e posições · Bybit UE",           zona: "exchanges", cor: "#F7A600", componente: "executar.yml · engine/executor.py", fonte: "scan" },
-  { id: "nucleo",     nome: "Bento",  funcao: "Tendência BTC (núcleo) · Bybit UE",        zona: "exchanges", cor: "#F2B13C", componente: "engine/nucleo (dados só no cofre)", fonte: "cofreScan" },
-  { id: "arena",      nome: "Clara",  funcao: "Análise quantitativa · Arena",             zona: "quant",     cor: "#B59CFF", componente: "arena.yml (de hora a hora)", fonte: "scan" },
-  { id: "tfshort",    nome: "Tiago",  funcao: "TF-SHORT · OKX (papel e sombra)",          zona: "quant",     cor: "#9C8CFF", componente: "okx-tfshort-papel.yml (diário)", fonte: "tfshort" },
-  { id: "noticias",   nome: "Nádia",  funcao: "Calendário macro e notícias",              zona: "colaboracao", cor: "#7FE3FF", componente: "engine/eventos (com o scanner)", fonte: "scan" },
+  { id: "diretor",    nome: "Diana",  funcao: "Direção de estratégia",                    zona: "comando",    cor: "#E8B84A", componente: "engine/diretor (decisões do scanner)", fonte: "scan" },
+  { id: "scanner",    nome: "Sofia",  funcao: "Análise técnica · scanner Bybit UE",       zona: "tecnica",    cor: "#35D6F2", componente: "scan.yml · engine/scanner.py (de 5 em 5 min)", fonte: "scan" },
+  { id: "panico",     nome: "Nuno",   funcao: "Operações · pânico OKX (H40)",             zona: "trading",    cor: "#35D6F2", componente: "okx-agente.yml · tools/okx_agente.py (de hora a hora)", fonte: "okx" },
+  { id: "recuo",      nome: "Rita",   funcao: "Operações · recuo na subida OKX (H46)",    zona: "trading",    cor: "#6FE3F7", componente: "tools/okx_recuo.py (com o agente OKX)", fonte: "okx" },
+  { id: "macro",      nome: "Mateus", funcao: "Caça global · ações, índices e metais",    zona: "cacador",    cor: "#4F8CFF", componente: "agente macro OKX (papel; com o agente OKX)", fonte: "okx" },
+  { id: "liquidez",   nome: "Leo",    funcao: "Inteligência de mercado · derivados",      zona: "intel",      cor: "#4F8CFF", componente: "engine/derivhist.py · engine/liquidez.py", fonte: "derivados" },
+  { id: "noticias",   nome: "Nádia",  funcao: "Inteligência de mercado · calendário",     zona: "intel",      cor: "#8FB5FF", componente: "engine/eventos (com o scanner)", fonte: "scan" },
+  { id: "arena",      nome: "Clara",  funcao: "Investigação quantitativa · arena",        zona: "quant",      cor: "#7FA8FF", componente: "arena.yml · arena-longo.yml (re-simulações)", fonte: "scan" },
+  { id: "tfshort",    nome: "Tiago",  funcao: "Desenvolvimento · TF-SHORT (papel/sombra)", zona: "estrategia", cor: "#7FA8FF", componente: "okx-tfshort-papel.yml (diário)", fonte: "tfshort" },
+  { id: "risco",      nome: "Óscar",  funcao: "Gestão de risco",                          zona: "risco",      cor: "#E8B84A", componente: "okx_config.json · engine/risco.py", fonte: "okx" },
+  { id: "exec_okx",   nome: "Inês",   funcao: "Corretoras · execução OKX",                zona: "exchanges",  cor: "#DCE6F2", componente: "tools/okx_exec.py (de hora a hora)", fonte: "okx" },
+  { id: "exec_bybit", nome: "Ivo",    funcao: "Corretoras · execução Bybit UE",           zona: "exchanges",  cor: "#F2C96B", componente: "executar.yml · engine/executor.py", fonte: "scan" },
+  { id: "nucleo",     nome: "Bento",  funcao: "Corretoras · núcleo BTC Bybit UE",         zona: "exchanges",  cor: "#F2C96B", componente: "engine/nucleo (dados só no cofre)", fonte: "cofreScan" },
 ];
 
 const proxima = (t, periodo, agora) => {

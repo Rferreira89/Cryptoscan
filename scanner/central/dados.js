@@ -23,6 +23,7 @@ export const FONTES = {
   derivados: { url: RAW + "data/derivados.json",       nome: "Derivados (funding, OI)",        periodo: 3600, limite: 9000 },
   liquidez:  { url: RAW + "data/liquidez.json",        nome: "Liquidez (spread, profundidade)", periodo: 3600, limite: 9000 },
   tfshort:   { url: RAW + "okx-tfshort/okx_tfshort.json", nome: "TF-SHORT (papel)",            periodo: 86400, limite: 2 * 86400 + 7200 },
+  tfsombra:  { url: RAW + "okx-tfshort/okx_tfshort_sombra.json", nome: "TF-SHORT (sombra)",    periodo: 86400, limite: 2 * 86400 + 7200 },
 };
 
 // ---------------------------------------------------------------- pedidos com tentativas controladas
@@ -69,6 +70,8 @@ export function horaDe(chave, d) {
     case "cofreOkx": return d.t || null;
     case "derivados": return d.t || null;
     case "liquidez": return null;
+    case "tfsombra": { const ab = Object.values(((d.estado || {}).abertas) || {}).map(x => x.t_fill || x.t).filter(Boolean); return ab.length ? Math.max(...ab) : null; }
+    case "tfshort": { const ab = Object.values(((d.sinais || {}).abertas) || {}).map(x => x.t).filter(Boolean); return ab.length ? Math.max(...ab) : null; }
     default: return d.t || null;
   }
 }
@@ -403,4 +406,62 @@ export function liquidezDe(L, ativo) {
   const u = a[a.length - 1];
   // engine/liquidez.py: cada amostra e [volume 24 h em USD, spread em %, preco parado]
   return { volume_usd: u[0], spread_pct: u[1], parado: !!u[2], amostras: a.length, dia: L.hoje.dia };
+}
+
+// ---------------------------------------------------------------- ambientes: REAL, PAPEL, SOMBRA e BACKTEST nunca se misturam
+// Posicoes de PAPEL (simulacao ao vivo) e de SOMBRA (o que a estrategia faria, sem ordens). Sem dinheiro.
+export function simuladas(O, S, T, Sb) {
+  const out = [];
+  const add = (ambiente, origem, ativo, lado, extra = {}) => out.push({ ambiente, origem, ativo, lado, ...extra });
+  for (const a of ((O || {}).resumo || {}).abertas || []) add("PAPEL", "H40 pânico · OKX", a, "LONG");
+  for (const [a, v] of Object.entries(((O || {}).recuo || {}).abertas || {})) add("PAPEL", "H46 recuo · OKX", a, "LONG", { entrada: (v || {}).entrada, stop: (v || {}).stop });
+  for (const a of Object.keys(((O || {}).macro || {}).abertas || {})) add("PAPEL", "Macro (ações, índices, metais) · OKX", a, "LONG");
+  for (const [a, v] of Object.entries((((T || {}).sinais || {}).abertas) || {})) add("PAPEL", "TF-SHORT · OKX", a, "SHORT", { entrada: v.entrada, stop: v.stop, desde: v.t });
+  for (const a of ((S || {}).papel_panico || {}).abertas || []) add("PAPEL", "H45 pânico · Bybit", a, "LONG");
+  const pf = (S || {}).papel_fases || {};
+  for (const a of (pf.lateral || {}).abertas || []) add("PAPEL", "Fases lateral · Bybit", a, "SHORT");
+  for (const a of (pf.subida || {}).abertas || []) add("PAPEL", "Fases subida · Bybit", a, "LONG");
+  for (const [a, v] of Object.entries((((Sb || {}).estado || {}).abertas) || {})) add("SOMBRA", "TF-SHORT sombra · OKX", a, "SHORT", { entrada: v.px_fill, stop: v.stop, desde: v.t_fill });
+  return out;
+}
+
+// R de uma posicao com o preco dado: quanto do risco planeado ja ganhou (+) ou perdeu (-)
+export function rAtual(p, preco) {
+  const e = p.entrada || p.entrada_corretora;
+  if (!e || !p.stop || !preco || e === p.stop) return null;
+  return p.lado === "SHORT" ? (e - preco) / (p.stop - e) : (preco - e) / (e - p.stop);
+}
+
+// Operacoes REAIS fechadas com resultado em R (publico): OKX pelo preco de saida, Bybit pelo journal. Ordem cronologica.
+export function fechadasR(O, S) {
+  const out = [];
+  for (const h of (((O || {}).real || {}).hist || [])) {
+    if (h.estado !== "fechada" || !h.entrada || !h.stop || !h.saida) continue;
+    out.push({ corretora: "OKX", ativo: h.asset, t: h.fechado, R: Math.round((h.saida - h.entrada) / (h.entrada - h.stop) * 100) / 100, ret_pct: h.ret_pct ?? null, estrategia: h.estrategia === "recuo" ? "H46 recuo" : "H40 pânico" });
+  }
+  for (const r of (((S || {}).journal || {}).rows || []))
+    if (r.mode === "REAL" && r.status === "CLOSED" && r.executed === true && r.result_r != null) out.push({ corretora: "Bybit", ativo: r.asset, t: r.closed_at, R: r.result_r, estrategia: r.strategy });
+  return out.filter(x => x.t).sort((a, b) => a.t - b.t);
+}
+export function acumulado(fechadas) { let s = 0; return fechadas.map(f => ({ t: f.t, v: (s += f.R) })); }
+export function deHoje(lista, agora = Date.now() / 1000) { const d = new Date(agora * 1000).toISOString().slice(0, 10); return lista.filter(x => x.t && new Date(x.t * 1000).toISOString().slice(0, 10) === d); }
+
+// Desempenho medido de uma estrategia, com o ambiente de cada numero (nunca se apresenta backtest como real)
+export function desempenho(nome, { O, S, T } = {}) {
+  const out = [], fr = fechadasR(O, S);
+  const real = fr.filter(f => f.estrategia === nome || (nome.startsWith("H40") && f.estrategia.startsWith("H40")) || (nome.startsWith("H46") && f.estrategia.startsWith("H46")));
+  if (real.length) out.push({ ambiente: "REAL", n: real.length, r_medio: real.reduce((s, f) => s + f.R, 0) / real.length, acerto_pct: Math.round(100 * real.filter(f => f.R > 0).length / real.length) });
+  if (nome.startsWith("H40")) { const d = ((O || {}).desempenho || {}); for (const [k, v] of Object.entries(d)) if (v && v.n) out.push({ ambiente: "PAPEL", nota: `sinais ${k}`, n: v.n, r_medio: v.r_medio, acerto_pct: v.acerto_pct, pf: v.profit_factor }); }
+  if (nome.startsWith("H46")) { const m = (((O || {}).recuo || {}).resumo || {}).metricas || {}; out.push({ ambiente: "PAPEL", n: m.n || 0, r_medio: m.r_medio ?? null, acerto_pct: m.acerto_pct ?? null }); }
+  if (nome.startsWith("H45")) { const m = (S || {}).papel_panico || {}; out.push({ ambiente: "PAPEL", n: m.n || 0, r_medio: m.r_medio ?? null, acerto_pct: m.acerto_pct ?? null }); }
+  if (nome.startsWith("Fases")) { const m = (((S || {}).papel_fases || {})[((S || {}).papel_fases || {}).fase]) || {}; out.push({ ambiente: "PAPEL", n: m.n || 0, r_medio: m.r_medio ?? null, acerto_pct: m.acerto_pct ?? null }); }
+  const ar = (((S || {}).arena || {}).classificacao || []).find(x => x.id === nome || x.id.startsWith(nome));
+  if (ar) out.push({ ambiente: "BACKTEST", nota: `arena (re-simulação, 90 dias) · ${ar.estado}`, n: ar.n, r_medio: ar.avg_r, acerto_pct: ar.n ? Math.round(100 * ar.wins / ar.n) : null });
+  return out;
+}
+
+// suporte e resistencia simples: minimo e maximo das ultimas n velas (rotulado como tal no grafico)
+export function suporteResistencia(velas, n = 50) {
+  const c = (velas || []).slice(-n); if (c.length < 10) return null;
+  return { suporte: Math.min(...c.map(x => x.l)), resistencia: Math.max(...c.map(x => x.h)), n: c.length };
 }

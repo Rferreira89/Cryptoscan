@@ -21,6 +21,7 @@ class OperationsCenter(unittest.TestCase):
         self.assertIn("central/app.js", idx)
         self.assertIn('href="v1.html"', idx)
         self.assertIn('fetch("./v1.html', v1)                # a versao anterior ja nao salta para a nova
+        self.assertIn("Concept &amp; Creative Direction", idx)   # (10/11, Atlas) autoria do conceito
 
 
 if __name__ == "__main__":
