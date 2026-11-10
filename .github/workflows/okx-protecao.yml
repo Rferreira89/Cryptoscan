@@ -1,0 +1,26 @@
+name: OKX - verificar protecao das posicoes (so leitura; ramo de investigacao)
+# (10/11, ordem do Rui) So GET a OKX: posicoes e ordens de stop. Nada e criado, alterado ou cancelado.
+# Quantidades so no Telegram; o registo publico mostra so a classificacao.
+on:
+  push:
+    branches: [inv-evolucao]
+    paths: ["tools/okx_protecao_verifica.py", ".github/workflows/okx-protecao.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verificar:
+    runs-on: [self-hosted, eu]
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Estado local (copia publica)
+        run: git fetch -q --depth 1 origin okx && git show FETCH_HEAD:okx.json > /tmp/okx_estado.json
+      - name: Verificar
+        env:
+          OKX_API_KEY: ${{ secrets.OKX_API_KEY }}
+          OKX_API_SECRET: ${{ secrets.OKX_API_SECRET }}
+          OKX_PASSPHRASE: ${{ secrets.OKX_PASSPHRASE }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python3 tools/okx_protecao_verifica.py /tmp/okx_estado.json
