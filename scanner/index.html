@@ -34,7 +34,7 @@ header{display:flex;align-items:center;gap:10px;padding:0 14px;border-bottom:1px
 .chip{display:flex;align-items:center;gap:7px;flex:0 0 auto;background:var(--p);border:1px solid var(--linha);border-radius:8px;padding:5px 10px;white-space:nowrap}
 .chip:hover{border-color:var(--linha2)}
 .chip i{width:7px;height:7px;border-radius:50%;background:var(--fr)}
-.chip span{color:var(--fr);font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+.chip span{color:var(--fr);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em}
 .chip b{font-weight:600;font-size:12.5px}
 .chip.ok i{background:var(--up);box-shadow:0 0 8px var(--up)} .chip.pub i{background:var(--ciano)} .chip.aviso i{background:var(--ouro)} .chip.critico i{background:var(--dn);box-shadow:0 0 8px var(--dn)} .chip.critico b{color:var(--dn)}
 #relogio,#sinc{color:var(--fr);font:11px var(--mono);white-space:nowrap}
@@ -148,7 +148,8 @@ td{padding:5px 7px;border-bottom:1px solid #141B27;white-space:nowrap} tr[data-a
 #nav-m{display:none}
 /* 2D (por escolha ou sem WebGL): o palco encolhe para os indicadores e os paineis ficam com o espaco */
 body.modo2d main{grid-template-rows:118px 6px minmax(0,1fr)} body.modo2d #cena,body.modo2d #zonas{display:none} body.modo2d #detalhe{position:fixed;top:60px}
-@media (max-width:1500px){ :root{--wr:372px} main{grid-template-columns:214px minmax(0,1fr) 6px var(--wr)} .marca b{font-size:13px} #sinc{display:none} .ag .d{max-width:86px} }
+@media (max-width:1700px){ #relogio{display:none} }
+@media (max-width:1500px){ :root{--wr:372px} .chip{padding:5px 8px;gap:5px} main{grid-template-columns:214px minmax(0,1fr) 6px var(--wr)} .marca b{font-size:13px} #sinc{display:none} .ag .d{max-width:86px} }
 @media (max-width:1180px){ #relogio{display:none} main{grid-template-columns:64px minmax(0,1fr) 6px var(--wr)} .ag{grid-template-columns:30px} .ag>div,.ass{display:none} #lista-agentes{padding:6px 10px} #agentes>h3{font-size:0} }
 /* telemovel: o escritorio fica em cima e os paineis alternam por baixo, sem perder funcoes */
 @media (max-width:900px){

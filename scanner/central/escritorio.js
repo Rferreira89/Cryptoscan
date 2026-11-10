@@ -438,7 +438,7 @@ export class Escritorio {
       A.p.g.getWorldPosition(v); v.y += 2.55; v.project(this.cam);
       const x = (v.x + 1) / 2 * w, y = (1 - v.y) / 2 * h, vis = v.z < 1 && x > -40 && x < w + 40 && y > -20 && y < h + 20;
       A.tag.style.transform = `translate(${x}px, ${y}px) translate(-50%, -100%)`; A.tag.style.display = vis ? "" : "none";
-      A.tag.classList.toggle("compacta", z < .62 || (A.lugar === "standby" && z < 1.5 && !A.andar)); A.tag.classList.toggle("sel", this.selecionado === A.def.id);
+      A.tag.classList.toggle("compacta", z * h / 52 * 5.5 < 70 || (A.lugar === "standby" && z < 1.5 && !A.andar)); A.tag.classList.toggle("sel", this.selecionado === A.def.id);
     }
   }
 

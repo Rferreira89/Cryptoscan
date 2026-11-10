@@ -108,6 +108,7 @@ function estadoGlobal(c) {
   return { k: "ok", t: "Operacional" };
 }
 const LIG = { ligado: ["ok", "Ligada"], ligado_publico: ["pub", "Ligada · conta cifrada"], atrasado: ["aviso", "Atrasada"], desatualizado: ["critico", "Desatualizada"], falhou: ["critico", "Sem ligação"] };
+const CURTO = { ligado: "Ligada", ligado_publico: "Ligada 🔒", atrasado: "Atrasada", desatualizado: "Desatualizada", falhou: "Sem ligação" };
 const nomeAg = id => id === "centro" ? "Command Center" : ((AGENTES.find(a => a.id === id) || {}).nome || id);
 
 // ---------------------------------------------------------------- barra superior
@@ -116,9 +117,9 @@ function renderTopo(c) {
   const crit = c.alertas.filter(a => a.nivel === "critico").length, av = c.alertas.filter(a => a.nivel === "aviso").length;
   const chip = (acao, rot, val, k) => `<button class="chip ${k}" data-acao="${acao}"><i></i><span>${rot}</span><b>${esc(val)}</b></button>`;
   $("#estado").innerHTML = chip("ativ:alertas", "Sistema", g.t, g.k)
-    + chip("ativ:scanners", "Agentes", `${at} ativos · ${ag.filter(e => e === "espera" || e === "cifrado").length} em espera${ag.includes("erro") ? ` · ${ag.filter(e => e === "erro").length} erro` : ""}${ag.includes("desligado") ? ` · ${ag.filter(e => e === "desligado").length} desl.` : ""}`, ag.includes("erro") ? "critico" : ag.includes("desligado") ? "aviso" : "ok")
-    + chip("corretora:OKX", "OKX", LIG[c.okx.ligacao][1] + (c.okx.agente.idade != null ? ` · ${Dd.texIdade(c.okx.agente.idade)}` : ""), LIG[c.okx.ligacao][0])
-    + chip("corretora:Bybit", "Bybit", LIG[c.bybit.ligacao][1] + (c.bybit.agente.idade != null ? ` · ${Dd.texIdade(c.bybit.agente.idade)}` : ""), LIG[c.bybit.ligacao][0])
+    + chip("ativ:scanners", "Agentes", `${at} ativos · ${ag.filter(e => e === "espera" || e === "cifrado").length} espera${ag.includes("erro") ? ` · ${ag.filter(e => e === "erro").length} erro` : ""}${ag.includes("desligado") ? ` · ${ag.filter(e => e === "desligado").length} desl.` : ""}`, ag.includes("erro") ? "critico" : ag.includes("desligado") ? "aviso" : "ok")
+    + chip("corretora:OKX", "OKX", CURTO[c.okx.ligacao] + (c.okx.agente.idade != null ? ` · ${Dd.texIdade(c.okx.agente.idade).replace("há ", "")}` : ""), LIG[c.okx.ligacao][0])
+    + chip("corretora:Bybit", "Bybit", CURTO[c.bybit.ligacao] + (c.bybit.agente.idade != null ? ` · ${Dd.texIdade(c.bybit.agente.idade).replace("há ", "")}` : ""), LIG[c.bybit.ligacao][0])
     + chip("ativ:alertas", "Alertas", crit ? `${crit} prioritário(s)` : av ? `${av} aviso(s)` : "nenhum", crit ? "critico" : av ? "aviso" : "ok");
   const cof = $("#cofre"), ab = !!(c.K || c.P); cof.textContent = ab ? "🔓 Cofre aberto" : "🔒 Abrir cofre"; cof.classList.toggle("on", ab);
 }
@@ -426,7 +427,7 @@ function renderTudo() {
   if (A.of) { A.of.atualizar({ estados: c.estados, colaboracoes: c.colab, ligacoes: { OKX: c.okx.ligacao, Bybit: c.bybit.ligacao }, cofreAberto: !!(c.K || c.P) });
     const novos = c.eventos.filter(e => _evVistos && !_evVistos.has(e.t + e.agente + e.texto)); novos.slice(0, 3).forEach(e => A.of.destacar(e.agente)); }   // um evento novo destaca o agente responsavel
   _evVistos = new Set(c.eventos.map(e => e.t + e.agente + e.texto));
-  $("#sinc").textContent = `sincronizado ${new Date().toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}`;
+  $("#sinc").textContent = `sinc. ${new Date().toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}`;
   document.body.classList.add("carregado");
 }
 async function velasPosicoes() { const c = A.ctx; if (!c) return; await Promise.all([...new Set(c.posicoes.map(p => p.ativo))].slice(0, 8).map(a => obterVelas(a, "1h"))); }
