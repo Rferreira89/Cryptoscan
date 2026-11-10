@@ -1,0 +1,15 @@
+name: Diagnostico da pagina publicada (so leitura)
+on:
+  push:
+    branches: [diag-pages]
+permissions:
+  contents: read
+jobs:
+  ver:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          for u in https://rferreira89.github.io/Cryptoscan/scanner/ https://rferreira89.github.io/Cryptoscan/scanner/index.html https://rferreira89.github.io/Cryptoscan/ https://rferreira89.github.io/Cryptoscan/scanner/central/app.js; do
+            echo "== $u"; curl -sI "$u" | grep -iE "^HTTP|cache-control|last-modified|age:|x-cache"
+            curl -s "$u" | grep -oE "<title>[^<]*</title>|PAGE_V=\"[0-9a-z]+\"|CRYPTOSCAN ATLAS|Concept & Creative" | sort -u | head -5
+          done
