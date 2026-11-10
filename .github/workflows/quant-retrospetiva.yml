@@ -21,7 +21,8 @@ jobs:
       - name: Backtests registados (H40, H45, H46) a partir do ramo history
         run: |
           pip install -q numpy
-          mkdir -p /tmp/hist && git fetch -q --depth 1 origin history && git archive FETCH_HEAD | tar x -C /tmp/hist
+          mkdir -p /tmp/hist && git fetch -q --depth 1 origin history:refs/remotes/origin/history && git archive origin/history | tar x -C /tmp/hist
+          echo "history: $(ls /tmp/hist/*.csv.gz | wc -l) moedas de 4H, $(ls /tmp/hist/funding/*.csv.gz 2>/dev/null | wc -l) de funding"
           python3 tools/quant_backtests.py /tmp/hist /tmp/bt.json
       - name: Copias publicas e estado completo
         env:

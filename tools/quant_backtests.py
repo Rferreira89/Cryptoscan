@@ -31,6 +31,9 @@ def _mercado(g):
 
 
 def recolher(hist):
+    import glob
+    if not glob.glob(os.path.join(hist, "funding", "*.csv.gz")) or not os.path.exists(os.path.join(hist, "BTC.csv.gz")):
+        raise SystemExit(f"sem dados do ramo history em {hist} (velas de 4H e funding): nada calculado")
     out, btc = [], []
     # H40: h38 ate a lista 'cand' = (t_entrada, t_saida, R, ret, t_sinal)
     g = _correr(_src("h38_custos_futuros.py").split('print("A) compra no panico com custos de futuros")')[0], hist)
