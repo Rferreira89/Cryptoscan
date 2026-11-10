@@ -57,10 +57,20 @@ def _carregar(pasta, nome):
     return d.get("estado", d) if isinstance(d, dict) and "soma" in d else d
 
 
-def rej(fonte, estrategia, ativo, t, motivo, R=None):
+def rej(fonte, estrategia, ativo, t, motivo, R=None, R_prov=None):
     nome, classe = CLASSE.get(motivo, (motivo, "desconhecida"))
     return {"fonte": fonte, "estrategia": estrategia, "ativo": ativo, "t": t, "motivo": nome, "classe": classe,
-            "R": R}
+            "R": R, "R_prov": R_prov}
+
+
+CUSTO_TFS = 2 * (0.0005 + 0.0010 + 0.0002)                 # custos de papel do TF-SHORT, ida e volta
+
+
+def r_provisorio_short(entrada, stop, px):
+    """R de um short ainda aberto a preco de mercado, com custos de ida e volta; sem financiamento (assinalado)."""
+    if not (entrada and stop and px) or stop <= entrada:
+        return None
+    return (entrada - px) / (stop - entrada) - CUSTO_TFS / ((stop - entrada) / entrada)
 
 
 def da_okx(okx):
@@ -81,23 +91,40 @@ def da_okx(okx):
     return out
 
 
-def do_tfshort(tfs):
-    """Paper TF-SHORT: sinais ignorados pela conta de 20 USD; o resultado vem do livro de sinais quando fechar."""
+def do_tfshort(tfs, precos=None):
+    """Paper TF-SHORT: sinais ignorados pela conta de 20 USD. (ordem 10/11, ponto 3D) A conta volta a ignorar o MESMO
+    sinal em cada volta diaria: a chave e o sinal (moeda, dia de ENTRADA do sinal no livro de sinais), nao a volta.
+    O resultado vem do livro de sinais quando fechar."""
     if not tfs:
         return []
+    sin = tfs.get("sinais") or {}
+    t_sinal = {m: v.get("t") for m, v in (sin.get("abertas") or {}).items()}
     fech = {}
-    for f in ((tfs.get("sinais") or {}).get("fechadas") or []):
+    for f in sin.get("fechadas") or []:
         fech[(f.get("moeda") or f.get("asset"), int(f.get("t") or f.get("t_sig") or 0))] = f.get("R", f.get("r"))
-    return [rej("okx", "TF-SHORT papel", x.get("moeda"), x.get("t"), x.get("motivo"),
-                fech.get((x.get("moeda"), int(x.get("t") or 0))))
-            for x in ((tfs.get("conta") or {}).get("ignoradas") or [])]
+    out = []
+    for x in (tfs.get("conta") or {}).get("ignoradas") or []:
+        m = x.get("moeda")
+        t = t_sinal.get(m) or x.get("t")                      # sinal ainda aberto: o seu dia de entrada
+        ab = (sin.get("abertas") or {}).get(m) or {}
+        prov = r_provisorio_short(ab.get("entrada"), ab.get("stop"), (precos or {}).get(m)) if ab else None
+        out.append(rej("okx", "TF-SHORT", m, t, x.get("motivo"), fech.get((m, int(t or 0))), prov))
+    return out
 
 
 def das_sombras(sombra, nome):
+    """Sombras: a chave e o sinal de origem ('MOEDA-t' em 'sinal' no TF-SHORT; dia no Kronos). A sombra do TF-SHORT
+    ve os MESMOS sinais do papel: entra como a mesma estrategia e conta uma vez."""
     if not sombra:
         return []
-    return [rej("okx", nome, x.get("moeda"), x.get("t") or x.get("dia"), x.get("motivo"), None)
-            for x in sombra.get("nao_executaveis") or []]
+    out = []
+    for x in sombra.get("nao_executaveis") or []:
+        t = x.get("dia") or x.get("t")
+        sid = str(x.get("sinal") or "")
+        if "-" in sid and sid.rsplit("-", 1)[1].isdigit():
+            t = int(sid.rsplit("-", 1)[1])
+        out.append(rej("okx", nome, x.get("moeda"), t, x.get("motivo"), None))
+    return out
 
 
 def da_bybit(state):
@@ -139,19 +166,28 @@ def resumo(rejs):
             else:
                 linha["veredito"] = "inconclusivo (menos de 10 resultados ou de 5 dias independentes)"
         else:
-            linha["veredito"] = "resultado desconhecido (sem par em papel/sombra)"
+            prov = [x["R_prov"] for x in xs if x.get("R_prov") is not None]
+            if prov:
+                linha["media_R_provisorio"] = round(st.mean(prov), 3)
+                linha["com_provisorio"] = len(prov)
+                linha["veredito"] = ("provisorio: sinais ainda abertos, R a preco de mercado (sem financiamento); "
+                                     "nao serve de prova")
+            else:
+                linha["veredito"] = "resultado desconhecido (sem par em papel/sombra)"
         out.append(linha)
     return sorted(out, key=lambda x: -x["n"])
 
 
 def tudo(pasta):
     st_ = _carregar(pasta, "state.json")
-    rejs = (da_okx(_carregar(pasta, "okx.json")) + do_tfshort(_carregar(pasta, "okx_tfshort.json")) +
-            das_sombras(_carregar(pasta, "okx_tfshort_sombra.json"), "TF-SHORT sombra") +
+    sc = _carregar(pasta, "scan.json") or {}
+    precos = {u.get("asset"): u.get("price") for u in sc.get("universe") or [] if u.get("price")}
+    rejs = (da_okx(_carregar(pasta, "okx.json")) + do_tfshort(_carregar(pasta, "okx_tfshort.json"), precos) +
+            das_sombras(_carregar(pasta, "okx_tfshort_sombra.json"), "TF-SHORT") +
             das_sombras(_carregar(pasta, "kronos_sombra.json"), "Kronos sombra") + da_bybit(st_))
     vistos, unicas = set(), []
     for r in rejs:                                           # o mesmo sinal rejeitado em varias voltas conta uma vez
-        k = (r["fonte"], r["estrategia"], r["ativo"], r["t"], r["motivo"])
+        k = (r["estrategia"], r["ativo"], r["t"], r["motivo"])     # papel e sombra do mesmo sinal: uma vez
         if k not in vistos:
             vistos.add(k); unicas.append(r)
     return unicas, resumo(unicas)
@@ -191,7 +227,7 @@ def funil(pasta):
     conta = tfs.get("conta") or {}
     tomadas = {(m, v.get("t")) for m, v in (conta.get("abertas") or {}).items()} | \
               {(f.get("moeda"), f.get("t")) for f in conta.get("fechadas") or []}
-    linha("TF-SHORT papel", det, set(), tomadas)
+    linha("TF-SHORT", det, set(), tomadas)
     pk = [p for p in kr.get("previsoes") or [] if p.get("lado")]
     linha("Kronos sombra", {(p["moeda"], p["dia"]) for p in pk}, set(),
           {(m, v.get("dia")) for m, v in (kr.get("abertas") or {}).items()} |
@@ -250,7 +286,8 @@ def texto(res):
     L.append("Por classe: " + ", ".join(f"{k} {v}" for k, v in sorted(por_classe.items(), key=lambda x: -x[1])))
     L.append("")
     for r in res:
-        extra = f", R medio {r['media_R']:+.3f}, PF {r.get('pf')}" if "media_R" in r else ""
+        extra = (f", R medio {r['media_R']:+.3f}, PF {r.get('pf')}" if "media_R" in r else
+                 f", R provisorio medio {r['media_R_provisorio']:+.2f} em {r['com_provisorio']}" if "media_R_provisorio" in r else "")
         ic = f", IC90 {r['ic90']}" if "ic90" in r else ""
         L.append(f"- [{r['classe']}] {r['estrategia']} ({r['fonte']}): {r['motivo']} - {r['n']} "
                  f"(com resultado {r['com_resultado']}{extra}{ic}) -> {r['veredito']}")
