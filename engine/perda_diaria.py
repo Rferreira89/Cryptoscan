@@ -9,7 +9,11 @@ Como se obtem uma metrica correta com os dados publicos (o saldo e o lucro em US
   Limites conhecidos: o risco planeado e % da conta NA ABERTURA; com varias posicoes o erro de composicao e pequeno
   (perdas de 1-3%); as comissoes ja estao no R real da Bybit, na OKX o ret_pct e no preco (sem comissao/financiamento:
   o dia fica marcado "sem custos").
-Agrega por dia UTC de FECHO. Um dia com alguma operacao de resultado desconhecido fica "incompleto".
+Agrega por dia UTC de FECHO. Qualidade de cada dia: "incompleto" (alguma operacao sem R ou sem risco),
+"com resultados declarados" (fecho manual sem execucoes lidas), "sem custos confirmados", ou "reconciliado".
+DENOMINADOR (auditoria de 10/11): o risk_pct da Bybit e % do capital de negociacao CONFIGURADO no plano (capital_usdc
+ate 05/11), nao o saldo real da conta nesse dia; o risco_pct da OKX e % do saldo lido na abertura. Por isso o valor
+e o risco planeado x R realizado: igual a perda realizada so se o tamanho executado = tamanho planeado.
 So leitura e calculo: nao bloqueia nada nem esta ligado a nenhum executor."""
 import time
 
@@ -27,19 +31,32 @@ def da_okx(okx):
             R = (ret / 100) / ((e - s) / e)
         rp = h.get("risco_pct")
         out.append({"corretora": "okx", "id": h.get("asset"), "t": h.get("fechado"), "R": R, "risco_pct": rp,
-                    "pct": None if (R is None or rp is None) else R * rp, "sem_custos": True})
+                    "pct": None if (R is None or rp is None) else R * rp, "sem_custos": True,
+                    "fonte": "registo da corretora" if R is not None else "desconhecido"})
     return out
 
 
 def da_bybit(state):
+    """Fonte do R de cada operacao (auditoria de 10/11):
+      'reconciliado'  - real_r das execucoes da Bybit com fecho total confirmado;
+      'declarado'     - so user_result_r (fecho manual registado pelo Rui; sem execucoes lidas);
+      'desconhecido'  - sem R real.
+    custos_confirmados: so quando a reconciliacao (desde 06/11) diz que os custos estao completos."""
     out = []
     for r in (state or {}).get("ledger") or []:
         if r.get("executed") is not True or r.get("status") != "CLOSED":
             continue
-        R = r.get("real_r") if r.get("real_r") is not None else r.get("user_result_r")
+        real = r.get("real") or {}
+        if r.get("real_r") is not None:
+            R, fonte = r["real_r"], "reconciliado" if real.get("fechada") else "declarado"
+        elif r.get("user_result_r") is not None:
+            R, fonte = r["user_result_r"], "declarado"
+        else:
+            R, fonte = None, "desconhecido"
         rp = r.get("risk_pct")
         out.append({"corretora": "bybit", "id": r.get("id"), "t": r.get("closed_at"), "R": R, "risco_pct": rp,
-                    "pct": None if (R is None or rp is None) else R * rp, "sem_custos": False})
+                    "pct": None if (R is None or rp is None) else R * rp, "fonte": fonte,
+                    "sem_custos": "custos_incompletos" not in real or bool(real.get("custos_incompletos"))})
     return out
 
 
@@ -50,8 +67,11 @@ def por_dia(ops):
         if not o.get("t"):
             continue
         d = time.strftime("%Y-%m-%d", time.gmtime(o["t"]))
-        x = dias.setdefault(d, {"pct": 0.0, "n": 0, "desconhecidas": 0, "sem_custos": False})
+        x = dias.setdefault(d, {"pct": 0.0, "n": 0, "desconhecidas": 0, "declaradas": 0, "sem_custos": False, "ids": []})
         x["n"] += 1
+        x["ids"].append(o.get("id"))
+        if o.get("fonte") == "declarado":
+            x["declaradas"] += 1
         if o["pct"] is None:
             x["desconhecidas"] += 1
         else:
@@ -59,6 +79,8 @@ def por_dia(ops):
         x["sem_custos"] = x["sem_custos"] or o["sem_custos"]
     for x in dias.values():
         x["completo"] = x["desconhecidas"] == 0
+        x["qualidade"] = ("incompleto" if x["desconhecidas"] else "com resultados declarados" if x["declaradas"]
+                          else "sem custos confirmados" if x["sem_custos"] else "reconciliado")
     return dict(sorted(dias.items()))
 
 
