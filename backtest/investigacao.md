@@ -2254,3 +2254,19 @@ menos um falso positivo a 5% ronda os 72%.
   metades do ringue longo positivas; (3) morte rápida a contar
   acontecimentos; (4) corte dos clones só com representantes vivos; (5) o
   caso CAPITULACAO_R2 fora da classificação.
+
+## 2026-11-10 — Kronos K1 (modelo de previsão de velas): REJEITADO fora da amostra
+
+Teste com dados que o modelo nunca viu (pré-treino até 06/2024; teste 01/08/2024 a 04/11/2026, cada 4.º dia,
+20 moedas, 4 140 previsões, regra K1 e pesos iguais aos da sombra; `backtest/estudos/kronos/k1_oos.py`,
+resultado em `k1_oos_resultado.txt`). Custos 0,24% ida e volta; financiamento não incluído (assinalado).
+- Todos os sinais: 2 936, **−0,052R** por sinal, PF 0,72, IC90 [−0,065; −0,038]. Pior do que direção ao acaso
+  nos mesmos dias (−0,024R) e do que o momento de 24 h (−0,005R).
+- LONG −0,062R e SHORT −0,041R; negativo em subida, lateral e descida; negativo nas duas metades
+  (−0,077R e −0,022R). Acerto de direção 49,5%.
+- Enviesamento explicado: correlação −0,87 entre a previsão e a distância à média de 400 h — o modelo prevê
+  regresso à média; 87% dos sinais de cada dia na mesma direção (uma só aposta repetida).
+- Contra o TF-SHORT: Kronos LONG com TF-SHORT a dar SHORT (1 018 casos) −0,074R; o TF-SHORT tinha razão.
+Veredito: sem vantagem; não acrescenta diversificação. Não pode ir a real. A sombra diária não pode cumprir o
+critério; proposta ao Rui: desligá-la (alteração de produção, precisa de autorização).
+Nenhum resultado em dados vistos foi usado como validação.
