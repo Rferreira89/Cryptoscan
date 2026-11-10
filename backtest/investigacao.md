@@ -2322,3 +2322,22 @@ menos um falso positivo a 5% ronda os 72%.
   mortos só com as duas metades do ringue longo positivas; (3) morte
   rápida a contar acontecimentos; (4) corte dos clones só com
   representantes vivos; (5) o caso CAPITULACAO_R2 fora da classificação.
+
+## 2026-11-10 (dados novos, caçador noturno) — sem hipótese nova; acompanhamento H52, H53, H57–H59
+
+- **Registo (dia par, SHORT)**: nenhum. As famílias SHORT com os campos novos
+  (OI, financiamento) já estão cobertas — H52 (queda com OI a subir), H59
+  (subida com OI a cair e financiamento positivo, registada hoje às 06:30) —
+  e o excesso de longs por financiamento chumbou (H44). Juntar um filtro de
+  financiamento à H52 seria uma variante cosmética; o prémio do X-Perp sobre
+  o perpétuo global não é avaliável com um só preço diário do X-Perp. Sem
+  ideia séria, não se regista nada.
+- **Acompanhamento** (ramo `dados-novos` com velas de 05/11 a 09/11, lidas
+  só por `dados_para_avaliar`): H52 — a acumular: 0 de 30 (3 dias depois do
+  registo); H53 — a acumular: 0 de 30, controlo 0 de 10 (2 dias); H57, H58,
+  H59 — a acumular: 0 de 30 (0 dias; os dados delas começam a 11/11). O
+  regime de H52/H53 precisa de 11 dias de aquecimento: primeiras operações
+  possíveis por volta de 17–18/11. Acrescentado o campo `estado` às H57–H59
+  (sem mudar regras, parâmetros nem critério).
+- Nota: não há entradas do caçador de 08/11 e 09/11 neste diário.
+- Nenhum resultado em dados antigos foi usado como validação.
