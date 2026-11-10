@@ -118,5 +118,115 @@ class ProtecaoIntegral(unittest.TestCase):
         self.assertEqual(msgs, [])
 
 
+
+class OkxCorrida(Okx):
+    """(10/11, autorizacao final) a OKX responde ao cancelamento mas a ordem ja tinha executado (corrida), ou responde
+    de forma ambigua, ou a consulta do estado falha."""
+    def __init__(self, depois="filled", resposta="0", consulta="ok", **k):
+        super().__init__(**k)
+        self.depois, self.resposta, self.consulta = depois, resposta, consulta
+
+    def __call__(self, metodo, path, corpo=None):
+        if path.endswith("cancel-order"):
+            self.pedidos.append((metodo, path))
+            if self.resposta == "rede":
+                return {"code": "rede", "msg": "URLError"}
+            self.estado_ordem = self.depois
+            return {"code": "0" if self.resposta == "0" else "1", "data": [{"sCode": self.resposta}]}
+        if "/trade/order?" in path and self.consulta == "falha":
+            self.pedidos.append((metodo, path))
+            return {"code": "rede", "msg": "URLError"}
+        return super().__call__(metodo, path, corpo)
+
+
+class PanicoIsoladoCancelamento(unittest.TestCase):
+    """(10/11, autorizacao final, ponto 3) cancelamento do panico isolado: o pedido nunca prova que nada executou."""
+    ATIVA = dict(E.CFG_PADRAO, real=True, panico_real=True, recuo_real=True, so_mercado=True)
+
+    def correr(self, okx, op, cfg=None, vezes=1):
+        st, msgs = {"real": {"ops": {"P": op}, "hist": []}, "pend": {"P": {"tipo": "isolado"}}}, []
+        with mock.patch.object(E, "_chaves", return_value=("k", "s", "p")), mock.patch.object(E, "privado", okx), \
+                mock.patch.object(E, "cfg", return_value=cfg or self.ATIVA), mock.patch.object(E, "reconciliar", lambda *a: None):
+            for i in range(vezes):
+                E.correr(st, [], NOW + i * 60, msgs)
+        return st["real"], msgs
+
+    def test_cancelada_sem_execucao(self):
+        okx = OkxCorrida(depois="canceled", acc="0")
+        R, _ = self.correr(okx, pendente())
+        self.assertNotIn("P", R["ops"])
+        self.assertEqual(R["hist"][-1]["estado"], "cancelada"); self.assertEqual(R["hist"][-1]["motivo"], "H40 isolado")
+
+    def test_parcialmente_executada_fica_aberta_com_gestao(self):
+        okx = OkxCorrida(depois="canceled", acc="2", pos="2")
+        R, msgs = self.correr(okx, pendente())
+        op = R["ops"]["P"]
+        self.assertEqual(op["estado"], "aberta"); self.assertTrue(op["parcial"]); self.assertIn("sair_em", op)
+        self.assertEqual(op["stop_ok"], NOW)                       # stop confirmado sobre a parte executada
+        self.assertEqual(okx.posts("close-position"), [])
+
+    def test_corrida_totalmente_executada_antes_do_cancelamento(self):
+        okx = OkxCorrida(depois="filled", resposta="51401", acc="5", pos="5")   # a OKX diz: ja executada
+        R, msgs = self.correr(okx, pendente())
+        self.assertEqual(R["ops"]["P"]["estado"], "aberta"); self.assertNotIn("parcial", R["ops"]["P"])
+        self.assertTrue(any("compra executada" in m for m in msgs))
+
+    def test_corrida_cancelamento_aceite_mas_ordem_executou(self):
+        okx = OkxCorrida(depois="filled", resposta="0", acc="5", pos="5")       # aceitou o pedido, mas ja tinha executado
+        R, _ = self.correr(okx, pendente())
+        self.assertEqual(R["ops"]["P"]["estado"], "aberta")
+
+    def test_estado_desconhecido_por_falha_de_comunicacao_no_cancelamento(self):
+        okx = OkxCorrida(resposta="rede")
+        R, _ = self.correr(okx, pendente())
+        self.assertEqual(R["ops"]["P"]["estado"], "pendente"); self.assertNotIn("cancelar_pedido", R["ops"]["P"])
+
+    def test_estado_desconhecido_por_falha_na_consulta_depois_do_pedido(self):
+        okx = OkxCorrida(depois="canceled", consulta="falha")
+        R, _ = self.correr(okx, pendente())
+        self.assertEqual(R["ops"]["P"]["estado"], "pendente")     # nao se assume cancelada
+        self.assertIn("cancelar_pedido", R["ops"]["P"])
+
+    def test_resposta_ambigua_nao_assume_nada(self):
+        okx = OkxCorrida(depois="live", resposta="51410")          # codigo nao reconhecido
+        R, _ = self.correr(okx, pendente())
+        self.assertEqual(R["ops"]["P"]["estado"], "pendente"); self.assertNotIn("cancelar_pedido", R["ops"]["P"])
+
+    def test_cancelamento_idempotente_em_varias_voltas(self):
+        okx = OkxCorrida(depois="live", resposta="0")              # pedido aceite, a OKX ainda mostra a ordem viva
+        R, _ = self.correr(okx, pendente(), vezes=3)
+        self.assertEqual(len(okx.posts("cancel-order")), 1); self.assertEqual(R["ops"]["P"]["estado"], "pendente")
+
+    def test_com_h40_suspensa_um_so_pedido(self):
+        okx = OkxCorrida(depois="canceled")
+        R, _ = self.correr(okx, pendente(), cfg=H40_OFF)
+        self.assertEqual(len(okx.posts("cancel-order")), 1); self.assertNotIn("P", R["ops"])
+
+
+class SuspensaCorrida(unittest.TestCase):
+    def test_suspensa_cancelamento_aceite_mas_executou_fica_gerida(self):
+        okx = OkxCorrida(depois="filled", acc="5", pos="5")
+        R, _ = Suspensa.correr(Suspensa(), okx, {"P": pendente()})
+        self.assertEqual(R["ops"]["P"]["estado"], "aberta"); self.assertEqual(R["ops"]["P"]["stop_ok"], NOW)
+
+    def test_suspensa_nao_abre_novas_posicoes(self):
+        st, msgs, posts = {"real": {"ops": {}, "hist": []}}, [], []
+
+        def privado(m, p, c=None):
+            if m == "POST":
+                posts.append(p)
+            return {"code": "0", "data": [{"totalEq": "20"}] if "balance" in p else []}
+        with mock.patch.object(E, "_chaves", return_value=("k", "s", "p")), mock.patch.object(E, "privado", privado), \
+                mock.patch.object(E, "cfg", return_value=H40_OFF), mock.patch.object(E, "reconciliar", lambda *a: None):
+            E.correr(st, [("NOVA", {"t_sig": NOW - 3600, "lim": 1.0, "atr": 0.01, "tipo": "mercado"})], NOW, msgs)
+        self.assertNotIn("/api/v5/trade/order", posts); self.assertEqual(st["real"]["ops"], {})
+
+    def test_suspensao_nunca_mexe_em_stops_ou_objetivos(self):
+        okx = Okx(pos="5")
+        Suspensa.correr(Suspensa(), okx, {"A": op_aberta(estrategia="panico")})
+        mexe = [p for m, p in okx.pedidos if m == "POST" and any(k in p for k in ("cancel-algos", "amend-algos", "amend-order", "order-algo"))]
+        self.assertEqual(mexe, [])
+
+
 if __name__ == "__main__":
     unittest.main()

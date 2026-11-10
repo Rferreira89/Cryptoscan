@@ -177,7 +177,7 @@ def acompanhar(base, op, now, msgs):
                         f"{op['entrada']:.6g}); essa parte fica aberta e protegida pelo stop.")
         elif st in ("canceled", "mmp_canceled"):
             msgs.append(f"⌛ OKX real — {base}: a ordem foi cancelada sem executar.")
-            op.update(estado="cancelada", motivo="cancelada sem executar", fechado=int(now))
+            op.update(estado="cancelada", motivo=op.pop("motivo_cancelar", None) or "cancelada sem executar", fechado=int(now))
             return True
         elif st == "live" and now >= op["valido_ate"]:
             privado("POST", "/api/v5/trade/cancel-order", {"instId": op["inst"], "ordId": op["ordId"]})
@@ -316,13 +316,17 @@ def correr(st, novos, now, msgs):
     for base in list(R["ops"]):
         op = R["ops"][base]
         if c.get("so_mercado", True) and op.get("estado") == "pendente" and op.get("estrategia") != "recuo" \
+                and not op.get("cancelar_pedido") \
                 and ((st.get("pend") or {}).get(base) or {}).get("tipo") == "isolado":
-            # (04/11, H40) ordem posta antes do filtro num panico isolado: cancela SO se ainda nao executou
+            # (04/11, H40) ordem posta antes do filtro num panico isolado: pede o cancelamento, uma vez.
+            # (10/11) o pedido NAO prova que nada executou: o acompanhar le o estado real na OKX (cancelada sem executar,
+            # parcial -> a parte executada fica aberta e gerida, executada -> aberta; consulta falhou -> fica pendente).
             cx = privado("POST", "/api/v5/trade/cancel-order", {"instId": op["inst"], "ordId": op["ordId"]})
-            if cx.get("code") == "0" and ((cx.get("data") or [{}])[0].get("sCode") in ("0", None)):
-                msgs.append(f"🛑 OKX real — {base}: cancelei a ordem limite (pânico isolado; pelo H40 só operamos o pânico do mercado todo).")
-                R["hist"].append({"asset": base, **R["ops"].pop(base), "estado": "cancelada", "motivo": "H40 isolado"})
-                continue
+            sc = (cx.get("data") or [{}])[0].get("sCode")
+            if (cx.get("code") == "0" and sc in ("0", None)) or sc in ("51400", "51401", "51402"):
+                op.update(cancelar_pedido=int(now), motivo_cancelar="H40 isolado")
+                msgs.append(f"🛑 OKX real — {base}: pedi o cancelamento da ordem limite (pânico isolado; pelo H40 só operamos "
+                            f"o pânico do mercado todo). Confirmo na OKX se alguma parte já tinha executado.")
         if aplicar_suspensao(base, R["ops"][base], c, now, msgs):
             pass                                          # pedido feito/registado; o acompanhar abaixo confirma o estado
         if acompanhar(base, R["ops"][base], now, msgs):

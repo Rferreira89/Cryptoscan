@@ -64,3 +64,49 @@ class PerdaDiaria(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ExposicaoDiaria(unittest.TestCase):
+    def test_blocos_separados_e_posicao_real(self):
+        import json, os, tempfile
+        from tools import exposicao_diaria as E
+        d = tempfile.mkdtemp()
+        okx = {"real": {"ops": {"PARTI": {"estado": "aberta", "estrategia": "panico", "entrada": 0.04128, "stop": 0.037,
+                                          "alvo": 0.04982, "risco_pct": 0.8, "stop_ok": 1}}},
+               "abertas": {"XRP": {"tipo": "isolado"}}}
+        st = {"ledger": [{"executed": True, "status": "OPEN", "asset": "SOL", "side": "LONG", "strategy": "X"}],
+              "papel_fases": {"lateral": {"abertas": {"XRP": {}, "OP": {}}}}}
+        json.dump(okx, open(os.path.join(d, "okx.json"), "w")); json.dump(st, open(os.path.join(d, "state.json"), "w"))
+        rs = random.Random(1); base = [rs.gauss(0, 0.01) for _ in range(100)]
+        series = {"PARTI": serie(rs, [0] * 100, 0.01), "SOL": serie(rs, base, 0.002), "XRP": serie(rs, base, 0.002),
+                  "OP": serie(rs, base, 0.002)}
+        series["PARTI"][-1] = 0.042
+        out = E.correr(d, obter=lambda m: series.get(m, []))
+        self.assertEqual(set(out["blocos"]), {"okx_real", "bybit_real", "papel", "sombra"})
+        self.assertIn("TF-SHORT papel", out["dados_em_falta"])             # copia publica ausente: assinalada
+        self.assertIn("Dados em falta", E.texto(out))
+        self.assertEqual(out["blocos"]["bybit_real"]["n"], 1)
+        p = out["blocos"]["papel"]
+        self.assertIn("XRP", p["mesmo_ativo_varias_estrategias"])          # H40 LONG e fases SHORT no mesmo ativo
+        r = out["okx_posicoes_reais"]["PARTI"]
+        self.assertAlmostEqual(r["R_atual"], round((0.042 - 0.04128) / (0.04128 - 0.037), 2))
+        self.assertGreater(r["risco_com_custos_pct_conta"], 0.8)
+
+
+class Conflitos(unittest.TestCase):
+    def test_tres_tipos(self):
+        from tools import exposicao_diaria as E
+        ex = [{"ativo": "PUMP", "lado": "LONG", "origem": "H40 papel (isolado)"}, {"ativo": "PUMP", "lado": "LONG", "origem": "H45 papel"},
+              {"ativo": "BCH", "lado": "LONG", "origem": "H40 papel (isolado)"}, {"ativo": "BCH", "lado": "SHORT", "origem": "fases lateral papel"},
+              {"ativo": "ADA", "lado": "SHORT", "origem": "fases lateral papel"}]
+        c = E.conflitos(ex, {"PUMP": "g", "BCH": "g", "ADA": "g"})
+        self.assertIn("BCH", c["mesmo_ativo_oposto"]); self.assertEqual(c["mesma_exposicao"], {"PUMP": ["H40 papel (isolado)", "H45 papel"]})
+        self.assertEqual(c["grupo_oposto"][0]["long"], ["BCH", "PUMP"])
+
+
+class MapaSoInformativo(unittest.TestCase):
+    def test_sem_ordens_nem_chaves(self):
+        from tools import exposicao_diaria as E
+        src = open(E.__file__).read()
+        for proibido in ("privado(", "POST", "cancel-order", "/trade/order", "OKX_API_KEY", "BYBIT_API", "okx_config"):
+            self.assertNotIn(proibido, src)

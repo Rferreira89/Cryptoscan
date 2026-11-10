@@ -152,6 +152,7 @@ def main():
     for k in ("state", "okx", "tfshort", "sombra", "kronos", "forma", "scan"):
         a.add_argument(f"--{k}")
     a.add_argument("--enviar", action="store_true")
+    a.add_argument("--exposicao", action="store_true")
     x = a.parse_args()
     from tools.registo_migrar import migrar
     state, okx = _carregar(x.state), _carregar(x.okx)
@@ -162,6 +163,12 @@ def main():
     ops += G.do_kronos_sombra((_carregar(x.kronos) or {}).get("estado"))
     semana = time.strftime("semana até %d/%m/%Y", time.gmtime())
     txt = texto(ops, G.abertas_reais(state, okx), ag, rec, semana, G.nucleo_visivel(state), sombra)
+    if x.exposicao and x.state:              # (10/11) mapa de exposicao: precisa de precos publicos da OKX (rede)
+        try:
+            from tools import exposicao_diaria as EX
+            txt += EX.texto(EX.correr(os.path.dirname(os.path.abspath(x.state))))
+        except Exception as e:               # noqa: BLE001
+            txt += f"\n(mapa de exposição indisponível: {type(e).__name__})\n"
     try:                                     # blocos de leitura: uma falha aqui nunca impede o relatorio principal
         txt += saude_e_rejeicoes(ops, os.path.dirname(os.path.abspath(x.state)) if x.state else None)
     except Exception as e:                   # noqa: BLE001
