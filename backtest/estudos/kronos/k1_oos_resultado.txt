@@ -1,0 +1,40 @@
+KRONOS K1 FORA DA AMOSTRA (01/08/2024 a 04/11/2026, cada 4.o dia, 20 moedas, 4140 previsoes moeda-dia)
+Sinais: 2936 de 4140 (71%) | LONG 1479 | SHORT 1457
+Previsao f: media +0.22% mediana -0.13% | realizado 24 h: media +0.07%
+Correlacao f vs distancia a media de 400 h: -0.87 (muito negativa = o modelo preve regresso a media)
+Correlacao f vs retorno real de 24 h: -0.058
+Acerto de direcao (todas as previsoes): 49.5% em 4140
+
+Desempenho por SINAL (R liquido; custos 0,24% ida e volta; sem financiamento):
+  TODOS                            Kronos {'n': 2936, 'media': -0.052, 'pf': 0.72, 'acerto': 46, 'queda_R': 154.5, 'ic90': [-0.065, -0.038], 'p_media_le_0': 1.0}
+                                   mesmos dias: momento -0.005 | sempre LONG -0.032 | sempre SHORT -0.017
+  LONG                             Kronos {'n': 1479, 'media': -0.062, 'pf': 0.69, 'acerto': 43, 'queda_R': 94.3, 'ic90': [-0.083, -0.042], 'p_media_le_0': 1.0}
+                                   mesmos dias: momento 0.004 | sempre LONG -0.062 | sempre SHORT 0.007
+  SHORT                            Kronos {'n': 1457, 'media': -0.041, 'pf': 0.76, 'acerto': 49, 'queda_R': 63.5, 'ic90': [-0.058, -0.022], 'p_media_le_0': 1.0}
+                                   mesmos dias: momento -0.015 | sempre LONG -0.001 | sempre SHORT -0.041
+  LONG em subida                   Kronos {'n': 408, 'media': -0.054, 'pf': 0.71, 'acerto': 45, 'queda_R': 23.1, 'ic90': [-0.087, -0.021], 'p_media_le_0': 0.996}
+                                   mesmos dias: momento 0.005 | sempre LONG -0.054 | sempre SHORT -0.011
+  SHORT em subida                  Kronos {'n': 542, 'media': -0.023, 'pf': 0.86, 'acerto': 51, 'queda_R': 16.5, 'ic90': [-0.053, 0.007], 'p_media_le_0': 0.9}
+                                   mesmos dias: momento -0.041 | sempre LONG -0.006 | sempre SHORT -0.023
+  LONG em lateral                  Kronos {'n': 498, 'media': -0.063, 'pf': 0.67, 'acerto': 45, 'queda_R': 33.8, 'ic90': [-0.099, -0.028], 'p_media_le_0': 1.0}
+                                   mesmos dias: momento -0.04 | sempre LONG -0.063 | sempre SHORT 0.011
+  SHORT em lateral                 Kronos {'n': 525, 'media': -0.04, 'pf': 0.75, 'acerto': 49, 'queda_R': 21.8, 'ic90': [-0.068, -0.013], 'p_media_le_0': 0.99}
+                                   mesmos dias: momento -0.013 | sempre LONG -0.014 | sempre SHORT -0.04
+  LONG em descida                  Kronos {'n': 465, 'media': -0.042, 'pf': 0.79, 'acerto': 41, 'queda_R': 21.6, 'ic90': [-0.082, -0.003], 'p_media_le_0': 0.959}
+                                   mesmos dias: momento 0.032 | sempre LONG -0.042 | sempre SHORT -0.001
+  SHORT em descida                 Kronos {'n': 246, 'media': -0.103, 'pf': 0.52, 'acerto': 41, 'queda_R': 27.4, 'ic90': [-0.148, -0.058], 'p_media_le_0': 1.0}
+                                   mesmos dias: momento 0.043 | sempre LONG 0.073 | sempre SHORT -0.103
+  1.a metade (ate 09/2025)         Kronos {'n': 1550, 'media': -0.077, 'pf': 0.63, 'acerto': 45, 'queda_R': 120.7, 'ic90': [-0.097, -0.059], 'p_media_le_0': 1.0}
+                                   mesmos dias: momento 0.014 | sempre LONG -0.026 | sempre SHORT -0.018
+  2.a metade (desde 10/2025)       Kronos {'n': 1386, 'media': -0.022, 'pf': 0.86, 'acerto': 48, 'queda_R': 43.9, 'ic90': [-0.041, -0.004], 'p_media_le_0': 0.974}
+                                   mesmos dias: momento -0.027 | sempre LONG -0.039 | sempre SHORT -0.014
+  Direcao ao acaso nos mesmos dias e moedas: media -0.024 (p95 -0.010)
+
+Concentracao e diversificacao:
+  Dias com sinal: 207; sinais por dia: media 14.2; fracao na mesma direcao: 87%
+  Sobreposicao com o TF-SHORT (2279 sinais com historia de 200 dias): Kronos LONG com TF-SHORT a dar SHORT 1018; Kronos SHORT com TF-SHORT SHORT 295
+  Kronos LONG contra TF-SHORT SHORT Kronos {'n': 1018, 'media': -0.074, 'pf': 0.66, 'acerto': 41, 'queda_R': 77.7, 'ic90': [-0.098, -0.047], 'p_media_le_0': 1.0}
+                                   mesmos dias: momento 0.009 | sempre LONG -0.074 | sempre SHORT 0.025
+  Kronos LONG fora de TF-SHORT     Kronos {'n': 194, 'media': -0.006, 'pf': 0.96, 'acerto': 50, 'queda_R': 3.8, 'ic90': [-0.05, 0.036], 'p_media_le_0': 0.594}
+                                   mesmos dias: momento -0.025 | sempre LONG -0.006 | sempre SHORT -0.056
+Correlacao 1 h, ultimos 30 dias: {'XRP-OP': 0.67, 'XRP-FIL': 0.62, 'XRP-BTC': 0.82, 'OP-FIL': 0.64, 'OP-BTC': 0.62, 'FIL-BTC': 0.58}
