@@ -69,12 +69,15 @@ class GuardaIsolada(unittest.TestCase):
     """(10/11, ordem do Rui, grupo B) A guarda entra como componente isolado: nenhum executor a importa."""
     def test_nenhum_executor_usa_a_guarda(self):
         import glob
-        for f in glob.glob(os.path.join(os.path.dirname(__file__), "..", "tools", "*.py")) + \
-                glob.glob(os.path.join(os.path.dirname(__file__), "..", "engine", "*.py")):
-            if os.path.basename(f) in ("guarda.py",):
-                continue
+        execs = [f for f in glob.glob(os.path.join(os.path.dirname(__file__), "..", "tools", "*.py")) +
+                 glob.glob(os.path.join(os.path.dirname(__file__), "..", "engine", "*.py"))
+                 if os.path.basename(f) in ("okx_exec.py", "okx_short.py", "executor.py", "execucao.py", "auto.py", "nucleo.py")]
+        self.assertTrue(execs)
+        for f in execs:
             src = open(f).read()
             self.assertNotIn("from engine import guarda", src, f); self.assertNotIn("import guarda", src, f)
+            for m in ("exposicao", "perda_diaria", "rejeicoes", "decaimento"):     # componentes de leitura
+                self.assertNotIn(f"import {m}", src, f)
 
 
 class GuardaDesligadaNaoMudaNada(unittest.TestCase):
@@ -201,11 +204,29 @@ class Funil(unittest.TestCase):
         f = RJ.funil(d)
         self.assertEqual(f["H40"]["rejeitados"], 3)                # A (2 motivos), B, C
         self.assertEqual(f["H40"]["em_real"], 1)
-        self.assertEqual(f["TF-SHORT papel"]["rejeitados"], 1)
+        self.assertEqual(f["TF-SHORT"]["rejeitados"], 1)
         cf = RJ.conflitos(d)
         self.assertEqual([(c["ativo"], c["long"], c["short"]) for c in cf], [("T", "H40", "TF-SHORT")])
         txt = RJ.texto_completo(d)
         self.assertIn("Filtros que mais cortam", txt); self.assertIn("Conflitos", txt)
+
+
+class TFShortSinaisIndependentes(unittest.TestCase):
+    def test_mesmo_sinal_em_varias_voltas_e_na_sombra_conta_uma_vez(self):
+        d = tempfile.mkdtemp()
+        tfs = {"sinais": {"abertas": {"ADA": {"t": 1000, "entrada": 1.0, "stop": 1.2}}, "fechadas": []},
+               "conta": {"ignoradas": [{"moeda": "ADA", "t": 1000 + 86400 * i, "motivo": "fora_do_universo_validado"}
+                                       for i in range(5)]}}
+        json.dump(tfs, open(os.path.join(d, "okx_tfshort.json"), "w"))
+        json.dump({"versao": 1, "soma": "x", "estado": {"nao_executaveis": [
+            {"moeda": "ADA", "sinal": "ADA-1000", "t": 5000, "motivo": "fora_do_universo_validado"}]}},
+            open(os.path.join(d, "okx_tfshort_sombra.json"), "w"))
+        json.dump({"universe": [{"asset": "ADA", "price": 0.9}]}, open(os.path.join(d, "scan.json"), "w"))
+        rejs, res = RJ.tudo(d)
+        ada = [r for r in rejs if r["ativo"] == "ADA"]
+        self.assertEqual(len(ada), 1)
+        self.assertAlmostEqual(ada[0]["R_prov"], 0.5 - RJ.CUSTO_TFS / 0.2, places=6)   # short a ganhar 0,5R menos custos
+        self.assertIn("provisorio", res[0]["veredito"])
 
 
 class SemOrdens(unittest.TestCase):

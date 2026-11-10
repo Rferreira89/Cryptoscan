@@ -16,3 +16,11 @@ Já registadas pelo caçador: H52 (short na queda com OI a subir, em descida) e 
 
 Não priorizado (já chumbado ou sem razão nova): perseguir quebras de máximos, RSI2, mechas, rotação de momento,
 regresso à média de modelos de previsão (Kronos K1, rejeitado em 10/11), pânico isolado (H40 isolado: −0,42R ao vivo).
+
+## Estado (10/11, 06:30 UTC)
+- #1 → **H57**, #2 → **H58**, #3 → **H59**: registadas em `backtest/hipoteses_novas.json` com o código
+  `backtest/estudos/novos/fila_1011.py` ANTES de qualquer avaliação. Hoje: 0 de 30 operações (os dados posteriores ao
+  registo começam a 11/11). Nenhum resultado em dados anteriores foi calculado.
+- #2 é diferente da H53 do caçador (recuo moderado de UMA moeda em mercado a subir); a H58 é o dia de pânico do
+  mercado todo com desalavancagem.
+- #4: medição feita em `tools/rejeicoes.py` (sinais independentes; R provisório a preço de mercado enquanto abertos).
