@@ -1,0 +1,265 @@
+{
+ "1440": {
+  "fps": 11,
+  "qualidade": "baixa",
+  "scroll_pagina": false,
+  "largura_ok": true,
+  "fontes": {
+   "scan": "ligado",
+   "cofreScan": "bloqueado",
+   "state": "ligado",
+   "okx": "ligado",
+   "cofreOkx": "bloqueado",
+   "cfgOkx": "ligado",
+   "derivados": "ligado",
+   "liquidez": "ligado",
+   "tfshort": "ligado",
+   "tfsombra": "atrasado"
+  },
+  "okx": "ligado_publico",
+  "bybit": "ligado_publico",
+  "velas": {
+   "BTC:4h": "OKX (BTC-USDT-SWAP)",
+   "PARTI:1h": "OKX (PARTI-USDT-SWAP)",
+   "BTC:1h": "OKX (BTC-USDT-SWAP)",
+   "CASHCAT:1h": "OKX (CASHCAT-USDT-SWAP)"
+  },
+  "agentes": {
+   "scanner": "procurar | 66 pares · 0 sinais",
+   "panico": "procurar | 289 perpétuos",
+   "recuo": "procurar | regra inativa",
+   "macro": "analisar | 175 mercados",
+   "exec_okx": "monitorizar | 2 pos. · -0,56R",
+   "risco": "risco | risco 1,32%",
+   "liquidez": "espera | 21 moedas",
+   "exec_bybit": "espera | 0 posições",
+   "nucleo": "cifrado | cofre fechado",
+   "diretor": "espera | PUMP ✓",
+   "arena": "calcular | 10 estratégias vivas",
+   "tfshort": "espera | 22 shorts · PAPEL",
+   "noticias": "comunicar | Inflação dos E · 4 h"
+  },
+  "posicoes": [
+   "OKX CASHCAT LONG R=-0.64 (OKX (CASHCAT-USDT-SWAP))",
+   "OKX PARTI LONG R=0.08 (OKX (PARTI-USDT-SWAP))"
+  ],
+  "simuladas": 92,
+  "fechadas_reais": 16,
+  "botoes_sem_acao": []
+ },
+ "1920": {
+  "fps": 4,
+  "qualidade": "baixa",
+  "scroll_pagina": false,
+  "largura_ok": true,
+  "fontes": {
+   "scan": "ligado",
+   "cofreScan": "bloqueado",
+   "state": "ligado",
+   "okx": "ligado",
+   "cofreOkx": "bloqueado",
+   "cfgOkx": "ligado",
+   "derivados": "ligado",
+   "liquidez": "ligado",
+   "tfshort": "ligado",
+   "tfsombra": "atrasado"
+  },
+  "okx": "ligado_publico",
+  "bybit": "ligado_publico",
+  "velas": {
+   "BTC:4h": "OKX (BTC-USDT-SWAP)",
+   "BTC:1h": "OKX (BTC-USDT-SWAP)",
+   "CASHCAT:1h": "OKX (CASHCAT-USDT-SWAP)",
+   "PARTI:1h": "OKX (PARTI-USDT-SWAP)",
+   "XRP:4h": "OKX (XRP-USDT-SWAP)"
+  },
+  "agentes": {
+   "scanner": "procurar | 66 pares · 0 sinais",
+   "panico": "procurar | 289 perpétuos",
+   "recuo": "procurar | regra inativa",
+   "macro": "analisar | 175 mercados",
+   "exec_okx": "monitorizar | 2 pos. · -0,54R",
+   "risco": "risco | risco 1,32%",
+   "liquidez": "espera | 21 moedas",
+   "exec_bybit": "espera | 0 posições",
+   "nucleo": "cifrado | cofre fechado",
+   "diretor": "espera | PUMP ✓",
+   "arena": "calcular | 10 estratégias vivas",
+   "tfshort": "espera | 22 shorts · PAPEL",
+   "noticias": "comunicar | Inflação dos E · 4 h"
+  },
+  "posicoes": [
+   "OKX CASHCAT LONG R=-0.63 (OKX (CASHCAT-USDT-SWAP))",
+   "OKX PARTI LONG R=0.09 (OKX (PARTI-USDT-SWAP))"
+  ],
+  "simuladas": 92,
+  "fechadas_reais": 16,
+  "botoes_sem_acao": []
+ },
+ "erros": [],
+ "pedidos_falhados": [],
+ "passos": [
+  "1920-01-visao-geral: ok",
+  "1920-02-agente: ok",
+  "1920-03-okx: ok",
+  "1920-04-posicao: ok",
+  "1920-05-grafico-btc-4h: ok",
+  "1920-06-area-trading: ok",
+  "1920-07-parede: ok",
+  "1920-08-estrategia: ok",
+  "1920-09-papel-e-resultado: ok",
+  "1920-10-alertas-e-ativo: ok",
+  "1440-01-visao-geral: ok",
+  "1440-02-posicao: ok",
+  "3d-alta-visao-geral: ok",
+  "telemovel-01-inicio: ok",
+  "telemovel-02-graficos: ok",
+  "telemovel-03-atividade: ok",
+  "telemovel-04-equipa-e-agente: ok",
+  "sem-3d-2d: ok"
+ ],
+ "3d-alta": {
+  "fps": 7,
+  "qualidade": "baixa",
+  "scroll_pagina": false,
+  "largura_ok": true,
+  "fontes": {
+   "scan": "ligado",
+   "cofreScan": "bloqueado",
+   "state": "ligado",
+   "okx": "ligado",
+   "cofreOkx": "bloqueado",
+   "cfgOkx": "ligado",
+   "derivados": "ligado",
+   "liquidez": "ligado",
+   "tfshort": "ligado",
+   "tfsombra": "atrasado"
+  },
+  "okx": "ligado_publico",
+  "bybit": "ligado_publico",
+  "velas": {
+   "CASHCAT:1h": "OKX (CASHCAT-USDT-SWAP)",
+   "BTC:4h": "OKX (BTC-USDT-SWAP)",
+   "BTC:1h": "OKX (BTC-USDT-SWAP)",
+   "PARTI:1h": "OKX (PARTI-USDT-SWAP)"
+  },
+  "agentes": {
+   "scanner": "procurar | 66 pares · 0 sinais",
+   "panico": "procurar | 289 perpétuos",
+   "recuo": "procurar | regra inativa",
+   "macro": "analisar | 175 mercados",
+   "exec_okx": "monitorizar | 2 pos. · -0,55R",
+   "risco": "risco | risco 1,32%",
+   "liquidez": "espera | 21 moedas",
+   "exec_bybit": "espera | 0 posições",
+   "nucleo": "cifrado | cofre fechado",
+   "diretor": "espera | PUMP ✓",
+   "arena": "calcular | 10 estratégias vivas",
+   "tfshort": "espera | 22 shorts · PAPEL",
+   "noticias": "comunicar | Inflação dos E · 4 h"
+  },
+  "posicoes": [
+   "OKX CASHCAT LONG R=-0.63 (OKX (CASHCAT-USDT-SWAP))",
+   "OKX PARTI LONG R=0.07 (OKX (PARTI-USDT-SWAP))"
+  ],
+  "simuladas": 92,
+  "fechadas_reais": 16,
+  "botoes_sem_acao": []
+ },
+ "telemovel": {
+  "fps": 15,
+  "qualidade": "baixa",
+  "scroll_pagina": true,
+  "largura_ok": true,
+  "fontes": {
+   "scan": "ligado",
+   "cofreScan": "bloqueado",
+   "state": "ligado",
+   "okx": "ligado",
+   "cofreOkx": "bloqueado",
+   "cfgOkx": "ligado",
+   "derivados": "ligado",
+   "liquidez": "ligado",
+   "tfshort": "ligado",
+   "tfsombra": "atrasado"
+  },
+  "okx": "ligado_publico",
+  "bybit": "ligado_publico",
+  "velas": {
+   "PARTI:1h": "OKX (PARTI-USDT-SWAP)",
+   "BTC:4h": "OKX (BTC-USDT-SWAP)",
+   "BTC:1h": "OKX (BTC-USDT-SWAP)",
+   "CASHCAT:1h": "OKX (CASHCAT-USDT-SWAP)"
+  },
+  "agentes": {
+   "scanner": "procurar | 66 pares · 0 sinais",
+   "panico": "procurar | 289 perpétuos",
+   "recuo": "procurar | regra inativa",
+   "macro": "analisar | 175 mercados",
+   "exec_okx": "monitorizar | 2 pos. · -0,54R",
+   "risco": "risco | risco 1,32%",
+   "liquidez": "espera | 21 moedas",
+   "exec_bybit": "espera | 0 posições",
+   "nucleo": "cifrado | cofre fechado",
+   "diretor": "espera | PUMP ✓",
+   "arena": "calcular | 10 estratégias vivas",
+   "tfshort": "espera | 22 shorts · PAPEL",
+   "noticias": "comunicar | Inflação dos E · 4 h"
+  },
+  "posicoes": [
+   "OKX CASHCAT LONG R=-0.62 (OKX (CASHCAT-USDT-SWAP))",
+   "OKX PARTI LONG R=0.08 (OKX (PARTI-USDT-SWAP))"
+  ],
+  "simuladas": 92,
+  "fechadas_reais": 16,
+  "botoes_sem_acao": []
+ },
+ "sem-3d": {
+  "fps": null,
+  "qualidade": "2d",
+  "scroll_pagina": false,
+  "largura_ok": true,
+  "fontes": {
+   "scan": "ligado",
+   "cofreScan": "bloqueado",
+   "state": "ligado",
+   "okx": "ligado",
+   "cofreOkx": "bloqueado",
+   "cfgOkx": "ligado",
+   "derivados": "ligado",
+   "liquidez": "ligado",
+   "tfshort": "ligado",
+   "tfsombra": "atrasado"
+  },
+  "okx": "ligado_publico",
+  "bybit": "ligado_publico",
+  "velas": {
+   "PARTI:1h": "OKX (PARTI-USDT-SWAP)",
+   "CASHCAT:1h": "OKX (CASHCAT-USDT-SWAP)",
+   "BTC:1h": "OKX (BTC-USDT-SWAP)",
+   "BTC:4h": "OKX (BTC-USDT-SWAP)"
+  },
+  "agentes": {
+   "scanner": "procurar | 66 pares · 0 sinais",
+   "panico": "procurar | 289 perpétuos",
+   "recuo": "procurar | regra inativa",
+   "macro": "analisar | 175 mercados",
+   "exec_okx": "monitorizar | 2 pos. · -0,54R",
+   "risco": "risco | risco 1,32%",
+   "liquidez": "espera | 21 moedas",
+   "exec_bybit": "espera | 0 posições",
+   "nucleo": "cifrado | cofre fechado",
+   "diretor": "espera | PUMP ✓",
+   "arena": "calcular | 10 estratégias vivas",
+   "tfshort": "espera | 22 shorts · PAPEL",
+   "noticias": "comunicar | Inflação dos E · 4 h"
+  },
+  "posicoes": [
+   "OKX CASHCAT LONG R=-0.63 (OKX (CASHCAT-USDT-SWAP))",
+   "OKX PARTI LONG R=0.09 (OKX (PARTI-USDT-SWAP))"
+  ],
+  "simuladas": 92,
+  "fechadas_reais": 16,
+  "botoes_sem_acao": []
+ }
+}
