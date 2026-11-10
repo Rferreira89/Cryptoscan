@@ -127,11 +127,16 @@ def saude_e_rejeicoes(ops, pasta):
     oportunidades que nao chegaram a dinheiro real, com o motivo (tools/rejeicoes)."""
     from engine import decaimento as D
     L = ["", "SAÚDE DAS ESTRATÉGIAS AO VIVO (real, papel e sombra; mínimo 10 operações)"]
-    v = [x for x in D.vigiar(ops) if x["estado"] != "sem_dados"]
-    L += [f"- {x['estrategia']} ({x['classe']}): {x['estado'].replace('_', ' ')}, n {x['n']}, R médio {x['media_R']:+.2f} "
-          f"(IC90 {x['ic90'][0]:+.2f} a {x['ic90'][1]:+.2f})"
+    todas = D.vigiar(ops)
+    v = [x for x in todas if x["estado"] != "evidencia_insuficiente"]
+    L += [f"- {x['estrategia']} ({x['classe']}): {x['estado'].replace('_', ' ')}"
+          f"{'' if x.get('definitivo') else ' (preliminar)'}, n {x['n']} em {x['dias_independentes']} dias, "
+          f"R médio {x['media_R']:+.2f} (IC90 {x['ic90'][0]:+.2f} a {x['ic90'][1]:+.2f})"
           + (f", referência {x['referencia_R']:+.2f}" if x["referencia_R"] is not None else "")
-          for x in v] or ["- nenhuma estratégia com 10 ou mais operações"]
+          for x in v] or ["- nenhuma estratégia com evidência suficiente (10 operações em 5 dias)"]
+    poucas = len(todas) - len(v)
+    if poucas:
+        L.append(f"- evidência insuficiente em {poucas} estratégia(s): nada se conclui ainda")
     if pasta and os.path.isdir(pasta):
         from tools import rejeicoes as RJ
         _, res = RJ.tudo(pasta)

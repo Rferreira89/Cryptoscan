@@ -16,19 +16,22 @@ Limites (cfg["guarda"]):
   pausa_h               - duracao da pausa (omissao 24)
   max_por_grupo         - maximo de posicoes no mesmo grupo correlacionado (0 = desligado); grupos em cfg["grupos"]
   idade_max_s           - idade maxima do sinal (0 = desligado)
-Sempre ligado (nao e um limite de risco, e sanidade): stop presente, do lado certo e a menos de 50% da entrada."""
+  stop_max_pct          - distancia maxima do stop em % da entrada (0 = desligado)
+Sempre ligado (sanidade, nunca bloqueia uma ordem que o executor atual enviaria): stop presente e do lado certo, e
+nenhuma entrada num ativo que ja tem posicao ou ordem."""
 
 H = 3600
 
 
-def stop_valido(lado, entrada, stop):
+def stop_valido(lado, entrada, stop, max_dist=0.0):
+    """Stop presente e do lado certo (sempre). max_dist > 0 (opcional, desligado por omissao): distancia maxima."""
     if not entrada or not stop or entrada <= 0 or stop <= 0:
         return False, "sem stop"
     d = (entrada - stop) / entrada if lado == "LONG" else (stop - entrada) / entrada
     if d <= 0:
         return False, "stop do lado errado"
-    if d >= 0.5:
-        return False, "stop a mais de 50% da entrada"
+    if max_dist and d >= max_dist:
+        return False, f"stop a mais de {100 * max_dist:.0f}% da entrada"
     return True, None
 
 
@@ -49,7 +52,7 @@ def verificar(cfg, *, lado, entrada, stop, ativo, t_sinal, agora, entradas_24h=0
     de fecho. abertas: ativos com posicao ou ordem pendente. Devolve (pode, [motivos])."""
     g = (cfg or {}).get("guarda") or {}
     motivos = []
-    ok, m = stop_valido(lado, entrada, stop)
+    ok, m = stop_valido(lado, entrada, stop, float(g.get("stop_max_pct") or 0) / 100)
     if not ok:
         motivos.append(m)
     if ativo in abertas:

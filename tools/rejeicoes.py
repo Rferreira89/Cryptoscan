@@ -149,7 +149,97 @@ def tudo(pasta):
     rejs = (da_okx(_carregar(pasta, "okx.json")) + do_tfshort(_carregar(pasta, "okx_tfshort.json")) +
             das_sombras(_carregar(pasta, "okx_tfshort_sombra.json"), "TF-SHORT sombra") +
             das_sombras(_carregar(pasta, "kronos_sombra.json"), "Kronos sombra") + da_bybit(st_))
-    return rejs, resumo(rejs)
+    vistos, unicas = set(), []
+    for r in rejs:                                           # o mesmo sinal rejeitado em varias voltas conta uma vez
+        k = (r["fonte"], r["estrategia"], r["ativo"], r["t"], r["motivo"])
+        if k not in vistos:
+            vistos.add(k); unicas.append(r)
+    return unicas, resumo(unicas)
+
+
+def funil(pasta):
+    """(ordem de 10/11, ponto 5) Do sinal detetado ao dinheiro real, por estrategia: detetados, em real, so em
+    papel/sombra, rejeitados por classe. Sinal = (ativo, instante do sinal), sem repetir."""
+    okx = _carregar(pasta, "okx.json") or {}
+    tfs = _carregar(pasta, "okx_tfshort.json") or {}
+    kr = _carregar(pasta, "kronos_sombra.json") or {}
+    st_ = _carregar(pasta, "state.json") or {}
+    rejs, _ = tudo(pasta)
+    out = {}
+
+    def linha(est, det, real, papel):
+        rj = [r for r in rejs if r["estrategia"] == est]
+        chaves = {(r["ativo"], r["t"]) for r in rj}            # um sinal pode ter dois motivos: conta uma vez
+        cl = {}
+        for k in chaves:                                       # classe principal do sinal: operacional > risco > estatistico
+            cls = {r["classe"] for r in rj if (r["ativo"], r["t"]) == k}
+            c = next(x for x in ("operacional", "risco", "estatistico", "desconhecida") if x in cls)
+            cl[c] = cl.get(c, 0) + 1
+        det = set(det) | chaves
+        out[est] = {"detetados": len(det), "em_real": len(real), "so_papel_ou_sombra": len(papel - real if isinstance(papel, set) else papel),
+                    "rejeitados": len(chaves), "por_classe": cl}
+    real = okx.get("real") or {}
+    h40_real = {(h.get("asset"), h.get("t_sig")) for h in list(real.get("hist") or []) + [dict(v, asset=k) for k, v in
+                (real.get("ops") or {}).items()] if h.get("estrategia") != "recuo" and h.get("t_sig")}
+    h40_papel = ({(f["asset"], f["t_sig"]) for f in okx.get("fechadas") or []} |
+                 {(a, v.get("t_sig")) for a, v in (okx.get("abertas") or {}).items()} |
+                 {(a, v.get("t_sig")) for a, v in (okx.get("pend") or {}).items()})
+    linha("H40", h40_papel | h40_real, h40_real, h40_papel - h40_real)
+    sin = tfs.get("sinais") or {}
+    det = {(m, v.get("t")) for m, v in (sin.get("abertas") or {}).items()} | \
+          {(f.get("moeda"), f.get("t")) for f in sin.get("fechadas") or []}
+    conta = tfs.get("conta") or {}
+    tomadas = {(m, v.get("t")) for m, v in (conta.get("abertas") or {}).items()} | \
+              {(f.get("moeda"), f.get("t")) for f in conta.get("fechadas") or []}
+    linha("TF-SHORT papel", det, set(), tomadas)
+    pk = [p for p in kr.get("previsoes") or [] if p.get("lado")]
+    linha("Kronos sombra", {(p["moeda"], p["dia"]) for p in pk}, set(),
+          {(m, v.get("dia")) for m, v in (kr.get("abertas") or {}).items()} |
+          {(f.get("moeda"), f.get("dia")) for f in kr.get("fechadas") or []})
+    pp = st_.get("papel_panico") or {}
+    det = {(f.get("asset"), f.get("t_sig")) for f in pp.get("fechadas") or []} | \
+          {(a, v.get("t_sig")) for a, v in (pp.get("abertas") or {}).items()}
+    linha("H45", det, {(v.get("asset"), v.get("t_sig")) for v in (pp.get("real") or {}).values()
+                      if (v.get("exec") or {}).get("status") not in (None, "cancelada", "recusada")}, det)
+    return out
+
+
+def por_ativo(rejs, top=10):
+    c = {}
+    for r in rejs:
+        c[r["ativo"]] = c.get(r["ativo"], 0) + 1
+    return sorted(c.items(), key=lambda x: -x[1])[:top]
+
+
+def filtros_que_mais_cortam(res):
+    """Ranking dos motivos por numero de oportunidades cortadas; separa os que custaram R (em papel) dos que pouparam."""
+    rank = {}
+    for r in res:
+        k = (r["motivo"], r["classe"])
+        x = rank.setdefault(k, {"motivo": r["motivo"], "classe": r["classe"], "n": 0, "R_soma": 0.0, "com_resultado": 0})
+        x["n"] += r["n"]
+        if "media_R" in r:
+            x["R_soma"] += r["media_R"] * r["com_resultado"]; x["com_resultado"] += r["com_resultado"]
+    return sorted(rank.values(), key=lambda x: -x["n"])
+
+
+def conflitos(pasta, janela_s=3 * 86400):
+    """Mesmo ativo com direcoes opostas entre estrategias em menos de `janela_s` (ex.: H40 a comprar onde o TF-SHORT
+    esta vendido). So sinais detetados, sem resultados."""
+    okx = _carregar(pasta, "okx.json") or {}
+    tfs = _carregar(pasta, "okx_tfshort.json") or {}
+    kr = _carregar(pasta, "kronos_sombra.json") or {}
+    longs = [("H40", f["asset"], f["t_sig"]) for f in okx.get("fechadas") or []]
+    longs += [("H40", a, v.get("t_sig")) for a, v in list((okx.get("abertas") or {}).items()) + list((okx.get("pend") or {}).items())]
+    longs += [("Kronos", p["moeda"], p["dia"]) for p in kr.get("previsoes") or [] if p.get("lado") == "LONG"]
+    shorts = [("TF-SHORT", m, v.get("t")) for m, v in ((tfs.get("sinais") or {}).get("abertas") or {}).items()]
+    shorts += [("Kronos", p["moeda"], p["dia"]) for p in kr.get("previsoes") or [] if p.get("lado") == "SHORT"]
+    out = []
+    for el, a, t in longs:
+        for es, b, u in shorts:
+            if a == b and el != es and t and u and abs(t - u) <= janela_s:
+                out.append({"ativo": a, "long": el, "short": es, "t_long": t, "t_short": u})
+    return out
 
 
 def texto(res):
@@ -167,6 +257,25 @@ def texto(res):
     return "\n".join(L)
 
 
+def texto_completo(pasta):
+    rejs, res = tudo(pasta)
+    L = ["Funil por estrategia (detetados -> real / so papel ou sombra -> rejeitados por classe):"]
+    for est, f in funil(pasta).items():
+        L.append(f"- {est}: detetados {f['detetados']}, com ordem real enviada {f['em_real']}, so papel/sombra {f['so_papel_ou_sombra']}, "
+                 f"rejeitados {f['rejeitados']} {f['por_classe'] or ''}")
+    L += ["", "Filtros que mais cortam oportunidades:"]
+    for x in filtros_que_mais_cortam(res):
+        r = (f"; em papel {x['com_resultado']} somaram {x['R_soma']:+.1f}R" if x["com_resultado"] else "; resultado desconhecido")
+        L.append(f"- [{x['classe']}] {x['motivo']}: {x['n']}{r}")
+    L += ["", "Ativos mais rejeitados: " + ", ".join(f"{a} {n}" for a, n in por_ativo(rejs))]
+    cf = conflitos(pasta)
+    pares = {}
+    for c in cf:
+        pares[(c["long"], c["short"])] = pares.get((c["long"], c["short"]), 0) + 1
+    L += ["", "Conflitos (mesmo ativo, direcoes opostas, menos de 3 dias): " +
+          (", ".join(f"{l} long vs {s} short {n}" for (l, s), n in pares.items()) or "nenhum")]
+    return texto(res) + "\n\n" + "\n".join(L)
+
+
 if __name__ == "__main__":
-    _, res = tudo(sys.argv[1])
-    print(texto(res))
+    print(texto_completo(sys.argv[1]))

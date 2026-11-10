@@ -2270,3 +2270,14 @@ resultado em `k1_oos_resultado.txt`). Custos 0,24% ida e volta; financiamento n�
 Veredito: sem vantagem; não acrescenta diversificação. Não pode ir a real. A sombra diária não pode cumprir o
 critério; proposta ao Rui: desligá-la (alteração de produção, precisa de autorização).
 Nenhum resultado em dados vistos foi usado como validação.
+
+## 2026-11-10 — Experiências e decisões desta ronda (incluindo negativas)
+- **Pausa depois de perdas seguidas** (ideia de repositórios de referência), simulada no papel ao vivo: H40 −6,35R
+  sem pausa → −8,34R (3 perdas) / −6,81R (2 perdas); H45 −7,36R → −3,69R / −2,67R. Inconclusivo (amostras de
+  17 e 19, poucos dias): fica implementada e DESLIGADA em `engine/guarda.py`.
+- **H40 ao vivo**: pânico isolado 14 em papel, −0,42R (11 stops); pânico do mercado todo 3, −0,17R; real 2 perdas.
+  Decisões do Rui: 10/11 madrugada só mercado todo; 10/11 manhã H40 suspensa do real (só papel).
+- **H45 em papel**: 19 operações em 8 dias, −0,39R, IC90 [−0,88; −0,10] → "morta (preliminar)" no vigia; mantém-se
+  suspensa do real.
+- **Kronos K1**: rejeitado fora da amostra (entrada anterior); sombra desligada por ordem do Rui.
+- Fila de hipóteses para dados novos: `backtest/fila_hipoteses.md`.
