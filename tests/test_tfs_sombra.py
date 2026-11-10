@@ -208,3 +208,12 @@ class NaoLava(unittest.TestCase):
         finally:
             T.Publico = orig
         self.assertFalse(T.carregar(p)[1])
+
+
+class FinanciamentoEmFalta(unittest.TestCase):
+    def test_stop_sem_financiamento_fica_assinalado(self):
+        est = T.novo(); T.volta(tfs(), est, True, "ok", Pub(), AGORA)
+        p = Pub(velas=[{"t": AGORA + 3600, "o": 0.215, "h": 0.23, "l": 0.21, "c": 0.225}])
+        p.financiamento = lambda inst: None
+        T.volta(tfs(), est, True, "ok", p, AGORA + 86400)
+        self.assertEqual(est["fechadas"][0]["custos_incompletos"], "financiamento indisponivel")

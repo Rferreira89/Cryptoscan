@@ -198,6 +198,8 @@ def volta(tfs, est, ok_estado, motivo_estado, pub, agora):
         if toque:
             base = max(op["stop"], toque["o"])               # abriu acima do stop: sai a abertura
             _fechar(est, op, base * (1 + DESLIZE_STOP), "stop", toque["t"], fund, DESLIZE_STOP, None)
+            if fundh is None:                                # (10/11) financiamento em falta nao passa por zero
+                est["fechadas"][-1]["custos_incompletos"] = "financiamento indisponivel"
             res["saidas"] += 1; continue
         if velas:
             op["visto_ate"] = velas[-1]["t"] + 3600
