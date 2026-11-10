@@ -72,11 +72,11 @@ jobs:
             fi
             # <<< lancamento-okx
             # (06/11, OK do Rui) o horario do GitHub nao lancou o paper TF-SHORT nem a recolha de dados novos: o ciclo
-            # lanca-os uma vez por dia, depois da hora marcada (00:23 e 00:47 UTC), so se ainda nao houve execucao hoje.
+            # lanca-os uma vez por dia, depois da hora marcada (00:23 e 00:47 UTC; 10/11: mapa de exposicao 07:13), so se ainda nao houve execucao hoje.
             # Verifica so nos ciclos de scan (de 5 em 5 minutos). So lanca workflows de dados publicos e papel.
             if [ "$MODE" = scan ]; then
               HOJE=$(date -u +%F); SEG=$(( NOW % 86400 ))
-              for par in "okx-tfshort-papel.yml:1380" "okx-recolha.yml:2820"; do
+              for par in "okx-tfshort-papel.yml:1380" "okx-recolha.yml:2820" "exposicao-diaria.yml:26000"; do
                 WF=${par%%:*}; DESDE=${par##*:}
                 if [ "$SEG" -ge "$DESDE" ]; then
                   N=$(gh run list --repo "${{ github.repository }}" -w "$WF" --created ">=$HOJE" --json databaseId -q 'length' 2>/dev/null || echo erro)

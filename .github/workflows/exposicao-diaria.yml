@@ -1,0 +1,33 @@
+name: Mapa diario de exposicao (so leitura, informativo)
+# (10/11, autorizacao do Rui) Uma vez por dia: Bybit e OKX separadas; real, papel e sombra separados; LONG/SHORT,
+# correlacao, conflitos entre estrategias, apostas independentes e dados em falta. So copias publicas e velas publicas
+# da OKX: sem chaves das corretoras, sem ordens, nao escreve em nenhum ramo. Nao bloqueia, nao cancela, nao altera
+# posicoes, estrategias nem risco. Envia o texto pelo Telegram. Lancado tambem pelo ciclo do scan (o horario falha).
+on:
+  schedule:
+    - cron: "13 7 * * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: exposicao-diaria
+  cancel-in-progress: false
+jobs:
+  mapa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Copias publicas
+        run: |
+          rm -rf /tmp/ex && mkdir -p /tmp/ex
+          for par in data:state.json okx:okx.json okx-tfshort:okx_tfshort.json okx-tfshort:okx_tfshort_sombra.json; do
+            R=${par%%:*}; F=${par##*:}
+            git fetch -q --depth 1 origin "$R" 2>/dev/null && git show FETCH_HEAD:"$F" > /tmp/ex/"$F" 2>/dev/null || rm -f /tmp/ex/"$F"
+          done
+          ls /tmp/ex
+      - name: Mapa
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python3 tools/exposicao_diaria.py /tmp/ex --enviar > /dev/null && echo "mapa enviado"

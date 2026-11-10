@@ -32,5 +32,5 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           python3 tools/relatorio_semanal.py --state /tmp/rs/state.json --scan /tmp/rs/scan.json --okx /tmp/rs/okx.json \
-            --tfshort /tmp/rs/okx_tfshort.json --sombra /tmp/rs/okx_tfshort_sombra.json --kronos /tmp/rs/kronos_sombra.json --forma /tmp/rs/forma.json --enviar > /dev/null
+            --tfshort /tmp/rs/okx_tfshort.json --sombra /tmp/rs/okx_tfshort_sombra.json --kronos /tmp/rs/kronos_sombra.json --forma /tmp/rs/forma.json --exposicao --enviar > /dev/null
           echo "relatorio enviado"
