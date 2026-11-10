@@ -16,14 +16,19 @@ def op_aberta(**k):
 
 
 class Falso:
-    def __init__(self, algos_sl=False, falha_algos=False, pos="5", recusa=False):
+    def __init__(self, algos_sl=False, falha_algos=False, pos="5", recusa=False, algos_sz=None, algos_lado=None):
         self.algos_sl, self.falha_algos, self.pos, self.recusa, self.posts = algos_sl, falha_algos, pos, recusa, []
+        self.algos_sz, self.algos_lado = algos_sz, algos_lado
 
     def __call__(self, metodo, path, corpo=None):
         if "orders-algo-pending" in path:
             if self.falha_algos:
                 return {"code": "50001", "data": []}
-            return {"code": "0", "data": [{"slTriggerPx": "0.9"}] if self.algos_sl and "oco" in path else []}
+            # (10/11) um stop real da OKX traz o lado e a quantidade; a confirmacao passou a exigi-los
+            sl = {"slTriggerPx": "0.9", "side": "sell", "sz": self.algos_sz or self.pos}
+            if self.algos_lado:
+                sl["side"] = self.algos_lado
+            return {"code": "0", "data": [sl] if self.algos_sl and "oco" in path else []}
         if "account/positions" in path:
             return {"code": "0", "data": [{"pos": self.pos}] if self.pos else []}
         if path.endswith("order-algo"):
