@@ -15,6 +15,8 @@ import okx_agente as A
 import sys as _sys
 _sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 from engine import guarda as G  # noqa: E402  (10/11: verificacoes puras antes da ordem)
+from engine import suspensao as SUSP  # noqa: E402  (10/11: estrategia suspensa -> cancela so entradas pendentes)
+from engine import protecao as PROT  # noqa: E402  (10/11: stop cobre a posicao toda, do lado certo)
 
 H4 = 14400
 CFG_PADRAO = {"real": False, "so_mercado": True, "risco_pct": 1.0, "risco_max_pct": 2.0, "alavancagem": 10, "max_posicoes": 40, "travao_queda_pct": 25,
@@ -167,6 +169,13 @@ def acompanhar(base, op, now, msgs):
             op["sair_em"] = op["t_fill"] + 18 * H4
             msgs.append(f"✅ OKX real — {base}: compra executada a {op['entrada']:.6g} ({sz_exec} contratos). "
                         f"Stop e objetivo na OKX; saída por tempo dentro de 72 h.")
+        elif st in ("canceled", "mmp_canceled") and float(d.get("accFillSz") or 0) > 0:
+            # (10/11) cancelada DEPOIS de executar em parte: a parte executada e uma posicao e continua a ser gerida
+            op.update(estado="aberta", entrada=float(d.get("avgPx") or op["lim"]),
+                      t_fill=int(int(d.get("fillTime") or now * 1000) / 1000), parcial=True)
+            op["sair_em"] = op["t_fill"] + 18 * H4
+            msgs.append(f"✅ OKX real — {base}: ordem cancelada com execução parcial ({d.get('accFillSz')} contratos a "
+                        f"{op['entrada']:.6g}); essa parte fica aberta e protegida pelo stop.")
         elif st in ("canceled", "mmp_canceled"):
             msgs.append(f"⌛ OKX real — {base}: a ordem foi cancelada sem executar.")
             op.update(estado="cancelada", motivo="cancelada sem executar", fechado=int(now))
@@ -266,6 +275,34 @@ def guardar_pico(R, v):
         R.pop("pico_cifrado", None)                      # sem DATA_KEY: nunca grava o valor em claro
 
 
+def aplicar_suspensao(base, op, c, now, msgs):
+    """(10/11) Estrategia suspensa com ENTRADA pendente: pede o cancelamento so dessa ordem, uma vez (idempotente).
+    Posicao ja aberta: nada aqui (continua gerida: stop, objetivo, saida por tempo). Falha de comunicacao: nao assume
+    nada, tenta na volta seguinte. O estado final (cancelada / parcial aberta) e confirmado pelo acompanhar, na OKX."""
+    acao = SUSP.decidir(c, op)
+    if acao != "cancelar_pendente":
+        return False
+    cx = privado("POST", "/api/v5/trade/cancel-order", {"instId": op["inst"], "ordId": op["ordId"]})
+    d = (cx.get("data") or [{}])[0]
+    if cx.get("code") == "0" and d.get("sCode") in ("0", None):
+        op["cancelar_pedido"] = int(now)
+        msgs.append(f"🛑 OKX real — {base}: estratégia suspensa; pedi o cancelamento da ordem de entrada pendente "
+                    f"(posições abertas não são tocadas).")
+        return True
+    if d.get("sCode") in ("51400", "51401", "51402"):      # ja executada, ja cancelada ou caducada: o acompanhar decide
+        op["cancelar_pedido"] = int(now)
+        return True
+    chave = f"s:{base}:{op.get('ordId')}"
+    if chave not in R_AVISOS:
+        R_AVISOS.add(chave)
+        msgs.append(f"⚠️ OKX real — {base}: estratégia suspensa mas não consegui cancelar a ordem pendente "
+                    f"({d.get('sCode') or cx.get('code')}); tento na próxima volta. Nada assumido.")
+    return False
+
+
+R_AVISOS = set()
+
+
 def correr(st, novos, now, msgs):
     """novos: [(base, sinal)] do agente nesta passagem. st: okx.json (chave 'real' so com ids e precos publicos)."""
     c = cfg()
@@ -287,6 +324,8 @@ def correr(st, novos, now, msgs):
                 msgs.append(f"🛑 OKX real — {base}: cancelei a ordem limite (pânico isolado; pelo H40 só operamos o pânico do mercado todo).")
                 R["hist"].append({"asset": base, **R["ops"].pop(base), "estado": "cancelada", "motivo": "H40 isolado"})
                 continue
+        if aplicar_suspensao(base, R["ops"][base], c, now, msgs):
+            pass                                          # pedido feito/registado; o acompanhar abaixo confirma o estado
         if acompanhar(base, R["ops"][base], now, msgs):
             R["hist"].append({"asset": base, **R["ops"].pop(base)})
     confirmar_stops(R, now, msgs)
@@ -409,6 +448,19 @@ def _tem_stop_na_okx(inst):
     return any(a.get("slTriggerPx") for a in (algos.get("data") or []) + (algos2.get("data") or []))
 
 
+def stop_completo(op):
+    """(ok, motivos) da engine/protecao com dados atuais da OKX; None se alguma consulta falhou."""
+    pos = privado("GET", f"/api/v5/account/positions?instId={op['inst']}")
+    a1 = privado("GET", f"/api/v5/trade/orders-algo-pending?instId={op['inst']}&ordType=conditional")
+    a2 = privado("GET", f"/api/v5/trade/orders-algo-pending?instId={op['inst']}&ordType=oco")
+    if any(r.get("code") != "0" for r in (pos, a1, a2)):
+        return None
+    q = sum(float(x.get("pos") or 0) for x in pos.get("data") or [])
+    if q <= 0:
+        return None                                        # ja fechou: o acompanhar trata disso
+    return PROT.stop_cobre((a1.get("data") or []) + (a2.get("data") or []), q, "LONG", op.get("entrada"))
+
+
 def confirmar_stops(R, now, msgs):
     """(10/11) cada operacao real aberta tem de ter o stop VIVO na OKX, nao so registado no estado (o vigia so ve o
     registo). Confirma de hora a hora com a OKX; se o stop anexado a ordem nao existir, repoe o stop e o objetivo
@@ -420,7 +472,19 @@ def confirmar_stops(R, now, msgs):
         if tem is None:
             continue
         if tem:
-            op["stop_ok"] = int(now)
+            # (10/11) existe um stop: confirma que cobre a posicao TODA, do lado certo e abaixo da entrada.
+            # Insuficiente -> so alerta prioritario (nesta fase nada e criado nem alterado automaticamente).
+            completo = stop_completo(op)
+            if completo is None:
+                continue                                   # consulta falhou: nao se sabe; nada assumido
+            ok, porque = completo
+            if ok:
+                op["stop_ok"] = int(now)
+                op.pop("stop_insuficiente", None)
+            elif now - float(op.get("stop_insuficiente") or 0) >= 6 * 3600:
+                op["stop_insuficiente"] = int(now)
+                msgs.append(f"🚨 OKX real — {base}: o stop na OKX NÃO protege a posição toda ({'; '.join(porque)}). "
+                            f"Nada foi alterado; confirma na app da OKX.")
             continue
         pos = privado("GET", f"/api/v5/account/positions?instId={op['inst']}")
         if pos.get("code") != "0":

@@ -89,3 +89,14 @@ class ExposicaoDiaria(unittest.TestCase):
         r = out["okx_posicoes_reais"]["PARTI"]
         self.assertAlmostEqual(r["R_atual"], round((0.042 - 0.04128) / (0.04128 - 0.037), 2))
         self.assertGreater(r["risco_com_custos_pct_conta"], 0.8)
+
+
+class Conflitos(unittest.TestCase):
+    def test_tres_tipos(self):
+        from tools import exposicao_diaria as E
+        ex = [{"ativo": "PUMP", "lado": "LONG", "origem": "H40 papel (isolado)"}, {"ativo": "PUMP", "lado": "LONG", "origem": "H45 papel"},
+              {"ativo": "BCH", "lado": "LONG", "origem": "H40 papel (isolado)"}, {"ativo": "BCH", "lado": "SHORT", "origem": "fases lateral papel"},
+              {"ativo": "ADA", "lado": "SHORT", "origem": "fases lateral papel"}]
+        c = E.conflitos(ex, {"PUMP": "g", "BCH": "g", "ADA": "g"})
+        self.assertIn("BCH", c["mesmo_ativo_oposto"]); self.assertEqual(c["mesma_exposicao"], {"PUMP": ["H40 papel (isolado)", "H45 papel"]})
+        self.assertEqual(c["grupo_oposto"][0]["long"], ["BCH", "PUMP"])

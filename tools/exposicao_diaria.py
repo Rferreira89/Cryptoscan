@@ -75,6 +75,33 @@ def posicao_real(op, px):
             "stop_confirmado_na_okx": op.get("stop_ok"), "estado": op.get("estado")}
 
 
+def conflitos(expos, grupos):
+    """Tres tipos (ordem de 10/11, ponto 5):
+      mesmo_ativo_oposto  - o mesmo ativo LONG numa estrategia e SHORT noutra;
+      grupo_oposto        - ativos fortemente correlacionados com LONG e SHORT ao mesmo tempo (anulam-se em parte);
+      mesma_exposicao     - estrategias diferentes no mesmo ativo e na mesma direcao (parecem duas apostas, sao uma)."""
+    por_ativo, por_grupo = {}, {}
+    for e in expos:
+        por_ativo.setdefault(e["ativo"], []).append(e)
+        g = grupos.get(e["ativo"])
+        if g:
+            por_grupo.setdefault(g, []).append(e)
+    out = {"mesmo_ativo_oposto": {}, "grupo_oposto": [], "mesma_exposicao": {}}
+    for a, v in por_ativo.items():
+        lados = {e["lado"] for e in v}
+        origens = sorted({e["origem"] for e in v})
+        if len(lados) > 1:
+            out["mesmo_ativo_oposto"][a] = sorted(f"{e['origem']} {e['lado']}" for e in v)
+        elif len(origens) > 1:
+            out["mesma_exposicao"][a] = origens
+    for g, v in por_grupo.items():
+        longs = sorted({e["ativo"] for e in v if e["lado"] == "LONG"}); shorts = sorted({e["ativo"] for e in v if e["lado"] == "SHORT"})
+        if longs and shorts and set(longs) != set(shorts):
+            out["grupo_oposto"].append({"long": longs, "short": shorts,
+                                        "estrategias": sorted({e["origem"].split(" (")[0] for e in v})})
+    return out
+
+
 def bloco(expos, fechos):
     m = X.mapa(fechos, expos)
     ativos = {}
@@ -83,8 +110,31 @@ def bloco(expos, fechos):
     mesmo = {a: v for a, v in ativos.items() if len(v) > 1}
     return {"n": len(expos), "long": sum(e["lado"] == "LONG" for e in expos), "short": sum(e["lado"] == "SHORT" for e in expos),
             "mesmo_ativo_varias_estrategias": mesmo, "grupos_correlacionados": m["concentracoes"],
-            "apostas_efetivas": m["apostas_efetivas"],
+            "apostas_efetivas": m["apostas_efetivas"], "conflitos": conflitos(expos, m["grupos"]),
             "sem_precos": sorted({e["ativo"] for e in expos if e["ativo"] not in fechos})}
+
+
+def texto(mapa_):
+    """Bloco do relatorio (sem valores em dinheiro)."""
+    nomes = {"okx_real": "OKX real", "bybit_real": "Bybit real", "papel_sombra": "Papel e sombra (todas as estratégias)"}
+    L = ["", "EXPOSIÇÃO E CORRELAÇÃO (informativo; contas separadas)"]
+    for k, b in mapa_["blocos"].items():
+        L.append(f"- {nomes.get(k, k)}: {b['n']} posições ({b['long']} LONG, {b['short']} SHORT) = "
+                 f"{b['apostas_efetivas']} apostas independentes")
+        for g in b["grupos_correlacionados"][:3]:
+            L.append(f"  · {g['n']} {g['lado']} correlacionados: {', '.join(g['ativos'][:8])}")
+        c = b["conflitos"]
+        if c["mesmo_ativo_oposto"]:
+            L.append("  · mesmo ativo em sentidos opostos: " + "; ".join(f"{a} ({', '.join(v)})" for a, v in list(c["mesmo_ativo_oposto"].items())[:5]))
+        if c["mesma_exposicao"]:
+            L.append("  · a mesma aposta em estratégias diferentes: " + "; ".join(f"{a} ({', '.join(v)})" for a, v in list(c["mesma_exposicao"].items())[:5]))
+        if c["grupo_oposto"]:
+            L.append(f"  · grupos correlacionados com LONG e SHORT ao mesmo tempo: {len(c['grupo_oposto'])}")
+        if b["sem_precos"]:
+            L.append(f"  · sem preços (correlação desconhecida): {', '.join(b['sem_precos'][:10])}")
+    if "bybit_real" in mapa_["blocos"]:
+        L.append("- Bybit: a tendência BTC (núcleo) só aparece na cópia privada; não está neste mapa.")
+    return "\n".join(L) + "\n"
 
 
 def correr(pasta, obter=velas):
