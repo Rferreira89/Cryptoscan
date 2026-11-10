@@ -8,7 +8,7 @@ import shutil
 import subprocess
 import unittest
 
-HTML = os.path.join(os.path.dirname(__file__), "..", "scanner", "index.html")
+HTML = os.path.join(os.path.dirname(__file__), "..", "scanner", "v1.html")   # (10/11) a interface anterior passou para v1.html
 
 
 def _src():

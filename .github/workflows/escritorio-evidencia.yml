@@ -1,0 +1,57 @@
+name: Operations Center - evidencia (ramo escritorio-v2; so leitura)
+# (10/11, pedido do Rui) Abre a nova interface num browser real, com os dados reais publicados pelos agentes e a rede
+# real (mercado publico da Bybit UE e da OKX EEA), tira capturas e regista erros de consola e desempenho. Cofre fechado:
+# as capturas nao tem dinheiro. O passo "cofre OKX" so diz se o ficheiro abre e quantos elementos tem (sem valores).
+# Nao toca no main, nas corretoras nem em ordens.
+on:
+  push:
+    branches: [escritorio-v2]
+    paths: ["scanner/**", "tools/evidencia/**", ".github/workflows/escritorio-evidencia.yml"]
+  workflow_dispatch:
+permissions:
+  contents: write          # so para guardar as capturas no ramo isolado escritorio-v2-capturas
+jobs:
+  evidencia:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - name: Testes dos modulos
+        run: node --test scanner/central/testes/dados.test.mjs
+      - name: Cofre OKX (estrutura, sem valores)
+        env:
+          DATA_KEY: ${{ secrets.DATA_KEY }}
+        run: |
+          git fetch -q --depth 1 origin okx && git show FETCH_HEAD:cofre_okx.json > /tmp/cofre_okx.json
+          python3 - <<'PY'
+          import json, time, sys
+          sys.path.insert(0, ".")
+          from engine import cifra
+          env = json.load(open("/tmp/cofre_okx.json"))
+          try:
+              d = cifra.abrir_obj(env) if cifra.e_envelope(env) else env
+          except Exception as e:
+              print("cofre OKX nao abre:", type(e).__name__); raise SystemExit(0)
+          print("chaves:", sorted(d))
+          print("idade da leitura (min):", round((time.time() - (d.get("t") or 0)) / 60))
+          print("posicoes:", len(d.get("posicoes") or []), [p.get("asset") for p in d.get("posicoes") or []])
+          print("ordens:", len(d.get("ordens") or []), "fechadas:", len(d.get("fechadas") or []))
+          PY
+      - name: Capturas
+        run: |
+          npm i --no-save playwright@1.48.2 >/dev/null 2>&1 && npx playwright install --with-deps chromium >/dev/null 2>&1
+          (cd scanner && python3 -m http.server 8000 >/dev/null 2>&1 &) && sleep 2
+          OUT=capturas node tools/evidencia/capturas.js
+      - name: "Guardar as capturas no ramo isolado (sem dinheiro, cofre fechado)"
+        run: |
+          cd capturas && git init -q && git checkout -q -b escritorio-v2-capturas
+          git config user.name "cryptoscan-bot" && git config user.email "bot@users.noreply.github.com"
+          git add -A && git commit -q -m "capturas do Operations Center $(date -u +%FT%TZ)"
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" escritorio-v2-capturas
+      - uses: actions/upload-artifact@v4
+        with:
+          name: capturas-operations-center
+          path: capturas/
+          retention-days: 7
