@@ -289,6 +289,7 @@ def correr(st, novos, now, msgs):
                 continue
         if acompanhar(base, R["ops"][base], now, msgs):
             R["hist"].append({"asset": base, **R["ops"].pop(base)})
+    confirmar_stops(R, now, msgs)
     del R["hist"][:-500]
     if not c["real"] or not novos:
         return
@@ -399,6 +400,57 @@ def correr(st, novos, now, msgs):
             del avisados[:-500]
 
 
+def _tem_stop_na_okx(inst):
+    """True/False se a OKX tem (ou nao) um stop pendente para o contrato; None se a consulta falhou (nao se sabe)."""
+    algos = privado("GET", f"/api/v5/trade/orders-algo-pending?instId={inst}&ordType=conditional")
+    algos2 = privado("GET", f"/api/v5/trade/orders-algo-pending?instId={inst}&ordType=oco")
+    if algos.get("code") != "0" or algos2.get("code") != "0":
+        return None
+    return any(a.get("slTriggerPx") for a in (algos.get("data") or []) + (algos2.get("data") or []))
+
+
+def confirmar_stops(R, now, msgs):
+    """(10/11) cada operacao real aberta tem de ter o stop VIVO na OKX, nao so registado no estado (o vigia so ve o
+    registo). Confirma de hora a hora com a OKX; se o stop anexado a ordem nao existir, repoe o stop e o objetivo
+    do plano (reduceOnly: so pode fechar, nunca abrir); se nao conseguir, avisa. Consulta falhada -> nao mexe."""
+    for base, op in R["ops"].items():
+        if op.get("estado") != "aberta" or now - float(op.get("stop_ok") or 0) < 1800:
+            continue
+        tem = _tem_stop_na_okx(op["inst"])
+        if tem is None:
+            continue
+        if tem:
+            op["stop_ok"] = int(now)
+            continue
+        pos = privado("GET", f"/api/v5/account/positions?instId={op['inst']}")
+        if pos.get("code") != "0":
+            continue
+        sz = next((x.get("pos") for x in (pos.get("data") or []) if float(x.get("pos") or 0) > 0), None)
+        if not sz:
+            continue                                     # ja fechou: o acompanhar trata disso na volta seguinte
+        ok = False
+        if op.get("stop_reposto"):
+            # ja repus uma vez e a OKX continua a nao mostrar o stop: nunca empilha ordens; so avisa (6 em 6 h)
+            if now - float(op.get("stop_aviso") or 0) >= 6 * 3600:
+                op["stop_aviso"] = int(now)
+                msgs.append(f"🚨 OKX real — {base}: a OKX não mostra stop ativo nesta posição (já o repus uma vez). Confirma já na app da OKX.")
+            continue
+        if op.get("stop"):
+            corpo = {"instId": op["inst"], "tdMode": "isolated", "side": "sell", "ordType": "oco" if op.get("alvo") else "conditional",
+                     "sz": sz, "reduceOnly": True, "slTriggerPx": str(op["stop"]), "slOrdPx": "-1"}
+            if op.get("alvo"):
+                corpo.update(tpTriggerPx=str(op["alvo"]), tpOrdPx="-1")
+            r = privado("POST", "/api/v5/trade/order-algo", corpo)
+            ok = r.get("code") == "0" and ((r.get("data") or [{}])[0].get("sCode") in ("0", None))
+        if ok:
+            op["stop_ok"] = int(now)
+            op["stop_reposto"] = int(now)
+            msgs.append(f"🛡️ OKX real — {base}: o stop não estava ativo na OKX; repus o stop {op['stop']:.6g}"
+                        + (f" e o objetivo {op['alvo']:.6g}." if op.get("alvo") else "."))
+        else:
+            msgs.append(f"🚨 OKX real — {base}: posição aberta SEM stop ativo na OKX e não o consegui repor. Põe o stop já na app da OKX.")
+
+
 def reconciliar(R, now, msgs):
     """(04/11) posicoes abertas na OKX que o programa nao esta a seguir (ex.: a HUMA executou antes do cancelamento):
     adota-as para a saida por tempo e confirma que tem stop; se nao tiver, poe o stop do plano original."""
@@ -427,6 +479,8 @@ def reconciliar(R, now, msgs):
                                                             "slTriggerPx": str(op["stop"]), "slOrdPx": "-1",
                                                             "tpTriggerPx": str(op["alvo"]), "tpOrdPx": "-1"})
             tem_stop = r.get("code") == "0"
+        if tem_stop:
+            op["stop_ok"] = int(now)
         msgs.append(f"🔁 OKX real — {base}: posição aberta a {op['entrada']:.6g} encontrada e adotada (sai no stop, no objetivo ou ao fim de 72 h). "
                     + ("Stop confirmado ✅" if tem_stop else "⚠️ NÃO consegui confirmar o stop: verifica na app da OKX."))
 
