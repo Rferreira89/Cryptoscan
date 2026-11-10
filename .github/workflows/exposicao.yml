@@ -1,0 +1,25 @@
+name: Mapa de exposicao e correlacao (so leitura; preparado, NAO ATIVO no main)
+# (10/11, ordem do Rui ponto 4) Bybit e OKX separadas; so dados publicos; sem chaves nem ordens. Neste ramo corre a
+# cada push dos ficheiros abaixo (ensaio). Diario so depois de integrado com autorizacao do Rui.
+on:
+  push:
+    branches: [inv-evolucao]
+    paths: ["tools/exposicao_diaria.py", "engine/exposicao.py", ".github/workflows/exposicao.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  mapa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Copias publicas
+        run: |
+          mkdir -p /tmp/ex
+          for par in data:state.json okx:okx.json okx-tfshort:okx_tfshort.json okx-tfshort:okx_tfshort_sombra.json; do
+            R=${par%%:*}; F=${par##*:}
+            git fetch -q --depth 1 origin "$R" && git show FETCH_HEAD:"$F" > /tmp/ex/"$F" || rm -f /tmp/ex/"$F"
+          done
+      - name: Mapa
+        run: python3 tools/exposicao_diaria.py /tmp/ex | tee mapa.json

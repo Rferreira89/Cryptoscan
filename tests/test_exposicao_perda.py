@@ -64,3 +64,28 @@ class PerdaDiaria(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ExposicaoDiaria(unittest.TestCase):
+    def test_blocos_separados_e_posicao_real(self):
+        import json, os, tempfile
+        from tools import exposicao_diaria as E
+        d = tempfile.mkdtemp()
+        okx = {"real": {"ops": {"PARTI": {"estado": "aberta", "estrategia": "panico", "entrada": 0.04128, "stop": 0.037,
+                                          "alvo": 0.04982, "risco_pct": 0.8, "stop_ok": 1}}},
+               "abertas": {"XRP": {"tipo": "isolado"}}}
+        st = {"ledger": [{"executed": True, "status": "OPEN", "asset": "SOL", "side": "LONG", "strategy": "X"}],
+              "papel_fases": {"lateral": {"abertas": {"XRP": {}, "OP": {}}}}}
+        json.dump(okx, open(os.path.join(d, "okx.json"), "w")); json.dump(st, open(os.path.join(d, "state.json"), "w"))
+        rs = random.Random(1); base = [rs.gauss(0, 0.01) for _ in range(100)]
+        series = {"PARTI": serie(rs, [0] * 100, 0.01), "SOL": serie(rs, base, 0.002), "XRP": serie(rs, base, 0.002),
+                  "OP": serie(rs, base, 0.002)}
+        series["PARTI"][-1] = 0.042
+        out = E.correr(d, obter=lambda m: series.get(m, []))
+        self.assertEqual(set(out["blocos"]), {"okx_real", "bybit_real", "papel_sombra"})
+        self.assertEqual(out["blocos"]["bybit_real"]["n"], 1)
+        p = out["blocos"]["papel_sombra"]
+        self.assertIn("XRP", p["mesmo_ativo_varias_estrategias"])          # H40 LONG e fases SHORT no mesmo ativo
+        r = out["okx_posicoes_reais"]["PARTI"]
+        self.assertAlmostEqual(r["R_atual"], round((0.042 - 0.04128) / (0.04128 - 0.037), 2))
+        self.assertGreater(r["risco_com_custos_pct_conta"], 0.8)
