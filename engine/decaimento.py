@@ -29,8 +29,24 @@ REFERENCIAS = {
 }
 
 
-def _ic90(R, n=2000, semente=3):
+DIAS_MIN = 5
+
+
+def _ic90(R, n=2000, semente=3, grupos=None):
+    """Intervalo de 90% da media por reamostragem. Com `grupos` (ex.: dia de entrada), reamostra GRUPOS inteiros:
+    operacoes abertas no mesmo dia no mesmo sentido sao quase a mesma aposta e nao contam como independentes."""
     rs = random.Random(semente)
+    if grupos:
+        blocos = {}
+        for r, g in zip(R, grupos):
+            blocos.setdefault(g, []).append(r)
+        bl = list(blocos.values())
+        meds = []
+        for _ in range(n):
+            amostra = [x for _ in bl for x in rs.choice(bl)]
+            meds.append(st.mean(amostra))
+        meds.sort()
+        return meds[int(0.05 * n)], meds[int(0.95 * n) - 1]
     m = sorted(st.mean(rs.choice(R) for _ in R) for _ in range(n))
     return m[int(0.05 * n)], m[int(0.95 * n) - 1]
 
@@ -40,16 +56,25 @@ def _pf(R):
     return round(g / p, 2) if p else None
 
 
-def estado(R, ref=None, pf_ref=None):
-    """R: lista de R liquidos por ordem de fecho. ref: expectativa de referencia (R). Devolve dict com estado e porques."""
+def estado(R, ref=None, pf_ref=None, grupos=None):
+    """R: lista de R liquidos por ordem de fecho. ref: expectativa de referencia (R). grupos: chave de dependencia de
+    cada operacao (ex.: dia de entrada). Devolve dict com estado e porques."""
+    if grupos is not None:
+        pares = [(r, g) for r, g in zip(R, grupos) if r is not None]
+        R, grupos = [r for r, _ in pares], [g for _, g in pares]
     R = [r for r in R if r is not None]
     out = {"n": len(R), "referencia_R": ref}
-    if len(R) < N_MIN:
-        out.update(estado="sem_dados", porques=[f"so {len(R)} operacoes fechadas (minimo {N_MIN})"])
+    n_ind = len(set(grupos)) if grupos is not None else len(R)
+    if grupos is not None:
+        out["dias_independentes"] = n_ind
+    if len(R) < N_MIN or (grupos is not None and n_ind < DIAS_MIN):
+        motivo = (f"so {len(R)} operacoes fechadas (minimo {N_MIN})" if len(R) < N_MIN else
+                  f"{len(R)} operacoes mas so {n_ind} dia(s) de entrada independentes (minimo {DIAS_MIN})")
+        out.update(estado="sem_dados", porques=[motivo])
         if R:
             out["media_R"] = round(st.mean(R), 3)
         return out
-    lo, hi = _ic90(R)
+    lo, hi = _ic90(R, grupos=grupos)
     m, pf = st.mean(R), _pf(R)
     rec = st.mean(R[-10:])
     out.update(media_R=round(m, 3), ic90=[round(lo, 3), round(hi, 3)], pf=pf, media_ultimas10=round(rec, 3))
@@ -84,7 +109,7 @@ def vigiar(ops):
     for (est, cl), xs in g.items():
         xs.sort(key=lambda o: o.get("t_saida") or o.get("t_entrada") or 0)
         ref = (REFERENCIAS.get(est) or {}).get("media_R")
-        e = estado([o["R"] for o in xs], ref)
+        e = estado([o["R"] for o in xs], ref, grupos=[int((o.get("t_entrada") or 0) // 86400) for o in xs])
         out.append({"estrategia": est, "classe": cl, **e,
                     "fonte_referencia": (REFERENCIAS.get(est) or {}).get("fonte")})
     ordem = {"morta": 0, "em_decaimento": 1, "a_vigiar": 2, "viva": 3, "sem_dados": 4}

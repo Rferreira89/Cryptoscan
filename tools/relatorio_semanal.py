@@ -122,6 +122,26 @@ def _carregar(c):
     return json.load(open(c)) if c and os.path.exists(c) else {}
 
 
+def saude_e_rejeicoes(ops, pasta):
+    """(10/11) Dois blocos de leitura: estrategias ao vivo que se afastam da evidencia (engine/decaimento) e as
+    oportunidades que nao chegaram a dinheiro real, com o motivo (tools/rejeicoes)."""
+    from engine import decaimento as D
+    L = ["", "SAÚDE DAS ESTRATÉGIAS AO VIVO (real, papel e sombra; mínimo 10 operações)"]
+    v = [x for x in D.vigiar(ops) if x["estado"] != "sem_dados"]
+    L += [f"- {x['estrategia']} ({x['classe']}): {x['estado'].replace('_', ' ')}, n {x['n']}, R médio {x['media_R']:+.2f} "
+          f"(IC90 {x['ic90'][0]:+.2f} a {x['ic90'][1]:+.2f})"
+          + (f", referência {x['referencia_R']:+.2f}" if x["referencia_R"] is not None else "")
+          for x in v] or ["- nenhuma estratégia com 10 ou mais operações"]
+    if pasta and os.path.isdir(pasta):
+        from tools import rejeicoes as RJ
+        _, res = RJ.tudo(pasta)
+        L += ["", "OPORTUNIDADES QUE NÃO CHEGARAM A REAL (motivo e resultado em papel, quando existe)"]
+        L += [f"- [{r['classe']}] {r['estrategia']}: {r['motivo']} — {r['n']}"
+              + (f", em papel {r['com_resultado']} com R médio {r['media_R']:+.2f}" if "media_R" in r else "")
+              + f" → {r['veredito']}" for r in res[:8]] or ["- nenhuma"]
+    return "\n".join(L) + "\n"
+
+
 def main():
     a = argparse.ArgumentParser()
     for k in ("state", "okx", "tfshort", "sombra", "kronos", "forma", "scan"):
@@ -137,6 +157,7 @@ def main():
     ops += G.do_kronos_sombra((_carregar(x.kronos) or {}).get("estado"))
     semana = time.strftime("semana até %d/%m/%Y", time.gmtime())
     txt = texto(ops, G.abertas_reais(state, okx), ag, rec, semana, G.nucleo_visivel(state), sombra)
+    txt += saude_e_rejeicoes(ops, os.path.dirname(os.path.abspath(x.state)) if x.state else None)
     print(txt)
     if x.enviar:
         from engine import alerts

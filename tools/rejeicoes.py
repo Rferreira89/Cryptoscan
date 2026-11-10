@@ -20,9 +20,10 @@ Veredito por motivo (so com resultados conhecidos):
 Uso: python3 tools/rejeicoes.py <pasta com as copias publicas>"""
 import json
 import os
-import random
 import statistics as st
 import sys
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
 CLASSE = {
     # OKX executor (prefixos em real.avisados)
@@ -111,10 +112,10 @@ def da_bybit(state):
     return out
 
 
-def _ic90(R, n=2000, semente=1):
-    rs = random.Random(semente)
-    m = sorted(st.mean(rs.choice(R) for _ in R) for _ in range(n))
-    return m[int(0.05 * n)], m[int(0.95 * n) - 1]
+def _ic90(R, grupos, n=2000):
+    """Mesma reamostragem por dia de sinal do vigia de decaimento (sinais do mesmo dia nao sao independentes)."""
+    from engine.decaimento import _ic90 as ic
+    return ic(R, n=n, grupos=grupos)
 
 
 def resumo(rejs):
@@ -124,17 +125,19 @@ def resumo(rejs):
         g.setdefault((r["fonte"], r["estrategia"], r["motivo"], r["classe"]), []).append(r)
     out = []
     for (fonte, est, mot, cl), xs in g.items():
-        R = [x["R"] for x in xs if x["R"] is not None]
+        com = [x for x in xs if x["R"] is not None]
+        R = [x["R"] for x in com]
+        dias = [int((x["t"] or 0) // 86400) for x in com]
         linha = {"fonte": fonte, "estrategia": est, "motivo": mot, "classe": cl, "n": len(xs), "com_resultado": len(R)}
         if R:
             gp, gl = sum(r for r in R if r > 0), -sum(r for r in R if r < 0)
             linha.update(media_R=round(st.mean(R), 3), pf=round(gp / gl, 2) if gl else None)
-            if len(R) >= 10:
-                lo, hi = _ic90(R)
+            if len(R) >= 10 and len(set(dias)) >= 5:
+                lo, hi = _ic90(R, dias)
                 linha["ic90"] = [round(lo, 3), round(hi, 3)]
                 linha["veredito"] = ("bloqueio justificado" if hi <= 0 else "rever: perdeu-se R" if lo > 0 else "inconclusivo")
             else:
-                linha["veredito"] = "inconclusivo (menos de 10 resultados)"
+                linha["veredito"] = "inconclusivo (menos de 10 resultados ou de 5 dias independentes)"
         else:
             linha["veredito"] = "resultado desconhecido (sem par em papel/sombra)"
         out.append(linha)
