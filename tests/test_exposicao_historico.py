@@ -76,5 +76,38 @@ class Workflows(unittest.TestCase):
         self.assertIn("publicar_estado.py publicar /tmp/exh exposicao", y)
 
 
+class Revisao(unittest.TestCase):
+    """(11/11, revisao adversarial)"""
+
+    def ler(self, nome):
+        return open(os.path.join(RAIZ, ".github", "workflows", nome)).read()
+
+    def test_falha_a_ler_o_historico_nao_recomeca_nem_envia(self):
+        y = self.ler("exposicao-diaria.yml")
+        self.assertIn('RC=0; git ls-remote --exit-code -q origin refs/heads/exposicao', y)
+        self.assertIn("nada enviado nem publicado", y)
+        self.assertNotIn("historico_exposicao.jsonl 2>/dev/null || true", y)
+
+    def test_envio_falhado_deixa_o_passo_vermelho(self):
+        y = self.ler("exposicao-diaria.yml")
+        self.assertIn("ENVIO=1", y)
+        self.assertTrue(y.rstrip().endswith("exit $ENVIO"))
+
+    def test_regra_de_relancamento_do_diario(self):
+        import json as _j
+        import shutil
+        import subprocess
+        y = self.ler("scan.yml")
+        expr = y.split("--json displayTitle,conclusion -q '")[1].split("' 2>/dev/null")[0]
+        if not shutil.which("jq"):
+            self.skipTest("sem jq")
+        casos = [([], 0), ([("Mapa (diario)", "failure")], 0), ([("Mapa (diario)", "")], 1), ([("Mapa (manual)", "success")], 0),
+                 ([("Mapa (diario)", "failure")] * 3, 1), ([("Mapa (diario)", "success")], 1)]
+        for runs, esperado in casos:
+            entrada = _j.dumps([{"displayTitle": t, "conclusion": c} for t, c in runs])
+            r = subprocess.run(["jq", expr], input=entrada, capture_output=True, text=True)
+            self.assertEqual(r.stdout.strip(), str(esperado), runs)
+
+
 if __name__ == "__main__":
     unittest.main()
