@@ -1,0 +1,194 @@
+{
+ "vivas": {
+  "antes_da_reserva": {
+   "n": 614,
+   "dias": 301,
+   "media_op": 0.1697,
+   "media_dia": 0.0903,
+   "soma": 104.22,
+   "pf": 1.457,
+   "win": 0.331,
+   "payoff": 2.95,
+   "max_dd_r": -44.6,
+   "t_dia": 1.43,
+   "ic90_dia": [
+    -0.0112,
+    0.1925
+   ],
+   "ic90_op_agrupado": [
+    0.0253,
+    0.3289
+   ],
+   "dias_maiores_5_pct_do_r": 1.586
+  },
+  "1a_metade": {
+   "n": 282,
+   "dias": 150,
+   "media_op": 0.1651,
+   "media_dia": 0.0797,
+   "soma": 46.55,
+   "pf": 1.439,
+   "win": 0.326,
+   "payoff": 2.971,
+   "max_dd_r": -25.88,
+   "t_dia": 0.96,
+   "ic90_dia": [
+    -0.0471,
+    0.216
+   ],
+   "ic90_op_agrupado": [
+    -0.0364,
+    0.3756
+   ],
+   "dias_maiores_5_pct_do_r": 1.433
+  },
+  "2a_metade": {
+   "n": 332,
+   "dias": 151,
+   "media_op": 0.1737,
+   "media_dia": 0.1008,
+   "soma": 57.66,
+   "pf": 1.473,
+   "win": 0.334,
+   "payoff": 2.932,
+   "max_dd_r": -47.48,
+   "t_dia": 1.06,
+   "ic90_dia": [
+    -0.0502,
+    0.265
+   ],
+   "ic90_op_agrupado": [
+    -0.0308,
+    0.384
+   ],
+   "dias_maiores_5_pct_do_r": 1.631
+  },
+  "reserva_contaminada": {
+   "n": 28,
+   "dias": 26,
+   "media_op": -0.2166,
+   "media_dia": -0.2698,
+   "soma": -6.06,
+   "pf": 0.558,
+   "win": 0.321,
+   "payoff": 1.177,
+   "max_dd_r": -6.86,
+   "t_dia": -1.66,
+   "ic90_dia": [
+    -0.5237,
+    -0.0092
+   ],
+   "ic90_op_agrupado": [
+    -0.5294,
+    0.1109
+   ],
+   "dias_maiores_5_pct_do_r": null
+  },
+  "teto_5_abertas": {
+   "media_op": 0.2245,
+   "p05": 0.1606,
+   "p95": 0.2928,
+   "n_tipico": 184
+  },
+  "funding_conhecido": [
+   589,
+   642
+  ]
+ },
+ "junto": {
+  "antes_da_reserva": {
+   "n": 732,
+   "dias": 345,
+   "media_op": 0.1488,
+   "media_dia": 0.0909,
+   "soma": 108.91,
+   "pf": 1.401,
+   "win": 0.325,
+   "payoff": 2.908,
+   "max_dd_r": -47.37,
+   "t_dia": 1.58,
+   "ic90_dia": [
+    0.0001,
+    0.1823
+   ],
+   "ic90_op_agrupado": [
+    0.0108,
+    0.2966
+   ],
+   "dias_maiores_5_pct_do_r": 1.772
+  },
+  "1a_metade": {
+   "n": 352,
+   "dias": 172,
+   "media_op": 0.094,
+   "media_dia": 0.0676,
+   "soma": 33.08,
+   "pf": 1.242,
+   "win": 0.301,
+   "payoff": 2.883,
+   "max_dd_r": -36.9,
+   "t_dia": 0.87,
+   "ic90_dia": [
+    -0.0567,
+    0.1974
+   ],
+   "ic90_op_agrupado": [
+    -0.0993,
+    0.3063
+   ],
+   "dias_maiores_5_pct_do_r": 2.552
+  },
+  "2a_metade": {
+   "n": 380,
+   "dias": 173,
+   "media_op": 0.1996,
+   "media_dia": 0.1141,
+   "soma": 75.83,
+   "pf": 1.562,
+   "win": 0.347,
+   "payoff": 2.934,
+   "max_dd_r": -44.71,
+   "t_dia": 1.34,
+   "ic90_dia": [
+    -0.0246,
+    0.2562
+   ],
+   "ic90_op_agrupado": [
+    0.0176,
+    0.4055
+   ],
+   "dias_maiores_5_pct_do_r": 1.355
+  },
+  "reserva_contaminada": {
+   "n": 29,
+   "dias": 26,
+   "media_op": -0.2248,
+   "media_dia": -0.256,
+   "soma": -6.52,
+   "pf": 0.54,
+   "win": 0.31,
+   "payoff": 1.199,
+   "max_dd_r": -6.86,
+   "t_dia": -1.6,
+   "ic90_dia": [
+    -0.5022,
+    0.0048
+   ],
+   "ic90_op_agrupado": [
+    -0.5281,
+    0.0919
+   ],
+   "dias_maiores_5_pct_do_r": null
+  },
+  "teto_5_abertas": {
+   "media_op": 0.2322,
+   "p05": 0.1608,
+   "p95": 0.2935,
+   "n_tipico": 170
+  },
+  "funding_conhecido": [
+   589,
+   761
+  ]
+ }
+}

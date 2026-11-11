@@ -1,0 +1,1406 @@
+{
+ "juro 0.0|SHORT_TURTLE|lateral|A 2021-06..2024-05": {
+  "n": 303,
+  "dias": 113,
+  "media_op": 0.2812,
+  "ic90_op_agrupado": [
+   0.092,
+   0.4685
+  ],
+  "media_dia": 0.257,
+  "ic90_dia": [
+   0.0895,
+   0.434
+  ],
+  "pf": 1.663,
+  "win": 0.508,
+  "max_dd_r": -36.1
+ },
+ "juro 0.0|SHORT_TURTLE|lateral|B 2024-06..reserva": {
+  "n": 401,
+  "dias": 120,
+  "media_op": 0.1105,
+  "ic90_op_agrupado": [
+   -0.0791,
+   0.3219
+  ],
+  "media_dia": 0.3038,
+  "ic90_dia": [
+   0.1153,
+   0.4915
+  ],
+  "pf": 1.205,
+  "win": 0.419,
+  "max_dd_r": -85.89
+ },
+ "juro 0.0|SHORT_TURTLE|lateral|reserva (contaminada)": {
+  "n": 46,
+  "dias": 22,
+  "media_op": 0.4697,
+  "ic90_op_agrupado": [
+   -0.0686,
+   0.9671
+  ],
+  "media_dia": 0.1045,
+  "ic90_dia": [
+   -0.3359,
+   0.5378
+  ],
+  "pf": 2.078,
+  "win": 0.543,
+  "max_dd_r": -13.08
+ },
+ "juro 0.0|SHORT_TURTLE|lateral|moedas fora do H10 (antes da reserva)": {
+  "n": 201,
+  "dias": 123,
+  "media_op": 0.1462,
+  "ic90_op_agrupado": [
+   -0.052,
+   0.3161
+  ],
+  "media_dia": 0.2254,
+  "ic90_dia": [
+   0.0449,
+   0.4044
+  ],
+  "pf": 1.304,
+  "win": 0.478,
+  "max_dd_r": -36.93
+ },
+ "juro 0.0|SHORT_TURTLE|lateral|piloto teto 4, 30 ops": {
+  "n_com_teto": 239,
+  "media_op": 0.33,
+  "blocos_de": 30,
+  "p_soma_negativa": 0.193,
+  "soma_p05": -7.53,
+  "soma_p50": 12.36,
+  "pior_dd_p05": -18.19,
+  "dd_historico_total": -22.21
+ },
+ "juro 0.0|SHORT_TURTLE|queda|A 2021-06..2024-05": {
+  "n": 110,
+  "dias": 37,
+  "media_op": 0.2039,
+  "ic90_op_agrupado": [
+   -0.2774,
+   0.6423
+  ],
+  "media_dia": 0.1211,
+  "ic90_dia": [
+   -0.2036,
+   0.4681
+  ],
+  "pf": 1.393,
+  "win": 0.445,
+  "max_dd_r": -35.82
+ },
+ "juro 0.0|SHORT_TURTLE|queda|B 2024-06..reserva": {
+  "n": 77,
+  "dias": 24,
+  "media_op": -0.0077,
+  "ic90_op_agrupado": [
+   -0.3801,
+   0.3266
+  ],
+  "media_dia": 0.1695,
+  "ic90_dia": [
+   -0.1865,
+   0.5166
+  ],
+  "pf": 0.985,
+  "win": 0.416,
+  "max_dd_r": -16.61
+ },
+ "juro 0.0|SHORT_TURTLE|queda|reserva (contaminada)": {
+  "n": 25,
+  "dias": 9,
+  "media_op": 0.1915,
+  "ic90_op_agrupado": [
+   -0.2842,
+   0.7392
+  ],
+  "media_dia": 0.2899,
+  "ic90_dia": [
+   -0.1041,
+   0.6829
+  ],
+  "pf": 1.606,
+  "win": 0.6,
+  "max_dd_r": -5.73
+ },
+ "juro 0.0|SHORT_TURTLE|queda|moedas fora do H10 (antes da reserva)": {
+  "n": 61,
+  "dias": 36,
+  "media_op": 0.0629,
+  "ic90_op_agrupado": [
+   -0.2349,
+   0.4046
+  ],
+  "media_dia": 0.0916,
+  "ic90_dia": [
+   -0.2318,
+   0.4265
+  ],
+  "pf": 1.122,
+  "win": 0.426,
+  "max_dd_r": -14.43
+ },
+ "juro 0.0|SHORT_TURTLE|queda|piloto teto 4, 30 ops": {
+  "n_com_teto": 84,
+  "media_op": 0.042,
+  "blocos_de": 30,
+  "p_soma_negativa": 0.686,
+  "soma_p05": -17.91,
+  "soma_p50": -4.48,
+  "pior_dd_p05": -18.9,
+  "dd_historico_total": -23.95
+ },
+ "juro 0.0|SHORT_X30|lateral|A 2021-06..2024-05": {
+  "n": 502,
+  "dias": 204,
+  "media_op": -0.2385,
+  "ic90_op_agrupado": [
+   -0.3328,
+   -0.1331
+  ],
+  "media_dia": -0.1978,
+  "ic90_dia": [
+   -0.2773,
+   -0.1093
+  ],
+  "pf": 0.527,
+  "win": 0.44,
+  "max_dd_r": -121.56
+ },
+ "juro 0.0|SHORT_X30|lateral|B 2024-06..reserva": {
+  "n": 610,
+  "dias": 160,
+  "media_op": -0.1523,
+  "ic90_op_agrupado": [
+   -0.2836,
+   -0.0003
+  ],
+  "media_dia": -0.1742,
+  "ic90_dia": [
+   -0.2746,
+   -0.0623
+  ],
+  "pf": 0.696,
+  "win": 0.457,
+  "max_dd_r": -94.13
+ },
+ "juro 0.0|SHORT_X30|lateral|reserva (contaminada)": {
+  "n": 110,
+  "dias": 47,
+  "media_op": -0.1096,
+  "ic90_op_agrupado": [
+   -0.2848,
+   0.1147
+  ],
+  "media_dia": -0.0022,
+  "ic90_dia": [
+   -0.1888,
+   0.1852
+  ],
+  "pf": 0.736,
+  "win": 0.536,
+  "max_dd_r": -19.86
+ },
+ "juro 0.0|SHORT_X30|lateral|moedas fora do H10 (antes da reserva)": {
+  "n": 290,
+  "dias": 170,
+  "media_op": -0.2458,
+  "ic90_op_agrupado": [
+   -0.361,
+   -0.1355
+  ],
+  "media_dia": -0.2232,
+  "ic90_dia": [
+   -0.3199,
+   -0.1219
+  ],
+  "pf": 0.515,
+  "win": 0.441,
+  "max_dd_r": -71.87
+ },
+ "juro 0.0|SHORT_X30|lateral|piloto teto 4, 30 ops": {
+  "n_com_teto": 676,
+  "media_op": -0.152,
+  "blocos_de": 30,
+  "p_soma_negativa": 0.75,
+  "soma_p05": -14.22,
+  "soma_p50": -4.51,
+  "pior_dd_p05": -15.54,
+  "dd_historico_total": -107.68
+ },
+ "juro 0.0|SHORT_X30|queda|A 2021-06..2024-05": {
+  "n": 58,
+  "dias": 34,
+  "media_op": 0.086,
+  "ic90_op_agrupado": [
+   -0.1586,
+   0.3273
+  ],
+  "media_dia": 0.0811,
+  "ic90_dia": [
+   -0.1729,
+   0.3318
+  ],
+  "pf": 1.234,
+  "win": 0.603,
+  "max_dd_r": -7.3
+ },
+ "juro 0.0|SHORT_X30|queda|B 2024-06..reserva": {
+  "n": 43,
+  "dias": 12,
+  "media_op": 0.4611,
+  "ic90_op_agrupado": [
+   -0.0758,
+   0.706
+  ],
+  "media_dia": 0.0881,
+  "ic90_dia": [
+   -0.3744,
+   0.5874
+  ],
+  "pf": 3.461,
+  "win": 0.767,
+  "max_dd_r": -7.18
+ },
+ "juro 0.0|SHORT_X30|queda|reserva (contaminada)": {
+  "n": 14,
+  "dias": 6,
+  "media_op": 0.2744,
+  "ic90_op_agrupado": [
+   -0.2156,
+   0.6109
+  ],
+  "media_dia": 0.1743,
+  "ic90_dia": [
+   -0.42,
+   0.76
+  ],
+  "pf": 1.952,
+  "win": 0.714,
+  "max_dd_r": -3.03
+ },
+ "juro 0.0|SHORT_X30|queda|moedas fora do H10 (antes da reserva)": {
+  "n": 22,
+  "dias": 12,
+  "media_op": 0.1574,
+  "ic90_op_agrupado": [
+   -0.2877,
+   0.4498
+  ],
+  "media_dia": -0.0235,
+  "ic90_dia": [
+   -0.3236,
+   0.2577
+  ],
+  "pf": 1.683,
+  "win": 0.682,
+  "max_dd_r": -3.72
+ },
+ "juro 0.0|SHORT_X30|queda|piloto teto 4, 30 ops": {
+  "n_com_teto": 78,
+  "media_op": 0.131,
+  "blocos_de": 30,
+  "p_soma_negativa": 0.723,
+  "soma_p05": -8.81,
+  "soma_p50": -3.8,
+  "pior_dd_p05": -9.9,
+  "dd_historico_total": -13.55
+ },
+ "juro 0.0|SHORT_ISOLADA|lateral|A 2021-06..2024-05": {
+  "n": 359,
+  "dias": 164,
+  "media_op": -0.2397,
+  "ic90_op_agrupado": [
+   -0.3366,
+   -0.1314
+  ],
+  "media_dia": -0.1796,
+  "ic90_dia": [
+   -0.2784,
+   -0.0879
+  ],
+  "pf": 0.515,
+  "win": 0.448,
+  "max_dd_r": -88.67
+ },
+ "juro 0.0|SHORT_ISOLADA|lateral|B 2024-06..reserva": {
+  "n": 487,
+  "dias": 133,
+  "media_op": -0.1803,
+  "ic90_op_agrupado": [
+   -0.3284,
+   -0.018
+  ],
+  "media_dia": -0.153,
+  "ic90_dia": [
+   -0.2602,
+   -0.0429
+  ],
+  "pf": 0.638,
+  "win": 0.462,
+  "max_dd_r": -96.31
+ },
+ "juro 0.0|SHORT_ISOLADA|lateral|reserva (contaminada)": {
+  "n": 99,
+  "dias": 45,
+  "media_op": -0.0551,
+  "ic90_op_agrupado": [
+   -0.2539,
+   0.1777
+  ],
+  "media_dia": 0.0433,
+  "ic90_dia": [
+   -0.1484,
+   0.2226
+  ],
+  "pf": 0.857,
+  "win": 0.566,
+  "max_dd_r": -13.26
+ },
+ "juro 0.0|SHORT_ISOLADA|lateral|moedas fora do H10 (antes da reserva)": {
+  "n": 227,
+  "dias": 133,
+  "media_op": -0.2754,
+  "ic90_op_agrupado": [
+   -0.3943,
+   -0.16
+  ],
+  "media_dia": -0.231,
+  "ic90_dia": [
+   -0.3318,
+   -0.1282
+  ],
+  "pf": 0.457,
+  "win": 0.441,
+  "max_dd_r": -62.52
+ },
+ "juro 0.0|SHORT_ISOLADA|lateral|piloto teto 4, 30 ops": {
+  "n_com_teto": 540,
+  "media_op": -0.189,
+  "blocos_de": 30,
+  "p_soma_negativa": 0.812,
+  "soma_p05": -13.52,
+  "soma_p50": -5.43,
+  "pior_dd_p05": -14.91,
+  "dd_historico_total": -102.15
+ },
+ "juro 0.0|SHORT_ISOLADA|queda|A 2021-06..2024-05": {
+  "n": 42,
+  "dias": 29,
+  "media_op": -0.0283,
+  "ic90_op_agrupado": [
+   -0.2605,
+   0.2361
+  ],
+  "media_dia": 0.0051,
+  "ic90_dia": [
+   -0.2424,
+   0.2775
+  ],
+  "pf": 0.923,
+  "win": 0.571,
+  "max_dd_r": -5.64
+ },
+ "juro 0.0|SHORT_ISOLADA|queda|B 2024-06..reserva": {
+  "n": 32,
+  "dias": 10,
+  "media_op": 0.4216,
+  "ic90_op_agrupado": [
+   -0.4054,
+   0.6847
+  ],
+  "media_dia": 0.0055,
+  "ic90_dia": [
+   -0.5194,
+   0.6061
+  ],
+  "pf": 3.32,
+  "win": 0.781,
+  "max_dd_r": -5.53
+ },
+ "juro 0.0|SHORT_ISOLADA|queda|reserva (contaminada)": {
+  "n": 14,
+  "dias": 6,
+  "media_op": 0.2744,
+  "ic90_op_agrupado": [
+   -0.2156,
+   0.6109
+  ],
+  "media_dia": 0.1743,
+  "ic90_dia": [
+   -0.42,
+   0.76
+  ],
+  "pf": 1.952,
+  "win": 0.714,
+  "max_dd_r": -3.03
+ },
+ "juro 0.0|SHORT_ISOLADA|queda|moedas fora do H10 (antes da reserva)": {
+  "n": 16,
+  "dias": 9,
+  "media_op": 0.0944,
+  "ic90_op_agrupado": [
+   -0.5464,
+   0.4219
+  ],
+  "media_dia": -0.1707,
+  "ic90_dia": [
+   -0.5078,
+   0.1298
+  ],
+  "pf": 1.393,
+  "win": 0.688,
+  "max_dd_r": -3.84
+ },
+ "juro 0.0|SHORT_ISOLADA|queda|piloto teto 4, 30 ops": {
+  "n_com_teto": 59,
+  "media_op": 0.021,
+  "blocos_de": 30,
+  "p_soma_negativa": 0.861,
+  "soma_p05": -8.59,
+  "soma_p50": -2.5,
+  "pior_dd_p05": -8.59,
+  "dd_historico_total": -9.61
+ },
+ "juro 0.03|SHORT_TURTLE|lateral|A 2021-06..2024-05": {
+  "n": 303,
+  "dias": 113,
+  "media_op": 0.2497,
+  "ic90_op_agrupado": [
+   0.0586,
+   0.4372
+  ],
+  "media_dia": 0.2264,
+  "ic90_dia": [
+   0.0607,
+   0.4014
+  ],
+  "pf": 1.569,
+  "win": 0.482,
+  "max_dd_r": -38.01
+ },
+ "juro 0.03|SHORT_TURTLE|lateral|B 2024-06..reserva": {
+  "n": 401,
+  "dias": 120,
+  "media_op": 0.0852,
+  "ic90_op_agrupado": [
+   -0.1039,
+   0.2967
+  ],
+  "media_dia": 0.2762,
+  "ic90_dia": [
+   0.089,
+   0.4631
+  ],
+  "pf": 1.154,
+  "win": 0.416,
+  "max_dd_r": -91.06
+ },
+ "juro 0.03|SHORT_TURTLE|lateral|reserva (contaminada)": {
+  "n": 46,
+  "dias": 22,
+  "media_op": 0.4269,
+  "ic90_op_agrupado": [
+   -0.103,
+   0.9178
+  ],
+  "media_dia": 0.0668,
+  "ic90_dia": [
+   -0.3669,
+   0.493
+  ],
+  "pf": 1.954,
+  "win": 0.543,
+  "max_dd_r": -13.92
+ },
+ "juro 0.03|SHORT_TURTLE|lateral|moedas fora do H10 (antes da reserva)": {
+  "n": 201,
+  "dias": 123,
+  "media_op": 0.12,
+  "ic90_op_agrupado": [
+   -0.0763,
+   0.2893
+  ],
+  "media_dia": 0.1983,
+  "ic90_dia": [
+   0.0187,
+   0.3776
+  ],
+  "pf": 1.243,
+  "win": 0.468,
+  "max_dd_r": -38.84
+ },
+ "juro 0.03|SHORT_TURTLE|lateral|piloto teto 4, 30 ops": {
+  "n_com_teto": 239,
+  "media_op": 0.299,
+  "blocos_de": 30,
+  "p_soma_negativa": 0.214,
+  "soma_p05": -8.42,
+  "soma_p50": 11.17,
+  "pior_dd_p05": -18.78,
+  "dd_historico_total": -22.84
+ },
+ "juro 0.03|SHORT_TURTLE|queda|A 2021-06..2024-05": {
+  "n": 110,
+  "dias": 37,
+  "media_op": 0.1858,
+  "ic90_op_agrupado": [
+   -0.2949,
+   0.6267
+  ],
+  "media_dia": 0.1007,
+  "ic90_dia": [
+   -0.2247,
+   0.4474
+  ],
+  "pf": 1.351,
+  "win": 0.445,
+  "max_dd_r": -36.91
+ },
+ "juro 0.03|SHORT_TURTLE|queda|B 2024-06..reserva": {
+  "n": 77,
+  "dias": 24,
+  "media_op": -0.0341,
+  "ic90_op_agrupado": [
+   -0.4052,
+   0.2984
+  ],
+  "media_dia": 0.1407,
+  "ic90_dia": [
+   -0.2171,
+   0.4907
+  ],
+  "pf": 0.937,
+  "win": 0.403,
+  "max_dd_r": -17.3
+ },
+ "juro 0.03|SHORT_TURTLE|queda|reserva (contaminada)": {
+  "n": 25,
+  "dias": 9,
+  "media_op": 0.151,
+  "ic90_op_agrupado": [
+   -0.3265,
+   0.7051
+  ],
+  "media_dia": 0.2435,
+  "ic90_dia": [
+   -0.1477,
+   0.6402
+  ],
+  "pf": 1.455,
+  "win": 0.6,
+  "max_dd_r": -6.13
+ },
+ "juro 0.03|SHORT_TURTLE|queda|moedas fora do H10 (antes da reserva)": {
+  "n": 61,
+  "dias": 36,
+  "media_op": 0.0408,
+  "ic90_op_agrupado": [
+   -0.2564,
+   0.382
+  ],
+  "media_dia": 0.0693,
+  "ic90_dia": [
+   -0.2568,
+   0.4034
+  ],
+  "pf": 1.077,
+  "win": 0.426,
+  "max_dd_r": -14.92
+ },
+ "juro 0.03|SHORT_TURTLE|queda|piloto teto 4, 30 ops": {
+  "n_com_teto": 84,
+  "media_op": 0.019,
+  "blocos_de": 30,
+  "p_soma_negativa": 0.686,
+  "soma_p05": -18.79,
+  "soma_p50": -5.29,
+  "pior_dd_p05": -19.59,
+  "dd_historico_total": -25.22
+ },
+ "juro 0.03|SHORT_X30|lateral|A 2021-06..2024-05": {
+  "n": 502,
+  "dias": 204,
+  "media_op": -0.2492,
+  "ic90_op_agrupado": [
+   -0.3434,
+   -0.1451
+  ],
+  "media_dia": -0.2079,
+  "ic90_dia": [
+   -0.2875,
+   -0.1198
+  ],
+  "pf": 0.511,
+  "win": 0.436,
+  "max_dd_r": -126.89
+ },
+ "juro 0.03|SHORT_X30|lateral|B 2024-06..reserva": {
+  "n": 610,
+  "dias": 160,
+  "media_op": -0.1644,
+  "ic90_op_agrupado": [
+   -0.295,
+   -0.0132
+  ],
+  "media_dia": -0.1862,
+  "ic90_dia": [
+   -0.2859,
+   -0.0749
+  ],
+  "pf": 0.675,
+  "win": 0.451,
+  "max_dd_r": -100.48
+ },
+ "juro 0.03|SHORT_X30|lateral|reserva (contaminada)": {
+  "n": 110,
+  "dias": 47,
+  "media_op": -0.1232,
+  "ic90_op_agrupado": [
+   -0.2981,
+   0.0999
+  ],
+  "media_dia": -0.0159,
+  "ic90_dia": [
+   -0.2017,
+   0.1704
+  ],
+  "pf": 0.707,
+  "win": 0.536,
+  "max_dd_r": -20.54
+ },
+ "juro 0.03|SHORT_X30|lateral|moedas fora do H10 (antes da reserva)": {
+  "n": 290,
+  "dias": 170,
+  "media_op": -0.2544,
+  "ic90_op_agrupado": [
+   -0.3694,
+   -0.1445
+  ],
+  "media_dia": -0.2313,
+  "ic90_dia": [
+   -0.3273,
+   -0.1301
+  ],
+  "pf": 0.502,
+  "win": 0.441,
+  "max_dd_r": -74.25
+ },
+ "juro 0.03|SHORT_X30|lateral|piloto teto 4, 30 ops": {
+  "n_com_teto": 676,
+  "media_op": -0.164,
+  "blocos_de": 30,
+  "p_soma_negativa": 0.769,
+  "soma_p05": -14.53,
+  "soma_p50": -4.82,
+  "pior_dd_p05": -15.84,
+  "dd_historico_total": -115.13
+ },
+ "juro 0.03|SHORT_X30|queda|A 2021-06..2024-05": {
+  "n": 58,
+  "dias": 34,
+  "media_op": 0.0749,
+  "ic90_op_agrupado": [
+   -0.1682,
+   0.3143
+  ],
+  "media_dia": 0.0708,
+  "ic90_dia": [
+   -0.1814,
+   0.3205
+  ],
+  "pf": 1.202,
+  "win": 0.603,
+  "max_dd_r": -7.58
+ },
+ "juro 0.03|SHORT_X30|queda|B 2024-06..reserva": {
+  "n": 43,
+  "dias": 12,
+  "media_op": 0.447,
+  "ic90_op_agrupado": [
+   -0.0869,
+   0.6904
+  ],
+  "media_dia": 0.0767,
+  "ic90_dia": [
+   -0.3828,
+   0.5717
+  ],
+  "pf": 3.364,
+  "win": 0.767,
+  "max_dd_r": -7.25
+ },
+ "juro 0.03|SHORT_X30|queda|reserva (contaminada)": {
+  "n": 14,
+  "dias": 6,
+  "media_op": 0.2604,
+  "ic90_op_agrupado": [
+   -0.2199,
+   0.6019
+  ],
+  "media_dia": 0.1654,
+  "ic90_dia": [
+   -0.4242,
+   0.7487
+  ],
+  "pf": 1.9,
+  "win": 0.714,
+  "max_dd_r": -3.04
+ },
+ "juro 0.03|SHORT_X30|queda|moedas fora do H10 (antes da reserva)": {
+  "n": 22,
+  "dias": 12,
+  "media_op": 0.1488,
+  "ic90_op_agrupado": [
+   -0.2921,
+   0.4376
+  ],
+  "media_dia": -0.0295,
+  "ic90_dia": [
+   -0.3285,
+   0.2504
+  ],
+  "pf": 1.643,
+  "win": 0.682,
+  "max_dd_r": -3.75
+ },
+ "juro 0.03|SHORT_X30|queda|piloto teto 4, 30 ops": {
+  "n_com_teto": 78,
+  "media_op": 0.12,
+  "blocos_de": 30,
+  "p_soma_negativa": 0.723,
+  "soma_p05": -9.14,
+  "soma_p50": -4.16,
+  "pior_dd_p05": -10.16,
+  "dd_historico_total": -14.06
+ },
+ "juro 0.03|SHORT_ISOLADA|lateral|A 2021-06..2024-05": {
+  "n": 359,
+  "dias": 164,
+  "media_op": -0.2501,
+  "ic90_op_agrupado": [
+   -0.347,
+   -0.1426
+  ],
+  "media_dia": -0.1896,
+  "ic90_dia": [
+   -0.2886,
+   -0.099
+  ],
+  "pf": 0.499,
+  "win": 0.446,
+  "max_dd_r": -92.21
+ },
+ "juro 0.03|SHORT_ISOLADA|lateral|B 2024-06..reserva": {
+  "n": 487,
+  "dias": 133,
+  "media_op": -0.1918,
+  "ic90_op_agrupado": [
+   -0.3393,
+   -0.0301
+  ],
+  "media_dia": -0.1646,
+  "ic90_dia": [
+   -0.2713,
+   -0.0544
+  ],
+  "pf": 0.619,
+  "win": 0.456,
+  "max_dd_r": -101.14
+ },
+ "juro 0.03|SHORT_ISOLADA|lateral|reserva (contaminada)": {
+  "n": 99,
+  "dias": 45,
+  "media_op": -0.0689,
+  "ic90_op_agrupado": [
+   -0.2664,
+   0.1633
+  ],
+  "media_dia": 0.0292,
+  "ic90_dia": [
+   -0.1621,
+   0.2066
+  ],
+  "pf": 0.823,
+  "win": 0.566,
+  "max_dd_r": -13.82
+ },
+ "juro 0.03|SHORT_ISOLADA|lateral|moedas fora do H10 (antes da reserva)": {
+  "n": 227,
+  "dias": 133,
+  "media_op": -0.2839,
+  "ic90_op_agrupado": [
+   -0.4024,
+   -0.1686
+  ],
+  "media_dia": -0.2389,
+  "ic90_dia": [
+   -0.3392,
+   -0.1365
+  ],
+  "pf": 0.444,
+  "win": 0.441,
+  "max_dd_r": -64.44
+ },
+ "juro 0.03|SHORT_ISOLADA|lateral|piloto teto 4, 30 ops": {
+  "n_com_teto": 540,
+  "media_op": -0.2,
+  "blocos_de": 30,
+  "p_soma_negativa": 0.825,
+  "soma_p05": -13.82,
+  "soma_p50": -5.74,
+  "pior_dd_p05": -15.2,
+  "dd_historico_total": -108.07
+ },
+ "juro 0.03|SHORT_ISOLADA|queda|A 2021-06..2024-05": {
+  "n": 42,
+  "dias": 29,
+  "media_op": -0.0385,
+  "ic90_op_agrupado": [
+   -0.2687,
+   0.225
+  ],
+  "media_dia": -0.0042,
+  "ic90_dia": [
+   -0.2507,
+   0.2656
+  ],
+  "pf": 0.897,
+  "win": 0.571,
+  "max_dd_r": -5.89
+ },
+ "juro 0.03|SHORT_ISOLADA|queda|B 2024-06..reserva": {
+  "n": 32,
+  "dias": 10,
+  "media_op": 0.4073,
+  "ic90_op_agrupado": [
+   -0.4113,
+   0.6683
+  ],
+  "media_dia": -0.0051,
+  "ic90_dia": [
+   -0.5274,
+   0.5918
+  ],
+  "pf": 3.22,
+  "win": 0.781,
+  "max_dd_r": -5.56
+ },
+ "juro 0.03|SHORT_ISOLADA|queda|reserva (contaminada)": {
+  "n": 14,
+  "dias": 6,
+  "media_op": 0.2604,
+  "ic90_op_agrupado": [
+   -0.2199,
+   0.6019
+  ],
+  "media_dia": 0.1654,
+  "ic90_dia": [
+   -0.4242,
+   0.7487
+  ],
+  "pf": 1.9,
+  "win": 0.714,
+  "max_dd_r": -3.04
+ },
+ "juro 0.03|SHORT_ISOLADA|queda|moedas fora do H10 (antes da reserva)": {
+  "n": 16,
+  "dias": 9,
+  "media_op": 0.0856,
+  "ic90_op_agrupado": [
+   -0.5507,
+   0.4099
+  ],
+  "media_dia": -0.1757,
+  "ic90_dia": [
+   -0.513,
+   0.1245
+  ],
+  "pf": 1.355,
+  "win": 0.688,
+  "max_dd_r": -3.86
+ },
+ "juro 0.03|SHORT_ISOLADA|queda|piloto teto 4, 30 ops": {
+  "n_com_teto": 59,
+  "media_op": 0.01,
+  "blocos_de": 30,
+  "p_soma_negativa": 0.894,
+  "soma_p05": -8.91,
+  "soma_p50": -2.84,
+  "pior_dd_p05": -8.91,
+  "dd_historico_total": -9.93
+ },
+ "juro 0.06|SHORT_TURTLE|lateral|A 2021-06..2024-05": {
+  "n": 303,
+  "dias": 113,
+  "media_op": 0.2182,
+  "ic90_op_agrupado": [
+   0.0251,
+   0.4059
+  ],
+  "media_dia": 0.1958,
+  "ic90_dia": [
+   0.0311,
+   0.37
+  ],
+  "pf": 1.48,
+  "win": 0.482,
+  "max_dd_r": -40.16
+ },
+ "juro 0.06|SHORT_TURTLE|lateral|B 2024-06..reserva": {
+  "n": 401,
+  "dias": 120,
+  "media_op": 0.0598,
+  "ic90_op_agrupado": [
+   -0.1294,
+   0.2702
+  ],
+  "media_dia": 0.2485,
+  "ic90_dia": [
+   0.0603,
+   0.4343
+  ],
+  "pf": 1.105,
+  "win": 0.416,
+  "max_dd_r": -96.23
+ },
+ "juro 0.06|SHORT_TURTLE|lateral|reserva (contaminada)": {
+  "n": 46,
+  "dias": 22,
+  "media_op": 0.3842,
+  "ic90_op_agrupado": [
+   -0.1417,
+   0.8716
+  ],
+  "media_dia": 0.0291,
+  "ic90_dia": [
+   -0.4026,
+   0.4547
+  ],
+  "pf": 1.834,
+  "win": 0.5,
+  "max_dd_r": -14.77
+ },
+ "juro 0.06|SHORT_TURTLE|lateral|moedas fora do H10 (antes da reserva)": {
+  "n": 201,
+  "dias": 123,
+  "media_op": 0.0938,
+  "ic90_op_agrupado": [
+   -0.1011,
+   0.2631
+  ],
+  "media_dia": 0.1713,
+  "ic90_dia": [
+   -0.0093,
+   0.348
+  ],
+  "pf": 1.185,
+  "win": 0.468,
+  "max_dd_r": -40.75
+ },
+ "juro 0.06|SHORT_TURTLE|lateral|piloto teto 4, 30 ops": {
+  "n_com_teto": 239,
+  "media_op": 0.269,
+  "blocos_de": 30,
+  "p_soma_negativa": 0.238,
+  "soma_p05": -9.31,
+  "soma_p50": 9.93,
+  "pior_dd_p05": -19.37,
+  "dd_historico_total": -23.47
+ },
+ "juro 0.06|SHORT_TURTLE|queda|A 2021-06..2024-05": {
+  "n": 110,
+  "dias": 37,
+  "media_op": 0.1677,
+  "ic90_op_agrupado": [
+   -0.3116,
+   0.6115
+  ],
+  "media_dia": 0.0803,
+  "ic90_dia": [
+   -0.2448,
+   0.424
+  ],
+  "pf": 1.31,
+  "win": 0.445,
+  "max_dd_r": -37.99
+ },
+ "juro 0.06|SHORT_TURTLE|queda|B 2024-06..reserva": {
+  "n": 77,
+  "dias": 24,
+  "media_op": -0.0605,
+  "ic90_op_agrupado": [
+   -0.4305,
+   0.2694
+  ],
+  "media_dia": 0.1119,
+  "ic90_dia": [
+   -0.2475,
+   0.4644
+  ],
+  "pf": 0.891,
+  "win": 0.403,
+  "max_dd_r": -17.98
+ },
+ "juro 0.06|SHORT_TURTLE|queda|reserva (contaminada)": {
+  "n": 25,
+  "dias": 9,
+  "media_op": 0.1105,
+  "ic90_op_agrupado": [
+   -0.3746,
+   0.6701
+  ],
+  "media_dia": 0.197,
+  "ic90_dia": [
+   -0.1914,
+   0.5859
+  ],
+  "pf": 1.316,
+  "win": 0.56,
+  "max_dd_r": -6.53
+ },
+ "juro 0.06|SHORT_TURTLE|queda|moedas fora do H10 (antes da reserva)": {
+  "n": 61,
+  "dias": 36,
+  "media_op": 0.0186,
+  "ic90_op_agrupado": [
+   -0.281,
+   0.3635
+  ],
+  "media_dia": 0.0469,
+  "ic90_dia": [
+   -0.2814,
+   0.3816
+  ],
+  "pf": 1.034,
+  "win": 0.426,
+  "max_dd_r": -15.41
+ },
+ "juro 0.06|SHORT_TURTLE|queda|piloto teto 4, 30 ops": {
+  "n_com_teto": 84,
+  "media_op": -0.004,
+  "blocos_de": 30,
+  "p_soma_negativa": 0.686,
+  "soma_p05": -19.66,
+  "soma_p50": -6.1,
+  "pior_dd_p05": -20.29,
+  "dd_historico_total": -26.69
+ },
+ "juro 0.06|SHORT_X30|lateral|A 2021-06..2024-05": {
+  "n": 502,
+  "dias": 204,
+  "media_op": -0.2599,
+  "ic90_op_agrupado": [
+   -0.3539,
+   -0.1567
+  ],
+  "media_dia": -0.218,
+  "ic90_dia": [
+   -0.2976,
+   -0.1304
+  ],
+  "pf": 0.495,
+  "win": 0.434,
+  "max_dd_r": -132.23
+ },
+ "juro 0.06|SHORT_X30|lateral|B 2024-06..reserva": {
+  "n": 610,
+  "dias": 160,
+  "media_op": -0.1764,
+  "ic90_op_agrupado": [
+   -0.3065,
+   -0.026
+  ],
+  "media_dia": -0.1982,
+  "ic90_dia": [
+   -0.2974,
+   -0.087
+  ],
+  "pf": 0.655,
+  "win": 0.444,
+  "max_dd_r": -107.69
+ },
+ "juro 0.06|SHORT_X30|lateral|reserva (contaminada)": {
+  "n": 110,
+  "dias": 47,
+  "media_op": -0.1367,
+  "ic90_op_agrupado": [
+   -0.3114,
+   0.0852
+  ],
+  "media_dia": -0.0296,
+  "ic90_dia": [
+   -0.2146,
+   0.154
+  ],
+  "pf": 0.679,
+  "win": 0.527,
+  "max_dd_r": -21.25
+ },
+ "juro 0.06|SHORT_X30|lateral|moedas fora do H10 (antes da reserva)": {
+  "n": 290,
+  "dias": 170,
+  "media_op": -0.2631,
+  "ic90_op_agrupado": [
+   -0.3777,
+   -0.1534
+  ],
+  "media_dia": -0.2394,
+  "ic90_dia": [
+   -0.3347,
+   -0.139
+  ],
+  "pf": 0.489,
+  "win": 0.438,
+  "max_dd_r": -76.63
+ },
+ "juro 0.06|SHORT_X30|lateral|piloto teto 4, 30 ops": {
+  "n_com_teto": 676,
+  "media_op": -0.175,
+  "blocos_de": 30,
+  "p_soma_negativa": 0.778,
+  "soma_p05": -14.84,
+  "soma_p50": -5.14,
+  "pior_dd_p05": -16.1,
+  "dd_historico_total": -122.59
+ },
+ "juro 0.06|SHORT_X30|queda|A 2021-06..2024-05": {
+  "n": 58,
+  "dias": 34,
+  "media_op": 0.0638,
+  "ic90_op_agrupado": [
+   -0.1769,
+   0.3012
+  ],
+  "media_dia": 0.0605,
+  "ic90_dia": [
+   -0.1903,
+   0.3097
+  ],
+  "pf": 1.171,
+  "win": 0.603,
+  "max_dd_r": -7.85
+ },
+ "juro 0.06|SHORT_X30|queda|B 2024-06..reserva": {
+  "n": 43,
+  "dias": 12,
+  "media_op": 0.4328,
+  "ic90_op_agrupado": [
+   -0.098,
+   0.6747
+  ],
+  "media_dia": 0.0654,
+  "ic90_dia": [
+   -0.3918,
+   0.5565
+  ],
+  "pf": 3.267,
+  "win": 0.767,
+  "max_dd_r": -7.32
+ },
+ "juro 0.06|SHORT_X30|queda|reserva (contaminada)": {
+  "n": 14,
+  "dias": 6,
+  "media_op": 0.2465,
+  "ic90_op_agrupado": [
+   -0.2243,
+   0.593
+  ],
+  "media_dia": 0.1565,
+  "ic90_dia": [
+   -0.4284,
+   0.7375
+  ],
+  "pf": 1.848,
+  "win": 0.714,
+  "max_dd_r": -3.05
+ },
+ "juro 0.06|SHORT_X30|queda|moedas fora do H10 (antes da reserva)": {
+  "n": 22,
+  "dias": 12,
+  "media_op": 0.1403,
+  "ic90_op_agrupado": [
+   -0.2965,
+   0.4256
+  ],
+  "media_dia": -0.0354,
+  "ic90_dia": [
+   -0.3336,
+   0.2436
+  ],
+  "pf": 1.602,
+  "win": 0.682,
+  "max_dd_r": -3.79
+ },
+ "juro 0.06|SHORT_X30|queda|piloto teto 4, 30 ops": {
+  "n_com_teto": 78,
+  "media_op": 0.108,
+  "blocos_de": 30,
+  "p_soma_negativa": 0.723,
+  "soma_p05": -9.46,
+  "soma_p50": -4.52,
+  "pior_dd_p05": -10.42,
+  "dd_historico_total": -14.57
+ },
+ "juro 0.06|SHORT_ISOLADA|lateral|A 2021-06..2024-05": {
+  "n": 359,
+  "dias": 164,
+  "media_op": -0.2604,
+  "ic90_op_agrupado": [
+   -0.3573,
+   -0.1528
+  ],
+  "media_dia": -0.1997,
+  "ic90_dia": [
+   -0.2987,
+   -0.1101
+  ],
+  "pf": 0.483,
+  "win": 0.446,
+  "max_dd_r": -95.76
+ },
+ "juro 0.06|SHORT_ISOLADA|lateral|B 2024-06..reserva": {
+  "n": 487,
+  "dias": 133,
+  "media_op": -0.2033,
+  "ic90_op_agrupado": [
+   -0.3498,
+   -0.0423
+  ],
+  "media_dia": -0.1761,
+  "ic90_dia": [
+   -0.2829,
+   -0.0656
+  ],
+  "pf": 0.6,
+  "win": 0.448,
+  "max_dd_r": -105.97
+ },
+ "juro 0.06|SHORT_ISOLADA|lateral|reserva (contaminada)": {
+  "n": 99,
+  "dias": 45,
+  "media_op": -0.0828,
+  "ic90_op_agrupado": [
+   -0.2807,
+   0.1493
+  ],
+  "media_dia": 0.0152,
+  "ic90_dia": [
+   -0.1762,
+   0.1926
+  ],
+  "pf": 0.79,
+  "win": 0.556,
+  "max_dd_r": -14.41
+ },
+ "juro 0.06|SHORT_ISOLADA|lateral|moedas fora do H10 (antes da reserva)": {
+  "n": 227,
+  "dias": 133,
+  "media_op": -0.2923,
+  "ic90_op_agrupado": [
+   -0.4097,
+   -0.1772
+  ],
+  "media_dia": -0.2467,
+  "ic90_dia": [
+   -0.3461,
+   -0.1449
+  ],
+  "pf": 0.432,
+  "win": 0.436,
+  "max_dd_r": -66.36
+ },
+ "juro 0.06|SHORT_ISOLADA|lateral|piloto teto 4, 30 ops": {
+  "n_com_teto": 540,
+  "media_op": -0.211,
+  "blocos_de": 30,
+  "p_soma_negativa": 0.843,
+  "soma_p05": -14.09,
+  "soma_p50": -6.08,
+  "pior_dd_p05": -15.41,
+  "dd_historico_total": -113.99
+ },
+ "juro 0.06|SHORT_ISOLADA|queda|A 2021-06..2024-05": {
+  "n": 42,
+  "dias": 29,
+  "media_op": -0.0486,
+  "ic90_op_agrupado": [
+   -0.2769,
+   0.2138
+  ],
+  "media_dia": -0.0136,
+  "ic90_dia": [
+   -0.2608,
+   0.2536
+  ],
+  "pf": 0.871,
+  "win": 0.571,
+  "max_dd_r": -6.13
+ },
+ "juro 0.06|SHORT_ISOLADA|queda|B 2024-06..reserva": {
+  "n": 32,
+  "dias": 10,
+  "media_op": 0.393,
+  "ic90_op_agrupado": [
+   -0.4172,
+   0.6519
+  ],
+  "media_dia": -0.0157,
+  "ic90_dia": [
+   -0.5349,
+   0.5745
+  ],
+  "pf": 3.122,
+  "win": 0.781,
+  "max_dd_r": -5.6
+ },
+ "juro 0.06|SHORT_ISOLADA|queda|reserva (contaminada)": {
+  "n": 14,
+  "dias": 6,
+  "media_op": 0.2465,
+  "ic90_op_agrupado": [
+   -0.2243,
+   0.593
+  ],
+  "media_dia": 0.1565,
+  "ic90_dia": [
+   -0.4284,
+   0.7375
+  ],
+  "pf": 1.848,
+  "win": 0.714,
+  "max_dd_r": -3.05
+ },
+ "juro 0.06|SHORT_ISOLADA|queda|moedas fora do H10 (antes da reserva)": {
+  "n": 16,
+  "dias": 9,
+  "media_op": 0.0768,
+  "ic90_op_agrupado": [
+   -0.5547,
+   0.3977
+  ],
+  "media_dia": -0.1806,
+  "ic90_dia": [
+   -0.5181,
+   0.1179
+  ],
+  "pf": 1.317,
+  "win": 0.688,
+  "max_dd_r": -3.87
+ },
+ "juro 0.06|SHORT_ISOLADA|queda|piloto teto 4, 30 ops": {
+  "n_com_teto": 59,
+  "media_op": -0.001,
+  "blocos_de": 30,
+  "p_soma_negativa": 0.961,
+  "soma_p05": -9.22,
+  "soma_p50": -3.17,
+  "pior_dd_p05": -9.22,
+  "dd_historico_total": -10.25
+ }
+}
