@@ -11,6 +11,11 @@ import sys
 
 RAIZ = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 HIST_ORIGINAL = "/tmp/claude-0/hist"
+# (11/11) opcional (--com-ativo): o ativo de cada operacao, para a robustez entre ativos. Acrescenta o nome do ativo
+# no FIM do tuplo de cada candidato (os estudos so leem os candidatos por indice 0-4: nada muda nos resultados).
+TROCAS_ATIVO = (('R, r, ts)); livre = j; break', 'R, r, ts, a)); livre = j; break'),
+                ('R, int(d["t"][i]))); livre = j; break', 'R, int(d["t"][i]), a)); livre = j; break'))
+TROCAS = []
 
 
 def _src(nome):
@@ -27,16 +32,26 @@ def _abrir(hist):
         caminho = os.path.join(RAIZ, p) if str(p).startswith("backtest/") else p
         if str(p).endswith(".py") and not (a and "w" in a[0]):
             with open(caminho, encoding="utf-8") as f:
-                return io.StringIO(f.read().replace(HIST_ORIGINAL, hist))
+                return io.StringIO(_trocar(f.read().replace(HIST_ORIGINAL, hist)))
         return open(caminho, *a, **k)
     return abrir
+
+
+def _trocar(src):
+    for a, b in TROCAS:
+        src = src.replace(a, b)
+    return src
 
 
 def _correr(src, hist):
     g = {"__name__": "estudo", "open": _abrir(hist)}
     os.chdir(RAIZ)
-    exec(compile(src.replace(HIST_ORIGINAL, hist), "estudo", "exec"), g)
+    exec(compile(_trocar(src.replace(HIST_ORIGINAL, hist)), "estudo", "exec"), g)
     return g
+
+
+def _ativo(c, base):
+    return {**base, "ativo": c[-1]} if TROCAS and isinstance(c[-1], str) else base
 
 
 def _mercado(g):
@@ -53,7 +68,7 @@ def recolher(hist):
     g = _correr(_src("h38_custos_futuros.py").split('print("A) compra no panico com custos de futuros")')[0], hist)
     merc = _mercado(g)
     for c in g["cand"]:
-        base = {"ambiente": "BACKTEST", "t_entrada": int(c[0]), "t_saida": int(c[1]), "R": float(c[2]), "nota": "custos de futuros OKX (h38)"}
+        base = _ativo(c, {"ambiente": "BACKTEST", "t_entrada": int(c[0]), "t_saida": int(c[1]), "R": float(c[2]), "nota": "custos de futuros OKX (h38)"})
         out.append({**base, "estrategia": "H40 (todos os sinais)"})
         if merc(c[4]):
             out.append({**base, "estrategia": "H40 (panico do mercado)"})
@@ -62,19 +77,22 @@ def recolher(hist):
     s45 = _src("h45_panico_bybit.py").split('for per in ("B1", "B2"):')[0]
     g = _correr(s45, hist)
     merc = _mercado(g)
-    out += [{"ambiente": "BACKTEST", "estrategia": "H45 (panico do mercado, custos Bybit)", "t_entrada": int(c[0]), "t_saida": int(c[1]), "R": float(c[2]),
-             "nota": "custos Bybit UE (h45)"} for c in g["cand"] if merc(c[4])]
+    out += [_ativo(c, {"ambiente": "BACKTEST", "estrategia": "H45 (panico do mercado, custos Bybit)", "t_entrada": int(c[0]), "t_saida": int(c[1]), "R": float(c[2]),
+             "nota": "custos Bybit UE (h45)"}) for c in g["cand"] if merc(c[4])]
     # H46: as duas variantes registadas
     s46 = _src("h46_recuo_tendencia.py")
     cab, resto = s46.split("for L in (30, 35):")
     corpo = resto.split("    cand.sort()")[0]
     for L in (30, 35):
         g = _correr(cab + f"for L in ({L},):" + corpo + "    cand.sort()\n", hist)
-        out += [{"ambiente": "BACKTEST", "estrategia": f"H46 (RSI<{L})", "t_entrada": int(c[0]), "t_saida": int(c[1]), "R": float(c[2]), "nota": "h46"} for c in g["cand"]]
+        out += [_ativo(c, {"ambiente": "BACKTEST", "estrategia": f"H46 (RSI<{L})", "t_entrada": int(c[0]), "t_saida": int(c[1]), "R": float(c[2]), "nota": "h46"}) for c in g["cand"]]
     return {"operacoes": out, "btc_4h": btc}
 
 
 if __name__ == "__main__":
+    if "--com-ativo" in sys.argv:
+        TROCAS.extend(TROCAS_ATIVO)
+        sys.argv.remove("--com-ativo")
     r = recolher(os.path.abspath(sys.argv[1]))
     json.dump(r, open(sys.argv[2], "w"))
     from collections import Counter
