@@ -1,0 +1,31 @@
+Rejeicoes (oportunidades que nao chegaram a dinheiro real)
+
+Por classe: estatistico 62, operacional 22
+
+- [estatistico] H40 (okx): H40 suspensa do dinheiro real (decisao) - 22 (com resultado 12, R medio -0.892, PF 0.0, IC90 [-1.013, -0.766]) -> bloqueio justificado
+- [estatistico] H45 (bybit): H45 suspensa do dinheiro real (decisao) - 21 (com resultado 21, R medio -0.435, PF 0.25, IC90 [-0.786, -0.112]) -> bloqueio justificado
+- [estatistico] TF-SHORT (okx): fora do universo validado - 15 (com resultado 0) -> resultado desconhecido (sem par em papel/sombra)
+- [operacional] H40 (okx): sem X-Perp negociavel na conta - 10 (com resultado 3, R medio +1.200, PF 10.26) -> inconclusivo (menos de 10 resultados ou de 5 dias independentes)
+- [operacional] TF-SHORT (okx): abaixo do minimo do contrato (capital) - 8 (com resultado 0) -> resultado desconhecido (sem par em papel/sombra)
+- [estatistico] H40 (okx): H40 panico isolado (so_mercado) - 4 (com resultado 4, R medio +0.326, PF 1.7) -> inconclusivo (menos de 10 resultados ou de 5 dias independentes)
+- [operacional] Kronos sombra (okx): abaixo do minimo do contrato (capital) - 3 (com resultado 0) -> resultado desconhecido (sem par em papel/sombra)
+- [operacional] H45 (bybit): ordem recusada pela Bybit - 1 (com resultado 0) -> resultado desconhecido (sem par em papel/sombra)
+
+Funil por estrategia (detetados -> real / so papel ou sombra -> rejeitados por classe):
+- H40: detetados 44, com ordem real enviada 9, so papel/sombra 23, rejeitados 34 {'estatistico': 24, 'operacional': 10}
+- TF-SHORT: detetados 23, com ordem real enviada 0, so papel/sombra 3, rejeitados 20 {'estatistico': 12, 'operacional': 8}
+- Kronos sombra: detetados 53, com ordem real enviada 0, so papel/sombra 12, rejeitados 3 {'operacional': 3}
+- H45: detetados 23, com ordem real enviada 0, so papel/sombra 22, rejeitados 22 {'estatistico': 21, 'operacional': 1}
+
+Filtros que mais cortam oportunidades:
+- [estatistico] H40 suspensa do dinheiro real (decisao): 22; em papel 12 somaram -10.7R
+- [estatistico] H45 suspensa do dinheiro real (decisao): 21; em papel 21 somaram -9.1R
+- [estatistico] fora do universo validado: 15; resultado desconhecido
+- [operacional] abaixo do minimo do contrato (capital): 11; resultado desconhecido
+- [operacional] sem X-Perp negociavel na conta: 10; em papel 3 somaram +3.6R
+- [estatistico] H40 panico isolado (so_mercado): 4; em papel 4 somaram +1.3R
+- [operacional] ordem recusada pela Bybit: 1; resultado desconhecido
+
+Ativos mais rejeitados: HUMA 5, PUMP 5, BCH 5, TRUMP 4, ENA 3, AVAX 3, TIA 3, MERL 2, BERA 2, CHIP 2
+
+Conflitos (mesmo ativo, direcoes opostas, menos de 3 dias): H40 long vs TF-SHORT short 7, Kronos long vs TF-SHORT short 19
