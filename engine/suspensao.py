@@ -15,7 +15,9 @@ Esta funcao decide, para cada operacao do executor, uma de quatro acoes, sem nun
                         normal confirma o estado na corretora).
 Parcialmente executada (estado ainda "pendente" com execucao parcial): "cancelar_pendente" cancela so o RESTO da
 ordem; a parte executada passa a posicao e segue "gerir" (e o que o acompanhamento da OKX ja faz com ordens parciais).
-Nao esta ligada a nenhum executor: liga-la e uma alteracao de execucao real que so o Rui autoriza."""
+Ligacao: desde 3450133 (10/11, autorizacao do Rui) o executor da OKX chama-a em tools/okx_exec.aplicar_suspensao, a
+cada volta, antes do acompanhamento; o estado final de um cancelamento pedido e sempre confirmado na OKX pelo
+acompanhar (11/11, P2). Na Bybit o executor do panico tem o seu proprio tratamento ("suspensa")."""
 
 ESTRATEGIAS_OKX = {
     # estrategia no registo da operacao -> interruptor em okx_config.json
