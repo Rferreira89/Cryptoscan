@@ -1828,3 +1828,78 @@ Notas para as próximas execuções:
   (diários agendados, sem mudança); 63 no contador global de estudos
   offline. Com 25 tentativas, a probabilidade de pelo menos um falso
   positivo a 5% ronda os 72%.
+
+### 2026-11-11 — H15: o Recuo (PULLBACK) só na fase de subida (RECUO_SUBIDA)
+
+**Escrito antes de correr qualquer teste.**
+
+- Porque não a H15 proposta a 06/11 (falso rompimento em baixa com volume
+  ≥ 2× na lateral): a base já está medida e é muito negativa na lateral
+  (auditoria S/R de 22/10, FALSO_ROMP: −0,20R em 361 op.), e o filtro de
+  volume não mudou a direção em nenhum estudo (H28 F-VOL, H31 MECHA). Seria
+  uma variante cosmética de uma base perdedora. As ideias de fluxo (OI,
+  financiamento) estão a ser avaliadas pela investigação só com dados novos
+  (H52, H53, H57–H59): testá-las aqui com dados antigos estragaria esse teste.
+- Situação (scan.json de 11/11 09:20 UTC): regime **lateral** (desde
+  2026-10-15); **nenhum campeão vivo** (`promo.campeoes` vazio). Combate de
+  90 d (forma.json): acima do p95 só sobrevenda (BOUNCE_G0/V2/V3,
+  BOUNCE_AMPLITUDE 15 op. +0,81R, DIP_TREND, SQUEEZE, ISOLADA, X30_PAVIO/LIQ,
+  CAPITULACAO) e REVERSAO_INTERVALO (23 op., +0,03R, p95 −0,02R). Ringue
+  longo (longo.json de 11/11 03:23 UTC, 365 d): **subida** — acima do p95
+  com ≥ 20 op. só sobrevenda (X30, ISOLADA, NOREACT, TRAIL, HORAS, PAVIO,
+  LIQ, todas com a 1.ª metade negativa); fora dela **PULLBACK 15 op.,
+  +0,97R, p95 +0,50R, metades +0,42/+1,45R** e LIQUIDITY_SWEEP 13 op.
+  +0,51R (p95 +0,47R); TURTLE 38 op. +0,41R abaixo do p95 (+0,88R).
+  **lateral** — só sobrevenda acima do p95 (e a perder na 2.ª metade); o
+  PULLBACK perde (27 op., −0,27R). **queda** — só shorts (SHORT_X30,
+  SHORT_ISOLADA, SHORT_FALSO_ROMP). Regimes sem campeão vivo: **todos**.
+  Sem família fora da sobrevenda acima do acaso: **subida** e **lateral**.
+- Hipótese (família **tendência**, correção de um lutador morto que no
+  ringue longo ganha noutro regime): o Recuo do motor (PULLBACK, "Rita")
+  compra o recuo numa tendência de subida da moeda (zona de entrada,
+  stop no fundo do recuo, objetivos do plano). Morreu no combate de 90 d
+  porque o ringue o põe a operar em todas as fases; a lógica de mercado diz
+  que o recuo só retoma a tendência quando a maré (BTC) está a subir — na
+  lateral os recuos viram quebras do intervalo. O ringue longo mostra
+  exatamente isso (subida +0,97R, lateral −0,27R), mas com só 15 op. na
+  subida e escolhido entre 53 lutadores × 3 fases: precisa de prova em
+  dados que o ringue longo não viu.
+- Regra (só velas fechadas): os candidatos do PULLBACK do motor
+  (`backtest.candidates`, as mesmas funções do ao vivo, score ≥ 65 salvo
+  onde dito) cujo sinal fecha num dia em que a fase do BTC do dia fechado
+  anterior (`regime_by_day`, = `arena.market_regime` = `mercado`) é a
+  pedida.
+- Grelha (5, escrita antes de testar; P0 e P3 são controlos e não podem ser
+  escolhidos):
+  P0 PULLBACK no método do ringue (`backtest.simulate`, zona de entrada,
+  validade 3 velas), todas as fases;
+  P1 P0 só na fase subida;
+  P2 **o lutador** RECUO_SUBIDA no formato NEW_SIGS: sinal do PULLBACK na
+  última vela fechada, só na subida, entrada a mercado na abertura
+  seguinte (`generic_trades`, uma operação de cada vez por moeda), com o
+  stop, os objetivos e as parciais do plano;
+  P3 P0 só na fase lateral (controlo: tem de ficar abaixo de P1);
+  P4 P1 com todos os scores (sem o mínimo de 65; H1 disse que o score não
+  separa).
+- Custos: 0,25% de comissão e **0,1% de slippage por lado** em todas (o
+  ringue usa 0,05% no PULLBACK; aqui sobe para 0,1%).
+- Janelas (ramo `history`, 4H): **B (decide)** 2021-08-01 a 2024-10-10 —
+  nunca vista pelo ringue longo; **A (confirma)** 2024-10-11 ao fim, com a
+  parte limpa **A'** (2024-10-11 até ao início dos últimos 365 d) à parte;
+  **C** últimos 90 d; **L** últimos 365 d por regime.
+- Acaso: `arena.control_rs` (mesma moeda, ±90 velas, mesma geometria),
+  p95 do `judge` e percentil contra 1000 carteiras ao acaso.
+- Critérios (todos, para P1, P2, P4): em B ≥ 30 op., R médio > 0, acima do
+  p95 do acaso (percentil > 95) e R > 0 sem a melhor moeda; em A ≥ 15 op.,
+  R médio > 0 e percentil > 95; e P3 (lateral) abaixo de P1 em B e em A
+  (o efeito da fase tem de se repetir). Entra no ringue **só se P2 passar**
+  (é o código que entra), como RECUO_SUBIDA em NEW_SIGS; o ringue decide.
+  REAL_OK não se mexe.
+- Previsão honesta: provável falhar. O PULLBACK perdeu no backtest de
+  2021-26 (−0,09R em 161 op.) e 15 operações no último ano são ruído; o
+  mais provável é que a subida de 2021 e 2023-24 não repita o +0,97R.
+- Hipóteses testadas até agora (com esta): 15 entradas neste diário (H1 a
+  H15; 14 sinais, a H14 foi uma medição); **26** contra os mesmos dados
+  (diários agendados); 63 no contador global de estudos offline. Com 26
+  tentativas, a probabilidade de pelo menos um falso positivo a 5% ronda
+  os 74%.
