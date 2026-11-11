@@ -1,0 +1,30 @@
+name: Contabilidade real (so leitura)
+# (11/11, auditoria P4) PnL bruto e liquido, comissoes, funding e deslize das operacoes REAIS da OKX, so com GET.
+# Publico (ramo contabilidade): so contagens, R e %. Privado: cifrado com DATA_KEY. Sem schedule: so corre quando
+# for lancado a mao, depois de autorizado (ligar o horario e uma alteracao de producao).
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: contabilidade-real
+  cancel-in-progress: false
+jobs:
+  contabilidade:
+    runs-on: [self-hosted, eu]
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ler e calcular
+        env:
+          OKX_API_KEY: ${{ secrets.OKX_API_KEY }}
+          OKX_API_SECRET: ${{ secrets.OKX_API_SECRET }}
+          OKX_PASSPHRASE: ${{ secrets.OKX_PASSPHRASE }}
+          DATA_KEY: ${{ secrets.DATA_KEY }}
+          PUSH_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
+        run: |
+          rm -rf /tmp/contab && mkdir -p /tmp/contab
+          git fetch -q origin okx && git show FETCH_HEAD:okx.json > /tmp/contab/okx.json
+          python3 -m pip install -q --user cryptography==43.0.3 2>/dev/null || true
+          python3 tools/okx_contabilidade.py /tmp/contab/okx.json /tmp/contab/saida
+          python3 tools/publicar_estado.py publicar /tmp/contab/saida contabilidade contabilidade_okx.json contabilidade_okx_privado.json
