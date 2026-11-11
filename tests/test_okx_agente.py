@@ -140,6 +140,9 @@ class Execucao(unittest.TestCase):
             if "balance" in path:
                 return {"code": "0", "data": [{"totalEq": "20"}]}
             if "trade/order" in path:
+                # (11/11, P2) depois do pedido de cancelamento a OKX passa a dizer cancelada com 0 executado
+                if any(p == "/api/v5/trade/cancel-order" for p, _ in posts):
+                    return {"code": "0", "data": [{"state": "canceled", "accFillSz": "0"}]}
                 return {"code": "0", "data": [{"state": "live"}]}
             return {"code": "0", "data": []}
         st = {}
@@ -243,6 +246,8 @@ class Execucao(unittest.TestCase):
                 posts.append(path)
                 return {"code": "0", "data": [{"sCode": "0"}]}
             if "trade/order?" in path:
+                if "/api/v5/trade/cancel-order" in posts:                # (11/11, P2) estado final confirmado
+                    return {"code": "0", "data": [{"state": "canceled", "accFillSz": "0"}]}
                 return {"code": "0", "data": [{"state": "live"}]}
             return {"code": "0", "data": []}
         st = {"real": {"ops": {"HUMA": {"inst": "HUMA-USD_UM_XPERP-1", "ordId": "9", "estado": "pendente", "t_sig": now - 4 * H4,

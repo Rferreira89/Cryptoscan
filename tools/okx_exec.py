@@ -153,38 +153,100 @@ def abrir(base, sig, info, eq, c, now, msgs):
             "valido_ate": sig["t_sig"] + 3 * H4, "criado": int(now), **{k: p[k] for k in ("lim", "stop", "alvo", "alav")}}
 
 
+CODIGOS_JA_FINAL = ("51400", "51401", "51402")     # ja executada, ja cancelada ou ja concluida: o estado final decide
+AMBIGUO_ALERTA = 3                                  # voltas seguidas sem estado confirmado antes do alerta prioritario
+
+
+def _pedir_cancelamento(base, op, now, msgs, motivo):
+    """(11/11, P2) Pede o cancelamento de uma entrada pendente, sem nunca concluir que nada executou. Devolve True se a
+    OKX aceitou o pedido ou respondeu que a ordem ja esta num estado final (51400/51401/51402); False se a comunicacao
+    falhou ou a resposta e ambigua (a ordem fica pendente; nova tentativa na volta seguinte; alerta se persistir)."""
+    cx = privado("POST", "/api/v5/trade/cancel-order", {"instId": op["inst"], "ordId": op["ordId"]})
+    d = (cx.get("data") or [{}])[0]
+    sc = d.get("sCode")
+    if (cx.get("code") == "0" and sc in ("0", None)) or sc in CODIGOS_JA_FINAL:
+        op["cancelar_pedido"] = op.get("cancelar_pedido") or int(now)
+        op.setdefault("motivo_cancelar", motivo)
+        return True
+    _ambiguo(base, op, now, msgs, f"o pedido de cancelamento falhou ({sc or cx.get('code') or 'sem resposta'})")
+    return False
+
+
+def _ambiguo(base, op, now, msgs, porque):
+    """Estado desconhecido: nada e assumido; conta voltas seguidas e alerta uma vez ao chegar a AMBIGUO_ALERTA."""
+    op["ambiguo"] = int(op.get("ambiguo") or 0) + 1
+    op["ambiguo_desde"] = op.get("ambiguo_desde") or int(now)
+    if op["ambiguo"] == AMBIGUO_ALERTA:
+        msgs.append(f"🚨 OKX real — {base}: {porque}, há {op['ambiguo']} voltas seguidas. A ordem fica como PENDENTE "
+                    f"(nada assumido: pode ter executado). Confirma na app da OKX.")
+
+
+def acompanhar_estado(base, op, d, now, msgs):
+    """Aplica um estado lido na OKX ('d' de /trade/order) a uma entrada pendente. True quando a entrada acabou sem
+    posicao (cancelada sem executar); False nos restantes casos (aberta, ainda pendente ou desconhecido)."""
+    st = d.get("state")
+    executado = float(d.get("accFillSz") or 0)
+    if st == "filled" or (st == "partially_filled" and now >= op["valido_ate"]):
+        if st == "partially_filled":
+            privado("POST", "/api/v5/trade/cancel-order", {"instId": op["inst"], "ordId": op["ordId"]})
+        op.update(estado="aberta", entrada=float(d.get("avgPx") or op["lim"]), t_fill=int(int(d.get("fillTime") or now * 1000) / 1000))
+        if st == "partially_filled":
+            op["parcial"] = True
+        sz_exec = d.get("accFillSz") or "?"
+        op["sair_em"] = op["t_fill"] + 18 * H4
+        msgs.append(f"✅ OKX real — {base}: compra executada a {op['entrada']:.6g} ({sz_exec} contratos). "
+                    f"Stop e objetivo na OKX; saída por tempo dentro de 72 h.")
+    elif st in ("canceled", "mmp_canceled") and executado > 0:
+        # (10/11) cancelada DEPOIS de executar em parte: a parte executada e uma posicao e continua a ser gerida
+        op.update(estado="aberta", entrada=float(d.get("avgPx") or op["lim"]),
+                  t_fill=int(int(d.get("fillTime") or now * 1000) / 1000), parcial=True)
+        op["sair_em"] = op["t_fill"] + 18 * H4
+        msgs.append(f"✅ OKX real — {base}: ordem cancelada com execução parcial ({d.get('accFillSz')} contratos a "
+                    f"{op['entrada']:.6g}); essa parte fica aberta e protegida pelo stop.")
+    elif st in ("canceled", "mmp_canceled") and d.get("accFillSz") not in (None, ""):
+        # (11/11, P2) so com 0 executado CONFIRMADO pela OKX se diz que nada foi comprado
+        motivo = op.pop("motivo_cancelar", None) or "cancelada sem executar"
+        if motivo.startswith("caducou"):
+            msgs.append(f"⌛ OKX real — {base}: a ordem limite caducou (8 h); a OKX confirma 0 executado. Nada comprado.")
+        else:
+            msgs.append(f"⌛ OKX real — {base}: a ordem foi cancelada sem executar (0 executado, confirmado na OKX).")
+        op.update(estado="cancelada", motivo=motivo, fechado=int(now))
+        for k in ("ambiguo", "ambiguo_desde"):
+            op.pop(k, None)
+        return True
+    elif st in ("canceled", "mmp_canceled"):
+        _ambiguo(base, op, now, msgs, "a OKX diz cancelada mas não indica quanto executou")
+        return False
+    else:
+        return False
+    for k in ("ambiguo", "ambiguo_desde"):
+        op.pop(k, None)
+    return False
+
+
 def acompanhar(base, op, now, msgs):
     """Atualiza uma operacao real; devolve True quando acabou (cancelada ou fechada)."""
     if op["estado"] == "pendente":
         r = privado("GET", f"/api/v5/trade/order?instId={op['inst']}&ordId={op['ordId']}")
         d = (r.get("data") or [{}])[0]
         st = d.get("state")
-        if st == "filled" or (st == "partially_filled" and now >= op["valido_ate"]):
-            if st == "partially_filled":
-                privado("POST", "/api/v5/trade/cancel-order", {"instId": op["inst"], "ordId": op["ordId"]})
-            op.update(estado="aberta", entrada=float(d.get("avgPx") or op["lim"]), t_fill=int(int(d.get("fillTime") or now * 1000) / 1000),
-                      )
-            sz_exec = d.get("accFillSz") or "?"
-            op["sair_em"] = op["t_fill"] + 18 * H4
-            msgs.append(f"✅ OKX real — {base}: compra executada a {op['entrada']:.6g} ({sz_exec} contratos). "
-                        f"Stop e objetivo na OKX; saída por tempo dentro de 72 h.")
-        elif st in ("canceled", "mmp_canceled") and float(d.get("accFillSz") or 0) > 0:
-            # (10/11) cancelada DEPOIS de executar em parte: a parte executada e uma posicao e continua a ser gerida
-            op.update(estado="aberta", entrada=float(d.get("avgPx") or op["lim"]),
-                      t_fill=int(int(d.get("fillTime") or now * 1000) / 1000), parcial=True)
-            op["sair_em"] = op["t_fill"] + 18 * H4
-            msgs.append(f"✅ OKX real — {base}: ordem cancelada com execução parcial ({d.get('accFillSz')} contratos a "
-                        f"{op['entrada']:.6g}); essa parte fica aberta e protegida pelo stop.")
-        elif st in ("canceled", "mmp_canceled"):
-            msgs.append(f"⌛ OKX real — {base}: a ordem foi cancelada sem executar.")
-            op.update(estado="cancelada", motivo=op.pop("motivo_cancelar", None) or "cancelada sem executar", fechado=int(now))
-            return True
-        elif st == "live" and now >= op["valido_ate"]:
-            privado("POST", "/api/v5/trade/cancel-order", {"instId": op["inst"], "ordId": op["ordId"]})
-            msgs.append(f"⌛ OKX real — {base}: a ordem limite caducou (8 h) sem executar; cancelei-a. Nada comprado.")
-            op.update(estado="cancelada", motivo="caducou (8 h) sem executar", fechado=int(now))
-            return True
-        return False
+        if r.get("code") != "0" or not st:
+            _ambiguo(base, op, now, msgs, "não consegui ler o estado da ordem na OKX")
+            return False
+        if st == "live" and now >= op["valido_ate"]:
+            # (11/11, auditoria P2) a caducidade NAO prova que nada executou: entre a consulta e o cancelamento a ordem
+            # pode executar (toda ou em parte). Pede o cancelamento, le de novo o estado na OKX e so o estado final
+            # decide: cancelada com 0 executado -> cancelada; com execucao -> aberta (parcial) e gerida; executada ->
+            # aberta; falha ou resposta ambigua -> fica pendente e tenta na volta seguinte (alerta se persistir).
+            if not _pedir_cancelamento(base, op, now, msgs, "caducou (8 h) sem executar"):
+                return False
+            r2 = privado("GET", f"/api/v5/trade/order?instId={op['inst']}&ordId={op['ordId']}")
+            d2 = (r2.get("data") or [{}])[0]
+            if r2.get("code") == "0" and d2.get("state") and d2.get("state") != "live":
+                return acompanhar_estado(base, op, d2, now, msgs)
+            _ambiguo(base, op, now, msgs, "o cancelamento por caducidade foi pedido mas a OKX ainda não confirma o estado final")
+            return False
+        return acompanhar_estado(base, op, d, now, msgs)
     if op["estado"] == "aberta":
         pos = privado("GET", f"/api/v5/account/positions?instId={op['inst']}")
         aberta = any(float(x.get("pos") or 0) != 0 for x in (pos.get("data") or []))

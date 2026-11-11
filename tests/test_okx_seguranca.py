@@ -72,7 +72,7 @@ class Pico(unittest.TestCase):
         def privado(metodo, path, corpo=None):
             chamadas.append((metodo, path))
             if "trade/order?" in path:
-                return {"code": "0", "data": [{"state": "canceled"}]}
+                return {"code": "0", "data": [{"state": "canceled", "accFillSz": "0"}]}
             return {"code": "0", "data": []}
         st = {"real": {"ops": {"AAA": {"inst": "AAA-USD_UM_XPERP-1", "ordId": "1", "estado": "pendente", "valido_ate": NOW + 999, "lim": 1}},
                        "hist": [], "pico": 21.9}}
@@ -111,13 +111,16 @@ class Canceladas(unittest.TestCase):
 
     def test_ordem_cancelada_na_corretora_fica_cancelada(self):
         op = {"inst": "X-USD_UM_XPERP-1", "ordId": "1", "estado": "pendente", "valido_ate": NOW + 999, "lim": 1}
-        with mock.patch.object(E, "privado", return_value={"code": "0", "data": [{"state": "canceled"}]}):
+        with mock.patch.object(E, "privado", return_value={"code": "0", "data": [{"state": "canceled", "accFillSz": "0"}]}):
             self.assertTrue(E.acompanhar("X", op, NOW, []))
         self.assertEqual((op["estado"], op["motivo"]), ("cancelada", "cancelada sem executar"))
 
     def test_ordem_caducada_fica_cancelada(self):
         op = {"inst": "X-USD_UM_XPERP-1", "ordId": "1", "estado": "pendente", "valido_ate": NOW - 1, "lim": 1}
-        with mock.patch.object(E, "privado", return_value={"code": "0", "data": [{"state": "live"}]}):
+        respostas = iter([{"code": "0", "data": [{"state": "live"}]},                       # consulta: viva e caducada
+                          {"code": "0", "data": [{"sCode": "0"}]},                           # pedido de cancelamento
+                          {"code": "0", "data": [{"state": "canceled", "accFillSz": "0"}]}])  # estado final na OKX
+        with mock.patch.object(E, "privado", lambda *a, **k: next(respostas)):
             self.assertTrue(E.acompanhar("X", op, NOW, []))
         self.assertEqual(op["estado"], "cancelada"); self.assertIn("caducou", op["motivo"])
 
