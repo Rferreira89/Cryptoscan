@@ -2386,3 +2386,30 @@ positivo a 5% ronda os 74%.
   mortos só com as duas metades do ringue longo positivas; (3) morte
   rápida a contar acontecimentos; (4) corte dos clones só com
   representantes vivos; (5) o caso CAPITULACAO_R2 fora da classificação.
+
+## 2026-11-11 (dados novos, caçador noturno) — registada H60; acompanhamento H52, H53, H57–H59
+
+- **Registo (dia ímpar, LONG)**: **H60 — subida de 3 dias sem alavancagem
+  nova**, registada a 2026-11-11T23:39:10Z antes de ver qualquer dado
+  posterior (código `backtest/estudos/novos/h60_long_subida_sem_alavancagem.py`).
+  Em mercado a subir ou lateral (mediana de 10 dias do universo ≥ −2%), vela
+  D com c(D)/c(D−3) ≥ +8%, contratos de 3 dias (OI em USD ÷ preço) a não
+  crescer e financiamento do X-Perp ≤ 0,03%/24 h → long taker na abertura de
+  D+1, stop a 1,5× amplitude média de 10 dias, saída no fecho de D+3, máx. 5
+  posições. Lógica: subida sem longs alavancados novos não tem combustível de
+  liquidação por baixo e tende a continuar. A parte de preço é momento
+  (família chumbada nos dados antigos); o que se testa é se o OI e o
+  financiamento separam as subidas boas — por isso exige bater um controlo
+  (mesma subida com contratos ≥ +10%) e uma referência ao acaso, com ≥ 30
+  operações, ≥ 10 no controlo, R ≥ +0,10, sem as 5% melhores > 0, duas
+  metades positivas, ≥ 3 semanas, ≥ 8 dias de sinal e p por dias < 0,05.
+  Diferente da H57 (financiamento negativo com OI a subir) e da H59 (SHORT).
+- **Acompanhamento** (ramo `dados-novos` com velas de 05/11 a 10/11, lidas
+  só por `dados_para_avaliar`): H52 — a acumular: 0 de 30 (4 dias depois do
+  registo); H53 — a acumular: 0 de 30, controlo 0 de 10 (3 dias); H57, H58,
+  H59 — a acumular: 0 de 30 (0 dias; a vela de 10/11 é do próprio dia do
+  registo e não conta); H60 — a acumular: 0 de 30, controlo 0 de 10 (0
+  dias). O regime precisa de 10–11 dias de aquecimento depois de cada
+  registo: primeiras operações possíveis por volta de 17–18/11 (H52/H53),
+  21/11 (H57–H59) e 22/11 (H60).
+- Nenhum resultado em dados antigos foi usado como validação.

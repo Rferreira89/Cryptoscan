@@ -94,5 +94,25 @@
     "logica": "subida feita de shorts a fechar e nao de compradores novos nao tem combustivel em descida",
     "entrada": "vela D: c(D)/c(D-3)-1 >= +10%, oi(D)/oi(D-3)-1 <= -5%, fund(D) > 0; short taker na abertura de D+1",
     "estado": "a acumular: 0 de 30"
+  },
+  {
+    "id": "H60",
+    "nome": "long na subida de 3 dias sem alavancagem nova (contratos estaveis ou a cair, financiamento nao elevado), em mercado a subir ou lateral",
+    "registada_em": "2026-11-11T23:39:10Z",
+    "codigo": "backtest/estudos/novos/h60_long_subida_sem_alavancagem.py",
+    "lado": "LONG",
+    "regime": "subida ou lateral: mediana do retorno de 10 dias (fecho/fecho) das moedas do universo >= -2%, com >= 30 moedas; calculado so com dados posteriores ao registo (10 dias de aquecimento)",
+    "universo": "moedas do ramo dados-novos (todas com X-Perp na OKX EEA), volume_usd do dia >= 10 M e oi_xperp >= 250 mil USD",
+    "logica": "subida conduzida por alavancagem (contratos a crescer, financiamento alto) deixa longs alavancados para liquidar ao primeiro recuo; subida com contratos estaveis/a cair e financiamento base foi paga por compradores sem alavancagem ou shorts a fechar e tende a continuar quando o mercado nao esta em descida. Testa se OI e financiamento separam as subidas que continuam das que falham (grupo de controlo: mesma subida com contratos >= +10%). Diferente da H57 (financiamento negativo e OI a subir) e da H59 (SHORT em descida)",
+    "entrada": "vela diaria D fechada com c(D)/c(D-3)-1 >= +8%, contratos (oi_usd_global(D)/oi_usd_global(D-3)) / (c(D)/c(D-3)) - 1 <= 0 e fund_xperp_24h(D) <= 0,0003 (0,03%/24 h); long taker na abertura de D+1",
+    "stop": "1,5 x amplitude diaria media (h-l)/c dos 10 dias ate D, abaixo da entrada; se a minima tocar, sai ao pior de stop e abertura",
+    "saida": "fecho de D+3 se o stop nao tocar",
+    "tamanho": "risco fixo de 1 R por operacao (R = distancia do stop); no maximo 5 posicoes abertas, desempate pela menor variacao dos contratos; uma posicao por moeda",
+    "custos": "taker 0,05% por lado + deslize 0,05% por lado; financiamento real do X-Perp (fund_xperp_24h) subtraido em cada dia em posicao (em falta = operacao nao avaliavel); velas do perpetuo global da OKX como aproximacao do X-Perp",
+    "referencia": "controlo (mesma subida, contratos >= +10%, sem limite de posicoes) e referencia ao acaso (mesmas datas, moedas elegiveis ao acaso, 200 sorteios)",
+    "criterio_sucesso": "com >= 30 operacoes e >= 10 no controlo: R medio liquido >= +0,10R E R sem as 5% melhores > 0 E R medio > controlo E R medio > referencia ao acaso E as duas metades no tempo positivas E sinais em >= 3 semanas UTC E >= 8 dias de sinal distintos E p de reamostragem por dias < 0,05",
+    "minimo_operacoes": 30,
+    "registada_por": "cacador noturno 11/11 (dia impar, LONG)",
+    "estado": "a acumular: 0 de 30 (controlo 0 de 10)"
   }
 ]

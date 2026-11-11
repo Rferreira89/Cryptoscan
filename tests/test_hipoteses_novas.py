@@ -131,3 +131,55 @@ class H53(unittest.TestCase):
         self.assertIn("dados_para_avaliar", src)
         for p in ("open(", "history", "/api/v5/trade"):
             self.assertNotIn(p, src)
+
+
+def h60():
+    spec = importlib.util.spec_from_file_location(
+        "h60", os.path.join(RAIZ, "backtest/estudos/novos/h60_long_subida_sem_alavancagem.py"))
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
+def mercado_subida_3d(n_dias=16, sinal_dia=12):
+    """40 moedas a subir 0,5%/dia; a AAA e a BBB sobem 3%/dia nos 3 dias ate sinal_dia (+9,3%). A AAA tem OI estavel
+    (contratos a cair, sinal); a BBB tem OI +25% (contratos ~+14%, controlo)."""
+    out = []
+    for k in range(40):
+        m = "AAA" if k == 0 else "BBB" if k == 1 else f"M{k:02d}"
+        p, oi = 100.0, 1e8
+        for i in range(n_dias):
+            o = p
+            c = p * (1.03 if m in ("AAA", "BBB") and sinal_dia - 2 <= i <= sinal_dia else 1.005)
+            if m == "BBB" and i == sinal_dia:
+                oi = 1.25e8
+            out.append({"data": f"2026-12-{i + 1:02d}", "moeda": m, "validado": 1, "o": o, "h": max(o, c) * 1.01,
+                        "l": min(o, c) * 0.99, "c": c, "volume_usd": 5e7, "px_xperp": c, "px_global": c,
+                        "fund_xperp_24h": 0.0001, "oi_usd_global": oi, "oi_xperp": 1e6})
+            p = c
+    return out
+
+
+class H60(unittest.TestCase):
+    def test_h60_sinal_e_controlo_a_acumular(self):
+        M = h60()
+        with tempfile.TemporaryDirectory() as d:
+            gravar(d, mercado_subida_3d())
+            r = M.avaliar(d, "2026-11-30")
+            self.assertEqual(r["operacoes"], 1)
+            self.assertEqual(r["controlo"], 1)
+            self.assertEqual(r["estado"], "a acumular: 1 de 30 (controlo 1 de 10)")
+
+    def test_h60_ignora_dados_anteriores_ao_registo(self):
+        M = h60()
+        with tempfile.TemporaryDirectory() as d:
+            gravar(d, mercado_subida_3d())
+            self.assertEqual(M.avaliar(d, "2026-12-05")["operacoes"], 0)
+            self.assertEqual(M.avaliar(d)["dias_de_dados"], 16)
+
+    def test_h60_so_le_via_dados_para_avaliar(self):
+        src = open(os.path.join(RAIZ, "backtest/estudos/novos/h60_long_subida_sem_alavancagem.py"),
+                   encoding="utf-8").read()
+        self.assertIn("dados_para_avaliar", src)
+        for p in ("open(", "history", "/api/v5/trade"):
+            self.assertNotIn(p, src)
