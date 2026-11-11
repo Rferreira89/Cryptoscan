@@ -1,0 +1,8138 @@
+{
+ "gerado": 1794431599,
+ "backtest": {
+  "H40 (panico do mercado)": {
+   "nota": "custos de futuros OKX (h38)",
+   "tudo": {
+    "n": 393,
+    "dias": 63,
+    "media_op": 0.3139,
+    "media_dia": -0.0085,
+    "soma": 123.35,
+    "pf": 2.037,
+    "win": 0.613,
+    "payoff": 1.285,
+    "max_dd_r": -24.76,
+    "t_dia": -0.07,
+    "ic90_dia": [
+     -0.2044,
+     0.1796
+    ],
+    "ic90_op_agrupado": [
+     0.0417,
+     0.5392
+    ],
+    "dias_maiores_5_pct_do_r": 0.831
+   },
+   "desenho_ate_2024_06": {
+    "n": 0
+   },
+   "validacao_2024_07_a_reserva": {
+    "n": 349,
+    "dias": 53,
+    "media_op": 0.3482,
+    "media_dia": -0.0374,
+    "soma": 121.54,
+    "pf": 2.162,
+    "win": 0.616,
+    "payoff": 1.348,
+    "max_dd_r": -24.76,
+    "t_dia": -0.28,
+    "ic90_dia": [
+     -0.2439,
+     0.1846
+    ],
+    "ic90_op_agrupado": [
+     0.0354,
+     0.5881
+    ],
+    "dias_maiores_5_pct_do_r": 0.703
+   },
+   "reserva_contaminada": {
+    "n": 44,
+    "dias": 10,
+    "media_op": 0.0413,
+    "media_dia": 0.1447,
+    "soma": 1.82,
+    "pf": 1.126,
+    "win": 0.591,
+    "payoff": 0.78,
+    "max_dd_r": -9.82,
+    "t_dia": 0.56,
+    "ic90_dia": [
+     -0.227,
+     0.5755
+    ],
+    "ic90_op_agrupado": [
+     -0.265,
+     0.3106
+    ],
+    "dias_maiores_5_pct_do_r": 1.778
+   },
+   "por_regime": {
+    "btc_acima_sma50": {
+     "n": 57,
+     "dias": 14,
+     "media_op": -0.1822,
+     "media_dia": -0.1809,
+     "soma": -10.39,
+     "pf": 0.597,
+     "win": 0.456,
+     "payoff": 0.711,
+     "max_dd_r": -11.77,
+     "t_dia": -0.94,
+     "ic90_dia": [
+      -0.4846,
+      0.1281
+     ],
+     "ic90_op_agrupado": [
+      -0.5879,
+      0.2036
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "btc_abaixo_sma50": {
+     "n": 336,
+     "dias": 49,
+     "media_op": 0.398,
+     "media_dia": 0.0408,
+     "soma": 133.74,
+     "pf": 2.435,
+     "win": 0.64,
+     "payoff": 1.371,
+     "max_dd_r": -24.76,
+     "t_dia": 0.29,
+     "ic90_dia": [
+      -0.179,
+      0.268
+     ],
+     "ic90_op_agrupado": [
+      0.1161,
+      0.6296
+     ],
+     "dias_maiores_5_pct_do_r": 0.639
+    }
+   },
+   "por_ano": {
+    "2024": {
+     "n": 16,
+     "dias": 3,
+     "media_op": -0.3545,
+     "media_dia": -0.1367,
+     "soma": -5.67,
+     "pf": 0.326,
+     "win": 0.25,
+     "payoff": 0.979,
+     "max_dd_r": -8.1,
+     "t_dia": -0.3,
+     "ic90_dia": [
+      null,
+      null
+     ],
+     "ic90_op_agrupado": [
+      null,
+      null
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "2025": {
+     "n": 270,
+     "dias": 32,
+     "media_op": 0.4776,
+     "media_dia": 0.1486,
+     "soma": 128.94,
+     "pf": 2.876,
+     "win": 0.681,
+     "payoff": 1.344,
+     "max_dd_r": -24.76,
+     "t_dia": 0.81,
+     "ic90_dia": [
+      -0.1416,
+      0.4527
+     ],
+     "ic90_op_agrupado": [
+      0.1245,
+      0.7314
+     ],
+     "dias_maiores_5_pct_do_r": 0.394
+    },
+    "2026": {
+     "n": 107,
+     "dias": 28,
+     "media_op": 0.0007,
+     "media_dia": -0.1742,
+     "soma": 0.08,
+     "pf": 1.002,
+     "win": 0.495,
+     "payoff": 1.021,
+     "max_dd_r": -15.16,
+     "t_dia": -1.13,
+     "ic90_dia": [
+      -0.419,
+      0.0806
+     ],
+     "ic90_op_agrupado": [
+      -0.2812,
+      0.2766
+     ],
+     "dias_maiores_5_pct_do_r": 159.341
+    }
+   },
+   "sem_melhor_moeda": {
+    "moeda": "STRK",
+    "n": 385,
+    "dias": 63,
+    "media_op": 0.297,
+    "media_dia": -0.0118,
+    "soma": 114.33,
+    "pf": 1.962,
+    "win": 0.608,
+    "payoff": 1.266,
+    "max_dd_r": -24.76,
+    "t_dia": -0.1,
+    "ic90_dia": [
+     -0.204,
+     0.1847
+    ],
+    "ic90_op_agrupado": [
+     0.0104,
+     0.5109
+    ],
+    "dias_maiores_5_pct_do_r": 0.882
+   },
+   "moedas": 61,
+   "custos": {
+    "cobertura": 1.0,
+    "stop_pct_mediano": 8.62,
+    "r_por_0_1pct": 0.0126,
+    "media_op": 0.3139,
+    "media_op_mais_0.1pct": 0.3013,
+    "media_op_mais_0.2pct": 0.2887,
+    "media_op_mais_0.5pct": 0.2509,
+    "custo_extra_que_anula_pct": 2.491
+   },
+   "limite_3_por_dia": {
+    "n": 149,
+    "dias": 63,
+    "media_op": 0.0261,
+    "media_dia": -0.0326,
+    "soma": 3.89,
+    "pf": 1.054,
+    "win": 0.47,
+    "payoff": 1.19,
+    "max_dd_r": -19.82,
+    "t_dia": -0.26,
+    "ic90_dia": [
+     -0.2306,
+     0.1723
+    ],
+    "ic90_op_agrupado": [
+     -0.1948,
+     0.2406
+    ],
+    "dias_maiores_5_pct_do_r": 4.613
+   },
+   "limite_1_por_dia": {
+    "n": 63,
+    "dias": 63,
+    "media_op": -0.0451,
+    "media_dia": -0.0451,
+    "soma": -2.84,
+    "pf": 0.911,
+    "win": 0.429,
+    "payoff": 1.215,
+    "max_dd_r": -12.69,
+    "t_dia": -0.33,
+    "ic90_dia": [
+     -0.2668,
+     0.1771
+    ],
+    "ic90_op_agrupado": [
+     -0.2647,
+     0.1762
+    ],
+    "dias_maiores_5_pct_do_r": null
+   },
+   "teto_3_abertas_ao_acaso": {
+    "media_op": 0.093,
+    "p05": 0.0407,
+    "p95": 0.1444,
+    "n_tipico": 106
+   }
+  },
+  "H40 (panico isolado = todos menos mercado)": {
+   "nota": "custos de futuros OKX (h38)",
+   "tudo": {
+    "n": 678,
+    "dias": 229,
+    "media_op": -0.0225,
+    "media_dia": -0.0072,
+    "soma": -15.25,
+    "pf": 0.946,
+    "win": 0.44,
+    "payoff": 1.206,
+    "max_dd_r": -63.07,
+    "t_dia": -0.12,
+    "ic90_dia": [
+     -0.1003,
+     0.0881
+    ],
+    "ic90_op_agrupado": [
+     -0.1404,
+     0.1081
+    ],
+    "dias_maiores_5_pct_do_r": null
+   },
+   "desenho_ate_2024_06": {
+    "n": 0
+   },
+   "validacao_2024_07_a_reserva": {
+    "n": 518,
+    "dias": 163,
+    "media_op": -0.0146,
+    "media_dia": 0.0151,
+    "soma": -7.56,
+    "pf": 0.964,
+    "win": 0.446,
+    "payoff": 1.198,
+    "max_dd_r": -45.88,
+    "t_dia": 0.21,
+    "ic90_dia": [
+     -0.1023,
+     0.1356
+    ],
+    "ic90_op_agrupado": [
+     -0.1654,
+     0.1487
+    ],
+    "dias_maiores_5_pct_do_r": null
+   },
+   "reserva_contaminada": {
+    "n": 160,
+    "dias": 66,
+    "media_op": -0.0481,
+    "media_dia": -0.0621,
+    "soma": -7.7,
+    "pf": 0.888,
+    "win": 0.419,
+    "payoff": 1.233,
+    "max_dd_r": -22.77,
+    "t_dia": -0.6,
+    "ic90_dia": [
+     -0.2253,
+     0.1057
+    ],
+    "ic90_op_agrupado": [
+     -0.2278,
+     0.1316
+    ],
+    "dias_maiores_5_pct_do_r": null
+   },
+   "por_regime": {
+    "btc_acima_sma50": {
+     "n": 279,
+     "dias": 102,
+     "media_op": 0.0218,
+     "media_dia": 0.1243,
+     "soma": 6.08,
+     "pf": 1.056,
+     "win": 0.441,
+     "payoff": 1.34,
+     "max_dd_r": -23.77,
+     "t_dia": 1.37,
+     "ic90_dia": [
+      -0.0206,
+      0.2731
+     ],
+     "ic90_op_agrupado": [
+      -0.1444,
+      0.2089
+     ],
+     "dias_maiores_5_pct_do_r": 5.214
+    },
+    "btc_abaixo_sma50": {
+     "n": 399,
+     "dias": 127,
+     "media_op": -0.0535,
+     "media_dia": -0.1128,
+     "soma": -21.34,
+     "pf": 0.876,
+     "win": 0.439,
+     "payoff": 1.122,
+     "max_dd_r": -53.59,
+     "t_dia": -1.45,
+     "ic90_dia": [
+      -0.2452,
+      0.0133
+     ],
+     "ic90_op_agrupado": [
+      -0.2211,
+      0.1167
+     ],
+     "dias_maiores_5_pct_do_r": null
+    }
+   },
+   "por_ano": {
+    "2024": {
+     "n": 36,
+     "dias": 7,
+     "media_op": -0.4131,
+     "media_dia": 0.0411,
+     "soma": -14.87,
+     "pf": 0.256,
+     "win": 0.139,
+     "payoff": 1.585,
+     "max_dd_r": -19.79,
+     "t_dia": 0.11,
+     "ic90_dia": [
+      -0.5034,
+      0.6475
+     ],
+     "ic90_op_agrupado": [
+      -0.6434,
+      0.5084
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "2025": {
+     "n": 404,
+     "dias": 118,
+     "media_op": 0.0741,
+     "media_dia": 0.0769,
+     "soma": 29.92,
+     "pf": 1.2,
+     "win": 0.493,
+     "payoff": 1.237,
+     "max_dd_r": -26.47,
+     "t_dia": 0.88,
+     "ic90_dia": [
+      -0.0645,
+      0.2213
+     ],
+     "ic90_op_agrupado": [
+      -0.0984,
+      0.2443
+     ],
+     "dias_maiores_5_pct_do_r": 1.717
+    },
+    "2026": {
+     "n": 238,
+     "dias": 104,
+     "media_op": -0.1273,
+     "media_dia": -0.1059,
+     "soma": -30.3,
+     "pf": 0.728,
+     "win": 0.395,
+     "payoff": 1.116,
+     "max_dd_r": -45.37,
+     "t_dia": -1.32,
+     "ic90_dia": [
+      -0.2325,
+      0.0252
+     ],
+     "ic90_op_agrupado": [
+      -0.2812,
+      0.0283
+     ],
+     "dias_maiores_5_pct_do_r": null
+    }
+   },
+   "sem_melhor_moeda": {
+    "moeda": "EIGEN",
+    "n": 652,
+    "dias": 224,
+    "media_op": -0.0368,
+    "media_dia": -0.016,
+    "soma": -23.98,
+    "pf": 0.912,
+    "win": 0.437,
+    "payoff": 1.175,
+    "max_dd_r": -64.46,
+    "t_dia": -0.27,
+    "ic90_dia": [
+     -0.1129,
+     0.0806
+    ],
+    "ic90_op_agrupado": [
+     -0.1565,
+     0.094
+    ],
+    "dias_maiores_5_pct_do_r": null
+   },
+   "moedas": 67,
+   "custos": {
+    "cobertura": 1.0,
+    "stop_pct_mediano": 7.91,
+    "r_por_0_1pct": 0.0131,
+    "media_op": -0.0225,
+    "media_op_mais_0.1pct": -0.0356,
+    "media_op_mais_0.2pct": -0.0488,
+    "media_op_mais_0.5pct": -0.0882,
+    "custo_extra_que_anula_pct": -0.171
+   },
+   "limite_3_por_dia": {
+    "n": 432,
+    "dias": 229,
+    "media_op": -0.0047,
+    "media_dia": -0.0219,
+    "soma": -2.03,
+    "pf": 0.989,
+    "win": 0.44,
+    "payoff": 1.259,
+    "max_dd_r": -40.11,
+    "t_dia": -0.37,
+    "ic90_dia": [
+     -0.115,
+     0.0755
+    ],
+    "ic90_op_agrupado": [
+     -0.1069,
+     0.0925
+    ],
+    "dias_maiores_5_pct_do_r": null
+   },
+   "limite_1_por_dia": {
+    "n": 229,
+    "dias": 229,
+    "media_op": -0.0615,
+    "media_dia": -0.0615,
+    "soma": -14.08,
+    "pf": 0.861,
+    "win": 0.406,
+    "payoff": 1.259,
+    "max_dd_r": -29.95,
+    "t_dia": -0.95,
+    "ic90_dia": [
+     -0.1673,
+     0.0505
+    ],
+    "ic90_op_agrupado": [
+     -0.1662,
+     0.047
+    ],
+    "dias_maiores_5_pct_do_r": null
+   },
+   "teto_3_abertas_ao_acaso": {
+    "media_op": -0.0139,
+    "p05": -0.0318,
+    "p95": 0.0022,
+    "n_tipico": 229
+   }
+  },
+  "H40 (todos os sinais)": {
+   "nota": "custos de futuros OKX (h38)",
+   "tudo": {
+    "n": 1071,
+    "dias": 257,
+    "media_op": 0.1009,
+    "media_dia": 0.0184,
+    "soma": 108.1,
+    "pf": 1.27,
+    "win": 0.503,
+    "payoff": 1.254,
+    "max_dd_r": -63.77,
+    "t_dia": 0.33,
+    "ic90_dia": [
+     -0.0726,
+     0.1118
+    ],
+    "ic90_op_agrupado": [
+     -0.0261,
+     0.2312
+    ],
+    "dias_maiores_5_pct_do_r": 1.83
+   },
+   "desenho_ate_2024_06": {
+    "n": 0
+   },
+   "validacao_2024_07_a_reserva": {
+    "n": 867,
+    "dias": 189,
+    "media_op": 0.1315,
+    "media_dia": 0.0318,
+    "soma": 113.98,
+    "pf": 1.36,
+    "win": 0.514,
+    "payoff": 1.284,
+    "max_dd_r": -40.53,
+    "t_dia": 0.48,
+    "ic90_dia": [
+     -0.075,
+     0.136
+    ],
+    "ic90_op_agrupado": [
+     -0.0188,
+     0.2848
+    ],
+    "dias_maiores_5_pct_do_r": 1.494
+   },
+   "reserva_contaminada": {
+    "n": 204,
+    "dias": 68,
+    "media_op": -0.0288,
+    "media_dia": -0.0189,
+    "soma": -5.88,
+    "pf": 0.929,
+    "win": 0.456,
+    "payoff": 1.109,
+    "max_dd_r": -32.22,
+    "t_dia": -0.18,
+    "ic90_dia": [
+     -0.1912,
+     0.1604
+    ],
+    "ic90_op_agrupado": [
+     -0.1758,
+     0.1234
+    ],
+    "dias_maiores_5_pct_do_r": null
+   },
+   "por_regime": {
+    "btc_acima_sma50": {
+     "n": 336,
+     "dias": 107,
+     "media_op": -0.0128,
+     "media_dia": 0.1119,
+     "soma": -4.3,
+     "pf": 0.968,
+     "win": 0.443,
+     "payoff": 1.215,
+     "max_dd_r": -29.6,
+     "t_dia": 1.28,
+     "ic90_dia": [
+      -0.0302,
+      0.256
+     ],
+     "ic90_op_agrupado": [
+      -0.1726,
+      0.1725
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "btc_abaixo_sma50": {
+     "n": 735,
+     "dias": 150,
+     "media_op": 0.1529,
+     "media_dia": -0.0483,
+     "soma": 112.4,
+     "pf": 1.423,
+     "win": 0.531,
+     "payoff": 1.259,
+     "max_dd_r": -52.94,
+     "t_dia": -0.66,
+     "ic90_dia": [
+      -0.1613,
+      0.0727
+     ],
+     "ic90_op_agrupado": [
+      -0.0175,
+      0.3192
+     ],
+     "dias_maiores_5_pct_do_r": 1.322
+    }
+   },
+   "por_ano": {
+    "2024": {
+     "n": 52,
+     "dias": 8,
+     "media_op": -0.3951,
+     "media_dia": 0.1245,
+     "soma": -20.54,
+     "pf": 0.277,
+     "win": 0.173,
+     "payoff": 1.321,
+     "max_dd_r": -26.58,
+     "t_dia": 0.37,
+     "ic90_dia": [
+      -0.3436,
+      0.6685
+     ],
+     "ic90_op_agrupado": [
+      -0.653,
+      0.5335
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "2025": {
+     "n": 674,
+     "dias": 135,
+     "media_op": 0.2357,
+     "media_dia": 0.1165,
+     "soma": 158.86,
+     "pf": 1.729,
+     "win": 0.568,
+     "payoff": 1.313,
+     "max_dd_r": -32.79,
+     "t_dia": 1.42,
+     "ic90_dia": [
+      -0.0225,
+      0.2483
+     ],
+     "ic90_op_agrupado": [
+      0.0592,
+      0.4134
+     ],
+     "dias_maiores_5_pct_do_r": 0.872
+    },
+    "2026": {
+     "n": 345,
+     "dias": 114,
+     "media_op": -0.0876,
+     "media_dia": -0.1052,
+     "soma": -30.22,
+     "pf": 0.803,
+     "win": 0.426,
+     "payoff": 1.081,
+     "max_dd_r": -56.56,
+     "t_dia": -1.37,
+     "ic90_dia": [
+      -0.2276,
+      0.0217
+     ],
+     "ic90_op_agrupado": [
+      -0.2204,
+      0.0499
+     ],
+     "dias_maiores_5_pct_do_r": null
+    }
+   },
+   "sem_melhor_moeda": {
+    "moeda": "STRK",
+    "n": 1043,
+    "dias": 257,
+    "media_op": 0.0904,
+    "media_dia": 0.0122,
+    "soma": 94.28,
+    "pf": 1.239,
+    "win": 0.5,
+    "payoff": 1.242,
+    "max_dd_r": -66.37,
+    "t_dia": 0.22,
+    "ic90_dia": [
+     -0.0752,
+     0.1037
+    ],
+    "ic90_op_agrupado": [
+     -0.0326,
+     0.2188
+    ],
+    "dias_maiores_5_pct_do_r": 2.043
+   },
+   "moedas": 67,
+   "custos": {
+    "cobertura": 1.0,
+    "stop_pct_mediano": 8.05,
+    "r_por_0_1pct": 0.0129,
+    "media_op": 0.1009,
+    "media_op_mais_0.1pct": 0.088,
+    "media_op_mais_0.2pct": 0.075,
+    "media_op_mais_0.5pct": 0.0362,
+    "custo_extra_que_anula_pct": 0.78
+   },
+   "limite_3_por_dia": {
+    "n": 520,
+    "dias": 257,
+    "media_op": -0.0107,
+    "media_dia": -0.0236,
+    "soma": -5.57,
+    "pf": 0.976,
+    "win": 0.433,
+    "payoff": 1.279,
+    "max_dd_r": -47.37,
+    "t_dia": -0.41,
+    "ic90_dia": [
+     -0.1165,
+     0.0742
+    ],
+    "ic90_op_agrupado": [
+     -0.1084,
+     0.0932
+    ],
+    "dias_maiores_5_pct_do_r": null
+   },
+   "limite_1_por_dia": {
+    "n": 257,
+    "dias": 257,
+    "media_op": -0.0581,
+    "media_dia": -0.0581,
+    "soma": -14.92,
+    "pf": 0.872,
+    "win": 0.409,
+    "payoff": 1.262,
+    "max_dd_r": -30.79,
+    "t_dia": -0.93,
+    "ic90_dia": [
+     -0.1646,
+     0.0432
+    ],
+    "ic90_op_agrupado": [
+     -0.1631,
+     0.0431
+    ],
+    "dias_maiores_5_pct_do_r": null
+   },
+   "teto_3_abertas_ao_acaso": {
+    "media_op": 0.0099,
+    "p05": -0.0194,
+    "p95": 0.0342,
+    "n_tipico": 262
+   }
+  },
+  "H45 (panico do mercado, custos Bybit)": {
+   "nota": "custos Bybit UE (h45)",
+   "tudo": {
+    "n": 393,
+    "dias": 63,
+    "media_op": 0.2538,
+    "media_dia": -0.073,
+    "soma": 99.73,
+    "pf": 1.776,
+    "win": 0.603,
+    "payoff": 1.169,
+    "max_dd_r": -27.69,
+    "t_dia": -0.62,
+    "ic90_dia": [
+     -0.266,
+     0.1156
+    ],
+    "ic90_op_agrupado": [
+     -0.0181,
+     0.4756
+    ],
+    "dias_maiores_5_pct_do_r": 0.975
+   },
+   "desenho_ate_2024_06": {
+    "n": 0
+   },
+   "validacao_2024_07_a_reserva": {
+    "n": 349,
+    "dias": 53,
+    "media_op": 0.2884,
+    "media_dia": -0.1012,
+    "soma": 100.63,
+    "pf": 1.89,
+    "win": 0.605,
+    "payoff": 1.236,
+    "max_dd_r": -27.69,
+    "t_dia": -0.76,
+    "ic90_dia": [
+     -0.3197,
+     0.1283
+    ],
+    "ic90_op_agrupado": [
+     -0.0218,
+     0.5279
+    ],
+    "dias_maiores_5_pct_do_r": 0.813
+   },
+   "reserva_contaminada": {
+    "n": 44,
+    "dias": 10,
+    "media_op": -0.0205,
+    "media_dia": 0.0765,
+    "soma": -0.9,
+    "pf": 0.942,
+    "win": 0.591,
+    "payoff": 0.652,
+    "max_dd_r": -10.96,
+    "t_dia": 0.3,
+    "ic90_dia": [
+     -0.2989,
+     0.4929
+    ],
+    "ic90_op_agrupado": [
+     -0.3277,
+     0.2689
+    ],
+    "dias_maiores_5_pct_do_r": null
+   },
+   "por_regime": {
+    "btc_acima_sma50": {
+     "n": 57,
+     "dias": 14,
+     "media_op": -0.2418,
+     "media_dia": -0.2439,
+     "soma": -13.78,
+     "pf": 0.5,
+     "win": 0.456,
+     "payoff": 0.596,
+     "max_dd_r": -14.91,
+     "t_dia": -1.26,
+     "ic90_dia": [
+      -0.5545,
+      0.0592
+     ],
+     "ic90_op_agrupado": [
+      -0.6409,
+      0.1429
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "btc_abaixo_sma50": {
+     "n": 336,
+     "dias": 49,
+     "media_op": 0.3378,
+     "media_dia": -0.0241,
+     "soma": 113.52,
+     "pf": 2.124,
+     "win": 0.628,
+     "payoff": 1.258,
+     "max_dd_r": -27.69,
+     "t_dia": -0.17,
+     "ic90_dia": [
+      -0.2585,
+      0.2112
+     ],
+     "ic90_op_agrupado": [
+      0.0456,
+      0.5746
+     ],
+     "dias_maiores_5_pct_do_r": 0.721
+    }
+   },
+   "por_ano": {
+    "2024": {
+     "n": 16,
+     "dias": 3,
+     "media_op": -0.4036,
+     "media_dia": -0.185,
+     "soma": -6.46,
+     "pf": 0.286,
+     "win": 0.25,
+     "payoff": 0.857,
+     "max_dd_r": -8.53,
+     "t_dia": -0.4,
+     "ic90_dia": [
+      null,
+      null
+     ],
+     "ic90_op_agrupado": [
+      null,
+      null
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "2025": {
+     "n": 270,
+     "dias": 32,
+     "media_op": 0.4184,
+     "media_dia": 0.0845,
+     "soma": 112.97,
+     "pf": 2.522,
+     "win": 0.674,
+     "payoff": 1.22,
+     "max_dd_r": -27.69,
+     "t_dia": 0.46,
+     "ic90_dia": [
+      -0.2098,
+      0.3986
+     ],
+     "ic90_op_agrupado": [
+      0.0924,
+      0.6932
+     ],
+     "dias_maiores_5_pct_do_r": 0.431
+    },
+    "2026": {
+     "n": 107,
+     "dias": 28,
+     "media_op": -0.0634,
+     "media_dia": -0.2409,
+     "soma": -6.78,
+     "pf": 0.85,
+     "win": 0.477,
+     "payoff": 0.934,
+     "max_dd_r": -17.49,
+     "t_dia": -1.57,
+     "ic90_dia": [
+      -0.4883,
+      0.0103
+     ],
+     "ic90_op_agrupado": [
+      -0.3447,
+      0.2354
+     ],
+     "dias_maiores_5_pct_do_r": null
+    }
+   },
+   "sem_melhor_moeda": {
+    "moeda": "STRK",
+    "n": 385,
+    "dias": 63,
+    "media_op": 0.2368,
+    "media_dia": -0.0764,
+    "soma": 91.16,
+    "pf": 1.709,
+    "win": 0.597,
+    "payoff": 1.152,
+    "max_dd_r": -27.69,
+    "t_dia": -0.65,
+    "ic90_dia": [
+     -0.2664,
+     0.1127
+    ],
+    "ic90_op_agrupado": [
+     -0.0398,
+     0.4706
+    ],
+    "dias_maiores_5_pct_do_r": 1.056
+   },
+   "moedas": 61,
+   "custos": {
+    "cobertura": 1.0,
+    "stop_pct_mediano": 8.62,
+    "r_por_0_1pct": 0.0126,
+    "media_op": 0.2538,
+    "media_op_mais_0.1pct": 0.2412,
+    "media_op_mais_0.2pct": 0.2286,
+    "media_op_mais_0.5pct": 0.1908,
+    "custo_extra_que_anula_pct": 2.014
+   },
+   "limite_3_por_dia": {
+    "n": 149,
+    "dias": 63,
+    "media_op": -0.0383,
+    "media_dia": -0.0976,
+    "soma": -5.71,
+    "pf": 0.925,
+    "win": 0.47,
+    "payoff": 1.044,
+    "max_dd_r": -21.25,
+    "t_dia": -0.78,
+    "ic90_dia": [
+     -0.297,
+     0.1218
+    ],
+    "ic90_op_agrupado": [
+     -0.2604,
+     0.169
+    ],
+    "dias_maiores_5_pct_do_r": null
+   },
+   "limite_1_por_dia": {
+    "n": 63,
+    "dias": 63,
+    "media_op": -0.1104,
+    "media_dia": -0.1104,
+    "soma": -6.95,
+    "pf": 0.797,
+    "win": 0.429,
+    "payoff": 1.063,
+    "max_dd_r": -14.22,
+    "t_dia": -0.8,
+    "ic90_dia": [
+     -0.3281,
+     0.1143
+    ],
+    "ic90_op_agrupado": [
+     -0.338,
+     0.1265
+    ],
+    "dias_maiores_5_pct_do_r": null
+   },
+   "teto_3_abertas_ao_acaso": {
+    "media_op": 0.0316,
+    "p05": -0.0203,
+    "p95": 0.0835,
+    "n_tipico": 106
+   }
+  },
+  "H46 (RSI<30)": {
+   "nota": "h46",
+   "tudo": {
+    "n": 394,
+    "dias": 120,
+    "media_op": 0.119,
+    "media_dia": 0.0683,
+    "soma": 46.88,
+    "pf": 1.303,
+    "win": 0.52,
+    "payoff": 1.201,
+    "max_dd_r": -26.0,
+    "t_dia": 0.75,
+    "ic90_dia": [
+     -0.0797,
+     0.2187
+    ],
+    "ic90_op_agrupado": [
+     -0.088,
+     0.321
+    ],
+    "dias_maiores_5_pct_do_r": 1.768
+   },
+   "desenho_ate_2024_06": {
+    "n": 165,
+    "dias": 60,
+    "media_op": 0.0041,
+    "media_dia": 0.0725,
+    "soma": 0.68,
+    "pf": 1.01,
+    "win": 0.461,
+    "payoff": 1.182,
+    "max_dd_r": -25.31,
+    "t_dia": 0.55,
+    "ic90_dia": [
+     -0.1419,
+     0.2806
+    ],
+    "ic90_op_agrupado": [
+     -0.1975,
+     0.2126
+    ],
+    "dias_maiores_5_pct_do_r": 25.502
+   },
+   "validacao_2024_07_a_reserva": {
+    "n": 152,
+    "dias": 35,
+    "media_op": 0.0669,
+    "media_dia": 0.0546,
+    "soma": 10.16,
+    "pf": 1.165,
+    "win": 0.546,
+    "payoff": 0.968,
+    "max_dd_r": -25.07,
+    "t_dia": 0.33,
+    "ic90_dia": [
+     -0.2067,
+     0.3218
+    ],
+    "ic90_op_agrupado": [
+     -0.349,
+     0.4121
+    ],
+    "dias_maiores_5_pct_do_r": 2.778
+   },
+   "reserva_contaminada": {
+    "n": 77,
+    "dias": 25,
+    "media_op": 0.4679,
+    "media_dia": 0.0773,
+    "soma": 36.03,
+    "pf": 2.596,
+    "win": 0.597,
+    "payoff": 1.749,
+    "max_dd_r": -8.26,
+    "t_dia": 0.39,
+    "ic90_dia": [
+     -0.2297,
+     0.4
+    ],
+    "ic90_op_agrupado": [
+     0.0171,
+     0.8525
+    ],
+    "dias_maiores_5_pct_do_r": 0.54
+   },
+   "por_regime": {
+    "btc_acima_sma50": {
+     "n": 392,
+     "dias": 118,
+     "media_op": 0.1249,
+     "media_dia": 0.087,
+     "soma": 48.94,
+     "pf": 1.321,
+     "win": 0.523,
+     "payoff": 1.205,
+     "max_dd_r": -25.31,
+     "t_dia": 0.96,
+     "ic90_dia": [
+      -0.0573,
+      0.2366
+     ],
+     "ic90_op_agrupado": [
+      -0.0819,
+      0.3171
+     ],
+     "dias_maiores_5_pct_do_r": 1.557
+    },
+    "btc_abaixo_sma50": {
+     "n": 2,
+     "dias": 2,
+     "media_op": -1.0338,
+     "media_dia": -1.0338,
+     "soma": -2.07,
+     "pf": 0.0,
+     "win": 0.0,
+     "payoff": null,
+     "max_dd_r": -2.07,
+     "t_dia": -48.34,
+     "ic90_dia": [
+      null,
+      null
+     ],
+     "ic90_op_agrupado": [
+      null,
+      null
+     ],
+     "dias_maiores_5_pct_do_r": null
+    }
+   },
+   "por_ano": {
+    "2021": {
+     "n": 39,
+     "dias": 13,
+     "media_op": 0.2635,
+     "media_dia": 0.6263,
+     "soma": 10.28,
+     "pf": 1.72,
+     "win": 0.564,
+     "payoff": 1.329,
+     "max_dd_r": -7.12,
+     "t_dia": 2.5,
+     "ic90_dia": [
+      0.2238,
+      1.0049
+     ],
+     "ic90_op_agrupado": [
+      -0.1096,
+      0.8909
+     ],
+     "dias_maiores_5_pct_do_r": 0.439
+    },
+    "2022": {
+     "n": 30,
+     "dias": 6,
+     "media_op": -0.6397,
+     "media_dia": -0.7604,
+     "soma": -19.19,
+     "pf": 0.038,
+     "win": 0.167,
+     "payoff": 0.189,
+     "max_dd_r": -19.19,
+     "t_dia": -4.61,
+     "ic90_dia": [
+      -0.9662,
+      -0.4662
+     ],
+     "ic90_op_agrupado": [
+      -0.8982,
+      -0.3199
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "2023": {
+     "n": 51,
+     "dias": 22,
+     "media_op": 0.4055,
+     "media_dia": 0.3957,
+     "soma": 20.68,
+     "pf": 3.277,
+     "win": 0.686,
+     "payoff": 1.498,
+     "max_dd_r": -6.24,
+     "t_dia": 1.99,
+     "ic90_dia": [
+      0.0695,
+      0.7028
+     ],
+     "ic90_op_agrupado": [
+      0.1015,
+      0.7368
+     ],
+     "dias_maiores_5_pct_do_r": 0.385
+    },
+    "2024": {
+     "n": 130,
+     "dias": 34,
+     "media_op": -0.1061,
+     "media_dia": -0.364,
+     "soma": -13.8,
+     "pf": 0.789,
+     "win": 0.438,
+     "payoff": 1.011,
+     "max_dd_r": -25.07,
+     "t_dia": -2.52,
+     "ic90_dia": [
+      -0.5895,
+      -0.1175
+     ],
+     "ic90_op_agrupado": [
+      -0.6142,
+      0.306
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "2025": {
+     "n": 58,
+     "dias": 15,
+     "media_op": 0.2695,
+     "media_dia": 0.4294,
+     "soma": 15.63,
+     "pf": 1.858,
+     "win": 0.638,
+     "payoff": 1.055,
+     "max_dd_r": -9.64,
+     "t_dia": 1.52,
+     "ic90_dia": [
+      -0.0299,
+      0.8614
+     ],
+     "ic90_op_agrupado": [
+      -0.1377,
+      0.7021
+     ],
+     "dias_maiores_5_pct_do_r": 0.488
+    },
+    "2026": {
+     "n": 86,
+     "dias": 30,
+     "media_op": 0.3869,
+     "media_dia": 0.0615,
+     "soma": 33.28,
+     "pf": 2.199,
+     "win": 0.57,
+     "payoff": 1.66,
+     "max_dd_r": -9.78,
+     "t_dia": 0.34,
+     "ic90_dia": [
+      -0.209,
+      0.3691
+     ],
+     "ic90_op_agrupado": [
+      -0.0517,
+      0.7349
+     ],
+     "dias_maiores_5_pct_do_r": 0.585
+    }
+   },
+   "sem_melhor_moeda": {
+    "moeda": "BNB",
+    "n": 381,
+    "dias": 120,
+    "media_op": 0.106,
+    "media_dia": 0.0637,
+    "soma": 40.37,
+    "pf": 1.269,
+    "win": 0.517,
+    "payoff": 1.186,
+    "max_dd_r": -30.01,
+    "t_dia": 0.71,
+    "ic90_dia": [
+     -0.0805,
+     0.2037
+    ],
+    "ic90_op_agrupado": [
+     -0.0959,
+     0.2924
+    ],
+    "dias_maiores_5_pct_do_r": 1.957
+   },
+   "moedas": 60,
+   "custos": {
+    "cobertura": 1.0,
+    "stop_pct_mediano": 7.18,
+    "r_por_0_1pct": 0.0157,
+    "media_op": 0.119,
+    "media_op_mais_0.1pct": 0.1032,
+    "media_op_mais_0.2pct": 0.0875,
+    "media_op_mais_0.5pct": 0.0403,
+    "custo_extra_que_anula_pct": 0.756
+   },
+   "limite_3_por_dia": {
+    "n": 227,
+    "dias": 120,
+    "media_op": 0.0342,
+    "media_dia": 0.0382,
+    "soma": 7.76,
+    "pf": 1.078,
+    "win": 0.485,
+    "payoff": 1.147,
+    "max_dd_r": -23.7,
+    "t_dia": 0.41,
+    "ic90_dia": [
+     -0.1159,
+     0.1904
+    ],
+    "ic90_op_agrupado": [
+     -0.122,
+     0.2021
+    ],
+    "dias_maiores_5_pct_do_r": 4.273
+   },
+   "limite_1_por_dia": {
+    "n": 120,
+    "dias": 120,
+    "media_op": 0.0239,
+    "media_dia": 0.0239,
+    "soma": 2.87,
+    "pf": 1.056,
+    "win": 0.5,
+    "payoff": 1.056,
+    "max_dd_r": -12.84,
+    "t_dia": 0.25,
+    "ic90_dia": [
+     -0.1316,
+     0.1845
+    ],
+    "ic90_op_agrupado": [
+     -0.1282,
+     0.176
+    ],
+    "dias_maiores_5_pct_do_r": 4.168
+   },
+   "teto_3_abertas_ao_acaso": {
+    "media_op": -0.0258,
+    "p05": -0.061,
+    "p95": 0.0094,
+    "n_tipico": 153
+   }
+  },
+  "H46 (RSI<35)": {
+   "nota": "h46",
+   "tudo": {
+    "n": 1041,
+    "dias": 244,
+    "media_op": 0.0284,
+    "media_dia": 0.0946,
+    "soma": 29.57,
+    "pf": 1.063,
+    "win": 0.469,
+    "payoff": 1.205,
+    "max_dd_r": -74.04,
+    "t_dia": 1.55,
+    "ic90_dia": [
+     -0.0027,
+     0.1957
+    ],
+    "ic90_op_agrupado": [
+     -0.1082,
+     0.1789
+    ],
+    "dias_maiores_5_pct_do_r": 6.334
+   },
+   "desenho_ate_2024_06": {
+    "n": 430,
+    "dias": 126,
+    "media_op": 0.0464,
+    "media_dia": 0.0848,
+    "soma": 19.95,
+    "pf": 1.107,
+    "win": 0.463,
+    "payoff": 1.286,
+    "max_dd_r": -52.45,
+    "t_dia": 1.02,
+    "ic90_dia": [
+     -0.0512,
+     0.2245
+    ],
+    "ic90_op_agrupado": [
+     -0.1121,
+     0.2348
+    ],
+    "dias_maiores_5_pct_do_r": 3.512
+   },
+   "validacao_2024_07_a_reserva": {
+    "n": 410,
+    "dias": 80,
+    "media_op": -0.0737,
+    "media_dia": 0.0839,
+    "soma": -30.23,
+    "pf": 0.851,
+    "win": 0.466,
+    "payoff": 0.976,
+    "max_dd_r": -49.55,
+    "t_dia": 0.82,
+    "ic90_dia": [
+     -0.0759,
+     0.2451
+    ],
+    "ic90_op_agrupado": [
+     -0.3167,
+     0.1968
+    ],
+    "dias_maiores_5_pct_do_r": null
+   },
+   "reserva_contaminada": {
+    "n": 201,
+    "dias": 38,
+    "media_op": 0.1982,
+    "media_dia": 0.1494,
+    "soma": 39.84,
+    "pf": 1.508,
+    "win": 0.488,
+    "payoff": 1.585,
+    "max_dd_r": -23.62,
+    "t_dia": 0.83,
+    "ic90_dia": [
+     -0.1387,
+     0.4308
+    ],
+    "ic90_op_agrupado": [
+     -0.1621,
+     0.6023
+    ],
+    "dias_maiores_5_pct_do_r": 0.606
+   },
+   "por_regime": {
+    "btc_acima_sma50": {
+     "n": 1036,
+     "dias": 241,
+     "media_op": 0.0227,
+     "media_dia": 0.0849,
+     "soma": 23.55,
+     "pf": 1.05,
+     "win": 0.467,
+     "payoff": 1.198,
+     "max_dd_r": -79.13,
+     "t_dia": 1.4,
+     "ic90_dia": [
+      -0.0106,
+      0.1817
+     ],
+     "ic90_op_agrupado": [
+      -0.1243,
+      0.1695
+     ],
+     "dias_maiores_5_pct_do_r": 7.951
+    },
+    "btc_abaixo_sma50": {
+     "n": 5,
+     "dias": 3,
+     "media_op": 1.2029,
+     "media_dia": 0.8753,
+     "soma": 6.01,
+     "pf": 6.7,
+     "win": 0.8,
+     "payoff": 1.675,
+     "max_dd_r": -1.06,
+     "t_dia": 0.9,
+     "ic90_dia": [
+      null,
+      null
+     ],
+     "ic90_op_agrupado": [
+      null,
+      null
+     ],
+     "dias_maiores_5_pct_do_r": 0.845
+    }
+   },
+   "por_ano": {
+    "2021": {
+     "n": 91,
+     "dias": 30,
+     "media_op": 0.1198,
+     "media_dia": 0.2708,
+     "soma": 10.9,
+     "pf": 1.296,
+     "win": 0.495,
+     "payoff": 1.325,
+     "max_dd_r": -16.03,
+     "t_dia": 1.73,
+     "ic90_dia": [
+      0.0152,
+      0.517
+     ],
+     "ic90_op_agrupado": [
+      -0.1746,
+      0.5364
+     ],
+     "dias_maiores_5_pct_do_r": 0.586
+    },
+    "2022": {
+     "n": 55,
+     "dias": 14,
+     "media_op": -0.6895,
+     "media_dia": -0.4967,
+     "soma": -37.92,
+     "pf": 0.108,
+     "win": 0.109,
+     "payoff": 0.886,
+     "max_dd_r": -38.63,
+     "t_dia": -2.68,
+     "ic90_dia": [
+      -0.778,
+      -0.1844
+     ],
+     "ic90_op_agrupado": [
+      -0.8488,
+      -0.3967
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "2023": {
+     "n": 161,
+     "dias": 48,
+     "media_op": 0.4206,
+     "media_dia": 0.4349,
+     "soma": 67.71,
+     "pf": 2.84,
+     "win": 0.658,
+     "payoff": 1.474,
+     "max_dd_r": -14.69,
+     "t_dia": 3.48,
+     "ic90_dia": [
+      0.2338,
+      0.6395
+     ],
+     "ic90_op_agrupado": [
+      0.1596,
+      0.718
+     ],
+     "dias_maiores_5_pct_do_r": 0.506
+    },
+    "2024": {
+     "n": 323,
+     "dias": 66,
+     "media_op": -0.1808,
+     "media_dia": -0.1556,
+     "soma": -58.39,
+     "pf": 0.69,
+     "win": 0.375,
+     "payoff": 1.151,
+     "max_dd_r": -64.74,
+     "t_dia": -1.32,
+     "ic90_dia": [
+      -0.3367,
+      0.0415
+     ],
+     "ic90_op_agrupado": [
+      -0.4656,
+      0.1306
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "2025": {
+     "n": 186,
+     "dias": 36,
+     "media_op": 0.0782,
+     "media_dia": 0.129,
+     "soma": 14.54,
+     "pf": 1.201,
+     "win": 0.548,
+     "payoff": 0.989,
+     "max_dd_r": -31.42,
+     "t_dia": 0.87,
+     "ic90_dia": [
+      -0.1011,
+      0.3597
+     ],
+     "ic90_op_agrupado": [
+      -0.211,
+      0.3752
+     ],
+     "dias_maiores_5_pct_do_r": 0.682
+    },
+    "2026": {
+     "n": 225,
+     "dias": 50,
+     "media_op": 0.1454,
+     "media_dia": 0.1331,
+     "soma": 32.72,
+     "pf": 1.36,
+     "win": 0.48,
+     "payoff": 1.474,
+     "max_dd_r": -27.37,
+     "t_dia": 0.89,
+     "ic90_dia": [
+      -0.107,
+      0.381
+     ],
+     "ic90_op_agrupado": [
+      -0.181,
+      0.5054
+     ],
+     "dias_maiores_5_pct_do_r": 1.314
+    }
+   },
+   "sem_melhor_moeda": {
+    "moeda": "WLD",
+    "n": 1017,
+    "dias": 241,
+    "media_op": 0.0197,
+    "media_dia": 0.0746,
+    "soma": 20.03,
+    "pf": 1.044,
+    "win": 0.466,
+    "payoff": 1.196,
+    "max_dd_r": -74.99,
+    "t_dia": 1.24,
+    "ic90_dia": [
+     -0.0206,
+     0.1764
+    ],
+    "ic90_op_agrupado": [
+     -0.131,
+     0.1675
+    ],
+    "dias_maiores_5_pct_do_r": 9.109
+   },
+   "moedas": 64,
+   "custos": {
+    "cobertura": 1.0,
+    "stop_pct_mediano": 7.12,
+    "r_por_0_1pct": 0.0158,
+    "media_op": 0.0284,
+    "media_op_mais_0.1pct": 0.0126,
+    "media_op_mais_0.2pct": -0.0031,
+    "media_op_mais_0.5pct": -0.0504,
+    "custo_extra_que_anula_pct": 0.18
+   },
+   "limite_3_por_dia": {
+    "n": 501,
+    "dias": 244,
+    "media_op": 0.0377,
+    "media_dia": 0.0587,
+    "soma": 18.91,
+    "pf": 1.085,
+    "win": 0.481,
+    "payoff": 1.171,
+    "max_dd_r": -37.38,
+    "t_dia": 0.96,
+    "ic90_dia": [
+     -0.0425,
+     0.1609
+    ],
+    "ic90_op_agrupado": [
+     -0.064,
+     0.1368
+    ],
+    "dias_maiores_5_pct_do_r": 2.961
+   },
+   "limite_1_por_dia": {
+    "n": 244,
+    "dias": 244,
+    "media_op": -0.01,
+    "media_dia": -0.01,
+    "soma": -2.44,
+    "pf": 0.978,
+    "win": 0.484,
+    "payoff": 1.044,
+    "max_dd_r": -26.7,
+    "t_dia": -0.15,
+    "ic90_dia": [
+     -0.1164,
+     0.0979
+    ],
+    "ic90_op_agrupado": [
+     -0.1105,
+     0.096
+    ],
+    "dias_maiores_5_pct_do_r": null
+   },
+   "teto_3_abertas_ao_acaso": {
+    "media_op": 0.0321,
+    "p05": 0.0065,
+    "p95": 0.0591,
+    "n_tipico": 334
+   }
+  }
+ },
+ "ambientes": {
+  "BYBIT_REAL|BOUNCE_SQUEEZE": {
+   "n": 4,
+   "dias": 2,
+   "media_op": 0.0147,
+   "media_dia": 0.0147,
+   "soma": 0.06,
+   "pf": 1.056,
+   "win": 0.5,
+   "payoff": 1.056,
+   "max_dd_r": -1.05,
+   "t_dia": 0.03,
+   "ic90_dia": [
+    null,
+    null
+   ],
+   "ic90_op_agrupado": [
+    null,
+    null
+   ],
+   "dias_maiores_5_pct_do_r": 18.847
+  },
+  "BYBIT_REAL|BOUNCE_X30": {
+   "n": 2,
+   "dias": 1,
+   "media_op": -1.0,
+   "media_dia": -1.0,
+   "soma": -2.0,
+   "pf": 0.0,
+   "win": 0.0,
+   "payoff": null,
+   "max_dd_r": -2.0,
+   "t_dia": null,
+   "ic90_dia": [
+    null,
+    null
+   ],
+   "ic90_op_agrupado": [
+    null,
+    null
+   ],
+   "dias_maiores_5_pct_do_r": null
+  },
+  "BYBIT_REAL|BREAKOUT": {
+   "n": 3,
+   "dias": 3,
+   "media_op": -1.0,
+   "media_dia": -1.0,
+   "soma": -3.0,
+   "pf": 0.0,
+   "win": 0.0,
+   "payoff": null,
+   "max_dd_r": -3.0,
+   "t_dia": null,
+   "ic90_dia": [
+    null,
+    null
+   ],
+   "ic90_op_agrupado": [
+    null,
+    null
+   ],
+   "dias_maiores_5_pct_do_r": null
+  },
+  "BYBIT_REAL|LIQUIDITY_SWEEP": {
+   "n": 2,
+   "dias": 2,
+   "media_op": -0.219,
+   "media_dia": -0.219,
+   "soma": -0.44,
+   "pf": 0.562,
+   "win": 0.5,
+   "payoff": 0.562,
+   "max_dd_r": -1.0,
+   "t_dia": -0.28,
+   "ic90_dia": [
+    null,
+    null
+   ],
+   "ic90_op_agrupado": [
+    null,
+    null
+   ],
+   "dias_maiores_5_pct_do_r": null
+  },
+  "BYBIT_REAL|PULLBACK": {
+   "n": 1,
+   "dias": 1,
+   "media_op": -1.0,
+   "media_dia": -1.0,
+   "soma": -1.0,
+   "pf": 0.0,
+   "win": 0.0,
+   "payoff": null,
+   "max_dd_r": -1.0,
+   "t_dia": null,
+   "ic90_dia": [
+    null,
+    null
+   ],
+   "ic90_op_agrupado": [
+    null,
+    null
+   ],
+   "dias_maiores_5_pct_do_r": null
+  },
+  "BYBIT_REAL|SHORT_TURTLE": {
+   "n": 1,
+   "dias": 1,
+   "media_op": 1.307,
+   "media_dia": 1.307,
+   "soma": 1.31,
+   "pf": null,
+   "win": 1.0,
+   "payoff": null,
+   "max_dd_r": 0.0,
+   "t_dia": null,
+   "ic90_dia": [
+    null,
+    null
+   ],
+   "ic90_op_agrupado": [
+    null,
+    null
+   ],
+   "dias_maiores_5_pct_do_r": 1.0
+  },
+  "BYBIT_REAL|TREND_DAILY": {
+   "n": 1,
+   "dias": 1,
+   "media_op": -1.0,
+   "media_dia": -1.0,
+   "soma": -1.0,
+   "pf": 0.0,
+   "win": 0.0,
+   "payoff": null,
+   "max_dd_r": -1.0,
+   "t_dia": null,
+   "ic90_dia": [
+    null,
+    null
+   ],
+   "ic90_op_agrupado": [
+    null,
+    null
+   ],
+   "dias_maiores_5_pct_do_r": null
+  },
+  "OKX_REAL|H40": {
+   "n": 4,
+   "dias": 4,
+   "media_op": -1.0428,
+   "media_dia": -1.0428,
+   "soma": -4.17,
+   "pf": 0.0,
+   "win": 0.0,
+   "payoff": null,
+   "max_dd_r": -4.17,
+   "t_dia": -16.81,
+   "ic90_dia": [
+    null,
+    null
+   ],
+   "ic90_op_agrupado": [
+    null,
+    null
+   ],
+   "dias_maiores_5_pct_do_r": null
+  },
+  "PAPEL|FASES_LATERAL": {
+   "n": 20,
+   "dias": 1,
+   "media_op": -1.1126,
+   "media_dia": -1.1126,
+   "soma": -22.25,
+   "pf": 0.0,
+   "win": 0.0,
+   "payoff": null,
+   "max_dd_r": -22.25,
+   "t_dia": null,
+   "ic90_dia": [
+    null,
+    null
+   ],
+   "ic90_op_agrupado": [
+    null,
+    null
+   ],
+   "dias_maiores_5_pct_do_r": null
+  },
+  "PAPEL|H40": {
+   "n": 23,
+   "dias": 7,
+   "media_op": -0.5033,
+   "media_dia": -0.5706,
+   "soma": -11.58,
+   "pf": 0.321,
+   "win": 0.174,
+   "payoff": 1.523,
+   "max_dd_r": -12.73,
+   "t_dia": -2.77,
+   "ic90_dia": [
+    -0.8682,
+    -0.2425
+   ],
+   "ic90_op_agrupado": [
+    -0.8273,
+    -0.1448
+   ],
+   "dias_maiores_5_pct_do_r": null
+  },
+  "PAPEL|H45": {
+   "n": 21,
+   "dias": 8,
+   "media_op": -0.4355,
+   "media_dia": -0.5497,
+   "soma": -9.14,
+   "pf": 0.249,
+   "win": 0.286,
+   "payoff": 0.623,
+   "max_dd_r": -11.18,
+   "t_dia": -2.15,
+   "ic90_dia": [
+    -0.9242,
+    -0.1372
+   ],
+   "ic90_op_agrupado": [
+    -0.8891,
+    -0.1399
+   ],
+   "dias_maiores_5_pct_do_r": null
+  }
+ },
+ "arena_bybit": {
+  "BOUNCE_1H": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "forma recente (90 dias)",
+   "real_ok": false,
+   "desligada": null,
+   "suspensa": "não pagou as contas do mês: 181 operações nos últimos 30 dias, -19.19R depois de comissões e spread real",
+   "clone_de": null,
+   "d90": {
+    "n": 274,
+    "avg_r": -0.144,
+    "acaso_p95": -0.342,
+    "fora_n": 181,
+    "fora_liq": -0.106
+   },
+   "d365": {
+    "n": 237,
+    "avg_r": -0.161,
+    "avg_r_liq": -0.163,
+    "acaso_p95": -0.329,
+    "dentro_liq": -0.184,
+    "fora_n": 149,
+    "fora_liq": -0.15
+   },
+   "por_regime": {
+    "subida": {
+     "n": 31,
+     "avg_r": -0.362,
+     "acaso_p95": -0.084,
+     "dias": 8,
+     "ic_inf_dia": -0.716,
+     "antes": -0.127,
+     "reservado": -1.04,
+     "sem_melhor_moeda": -0.438,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 206,
+     "avg_r": -0.131,
+     "acaso_p95": -0.34,
+     "dias": 27,
+     "ic_inf_dia": -0.5,
+     "antes": -0.082,
+     "reservado": -0.275,
+     "sem_melhor_moeda": -0.15,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 205,
+    "dias": 24,
+    "media_op": -0.1503,
+    "media_dia": -0.3153,
+    "soma": -30.81,
+    "pf": 0.612,
+    "win": 0.532,
+    "payoff": 0.539,
+    "max_dd_r": -32.63,
+    "t_dia": -2.63,
+    "ic90_dia": [
+     -0.5036,
+     -0.1054
+    ],
+    "ic90_op_agrupado": [
+     -0.423,
+     0.1029
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "BOUNCE_ABSORCAO": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "clone de Isabel (resultados diários correlacionados 0.80)",
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": "não pagou as contas do mês: 28 operações nos últimos 30 dias, -10.95R depois de comissões e spread real",
+   "clone_de": null,
+   "d90": {
+    "n": 48,
+    "avg_r": -0.026,
+    "acaso_p95": -0.205,
+    "fora_n": 28,
+    "fora_liq": -0.391
+   },
+   "d365": {
+    "n": 47,
+    "avg_r": -0.021,
+    "avg_r_liq": -0.022,
+    "acaso_p95": -0.179,
+    "dentro_liq": 0.483,
+    "fora_n": 24,
+    "fora_liq": -0.506
+   },
+   "por_regime": {
+    "subida": {
+     "n": 10,
+     "avg_r": 0.216,
+     "acaso_p95": 0.43,
+     "dias": 5,
+     "ic_inf_dia": -0.588,
+     "antes": -0.073,
+     "reservado": 1.373,
+     "sem_melhor_moeda": -0.082,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 37,
+     "avg_r": -0.085,
+     "acaso_p95": -0.259,
+     "dias": 11,
+     "ic_inf_dia": -0.52,
+     "antes": 0.058,
+     "reservado": -0.532,
+     "sem_melhor_moeda": -0.137,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 36,
+    "dias": 10,
+    "media_op": -0.1373,
+    "media_dia": -0.2596,
+    "soma": -4.94,
+    "pf": 0.646,
+    "win": 0.472,
+    "payoff": 0.722,
+    "max_dd_r": -12.12,
+    "t_dia": -1.19,
+    "ic90_dia": [
+     -0.6035,
+     0.0933
+    ],
+    "ic90_op_agrupado": [
+     -0.6019,
+     0.3382
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "BOUNCE_AMPLITUDE": {
+   "estado_arena": "A COMPETIR",
+   "motivo_arena": null,
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": null,
+   "clone_de": null,
+   "d90": {
+    "n": 15,
+    "avg_r": 0.814,
+    "acaso_p95": -0.078,
+    "fora_n": 0,
+    "fora_liq": null
+   },
+   "d365": {
+    "n": 16,
+    "avg_r": 0.822,
+    "avg_r_liq": 0.821,
+    "acaso_p95": -0.045,
+    "dentro_liq": 0.821,
+    "fora_n": 0,
+    "fora_liq": null
+   },
+   "por_regime": {
+    "subida": {
+     "n": 2,
+     "avg_r": 1.194,
+     "acaso_p95": 1.341,
+     "dias": 1,
+     "ic_inf_dia": null,
+     "antes": 2.319,
+     "reservado": 0.07,
+     "sem_melhor_moeda": 0.07,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 14,
+     "avg_r": 0.768,
+     "acaso_p95": -0.06,
+     "dias": 1,
+     "ic_inf_dia": null,
+     "antes": 0.738,
+     "reservado": 0.845,
+     "sem_melhor_moeda": 0.696,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 14,
+    "dias": 1,
+    "media_op": 0.7684,
+    "media_dia": 0.7684,
+    "soma": 10.76,
+    "pf": null,
+    "win": 1.0,
+    "payoff": null,
+    "max_dd_r": 0.0,
+    "t_dia": null,
+    "ic90_dia": [
+     null,
+     null
+    ],
+    "ic90_op_agrupado": [
+     null,
+     null
+    ],
+    "dias_maiores_5_pct_do_r": 1.0
+   }
+  },
+  "BOUNCE_DESALAV": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "clone de Vera (resultados diários correlacionados 0.96)",
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": "não pagou as contas do mês: 10 operações nos últimos 30 dias, -4.51R depois de comissões e spread real",
+   "clone_de": "BOUNCE_G0",
+   "d90": {
+    "n": 27,
+    "avg_r": 0.182,
+    "acaso_p95": -0.234,
+    "fora_n": 10,
+    "fora_liq": -0.451
+   },
+   "d365": {
+    "n": 24,
+    "avg_r": 0.271,
+    "avg_r_liq": 0.27,
+    "acaso_p95": -0.2,
+    "dentro_liq": 0.56,
+    "fora_n": 8,
+    "fora_liq": -0.31
+   },
+   "por_regime": {
+    "subida": {
+     "n": 1,
+     "avg_r": 2.405,
+     "acaso_p95": 2.405,
+     "dias": 1,
+     "ic_inf_dia": null,
+     "antes": null,
+     "reservado": 2.405,
+     "sem_melhor_moeda": null,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 23,
+     "avg_r": 0.178,
+     "acaso_p95": -0.201,
+     "dias": 8,
+     "ic_inf_dia": -0.755,
+     "antes": 0.332,
+     "reservado": -0.258,
+     "sem_melhor_moeda": 0.108,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 23,
+    "dias": 8,
+    "media_op": 0.178,
+    "media_dia": -0.2949,
+    "soma": 4.09,
+    "pf": 1.738,
+    "win": 0.652,
+    "payoff": 0.927,
+    "max_dd_r": -2.56,
+    "t_dia": -1.05,
+    "ic90_dia": [
+     -0.7101,
+     0.1285
+    ],
+    "ic90_op_agrupado": [
+     -0.6945,
+     0.4913
+    ],
+    "dias_maiores_5_pct_do_r": 2.104
+   }
+  },
+  "BOUNCE_FLUXO": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "clone de Isabel (resultados diários correlacionados 0.89)",
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": null,
+   "clone_de": "BOUNCE_ABSORCAO",
+   "d90": {
+    "n": 50,
+    "avg_r": -0.082,
+    "acaso_p95": -0.192,
+    "fora_n": 30,
+    "fora_liq": -0.486
+   },
+   "d365": {
+    "n": 49,
+    "avg_r": -0.027,
+    "avg_r_liq": -0.028,
+    "acaso_p95": -0.171,
+    "dentro_liq": 0.54,
+    "fora_n": 27,
+    "fora_liq": -0.491
+   },
+   "por_regime": {
+    "subida": {
+     "n": 10,
+     "avg_r": 0.565,
+     "acaso_p95": 0.505,
+     "dias": 5,
+     "ic_inf_dia": -1.039,
+     "antes": 0.298,
+     "reservado": 1.634,
+     "sem_melhor_moeda": 0.306,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 39,
+     "avg_r": -0.179,
+     "acaso_p95": -0.209,
+     "dias": 16,
+     "ic_inf_dia": -0.451,
+     "antes": -0.055,
+     "reservado": -0.538,
+     "sem_melhor_moeda": -0.249,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 38,
+    "dias": 15,
+    "media_op": -0.2178,
+    "media_dia": -0.2452,
+    "soma": -8.28,
+    "pf": 0.489,
+    "win": 0.421,
+    "payoff": 0.672,
+    "max_dd_r": -13.2,
+    "t_dia": -1.47,
+    "ic90_dia": [
+     -0.5021,
+     0.0166
+    ],
+    "ic90_op_agrupado": [
+     -0.5396,
+     0.1392
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "BOUNCE_FORTE": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "clone de Isabel (resultados diários correlacionados 0.91)",
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": "não pagou as contas do mês: 15 operações nos últimos 30 dias, -4.47R depois de comissões e spread real",
+   "clone_de": "BOUNCE_G0",
+   "d90": {
+    "n": 36,
+    "avg_r": 0.173,
+    "acaso_p95": -0.114,
+    "fora_n": 15,
+    "fora_liq": -0.298
+   },
+   "d365": {
+    "n": 43,
+    "avg_r": 0.045,
+    "avg_r_liq": 0.044,
+    "acaso_p95": -0.164,
+    "dentro_liq": 0.513,
+    "fora_n": 21,
+    "fora_liq": -0.447
+   },
+   "por_regime": {
+    "subida": {
+     "n": 8,
+     "avg_r": 0.582,
+     "acaso_p95": 0.553,
+     "dias": 3,
+     "ic_inf_dia": -0.244,
+     "antes": 0.155,
+     "reservado": 1.861,
+     "sem_melhor_moeda": 0.297,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 35,
+     "avg_r": -0.077,
+     "acaso_p95": -0.205,
+     "dias": 13,
+     "ic_inf_dia": -0.593,
+     "antes": 0.101,
+     "reservado": -0.592,
+     "sem_melhor_moeda": -0.13,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 34,
+    "dias": 12,
+    "media_op": -0.0666,
+    "media_dia": -0.2557,
+    "soma": -2.26,
+    "pf": 0.831,
+    "win": 0.588,
+    "payoff": 0.582,
+    "max_dd_r": -9.37,
+    "t_dia": -1.2,
+    "ic90_dia": [
+     -0.5945,
+     0.0818
+    ],
+    "ic90_op_agrupado": [
+     -0.5659,
+     0.3727
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "BOUNCE_G0": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "clone de Paulina (resultados diários correlacionados 0.85)",
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": "não pagou as contas do mês: 13 operações nos últimos 30 dias, -3.45R depois de comissões e spread real",
+   "clone_de": null,
+   "d90": {
+    "n": 31,
+    "avg_r": 0.384,
+    "acaso_p95": -0.194,
+    "fora_n": 13,
+    "fora_liq": -0.265
+   },
+   "d365": {
+    "n": 27,
+    "avg_r": 0.451,
+    "avg_r_liq": 0.45,
+    "acaso_p95": -0.169,
+    "dentro_liq": 0.817,
+    "fora_n": 8,
+    "fora_liq": -0.42
+   },
+   "por_regime": {
+    "subida": {
+     "n": 4,
+     "avg_r": 1.355,
+     "acaso_p95": 0.961,
+     "dias": 2,
+     "ic_inf_dia": -2.037,
+     "antes": 0.841,
+     "reservado": 2.899,
+     "sem_melhor_moeda": 0.701,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 23,
+     "avg_r": 0.294,
+     "acaso_p95": -0.241,
+     "dias": 9,
+     "ic_inf_dia": -0.521,
+     "antes": 0.527,
+     "reservado": -0.365,
+     "sem_melhor_moeda": 0.192,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 22,
+    "dias": 8,
+    "media_op": 0.2264,
+    "media_dia": -0.2018,
+    "soma": 4.98,
+    "pf": 1.935,
+    "win": 0.682,
+    "payoff": 0.903,
+    "max_dd_r": -3.35,
+    "t_dia": -0.73,
+    "ic90_dia": [
+     -0.659,
+     0.2238
+    ],
+    "ic90_op_agrupado": [
+     -0.7382,
+     0.5758
+    ],
+    "dias_maiores_5_pct_do_r": 1.879
+   }
+  },
+  "BOUNCE_HORAS": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "clone de Isabel (resultados diários correlacionados 0.90)",
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": "não pagou as contas do mês: 34 operações nos últimos 30 dias, -22.64R depois de comissões e spread real",
+   "clone_de": null,
+   "d90": {
+    "n": 75,
+    "avg_r": -0.033,
+    "acaso_p95": -0.174,
+    "fora_n": 34,
+    "fora_liq": -0.666
+   },
+   "d365": {
+    "n": 76,
+    "avg_r": 0.04,
+    "avg_r_liq": 0.04,
+    "acaso_p95": -0.151,
+    "dentro_liq": 0.506,
+    "fora_n": 32,
+    "fora_liq": -0.601
+   },
+   "por_regime": {
+    "subida": {
+     "n": 27,
+     "avg_r": 0.637,
+     "acaso_p95": 0.313,
+     "dias": 4,
+     "ic_inf_dia": -0.606,
+     "antes": 0.236,
+     "reservado": 1.783,
+     "sem_melhor_moeda": 0.534,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 49,
+     "avg_r": -0.289,
+     "acaso_p95": -0.265,
+     "dias": 14,
+     "ic_inf_dia": -0.654,
+     "antes": -0.205,
+     "reservado": -0.547,
+     "sem_melhor_moeda": -0.332,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 46,
+    "dias": 12,
+    "media_op": -0.3406,
+    "media_dia": -0.4885,
+    "soma": -15.67,
+    "pf": 0.283,
+    "win": 0.457,
+    "payoff": 0.337,
+    "max_dd_r": -19.39,
+    "t_dia": -2.95,
+    "ic90_dia": [
+     -0.739,
+     -0.2454
+    ],
+    "ic90_op_agrupado": [
+     -0.6879,
+     -0.0456
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "BOUNCE_ISOLADA": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "clone de Paulina (resultados diários correlacionados 0.98)",
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": "não pagou as contas do mês: 65 operações nos últimos 30 dias, -26.97R depois de comissões e spread real",
+   "clone_de": "BOUNCE_HORAS",
+   "d90": {
+    "n": 123,
+    "avg_r": 0.052,
+    "acaso_p95": -0.232,
+    "fora_n": 65,
+    "fora_liq": -0.415
+   },
+   "d365": {
+    "n": 123,
+    "avg_r": 0.04,
+    "avg_r_liq": 0.04,
+    "acaso_p95": -0.225,
+    "dentro_liq": 0.58,
+    "fora_n": 63,
+    "fora_liq": -0.475
+   },
+   "por_regime": {
+    "subida": {
+     "n": 35,
+     "avg_r": 0.548,
+     "acaso_p95": 0.198,
+     "dias": 6,
+     "ic_inf_dia": -0.551,
+     "antes": 0.242,
+     "reservado": 1.43,
+     "sem_melhor_moeda": 0.466,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 88,
+     "avg_r": -0.161,
+     "acaso_p95": -0.32,
+     "dias": 17,
+     "ic_inf_dia": -0.597,
+     "antes": 0.009,
+     "reservado": -0.672,
+     "sem_melhor_moeda": -0.197,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 85,
+    "dias": 15,
+    "media_op": -0.185,
+    "media_dia": -0.4267,
+    "soma": -15.72,
+    "pf": 0.561,
+    "win": 0.471,
+    "payoff": 0.631,
+    "max_dd_r": -29.89,
+    "t_dia": -2.63,
+    "ic90_dia": [
+     -0.6765,
+     -0.1456
+    ],
+    "ic90_op_agrupado": [
+     -0.5718,
+     0.1869
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "BOUNCE_LSR": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "clone de Mário (resultados diários correlacionados 0.96)",
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": "não pagou as contas do mês: 38 operações nos últimos 30 dias, -14.25R depois de comissões e spread real",
+   "clone_de": "BOUNCE_G0",
+   "d90": {
+    "n": 55,
+    "avg_r": -0.151,
+    "acaso_p95": -0.337,
+    "fora_n": 38,
+    "fora_liq": -0.375
+   },
+   "d365": {
+    "n": 44,
+    "avg_r": -0.06,
+    "avg_r_liq": -0.061,
+    "acaso_p95": -0.302,
+    "dentro_liq": 0.43,
+    "fora_n": 29,
+    "fora_liq": -0.314
+   },
+   "por_regime": {
+    "lateral": {
+     "n": 44,
+     "avg_r": -0.06,
+     "acaso_p95": -0.318,
+     "dias": 15,
+     "ic_inf_dia": -0.535,
+     "antes": 0.027,
+     "reservado": -0.321,
+     "sem_melhor_moeda": -0.102,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 44,
+    "dias": 15,
+    "media_op": -0.0604,
+    "media_dia": -0.2619,
+    "soma": -2.66,
+    "pf": 0.837,
+    "win": 0.523,
+    "payoff": 0.764,
+    "max_dd_r": -9.12,
+    "t_dia": -1.57,
+    "ic90_dia": [
+     -0.5162,
+     0.0227
+    ],
+    "ic90_op_agrupado": [
+     -0.4907,
+     0.2892
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "BOUNCE_MACRO": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "forma recente (90 dias)",
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": "não pagou as contas do mês: 49 operações nos últimos 30 dias, -15.83R depois de comissões e spread real",
+   "clone_de": "BOUNCE_ABSORCAO",
+   "d90": {
+    "n": 92,
+    "avg_r": -0.102,
+    "acaso_p95": -0.25,
+    "fora_n": 49,
+    "fora_liq": -0.323
+   },
+   "d365": {
+    "n": 94,
+    "avg_r": -0.137,
+    "avg_r_liq": -0.138,
+    "acaso_p95": -0.235,
+    "dentro_liq": 0.198,
+    "fora_n": 50,
+    "fora_liq": -0.434
+   },
+   "por_regime": {
+    "subida": {
+     "n": 18,
+     "avg_r": -0.299,
+     "acaso_p95": 0.247,
+     "dias": 3,
+     "ic_inf_dia": -0.656,
+     "antes": -0.245,
+     "reservado": -0.49,
+     "sem_melhor_moeda": -0.35,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 76,
+     "avg_r": -0.099,
+     "acaso_p95": -0.32,
+     "dias": 13,
+     "ic_inf_dia": -0.556,
+     "antes": 0.051,
+     "reservado": -0.549,
+     "sem_melhor_moeda": -0.132,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 75,
+    "dias": 12,
+    "media_op": -0.1175,
+    "media_dia": -0.2888,
+    "soma": -8.81,
+    "pf": 0.698,
+    "win": 0.507,
+    "payoff": 0.679,
+    "max_dd_r": -22.58,
+    "t_dia": -1.31,
+    "ic90_dia": [
+     -0.6294,
+     0.051
+    ],
+    "ic90_op_agrupado": [
+     -0.5535,
+     0.3573
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "BOUNCE_MACRO_R2": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "forma recente (90 dias)",
+   "real_ok": false,
+   "desligada": null,
+   "suspensa": null,
+   "clone_de": null,
+   "d90": {
+    "n": 4,
+    "avg_r": -0.527,
+    "acaso_p95": 0.142,
+    "fora_n": 4,
+    "fora_liq": -0.527
+   },
+   "d365": {
+    "n": 5,
+    "avg_r": -0.627,
+    "avg_r_liq": -0.627,
+    "acaso_p95": -0.079,
+    "dentro_liq": null,
+    "fora_n": 5,
+    "fora_liq": -0.627
+   },
+   "por_regime": {
+    "lateral": {
+     "n": 5,
+     "avg_r": -0.627,
+     "acaso_p95": -0.091,
+     "dias": 4,
+     "ic_inf_dia": -1.336,
+     "antes": -1.019,
+     "reservado": 0.944,
+     "sem_melhor_moeda": -1.019,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 5,
+    "dias": 4,
+    "media_op": -0.6268,
+    "media_dia": -0.5285,
+    "soma": -3.13,
+    "pf": 0.231,
+    "win": 0.2,
+    "payoff": 0.926,
+    "max_dd_r": -4.08,
+    "t_dia": -1.08,
+    "ic90_dia": [
+     null,
+     null
+    ],
+    "ic90_op_agrupado": [
+     null,
+     null
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "BOUNCE_MEDO": {
+   "estado_arena": "A COMPETIR",
+   "motivo_arena": null,
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": null,
+   "clone_de": null,
+   "d90": {
+    "n": 2,
+    "avg_r": -1.015,
+    "acaso_p95": -0.073,
+    "fora_n": 2,
+    "fora_liq": -1.017
+   },
+   "d365": {
+    "n": 1,
+    "avg_r": -1.015,
+    "avg_r_liq": -1.015,
+    "acaso_p95": 0.426,
+    "dentro_liq": null,
+    "fora_n": 1,
+    "fora_liq": -1.015
+   },
+   "por_regime": {
+    "lateral": {
+     "n": 1,
+     "avg_r": -1.015,
+     "acaso_p95": 0.426,
+     "dias": 1,
+     "ic_inf_dia": null,
+     "antes": null,
+     "reservado": -1.015,
+     "sem_melhor_moeda": null,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 1,
+    "dias": 1,
+    "media_op": -1.015,
+    "media_dia": -1.015,
+    "soma": -1.01,
+    "pf": 0.0,
+    "win": 0.0,
+    "payoff": null,
+    "max_dd_r": -1.01,
+    "t_dia": null,
+    "ic90_dia": [
+     null,
+     null
+    ],
+    "ic90_op_agrupado": [
+     null,
+     null
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "BOUNCE_NOREACT": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "clone de Isabel (resultados diários correlacionados 0.97)",
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": "não pagou as contas do mês: 74 operações nos últimos 30 dias, -29.67R depois de comissões e spread real",
+   "clone_de": "BOUNCE_HORAS",
+   "d90": {
+    "n": 138,
+    "avg_r": -0.032,
+    "acaso_p95": -0.194,
+    "fora_n": 74,
+    "fora_liq": -0.401
+   },
+   "d365": {
+    "n": 137,
+    "avg_r": -0.017,
+    "avg_r_liq": -0.018,
+    "acaso_p95": -0.188,
+    "dentro_liq": 0.445,
+    "fora_n": 73,
+    "fora_liq": -0.423
+   },
+   "por_regime": {
+    "subida": {
+     "n": 35,
+     "avg_r": 0.56,
+     "acaso_p95": 0.203,
+     "dias": 6,
+     "ic_inf_dia": -0.296,
+     "antes": 0.258,
+     "reservado": 1.43,
+     "sem_melhor_moeda": 0.478,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 102,
+     "avg_r": -0.215,
+     "acaso_p95": -0.256,
+     "dias": 20,
+     "ic_inf_dia": -0.428,
+     "antes": -0.15,
+     "reservado": -0.402,
+     "sem_melhor_moeda": -0.246,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 99,
+    "dias": 18,
+    "media_op": -0.2365,
+    "media_dia": -0.283,
+    "soma": -23.42,
+    "pf": 0.396,
+    "win": 0.273,
+    "payoff": 1.056,
+    "max_dd_r": -33.76,
+    "t_dia": -2.17,
+    "ic90_dia": [
+     -0.4759,
+     -0.0741
+    ],
+    "ic90_op_agrupado": [
+     -0.5021,
+     0.0789
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "BOUNCE_SQUEEZE": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "clone de Isabel (resultados diários correlacionados 0.98)",
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": "não pagou as contas do mês: 27 operações nos últimos 30 dias, -14.50R depois de comissões e spread real",
+   "clone_de": "BOUNCE_G0",
+   "d90": {
+    "n": 67,
+    "avg_r": 0.126,
+    "acaso_p95": -0.206,
+    "fora_n": 27,
+    "fora_liq": -0.537
+   },
+   "d365": {
+    "n": 75,
+    "avg_r": 0.225,
+    "avg_r_liq": 0.224,
+    "acaso_p95": -0.21,
+    "dentro_liq": 0.749,
+    "fora_n": 33,
+    "fora_liq": -0.444
+   },
+   "por_regime": {
+    "subida": {
+     "n": 17,
+     "avg_r": 0.988,
+     "acaso_p95": 0.433,
+     "dias": 5,
+     "ic_inf_dia": -0.335,
+     "antes": 0.843,
+     "reservado": 1.46,
+     "sem_melhor_moeda": 0.842,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 58,
+     "avg_r": 0.001,
+     "acaso_p95": -0.296,
+     "dias": 15,
+     "ic_inf_dia": -0.58,
+     "antes": 0.158,
+     "reservado": -0.491,
+     "sem_melhor_moeda": -0.047,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 56,
+    "dias": 13,
+    "media_op": -0.0225,
+    "media_dia": -0.3604,
+    "soma": -1.26,
+    "pf": 0.939,
+    "win": 0.536,
+    "payoff": 0.814,
+    "max_dd_r": -15.66,
+    "t_dia": -1.9,
+    "ic90_dia": [
+     -0.635,
+     -0.0348
+    ],
+    "ic90_op_agrupado": [
+     -0.5572,
+     0.4066
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "BOUNCE_TRAIL": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "clone de Isabel (resultados diários correlacionados 0.99)",
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": "não pagou as contas do mês: 70 operações nos últimos 30 dias, -28.70R depois de comissões e spread real",
+   "clone_de": "BOUNCE_HORAS",
+   "d90": {
+    "n": 132,
+    "avg_r": -0.014,
+    "acaso_p95": -0.247,
+    "fora_n": 70,
+    "fora_liq": -0.41
+   },
+   "d365": {
+    "n": 130,
+    "avg_r": -0.003,
+    "avg_r_liq": -0.004,
+    "acaso_p95": -0.232,
+    "dentro_liq": 0.475,
+    "fora_n": 67,
+    "fora_liq": -0.454
+   },
+   "por_regime": {
+    "subida": {
+     "n": 35,
+     "avg_r": 0.447,
+     "acaso_p95": 0.135,
+     "dias": 6,
+     "ic_inf_dia": -0.549,
+     "antes": 0.178,
+     "reservado": 1.222,
+     "sem_melhor_moeda": 0.362,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 95,
+     "avg_r": -0.169,
+     "acaso_p95": -0.311,
+     "dias": 19,
+     "ic_inf_dia": -0.514,
+     "antes": -0.03,
+     "reservado": -0.579,
+     "sem_melhor_moeda": -0.202,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 92,
+    "dias": 17,
+    "media_op": -0.1908,
+    "media_dia": -0.3406,
+    "soma": -17.56,
+    "pf": 0.55,
+    "win": 0.457,
+    "payoff": 0.655,
+    "max_dd_r": -30.38,
+    "t_dia": -2.15,
+    "ic90_dia": [
+     -0.578,
+     -0.0834
+    ],
+    "ic90_op_agrupado": [
+     -0.555,
+     0.1681
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "BOUNCE_V1": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "forma recente (90 dias)",
+   "real_ok": false,
+   "desligada": null,
+   "suspensa": null,
+   "clone_de": null,
+   "d90": {
+    "n": 8,
+    "avg_r": -0.05,
+    "acaso_p95": 0.136,
+    "fora_n": 0,
+    "fora_liq": null
+   },
+   "d365": {
+    "n": 7,
+    "avg_r": 0.089,
+    "avg_r_liq": 0.087,
+    "acaso_p95": 0.099,
+    "dentro_liq": 0.087,
+    "fora_n": 0,
+    "fora_liq": null
+   },
+   "por_regime": {
+    "subida": {
+     "n": 1,
+     "avg_r": 3.579,
+     "acaso_p95": 3.579,
+     "dias": 1,
+     "ic_inf_dia": null,
+     "antes": null,
+     "reservado": 3.579,
+     "sem_melhor_moeda": null,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 6,
+     "avg_r": -0.493,
+     "acaso_p95": -0.189,
+     "dias": 1,
+     "ic_inf_dia": null,
+     "antes": -0.627,
+     "reservado": -0.225,
+     "sem_melhor_moeda": -0.705,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 6,
+    "dias": 1,
+    "media_op": -0.493,
+    "media_dia": -0.493,
+    "soma": -2.96,
+    "pf": 0.277,
+    "win": 0.333,
+    "payoff": 0.554,
+    "max_dd_r": -3.53,
+    "t_dia": null,
+    "ic90_dia": [
+     null,
+     null
+    ],
+    "ic90_op_agrupado": [
+     null,
+     null
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "BOUNCE_V2": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "clone de Paulina (resultados diários correlacionados 0.79)",
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": "não pagou as contas do mês: 14 operações nos últimos 30 dias, -5.17R depois de comissões e spread real",
+   "clone_de": "BOUNCE_G0",
+   "d90": {
+    "n": 32,
+    "avg_r": 0.244,
+    "acaso_p95": -0.216,
+    "fora_n": 14,
+    "fora_liq": -0.369
+   },
+   "d365": {
+    "n": 28,
+    "avg_r": 0.321,
+    "avg_r_liq": 0.32,
+    "acaso_p95": -0.181,
+    "dentro_liq": 0.766,
+    "fora_n": 9,
+    "fora_liq": -0.622
+   },
+   "por_regime": {
+    "subida": {
+     "n": 4,
+     "avg_r": 0.949,
+     "acaso_p95": 1.055,
+     "dias": 2,
+     "ic_inf_dia": -1.869,
+     "antes": 0.756,
+     "reservado": 1.527,
+     "sem_melhor_moeda": 0.711,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 24,
+     "avg_r": 0.216,
+     "acaso_p95": -0.234,
+     "dias": 9,
+     "ic_inf_dia": -0.678,
+     "antes": 0.528,
+     "reservado": -0.72,
+     "sem_melhor_moeda": 0.151,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 23,
+    "dias": 8,
+    "media_op": 0.1908,
+    "media_dia": -0.3359,
+    "soma": 4.39,
+    "pf": 1.591,
+    "win": 0.609,
+    "payoff": 1.023,
+    "max_dd_r": -5.59,
+    "t_dia": -1.16,
+    "ic90_dia": [
+     -0.788,
+     0.13
+    ],
+    "ic90_op_agrupado": [
+     -0.8625,
+     0.6382
+    ],
+    "dias_maiores_5_pct_do_r": 2.507
+   }
+  },
+  "BOUNCE_V3": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "clone de Paulina (resultados diários correlacionados 0.80)",
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": "não pagou as contas do mês: 13 operações nos últimos 30 dias, -4.20R depois de comissões e spread real",
+   "clone_de": "BOUNCE_G0",
+   "d90": {
+    "n": 31,
+    "avg_r": 0.227,
+    "acaso_p95": -0.184,
+    "fora_n": 13,
+    "fora_liq": -0.323
+   },
+   "d365": {
+    "n": 27,
+    "avg_r": 0.315,
+    "avg_r_liq": 0.314,
+    "acaso_p95": -0.116,
+    "dentro_liq": 0.677,
+    "fora_n": 8,
+    "fora_liq": -0.548
+   },
+   "por_regime": {
+    "subida": {
+     "n": 4,
+     "avg_r": 0.921,
+     "acaso_p95": 0.939,
+     "dias": 2,
+     "ic_inf_dia": -1.851,
+     "antes": 0.745,
+     "reservado": 1.45,
+     "sem_melhor_moeda": 0.678,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 23,
+     "avg_r": 0.21,
+     "acaso_p95": -0.229,
+     "dias": 9,
+     "ic_inf_dia": -0.679,
+     "antes": 0.473,
+     "reservado": -0.536,
+     "sem_melhor_moeda": 0.14,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 22,
+    "dias": 8,
+    "media_op": 0.1888,
+    "media_dia": -0.328,
+    "soma": 4.15,
+    "pf": 1.654,
+    "win": 0.636,
+    "payoff": 0.945,
+    "max_dd_r": -4.38,
+    "t_dia": -1.12,
+    "ic90_dia": [
+     -0.7775,
+     0.1369
+    ],
+    "ic90_op_agrupado": [
+     -0.8379,
+     0.5554
+    ],
+    "dias_maiores_5_pct_do_r": 2.301
+   }
+  },
+  "BOUNCE_X30": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "clone de Isabel (resultados diários correlacionados 1.00)",
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": "não pagou as contas do mês: 69 operações nos últimos 30 dias, -28.98R depois de comissões e spread real",
+   "clone_de": "BOUNCE_HORAS",
+   "d90": {
+    "n": 131,
+    "avg_r": 0.015,
+    "acaso_p95": -0.229,
+    "fora_n": 69,
+    "fora_liq": -0.42
+   },
+   "d365": {
+    "n": 130,
+    "avg_r": 0.024,
+    "avg_r_liq": 0.023,
+    "acaso_p95": -0.238,
+    "dentro_liq": 0.531,
+    "fora_n": 67,
+    "fora_liq": -0.454
+   },
+   "por_regime": {
+    "subida": {
+     "n": 35,
+     "avg_r": 0.548,
+     "acaso_p95": 0.198,
+     "dias": 6,
+     "ic_inf_dia": -0.551,
+     "antes": 0.242,
+     "reservado": 1.43,
+     "sem_melhor_moeda": 0.466,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 95,
+     "avg_r": -0.169,
+     "acaso_p95": -0.343,
+     "dias": 19,
+     "ic_inf_dia": -0.514,
+     "antes": -0.03,
+     "reservado": -0.581,
+     "sem_melhor_moeda": -0.202,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 92,
+    "dias": 17,
+    "media_op": -0.191,
+    "media_dia": -0.3409,
+    "soma": -17.57,
+    "pf": 0.55,
+    "win": 0.457,
+    "payoff": 0.654,
+    "max_dd_r": -30.39,
+    "t_dia": -2.15,
+    "ic90_dia": [
+     -0.5789,
+     -0.084
+    ],
+    "ic90_op_agrupado": [
+     -0.5551,
+     0.1683
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "BOUNCE_X30_LIQ": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "clone de Isabel (resultados diários correlacionados 1.00)",
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": "não pagou as contas do mês: 65 operações nos últimos 30 dias, -22.23R depois de comissões e spread real",
+   "clone_de": "BOUNCE_HORAS",
+   "d90": {
+    "n": 127,
+    "avg_r": 0.063,
+    "acaso_p95": -0.226,
+    "fora_n": 65,
+    "fora_liq": -0.342
+   },
+   "d365": {
+    "n": 125,
+    "avg_r": 0.083,
+    "avg_r_liq": 0.083,
+    "acaso_p95": -0.234,
+    "dentro_liq": 0.546,
+    "fora_n": 63,
+    "fora_liq": -0.374
+   },
+   "por_regime": {
+    "subida": {
+     "n": 34,
+     "avg_r": 0.595,
+     "acaso_p95": 0.212,
+     "dias": 6,
+     "ic_inf_dia": -0.177,
+     "antes": 0.367,
+     "reservado": 1.335,
+     "sem_melhor_moeda": 0.512,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 91,
+     "avg_r": -0.108,
+     "acaso_p95": -0.322,
+     "dias": 19,
+     "ic_inf_dia": -0.486,
+     "antes": 0.005,
+     "reservado": -0.439,
+     "sem_melhor_moeda": -0.141,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 88,
+    "dias": 17,
+    "media_op": -0.1289,
+    "media_dia": -0.3079,
+    "soma": -11.34,
+    "pf": 0.652,
+    "win": 0.5,
+    "payoff": 0.652,
+    "max_dd_r": -23.48,
+    "t_dia": -1.9,
+    "ic90_dia": [
+     -0.5501,
+     -0.0524
+    ],
+    "ic90_op_agrupado": [
+     -0.4813,
+     0.1914
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "BOUNCE_X30_PAVIO": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "clone de Isabel (resultados diários correlacionados 0.99)",
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": "não pagou as contas do mês: 67 operações nos últimos 30 dias, -21.84R depois de comissões e spread real",
+   "clone_de": "BOUNCE_HORAS",
+   "d90": {
+    "n": 128,
+    "avg_r": 0.062,
+    "acaso_p95": -0.205,
+    "fora_n": 67,
+    "fora_liq": -0.326
+   },
+   "d365": {
+    "n": 126,
+    "avg_r": 0.07,
+    "avg_r_liq": 0.069,
+    "acaso_p95": -0.195,
+    "dentro_liq": 0.501,
+    "fora_n": 65,
+    "fora_liq": -0.337
+   },
+   "por_regime": {
+    "subida": {
+     "n": 33,
+     "avg_r": 0.6,
+     "acaso_p95": 0.192,
+     "dias": 5,
+     "ic_inf_dia": -0.151,
+     "antes": 0.45,
+     "reservado": 1.068,
+     "sem_melhor_moeda": 0.542,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 93,
+     "avg_r": -0.118,
+     "acaso_p95": -0.291,
+     "dias": 19,
+     "ic_inf_dia": -0.48,
+     "antes": -0.022,
+     "reservado": -0.411,
+     "sem_melhor_moeda": -0.145,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 90,
+    "dias": 17,
+    "media_op": -0.1365,
+    "media_dia": -0.3281,
+    "soma": -12.28,
+    "pf": 0.589,
+    "win": 0.5,
+    "payoff": 0.589,
+    "max_dd_r": -21.84,
+    "t_dia": -2.33,
+    "ic90_dia": [
+     -0.5389,
+     -0.0957
+    ],
+    "ic90_op_agrupado": [
+     -0.4592,
+     0.1336
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "BREAKOUT": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "forma recente (90 dias)",
+   "real_ok": false,
+   "desligada": "forma recente (90 dias)",
+   "suspensa": null,
+   "clone_de": null,
+   "d90": {
+    "n": 35,
+    "avg_r": -0.427,
+    "acaso_p95": 0.293,
+    "fora_n": 4,
+    "fora_liq": -1.017
+   },
+   "d365": {
+    "n": 36,
+    "avg_r": -0.484,
+    "avg_r_liq": -0.486,
+    "acaso_p95": 0.312,
+    "dentro_liq": -0.42,
+    "fora_n": 4,
+    "fora_liq": -1.017
+   },
+   "por_regime": {
+    "subida": {
+     "n": 12,
+     "avg_r": -0.497,
+     "acaso_p95": 0.585,
+     "dias": 6,
+     "ic_inf_dia": -1.342,
+     "antes": -0.326,
+     "reservado": -1.012,
+     "sem_melhor_moeda": -0.829,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 24,
+     "avg_r": -0.477,
+     "acaso_p95": 0.371,
+     "dias": 17,
+     "ic_inf_dia": -0.905,
+     "antes": -0.621,
+     "reservado": -0.044,
+     "sem_melhor_moeda": -0.678,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 13,
+    "dias": 8,
+    "media_op": -0.5652,
+    "media_dia": -0.6496,
+    "soma": -7.35,
+    "pf": 0.34,
+    "win": 0.154,
+    "payoff": 1.872,
+    "max_dd_r": -7.35,
+    "t_dia": -1.79,
+    "ic90_dia": [
+     -1.0151,
+     0.0764
+    ],
+    "ic90_op_agrupado": [
+     -1.0139,
+     0.1511
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "BREAKOUT_R2": {
+   "estado_arena": "A COMPETIR",
+   "motivo_arena": null,
+   "real_ok": false,
+   "desligada": null,
+   "suspensa": null,
+   "clone_de": null,
+   "d90": {
+    "n": 2,
+    "avg_r": -1.017,
+    "acaso_p95": 0.518,
+    "fora_n": 2,
+    "fora_liq": -1.017
+   },
+   "d365": {
+    "n": 2,
+    "avg_r": -1.017,
+    "avg_r_liq": -1.017,
+    "acaso_p95": 0.518,
+    "dentro_liq": null,
+    "fora_n": 2,
+    "fora_liq": -1.017
+   },
+   "por_regime": {
+    "lateral": {
+     "n": 2,
+     "avg_r": -1.017,
+     "acaso_p95": 0.518,
+     "dias": 2,
+     "ic_inf_dia": -1.032,
+     "antes": -1.008,
+     "reservado": -1.026,
+     "sem_melhor_moeda": -1.026,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 2,
+    "dias": 2,
+    "media_op": -1.017,
+    "media_dia": -1.017,
+    "soma": -2.03,
+    "pf": 0.0,
+    "win": 0.0,
+    "payoff": null,
+    "max_dd_r": -2.03,
+    "t_dia": -113.0,
+    "ic90_dia": [
+     null,
+     null
+    ],
+    "ic90_op_agrupado": [
+     null,
+     null
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "BRK_ESPACO": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "forma recente (90 dias)",
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": null,
+   "clone_de": null,
+   "d90": {
+    "n": 153,
+    "avg_r": -0.306,
+    "acaso_p95": 0.084,
+    "fora_n": 3,
+    "fora_liq": -1.046
+   },
+   "d365": {
+    "n": 154,
+    "avg_r": -0.337,
+    "avg_r_liq": -0.339,
+    "acaso_p95": 0.087,
+    "dentro_liq": -0.325,
+    "fora_n": 3,
+    "fora_liq": -1.028
+   },
+   "por_regime": {
+    "subida": {
+     "n": 49,
+     "avg_r": -0.473,
+     "acaso_p95": 0.191,
+     "dias": 15,
+     "ic_inf_dia": -0.795,
+     "antes": -0.367,
+     "reservado": -0.801,
+     "sem_melhor_moeda": -0.543,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 105,
+     "avg_r": -0.274,
+     "acaso_p95": 0.121,
+     "dias": 26,
+     "ic_inf_dia": -0.678,
+     "antes": -0.219,
+     "reservado": -0.439,
+     "sem_melhor_moeda": -0.299,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 25,
+    "dias": 13,
+    "media_op": -0.6246,
+    "media_dia": -0.556,
+    "soma": -15.62,
+    "pf": 0.239,
+    "win": 0.2,
+    "payoff": 0.954,
+    "max_dd_r": -15.62,
+    "t_dia": -2.47,
+    "ic90_dia": [
+     -0.8742,
+     -0.1933
+    ],
+    "ic90_op_agrupado": [
+     -0.8421,
+     -0.3394
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "CAPITULACAO": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "forma recente (90 dias)",
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": null,
+   "clone_de": null,
+   "d90": {
+    "n": 30,
+    "avg_r": 0.151,
+    "acaso_p95": -0.111,
+    "fora_n": 23,
+    "fora_liq": 0.037
+   },
+   "d365": {
+    "n": 34,
+    "avg_r": 0.147,
+    "avg_r_liq": 0.146,
+    "acaso_p95": -0.09,
+    "dentro_liq": 0.238,
+    "fora_n": 24,
+    "fora_liq": 0.107
+   },
+   "por_regime": {
+    "subida": {
+     "n": 3,
+     "avg_r": 0.59,
+     "acaso_p95": 1.0,
+     "dias": 3,
+     "ic_inf_dia": -1.026,
+     "antes": 0.671,
+     "reservado": 0.427,
+     "sem_melhor_moeda": -0.298,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 31,
+     "avg_r": 0.104,
+     "acaso_p95": -0.072,
+     "dias": 10,
+     "ic_inf_dia": -0.577,
+     "antes": 0.039,
+     "reservado": 0.289,
+     "sem_melhor_moeda": 0.028,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 25,
+    "dias": 5,
+    "media_op": 0.1979,
+    "media_dia": 0.2431,
+    "soma": 4.95,
+    "pf": 2.083,
+    "win": 0.72,
+    "payoff": 0.81,
+    "max_dd_r": -4.05,
+    "t_dia": 0.42,
+    "ic90_dia": [
+     -0.5375,
+     1.1109
+    ],
+    "ic90_op_agrupado": [
+     -0.5143,
+     0.5387
+    ],
+    "dias_maiores_5_pct_do_r": 1.302
+   }
+  },
+  "CAPITULACAO_R2": {
+   "estado_arena": "A COMPETIR",
+   "motivo_arena": null,
+   "real_ok": false,
+   "desligada": null,
+   "suspensa": null,
+   "clone_de": null,
+   "d90": {
+    "n": 1,
+    "avg_r": 0.077,
+    "acaso_p95": 0.077,
+    "fora_n": 1,
+    "fora_liq": 0.075
+   },
+   "d365": {
+    "n": 1,
+    "avg_r": 0.077,
+    "avg_r_liq": 0.077,
+    "acaso_p95": 0.077,
+    "dentro_liq": null,
+    "fora_n": 1,
+    "fora_liq": 0.077
+   },
+   "por_regime": {
+    "lateral": {
+     "n": 1,
+     "avg_r": 0.077,
+     "acaso_p95": 0.111,
+     "dias": 1,
+     "ic_inf_dia": null,
+     "antes": null,
+     "reservado": 0.077,
+     "sem_melhor_moeda": null,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 1,
+    "dias": 1,
+    "media_op": 0.077,
+    "media_dia": 0.077,
+    "soma": 0.08,
+    "pf": null,
+    "win": 1.0,
+    "payoff": null,
+    "max_dd_r": 0.0,
+    "t_dia": null,
+    "ic90_dia": [
+     null,
+     null
+    ],
+    "ic90_op_agrupado": [
+     null,
+     null
+    ],
+    "dias_maiores_5_pct_do_r": 1.0
+   }
+  },
+  "DIP_TREND": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "clone de Isabel (resultados diários correlacionados 0.88)",
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": "não pagou as contas do mês: 30 operações nos últimos 30 dias, -8.10R depois de comissões e spread real",
+   "clone_de": "BOUNCE_G0",
+   "d90": {
+    "n": 80,
+    "avg_r": 0.106,
+    "acaso_p95": -0.143,
+    "fora_n": 30,
+    "fora_liq": -0.27
+   },
+   "d365": {
+    "n": 82,
+    "avg_r": 0.073,
+    "avg_r_liq": 0.072,
+    "acaso_p95": -0.157,
+    "dentro_liq": 0.349,
+    "fora_n": 32,
+    "fora_liq": -0.36
+   },
+   "por_regime": {
+    "subida": {
+     "n": 17,
+     "avg_r": 0.508,
+     "acaso_p95": 0.322,
+     "dias": 6,
+     "ic_inf_dia": -0.375,
+     "antes": 0.626,
+     "reservado": 0.126,
+     "sem_melhor_moeda": 0.379,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 65,
+     "avg_r": -0.041,
+     "acaso_p95": -0.19,
+     "dias": 15,
+     "ic_inf_dia": -0.588,
+     "antes": 0.009,
+     "reservado": -0.193,
+     "sem_melhor_moeda": -0.069,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 66,
+    "dias": 15,
+    "media_op": -0.0684,
+    "media_dia": -0.4407,
+    "soma": -4.52,
+    "pf": 0.799,
+    "win": 0.652,
+    "payoff": 0.427,
+    "max_dd_r": -11.49,
+    "t_dia": -2.84,
+    "ic90_dia": [
+     -0.6745,
+     -0.1945
+    ],
+    "ic90_op_agrupado": [
+     -0.5514,
+     0.2613
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "FIBO_RECUO": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "forma recente (90 dias)",
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": "não pagou as contas do mês: 26 operações nos últimos 30 dias, -17.00R depois de comissões e spread real",
+   "clone_de": null,
+   "d90": {
+    "n": 170,
+    "avg_r": -0.176,
+    "acaso_p95": 0.169,
+    "fora_n": 26,
+    "fora_liq": -0.654
+   },
+   "d365": {
+    "n": 161,
+    "avg_r": -0.224,
+    "avg_r_liq": -0.225,
+    "acaso_p95": 0.181,
+    "dentro_liq": -0.155,
+    "fora_n": 25,
+    "fora_liq": -0.607
+   },
+   "por_regime": {
+    "subida": {
+     "n": 62,
+     "avg_r": -0.367,
+     "acaso_p95": 0.306,
+     "dias": 19,
+     "ic_inf_dia": -0.34,
+     "antes": -0.291,
+     "reservado": -0.585,
+     "sem_melhor_moeda": -0.426,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 99,
+     "avg_r": -0.135,
+     "acaso_p95": 0.216,
+     "dias": 34,
+     "ic_inf_dia": -0.382,
+     "antes": -0.001,
+     "reservado": -0.532,
+     "sem_melhor_moeda": -0.155,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 77,
+    "dias": 28,
+    "media_op": -0.4206,
+    "media_dia": -0.4076,
+    "soma": -32.39,
+    "pf": 0.333,
+    "win": 0.26,
+    "payoff": 0.95,
+    "max_dd_r": -35.87,
+    "t_dia": -3.12,
+    "ic90_dia": [
+     -0.6156,
+     -0.2095
+    ],
+    "ic90_op_agrupado": [
+     -0.5883,
+     -0.2385
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "LIQUIDITY_SWEEP": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "forma recente (90 dias)",
+   "real_ok": false,
+   "desligada": "forma recente (90 dias)",
+   "suspensa": "não pagou as contas do mês: 8 operações nos últimos 30 dias, -8.06R depois de comissões e spread real",
+   "clone_de": null,
+   "d90": {
+    "n": 37,
+    "avg_r": -0.108,
+    "acaso_p95": 0.231,
+    "fora_n": 8,
+    "fora_liq": -1.008
+   },
+   "d365": {
+    "n": 37,
+    "avg_r": -0.396,
+    "avg_r_liq": -0.397,
+    "acaso_p95": 0.178,
+    "dentro_liq": -0.104,
+    "fora_n": 12,
+    "fora_liq": -1.009
+   },
+   "por_regime": {
+    "subida": {
+     "n": 12,
+     "avg_r": 0.376,
+     "acaso_p95": 0.545,
+     "dias": 6,
+     "ic_inf_dia": -0.748,
+     "antes": 0.836,
+     "reservado": -1.007,
+     "sem_melhor_moeda": 0.037,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 25,
+     "avg_r": -0.766,
+     "acaso_p95": 0.185,
+     "dias": 12,
+     "ic_inf_dia": -1.019,
+     "antes": -0.689,
+     "reservado": -1.008,
+     "sem_melhor_moeda": -0.869,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 17,
+    "dias": 10,
+    "media_op": -0.8308,
+    "media_dia": -0.9476,
+    "soma": -14.12,
+    "pf": 0.065,
+    "win": 0.118,
+    "payoff": 0.489,
+    "max_dd_r": -14.12,
+    "t_dia": -15.73,
+    "ic90_dia": [
+     -1.0086,
+     -0.8274
+    ],
+    "ic90_op_agrupado": [
+     -1.0084,
+     -0.6604
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "MAIORES_FUNDING": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "forma recente (90 dias)",
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": null,
+   "clone_de": null,
+   "d90": {
+    "n": 10,
+    "avg_r": -0.676,
+    "acaso_p95": 0.035,
+    "fora_n": 2,
+    "fora_liq": -1.044
+   },
+   "d365": {
+    "n": 15,
+    "avg_r": -0.515,
+    "avg_r_liq": -0.515,
+    "acaso_p95": 0.015,
+    "dentro_liq": -0.433,
+    "fora_n": 2,
+    "fora_liq": -1.044
+   },
+   "por_regime": {
+    "subida": {
+     "n": 8,
+     "avg_r": -0.573,
+     "acaso_p95": 0.153,
+     "dias": 7,
+     "ic_inf_dia": -0.991,
+     "antes": -0.415,
+     "reservado": -1.05,
+     "sem_melhor_moeda": -0.656,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 7,
+     "avg_r": -0.448,
+     "acaso_p95": 0.164,
+     "dias": 5,
+     "ic_inf_dia": -1.053,
+     "antes": -0.208,
+     "reservado": -1.047,
+     "sem_melhor_moeda": -0.591,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 6,
+    "dias": 6,
+    "media_op": -0.6542,
+    "media_dia": -0.6542,
+    "soma": -3.92,
+    "pf": 0.123,
+    "win": 0.167,
+    "payoff": 0.616,
+    "max_dd_r": -4.17,
+    "t_dia": -2.42,
+    "ic90_dia": [
+     -1.0438,
+     -0.2448
+    ],
+    "ic90_op_agrupado": [
+     -1.0413,
+     -0.2428
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "MAIORES_RECUO": {
+   "estado_arena": "A COMPETIR",
+   "motivo_arena": null,
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": null,
+   "clone_de": null,
+   "d90": {
+    "n": 17,
+    "avg_r": -0.019,
+    "acaso_p95": 0.126,
+    "fora_n": 1,
+    "fora_liq": -0.118
+   },
+   "d365": {
+    "n": 17,
+    "avg_r": -0.019,
+    "avg_r_liq": -0.019,
+    "acaso_p95": 0.06,
+    "dentro_liq": -0.013,
+    "fora_n": 1,
+    "fora_liq": -0.118
+   },
+   "por_regime": {
+    "subida": {
+     "n": 12,
+     "avg_r": -0.045,
+     "acaso_p95": 0.197,
+     "dias": 5,
+     "ic_inf_dia": -0.971,
+     "antes": -0.305,
+     "reservado": 0.734,
+     "sem_melhor_moeda": -0.346,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 5,
+     "avg_r": 0.044,
+     "acaso_p95": 0.282,
+     "dias": 3,
+     "ic_inf_dia": -0.436,
+     "antes": 0.084,
+     "reservado": -0.118,
+     "sem_melhor_moeda": -0.035,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 5,
+    "dias": 3,
+    "media_op": -0.0558,
+    "media_dia": -0.0662,
+    "soma": -0.28,
+    "pf": 0.755,
+    "win": 0.6,
+    "payoff": 0.504,
+    "max_dd_r": -1.02,
+    "t_dia": -0.34,
+    "ic90_dia": [
+     null,
+     null
+    ],
+    "ic90_op_agrupado": [
+     null,
+     null
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "MAIORES_TENDENCIA": {
+   "estado_arena": "A COMPETIR",
+   "motivo_arena": null,
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": null,
+   "clone_de": null,
+   "d90": {
+    "n": 3,
+    "avg_r": -0.793,
+    "acaso_p95": 0.975,
+    "fora_n": 0,
+    "fora_liq": null
+   },
+   "d365": {
+    "n": 3,
+    "avg_r": -0.793,
+    "avg_r_liq": -0.793,
+    "acaso_p95": 1.022,
+    "dentro_liq": -0.793,
+    "fora_n": 0,
+    "fora_liq": null
+   },
+   "por_regime": {
+    "subida": {
+     "n": 1,
+     "avg_r": -0.351,
+     "acaso_p95": 1.929,
+     "dias": 1,
+     "ic_inf_dia": null,
+     "antes": null,
+     "reservado": -0.351,
+     "sem_melhor_moeda": null,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 2,
+     "avg_r": -1.014,
+     "acaso_p95": 1.255,
+     "dias": 1,
+     "ic_inf_dia": null,
+     "antes": -1.016,
+     "reservado": -1.012,
+     "sem_melhor_moeda": -1.016,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 0
+   }
+  },
+  "MOMENTUM": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "forma recente (90 dias)",
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": "não pagou as contas do mês: 9 operações nos últimos 30 dias, -7.40R depois de comissões e spread real",
+   "clone_de": null,
+   "d90": {
+    "n": 43,
+    "avg_r": -0.457,
+    "acaso_p95": 0.411,
+    "fora_n": 9,
+    "fora_liq": -0.822
+   },
+   "d365": {
+    "n": 44,
+    "avg_r": -0.428,
+    "avg_r_liq": -0.428,
+    "acaso_p95": 0.439,
+    "dentro_liq": -0.32,
+    "fora_n": 10,
+    "fora_liq": -0.795
+   },
+   "por_regime": {
+    "subida": {
+     "n": 18,
+     "avg_r": -0.349,
+     "acaso_p95": 0.612,
+     "dias": 4,
+     "ic_inf_dia": -1.307,
+     "antes": -0.162,
+     "reservado": -1.005,
+     "sem_melhor_moeda": -0.479,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 26,
+     "avg_r": -0.482,
+     "acaso_p95": 0.467,
+     "dias": 7,
+     "ic_inf_dia": -0.875,
+     "antes": -0.407,
+     "reservado": -0.73,
+     "sem_melhor_moeda": -0.571,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 23,
+    "dias": 6,
+    "media_op": -0.892,
+    "media_dia": -0.8598,
+    "soma": -20.52,
+    "pf": 0.002,
+    "win": 0.043,
+    "payoff": 0.053,
+    "max_dd_r": -20.51,
+    "t_dia": -15.26,
+    "ic90_dia": [
+     -0.9476,
+     -0.7801
+    ],
+    "ic90_op_agrupado": [
+     -0.9672,
+     -0.8011
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "PULLBACK": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "forma recente (90 dias)",
+   "real_ok": false,
+   "desligada": "forma recente (90 dias)",
+   "suspensa": "não pagou as contas do mês: 5 operações nos últimos 30 dias, -3.57R depois de comissões e spread real",
+   "clone_de": null,
+   "d90": {
+    "n": 51,
+    "avg_r": -0.038,
+    "acaso_p95": 0.224,
+    "fora_n": 5,
+    "fora_liq": -0.714
+   },
+   "d365": {
+    "n": 41,
+    "avg_r": 0.107,
+    "avg_r_liq": 0.106,
+    "acaso_p95": 0.349,
+    "dentro_liq": 0.187,
+    "fora_n": 4,
+    "fora_liq": -0.646
+   },
+   "por_regime": {
+    "subida": {
+     "n": 15,
+     "avg_r": 0.815,
+     "acaso_p95": 0.467,
+     "dias": 10,
+     "ic_inf_dia": -0.003,
+     "antes": 1.008,
+     "reservado": 0.283,
+     "sem_melhor_moeda": 0.5,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 26,
+     "avg_r": -0.301,
+     "acaso_p95": 0.407,
+     "dias": 17,
+     "ic_inf_dia": -0.637,
+     "antes": -0.162,
+     "reservado": -0.763,
+     "sem_melhor_moeda": -0.42,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 16,
+    "dias": 13,
+    "media_op": -0.1589,
+    "media_dia": -0.2087,
+    "soma": -2.54,
+    "pf": 0.685,
+    "win": 0.5,
+    "payoff": 0.685,
+    "max_dd_r": -6.64,
+    "t_dia": -0.82,
+    "ic90_dia": [
+     -0.5958,
+     0.2012
+    ],
+    "ic90_op_agrupado": [
+     -0.5688,
+     0.2753
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "RANGE": {
+   "estado_arena": null,
+   "motivo_arena": null,
+   "real_ok": false,
+   "desligada": null,
+   "suspensa": null,
+   "clone_de": null,
+   "d90": {
+    "n": 0,
+    "avg_r": null,
+    "acaso_p95": null,
+    "fora_n": null,
+    "fora_liq": null
+   },
+   "d365": {
+    "n": 0,
+    "avg_r": null,
+    "avg_r_liq": null,
+    "acaso_p95": null,
+    "dentro_liq": null,
+    "fora_n": null,
+    "fora_liq": null
+   },
+   "por_regime": {},
+   "ultimos_45d": {
+    "n": 0
+   }
+  },
+  "REJEITADOS": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "forma recente (90 dias)",
+   "real_ok": false,
+   "desligada": null,
+   "suspensa": null,
+   "clone_de": null,
+   "d90": {
+    "n": 45,
+    "avg_r": -0.45,
+    "acaso_p95": 0.177,
+    "fora_n": 4,
+    "fora_liq": -1.008
+   },
+   "d365": {
+    "n": 42,
+    "avg_r": -0.532,
+    "avg_r_liq": -0.533,
+    "acaso_p95": 0.132,
+    "dentro_liq": -0.454,
+    "fora_n": 6,
+    "fora_liq": -1.009
+   },
+   "por_regime": {
+    "subida": {
+     "n": 9,
+     "avg_r": 0.004,
+     "acaso_p95": 0.626,
+     "dias": 5,
+     "ic_inf_dia": -0.871,
+     "antes": 0.294,
+     "reservado": -1.01,
+     "sem_melhor_moeda": -0.566,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 33,
+     "avg_r": -0.678,
+     "acaso_p95": 0.158,
+     "dias": 19,
+     "ic_inf_dia": -0.861,
+     "antes": -0.572,
+     "reservado": -1.011,
+     "sem_melhor_moeda": -0.813,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 20,
+    "dias": 9,
+    "media_op": -0.9341,
+    "media_dia": -0.8423,
+    "soma": -18.68,
+    "pf": 0.026,
+    "win": 0.05,
+    "payoff": 0.489,
+    "max_dd_r": -18.68,
+    "t_dia": -5.04,
+    "ic90_dia": [
+     -1.01,
+     -0.5085
+    ],
+    "ic90_op_agrupado": [
+     -1.0103,
+     -0.7431
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "RETESTE": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "forma recente (90 dias)",
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": "não pagou as contas do mês: 10 operações nos últimos 30 dias, -7.52R depois de comissões e spread real",
+   "clone_de": "TURTLE",
+   "d90": {
+    "n": 173,
+    "avg_r": 0.05,
+    "acaso_p95": 0.24,
+    "fora_n": 10,
+    "fora_liq": -0.752
+   },
+   "d365": {
+    "n": 176,
+    "avg_r": 0.102,
+    "avg_r_liq": 0.101,
+    "acaso_p95": 0.264,
+    "dentro_liq": 0.14,
+    "fora_n": 7,
+    "fora_liq": -0.851
+   },
+   "por_regime": {
+    "subida": {
+     "n": 59,
+     "avg_r": 0.16,
+     "acaso_p95": 0.277,
+     "dias": 15,
+     "ic_inf_dia": -0.659,
+     "antes": 0.443,
+     "reservado": -0.669,
+     "sem_melhor_moeda": 0.122,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 117,
+     "avg_r": 0.072,
+     "acaso_p95": 0.319,
+     "dias": 31,
+     "ic_inf_dia": -0.499,
+     "antes": 0.224,
+     "reservado": -0.388,
+     "sem_melhor_moeda": 0.038,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 27,
+    "dias": 19,
+    "media_op": -0.5415,
+    "media_dia": -0.5084,
+    "soma": -14.62,
+    "pf": 0.223,
+    "win": 0.185,
+    "payoff": 0.982,
+    "max_dd_r": -14.62,
+    "t_dia": -2.71,
+    "ic90_dia": [
+     -0.7897,
+     -0.2054
+    ],
+    "ic90_op_agrupado": [
+     -0.7719,
+     -0.2894
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "REVERSAO_INTERVALO": {
+   "estado_arena": "A COMPETIR",
+   "motivo_arena": null,
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": "não pagou as contas do mês: 8 operações nos últimos 30 dias, -1.87R depois de comissões e spread real",
+   "clone_de": null,
+   "d90": {
+    "n": 25,
+    "avg_r": -0.044,
+    "acaso_p95": -0.023,
+    "fora_n": 8,
+    "fora_liq": -0.234
+   },
+   "d365": {
+    "n": 27,
+    "avg_r": -0.006,
+    "avg_r_liq": -0.007,
+    "acaso_p95": -0.029,
+    "dentro_liq": 0.088,
+    "fora_n": 8,
+    "fora_liq": -0.232
+   },
+   "por_regime": {
+    "subida": {
+     "n": 5,
+     "avg_r": 0.5,
+     "acaso_p95": 0.395,
+     "dias": 3,
+     "ic_inf_dia": 0.038,
+     "antes": 0.413,
+     "reservado": 0.847,
+     "sem_melhor_moeda": 0.294,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 22,
+     "avg_r": -0.12,
+     "acaso_p95": -0.06,
+     "dias": 12,
+     "ic_inf_dia": -0.491,
+     "antes": -0.11,
+     "reservado": -0.148,
+     "sem_melhor_moeda": -0.134,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 20,
+    "dias": 12,
+    "media_op": -0.1402,
+    "media_dia": -0.2305,
+    "soma": -2.8,
+    "pf": 0.466,
+    "win": 0.6,
+    "payoff": 0.311,
+    "max_dd_r": -3.98,
+    "t_dia": -1.48,
+    "ic90_dia": [
+     -0.4903,
+     0.0043
+    ],
+    "ic90_op_agrupado": [
+     -0.374,
+     0.0908
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "SHORT_FALSO_ROMP": {
+   "estado_arena": null,
+   "motivo_arena": null,
+   "real_ok": false,
+   "desligada": null,
+   "suspensa": null,
+   "clone_de": null,
+   "d90": {
+    "n": 0,
+    "avg_r": null,
+    "acaso_p95": null,
+    "fora_n": null,
+    "fora_liq": null
+   },
+   "d365": {
+    "n": 64,
+    "avg_r": 0.344,
+    "avg_r_liq": 0.342,
+    "acaso_p95": -0.0,
+    "dentro_liq": 0.342,
+    "fora_n": 0,
+    "fora_liq": null
+   },
+   "por_regime": {
+    "queda": {
+     "n": 64,
+     "avg_r": 0.344,
+     "acaso_p95": 0.009,
+     "dias": 40,
+     "ic_inf_dia": -0.004,
+     "antes": 0.381,
+     "reservado": 0.232,
+     "sem_melhor_moeda": 0.286,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 0
+   }
+  },
+  "SHORT_FLUXO": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "forma recente (90 dias)",
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": null,
+   "clone_de": "SHORT_X30",
+   "d90": {
+    "n": 66,
+    "avg_r": -0.177,
+    "acaso_p95": -0.076,
+    "fora_n": 8,
+    "fora_liq": 0.743
+   },
+   "d365": {
+    "n": 240,
+    "avg_r": -0.155,
+    "avg_r_liq": -0.156,
+    "acaso_p95": -0.132,
+    "dentro_liq": -0.196,
+    "fora_n": 9,
+    "fora_liq": 0.891
+   },
+   "por_regime": {
+    "subida": {
+     "n": 30,
+     "avg_r": -0.365,
+     "acaso_p95": -0.057,
+     "dias": 8,
+     "ic_inf_dia": -0.562,
+     "antes": -0.545,
+     "reservado": 0.131,
+     "sem_melhor_moeda": -0.454,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 182,
+     "avg_r": -0.193,
+     "acaso_p95": -0.134,
+     "dias": 77,
+     "ic_inf_dia": -0.276,
+     "antes": -0.232,
+     "reservado": -0.079,
+     "sem_melhor_moeda": -0.203,
+     "passa_novo": false
+    },
+    "queda": {
+     "n": 28,
+     "avg_r": 0.321,
+     "acaso_p95": 0.288,
+     "dias": 12,
+     "ic_inf_dia": -0.162,
+     "antes": 0.301,
+     "reservado": 0.38,
+     "sem_melhor_moeda": 0.274,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 12,
+    "dias": 8,
+    "media_op": 0.607,
+    "media_dia": 0.3019,
+    "soma": 7.28,
+    "pf": 6.181,
+    "win": 0.833,
+    "payoff": 1.236,
+    "max_dd_r": -1.01,
+    "t_dia": 0.9,
+    "ic90_dia": [
+     -0.1595,
+     0.8202
+    ],
+    "ic90_op_agrupado": [
+     -0.1326,
+     1.0006
+    ],
+    "dias_maiores_5_pct_do_r": 0.836
+   }
+  },
+  "SHORT_ISOLADA": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "forma recente (90 dias)",
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": null,
+   "clone_de": "SHORT_X30",
+   "d90": {
+    "n": 147,
+    "avg_r": -0.11,
+    "acaso_p95": -0.132,
+    "fora_n": 11,
+    "fora_liq": 0.723
+   },
+   "d365": {
+    "n": 508,
+    "avg_r": -0.109,
+    "avg_r_liq": -0.11,
+    "acaso_p95": -0.133,
+    "dentro_liq": -0.134,
+    "fora_n": 14,
+    "fora_liq": 0.741
+   },
+   "por_regime": {
+    "subida": {
+     "n": 57,
+     "avg_r": -0.097,
+     "acaso_p95": -0.058,
+     "dias": 11,
+     "ic_inf_dia": -0.382,
+     "antes": -0.216,
+     "reservado": 0.266,
+     "sem_melhor_moeda": -0.15,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 380,
+     "avg_r": -0.205,
+     "acaso_p95": -0.148,
+     "dias": 108,
+     "ic_inf_dia": -0.237,
+     "antes": -0.222,
+     "reservado": -0.151,
+     "sem_melhor_moeda": -0.218,
+     "passa_novo": false
+    },
+    "queda": {
+     "n": 71,
+     "avg_r": 0.39,
+     "acaso_p95": 0.135,
+     "dias": 25,
+     "ic_inf_dia": -0.216,
+     "antes": 0.425,
+     "reservado": 0.288,
+     "sem_melhor_moeda": 0.348,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 30,
+    "dias": 15,
+    "media_op": 0.3419,
+    "media_dia": 0.0986,
+    "soma": 10.26,
+    "pf": 2.455,
+    "win": 0.7,
+    "payoff": 1.052,
+    "max_dd_r": -5.32,
+    "t_dia": 0.49,
+    "ic90_dia": [
+     -0.2265,
+     0.4169
+    ],
+    "ic90_op_agrupado": [
+     -0.0512,
+     0.6956
+    ],
+    "dias_maiores_5_pct_do_r": 0.652
+   }
+  },
+  "SHORT_MAIORES_RECUO": {
+   "estado_arena": null,
+   "motivo_arena": null,
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": null,
+   "clone_de": null,
+   "d90": {
+    "n": 0,
+    "avg_r": null,
+    "acaso_p95": null,
+    "fora_n": null,
+    "fora_liq": null
+   },
+   "d365": {
+    "n": 47,
+    "avg_r": -0.091,
+    "avg_r_liq": -0.091,
+    "acaso_p95": 0.013,
+    "dentro_liq": -0.091,
+    "fora_n": 0,
+    "fora_liq": null
+   },
+   "por_regime": {
+    "lateral": {
+     "n": 20,
+     "avg_r": -0.445,
+     "acaso_p95": -0.024,
+     "dias": 12,
+     "ic_inf_dia": -0.976,
+     "antes": -0.352,
+     "reservado": -0.722,
+     "sem_melhor_moeda": -0.535,
+     "passa_novo": false
+    },
+    "queda": {
+     "n": 27,
+     "avg_r": 0.172,
+     "acaso_p95": 0.178,
+     "dias": 16,
+     "ic_inf_dia": -0.403,
+     "antes": 0.094,
+     "reservado": 0.392,
+     "sem_melhor_moeda": 0.077,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 0
+   }
+  },
+  "SHORT_MAIORES_TENDENCIA": {
+   "estado_arena": null,
+   "motivo_arena": null,
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": null,
+   "clone_de": null,
+   "d90": {
+    "n": 0,
+    "avg_r": null,
+    "acaso_p95": null,
+    "fora_n": null,
+    "fora_liq": null
+   },
+   "d365": {
+    "n": 15,
+    "avg_r": 1.087,
+    "avg_r_liq": 1.087,
+    "acaso_p95": 1.552,
+    "dentro_liq": 1.087,
+    "fora_n": 0,
+    "fora_liq": null
+   },
+   "por_regime": {
+    "lateral": {
+     "n": 10,
+     "avg_r": 0.795,
+     "acaso_p95": 1.573,
+     "dias": 9,
+     "ic_inf_dia": 0.012,
+     "antes": 0.86,
+     "reservado": 0.534,
+     "sem_melhor_moeda": 0.389,
+     "passa_novo": false
+    },
+    "queda": {
+     "n": 5,
+     "avg_r": 1.67,
+     "acaso_p95": 1.903,
+     "dias": 5,
+     "ic_inf_dia": 1.487,
+     "antes": 1.743,
+     "reservado": 1.378,
+     "sem_melhor_moeda": 1.696,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 0
+   }
+  },
+  "SHORT_SQUEEZE": {
+   "estado_arena": "A COMPETIR",
+   "motivo_arena": null,
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": null,
+   "clone_de": null,
+   "d90": {
+    "n": 4,
+    "avg_r": -0.835,
+    "acaso_p95": 0.274,
+    "fora_n": 0,
+    "fora_liq": null
+   },
+   "d365": {
+    "n": 0,
+    "avg_r": null,
+    "avg_r_liq": null,
+    "acaso_p95": null,
+    "dentro_liq": null,
+    "fora_n": null,
+    "fora_liq": null
+   },
+   "por_regime": {},
+   "ultimos_45d": {
+    "n": 0
+   }
+  },
+  "SHORT_TURTLE": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "forma recente (90 dias)",
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": null,
+   "clone_de": null,
+   "d90": {
+    "n": 69,
+    "avg_r": -0.279,
+    "acaso_p95": 0.435,
+    "fora_n": 32,
+    "fora_liq": 0.522
+   },
+   "d365": {
+    "n": 417,
+    "avg_r": 0.257,
+    "avg_r_liq": 0.257,
+    "acaso_p95": 0.652,
+    "dentro_liq": 0.234,
+    "fora_n": 32,
+    "fora_liq": 0.522
+   },
+   "por_regime": {
+    "subida": {
+     "n": 25,
+     "avg_r": -0.482,
+     "acaso_p95": 0.277,
+     "dias": 7,
+     "ic_inf_dia": -1.043,
+     "antes": -0.926,
+     "reservado": 0.922,
+     "sem_melhor_moeda": -0.566,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 252,
+     "avg_r": 0.382,
+     "acaso_p95": 0.715,
+     "dias": 90,
+     "ic_inf_dia": 0.081,
+     "antes": 0.564,
+     "reservado": -0.162,
+     "sem_melhor_moeda": 0.364,
+     "passa_novo": false
+    },
+    "queda": {
+     "n": 140,
+     "avg_r": 0.164,
+     "acaso_p95": 0.735,
+     "dias": 37,
+     "ic_inf_dia": 0.053,
+     "antes": 0.332,
+     "reservado": -0.342,
+     "sem_melhor_moeda": 0.142,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 34,
+    "dias": 12,
+    "media_op": 0.4824,
+    "media_dia": 0.4695,
+    "soma": 16.4,
+    "pf": 2.951,
+    "win": 0.735,
+    "payoff": 1.062,
+    "max_dd_r": -2.89,
+    "t_dia": 1.7,
+    "ic90_dia": [
+     0.0182,
+     0.8766
+    ],
+    "ic90_op_agrupado": [
+     0.1649,
+     0.8274
+    ],
+    "dias_maiores_5_pct_do_r": 0.398
+   }
+  },
+  "SHORT_TURTLE_SHORT": {
+   "estado_arena": "A COMPETIR",
+   "motivo_arena": null,
+   "real_ok": false,
+   "desligada": null,
+   "suspensa": null,
+   "clone_de": null,
+   "d90": {
+    "n": null,
+    "avg_r": null,
+    "acaso_p95": null,
+    "fora_n": null,
+    "fora_liq": null
+   },
+   "d365": {
+    "n": null,
+    "avg_r": null,
+    "avg_r_liq": null,
+    "acaso_p95": null,
+    "dentro_liq": null,
+    "fora_n": null,
+    "fora_liq": null
+   },
+   "por_regime": {},
+   "ultimos_45d": {
+    "n": 0
+   }
+  },
+  "SHORT_X30": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "forma recente (90 dias)",
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": null,
+   "clone_de": null,
+   "d90": {
+    "n": 194,
+    "avg_r": -0.275,
+    "acaso_p95": -0.168,
+    "fora_n": 11,
+    "fora_liq": 0.723
+   },
+   "d365": {
+    "n": 614,
+    "avg_r": -0.126,
+    "avg_r_liq": -0.127,
+    "acaso_p95": -0.142,
+    "dentro_liq": -0.147,
+    "fora_n": 14,
+    "fora_liq": 0.741
+   },
+   "por_regime": {
+    "subida": {
+     "n": 81,
+     "avg_r": -0.313,
+     "acaso_p95": -0.079,
+     "dias": 12,
+     "ic_inf_dia": -0.475,
+     "antes": -0.468,
+     "reservado": 0.161,
+     "sem_melhor_moeda": -0.358,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 450,
+     "avg_r": -0.195,
+     "acaso_p95": -0.166,
+     "dias": 118,
+     "ic_inf_dia": -0.226,
+     "antes": -0.175,
+     "reservado": -0.255,
+     "sem_melhor_moeda": -0.208,
+     "passa_novo": false
+    },
+    "queda": {
+     "n": 83,
+     "avg_r": 0.431,
+     "acaso_p95": 0.112,
+     "dias": 27,
+     "ic_inf_dia": -0.196,
+     "antes": 0.499,
+     "reservado": 0.23,
+     "sem_melhor_moeda": 0.384,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 30,
+    "dias": 15,
+    "media_op": 0.3419,
+    "media_dia": 0.0986,
+    "soma": 10.26,
+    "pf": 2.455,
+    "win": 0.7,
+    "payoff": 1.052,
+    "max_dd_r": -5.32,
+    "t_dia": 0.49,
+    "ic90_dia": [
+     -0.2265,
+     0.4169
+    ],
+    "ic90_op_agrupado": [
+     -0.0512,
+     0.6956
+    ],
+    "dias_maiores_5_pct_do_r": 0.652
+   }
+  },
+  "SQUEEZE_BB": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "forma recente (90 dias)",
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": "não pagou as contas do mês: 28 operações nos últimos 30 dias, -23.27R depois de comissões e spread real",
+   "clone_de": null,
+   "d90": {
+    "n": 74,
+    "avg_r": -0.64,
+    "acaso_p95": -0.044,
+    "fora_n": 28,
+    "fora_liq": -0.831
+   },
+   "d365": {
+    "n": 67,
+    "avg_r": -0.68,
+    "avg_r_liq": -0.681,
+    "acaso_p95": -0.08,
+    "dentro_liq": -0.654,
+    "fora_n": 29,
+    "fora_liq": -0.718
+   },
+   "por_regime": {
+    "subida": {
+     "n": 24,
+     "avg_r": -0.785,
+     "acaso_p95": 0.094,
+     "dias": 14,
+     "ic_inf_dia": -1.013,
+     "antes": -0.706,
+     "reservado": -1.019,
+     "sem_melhor_moeda": -0.895,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 43,
+     "avg_r": -0.622,
+     "acaso_p95": -0.097,
+     "dias": 14,
+     "ic_inf_dia": -0.921,
+     "antes": -0.548,
+     "reservado": -0.835,
+     "sem_melhor_moeda": -0.684,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 47,
+    "dias": 17,
+    "media_op": -0.7762,
+    "media_dia": -0.7699,
+    "soma": -36.48,
+    "pf": 0.112,
+    "win": 0.128,
+    "payoff": 0.766,
+    "max_dd_r": -36.48,
+    "t_dia": -6.79,
+    "ic90_dia": [
+     -0.9385,
+     -0.5995
+    ],
+    "ic90_op_agrupado": [
+     -0.9118,
+     -0.5958
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "TREND_DAILY": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "forma recente (90 dias)",
+   "real_ok": false,
+   "desligada": "forma recente (90 dias)",
+   "suspensa": null,
+   "clone_de": null,
+   "d90": {
+    "n": 39,
+    "avg_r": -0.285,
+    "acaso_p95": null,
+    "fora_n": 3,
+    "fora_liq": -1.472
+   },
+   "d365": {
+    "n": 35,
+    "avg_r": -0.202,
+    "avg_r_liq": -0.202,
+    "acaso_p95": null,
+    "dentro_liq": -0.111,
+    "fora_n": 2,
+    "fora_liq": -1.705
+   },
+   "por_regime": {
+    "subida": {
+     "n": 11,
+     "avg_r": -0.773,
+     "acaso_p95": null,
+     "dias": 6,
+     "ic_inf_dia": -1.217,
+     "antes": -0.686,
+     "reservado": -1.007,
+     "sem_melhor_moeda": -0.963,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 24,
+     "avg_r": 0.06,
+     "acaso_p95": null,
+     "dias": 12,
+     "ic_inf_dia": -0.825,
+     "antes": 0.39,
+     "reservado": -0.933,
+     "sem_melhor_moeda": -0.163,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 3,
+    "dias": 3,
+    "media_op": -1.4723,
+    "media_dia": -1.4723,
+    "soma": -4.42,
+    "pf": 0.0,
+    "win": 0.0,
+    "payoff": null,
+    "max_dd_r": -4.42,
+    "t_dia": -3.16,
+    "ic90_dia": [
+     null,
+     null
+    ],
+    "ic90_op_agrupado": [
+     null,
+     null
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "TURTLE": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "forma recente (90 dias)",
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": "não pagou as contas do mês: 7 operações nos últimos 30 dias, -7.08R depois de comissões e spread real",
+   "clone_de": null,
+   "d90": {
+    "n": 140,
+    "avg_r": 0.181,
+    "acaso_p95": 0.822,
+    "fora_n": 7,
+    "fora_liq": -1.012
+   },
+   "d365": {
+    "n": 144,
+    "avg_r": 0.261,
+    "avg_r_liq": 0.26,
+    "acaso_p95": 0.836,
+    "dentro_liq": 0.325,
+    "fora_n": 7,
+    "fora_liq": -1.013
+   },
+   "por_regime": {
+    "subida": {
+     "n": 42,
+     "avg_r": 0.359,
+     "acaso_p95": 0.804,
+     "dias": 12,
+     "ic_inf_dia": -0.444,
+     "antes": 0.567,
+     "reservado": -0.307,
+     "sem_melhor_moeda": 0.287,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 102,
+     "avg_r": 0.22,
+     "acaso_p95": 0.959,
+     "dias": 27,
+     "ic_inf_dia": -0.661,
+     "antes": 0.477,
+     "reservado": -0.532,
+     "sem_melhor_moeda": 0.177,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 21,
+    "dias": 14,
+    "media_op": -0.5582,
+    "media_dia": -0.6294,
+    "soma": -11.72,
+    "pf": 0.354,
+    "win": 0.143,
+    "payoff": 2.126,
+    "max_dd_r": -11.72,
+    "t_dia": -2.79,
+    "ic90_dia": [
+     -0.9595,
+     -0.2589
+    ],
+    "ic90_op_agrupado": [
+     -0.8866,
+     -0.2076
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "TURTLE_FORTES": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "forma recente (90 dias)",
+   "real_ok": false,
+   "desligada": null,
+   "suspensa": null,
+   "clone_de": null,
+   "d90": {
+    "n": 47,
+    "avg_r": 0.132,
+    "acaso_p95": 0.589,
+    "fora_n": 2,
+    "fora_liq": -1.006
+   },
+   "d365": {
+    "n": 49,
+    "avg_r": 0.17,
+    "avg_r_liq": 0.17,
+    "acaso_p95": 0.689,
+    "dentro_liq": 0.246,
+    "fora_n": 3,
+    "fora_liq": -1.005
+   },
+   "por_regime": {
+    "subida": {
+     "n": 49,
+     "avg_r": 0.17,
+     "acaso_p95": 0.676,
+     "dias": 15,
+     "ic_inf_dia": -0.328,
+     "antes": 0.363,
+     "reservado": -0.423,
+     "sem_melhor_moeda": 0.097,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 20,
+    "dias": 7,
+    "media_op": -0.6565,
+    "media_dia": -0.6002,
+    "soma": -13.13,
+    "pf": 0.275,
+    "win": 0.1,
+    "payoff": 2.475,
+    "max_dd_r": -13.13,
+    "t_dia": -1.93,
+    "ic90_dia": [
+     -1.0061,
+     0.0236
+    ],
+    "ic90_op_agrupado": [
+     -1.0056,
+     -0.1828
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "VOLUME_ACUMULACAO": {
+   "estado_arena": "MORTA",
+   "motivo_arena": "forma recente (90 dias)",
+   "real_ok": true,
+   "desligada": null,
+   "suspensa": "não pagou as contas do mês: 8 operações nos últimos 30 dias, -4.78R depois de comissões e spread real",
+   "clone_de": null,
+   "d90": {
+    "n": 28,
+    "avg_r": -0.185,
+    "acaso_p95": 0.235,
+    "fora_n": 8,
+    "fora_liq": -0.597
+   },
+   "d365": {
+    "n": 31,
+    "avg_r": -0.093,
+    "avg_r_liq": -0.094,
+    "acaso_p95": 0.164,
+    "dentro_liq": 0.131,
+    "fora_n": 9,
+    "fora_liq": -0.645
+   },
+   "por_regime": {
+    "subida": {
+     "n": 12,
+     "avg_r": 0.105,
+     "acaso_p95": 0.404,
+     "dias": 8,
+     "ic_inf_dia": -0.832,
+     "antes": 0.482,
+     "reservado": -1.027,
+     "sem_melhor_moeda": -0.129,
+     "passa_novo": false
+    },
+    "lateral": {
+     "n": 19,
+     "avg_r": -0.219,
+     "acaso_p95": 0.248,
+     "dias": 15,
+     "ic_inf_dia": -0.832,
+     "antes": -0.173,
+     "reservado": -0.345,
+     "sem_melhor_moeda": -0.377,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 15,
+    "dias": 13,
+    "media_op": -0.5541,
+    "media_dia": -0.6118,
+    "soma": -8.31,
+    "pf": 0.323,
+    "win": 0.2,
+    "payoff": 1.294,
+    "max_dd_r": -9.66,
+    "t_dia": -2.04,
+    "ic90_dia": [
+     -1.0225,
+     -0.0561
+    ],
+    "ic90_op_agrupado": [
+     -1.0248,
+     -0.0676
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  },
+  "VOLUME_ACUMULACAO_R2": {
+   "estado_arena": "A COMPETIR",
+   "motivo_arena": null,
+   "real_ok": false,
+   "desligada": null,
+   "suspensa": null,
+   "clone_de": null,
+   "d90": {
+    "n": 4,
+    "avg_r": -0.171,
+    "acaso_p95": -0.266,
+    "fora_n": 4,
+    "fora_liq": -0.173
+   },
+   "d365": {
+    "n": 4,
+    "avg_r": -0.175,
+    "avg_r_liq": -0.176,
+    "acaso_p95": -0.354,
+    "dentro_liq": null,
+    "fora_n": 4,
+    "fora_liq": -0.176
+   },
+   "por_regime": {
+    "lateral": {
+     "n": 4,
+     "avg_r": -0.175,
+     "acaso_p95": -0.296,
+     "dias": 3,
+     "ic_inf_dia": -1.389,
+     "antes": -0.303,
+     "reservado": 0.211,
+     "sem_melhor_moeda": -0.612,
+     "passa_novo": false
+    }
+   },
+   "ultimos_45d": {
+    "n": 4,
+    "dias": 3,
+    "media_op": -0.1745,
+    "media_dia": -0.4577,
+    "soma": -0.7,
+    "pf": 0.659,
+    "win": 0.5,
+    "payoff": 0.659,
+    "max_dd_r": -2.05,
+    "t_dia": -0.81,
+    "ic90_dia": [
+     null,
+     null
+    ],
+    "ic90_op_agrupado": [
+     null,
+     null
+    ],
+    "dias_maiores_5_pct_do_r": null
+   }
+  }
+ },
+ "execucao_okx": {
+  "ordens": 9,
+  "preenchidas": 4,
+  "canceladas_sem_executar": 5,
+  "papel_preencheu_mas_real_nao": [
+   "TRUMP:1793880000",
+   "WLD:1793880000"
+  ],
+  "preenchidas_por_tipo": {
+   "isolado": 4
+  },
+  "canceladas_por_tipo": {
+   "mercado": 2,
+   "?": 3
+  },
+  "r_papel_das_canceladas": [
+   0.298,
+   -0.421
+  ],
+  "r_real_das_preenchidas": [
+   -1.0,
+   -0.936,
+   -1.222,
+   -1.013
+  ],
+  "linhas": [
+   {
+    "chave": "HUMA:1793764800",
+    "estado": "fechada",
+    "tipo_papel": "isolado",
+    "r_papel": -1.006,
+    "r_real_bruto": -1.0,
+    "atraso_ordem_min": 249.4,
+    "papel_preencheu": true
+   },
+   {
+    "chave": "TRUMP:1793880000",
+    "estado": "cancelada",
+    "tipo_papel": "mercado",
+    "r_papel": 0.298,
+    "r_real_bruto": null,
+    "atraso_ordem_min": 7.1,
+    "papel_preencheu": true
+   },
+   {
+    "chave": "WLD:1793880000",
+    "estado": "cancelada",
+    "tipo_papel": "mercado",
+    "r_papel": -0.421,
+    "r_real_bruto": null,
+    "atraso_ordem_min": 7.1,
+    "papel_preencheu": true
+   },
+   {
+    "chave": "KAITO:1793880000",
+    "estado": "cancelada",
+    "tipo_papel": null,
+    "r_papel": null,
+    "r_real_bruto": null,
+    "atraso_ordem_min": 7.1,
+    "papel_preencheu": false
+   },
+   {
+    "chave": "AEON:1793880000",
+    "estado": "cancelada",
+    "tipo_papel": null,
+    "r_papel": null,
+    "r_real_bruto": null,
+    "atraso_ordem_min": 7.1,
+    "papel_preencheu": false
+   },
+   {
+    "chave": "BILL:1793880000",
+    "estado": "cancelada",
+    "tipo_papel": null,
+    "r_papel": null,
+    "r_real_bruto": null,
+    "atraso_ordem_min": 7.1,
+    "papel_preencheu": false
+   },
+   {
+    "chave": "PENGU:1794124800",
+    "estado": "fechada",
+    "tipo_papel": "isolado",
+    "r_papel": -1.019,
+    "r_real_bruto": -0.936,
+    "atraso_ordem_min": 7.2,
+    "papel_preencheu": true
+   },
+   {
+    "chave": "PARTI:1794268800",
+    "estado": "fechada",
+    "tipo_papel": "isolado",
+    "r_papel": -1.011,
+    "r_real_bruto": -1.222,
+    "atraso_ordem_min": 8.2,
+    "papel_preencheu": true
+   },
+   {
+    "chave": "CASHCAT:1794240000",
+    "estado": "fechada",
+    "tipo_papel": "isolado",
+    "r_papel": -1.007,
+    "r_real_bruto": -1.013,
+    "atraso_ordem_min": 8.2,
+    "papel_preencheu": true
+   }
+  ]
+ },
+ "contabilidade_okx": [
+  {
+   "estrategia": "panico",
+   "ativo": "CASHCAT",
+   "r_bruto": -1.0133,
+   "r_liquido": -1.0186,
+   "custo_r": 0.0053,
+   "deslize_stop_r": -0.0133,
+   "completa": true
+  },
+  {
+   "estrategia": "panico",
+   "ativo": "PARTI",
+   "r_bruto": -1.222,
+   "r_liquido": -1.229,
+   "custo_r": 0.0071,
+   "deslize_stop_r": -0.222,
+   "completa": true
+  },
+  {
+   "estrategia": "panico",
+   "ativo": "PENGU",
+   "r_bruto": -0.936,
+   "r_liquido": -0.9491,
+   "custo_r": 0.0131,
+   "deslize_stop_r": 0.064,
+   "completa": true
+  },
+  {
+   "estrategia": "panico",
+   "ativo": "HUMA",
+   "r_bruto": -1.0,
+   "r_liquido": -0.9794,
+   "custo_r": -0.0206,
+   "deslize_stop_r": -0.0,
+   "completa": true
+  }
+ ],
+ "walk_forward": {
+  "H40 (panico do mercado)": {
+   "btc_acima_sma50": {
+    "desenho": {
+     "n": 50,
+     "dias": 10,
+     "media_op": -0.1573,
+     "media_dia": -0.1435,
+     "soma": -7.87,
+     "pf": 0.652,
+     "win": 0.46,
+     "payoff": 0.766,
+     "max_dd_r": -11.73,
+     "t_dia": -0.58,
+     "ic90_dia": [
+      -0.5322,
+      0.2417
+     ],
+     "ic90_op_agrupado": [
+      -0.6313,
+      0.2872
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "validacao": {
+     "n": 3,
+     "dias": 2,
+     "media_op": -0.5718,
+     "media_dia": -0.3478,
+     "soma": -1.72,
+     "pf": 0.159,
+     "win": 0.333,
+     "payoff": 0.318,
+     "max_dd_r": -2.04,
+     "t_dia": -0.52,
+     "ic90_dia": [
+      null,
+      null
+     ],
+     "ic90_op_agrupado": [
+      null,
+      null
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "ganho_desenho": -0.1331,
+    "ganho_validacao": -0.2845,
+    "frequencia_validacao": 0.074,
+    "p_unilateral": 0.6985,
+    "p_holm": 1.0,
+    "passa": false
+   },
+   "btc_abaixo_sma50": {
+    "desenho": {
+     "n": 172,
+     "dias": 16,
+     "media_op": 0.5103,
+     "media_dia": 0.0728,
+     "soma": 87.78,
+     "pf": 3.384,
+     "win": 0.709,
+     "payoff": 1.387,
+     "max_dd_r": -24.76,
+     "t_dia": 0.28,
+     "ic90_dia": [
+      -0.3061,
+      0.4943
+     ],
+     "ic90_op_agrupado": [
+      0.0638,
+      0.7816
+     ],
+     "dias_maiores_5_pct_do_r": 0.579
+    },
+    "validacao": {
+     "n": 124,
+     "dias": 25,
+     "media_op": 0.3495,
+     "media_dia": -0.0406,
+     "soma": 43.34,
+     "pf": 2.006,
+     "win": 0.556,
+     "payoff": 1.599,
+     "max_dd_r": -16.18,
+     "t_dia": -0.2,
+     "ic90_dia": [
+      -0.3667,
+      0.3158
+     ],
+     "ic90_op_agrupado": [
+      -0.1404,
+      0.8153
+     ],
+     "dias_maiores_5_pct_do_r": 0.799
+    },
+    "ganho_desenho": 0.0832,
+    "ganho_validacao": 0.0227,
+    "frequencia_validacao": 0.926,
+    "p_unilateral": 0.5793,
+    "p_holm": 1.0,
+    "passa": false
+   },
+   "stop_largo_(>=12pct)": {
+    "desenho": {
+     "n": 49,
+     "dias": 7,
+     "media_op": 0.7503,
+     "media_dia": 0.4485,
+     "soma": 36.76,
+     "pf": 18.138,
+     "win": 0.918,
+     "payoff": 1.612,
+     "max_dd_r": -1.44,
+     "t_dia": 1.69,
+     "ic90_dia": [
+      -0.0101,
+      0.7916
+     ],
+     "ic90_op_agrupado": [
+      0.2857,
+      0.997
+     ],
+     "dias_maiores_5_pct_do_r": 0.77
+    },
+    "validacao": {
+     "n": 2,
+     "dias": 2,
+     "media_op": 0.0155,
+     "media_dia": 0.0155,
+     "soma": 0.03,
+     "pf": 1.047,
+     "win": 0.5,
+     "payoff": 1.047,
+     "max_dd_r": -0.65,
+     "t_dia": 0.02,
+     "ic90_dia": [
+      null,
+      null
+     ],
+     "ic90_op_agrupado": [
+      null,
+      null
+     ],
+     "dias_maiores_5_pct_do_r": 22.065
+    },
+    "ganho_desenho": 0.4589,
+    "ganho_validacao": 0.0788,
+    "frequencia_validacao": 0.074,
+    "p_unilateral": 0.492,
+    "p_holm": 1.0,
+    "passa": false
+   },
+   "stop_curto_(<8pct)": {
+    "desenho": {
+     "n": 62,
+     "dias": 21,
+     "media_op": 0.1176,
+     "media_dia": -0.1133,
+     "soma": 7.29,
+     "pf": 1.248,
+     "win": 0.452,
+     "payoff": 1.515,
+     "max_dd_r": -15.08,
+     "t_dia": -0.51,
+     "ic90_dia": [
+      -0.457,
+      0.2795
+     ],
+     "ic90_op_agrupado": [
+      -0.3309,
+      0.489
+     ],
+     "dias_maiores_5_pct_do_r": 1.368
+    },
+    "validacao": {
+     "n": 88,
+     "dias": 23,
+     "media_op": 0.3229,
+     "media_dia": 0.0524,
+     "soma": 28.41,
+     "pf": 1.79,
+     "win": 0.534,
+     "payoff": 1.561,
+     "max_dd_r": -12.78,
+     "t_dia": 0.22,
+     "ic90_dia": [
+      -0.329,
+      0.4464
+     ],
+     "ic90_op_agrupado": [
+      -0.3349,
+      0.9131
+     ],
+     "dias_maiores_5_pct_do_r": 1.149
+    },
+    "ganho_desenho": -0.1029,
+    "ganho_validacao": 0.1157,
+    "frequencia_validacao": 0.852,
+    "p_unilateral": 0.4129,
+    "p_holm": 1.0,
+    "passa": false
+   },
+   "dia_com_>=3_sinais": {
+    "desenho": {
+     "n": 214,
+     "dias": 21,
+     "media_op": 0.3694,
+     "media_dia": 0.0152,
+     "soma": 79.06,
+     "pf": 2.377,
+     "win": 0.65,
+     "payoff": 1.282,
+     "max_dd_r": -23.75,
+     "t_dia": 0.07,
+     "ic90_dia": [
+      -0.3003,
+      0.366
+     ],
+     "ic90_op_agrupado": [
+      -0.0228,
+      0.638
+     ],
+     "dias_maiores_5_pct_do_r": 0.643
+    },
+    "validacao": {
+     "n": 108,
+     "dias": 11,
+     "media_op": 0.4644,
+     "media_dia": 0.4371,
+     "soma": 50.16,
+     "pf": 2.522,
+     "win": 0.611,
+     "payoff": 1.605,
+     "max_dd_r": -11.2,
+     "t_dia": 1.39,
+     "ic90_dia": [
+      -0.0387,
+      0.9483
+     ],
+     "ic90_op_agrupado": [
+      -0.0695,
+      1.03
+     ],
+     "dias_maiores_5_pct_do_r": 0.69
+    },
+    "ganho_desenho": 0.0256,
+    "ganho_validacao": 0.5004,
+    "frequencia_validacao": 0.407,
+    "p_unilateral": 0.0823,
+    "p_holm": 0.4936,
+    "passa": false
+   },
+   "dia_com_1_sinal": {
+    "desenho": {
+     "n": 2,
+     "dias": 2,
+     "media_op": -1.015,
+     "media_dia": -1.015,
+     "soma": -2.03,
+     "pf": 0.0,
+     "win": 0.0,
+     "payoff": null,
+     "max_dd_r": -2.03,
+     "t_dia": -236.89,
+     "ic90_dia": [
+      null,
+      null
+     ],
+     "ic90_op_agrupado": [
+      null,
+      null
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "validacao": {
+     "n": 13,
+     "dias": 13,
+     "media_op": -0.346,
+     "media_dia": -0.346,
+     "soma": -4.5,
+     "pf": 0.422,
+     "win": 0.231,
+     "payoff": 1.407,
+     "max_dd_r": -6.68,
+     "t_dia": -1.33,
+     "ic90_dia": [
+      -0.7298,
+      0.0885
+     ],
+     "ic90_op_agrupado": [
+      -0.7302,
+      0.0777
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "ganho_desenho": -1.0046,
+    "ganho_validacao": -0.2827,
+    "frequencia_validacao": 0.481,
+    "p_unilateral": 0.9082,
+    "p_holm": 1.0,
+    "passa": false
+   },
+   "_corte_walk_forward": "2025-10-22"
+  },
+  "H40 (panico isolado = todos menos mercado)": {
+   "btc_acima_sma50": {
+    "desenho": {
+     "n": 136,
+     "dias": 45,
+     "media_op": 0.0936,
+     "media_dia": 0.2346,
+     "soma": 12.72,
+     "pf": 1.257,
+     "win": 0.456,
+     "payoff": 1.5,
+     "max_dd_r": -19.79,
+     "t_dia": 1.7,
+     "ic90_dia": [
+      0.0117,
+      0.4751
+     ],
+     "ic90_op_agrupado": [
+      -0.1973,
+      0.412
+     ],
+     "dias_maiores_5_pct_do_r": 1.386
+    },
+    "validacao": {
+     "n": 51,
+     "dias": 18,
+     "media_op": -0.2443,
+     "media_dia": 0.1535,
+     "soma": -12.46,
+     "pf": 0.496,
+     "win": 0.314,
+     "payoff": 1.084,
+     "max_dd_r": -15.07,
+     "t_dia": 0.64,
+     "ic90_dia": [
+      -0.2094,
+      0.5472
+     ],
+     "ic90_op_agrupado": [
+      -0.4635,
+      0.3276
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "ganho_desenho": 0.0611,
+    "ganho_validacao": 0.295,
+    "frequencia_validacao": 0.22,
+    "p_unilateral": 0.2611,
+    "p_holm": 1.0,
+    "passa": false
+   },
+   "btc_abaixo_sma50": {
+    "desenho": {
+     "n": 175,
+     "dias": 36,
+     "media_op": 0.1144,
+     "media_dia": 0.0972,
+     "soma": 20.02,
+     "pf": 1.32,
+     "win": 0.526,
+     "payoff": 1.191,
+     "max_dd_r": -27.49,
+     "t_dia": 0.59,
+     "ic90_dia": [
+      -0.176,
+      0.3691
+     ],
+     "ic90_op_agrupado": [
+      -0.1691,
+      0.4406
+     ],
+     "dias_maiores_5_pct_do_r": 0.544
+    },
+    "validacao": {
+     "n": 156,
+     "dias": 64,
+     "media_op": -0.1785,
+     "media_dia": -0.2244,
+     "soma": -27.84,
+     "pf": 0.629,
+     "win": 0.391,
+     "payoff": 0.98,
+     "max_dd_r": -43.09,
+     "t_dia": -2.22,
+     "ic90_dia": [
+      -0.3885,
+      -0.0586
+     ],
+     "ic90_op_agrupado": [
+      -0.4018,
+      0.0482
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "ganho_desenho": -0.0763,
+    "ganho_validacao": -0.0829,
+    "frequencia_validacao": 0.78,
+    "p_unilateral": 0.9868,
+    "p_holm": 1.0,
+    "passa": false
+   },
+   "stop_largo_(>=12pct)": {
+    "desenho": {
+     "n": 40,
+     "dias": 23,
+     "media_op": 0.144,
+     "media_dia": 0.185,
+     "soma": 5.76,
+     "pf": 1.617,
+     "win": 0.55,
+     "payoff": 1.323,
+     "max_dd_r": -3.02,
+     "t_dia": 1.02,
+     "ic90_dia": [
+      -0.0899,
+      0.4928
+     ],
+     "ic90_op_agrupado": [
+      -0.0924,
+      0.3892
+     ],
+     "dias_maiores_5_pct_do_r": 0.349
+    },
+    "validacao": {
+     "n": 32,
+     "dias": 19,
+     "media_op": 0.0083,
+     "media_dia": -0.1702,
+     "soma": 0.27,
+     "pf": 1.031,
+     "win": 0.531,
+     "payoff": 0.91,
+     "max_dd_r": -6.53,
+     "t_dia": -0.91,
+     "ic90_dia": [
+      -0.4486,
+      0.1425
+     ],
+     "ic90_op_agrupado": [
+      -0.3219,
+      0.2108
+     ],
+     "dias_maiores_5_pct_do_r": 10.236
+    },
+    "ganho_desenho": 0.0115,
+    "ganho_validacao": -0.0287,
+    "frequencia_validacao": 0.232,
+    "p_unilateral": 0.8186,
+    "p_holm": 1.0,
+    "passa": false
+   },
+   "stop_curto_(<8pct)": {
+    "desenho": {
+     "n": 140,
+     "dias": 47,
+     "media_op": 0.2619,
+     "media_dia": 0.1677,
+     "soma": 36.67,
+     "pf": 1.793,
+     "win": 0.564,
+     "payoff": 1.384,
+     "max_dd_r": -11.33,
+     "t_dia": 1.08,
+     "ic90_dia": [
+      -0.0706,
+      0.433
+     ],
+     "ic90_op_agrupado": [
+      0.0274,
+      0.4933
+     ],
+     "dias_maiores_5_pct_do_r": 0.483
+    },
+    "validacao": {
+     "n": 126,
+     "dias": 57,
+     "media_op": -0.2727,
+     "media_dia": -0.1504,
+     "soma": -34.36,
+     "pf": 0.502,
+     "win": 0.325,
+     "payoff": 1.04,
+     "max_dd_r": -41.07,
+     "t_dia": -1.2,
+     "ic90_dia": [
+      -0.344,
+      0.0572
+     ],
+     "ic90_op_agrupado": [
+      -0.4588,
+      -0.0102
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "ganho_desenho": -0.0058,
+    "ganho_validacao": -0.0089,
+    "frequencia_validacao": 0.695,
+    "p_unilateral": 0.8849,
+    "p_holm": 1.0,
+    "passa": false
+   },
+   "dia_com_>=3_sinais": {
+    "desenho": {
+     "n": 254,
+     "dias": 37,
+     "media_op": 0.0699,
+     "media_dia": 0.1382,
+     "soma": 17.74,
+     "pf": 1.188,
+     "win": 0.488,
+     "payoff": 1.246,
+     "max_dd_r": -44.21,
+     "t_dia": 0.96,
+     "ic90_dia": [
+      -0.0988,
+      0.371
+     ],
+     "ic90_op_agrupado": [
+      -0.1561,
+      0.3421
+     ],
+     "dias_maiores_5_pct_do_r": 0.665
+    },
+    "validacao": {
+     "n": 125,
+     "dias": 19,
+     "media_op": -0.1608,
+     "media_dia": -0.01,
+     "soma": -20.1,
+     "pf": 0.644,
+     "win": 0.416,
+     "payoff": 0.904,
+     "max_dd_r": -25.82,
+     "t_dia": -0.05,
+     "ic90_dia": [
+      -0.3129,
+      0.316
+     ],
+     "ic90_op_agrupado": [
+      -0.4212,
+      0.1824
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "ganho_desenho": -0.0353,
+    "ganho_validacao": 0.1315,
+    "frequencia_validacao": 0.232,
+    "p_unilateral": 0.5199,
+    "p_holm": 1.0,
+    "passa": false
+   },
+   "dia_com_1_sinal": {
+    "desenho": {
+     "n": 31,
+     "dias": 31,
+     "media_op": 0.0931,
+     "media_dia": 0.0931,
+     "soma": 2.88,
+     "pf": 1.238,
+     "win": 0.387,
+     "payoff": 1.96,
+     "max_dd_r": -4.1,
+     "t_dia": 0.49,
+     "ic90_dia": [
+      -0.2214,
+      0.3972
+     ],
+     "ic90_op_agrupado": [
+      -0.2164,
+      0.4276
+     ],
+     "dias_maiores_5_pct_do_r": 0.692
+    },
+    "validacao": {
+     "n": 44,
+     "dias": 44,
+     "media_op": -0.0596,
+     "media_dia": -0.0596,
+     "soma": -2.62,
+     "pf": 0.848,
+     "win": 0.409,
+     "payoff": 1.226,
+     "max_dd_r": -9.89,
+     "t_dia": -0.44,
+     "ic90_dia": [
+      -0.2757,
+      0.1566
+     ],
+     "ic90_op_agrupado": [
+      -0.2751,
+      0.1586
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "ganho_desenho": -0.0804,
+    "ganho_validacao": 0.0819,
+    "frequencia_validacao": 0.537,
+    "p_unilateral": 0.67,
+    "p_holm": 1.0,
+    "passa": false
+   },
+   "_corte_walk_forward": "2025-09-21"
+  },
+  "H46 (RSI<35)": {
+   "btc_acima_sma50": {
+    "desenho": {
+     "n": 338,
+     "dias": 102,
+     "media_op": 0.0991,
+     "media_dia": 0.2001,
+     "soma": 33.5,
+     "pf": 1.249,
+     "win": 0.494,
+     "payoff": 1.279,
+     "max_dd_r": -52.45,
+     "t_dia": 2.26,
+     "ic90_dia": [
+      0.0601,
+      0.3477
+     ],
+     "ic90_op_agrupado": [
+      -0.0956,
+      0.3228
+     ],
+     "dias_maiores_5_pct_do_r": 1.685
+    },
+    "validacao": {
+     "n": 498,
+     "dias": 102,
+     "media_op": -0.096,
+     "media_dia": -0.0358,
+     "soma": -47.8,
+     "pf": 0.812,
+     "win": 0.442,
+     "payoff": 1.026,
+     "max_dd_r": -72.74,
+     "t_dia": -0.39,
+     "ic90_dia": [
+      -0.1831,
+      0.1114
+     ],
+     "ic90_op_agrupado": [
+      -0.3096,
+      0.1239
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "ganho_desenho": 0.0122,
+    "ganho_validacao": -0.0168,
+    "frequencia_validacao": 0.99,
+    "p_unilateral": 0.6517,
+    "p_holm": 1.0,
+    "passa": false
+   },
+   "btc_abaixo_sma50": {
+    "desenho": {
+     "n": 1,
+     "dias": 1,
+     "media_op": -1.0552,
+     "media_dia": -1.0552,
+     "soma": -1.06,
+     "pf": 0.0,
+     "win": 0.0,
+     "payoff": null,
+     "max_dd_r": -1.06,
+     "t_dia": null,
+     "ic90_dia": [
+      null,
+      null
+     ],
+     "ic90_op_agrupado": [
+      null,
+      null
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "validacao": {
+     "n": 3,
+     "dias": 1,
+     "media_op": 1.6942,
+     "media_dia": 1.6942,
+     "soma": 5.08,
+     "pf": null,
+     "win": 1.0,
+     "payoff": null,
+     "max_dd_r": 0.0,
+     "t_dia": null,
+     "ic90_dia": [
+      null,
+      null
+     ],
+     "ic90_op_agrupado": [
+      null,
+      null
+     ],
+     "dias_maiores_5_pct_do_r": 1.0
+    },
+    "ganho_desenho": -1.2431,
+    "ganho_validacao": 1.7132,
+    "frequencia_validacao": 0.01,
+    "p_unilateral": null,
+    "p_holm": 1.0,
+    "passa": false
+   },
+   "stop_largo_(>=12pct)": {
+    "desenho": {
+     "n": 24,
+     "dias": 19,
+     "media_op": 0.2867,
+     "media_dia": 0.2426,
+     "soma": 6.88,
+     "pf": 2.075,
+     "win": 0.542,
+     "payoff": 1.756,
+     "max_dd_r": -3.21,
+     "t_dia": 1.1,
+     "ic90_dia": [
+      -0.0862,
+      0.5933
+     ],
+     "ic90_op_agrupado": [
+      -0.0043,
+      0.576
+     ],
+     "dias_maiores_5_pct_do_r": 0.29
+    },
+    "validacao": {
+     "n": 36,
+     "dias": 18,
+     "media_op": 0.62,
+     "media_dia": 0.5097,
+     "soma": 22.32,
+     "pf": 5.685,
+     "win": 0.778,
+     "payoff": 1.624,
+     "max_dd_r": -3.02,
+     "t_dia": 2.56,
+     "ic90_dia": [
+      0.1862,
+      0.8322
+     ],
+     "ic90_op_agrupado": [
+      0.2578,
+      0.8442
+     ],
+     "dias_maiores_5_pct_do_r": 0.481
+    },
+    "ganho_desenho": 0.0547,
+    "ganho_validacao": 0.5287,
+    "frequencia_validacao": 0.175,
+    "p_unilateral": 0.0052,
+    "p_holm": 0.0314,
+    "passa": true
+   },
+   "stop_curto_(<8pct)": {
+    "desenho": {
+     "n": 230,
+     "dias": 83,
+     "media_op": 0.015,
+     "media_dia": 0.0928,
+     "soma": 3.45,
+     "pf": 1.033,
+     "win": 0.47,
+     "payoff": 1.167,
+     "max_dd_r": -44.73,
+     "t_dia": 0.91,
+     "ic90_dia": [
+      -0.0767,
+      0.2528
+     ],
+     "ic90_op_agrupado": [
+      -0.2068,
+      0.2585
+     ],
+     "dias_maiores_5_pct_do_r": 11.998
+    },
+    "validacao": {
+     "n": 274,
+     "dias": 86,
+     "media_op": -0.1966,
+     "media_dia": 0.0107,
+     "soma": -53.88,
+     "pf": 0.648,
+     "win": 0.398,
+     "payoff": 0.981,
+     "max_dd_r": -63.23,
+     "t_dia": 0.1,
+     "ic90_dia": [
+      -0.1752,
+      0.1868
+     ],
+     "ic90_op_agrupado": [
+      -0.3854,
+      0.0024
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "ganho_desenho": -0.0951,
+    "ganho_validacao": 0.0297,
+    "frequencia_validacao": 0.835,
+    "p_unilateral": 0.4602,
+    "p_holm": 1.0,
+    "passa": false
+   },
+   "dia_com_>=3_sinais": {
+    "desenho": {
+     "n": 261,
+     "dias": 41,
+     "media_op": 0.072,
+     "media_dia": 0.2158,
+     "soma": 18.79,
+     "pf": 1.17,
+     "win": 0.467,
+     "payoff": 1.333,
+     "max_dd_r": -45.51,
+     "t_dia": 1.61,
+     "ic90_dia": [
+      0.0045,
+      0.432
+     ],
+     "ic90_op_agrupado": [
+      -0.1614,
+      0.3711
+     ],
+     "dias_maiores_5_pct_do_r": 1.824
+    },
+    "validacao": {
+     "n": 425,
+     "dias": 48,
+     "media_op": -0.111,
+     "media_dia": -0.0629,
+     "soma": -47.17,
+     "pf": 0.788,
+     "win": 0.433,
+     "payoff": 1.032,
+     "max_dd_r": -69.98,
+     "t_dia": -0.49,
+     "ic90_dia": [
+      -0.2646,
+      0.1463
+     ],
+     "ic90_op_agrupado": [
+      -0.3716,
+      0.1603
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "ganho_desenho": 0.0279,
+    "ganho_validacao": -0.0439,
+    "frequencia_validacao": 0.466,
+    "p_unilateral": 0.6879,
+    "p_holm": 1.0,
+    "passa": false
+   },
+   "dia_com_1_sinal": {
+    "desenho": {
+     "n": 46,
+     "dias": 46,
+     "media_op": 0.16,
+     "media_dia": 0.16,
+     "soma": 7.36,
+     "pf": 1.466,
+     "win": 0.565,
+     "payoff": 1.127,
+     "max_dd_r": -3.02,
+     "t_dia": 1.11,
+     "ic90_dia": [
+      -0.0799,
+      0.3836
+     ],
+     "ic90_op_agrupado": [
+      -0.0725,
+      0.4036
+     ],
+     "dias_maiores_5_pct_do_r": 0.542
+    },
+    "validacao": {
+     "n": 34,
+     "dias": 34,
+     "media_op": -0.0682,
+     "media_dia": -0.0682,
+     "soma": -2.32,
+     "pf": 0.844,
+     "win": 0.5,
+     "payoff": 0.844,
+     "max_dd_r": -9.35,
+     "t_dia": -0.41,
+     "ic90_dia": [
+      -0.3215,
+      0.1925
+     ],
+     "ic90_op_agrupado": [
+      -0.3376,
+      0.194
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "ganho_desenho": -0.0279,
+    "ganho_validacao": -0.0492,
+    "frequencia_validacao": 0.33,
+    "p_unilateral": 0.6591,
+    "p_holm": 1.0,
+    "passa": false
+   },
+   "_corte_walk_forward": "2024-03-04"
+  },
+  "H46 (RSI<30)": {
+   "btc_acima_sma50": {
+    "desenho": {
+     "n": 131,
+     "dias": 46,
+     "media_op": 0.1015,
+     "media_dia": 0.262,
+     "soma": 13.3,
+     "pf": 1.273,
+     "win": 0.511,
+     "payoff": 1.216,
+     "max_dd_r": -25.31,
+     "t_dia": 1.79,
+     "ic90_dia": [
+      0.0247,
+      0.5004
+     ],
+     "ic90_op_agrupado": [
+      -0.1237,
+      0.3558
+     ],
+     "dias_maiores_5_pct_do_r": 0.957
+    },
+    "validacao": {
+     "n": 185,
+     "dias": 48,
+     "media_op": -0.0076,
+     "media_dia": -0.0986,
+     "soma": -1.4,
+     "pf": 0.983,
+     "win": 0.497,
+     "payoff": 0.994,
+     "max_dd_r": -25.07,
+     "t_dia": -0.7,
+     "ic90_dia": [
+      -0.3344,
+      0.1289
+     ],
+     "ic90_op_agrupado": [
+      -0.3511,
+      0.3206
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "ganho_desenho": 0.0281,
+    "ganho_validacao": 0.0,
+    "frequencia_validacao": 1.0,
+    "p_unilateral": 0.758,
+    "p_holm": 1.0,
+    "passa": false
+   },
+   "btc_abaixo_sma50": {
+    "desenho": {
+     "n": 1,
+     "dias": 1,
+     "media_op": -1.0552,
+     "media_dia": -1.0552,
+     "soma": -1.06,
+     "pf": 0.0,
+     "win": 0.0,
+     "payoff": null,
+     "max_dd_r": -1.06,
+     "t_dia": null,
+     "ic90_dia": [
+      null,
+      null
+     ],
+     "ic90_op_agrupado": [
+      null,
+      null
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "validacao": {
+     "n": 0
+    },
+    "ganho_desenho": -1.2891,
+    "ganho_validacao": null,
+    "frequencia_validacao": 0.0,
+    "p_unilateral": null,
+    "p_holm": 1.0,
+    "passa": false
+   },
+   "stop_largo_(>=12pct)": {
+    "desenho": {
+     "n": 12,
+     "dias": 10,
+     "media_op": 0.2935,
+     "media_dia": 0.2493,
+     "soma": 3.52,
+     "pf": 2.029,
+     "win": 0.417,
+     "payoff": 2.84,
+     "max_dd_r": -2.73,
+     "t_dia": 0.77,
+     "ic90_dia": [
+      -0.2493,
+      0.7702
+     ],
+     "ic90_op_agrupado": [
+      -0.1715,
+      0.7102
+     ],
+     "dias_maiores_5_pct_do_r": 0.567
+    },
+    "validacao": {
+     "n": 19,
+     "dias": 8,
+     "media_op": 0.5931,
+     "media_dia": 0.4871,
+     "soma": 11.27,
+     "pf": 6.589,
+     "win": 0.895,
+     "payoff": 0.775,
+     "max_dd_r": -2.02,
+     "t_dia": 1.57,
+     "ic90_dia": [
+      0.0084,
+      0.9761
+     ],
+     "ic90_op_agrupado": [
+      0.0808,
+      0.8155
+     ],
+     "dias_maiores_5_pct_do_r": 0.733
+    },
+    "ganho_desenho": 0.0154,
+    "ganho_validacao": 0.5857,
+    "frequencia_validacao": 0.167,
+    "p_unilateral": 0.0582,
+    "p_holm": 0.3492,
+    "passa": false
+   },
+   "stop_curto_(<8pct)": {
+    "desenho": {
+     "n": 81,
+     "dias": 37,
+     "media_op": -0.0268,
+     "media_dia": 0.1569,
+     "soma": -2.17,
+     "pf": 0.942,
+     "win": 0.469,
+     "payoff": 1.066,
+     "max_dd_r": -20.57,
+     "t_dia": 0.89,
+     "ic90_dia": [
+      -0.1327,
+      0.4383
+     ],
+     "ic90_op_agrupado": [
+      -0.2941,
+      0.2711
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "validacao": {
+     "n": 88,
+     "dias": 39,
+     "media_op": -0.1059,
+     "media_dia": -0.0873,
+     "soma": -9.32,
+     "pf": 0.794,
+     "win": 0.432,
+     "payoff": 1.045,
+     "max_dd_r": -20.97,
+     "t_dia": -0.53,
+     "ic90_dia": [
+      -0.3508,
+      0.1795
+     ],
+     "ic90_op_agrupado": [
+      -0.3814,
+      0.1736
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "ganho_desenho": -0.077,
+    "ganho_validacao": 0.0113,
+    "frequencia_validacao": 0.812,
+    "p_unilateral": 0.7019,
+    "p_holm": 1.0,
+    "passa": false
+   },
+   "dia_com_>=3_sinais": {
+    "desenho": {
+     "n": 94,
+     "dias": 17,
+     "media_op": -0.0177,
+     "media_dia": 0.0991,
+     "soma": -1.67,
+     "pf": 0.958,
+     "win": 0.447,
+     "payoff": 1.186,
+     "max_dd_r": -22.25,
+     "t_dia": 0.41,
+     "ic90_dia": [
+      -0.2821,
+      0.4902
+     ],
+     "ic90_op_agrupado": [
+      -0.3153,
+      0.296
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "validacao": {
+     "n": 153,
+     "dias": 20,
+     "media_op": 0.0099,
+     "media_dia": -0.1394,
+     "soma": 1.51,
+     "pf": 1.023,
+     "win": 0.51,
+     "payoff": 0.983,
+     "max_dd_r": -24.05,
+     "t_dia": -0.73,
+     "ic90_dia": [
+      -0.4298,
+      0.1655
+     ],
+     "ic90_op_agrupado": [
+      -0.4398,
+      0.3734
+     ],
+     "dias_maiores_5_pct_do_r": 18.721
+    },
+    "ganho_desenho": -0.1348,
+    "ganho_validacao": -0.0408,
+    "frequencia_validacao": 0.417,
+    "p_unilateral": 0.7673,
+    "p_holm": 1.0,
+    "passa": false
+   },
+   "dia_com_1_sinal": {
+    "desenho": {
+     "n": 22,
+     "dias": 22,
+     "media_op": 0.2141,
+     "media_dia": 0.2141,
+     "soma": 4.71,
+     "pf": 1.61,
+     "win": 0.545,
+     "payoff": 1.341,
+     "max_dd_r": -3.12,
+     "t_dia": 0.93,
+     "ic90_dia": [
+      -0.1441,
+      0.5812
+     ],
+     "ic90_op_agrupado": [
+      -0.1646,
+      0.5631
+     ],
+     "dias_maiores_5_pct_do_r": 0.424
+    },
+    "validacao": {
+     "n": 24,
+     "dias": 24,
+     "media_op": -0.041,
+     "media_dia": -0.041,
+     "soma": -0.98,
+     "pf": 0.918,
+     "win": 0.458,
+     "payoff": 1.085,
+     "max_dd_r": -6.42,
+     "t_dia": -0.17,
+     "ic90_dia": [
+      -0.4264,
+      0.3398
+     ],
+     "ic90_op_agrupado": [
+      -0.4093,
+      0.3525
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "ganho_desenho": -0.0198,
+    "ganho_validacao": 0.0576,
+    "frequencia_validacao": 0.5,
+    "p_unilateral": 0.5675,
+    "p_holm": 1.0,
+    "passa": false
+   },
+   "_corte_walk_forward": "2024-03-14"
+  },
+  "H45 (panico do mercado, custos Bybit)": {
+   "btc_acima_sma50": {
+    "desenho": {
+     "n": 50,
+     "dias": 10,
+     "media_op": -0.2151,
+     "media_dia": -0.2036,
+     "soma": -10.75,
+     "pf": 0.555,
+     "win": 0.46,
+     "payoff": 0.651,
+     "max_dd_r": -13.68,
+     "t_dia": -0.82,
+     "ic90_dia": [
+      -0.5927,
+      0.1652
+     ],
+     "ic90_op_agrupado": [
+      -0.6599,
+      0.2453
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "validacao": {
+     "n": 3,
+     "dias": 2,
+     "media_op": -0.6432,
+     "media_dia": -0.4148,
+     "soma": -1.93,
+     "pf": 0.123,
+     "win": 0.333,
+     "payoff": 0.246,
+     "max_dd_r": -2.2,
+     "t_dia": -0.61,
+     "ic90_dia": [
+      null,
+      null
+     ],
+     "ic90_op_agrupado": [
+      null,
+      null
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "ganho_desenho": -0.1335,
+    "ganho_validacao": -0.2837,
+    "frequencia_validacao": 0.074,
+    "p_unilateral": 0.7291,
+    "p_holm": 1.0,
+    "passa": false
+   },
+   "btc_abaixo_sma50": {
+    "desenho": {
+     "n": 172,
+     "dias": 16,
+     "media_op": 0.4589,
+     "media_dia": 0.0133,
+     "soma": 78.93,
+     "pf": 2.981,
+     "win": 0.703,
+     "payoff": 1.256,
+     "max_dd_r": -27.69,
+     "t_dia": 0.05,
+     "ic90_dia": [
+      -0.3829,
+      0.4219
+     ],
+     "ic90_op_agrupado": [
+      0.0408,
+      0.7241
+     ],
+     "dias_maiores_5_pct_do_r": 0.617
+    },
+    "validacao": {
+     "n": 124,
+     "dias": 25,
+     "media_op": 0.2773,
+     "media_dia": -0.1084,
+     "soma": 34.39,
+     "pf": 1.733,
+     "win": 0.532,
+     "payoff": 1.523,
+     "max_dd_r": -18.59,
+     "t_dia": -0.53,
+     "ic90_dia": [
+      -0.4384,
+      0.2427
+     ],
+     "ic90_op_agrupado": [
+      -0.2336,
+      0.7474
+     ],
+     "dias_maiores_5_pct_do_r": 0.962
+    },
+    "ganho_desenho": 0.0834,
+    "ganho_validacao": 0.0227,
+    "frequencia_validacao": 0.926,
+    "p_unilateral": 0.7019,
+    "p_holm": 1.0,
+    "passa": false
+   },
+   "stop_largo_(>=12pct)": {
+    "desenho": {
+     "n": 49,
+     "dias": 7,
+     "media_op": 0.7154,
+     "media_dia": 0.4133,
+     "soma": 35.06,
+     "pf": 16.523,
+     "win": 0.918,
+     "payoff": 1.469,
+     "max_dd_r": -1.53,
+     "t_dia": 1.56,
+     "ic90_dia": [
+      -0.0307,
+      0.7654
+     ],
+     "ic90_op_agrupado": [
+      0.2599,
+      0.9595
+     ],
+     "dias_maiores_5_pct_do_r": 0.78
+    },
+    "validacao": {
+     "n": 2,
+     "dias": 2,
+     "media_op": -0.0202,
+     "media_dia": -0.0202,
+     "soma": -0.04,
+     "pf": 0.941,
+     "win": 0.5,
+     "payoff": 0.941,
+     "max_dd_r": -0.68,
+     "t_dia": -0.03,
+     "ic90_dia": [
+      null,
+      null
+     ],
+     "ic90_op_agrupado": [
+      null,
+      null
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "ganho_desenho": 0.4834,
+    "ganho_validacao": 0.1109,
+    "frequencia_validacao": 0.074,
+    "p_unilateral": 0.512,
+    "p_holm": 1.0,
+    "passa": false
+   },
+   "stop_curto_(<8pct)": {
+    "desenho": {
+     "n": 62,
+     "dias": 21,
+     "media_op": 0.0433,
+     "media_dia": -0.1875,
+     "soma": 2.69,
+     "pf": 1.084,
+     "win": 0.435,
+     "payoff": 1.405,
+     "max_dd_r": -16.57,
+     "t_dia": -0.84,
+     "ic90_dia": [
+      -0.534,
+      0.1646
+     ],
+     "ic90_op_agrupado": [
+      -0.3924,
+      0.4203
+     ],
+     "dias_maiores_5_pct_do_r": 3.578
+    },
+    "validacao": {
+     "n": 88,
+     "dias": 23,
+     "media_op": 0.2403,
+     "media_dia": -0.0248,
+     "soma": 21.15,
+     "pf": 1.539,
+     "win": 0.523,
+     "payoff": 1.405,
+     "max_dd_r": -14.71,
+     "t_dia": -0.1,
+     "ic90_dia": [
+      -0.4166,
+      0.3702
+     ],
+     "ic90_op_agrupado": [
+      -0.366,
+      0.8149
+     ],
+     "dias_maiores_5_pct_do_r": 1.474
+    },
+    "ganho_desenho": -0.1174,
+    "ganho_validacao": 0.1063,
+    "frequencia_validacao": 0.852,
+    "p_unilateral": 0.5398,
+    "p_holm": 1.0,
+    "passa": false
+   },
+   "dia_com_>=3_sinais": {
+    "desenho": {
+     "n": 214,
+     "dias": 21,
+     "media_op": 0.3167,
+     "media_dia": -0.045,
+     "soma": 67.78,
+     "pf": 2.096,
+     "win": 0.645,
+     "payoff": 1.154,
+     "max_dd_r": -26.64,
+     "t_dia": -0.21,
+     "ic90_dia": [
+      -0.3592,
+      0.2889
+     ],
+     "ic90_op_agrupado": [
+      -0.1058,
+      0.585
+     ],
+     "dias_maiores_5_pct_do_r": 0.719
+    },
+    "validacao": {
+     "n": 108,
+     "dias": 11,
+     "media_op": 0.3914,
+     "media_dia": 0.3675,
+     "soma": 42.27,
+     "pf": 2.174,
+     "win": 0.583,
+     "payoff": 1.553,
+     "max_dd_r": -12.37,
+     "t_dia": 1.17,
+     "ic90_dia": [
+      -0.1296,
+      0.8769
+     ],
+     "ic90_op_agrupado": [
+      -0.167,
+      0.907
+     ],
+     "dias_maiores_5_pct_do_r": 0.783
+    },
+    "ganho_desenho": 0.0251,
+    "ganho_validacao": 0.4986,
+    "frequencia_validacao": 0.407,
+    "p_unilateral": 0.121,
+    "p_holm": 0.726,
+    "passa": false
+   },
+   "dia_com_1_sinal": {
+    "desenho": {
+     "n": 2,
+     "dias": 2,
+     "media_op": -1.0767,
+     "media_dia": -1.0767,
+     "soma": -2.15,
+     "pf": 0.0,
+     "win": 0.0,
+     "payoff": null,
+     "max_dd_r": -2.15,
+     "t_dia": -50.26,
+     "ic90_dia": [
+      null,
+      null
+     ],
+     "ic90_op_agrupado": [
+      null,
+      null
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "validacao": {
+     "n": 13,
+     "dias": 13,
+     "media_op": -0.4119,
+     "media_dia": -0.4119,
+     "soma": -5.35,
+     "pf": 0.363,
+     "win": 0.231,
+     "payoff": 1.211,
+     "max_dd_r": -7.24,
+     "t_dia": -1.59,
+     "ic90_dia": [
+      -0.7992,
+      0.0113
+     ],
+     "ic90_op_agrupado": [
+      -0.8057,
+      0.0216
+     ],
+     "dias_maiores_5_pct_do_r": null
+    },
+    "ganho_desenho": -1.0066,
+    "ganho_validacao": -0.2808,
+    "frequencia_validacao": 0.481,
+    "p_unilateral": 0.9441,
+    "p_holm": 1.0,
+    "passa": false
+   },
+   "_corte_walk_forward": "2025-10-22"
+  }
+ },
+ "aviso": "So R. BACKTEST, ARENA, PAPEL, SOMBRA e REAL nunca somados. A reserva 2026-05-08..11-08 esta contaminada.",
+ "bloqueados_bybit": {
+  "grupos": {
+   "BOUNCE_ISOLADA | diversificação": {
+    "n": 1,
+    "dias": 1,
+    "liquido_medio_pct": 0.71,
+    "positivos": 1
+   },
+   "BOUNCE_ISOLADA | liquidez": {
+    "n": 7,
+    "dias": 2,
+    "liquido_medio_pct": 0.72,
+    "positivos": 4
+   },
+   "BOUNCE_SQUEEZE | diversificação": {
+    "n": 2,
+    "dias": 1,
+    "liquido_medio_pct": -0.77,
+    "positivos": 1
+   },
+   "SHORT_* | Diretor de Trading": {
+    "n": 1,
+    "dias": 1,
+    "liquido_medio_pct": 2.27,
+    "positivos": 1
+   },
+   "SHORT_* | diversificação": {
+    "n": 23,
+    "dias": 4,
+    "liquido_medio_pct": 0.15,
+    "positivos": 10
+   },
+   "SHORT_* | evento": {
+    "n": 2,
+    "dias": 2,
+    "liquido_medio_pct": -4.04,
+    "positivos": 0
+   },
+   "SHORT_* | liquidez": {
+    "n": 25,
+    "dias": 6,
+    "liquido_medio_pct": 0.07,
+    "positivos": 14
+   },
+   "SHORT_* | plano": {
+    "n": 33,
+    "dias": 6,
+    "liquido_medio_pct": 2.11,
+    "positivos": 22
+   }
+  },
+  "sem_dados": 6,
+  "nota": "substituto: 72 h, entrada na abertura seguinte, custos Bybit, sem stop"
+ },
+ "classificacao": [
+  {
+   "corretora": "OKX",
+   "estrategia": "H40 panico do MERCADO (real desligado desde 10/11)",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [
+    "D: 5 de 9 ordens reais canceladas sem executar, todas do tipo mercado ou sem tipo; o papel preencheu 2 delas"
+   ],
+   "notas": [
+    "backtest: 0.3139R por operacao mas -0.0085R por dia (63 dias); com o limite de 3 posicoes por dia 0.0261R por operacao"
+   ],
+   "fontes": [
+    "backtest",
+    "papel",
+    "real"
+   ]
+  },
+  {
+   "corretora": "OKX",
+   "estrategia": "H40 panico ISOLADO",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra; negativa em papel"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "as 4 operacoes reais fechadas foram todas deste tipo (todas no stop)"
+   ],
+   "fontes": [
+    "backtest",
+    "papel",
+    "real"
+   ]
+  },
+  {
+   "corretora": "OKX",
+   "estrategia": "H46 recuo RSI<30 (real ligado, 1%)",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "0 sinais desde 04/11: exige BTC acima da SMA50 e a subir (regime, nao bloqueio tecnico)"
+   ],
+   "fontes": [
+    "backtest",
+    "papel"
+   ]
+  },
+  {
+   "corretora": "OKX",
+   "estrategia": "TF-SHORT U2 (so papel)",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "0 operacoes fechadas no registo 'conta'; o backtest citado no codigo (+0,166R) nao tem operacoes publicas para auditar"
+   ],
+   "fontes": [
+    "papel"
+   ]
+  },
+  {
+   "corretora": "OKX",
+   "estrategia": "MACRO acoes/indices/materias-primas (so papel)",
+   "classe": "E",
+   "porque": [
+    "negativa em papel e sem vantagem fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "papel em % (nao R): 12 fechadas, media -6.85%"
+   ],
+   "fontes": [
+    "papel"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "H45 panico do mercado (custos Bybit)",
+   "classe": "E",
+   "porque": [
+    "negativa em papel e sem vantagem fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [],
+   "fontes": [
+    "backtest",
+    "papel"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "FASES_LATERAL (so papel)",
+   "classe": "E",
+   "porque": [
+    "negativa em papel e sem vantagem fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "as 20 operacoes de papel sao de 1 so dia"
+   ],
+   "fontes": [
+    "papel"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "BOUNCE_1H",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "suspensa pelo criterio mensal de custos",
+    "arena MORTA; real_ok=False"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "BOUNCE_ABSORCAO",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "suspensa pelo criterio mensal de custos",
+    "arena MORTA; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "BOUNCE_AMPLITUDE",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "concentrada: 14 operacoes em 1 dias nos ultimos 45 dias",
+    "arena A COMPETIR; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "BOUNCE_DESALAV",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "concentrada: 23 operacoes em 8 dias nos ultimos 45 dias",
+    "clone de BOUNCE_G0",
+    "suspensa pelo criterio mensal de custos",
+    "arena MORTA; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "BOUNCE_FLUXO",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "clone de BOUNCE_ABSORCAO",
+    "arena MORTA; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "BOUNCE_FORTE",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "clone de BOUNCE_G0",
+    "suspensa pelo criterio mensal de custos",
+    "arena MORTA; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "BOUNCE_G0",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "concentrada: 22 operacoes em 8 dias nos ultimos 45 dias",
+    "suspensa pelo criterio mensal de custos",
+    "arena MORTA; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "BOUNCE_HORAS",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "suspensa pelo criterio mensal de custos",
+    "arena MORTA; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "BOUNCE_ISOLADA",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "clone de BOUNCE_HORAS",
+    "suspensa pelo criterio mensal de custos",
+    "arena MORTA; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "BOUNCE_LSR",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "clone de BOUNCE_G0",
+    "suspensa pelo criterio mensal de custos",
+    "arena MORTA; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "BOUNCE_MACRO",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "clone de BOUNCE_ABSORCAO",
+    "suspensa pelo criterio mensal de custos",
+    "arena MORTA; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "BOUNCE_MACRO_R2",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "arena MORTA; real_ok=False"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "BOUNCE_MEDO",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "arena A COMPETIR; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "BOUNCE_NOREACT",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "clone de BOUNCE_HORAS",
+    "suspensa pelo criterio mensal de custos",
+    "arena MORTA; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "BOUNCE_SQUEEZE",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "clone de BOUNCE_G0",
+    "suspensa pelo criterio mensal de custos",
+    "arena MORTA; real_ok=True"
+   ],
+   "fontes": [
+    "arena",
+    "real"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "BOUNCE_TRAIL",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "clone de BOUNCE_HORAS",
+    "suspensa pelo criterio mensal de custos",
+    "arena MORTA; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "BOUNCE_V1",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "arena MORTA; real_ok=False"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "BOUNCE_V2",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "concentrada: 23 operacoes em 8 dias nos ultimos 45 dias",
+    "clone de BOUNCE_G0",
+    "suspensa pelo criterio mensal de custos",
+    "arena MORTA; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "BOUNCE_V3",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "concentrada: 22 operacoes em 8 dias nos ultimos 45 dias",
+    "clone de BOUNCE_G0",
+    "suspensa pelo criterio mensal de custos",
+    "arena MORTA; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "BOUNCE_X30",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "clone de BOUNCE_HORAS",
+    "suspensa pelo criterio mensal de custos",
+    "arena MORTA; real_ok=True"
+   ],
+   "fontes": [
+    "arena",
+    "real"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "BOUNCE_X30_LIQ",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "clone de BOUNCE_HORAS",
+    "suspensa pelo criterio mensal de custos",
+    "arena MORTA; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "BOUNCE_X30_PAVIO",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "clone de BOUNCE_HORAS",
+    "suspensa pelo criterio mensal de custos",
+    "arena MORTA; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "BREAKOUT",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "concentrada: 13 operacoes em 8 dias nos ultimos 45 dias",
+    "desligada (forma recente (90 dias))",
+    "arena MORTA; real_ok=False"
+   ],
+   "fontes": [
+    "arena",
+    "real"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "BREAKOUT_R2",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "arena A COMPETIR; real_ok=False"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "BRK_ESPACO",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "arena MORTA; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "CAPITULACAO",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "concentrada: 25 operacoes em 5 dias nos ultimos 45 dias",
+    "arena MORTA; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "CAPITULACAO_R2",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "arena A COMPETIR; real_ok=False"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "DIP_TREND",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "clone de BOUNCE_G0",
+    "suspensa pelo criterio mensal de custos",
+    "arena MORTA; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "FIBO_RECUO",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "suspensa pelo criterio mensal de custos",
+    "arena MORTA; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "LIQUIDITY_SWEEP",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "suspensa pelo criterio mensal de custos",
+    "desligada (forma recente (90 dias))",
+    "arena MORTA; real_ok=False"
+   ],
+   "fontes": [
+    "arena",
+    "real"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "MAIORES_FUNDING",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "arena MORTA; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "MAIORES_RECUO",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "arena A COMPETIR; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "MAIORES_TENDENCIA",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "arena A COMPETIR; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "MOMENTUM",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "concentrada: 23 operacoes em 6 dias nos ultimos 45 dias",
+    "suspensa pelo criterio mensal de custos",
+    "arena MORTA; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "PULLBACK",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "suspensa pelo criterio mensal de custos",
+    "desligada (forma recente (90 dias))",
+    "arena MORTA; real_ok=False"
+   ],
+   "fontes": [
+    "arena",
+    "real"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "RANGE",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "arena None; real_ok=False"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "REJEITADOS",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "concentrada: 20 operacoes em 9 dias nos ultimos 45 dias",
+    "arena MORTA; real_ok=False"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "RETESTE",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "clone de TURTLE",
+    "suspensa pelo criterio mensal de custos",
+    "arena MORTA; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "REVERSAO_INTERVALO",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "suspensa pelo criterio mensal de custos",
+    "arena A COMPETIR; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "SHORT_FALSO_ROMP",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "arena None; real_ok=False"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "SHORT_FLUXO",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "concentrada: 12 operacoes em 8 dias nos ultimos 45 dias",
+    "clone de SHORT_X30",
+    "arena MORTA; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "SHORT_ISOLADA",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "clone de SHORT_X30",
+    "arena MORTA; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "SHORT_MAIORES_RECUO",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "arena None; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "SHORT_MAIORES_TENDENCIA",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "arena None; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "SHORT_SQUEEZE",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "arena A COMPETIR; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "SHORT_TURTLE",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "arena MORTA; real_ok=True"
+   ],
+   "fontes": [
+    "arena",
+    "real"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "SHORT_TURTLE_SHORT",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "arena A COMPETIR; real_ok=False"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "SHORT_X30",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "arena MORTA; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "SQUEEZE_BB",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "suspensa pelo criterio mensal de custos",
+    "arena MORTA; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "TREND_DAILY",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "desligada (forma recente (90 dias))",
+    "arena MORTA; real_ok=False"
+   ],
+   "fontes": [
+    "arena",
+    "real"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "TURTLE",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "suspensa pelo criterio mensal de custos",
+    "arena MORTA; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "TURTLE_FORTES",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "concentrada: 20 operacoes em 7 dias nos ultimos 45 dias",
+    "arena MORTA; real_ok=False"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "VOLUME_ACUMULACAO",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "suspensa pelo criterio mensal de custos",
+    "arena MORTA; real_ok=True"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  },
+  {
+   "corretora": "Bybit",
+   "estrategia": "VOLUME_ACUMULACAO_R2",
+   "classe": "C",
+   "porque": [
+    "sem vantagem demonstrada fora da amostra"
+   ],
+   "bandeiras": [],
+   "notas": [
+    "arena A COMPETIR; real_ok=False"
+   ],
+   "fontes": [
+    "arena"
+   ]
+  }
+ ],
+ "resumo_classes": {
+  "C": 58,
+  "E": 3
+ }
+}
