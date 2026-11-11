@@ -91,8 +91,10 @@ jobs:
                 WF=${par%%:*}; DESDE=${par##*:}
                 if [ "$SEG" -ge "$DESDE" ]; then
                   if [ "$WF" = exposicao-diaria.yml ]; then
-                    # (11/11, P7) so as execucoes diarias contam: uma manual no mesmo dia ja nao faz saltar a diaria
-                    N=$(gh run list --repo "${{ github.repository }}" -w "$WF" --created ">=$HOJE" --json displayTitle -q '[.[] | select(.displayTitle | contains("(diario)"))] | length' 2>/dev/null || echo erro)
+                    # (11/11, P7) so as execucoes diarias contam: uma manual no mesmo dia ja nao faz saltar a diaria.
+                    # (revisao) uma diaria que FALHOU nao conta como feita: relanca, no maximo 3 diarias por dia.
+                    # N = 0 -> lancar; N = 1 -> ja ha uma diaria bem sucedida ou a correr, ou ja houve 3 tentativas
+                    N=$(gh run list --repo "${{ github.repository }}" -w "$WF" --created ">=$HOJE" --json displayTitle,conclusion -q '[.[] | select(.displayTitle | contains("(diario)"))] | if ((map(select(.conclusion == "success" or .conclusion == "" or .conclusion == null)) | length) > 0 or length >= 3) then 1 else 0 end' 2>/dev/null || echo erro)
                     EXTRA="-f origem=diario"
                   else
                     N=$(gh run list --repo "${{ github.repository }}" -w "$WF" --created ">=$HOJE" --json databaseId -q 'length' 2>/dev/null || echo erro)

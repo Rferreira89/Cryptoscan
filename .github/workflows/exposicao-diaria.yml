@@ -35,8 +35,14 @@ jobs:
             R=${par%%:*}; F=${par##*:}
             git fetch -q --depth 1 origin "$R" 2>/dev/null && git show FETCH_HEAD:"$F" > /tmp/ex/"$F" 2>/dev/null || rm -f /tmp/ex/"$F"
           done
-          if git fetch -q --depth 1 origin exposicao 2>/dev/null; then
-            git show FETCH_HEAD:historico_exposicao.jsonl > /tmp/exh/historico_exposicao.jsonl 2>/dev/null || true
+          # (11/11, revisao) uma falha a ler o ramo exposicao NAO pode recomecar o historico (o push apagava os dias
+          # anteriores e o mapa era enviado outra vez). ls-remote: 0 = existe, 2 = ainda nao existe, outro = erro.
+          RC=0; git ls-remote --exit-code -q origin refs/heads/exposicao >/dev/null 2>&1 || RC=$?
+          if [ "$RC" = 0 ]; then
+            git fetch -q --depth 1 origin exposicao && git show FETCH_HEAD:historico_exposicao.jsonl > /tmp/exh/historico_exposicao.jsonl \
+              || { echo "nao consegui ler o historico do ramo exposicao: nada enviado nem publicado"; exit 1; }
+          elif [ "$RC" != 2 ]; then
+            echo "nao consegui consultar o ramo exposicao (codigo $RC): nada enviado nem publicado"; exit 1
           fi
           ls /tmp/ex
       - name: Mapa, historico e envio
@@ -50,11 +56,20 @@ jobs:
           python3 tools/exposicao_diaria.py /tmp/ex --guardar /tmp/ex/mapa.json > /dev/null
           python3 tools/exposicao_historico.py registar /tmp/ex/mapa.json "$H" "$TIPO"
           DIA=$(python3 -c "import json,time;print(time.strftime('%Y-%m-%d',time.gmtime(json.load(open('/tmp/ex/mapa.json'))['t'])))")
+          ENVIO=0
           if [ "$TIPO" = diario ] && python3 tools/exposicao_historico.py ja-enviado "$H" "$DIA"; then
             echo "mapa diario de $DIA ja enviado: nao repete"
           else
             M=""; [ "$TIPO" = manual ] && M="--manual"
-            python3 tools/exposicao_diaria.py --de /tmp/ex/mapa.json --enviar $M > /dev/null && echo "mapa enviado ($TIPO)" \
-              && python3 tools/exposicao_historico.py enviado "$H" "$DIA" "$TIPO"
+            if python3 tools/exposicao_diaria.py --de /tmp/ex/mapa.json --enviar $M > /dev/null; then
+              echo "mapa enviado ($TIPO)"
+              python3 tools/exposicao_historico.py enviado "$H" "$DIA" "$TIPO"
+            else
+              echo "envio do mapa falhou ($TIPO)"; ENVIO=1
+            fi
           fi
+          # (11/11, revisao) neste runner do GitHub a copia local de publicar_estado perde-se com o job: aqui so valem
+          # as tentativas; uma falha de publicacao ou de envio deixa o passo VERMELHO (e o ciclo do scan relanca o
+          # diario, ate 3 tentativas por dia)
           python3 tools/publicar_estado.py publicar /tmp/exh exposicao historico_exposicao.jsonl
+          exit $ENVIO
