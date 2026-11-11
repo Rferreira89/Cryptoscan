@@ -79,9 +79,16 @@ jobs:
               for par in "okx-tfshort-papel.yml:1380" "okx-recolha.yml:2820" "exposicao-diaria.yml:26000"; do
                 WF=${par%%:*}; DESDE=${par##*:}
                 if [ "$SEG" -ge "$DESDE" ]; then
-                  N=$(gh run list --repo "${{ github.repository }}" -w "$WF" --created ">=$HOJE" --json databaseId -q 'length' 2>/dev/null || echo erro)
+                  if [ "$WF" = exposicao-diaria.yml ]; then
+                    # (11/11, P7) so as execucoes diarias contam: uma manual no mesmo dia ja nao faz saltar a diaria
+                    N=$(gh run list --repo "${{ github.repository }}" -w "$WF" --created ">=$HOJE" --json displayTitle -q '[.[] | select(.displayTitle | contains("(diario)"))] | length' 2>/dev/null || echo erro)
+                    EXTRA="-f origem=diario"
+                  else
+                    N=$(gh run list --repo "${{ github.repository }}" -w "$WF" --created ">=$HOJE" --json databaseId -q 'length' 2>/dev/null || echo erro)
+                    EXTRA=""
+                  fi
                   if [ "$N" = 0 ]; then
-                    gh workflow run "$WF" --repo "${{ github.repository }}" --ref main >/dev/null 2>&1 && echo "lancado $WF" || echo "$WF nao lancado"
+                    gh workflow run "$WF" --repo "${{ github.repository }}" --ref main $EXTRA >/dev/null 2>&1 && echo "lancado $WF" || echo "$WF nao lancado"
                   fi
                 fi
               done

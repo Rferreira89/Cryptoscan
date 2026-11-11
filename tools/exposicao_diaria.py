@@ -166,9 +166,22 @@ def correr(pasta, obter=velas):
     return out
 
 
+def titulo(manual=False):
+    """(11/11, P7) a execucao manual e identificada e nao substitui a diaria."""
+    return "🗺️ Cryptoscan — mapa diário de exposição" + (" (execução manual)" if manual else "")
+
+
 if __name__ == "__main__":
-    mapa_ = correr(sys.argv[1])
+    # (11/11, P7) --de <mapa.json>: envia um mapa ja calculado (o workflow calcula, regista no historico e so depois
+    # decide se envia); --guardar <mapa.json>: grava o mapa calculado; --manual: marca o envio como manual
+    a = sys.argv
+    if "--de" in a:
+        mapa_ = json.load(open(a[a.index("--de") + 1]))
+    else:
+        mapa_ = correr(a[1])
+    if "--guardar" in a:
+        json.dump(mapa_, open(a[a.index("--guardar") + 1], "w"), ensure_ascii=False, default=str)
     print(json.dumps(mapa_, ensure_ascii=False, indent=1, default=str))
-    if "--enviar" in sys.argv:
+    if "--enviar" in a:
         from engine import alerts
-        alerts.send("🗺️ Cryptoscan — mapa diário de exposição" + texto(mapa_))
+        alerts.send(titulo("--manual" in a) + texto(mapa_))
