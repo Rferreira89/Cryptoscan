@@ -1,5 +1,6 @@
 name: Agente OKX (oportunidades; dinheiro real com okx_config.json)
-# (04/11) Varre os perpetuos de cripto da OKX Europa de hora a hora (tools/okx_agente.py). Nao envia ordens.
+# (04/11) Varre os perpetuos de cripto da OKX Europa de hora a hora (tools/okx_agente.py, papel) e corre o executor
+# REAL (tools/okx_exec.py), que so envia ordens com os interruptores de okx_config.json ligados.
 on:
   schedule:
     - cron: "7 * * * *"

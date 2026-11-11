@@ -3,10 +3,15 @@ houver oportunidade. Ja la esta depositado o dinheiro." (decisao do Rui, acima d
 
 Regra (a mesma do papel, H23 L10 com custos de futuros H38): para cada sinal do agente, ordem LIMITE de compra 1% abaixo
 do fecho, valida 2 velas de 4H, com STOP (2 ATR) e OBJETIVO (2R) anexados na propria ordem; saida por tempo 72 h depois
-da execucao (fecho a mercado). Todos os sinais, cada um com risco de 1% da conta (arquitetura do relatorio Missao 20 USD).
-Contratos: os X-Perps da OKX Europa (USD_UM_XPERP), os unicos negociaveis por esta conta; margem isolada.
-Travoes: so com okx_config.json "real": true; nao abre novas se a conta cair 25% do maximo; teto de posicoes;
-nunca levanta nem transfere (a chave nem tem essa permissao).
+da execucao (fecho a mercado). Contratos: os X-Perps da OKX Europa (USD_UM_XPERP), os unicos negociaveis por esta conta; margem isolada.
+Interruptores e limites (okx_config.json; ver o historico do ficheiro para as decisoes do Rui):
+  "real" liga o executor; "panico_real" a H40 (desligada desde 10/11); "so_mercado" so o panico do mercado todo;
+  "recuo_real" a H46 (recuo na subida); risco por operacao em "panico_risco_pct" / "recuo_risco_pct" (1%), teto da
+  ordem minima "risco_max_pct", teto de risco aberto somado "risco_total_max_pct", "panico_max_posicoes",
+  travao de queda "travao_queda_pct" (45% do maximo; o maximo fica cifrado), "max_posicoes".
+Gestao: estrategia suspensa -> so a entrada pendente e cancelada (engine/suspensao.py); stop confirmado vivo e
+completo de hora a hora; posicoes nao seguidas sao adotadas (reconciliar); caducidade e cancelamentos so terminam
+com o estado final confirmado na OKX (11/11, P2). Nunca levanta nem transfere (a chave nem tem essa permissao).
 Repositorio publico: o log nunca mostra saldos; os valores vao so para o Telegram.
 """
 import base64, datetime, hashlib, hmac, json, math, os, time, urllib.error, urllib.request

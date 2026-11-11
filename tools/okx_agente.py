@@ -3,9 +3,10 @@ oportunidades da compra no panico (H23 L10, a estrategia com melhor prova ao niv
 futuros +0,105R por operacao no historico, H38). Pedido do Rui: "um agente especializado que varra o mercado
 todo e nos de as melhores oportunidades".
 
-SO PAPEL nesta versao: nao envia ordens. Avisa no Telegram e regista cada oportunidade e o resultado, numa conta
-simulada de 20 USD com risco de 1% por operacao (a conta real do Rui na OKX). O dinheiro real liga-se quando a
-estrategia cumprir a autorizacao previa do Rui (30 operacoes em papel com media positiva).
+Papel: avisa no Telegram e regista cada oportunidade e o resultado numa conta simulada de 20 USD com risco de 1%.
+Dinheiro real: este agente passa os sinais a tools/okx_exec.py, que so envia ordens com os interruptores de
+okx_config.json ligados (H40 "panico_real", desligada desde 10/11; H46 "recuo_real"). (11/11, P8: este texto dizia
+"so papel, nao envia ordens", o que deixou de ser verdade a 04/11.)
 
 Dados: so a API publica da OKX (velas de 4H e financiamento dos perpetuos USDT), sem chave.
 Estado: okx.json no ramo "okx" (repositorio publico: so precos publicos e resultados em R e %, nunca dinheiro real).
