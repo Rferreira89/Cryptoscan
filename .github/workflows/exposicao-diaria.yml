@@ -1,14 +1,24 @@
 name: Mapa diario de exposicao (so leitura, informativo)
 # (10/11, autorizacao do Rui) Uma vez por dia: Bybit e OKX separadas; real, papel e sombra separados; LONG/SHORT,
 # correlacao, conflitos entre estrategias, apostas independentes e dados em falta. So copias publicas e velas publicas
-# da OKX: sem chaves das corretoras, sem ordens, nao escreve em nenhum ramo. Nao bloqueia, nao cancela, nao altera
-# posicoes, estrategias nem risco. Envia o texto pelo Telegram. Lancado tambem pelo ciclo do scan (o horario falha).
+# da OKX: sem chaves das corretoras, sem ordens. Nao bloqueia, nao cancela, nao altera posicoes, estrategias nem
+# risco. Envia o texto pelo Telegram. Lancado tambem pelo ciclo do scan (o horario falha).
+# (11/11, P7) Historico agregado publico (ramo exposicao, so contagens); uma linha por dia e tipo; a execucao manual
+# e marcada e nao conta como a diaria; o envio diario acontece uma so vez por dia.
+run-name: Mapa de exposicao (${{ github.event_name == 'schedule' && 'diario' || inputs.origem || 'manual' }})
 on:
   schedule:
     - cron: "13 7 * * *"
   workflow_dispatch:
+    inputs:
+      origem:
+        description: "diario (ciclo do scan) ou manual"
+        required: false
+        default: manual
+        type: choice
+        options: [manual, diario]
 permissions:
-  contents: read
+  contents: write
 concurrency:
   group: exposicao-diaria
   cancel-in-progress: false
@@ -20,14 +30,31 @@ jobs:
       - uses: actions/checkout@v4
       - name: Copias publicas
         run: |
-          rm -rf /tmp/ex && mkdir -p /tmp/ex
+          rm -rf /tmp/ex /tmp/exh && mkdir -p /tmp/ex /tmp/exh
           for par in data:state.json okx:okx.json okx-tfshort:okx_tfshort.json okx-tfshort:okx_tfshort_sombra.json; do
             R=${par%%:*}; F=${par##*:}
             git fetch -q --depth 1 origin "$R" 2>/dev/null && git show FETCH_HEAD:"$F" > /tmp/ex/"$F" 2>/dev/null || rm -f /tmp/ex/"$F"
           done
+          if git fetch -q --depth 1 origin exposicao 2>/dev/null; then
+            git show FETCH_HEAD:historico_exposicao.jsonl > /tmp/exh/historico_exposicao.jsonl 2>/dev/null || true
+          fi
           ls /tmp/ex
-      - name: Mapa
+      - name: Mapa, historico e envio
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python3 tools/exposicao_diaria.py /tmp/ex --enviar > /dev/null && echo "mapa enviado"
+          TIPO: ${{ github.event_name == 'schedule' && 'diario' || inputs.origem || 'manual' }}
+          PUSH_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
+        run: |
+          H=/tmp/exh/historico_exposicao.jsonl
+          python3 tools/exposicao_diaria.py /tmp/ex --guardar /tmp/ex/mapa.json > /dev/null
+          python3 tools/exposicao_historico.py registar /tmp/ex/mapa.json "$H" "$TIPO"
+          DIA=$(python3 -c "import json,time;print(time.strftime('%Y-%m-%d',time.gmtime(json.load(open('/tmp/ex/mapa.json'))['t'])))")
+          if [ "$TIPO" = diario ] && python3 tools/exposicao_historico.py ja-enviado "$H" "$DIA"; then
+            echo "mapa diario de $DIA ja enviado: nao repete"
+          else
+            M=""; [ "$TIPO" = manual ] && M="--manual"
+            python3 tools/exposicao_diaria.py --de /tmp/ex/mapa.json --enviar $M > /dev/null && echo "mapa enviado ($TIPO)" \
+              && python3 tools/exposicao_historico.py enviado "$H" "$DIA" "$TIPO"
+          fi
+          python3 tools/publicar_estado.py publicar /tmp/exh exposicao historico_exposicao.jsonl
