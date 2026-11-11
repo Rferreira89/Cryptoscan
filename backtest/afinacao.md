@@ -1,7 +1,7 @@
 # Diário de afinação dos sinais
 
 Hipóteses testadas sobre as estratégias que já estão ao vivo, uma por
-entrada, com o veredicto. Hipóteses testadas até agora: 13 (H1 a H13).
+entrada, com o veredicto. Hipóteses testadas até agora: 15 (H1 a H15).
 
 ## Decisões do Rui (valem para todas as execuções)
 
@@ -1903,3 +1903,68 @@ Notas para as próximas execuções:
   (diários agendados); 63 no contador global de estudos offline. Com 26
   tentativas, a probabilidade de pelo menos um falso positivo a 5% ronda
   os 74%.
+
+**Resultados** (ramo `history`, 4H até 2026-11-08 16:00 UTC; 69 moedas além
+do BTC, ROBO fora por histórico curto; compras só com o BTC acima da média
+de 200 dias, como no ringue; 0,25% + 0,1% por lado;
+`backtest/afinacao_h15_recuo_subida.json`; código
+`tools/afinacao_h15_recuo_subida.py`; testes da fase do dia anterior, do
+score mínimo, do slippage e da entrada do lutador em
+`tests/test_afinacao_h15.py`). Percentil = posição do R médio face a 1000
+carteiras de entradas ao acaso com a mesma geometria. Nota: no último ano
+só houve compras com o BTC acima da média de 200 dias nos últimos ~90 d,
+por isso C e L coincidem.
+
+| Config. | B: op. | B: R médio | B: acaso p95 | B: perc. | B sem a melhor | A: op. / R / perc. | A' limpa: op. / R / perc. | C = L: op. / R / perc. |
+|---|---|---|---|---|---|---|---|---|
+| P0 PULLBACK, todas as fases | 252 | −0,209 | +0,088 | 1,1 | −0,242 | 172 / −0,107 / 11 | 123 / −0,146 / 5 | 49 / −0,011 / 68 |
+| P1 só subida | 163 | −0,226 | +0,154 | 0,1 | −0,261 | 89 / +0,106 / 72 | 70 / −0,010 / 23 | 19 / +0,533 / 99,5 |
+| P2 lutador RECUO_SUBIDA | 134 | −0,196 | +0,216 | 1,2 | −0,239 | 68 / +0,082 / 61 | 54 / −0,084 / 18 | 14 / +0,722 / 99,4 |
+| P3 só lateral (controlo) | 89 | −0,176 | +0,084 | 37 | −0,234 | 83 / −0,336 / 0,6 | 53 / −0,325 / 4 | 30 / −0,356 / 5 |
+| P4 subida, todos os scores | 218 | −0,202 | +0,135 | 0,5 | −0,235 | 124 / +0,012 / 61 | 101 / −0,076 / 22 | 23 / +0,398 / 98 |
+
+Por ano (P1 subida): 2021 23 op. +0,39R; 2023 81 op. −0,19R; 2024 106 op.
+(B+A) −0,36R; 2025 23 op. +0,28R; 2026 19 op. +0,53R.
+
+- **O +0,97R do ringue longo é um só episódio.** Nos últimos 90 d de
+  subida (set./out. 2026) o recuo ganha (+0,53R, percentil 99,5; o lutador
+  +0,72R), mas em 2021-24, que o ringue longo nunca viu, a mesma regra na
+  subida dá **−0,23R em 163 op., percentil 0,1** — pior do que entradas ao
+  acaso com a mesma geometria. Na parte limpa de A (out. 2024 a nov. 2025)
+  fica em −0,01R (percentil 23).
+- **O efeito da fase repete-se só em parte**: em A a subida bate a lateral
+  (+0,11R contra −0,34R), em B não (−0,23R contra −0,18R). Na lateral o
+  recuo perde sempre (confirma que não deve operar no regime de hoje), mas
+  na subida não ganha de forma estável.
+- O score não ajuda (P4 ≈ P1, como na H1); a entrada a mercado (P2) fica
+  igual ao método da zona (P1).
+
+**Veredicto: REJEITADA** (pelo critério pré-registado: em B R médio
+negativo e percentil 0,1–1,2 em P1, P2 e P4; em A percentil 61–72). Nada
+entra no ringue; REAL_OK não se mexe.
+
+Notas para as próximas execuções:
+
+- Lição: um lutador que no ringue longo ganha numa fase com 15 operações
+  é, por defeito, um episódio. Antes de qualquer hipótese tirada do
+  `longo.json`, ver a mesma regra em 2021-24 (é barato e corta a maior
+  parte das ilusões). Fica também a regra: as **subidas de 2023-24 castigam
+  os recuos** (o preço recua e não volta), a de 2021 e a de 2026 pagaram.
+- Regime atual **lateral**; regimes sem campeão vivo: **todos** (nenhum
+  campeão hoje). Fora da sobrevenda, sem família que bata o acaso de forma
+  estável: **subida** e **lateral**; na **queda** só SHORT_X30 e
+  SHORT_FALSO_ROMP (reais no último ano, negativos em 2021-24, H14).
+- Proposta para a próxima execução (H16): a lateral continua sem família
+  fora da sobrevenda. Candidata de **volatilidade**: compra na expansão a
+  seguir à compressão mais apertada do último ano (largura das Bandas de
+  Bollinger diárias no mínimo de 120 dias) **só quando o rompimento sai a
+  favor do BTC do dia** — o SQUEEZE_BB do ringue morreu a −0,63R em 4H sem
+  filtro de direção nem compressão diária. Antes de pré-registar,
+  confirmar que a H29/H25 da investigação não testaram a compressão diária;
+  se testaram, procurar uma ideia de **sazonalidade intradiária** (hora de
+  fecho da vela de 4H, sessão asiática vs. americana) com o controlo das
+  mesmas horas ao acaso.
+- Hipóteses testadas até agora: 15 entradas neste diário (H1 a H15; 14
+  sinais); 26 contra os mesmos dados (diários agendados); 63 no contador
+  global de estudos offline. Com 26 tentativas, a probabilidade de pelo
+  menos um falso positivo a 5% ronda os 74%.
