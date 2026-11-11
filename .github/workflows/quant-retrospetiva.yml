@@ -1,0 +1,76 @@
+name: Quant - retrospetiva (ramo de investigacao; so leitura)
+# (10/11, ordem do Rui) DSR, PBO e vantagem residual sobre as operacoes publicadas e a arena (estado completo do
+# cofre, aberto so dentro desta corrida e nunca impresso). Precos do BTC da Binance publica. Resultado so em R.
+# Nao toca em estrategias, ordens, corretoras nem producao. Corre so com push no ramo quant-dsr-pbo-residual.
+on:
+  push:
+    branches: [quant-dsr-pbo-residual]
+    paths: ["backtest/quant/**", "tools/quant_*.py", ".github/workflows/quant-retrospetiva.yml"]
+permissions:
+  contents: read
+jobs:
+  retrospetiva:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Testes do modulo
+        run: python -m unittest -q tests.test_quant
+      - name: Backtests registados (H40, H45, H46) a partir do ramo history
+        run: |
+          pip install -q numpy
+          mkdir -p /tmp/hist && git fetch -q --depth 1 origin history:refs/remotes/origin/history && git archive origin/history | tar x -C /tmp/hist
+          echo "history: $(ls /tmp/hist/*.csv.gz | wc -l) moedas de 4H, $(ls /tmp/hist/funding/*.csv.gz 2>/dev/null | wc -l) de funding"
+          python3 tools/quant_backtests.py /tmp/hist /tmp/bt.json
+      - name: Copias publicas e estado completo
+        env:
+          DATA_KEY: ${{ secrets.DATA_KEY }}
+        run: |
+          mkdir -p /tmp/q
+          for par in okx:okx.json data:state.json data:scan.json data:derivados.json data:cofre_state.json okx-tfshort:okx_tfshort.json okx-tfshort:okx_tfshort_sombra.json arena:forma.json; do
+            R=${par%%:*}; F=${par##*:}; git fetch -q --depth 1 origin "$R" && git show FETCH_HEAD:"$F" > /tmp/q/"$F" || rm -f /tmp/q/"$F"
+          done
+          python3 - <<'PY'
+          import json, sys
+          sys.path.insert(0, ".")
+          from engine import cifra
+          env = json.load(open("/tmp/q/cofre_state.json"))
+          try:
+              st = cifra.abrir_obj(env) if cifra.e_envelope(env) else env
+              json.dump(st, open("/tmp/q/estado_completo.json", "w"))
+              print("estado completo aberto")
+          except Exception as e:
+              print("estado completo indisponivel:", type(e).__name__)
+          PY
+          rm -f /tmp/q/cofre_state.json
+      - name: Precos do BTC e avaliacao
+        run: |
+          python3 - <<'PY' > /tmp/q/span.txt
+          import json, sys
+          sys.path.insert(0, ".")
+          from backtest.quant import dados as Q, residual as RS
+          import os
+          est = json.load(open("/tmp/q/estado_completo.json")) if os.path.exists("/tmp/q/estado_completo.json") else None
+          ops = Q.carregar("/tmp/q", est)["operacoes"]
+          ts = [RS.seg(t) for o in ops for t in (o["t_entrada"], o["t_saida"]) if t]
+          print(int(min(ts)) - 86400 * 25, int(max(ts)) + 3600)
+          PY
+          python3 tools/quant_btc_horario.py $(cat /tmp/q/span.txt) /tmp/q/btc.json
+          E=""; [ -f /tmp/q/estado_completo.json ] && E="--estado /tmp/q/estado_completo.json"
+          python3 tools/quant_avaliar.py /tmp/q $E --btc /tmp/q/btc.json --backtests /tmp/bt.json --saida /tmp/q/resultado.json --md /tmp/q/resultado.md > /dev/null
+          cat /tmp/q/resultado.md
+          python3 - <<'PY'
+          import json
+          r = json.load(open("/tmp/q/resultado.json"))
+          print("\n## Detalhe (JSON resumido)")
+          for l in r["estrategias"]:
+              if l.get("n", 0) >= 30:
+                  rs = l["residual"]
+                  print(json.dumps({k: l[k] for k in ("ambiente", "estrategia", "n", "R_medio", "desde", "ate")},
+                                   ensure_ascii=False), json.dumps({k: rs.get(k) for k in ("estado", "n", "lags", "beta", "alfa", "p_alfa", "ic_alfa", "ic_beta", "r2", "retorno_total", "parte_btc", "retorno_residual", "regimes", "metades", "razao")}, default=str, ensure_ascii=False)[:2500], json.dumps({k: l["dsr_minimo"].get(k) for k in ("sr", "assimetria", "curtose", "sr0", "psr_zero", "dsr")}))
+          for fam, p in r["pbo"].items():
+              print("PBO", fam, json.dumps({k: v for k, v in p.items() if k != "resultados"}, ensure_ascii=False)[:600])
+          PY
+          rm -f /tmp/q/estado_completo.json
