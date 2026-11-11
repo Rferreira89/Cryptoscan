@@ -1,0 +1,29 @@
+name: Bybit ledger - ensaio da reconciliacao (so leitura)
+# (11/11, P6) ENSAIO da reconciliacao dos registos REAL "OPEN" sem execucao (AVAX e ICP de 22/10). So leitura:
+# le o cofre_state.json e o exec.json (nucleo) cifrados, consulta a Bybit SO com GET (execucoes, saldo, ordens
+# ativas) e mostra, por registo, o que faria e as tres provas (sem valores em dinheiro). NAO grava nada, NAO usa
+# --aplicar, nao publica em nenhum ramo. So manual: correr e uma decisao do Rui.
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: bybit-ledger-ensaio
+  cancel-in-progress: false
+jobs:
+  ensaio:
+    runs-on: [self-hosted, eu]
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ensaio (sem --aplicar)
+        env:
+          BYBIT_API_KEY: ${{ secrets.BYBIT_API_KEY }}
+          BYBIT_API_SECRET: ${{ secrets.BYBIT_API_SECRET }}
+          DATA_KEY: ${{ secrets.DATA_KEY }}
+        run: |
+          rm -rf /tmp/bl && mkdir -p /tmp/bl
+          python3 -m pip install -q --user cryptography==43.0.3 2>/dev/null || true
+          git fetch -q origin data && git show FETCH_HEAD:cofre_state.json > /tmp/bl/cofre_state.json
+          python3 tools/bybit_ledger_reconciliar.py /tmp/bl/cofre_state.json
+          rm -rf /tmp/bl
