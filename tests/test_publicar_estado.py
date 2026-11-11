@@ -136,6 +136,30 @@ class Recuperar(Base):
         self.assertIn("HUMA:1", st["real"]["colocados"])
 
 
+class Revisao(Base):
+    """(11/11, revisao adversarial)"""
+
+    def test_ramo_mudou_desde_a_falha_descarta_a_copia(self):
+        with mock.patch.dict(os.environ, {"ESTADO_SHA_BASE": "aaa"}):
+            self.pub(GitFalso(falhas=99))
+        json.dump({"volta": {"t": 100}}, open(os.path.join(self.pasta, "okx.json"), "w"))
+        self.assertFalse(P.recuperar(self.pasta, "okx", "okx.json", sha_atual="bbb"))
+        self.assertEqual(json.load(open(os.path.join(self.pasta, "okx.json")))["volta"]["t"], 100)
+
+    def test_ramo_igual_ao_da_falha_recupera(self):
+        with mock.patch.dict(os.environ, {"ESTADO_SHA_BASE": "aaa"}):
+            self.pub(GitFalso(falhas=99))
+        json.dump({"volta": {"t": 100}}, open(os.path.join(self.pasta, "okx.json"), "w"))
+        self.assertTrue(P.recuperar(self.pasta, "okx", "okx.json", sha_atual="aaa"))
+
+    def test_sucesso_apaga_tambem_um_cofre_antigo_que_nesta_volta_nao_existe(self):
+        open(os.path.join(self.pasta, "cofre_okx.json"), "w").write("{}")
+        self.pub(GitFalso(falhas=99))                                   # volta falhada com cofre
+        os.remove(os.path.join(self.pasta, "cofre_okx.json"))
+        self.pub(GitFalso(falhas=0))                                    # volta boa sem cofre
+        self.assertEqual(sorted(os.listdir(P.pasta_local("okx"))), ["falhas.json"])
+
+
 class Workflow(unittest.TestCase):
     def test_agente_okx_usa_publicacao_e_recuperacao(self):
         y = open(os.path.join(os.path.dirname(__file__), "..", ".github", "workflows", "okx-agente.yml")).read()
@@ -143,6 +167,54 @@ class Workflow(unittest.TestCase):
         self.assertIn("publicar_estado.py publicar /tmp/okx okx okx.json cofre_okx.json", y)
         self.assertLess(y.index("recuperar /tmp/okx"), y.index("python3 tools/okx_agente.py"))   # recupera ANTES do agente
         self.assertNotIn("git push -q -f", y)
+
+    def test_publicacao_num_passo_que_corre_sempre(self):
+        y = open(os.path.join(os.path.dirname(__file__), "..", ".github", "workflows", "okx-agente.yml")).read()
+        i = y.index("- name: Publicar o estado")
+        self.assertIn("if: always()", y[i:i + 200])
+        self.assertIn('if [ ! -s /tmp/okx/okx.json ]', y[i:])
+
+    def bloco_de_leitura(self):
+        y = open(os.path.join(os.path.dirname(__file__), "..", ".github", "workflows", "okx-agente.yml")).read().split("\n")
+        a = next(k for k, l in enumerate(y) if "rm -rf /tmp/okx" in l)
+        b = next(k for k, l in enumerate(y) if "publicar_estado.py recuperar" in l)
+        ind = len(y[a]) - len(y[a].lstrip())
+        return "\n".join(l[ind:] for l in y[a:b])
+
+    def correr_leitura(self, rc_ls, fetch_ok=True):
+        import subprocess
+        import stat
+        d = tempfile.mkdtemp()
+        g = os.path.join(d, "git")
+        open(g, "w").write(f"""#!/bin/bash
+case "$1" in
+  ls-remote) exit {rc_ls};;
+  fetch) {'exit 0' if fetch_ok else 'exit 128'};;
+  show) echo '{{"volta": {{"t": 1}}}}';;
+  rev-parse) echo abc123;;
+esac
+""")
+        os.chmod(g, os.stat(g).st_mode | stat.S_IEXEC)
+        corpo = self.bloco_de_leitura().replace("/tmp/okx", os.path.join(d, "okx")) + "\necho LEITURA_OK\n"
+        r = subprocess.run(["bash", "-e", "-c", corpo], capture_output=True, text=True,
+                           env={**os.environ, "PATH": d + ":" + os.environ["PATH"]})
+        return r, d
+
+    def test_ramo_existe_e_le(self):
+        r, d = self.correr_leitura(0)
+        self.assertIn("LEITURA_OK", r.stdout)
+        self.assertEqual(open(os.path.join(d, "okx", ".sha_base")).read().strip(), "abc123")
+
+    def test_primeira_volta_sem_ramo(self):
+        r, _ = self.correr_leitura(2)
+        self.assertIn("LEITURA_OK", r.stdout)
+
+    def test_erro_de_rede_cancela_a_volta_em_vez_de_partir_vazio(self):
+        for rc, ok in ((128, True), (0, False)):
+            r, d = self.correr_leitura(rc, fetch_ok=ok)
+            self.assertNotIn("LEITURA_OK", r.stdout)
+            self.assertNotEqual(r.returncode, 0)
+            self.assertFalse(os.path.exists(os.path.join(d, "okx", "okx.json")))
 
 
 if __name__ == "__main__":

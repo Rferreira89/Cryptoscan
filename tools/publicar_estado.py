@@ -18,7 +18,9 @@ Garantias:
   - nada privado sai daqui: so publica os ficheiros pedidos, que ja sao os publicos ou cifrados.
 Uso:
   python3 tools/publicar_estado.py publicar <pasta> <ramo> <ficheiro> [<ficheiro> ...]
-  python3 tools/publicar_estado.py recuperar <pasta> <ramo> <ficheiro_estado>"""
+  python3 tools/publicar_estado.py recuperar <pasta> <ramo> <ficheiro_estado> [<sha_do_ramo_lido>]
+Ambiente: ESTADO_SHA_BASE = commit do ramo de onde a volta partiu (guardado com a copia). A copia so existe num
+runner self-hosted (pasta persistente); num runner do GitHub perde-se com o job: ai so as tentativas valem."""
 import json
 import os
 import shutil
@@ -71,17 +73,22 @@ def telegram(txt):
         return False
 
 
-def guardar_copia(pasta, ramo, ficheiros):
+def guardar_copia(pasta, ramo, ficheiros, sha_base=None):
+    """Copia local + meta.json com o commit do ramo de onde esta volta partiu (para a recuperacao saber se o ramo
+    mudou entretanto)."""
     dst = pasta_local(ramo)
     for f in ficheiros:
         src = os.path.join(pasta, f)
         if os.path.exists(src):
             shutil.copy2(src, os.path.join(dst, f))
+    json.dump({"sha_base": sha_base, "t": int(time.time())}, open(os.path.join(dst, "meta.json"), "w"))
 
 
 def apagar_copia(ramo, ficheiros):
+    """(11/11, revisao) apaga TODOS os ficheiros da lista e a meta, presentes nesta volta ou nao (um cofre de uma
+    volta falhada antiga nao fica esquecido)."""
     dst = pasta_local(ramo)
-    for f in ficheiros:
+    for f in list(ficheiros) + ["meta.json"]:
         try:
             os.remove(os.path.join(dst, f))
         except OSError:
@@ -92,7 +99,7 @@ def publicar(pasta, ramo, ficheiros, push_url=None, esperas=ESPERAS, dormir=time
     """Devolve True se o ramo ficou publicado. Nunca levanta excecao por falha de rede."""
     push_url = push_url or os.environ.get("PUSH_URL")
     presentes = [f for f in ficheiros if os.path.exists(os.path.join(pasta, f))]
-    guardar_copia(pasta, ramo, presentes)                      # antes de tudo: a copia sobrevive a qualquer falha
+    guardar_copia(pasta, ramo, presentes, os.environ.get("ESTADO_SHA_BASE") or None)   # antes de tudo
     if not os.path.isdir(os.path.join(pasta, ".git")):
         git(pasta, "init", "-q", "-b", ramo)
     git(pasta, "config", "user.name", "cryptoscan-bot")
@@ -109,7 +116,7 @@ def publicar(pasta, ramo, ficheiros, push_url=None, esperas=ESPERAS, dormir=time
             if f.get("avisado"):
                 avisar(f"✅ Publicação do estado '{ramo}' recuperada depois de {f['seguidas']} volta(s) com falha.")
             _gravar_falhas(ramo, {"seguidas": 0, "avisado": False})
-            apagar_copia(ramo, presentes)
+            apagar_copia(ramo, ficheiros)
             if i:
                 print(f"publicado a tentativa {i + 1}")
             return True
@@ -138,12 +145,22 @@ def _tempo(estado):
     return float((estado or {}).get("t") or 0)
 
 
-def recuperar(pasta, ramo, ficheiro):
+def recuperar(pasta, ramo, ficheiro, sha_atual=None):
     """Se a copia local do runner for mais recente do que o estado publicado, passa a ser a usada. Devolve True se
-    recuperou. Um estado local ilegivel nunca substitui o publicado."""
+    recuperou. Um estado local ilegivel nunca substitui o publicado.
+    (11/11, revisao) Com sha_atual (commit do ramo lido agora): so recupera se o ramo AINDA esta no commit de onde
+    partiu a volta que falhou. Se o ramo mudou (outra volta publicou, ou houve uma correcao a mao), a copia e
+    descartada: o ramo e mais recente, mesmo que o campo de tempo diga o contrario."""
     local = os.path.join(pasta_local(ramo), ficheiro)
     alvo = os.path.join(pasta, ficheiro)
     if not os.path.exists(local):
+        return False
+    try:
+        meta = json.load(open(os.path.join(pasta_local(ramo), "meta.json")))
+    except (OSError, ValueError):
+        meta = {}
+    if sha_atual and meta.get("sha_base") and meta["sha_base"] != sha_atual:
+        print(f"copia local descartada: o ramo {ramo} mudou desde a volta que falhou")
         return False
     try:
         e_local = json.load(open(local))
@@ -166,6 +183,6 @@ if __name__ == "__main__":
     if acao == "publicar":
         sys.exit(0 if publicar(pasta, ramo, fs) else 1)
     if acao == "recuperar":
-        recuperar(pasta, ramo, fs[0])
+        recuperar(pasta, ramo, fs[0], fs[1] if len(fs) > 1 and fs[1] else None)
         sys.exit(0)
     sys.exit(2)
