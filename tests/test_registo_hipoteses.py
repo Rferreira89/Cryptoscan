@@ -164,8 +164,18 @@ class TestReservaEVeredicto(unittest.TestCase):
             R.usar_dados([], "NADA", "reserva", self.RES, Q)
 
 
+@unittest.skipUnless(os.environ.get("CRYPTOSCAN_REGISTO") == "1",
+                     "so o agente de investigacao verifica o registo real (CRYPTOSCAN_REGISTO=1): "
+                     "um registo estragado nunca pode parar o scanner ao vivo")
 class TestRegistoDoRepositorio(unittest.TestCase):
-    """O ficheiro guardado no repositorio esta integro e cobre o passado."""
+    """O ficheiro guardado no repositorio esta integro, cobre o passado e so
+    cresceu face ao main (quando o git o permite)."""
+
+    def test_so_acrescenta_face_ao_main(self):
+        ant = R.linhas_git("origin/main")
+        if ant is None:
+            self.skipTest("origin/main sem registo ou sem git")
+        self.assertEqual(R.verificar_prefixo(ant, R.ler()), [])
 
     def test_integro(self):
         L = R.ler()
@@ -184,6 +194,8 @@ class TestRegistoDoRepositorio(unittest.TestCase):
             if r["tipo"] in ("retroativo", "pre_registo"):
                 self.assertIn(r["dados"]["familia"], R.FAMILIAS)
 
+
+class TestClassificador(unittest.TestCase):
     def test_classificador(self):
         self.assertEqual(R.classificar_familia("SHORT_SQUEEZE"), "C")
         self.assertEqual(R.classificar_familia("BOUNCE_X30"), "B")
