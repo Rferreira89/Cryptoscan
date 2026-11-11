@@ -1,0 +1,121 @@
+{
+ "lutadores": [
+  "BOUNCE_ABSORCAO",
+  "BOUNCE_AMPLITUDE",
+  "BOUNCE_FLUXO",
+  "BOUNCE_FORTE",
+  "BOUNCE_HORAS",
+  "BOUNCE_ISOLADA",
+  "BOUNCE_NOREACT",
+  "BOUNCE_TRAIL",
+  "BOUNCE_X30",
+  "BOUNCE_X30_LIQ",
+  "BOUNCE_X30_PAVIO",
+  "BRK_ESPACO",
+  "CAPITULACAO",
+  "DIP_TREND",
+  "FIBO_RECUO",
+  "MAIORES_RECUO",
+  "MOMENTUM",
+  "RETESTE",
+  "REVERSAO_INTERVALO",
+  "SQUEEZE_BB",
+  "TURTLE",
+  "TURTLE_FORTES",
+  "VOLUME_ACUMULACAO"
+ ],
+ "n_efetivo": {
+  "M": 23,
+  "nyholt": 20.24,
+  "li_ji": 15.0,
+  "participacao": 6.12
+ },
+ "pares_mais_correlacionados": [
+  [
+   "BOUNCE_TRAIL",
+   "BOUNCE_X30",
+   0.992
+  ],
+  [
+   "BOUNCE_X30",
+   "BOUNCE_X30_PAVIO",
+   0.984
+  ],
+  [
+   "BOUNCE_X30",
+   "BOUNCE_X30_LIQ",
+   0.974
+  ],
+  [
+   "BOUNCE_TRAIL",
+   "BOUNCE_X30_PAVIO",
+   0.971
+  ],
+  [
+   "BOUNCE_TRAIL",
+   "BOUNCE_X30_LIQ",
+   0.971
+  ],
+  [
+   "BOUNCE_X30_LIQ",
+   "BOUNCE_X30_PAVIO",
+   0.97
+  ],
+  [
+   "BOUNCE_NOREACT",
+   "BOUNCE_X30",
+   0.898
+  ],
+  [
+   "BOUNCE_NOREACT",
+   "BOUNCE_TRAIL",
+   0.894
+  ],
+  [
+   "BOUNCE_ISOLADA",
+   "BOUNCE_NOREACT",
+   0.891
+  ],
+  [
+   "BOUNCE_ISOLADA",
+   "BOUNCE_X30",
+   0.886
+  ]
+ ],
+ "correlacao_media": 0.209,
+ "prob_fp_independentes": 0.693,
+ "prob_fp_efetivo": 0.646,
+ "janela": [
+  1731081600,
+  1778342400
+ ],
+ "operacoes_por_lutador": {
+  "BRK_ESPACO": 528,
+  "RETESTE": 843,
+  "TURTLE": 461,
+  "SQUEEZE_BB": 536,
+  "MOMENTUM": 146,
+  "BOUNCE_ABSORCAO": 207,
+  "BOUNCE_DESALAV": 0,
+  "BOUNCE_NOREACT": 935,
+  "BOUNCE_TRAIL": 879,
+  "BOUNCE_HORAS": 489,
+  "BOUNCE_X30": 879,
+  "DIP_TREND": 173,
+  "CAPITULACAO": 104,
+  "BOUNCE_FLUXO": 220,
+  "BOUNCE_FORTE": 176,
+  "BOUNCE_SQUEEZE": 0,
+  "BOUNCE_ISOLADA": 689,
+  "BOUNCE_X30_PAVIO": 847,
+  "BOUNCE_X30_LIQ": 762,
+  "REVERSAO_INTERVALO": 129,
+  "VOLUME_ACUMULACAO": 78,
+  "FIBO_RECUO": 467,
+  "MAIORES_RECUO": 44,
+  "MAIORES_TENDENCIA": 18,
+  "BOUNCE_AMPLITUDE": 190,
+  "TURTLE_FORTES": 178
+ },
+ "nota": "gerado por um script equivalente a tools/n_efetivo_lutadores.py (t0 = fim do historico - 730 dias, corte = fim - 183 dias, ~2026-05-09); so lutadores de compra com >= 30 operacoes"
+}
