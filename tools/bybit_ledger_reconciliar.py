@@ -11,7 +11,12 @@ TRES criterios estao provados com leituras bem-sucedidas da Bybit (so GET):
 Uma leitura falhada = criterio NAO provado = o registo nao e tocado.
 A correcao nao apaga nada: status passa a CANCELLED, o estado anterior fica em `antes` e a prova em `reconciliacao`
 (trilho de auditoria); o resultado em R fica None (nao conta como operacao). Nao envia ordens nem mexe na conta.
-Uso: python3 tools/bybit_ledger_reconciliar.py <state.json> [--aplicar]"""
+Onde aplicar (11/11, revisao): o estado real do motor e o cofre_state.json do ramo data (cifrado). O state.json
+publico nao e lido pelo motor: --aplicar recusa-o. E o ciclo do scan reescreve o cofre a cada 5 minutos a partir
+do estado que leu no inicio do ciclo: uma correcao gravada por fora pode ser apagada pelo ciclo seguinte. A
+aplicacao real precisa do scan parado (ficheiro STOP) durante a gravacao, ou de um comando do motor (admin.json);
+as duas sao alteracoes de producao que so o Rui autoriza.
+Uso: python3 tools/bybit_ledger_reconciliar.py <cofre_state.json | state.json> [--aplicar]"""
 import json
 import os
 import sys
@@ -141,13 +146,42 @@ def correr(state, now=None, aplicar=False, get=_get, nucleo=None):
     return plano
 
 
+def carregar(caminho):
+    """(11/11, revisao) Le o estado da Bybit. O estado REAL do motor e o cofre_state.json (cifrado, ramo data);
+    o state.json e uma copia publica sem dinheiro que o motor NUNCA le. Devolve (estado, cifrado)."""
+    from engine import cifra
+    texto = open(caminho).read()
+    try:
+        obj = json.loads(texto)
+    except ValueError:
+        obj = None
+    if obj is not None and cifra.e_envelope(obj):
+        return json.loads(cifra.ler_texto(caminho)), True
+    return obj, False
+
+
+def pode_aplicar(estado, cifrado):
+    """So se aplica ao estado completo decifrado. Uma copia publica (engine.publico) nunca e alterada: o motor nao a
+    le (a correcao nao teria efeito) e o scan reescreve-a a cada ciclo."""
+    from engine import publico
+    if not cifrado:
+        return False, "o ficheiro nao e o cofre cifrado (cofre_state.json): nada aplicado"
+    if publico.e_publico(estado):
+        return False, "estado publico: nada aplicado"
+    return True, ""
+
+
 if __name__ == "__main__":
     caminho, aplicar = sys.argv[1], "--aplicar" in sys.argv
-    st = json.load(open(caminho))
+    st, cifrado = carregar(caminho)
+    ok, porque = pode_aplicar(st, cifrado)
+    if aplicar and not ok:
+        sys.exit(f"--aplicar recusado: {porque}")
     for p in correr(st, aplicar=aplicar):
         print(p["id"], "->", p["acao"], json.dumps(p["prova"]))
     if aplicar:
-        json.dump(st, open(caminho, "w"))
-        print("estado gravado (so os registos com prova completa foram alterados)")
+        from engine import cifra
+        cifra.gravar_texto(caminho, json.dumps(st))
+        print("estado cifrado gravado localmente (so os registos com prova completa); falta publica-lo com o scan parado")
     else:
         print("ensaio: nada foi alterado (use --aplicar)")

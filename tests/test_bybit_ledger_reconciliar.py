@@ -97,6 +97,28 @@ class Reconciliar(unittest.TestCase):
         self.assertFalse(plano[0]["prova"]["provado"])
         self.assertEqual(st["ledger"][0]["status"], "OPEN")
 
+    def test_aplicar_recusa_copia_publica_e_ficheiro_nao_cifrado(self):
+        ok, porque = B.pode_aplicar({"_publico": True, "ledger": []}, cifrado=False)
+        self.assertFalse(ok)
+        with unittest.mock.patch("engine.publico.e_publico", return_value=True):
+            ok, porque = B.pode_aplicar({"ledger": []}, cifrado=True)
+        self.assertFalse(ok)
+        self.assertIn("publico", porque)
+
+    def test_aplicar_aceita_cofre_decifrado(self):
+        with unittest.mock.patch("engine.publico.e_publico", return_value=False):
+            self.assertTrue(B.pode_aplicar({"ledger": []}, cifrado=True)[0])
+
+    def test_carregar_le_copia_publica_sem_chave(self):
+        import json
+        import tempfile
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
+            json.dump({"ledger": [], "_publico": True}, f)
+        st, cifrado = B.carregar(f.name)
+        os.remove(f.name)
+        self.assertFalse(cifrado)
+        self.assertEqual(st["ledger"], [])
+
     def test_so_endpoints_de_leitura(self):
         src = open(os.path.join(os.path.dirname(__file__), "..", "tools", "bybit_ledger_reconciliar.py")).read()
         for proibido in ("/v5/order/create", "/v5/order/cancel", "/v5/order/amend", "/v5/position", "post("):
