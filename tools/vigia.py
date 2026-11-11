@@ -5,19 +5,23 @@ falha de um seja vista pelo outro). So le o estado publico (precos e ids, sem va
   - uma operacao real aberta na OKX sem stop registado;
   - uma operacao real que ja passou da saida por tempo (72 h) ha mais de 2 h e continua aberta;
   - (05/11) uma ordem limite real que ja caducou (8 h) ha mais de 2 h e continua pendente (ordem presa: se a
-    consulta ou o cancelamento falharem, o agente fica a espera em silencio e a ordem pode executar fora da regra).
+    consulta ou o cancelamento falharem, o agente fica a espera em silencio e a ordem pode executar fora da regra);
+  - (11/11) uma operacao real aberta cujo stop nao e confirmado NA OKX ha mais de 3 h (stop_ok, gravado pelo
+    confirmar_stops do agente) com o agente a correr: a consulta a OKX esta a falhar em silencio ou o stop nao cobre a
+    posicao, e o registo do stop no estado ja nao prova que a protecao existe.
 Cada aviso repete no maximo de 6 em 6 horas (ficheiro local do ciclo)."""
 import json, os, sys, time, urllib.request
 
 URL = "https://raw.githubusercontent.com/Rferreira89/Cryptoscan/okx/okx.json"
 MEM = os.environ.get("VIGIA_MEM", "/tmp/vigia.json")
-LIMITE_S, REPETE_S, ATRASO_SAIDA_S = 9000, 6 * 3600, 7200
+LIMITE_S, REPETE_S, ATRASO_SAIDA_S, STOP_OK_S = 9000, 6 * 3600, 7200, 3 * 3600
 
 
 def problemas(st, now):
     out = []
     t = (st.get("resumo") or {}).get("t") or 0
-    if now - t > LIMITE_S:
+    parado = now - t > LIMITE_S
+    if parado:
         out.append(("batimento", f"⚠️ Vigia: o agente da OKX não corre há {int((now - t) // 3600)} h "
                                   f"{int((now - t) % 3600 // 60)} min. Posições continuam protegidas pelo stop na OKX."))
     for a, o in ((st.get("real") or {}).get("ops") or {}).items():
@@ -31,6 +35,13 @@ def problemas(st, now):
             continue
         if not o.get("stop"):
             out.append((f"stop-{a}", f"🚨 Vigia: {a} está aberta na OKX sem stop registado. Verifica já na app da OKX."))
+        # stop confirmado na OKX: referencia = ultima confirmacao, ou a execucao (o agente confirma na volta seguinte).
+        # Com o agente parado o aviso de batimento ja cobre a causa; registos antigos sem nenhuma data nao avisam.
+        ref = o.get("stop_ok") or o.get("t_fill") or o.get("criado")
+        if o.get("stop") and ref and not parado and now - float(ref) > STOP_OK_S:
+            h = int((now - float(ref)) // 3600)
+            out.append((f"stopok-{a}", f"⚠️ Vigia: o stop de {a} não é confirmado na OKX há {h} h (o agente corre, mas a "
+                                       "confirmação falha). Confirma na app da OKX que o stop está ativo."))
         if o.get("sair_em") and now - o["sair_em"] > ATRASO_SAIDA_S:
             out.append((f"tempo-{a}", f"⚠️ Vigia: {a} já devia ter fechado por tempo (72 h) e continua aberta."))
     return out
