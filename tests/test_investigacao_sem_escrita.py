@@ -14,7 +14,8 @@ sys.path.insert(0, os.path.join(RAIZ, "tools"))
 INVESTIGACAO = ["engine/oportunidades.py", "engine/risco_intel.py", "engine/qualidade_execucao.py", "engine/contabilidade.py",
                 "backtest/quant/robustez.py", "tools/cacador_global.py", "tools/quant_robustez.py", "tools/funil_frequencia.py",
                 "tools/agentes_investigacao.py", "tools/recolha_liquidez_okx.py", "tools/okx_contabilidade.py",
-                "tools/exposicao_historico.py", "backtest/estudos/novos/cacador_ic_historico.py",
+                "tools/exposicao_historico.py", "tools/bybit_ledger_reconciliar.py", "tools/publicar_estado.py",
+                "backtest/estudos/novos/cacador_ic_historico.py",
                 "backtest/estudos/externos/optuna_h40_wf.py", "backtest/estudos/externos/rl_baseline_h40.py",
                 "backtest/estudos/externos/vectorbt_bench.py"]
 ESCRITA = ("/trade/order", "cancel-order", "cancel-batch", "close-position", "set-leverage", "order-algo", "amend-order",

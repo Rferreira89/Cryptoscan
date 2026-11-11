@@ -119,6 +119,14 @@ class Reconciliar(unittest.TestCase):
         self.assertFalse(cifrado)
         self.assertEqual(st["ledger"], [])
 
+    def test_workflow_de_ensaio_nunca_aplica(self):
+        y = open(os.path.join(os.path.dirname(__file__), "..", ".github", "workflows", "bybit-ledger-ensaio.yml")).read()
+        corpo = y.split("run: |")[1]
+        self.assertNotIn("--aplicar", corpo)
+        self.assertIn("contents: read", y)
+        self.assertNotIn("git push", y)
+        self.assertNotIn("schedule", y)
+
     def test_so_endpoints_de_leitura(self):
         src = open(os.path.join(os.path.dirname(__file__), "..", "tools", "bybit_ledger_reconciliar.py")).read()
         for proibido in ("/v5/order/create", "/v5/order/cancel", "/v5/order/amend", "/v5/position", "post("):

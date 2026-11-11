@@ -114,7 +114,12 @@ def construir(posicoes, hist, fills_de=None):
 
 
 def correr(caminho_estado, pasta, ler=leitura, cifrar=None):
-    st = json.load(open(caminho_estado)) if os.path.exists(caminho_estado) else {}
+    # (11/11, revisao) sem o registo do executor nao ha stop nem estrategia: o R ficaria vazio e a operacao "manual?".
+    # Melhor parar do que publicar um relatorio incompleto como se fosse completo.
+    if not os.path.exists(caminho_estado):
+        raise FileNotFoundError(f"registo do executor em falta: {caminho_estado}")
+    with open(caminho_estado) as f:
+        st = json.load(f)
     hist = ((st.get("real") or {}).get("hist")) or []
     ops = construir(historico_posicoes(ler), hist, fills_de=lambda i: execucoes(i, ler))
     pub = C.publico(ops)

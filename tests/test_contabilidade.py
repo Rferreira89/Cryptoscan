@@ -120,6 +120,14 @@ class Privacidade(unittest.TestCase):
             self.assertEqual(len(cifrados), 1)
 
 
+class SemRegisto(unittest.TestCase):
+    def test_sem_okx_json_para_em_vez_de_publicar_incompleto(self):
+        with tempfile.TemporaryDirectory() as d:
+            with self.assertRaises(FileNotFoundError):
+                K.correr(os.path.join(d, "nao_existe.json"), d, ler=lambda p: {"code": "0", "data": []})
+            self.assertFalse(os.path.exists(os.path.join(d, "contabilidade_okx.json")))
+
+
 class SoLeitura(unittest.TestCase):
     def test_modulo_nao_contem_chamadas_de_escrita(self):
         """Verificacao estatica: nenhuma chamada a privado/leitura com metodo diferente de GET, nenhum endpoint de
