@@ -1,0 +1,74 @@
+{
+ "H40 (panico do mercado)|toque": {
+  "n": 349,
+  "media_op": 0.3482,
+  "media_dia": -0.0374,
+  "teto3": 0.0969
+ },
+ "H40 (todos os sinais)|toque": {
+  "n": 867,
+  "media_op": 0.1315,
+  "media_dia": 0.0318,
+  "teto3": 0.0106
+ },
+ "H46 (RSI<30)|toque": {
+  "n": 317,
+  "media_op": 0.0342,
+  "media_dia": 0.0659,
+  "teto3": -0.0244
+ },
+ "H46 (RSI<35)|toque": {
+  "n": 840,
+  "media_op": -0.0122,
+  "media_dia": 0.0845,
+  "teto3": 0.0319
+ },
+ "H40 (panico do mercado)|0,1%": {
+  "n": 343,
+  "media_op": 0.3286,
+  "media_dia": -0.0418,
+  "teto3": 0.0816
+ },
+ "H40 (todos os sinais)|0,1%": {
+  "n": 850,
+  "media_op": 0.1248,
+  "media_dia": 0.0287,
+  "teto3": 0.011
+ },
+ "H46 (RSI<30)|0,1%": {
+  "n": 311,
+  "media_op": 0.0254,
+  "media_dia": 0.0767,
+  "teto3": -0.0087
+ },
+ "H46 (RSI<35)|0,1%": {
+  "n": 820,
+  "media_op": -0.0347,
+  "media_dia": 0.0658,
+  "teto3": -0.0061
+ },
+ "H40 (panico do mercado)|0,3%": {
+  "n": 333,
+  "media_op": 0.3284,
+  "media_dia": -0.0554,
+  "teto3": 0.0961
+ },
+ "H40 (todos os sinais)|0,3%": {
+  "n": 817,
+  "media_op": 0.1168,
+  "media_dia": 0.0219,
+  "teto3": 0.0206
+ },
+ "H46 (RSI<30)|0,3%": {
+  "n": 301,
+  "media_op": -0.012,
+  "media_dia": 0.0388,
+  "teto3": -0.0821
+ },
+ "H46 (RSI<35)|0,3%": {
+  "n": 783,
+  "media_op": -0.0563,
+  "media_dia": 0.0819,
+  "teto3": 0.0009
+ }
+}

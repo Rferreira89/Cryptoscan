@@ -1126,6 +1126,11 @@ def fetch_funding(base, now, days):
     return sorted(set(out))
 
 
+# (11/11) juro diario de referencia do emprestimo em margem spot (NAO VERIFICADO na Bybit UE; o valor real e por moeda
+# e varia: cfg "juros_margem_dia_pct" sobrepoe-se). Antes nao se descontava nada aos shorts da arena.
+JUROS_MARGEM_DIA_PCT = 0.03
+
+
 def generic_trades(asset, c4, above, t0, key, fn):
     """Corre uma funcao de sinal vela a vela (so passado) e simula G0."""
     CTX["asset"] = asset
@@ -1153,7 +1158,7 @@ def generic_trades(asset, c4, above, t0, key, fn):
         if not pos["closed"]:
             continue
         busy = k
-        out.append((key, {"asset": asset, "t": pos["opened_at"], "r": pos["r"],
+        out.append((key, {"asset": asset, "t": pos["opened_at"], "r": pos["r"], "t_fim": pos.get("closed_at"),
                           "geo": {"stop": sig["stop"] / px - 1,
                                   "tp": [x / px - 1 for x in sig["tp"]],
                                   "partials": list(sig["partials"]),
@@ -1461,8 +1466,20 @@ def regime_by_day(btc4):
     return out
 
 
+def juros_short_r(t, juros_dia_pct):
+    """(11/11, universo Bybit UE) R a descontar a um short em margem spot pelo juro do emprestimo da moeda:
+    juro diario (%) x dias abertos / distancia do stop (%). Sem duracao ou sem stop: nada (fica assinalado)."""
+    stop = abs(((t.get("geo") or {}).get("stop")) or 0)
+    if not juros_dia_pct or not stop or not t.get("t_fim"):
+        return 0.0
+    return juros_dia_pct / 100 * max(0, t["t_fim"] - t["t"]) / DAY / stop
+
+
 def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None, funding=None, oi=None,
-        macro=None, ls=None, renascidos=None, regimes=False):
+        macro=None, ls=None, renascidos=None, regimes=False, margem=None):
+    """margem: moedas que a Bybit UE deixa vender a descoberto (instruments-info, marginTrading). Com a lista,
+    os lutadores SHORT so combatem nessas moedas (antes combatiam em todas, incluindo as que a conta nao pode
+    vender). None = lista desconhecida: comportamento antigo, assinalado em 'shorts_universo'."""
     t0 = now - days * DAY
     btc = bars.get("BTC")
     CTX.update(btc=btc, funding=funding or {}, oi=oi or {}, macro=macro or {}, ls=ls or {},
@@ -1491,9 +1508,12 @@ def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None, funding=None, oi=None,
             for key, fn in NEW_SIGS.items():
                 for k, t in generic_trades(a, c4, above, t0, key, fn):
                     groups[k].append(t)
-            for key, fn in SHORT_SIGS.items():
-                for k, t in generic_trades(a, mbars[a], always, t0, key, fn):
-                    groups[k].append(dict(t, side="SHORT"))
+            if margem is None or a in margem:
+                for key, fn in SHORT_SIGS.items():
+                    for k, t in generic_trades(a, mbars[a], always, t0, key, fn):
+                        t = dict(t, side="SHORT")
+                        j = juros_short_r(t, cfg.get("juros_margem_dia_pct", JUROS_MARGEM_DIA_PCT))
+                        groups[k].append(dict(t, r=t["r"] - j, juros_r=round(j, 4)))
             if (bars1h or {}).get(a):
                 for k, t in bounce_1h_trades(a, bars1h[a], above, t0):
                     groups[k].append(t)
@@ -1557,6 +1577,33 @@ def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None, funding=None, oi=None,
 LONGO_1H_MAX = 40
 
 
+ARENA_IDADE_TICKERS = 6 * 3600
+
+
+def universo_bybit_ue(st, now, fetch=None):
+    """(11/11, auditoria do universo) Pares USDC da Bybit UE para o combate: os precos, spread e volume lidos
+    DIRETAMENTE da API da Bybit UE pelo servidor europeu (state.bybit_tickers, os mesmos que o scanner usa), com a
+    CoinGecko so como recurso. Devolve (pares, fonte, moedas com margem ou None)."""
+    from engine import scanner, venue
+    fetch = fetch or venue.fetch
+    try:
+        cg = fetch("USDC")
+    except Exception as e:                               # noqa: BLE001
+        print("coingecko:", e, file=sys.stderr)
+        cg = None
+    by = (st or {}).get("bybit_tickers")
+    # o combate so usa a lista para escolher moedas (liquidez), nao para precos de execucao: 6 h chegam
+    direto = bool(by and by.get("m") and now - (by.get("t") or 0) <= ARENA_IDADE_TICKERS)
+    ven = scanner.bybit_venue(cg, {**by, "t": now} if direto else None, now)
+    if not ven:
+        raise RuntimeError("sem lista de pares da Bybit UE (nem direta nem CoinGecko)")
+    if direto:                                           # so o que a Bybit UE lista hoje (a CoinGecko pode ter pares velhos)
+        ven = {b: v for b, v in ven.items() if b in by["m"]}
+    mg = ((st or {}).get("margem_bybit") or {})
+    margem = set(mg["moedas"]) if mg.get("moedas") and now - (mg.get("t") or 0) <= 7 * DAY else None
+    return ven, ("bybit_ue_direto" if direto else "coingecko"), margem
+
+
 def liquid(ven, cfg):
     """(moedas com par negociavel na Bybit UE + BTC, excluidas por liquidez)."""
     from engine import venue
@@ -1579,7 +1626,14 @@ def main(dest, days=DAYS, state_path=None, longo=False):
     # auditoria): metade dos sinais do combate caia em moedas sem liquidez
     # (volume, spread, preco parado), que o sistema ao vivo nunca executa, e
     # isso inflava a frequencia e o crescimento estimado dos lutadores
-    ven = venue.fetch("USDC")
+    st = {}
+    try:
+        if state_path and os.path.exists(state_path):
+            with open(state_path) as f:
+                st = json.load(f)
+    except Exception as e:                                # noqa: BLE001 (so leitura)
+        print("estado ilegível:", e, file=sys.stderr)
+    ven, fonte_ven, margem = universo_bybit_ue(st, now)
     listed, sem_liq = liquid(ven, cfg)
     CTX["spread"] = {b: v.get("spread_pct") for b, v in ven.items() if v.get("spread_pct") is not None}
     for base in listed:
@@ -1643,7 +1697,10 @@ def main(dest, days=DAYS, state_path=None, longo=False):
     except Exception as e:
         print("estado ilegível:", e, file=sys.stderr)
     res = run(bars, cfg, now, days, bars1h=bars1h, funding=funding, oi=oi, macro=macro, ls=ls,
-              renascidos=renascidos, regimes=longo)
+              renascidos=renascidos, regimes=longo, margem=margem)
+    res["universo_fonte"] = fonte_ven
+    res["shorts_universo"] = (sorted(set(margem) & set(bars)) if margem is not None
+                              else "lista de margem desconhecida: shorts em todas as moedas (como antes)")
     res["macro_series"] = sorted(macro)
     res["funding_moedas"] = len(funding)
     res["funding_fonte"] = fonte
