@@ -35,14 +35,28 @@ jobs:
           rm -rf /tmp/ex && mkdir -p /tmp/ex/out
           python3 -m pip install -q --user cryptography==43.0.3 2>/dev/null || python3 -m pip install -q cryptography==43.0.3 2>/dev/null || echo "cryptography nao instalada: cifra em Python puro"
           # (28/10) estado completo no cofre (cifrado); state.json e a copia publica sem dinheiro
-          git fetch -q origin data && { git show FETCH_HEAD:cofre_state.json > /tmp/ex/state.json 2>/dev/null || git show FETCH_HEAD:state.json > /tmp/ex/state.json; } || echo '{}' > /tmp/ex/state.json
-          if git ls-remote --exit-code -q origin refs/heads/execucoes >/dev/null 2>&1 && git fetch -q origin execucoes; then
-            git show FETCH_HEAD:exec.json > /tmp/ex/in.json || echo '{}' > /tmp/ex/in.json
-          else echo '{}' > /tmp/ex/in.json; fi
+          # (11/11, revisao) sem o estado do scan ou sem o registo das execucoes NAO se executa nada: antes uma falha de
+          # rede punha '{}' e o executor corria sem saber o que ja tinha feito (so o orderLinkId evitava duplicados).
+          git fetch -q origin data && { git show FETCH_HEAD:cofre_state.json > /tmp/ex/state.json 2>/dev/null || git show FETCH_HEAD:state.json > /tmp/ex/state.json; } \
+            || { echo "nao consegui ler o estado do ramo data: nada executado"; exit 1; }
+          RC=0; git ls-remote --exit-code -q origin refs/heads/execucoes >/dev/null 2>&1 || RC=$?
+          if [ "$RC" = 0 ]; then
+            git fetch -q origin execucoes && git show FETCH_HEAD:exec.json > /tmp/ex/in.json \
+              || { echo "nao consegui ler o registo de execucoes: nada executado"; exit 1; }
+          elif [ "$RC" = 2 ]; then echo '{}' > /tmp/ex/in.json
+          else echo "nao consegui consultar o ramo execucoes (codigo $RC): nada executado"; exit 1; fi
           python3 -m engine.cifra abrir /tmp/ex/state.json /tmp/ex/in.json
           python3 -m engine.executor /tmp/ex/state.json /tmp/ex/in.json /tmp/ex/out/exec.json
           python3 -m engine.cifra fechar /tmp/ex/out/exec.json
+          # (11/11, revisao) registo das execucoes publicado com 3 tentativas (5 s, 15 s); se falhar, o passo fica
+          # vermelho e avisa no Telegram (o registo desta volta nao chegou ao ramo: confirmar na app da Bybit)
           cd /tmp/ex/out && git init -q -b execucoes && git config user.name cryptoscan-bot \
             && git config user.email bot@users.noreply.github.com \
-            && git add exec.json && git commit -q -m "exec $(date -u +%FT%TZ)" \
-            && git push -q -f "$PUSH_URL" execucoes:execucoes
+            && git add exec.json && git commit -q -m "exec $(date -u +%FT%TZ)"
+          for espera in 5 15 0; do
+            if git push -q -f "$PUSH_URL" execucoes:execucoes 2>/tmp/push.err; then exit 0; fi
+            echo "push do registo de execucoes falhou: $(tail -1 /tmp/push.err | sed "s#$PUSH_URL#<url>#g" | cut -c1-160)"
+            [ "$espera" -gt 0 ] && sleep "$espera"
+          done
+          python3 -c "import os,urllib.parse,urllib.request; t,c=os.environ.get('TELEGRAM_BOT_TOKEN'),os.environ.get('TELEGRAM_CHAT_ID'); t and c and urllib.request.urlopen(urllib.request.Request(f'https://api.telegram.org/bot{t}/sendMessage', data=urllib.parse.urlencode({'chat_id': c, 'text': '🚨 Bybit: o registo das execucoes desta volta nao foi publicado (3 tentativas). Confirma as ordens na app da Bybit.'}).encode()), timeout=20)" || true
+          exit 1
