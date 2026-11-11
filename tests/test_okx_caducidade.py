@@ -170,5 +170,77 @@ class Caducidade(unittest.TestCase):
         self.assertIn("stop_ok", R["ops"]["X"])
 
 
+NAO_EXISTE = {"code": "51603", "msg": "Order does not exist", "data": []}
+SEM_FILLS = {"code": "0", "data": []}
+SEM_POS = {"code": "0", "data": []}
+
+
+class Revisao(unittest.TestCase):
+    """(11/11, revisao adversarial) ordens que desaparecem da OKX e contador de ambiguidade."""
+
+    def test_falhas_nao_seguidas_numa_ordem_viva_nao_alertam(self):
+        op = op_caducada(valido_ate=NOW + 10 * 3600)
+        todas = []
+        for i, resp in enumerate([{}, VIVA, VIVA, {}, VIVA, {}]):
+            _, m = correr(op, Gravador(resp), NOW + i * 3600)
+            todas += m
+        self.assertEqual([m for m in todas if "🚨" in m], [])
+        self.assertEqual(op.get("ambiguo"), 1)                       # so a ultima falha conta
+
+    def test_alerta_repete_de_6_em_6_horas(self):
+        op = op_caducada()
+        alertas = []
+        for i in range(12):
+            _, m = correr(op, Gravador(VIVA, {}), NOW + i * 3600)
+            alertas += [x for x in m if "🚨" in x]
+        self.assertEqual(len(alertas), 2)                             # a 3.a volta e 6 h depois
+
+    def test_ordem_desaparecida_sem_execucoes_e_sem_posicao_fica_cancelada(self):
+        op = op_caducada(cancelar_pedido=NOW - 7200, motivo_cancelar="caducou (8 h) sem executar")
+        g = Gravador(NAO_EXISTE, SEM_FILLS, SEM_POS)
+        fim, msgs = correr(op, g)
+        self.assertTrue(fim)
+        self.assertEqual(op["estado"], "cancelada")
+        self.assertIn("0 execucoes", op["motivo"])
+        self.assertTrue(any("fills-history" in p and "ordId=7" in p for _, p in g.chamadas))
+
+    def test_ordem_desaparecida_com_execucoes_fica_aberta(self):
+        op = op_caducada()
+        fills = {"code": "0", "data": [{"ordId": "7", "fillSz": "2", "fillPx": "1.0", "ts": str((NOW - 500) * 1000)},
+                                       {"ordId": "7", "fillSz": "2", "fillPx": "0.98", "ts": str((NOW - 400) * 1000)}]}
+        fim, _ = correr(op, Gravador(NAO_EXISTE, fills))
+        self.assertFalse(fim)
+        self.assertEqual(op["estado"], "aberta")
+        self.assertAlmostEqual(op["entrada"], 0.99)
+        self.assertEqual(op["t_fill"], NOW - 500)
+
+    def test_ordem_desaparecida_com_leitura_falhada_fica_pendente(self):
+        op = op_caducada()
+        fim, _ = correr(op, Gravador(NAO_EXISTE, {"code": "50001"}))
+        self.assertFalse(fim)
+        self.assertEqual(op["estado"], "pendente")
+
+    def test_ordem_desaparecida_sem_execucoes_mas_com_posicao_fica_pendente(self):
+        op = op_caducada()
+        fim, _ = correr(op, Gravador(NAO_EXISTE, SEM_FILLS, {"code": "0", "data": [{"pos": "3"}]}))
+        self.assertFalse(fim)
+        self.assertEqual(op["estado"], "pendente")
+
+    def test_cancelamento_51400_e_ordem_ja_nao_existe(self):
+        op = op_caducada()
+        g = Gravador(VIVA, {"code": "1", "data": [{"sCode": "51400"}]}, NAO_EXISTE, SEM_FILLS, SEM_POS)
+        fim, _ = correr(op, g)
+        self.assertTrue(fim)
+        self.assertEqual(op["estado"], "cancelada")
+
+    def test_ordem_presa_resolve_se_em_vez_de_ficar_pendente_para_sempre(self):
+        # cenario da revisao: cancelamento aceite, ainda 'live' na leitura imediata, e horas depois 51603
+        op = op_caducada()
+        correr(op, Gravador(VIVA, PEDIDO_OK, VIVA))
+        fim, _ = correr(op, Gravador(NAO_EXISTE, SEM_FILLS, SEM_POS), NOW + 3 * 3600)
+        self.assertTrue(fim)
+        self.assertNotIn("ambiguo", op)
+
+
 if __name__ == "__main__":
     unittest.main()

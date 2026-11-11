@@ -177,13 +177,60 @@ def _pedir_cancelamento(base, op, now, msgs, motivo):
     return False
 
 
+AMBIGUO_REPETIR = 6 * 3600                          # (11/11, revisao) o alerta repete-se de 6 em 6 h enquanto durar
+NAO_EXISTE = "51603"                                # a OKX ja nao tem a ordem (canceladas sem execucao saem ao fim de ~2 h)
+
+
 def _ambiguo(base, op, now, msgs, porque):
-    """Estado desconhecido: nada e assumido; conta voltas seguidas e alerta uma vez ao chegar a AMBIGUO_ALERTA."""
+    """Estado desconhecido: nada e assumido. Conta as voltas SEGUIDAS sem confirmacao (o contador volta a zero com
+    qualquer leitura conclusiva, em _confirmado) e alerta a partir de AMBIGUO_ALERTA, repetindo de 6 em 6 h."""
     op["ambiguo"] = int(op.get("ambiguo") or 0) + 1
     op["ambiguo_desde"] = op.get("ambiguo_desde") or int(now)
-    if op["ambiguo"] == AMBIGUO_ALERTA:
+    if op["ambiguo"] >= AMBIGUO_ALERTA and now - float(op.get("ambiguo_aviso") or 0) >= AMBIGUO_REPETIR:
+        op["ambiguo_aviso"] = int(now)
         msgs.append(f"🚨 OKX real — {base}: {porque}, há {op['ambiguo']} voltas seguidas. A ordem fica como PENDENTE "
                     f"(nada assumido: pode ter executado). Confirma na app da OKX.")
+
+
+def _confirmado(op):
+    for k in ("ambiguo", "ambiguo_desde", "ambiguo_aviso"):
+        op.pop(k, None)
+
+
+def _sem_ordem_na_okx(base, op, now, msgs):
+    """(11/11, revisao) A OKX responde que a ordem nao existe (51603): as canceladas SEM execucao deixam de ser
+    consultaveis ao fim de ~2 h, por isso isto nao prova nada sozinho. Decide pelas EXECUCOES dessa ordem
+    (fills-history por ordId) e pela posicao no contrato:
+      execucoes lidas e nenhuma + sem posicao no contrato -> cancelada (0 executado confirmado pelas execucoes);
+      ha execucoes -> aberta (entrada = preco medio das execucoes), gerida a partir dai (stop, objetivo, tempo);
+      leitura falhada, ou sem execucoes mas com posicao no contrato -> fica pendente e alerta (nada assumido).
+    Devolve True quando acabou sem posicao."""
+    f = privado("GET", f"/api/v5/trade/fills-history?instType=FUTURES&instId={op['inst']}&ordId={op['ordId']}&limit=100")
+    if f.get("code") != "0":
+        _ambiguo(base, op, now, msgs, f"a OKX ja nao mostra a ordem e nao consegui ler as execucoes ({f.get('code')})")
+        return False
+    fills = [x for x in (f.get("data") or []) if str(x.get("ordId")) == str(op["ordId"]) and float(x.get("fillSz") or 0) > 0]
+    if fills:
+        q = sum(float(x["fillSz"]) for x in fills)
+        px = sum(float(x["fillSz"]) * float(x["fillPx"]) for x in fills) / q
+        t = min(int(x.get("ts") or now * 1000) for x in fills) / 1000
+        op.update(estado="aberta", entrada=px, t_fill=int(t), parcial=True, sair_em=int(t) + 18 * H4)
+        _confirmado(op)
+        msgs.append(f"✅ OKX real — {base}: a ordem já não aparece na OKX mas as execuções mostram compra a {px:.6g}; "
+                    f"fica aberta e gerida (stop, objetivo, saída por tempo).")
+        return False
+    pos = privado("GET", f"/api/v5/account/positions?instId={op['inst']}")
+    if pos.get("code") != "0":
+        _ambiguo(base, op, now, msgs, "a OKX ja nao mostra a ordem e nao consegui ler a posicao")
+        return False
+    if any(float(x.get("pos") or 0) != 0 for x in (pos.get("data") or [])):
+        _ambiguo(base, op, now, msgs, "a OKX ja nao mostra a ordem, nao ha execucoes dela, mas ha posicao neste contrato")
+        return False
+    motivo = op.pop("motivo_cancelar", None) or "cancelada sem executar"
+    op.update(estado="cancelada", motivo=motivo + " (ordem ja nao existe na OKX; 0 execucoes)", fechado=int(now))
+    _confirmado(op)
+    msgs.append(f"⌛ OKX real — {base}: a ordem já não existe na OKX e não tem execuções. Nada comprado.")
+    return True
 
 
 def acompanhar_estado(base, op, d, now, msgs):
@@ -216,16 +263,12 @@ def acompanhar_estado(base, op, d, now, msgs):
         else:
             msgs.append(f"⌛ OKX real — {base}: a ordem foi cancelada sem executar (0 executado, confirmado na OKX).")
         op.update(estado="cancelada", motivo=motivo, fechado=int(now))
-        for k in ("ambiguo", "ambiguo_desde"):
-            op.pop(k, None)
+        _confirmado(op)
         return True
     elif st in ("canceled", "mmp_canceled"):
         _ambiguo(base, op, now, msgs, "a OKX diz cancelada mas não indica quanto executou")
         return False
-    else:
-        return False
-    for k in ("ambiguo", "ambiguo_desde"):
-        op.pop(k, None)
+    _confirmado(op)                 # leitura conclusiva (executada, parcial, ou ainda viva dentro da validade)
     return False
 
 
@@ -235,6 +278,8 @@ def acompanhar(base, op, now, msgs):
         r = privado("GET", f"/api/v5/trade/order?instId={op['inst']}&ordId={op['ordId']}")
         d = (r.get("data") or [{}])[0]
         st = d.get("state")
+        if str(r.get("code")) == NAO_EXISTE or str(d.get("sCode")) == NAO_EXISTE:
+            return _sem_ordem_na_okx(base, op, now, msgs)
         if r.get("code") != "0" or not st:
             _ambiguo(base, op, now, msgs, "não consegui ler o estado da ordem na OKX")
             return False
@@ -247,6 +292,8 @@ def acompanhar(base, op, now, msgs):
                 return False
             r2 = privado("GET", f"/api/v5/trade/order?instId={op['inst']}&ordId={op['ordId']}")
             d2 = (r2.get("data") or [{}])[0]
+            if str(r2.get("code")) == NAO_EXISTE or str(d2.get("sCode")) == NAO_EXISTE:
+                return _sem_ordem_na_okx(base, op, now, msgs)
             if r2.get("code") == "0" and d2.get("state") and d2.get("state") != "live":
                 return acompanhar_estado(base, op, d2, now, msgs)
             _ambiguo(base, op, now, msgs, "o cancelamento por caducidade foi pedido mas a OKX ainda não confirma o estado final")
