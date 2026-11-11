@@ -1,0 +1,158 @@
+{
+ "gerado": 1794423712,
+ "okx": {
+  "sinais": 29,
+  "por_tipo": {
+   "isolado": 25,
+   "mercado": 4
+  },
+  "contratos_analisados": 289,
+  "grupos": {
+   "colocado em real": {
+    "n": 6,
+    "fechadas_em_papel": 6,
+    "r_medio_papel": -0.6943,
+    "soma_r_papel": -4.166
+   },
+   "rejeitado: H40 suspensa do real": {
+    "n": 17,
+    "fechadas_em_papel": 12,
+    "r_medio_papel": -0.8923,
+    "soma_r_papel": -10.708
+   },
+   "rejeitado: ordem minima obrigava a mais risco": {
+    "n": 1,
+    "fechadas_em_papel": 0,
+    "r_medio_papel": null,
+    "soma_r_papel": null
+   },
+   "rejeitado: panico isolado (so mercado todo)": {
+    "n": 4,
+    "fechadas_em_papel": 4,
+    "r_medio_papel": 0.3257,
+    "soma_r_papel": 1.303
+   },
+   "rejeitado: sem X-Perp negociavel": {
+    "n": 1,
+    "fechadas_em_papel": 1,
+    "r_medio_papel": 1.995,
+    "soma_r_papel": 1.995
+   }
+  },
+  "rejeitados_r_medio_papel": -0.4359,
+  "leitura": "os sinais rejeitados perderam em papel: a rejeicao poupou dinheiro",
+  "h46": {
+   "pendentes": 0,
+   "abertas": 0,
+   "fechadas": 0,
+   "btc_em_subida": false
+  },
+  "radar": {
+   "btc_24h_pct": 1.1,
+   "o_que_falta": {
+    "financiamento 0.005%": 6,
+    "BTC +1.1% em 24 h": 8,
+    "sem histórico de financiamento suficiente": 2
+   }
+  }
+ },
+ "bybit": {
+  "contagens": {
+   "pairs_seen": 967,
+   "eligible": 70,
+   "deep_checked": 70,
+   "data_valid": 53,
+   "data_invalid": 0,
+   "long": 0,
+   "short": 0,
+   "watch_short": 0,
+   "paper": 0,
+   "watchlist": 0,
+   "no_trade": 70
+  },
+  "motivos_da_decisao": {
+   "nenhuma estratégia aplicável em regime BEAR": 14,
+   "volume baixo na Bybit UE": 10,
+   "nenhuma estratégia aplicável em regime STRONG BEAR": 9,
+   "dados inválidos ou histórico insuficiente": 7,
+   "LIQUIDITY_SWEEP: estratégia desligada": 6,
+   "nenhuma estratégia aplicável em regime NEUTRAL": 5,
+   "spread elevado na Bybit UE": 5,
+   "LIQUIDITY_SWEEP: sweep de fundo em regime de descida forte": 4,
+   "BREAKOUT: quebra em alta contra regime diário de descida": 3,
+   "PULLBACK: estratégia desligada": 2,
+   "BREAKOUT: FAKE BREAKOUT: preço voltou a fechar abaixo do nivel quebrado": 2,
+   "regime HIGH VOLATILITY: sem vantagem identificável": 2,
+   "nenhuma estratégia aplicável em regime RANGE": 1
+  },
+  "regimes": {
+   "BEAR": 18,
+   "NEUTRAL": 9,
+   "STRONG BULL": 1,
+   "?": 22,
+   "STRONG BEAR": 15,
+   "RANGE": 2,
+   "HIGH VOLATILITY": 2,
+   "BULL": 1
+  },
+  "estrategias_desligadas": [
+   "BREAKOUT",
+   "LIQUIDITY_SWEEP",
+   "PULLBACK",
+   "RANGE",
+   "RANGE_SHORT",
+   "TREND_DAILY"
+  ],
+  "estrategias_suspensas_pelo_criterio": [
+   "BOUNCE_1H",
+   "BOUNCE_ABSORCAO",
+   "BOUNCE_DESALAV",
+   "BOUNCE_FORTE",
+   "BOUNCE_G0",
+   "BOUNCE_HORAS",
+   "BOUNCE_ISOLADA",
+   "BOUNCE_LSR",
+   "BOUNCE_MACRO",
+   "BOUNCE_NOREACT",
+   "BOUNCE_SQUEEZE",
+   "BOUNCE_TRAIL",
+   "BOUNCE_V2",
+   "BOUNCE_V3",
+   "BOUNCE_X30",
+   "BOUNCE_X30_LIQ",
+   "BOUNCE_X30_PAVIO",
+   "DIP_TREND",
+   "FIBO_RECUO",
+   "LIQUIDITY_SWEEP",
+   "MOMENTUM",
+   "PULLBACK",
+   "RETESTE",
+   "REVERSAO_INTERVALO",
+   "SQUEEZE_BB",
+   "VOLUME_ACUMULACAO"
+  ],
+  "so_papel": {
+   "SHORT_TURTLE": "deriva recente: últimas 63 operações na fase lateral em -0.16R, abaixo de -0.15R"
+  },
+  "promocoes_perdidas_por_motivo": {
+   "liquidez": 38,
+   "plano": 33,
+   "diversificação": 26,
+   "evento": 2,
+   "Diretor de Trading": 1
+  },
+  "promocoes_perdidas_por_estrategia": {
+   "SHORT_TURTLE": 89,
+   "BOUNCE_ISOLADA": 9,
+   "BOUNCE_SQUEEZE": 2
+  },
+  "papel_h45_perdidas": 5
+ },
+ "diagnostico": [
+  "regime de mercado: a maioria das moedas da Bybit esta em BEAR/STRONG BEAR, onde nenhuma estrategia ativa se aplica",
+  "estrategias suspensas pelo proprio criterio de custos: 26 (perdiam depois de comissoes e spread)",
+  "liquidez ou preco da Bybit UE: 15 moedas rejeitadas por volume, spread ou divergencia",
+  "OKX: os sinais rejeitados para real deram -0.44R em papel (rejeicao correta)",
+  "H46 (unica estrategia com real ligado): exige BTC em subida; 0 sinais no regime atual"
+ ]
+}
