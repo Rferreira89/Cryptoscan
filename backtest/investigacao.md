@@ -1,19 +1,20 @@
 # Diário de investigação
 
-**Hipóteses testadas contra esta reserva: 25** (12 neste diário: compra de
+**Hipóteses testadas contra esta reserva: 26** (12 neste diário: compra de
 quedas, compressão, oversold bounce 4H, day trade 1H, bounce com outras
 saídas, sweep a mercado, funding negativo, quebra com compradores,
 capitulação do mercado, atraso face ao BTC, resiliente, impulso de
-amplitude; mais 13 no diário de afinação, H1 a H13). Atualizado em
-2026-11-10 (sem hipótese nova nesta corrida nem nas anteriores desde
-2026-10-20; a afinação testou a H13 em 2026-11-04 e a H14 em 2026-11-06,
-uma medição de lutadores existentes que não conta como hipótese nova). O contador global do
+amplitude; mais 14 no diário de afinação, H1 a H13 e H15). Atualizado em
+2026-11-11 (sem hipótese nova nesta corrida nem nas anteriores desde
+2026-10-20; a afinação testou a H13 em 2026-11-04, a H14 em 2026-11-06,
+uma medição de lutadores existentes que não conta como hipótese nova, e a
+H15 em 2026-11-11, rejeitada). O contador global do
 programa (`engine/hipoteses.py` mais `backtest/hipoteses_offline.json`,
 contra dados que incluem esta reserva) já vai em 87 (ringue longo,
 2026-11-04), mais os estudos H38–H41 de 03–04/11 em `backtest/estudos/`.
 Quanto maior este número, maior a probabilidade de uma hipótese passar por
-sorte: com 25 testes, a probabilidade de pelo menos um falso positivo a 5%
-já ronda os 72% (e as várias configurações de cada grelha aumentam-na
+sorte: com 26 testes, a probabilidade de pelo menos um falso positivo a 5%
+já ronda os 74% (e as várias configurações de cada grelha aumentam-na
 ainda mais).
 
 Uma hipótese por entrada, com o veredicto. Método: `tools/research.py`
@@ -2341,3 +2342,47 @@ menos um falso positivo a 5% ronda os 72%.
   (sem mudar regras, parâmetros nem critério).
 - Nota: não há entradas do caçador de 08/11 e 09/11 neste diário.
 - Nenhum resultado em dados antigos foi usado como validação.
+
+## 2026-11-11 — Sem hipótese nova hoje (sem mortos novos; fila vazia)
+
+**Veredicto da corrida: nenhuma hipótese testada.** O contador desta
+reserva passa a 26 por causa da afinação (H15 RECUO_SUBIDA, testada e
+rejeitada hoje: −0,23R em 2021-24, percentil 0,1 contra o acaso). Com 26
+testes contra a mesma reserva, a probabilidade de pelo menos um falso
+positivo a 5% ronda os 74%.
+
+- **Histórico** (ramo `history`): última vela de 4H em 2026-11-08 12:00
+  UTC (3 dias de atraso, dentro do limite de 7; não foi preciso lançar o
+  workflow). Janela de 24 meses: desenho 2024-11-08 → 2026-05-08, reserva
+  2026-05-08 → 2026-11-08.
+- **Arena** (scan.json do ramo `data`, 2026-11-11 11:50 UTC): **10
+  lutadores a competir** (mínimo 5), `recrutar` falso. Nenhum morto novo
+  desde BOUNCE_MACRO_R2 (2026-11-04, já na tabela de sucessores). Fila do
+  Rui vazia.
+- **Combate de 90 dias** (`forma.json`, ramo `arena`, 2026-11-11 11:23
+  UTC, 45 moedas): BOUNCE_AMPLITUDE 16 op., 16 ganhadoras, +0,822R (acaso
+  mediana −0,434R, p95 −0,088R) — continua o único claramente acima do
+  acaso, mas chumbou no critério da conta (2026-11-02), tem menos de 20
+  operações e 16 em 16 é sinal de poucos acontecimentos independentes, não
+  de 100% de acerto. REVERSAO_INTERVALO 27 op., 19 ganhadoras, −0,006R
+  (p95 −0,032R): voltou a ficar acima do p95 só por 0,03R, depois de cair
+  para o limite a 08/11 e subir a 10/11 — margem instável. MAIORES_RECUO 17
+  op., −0,019R (p95 +0,079R). Os restantes têm 1 a 4 operações;
+  BREAKOUT_R2 (2 op., −1,02R), SHORT_SQUEEZE (4 op., −0,84R) e
+  MAIORES_TENDENCIA (3 op., −0,79R) seguem para a morte rápida se
+  chegarem às 10 operações neste ritmo.
+- **Porque não há hipótese nova**: as mesmas razões de 2026-10-21 a
+  2026-11-10. As famílias de entrada em 4H estão esgotadas contra esta
+  reserva; as ideias com fonte nova (H57–H59) só podem ser avaliadas com
+  dados posteriores a 10/11, e testá-las aqui com dados antigos estragaria
+  esse teste limpo; a sazonalidade intradiária é a próxima proposta da
+  afinação (diário de afinação, 2026-11-06/11) e não deve ser testada pelos
+  dois agentes contra a mesma reserva. Vigésima primeira corrida seguida
+  sem hipótese nova.
+- Proposta para a próxima corrida: autópsia se morrer alguém (BREAKOUT_R2,
+  SHORT_SQUEEZE e MAIORES_TENDENCIA são os candidatos); hipótese nova só
+  com fonte nova. Mantém-se para a sessão com o Rui: (1) passar esta
+  corrida a semanal enquanto não houver dados novos; (2) regresso dos
+  mortos só com as duas metades do ringue longo positivas; (3) morte
+  rápida a contar acontecimentos; (4) corte dos clones só com
+  representantes vivos; (5) o caso CAPITULACAO_R2 fora da classificação.
