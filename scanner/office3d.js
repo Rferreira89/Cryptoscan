@@ -971,7 +971,7 @@ function staffLines(id) {
     const ok = Object.entries(src).map(([k, v]) => `${k} ${v.ok ? "✓" : "✗"}`).join(" · ");
     return ["Qualidade dos dados de cada scan",
       ok || "Fontes: a carregar…",
-      `${n.pairs_seen || 0} pares → ${n.eligible || 0} elegíveis → ${n.data_valid || 0} válidos`,
+      `${n.moedas_descoberta_externa || n.pairs_seen || 0} moedas externas → ${n.eligible || 0} elegíveis → ${n.data_valid || 0} válidos`,
       ageMin == null ? "–" : [`Último scan: há ${ageMin} min`, ageMin > 30 ? "#FC8181" : "#68D391"]];
   }
   const J = (D.journal || {}).rows || [], dec = new Set(J.filter(r => r.executed === false || r.user_closed_flag).map(r => r.id));

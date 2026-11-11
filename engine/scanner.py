@@ -678,7 +678,13 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
     dec = [r["decision"]["decision"] for r in eligible]
     result.update(
         status_global="OK" if ok_all else "DEGRADED",
+        # (11/11) "pairs_seen" fica por compatibilidade, mas sao MOEDAS da descoberta externa (Binance/OKX/KuCoin),
+        # nao pares da Bybit UE. Os numeros da execucao vem a seguir, com nomes que dizem o que sao.
         counts={"pairs_seen": len(uni),
+                "moedas_descoberta_externa": len(uni),
+                "pares_bybit_ue": len(ven) if ven else None,
+                "pares_bybit_ue_margem": len((state.get("margem_bybit") or {}).get("moedas") or []) or None,
+                "moedas_analisadas": len(eligible),
                 "eligible": sum(r["eligible"] for r in uni),
                 "deep_checked": len(eligible),
                 "data_valid": sum(r.get("data_status") == validate.VALID

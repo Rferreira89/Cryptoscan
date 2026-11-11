@@ -92,3 +92,91 @@ A H40 aguenta o preenchimento conservador; a H46 desce para zero ou abaixo. No r
 Lacunas reais:
 - regime lateral (é o atual em muitas moedas);
 - intradiário na OKX, onde o custo de 0,2% o permite: faltam velas de 15m/1h de X-Perps no ramo history.
+
+---
+
+# Fecho (11/11, 23h): arena com shorts só onde a Bybit UE deixa vender
+
+Scripts em `backtest/estudos/universo/`.
+- `arena_shorts.py` corre o `arena_ringue.run` real, só com os lutadores SHORT.
+- `comparar_arena.py` usa `tools/auditoria_rentabilidade.py` do ramo `investigacao/expansao-rentabilidade`.
+
+Dados: velas de 4H do ramo history, nas moedas que a Bybit UE lista hoje: 70 moedas, 32 delas com margem.
+
+## Arena de 365 dias: antiga, só margem, e só margem com juro de 0,03%/dia (juro não verificado)
+
+| Lutador | Antiga: n / dias / R/op / R/dia / veredicto | Só margem | Margem e juro | Operações antigas sem margem |
+|---|---|---|---|---|
+| SHORT_FALSO_ROMP (só papel de estudo) | 102 / 51 / +0,29 / **+0,28** / SOBE | 36 / 25 / +0,25 / **+0,01** / SOBE | 36 / 25 / +0,24 / **+0,00** / SOBE | 65% (R +0,32) |
+| SHORT_TURTLE | 676 / 166 / +0,26 / +0,25 / MORTA (90 d) | 299 / 105 / +0,27 / +0,25 | 299 / 105 / +0,23 / +0,22 | 56% (R +0,25) |
+| SHORT_X30 | 902 / 209 / −0,14 / −0,08 / MORTA | 422 / 121 / −0,14 / −0,10 | 422 / 121 / −0,16 / −0,11 | 53% |
+| SHORT_ISOLADA | 753 / 195 / −0,12 / −0,08 / MORTA | 341 / 110 / −0,14 / −0,10 | 341 / 110 / −0,15 / −0,11 | 55% |
+| SHORT_FLUXO | 349 / 135 / −0,20 / −0,11 / MORTA | 170 / 72 / −0,21 / −0,09 | 170 / 72 / −0,22 / −0,11 | 51% |
+| SHORT_MAIORES_* | só BTC, ETH e SOL: não muda | — | juro −0,02R | 0% |
+
+**Por regime (365 d).** Em queda, SHORT_X30 passa de +0,35R (112 operações) para +0,60R (51) e SHORT_ISOLADA de +0,29R para +0,53R (43).
+- Ambos têm `SOBE` em queda nas três versões.
+- Em subida e lateral perdem sempre.
+
+**Por moeda.** O detalhe está nos JSON. A maior parte do ganho antigo da SHORT_FALSO_ROMP vinha de moedas sem margem (NXPC, STRK, XPL, RESOLV, ANIME, HOME…).
+
+**Arena de 90 dias.** Todos os shorts estão MORTA nas três versões.
+- Cerca de metade das operações era em moedas sem margem.
+- O juro custa entre 0,01 e 0,03R por operação.
+
+## Promoções antigas baseadas em operações impossíveis?
+
+- **SHORT_TURTLE**, campeão em lateral (`campeoes_estudo`): veio do estudo H10, com 25 moedas, das quais 5 sem margem (NEAR, TRX, PUMP, XPL, BCH). Refeito só com margem e com juro continua **APTA** em lateral:
+  - período A: +0,23R por operação, +0,25R por dia, 102 dias;
+  - período B: +0,17R por operação, +0,18R por dia, 117 dias.
+  - A promoção não dependia de operações impossíveis.
+- **SHORT_FALSO_ROMP**: a vantagem por dia dependia de moedas sem margem; nas moedas executáveis fica em +0,00R por dia. Está só em papel de estudo (fora de `REAL_OK`), por isso não houve dinheiro real envolvido.
+  - Com a regra atual da arena continuaria `SOBE`, porque a regra conta operações e não dias.
+- **Registo de operações reais da Bybit:** tem 2 shorts REAL FECHADOS sem nenhuma execução na corretora. É o mesmo par já provado no ensaio do ledger: AVAX (+0,52R) e ICP (+0,47R). A ICP nem tem margem: foi recusada a 22/10.
+  - Os resultados reais da arena e da promoção não os usam, porque filtram por `executed`.
+  - A correção do ledger continua por autorizar.
+
+## Elegibilidade real de shorts por moeda
+
+- `engine/account.interpretar_margem` e `margem_detalhe` estão no ramo; não estão ligados ao snapshot, ao scanner nem ao executor.
+- Usam só leituras (GET), com a chave só de leitura:
+  - `instruments-info`: estado, margem spot, mínimos de quantidade e valor, máximo;
+  - `account/collateral-info`: se a moeda é emprestável, quantidade disponível para empréstimo, máximo e taxa horária.
+- **Limitação:** não consegui confirmar se a Bybit UE serve `collateral-info` (o acesso daqui à API está bloqueado e correr no servidor europeu é um workflow novo). Por isso, para cada moeda, a quantidade emprestável e a taxa estão **por confirmar**. O código devolve `None` e `confirmado=false`; nunca inventa.
+- Para confirmar: `python -m engine.account --margem saida.json` no servidor europeu (precisa do teu OK).
+
+## H40: preenchimento × tetos, por dia independente (antes da reserva, 53 dias)
+
+| Preenchimento | Variante | Operações | R/op | R médio por dia, risco do dia dividido pelos sinais (IC90) | Dias + |
+|---|---|---|---|---|---|
+| toque | todos os sinais | 349 | +0,35 | −0,04 [−0,25; +0,19] | 24 / 53 |
+| toque | teto 3 abertas | 106 | +0,14 | +0,07 [−0,18; +0,33] | 21 / 47 |
+| toque | teto 1 aberta | 42 | +0,04 | +0,07 [−0,19; +0,35] | 17 / 40 |
+| 0,1% | todos os sinais | 343 | +0,33 | −0,04 [−0,25; +0,18] | 23 / 53 |
+| 0,1% | teto 3 | 107 | +0,09 | +0,03 [−0,21; +0,29] | 21 / 47 |
+| 0,1% | teto 1 | 43 | −0,02 | +0,06 [−0,22; +0,35] | 17 / 40 |
+| 0,3% | todos os sinais | 333 | +0,33 | −0,06 [−0,27; +0,17] | 22 / 53 |
+| 0,3% | teto 3 | 105 | +0,11 | +0,04 [−0,19; +0,28] | 21 / 47 |
+| 0,3% | teto 1 | 42 | −0,10 | −0,06 [−0,33; +0,23] | 16 / 40 |
+
+- O risco agregado por acontecimento, que divide o mesmo risco pelos sinais do dia, é a coluna "R médio por dia". Em todas as variantes o IC90 inclui zero. Não há vantagem por acontecimento.
+- O ganho de "todos os sinais" (+2,1 a +2,3R somados por dia) só existe arriscando mais nos dias com muitos sinais; 3 dias valem 84 a 94% do total. Não se recomenda.
+
+## Decisão de integração
+
+**A. Pode integrar-se: só elimina avaliações impossíveis ou erradas.**
+1. Os shorts da arena passam a combater só em moedas com margem, `run(margem=)`.
+2. O universo da arena passa a vir da API da Bybit UE.
+3. Contagens com nomes corretos (`moedas_descoberta_externa`, `pares_bybit_ue`, `pares_bybit_ue_margem`, `moedas_analisadas`), mais os textos do painel; `pairs_seen` mantém-se por compatibilidade.
+4. `interpretar_margem` e `margem_detalhe`, que são só leitura e não estão ligadas a nada.
+
+Mesmo sendo correções, mudam os números que a arena publica. Recomendo integrar com uma nota no relatório da arena.
+
+**B. Muda classificações ou critérios: precisa de validação.**
+1. O juro de 0,03%/dia nos shorts da arena: o valor tem de vir de `collateral-info` antes de ser critério.
+2. Passar a regra `SOBE`/morte da arena a contar dias independentes em vez de operações: é o caso SHORT_FALSO_ROMP.
+3. A promoção por regime de SHORT_X30 e SHORT_ISOLADA em queda: melhora com a margem, mas é uma nova comparação múltipla. Fica só em sombra.
+
+**C. Continua sem evidência suficiente.** H40 com qualquer teto ou agregação, H46, Bounce em subida, SHORT_MAIORES_TENDENCIA (15 operações).
+
+**Execução real.** Este ramo não mexe em `engine/executor.py`, `tools/okx_exec.py`, `config.json`, `okx_config.json` nem `.github/workflows`. O `engine/scanner.py` só acrescenta contagens.

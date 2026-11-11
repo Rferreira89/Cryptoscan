@@ -244,7 +244,7 @@ function renderAtiv(c) {
   } else if (t === "scanners") {
     const R = (c.O || {}).resumo || {}, MR = ((c.O || {}).macro || {}).resumo || {};
     el.innerHTML = `<div class="duas"><section><h4>Mercados e scanners</h4>${lista([
-      ["Cripto global", `${co.pairs_seen ?? "–"} pares · ${Object.entries(S.sources || {}).map(([n, s]) => `${n} ${s.ok ? "✓" : "✗"}`).join(" ")}`],
+      ["Cripto global", `${co.moedas_descoberta_externa ?? co.pairs_seen ?? "–"} moedas de descoberta externa · ${co.pares_bybit_ue ?? "–"} pares na Bybit UE · ${Object.entries(S.sources || {}).map(([n, s]) => `${n} ${s.ok ? "✓" : "✗"}`).join(" ")}`],
       ["Bybit UE spot", `${(S.venue_source || {}).pairs ?? "–"} pares ${(S.venue_source || {}).ok ? "✓" : "✗"} · ${co.deep_checked ?? "–"}/${co.eligible ?? "–"} analisados`],
       ["OKX perpétuos", `${R.analisados ?? "–"} analisados · ${hora(R.t)}`], ["OKX ações, índices, metais", `${MR.analisados ?? "–"} analisados · ${(MR.abertas || []).length} em tendência ${amb("PAPEL")}`],
       ["Regime BTC", (S.market_regime || {}).btc || "–"]], "–", true)}</section>

@@ -1,0 +1,119 @@
+{
+ "toque|todos os sinais (risco por operacao)": {
+  "operacoes": 349,
+  "dias": 53,
+  "r_por_op": 0.3482,
+  "r_medio_por_dia (risco do dia dividido pelos sinais)": -0.0374,
+  "ic90_dia": [
+   -0.247,
+   0.1857
+  ],
+  "r_somado_por_dia": 2.293,
+  "dias_positivos": 24,
+  "top3_dias_pct_do_total": 0.84
+ },
+ "toque|teto 3 abertas": {
+  "operacoes": 106,
+  "dias": 47,
+  "r_por_op": 0.1381,
+  "r_medio_por_dia (risco do dia dividido pelos sinais)": 0.0657,
+  "ic90_dia": [
+   -0.1756,
+   0.3302
+  ],
+  "r_somado_por_dia": 0.311,
+  "dias_positivos": 21,
+  "top3_dias_pct_do_total": 1.23
+ },
+ "toque|teto 1 aberta": {
+  "operacoes": 42,
+  "dias": 40,
+  "r_por_op": 0.0386,
+  "r_medio_por_dia (risco do dia dividido pelos sinais)": 0.0739,
+  "ic90_dia": [
+   -0.1935,
+   0.3545
+  ],
+  "r_somado_por_dia": 0.041,
+  "dias_positivos": 17,
+  "top3_dias_pct_do_total": 3.69
+ },
+ "0,1%|todos os sinais (risco por operacao)": {
+  "operacoes": 343,
+  "dias": 53,
+  "r_por_op": 0.3286,
+  "r_medio_por_dia (risco do dia dividido pelos sinais)": -0.0418,
+  "ic90_dia": [
+   -0.252,
+   0.1797
+  ],
+  "r_somado_por_dia": 2.127,
+  "dias_positivos": 23,
+  "top3_dias_pct_do_total": 0.91
+ },
+ "0,1%|teto 3 abertas": {
+  "operacoes": 107,
+  "dias": 47,
+  "r_por_op": 0.0869,
+  "r_medio_por_dia (risco do dia dividido pelos sinais)": 0.0258,
+  "ic90_dia": [
+   -0.2112,
+   0.2895
+  ],
+  "r_somado_por_dia": 0.198,
+  "dias_positivos": 21,
+  "top3_dias_pct_do_total": 1.8
+ },
+ "0,1%|teto 1 aberta": {
+  "operacoes": 43,
+  "dias": 40,
+  "r_por_op": -0.0188,
+  "r_medio_por_dia (risco do dia dividido pelos sinais)": 0.0558,
+  "ic90_dia": [
+   -0.2152,
+   0.3471
+  ],
+  "r_somado_por_dia": -0.02,
+  "dias_positivos": 17,
+  "top3_dias_pct_do_total": null
+ },
+ "0,3%|todos os sinais (risco por operacao)": {
+  "operacoes": 333,
+  "dias": 53,
+  "r_por_op": 0.3284,
+  "r_medio_por_dia (risco do dia dividido pelos sinais)": -0.0554,
+  "ic90_dia": [
+   -0.2694,
+   0.1661
+  ],
+  "r_somado_por_dia": 2.064,
+  "dias_positivos": 22,
+  "top3_dias_pct_do_total": 0.94
+ },
+ "0,3%|teto 3 abertas": {
+  "operacoes": 105,
+  "dias": 47,
+  "r_por_op": 0.1108,
+  "r_medio_por_dia (risco do dia dividido pelos sinais)": 0.0372,
+  "ic90_dia": [
+   -0.1894,
+   0.2834
+  ],
+  "r_somado_por_dia": 0.248,
+  "dias_positivos": 21,
+  "top3_dias_pct_do_total": 1.54
+ },
+ "0,3%|teto 1 aberta": {
+  "operacoes": 42,
+  "dias": 40,
+  "r_por_op": -0.1044,
+  "r_medio_por_dia (risco do dia dividido pelos sinais)": -0.0589,
+  "ic90_dia": [
+   -0.3305,
+   0.2255
+  ],
+  "r_somado_por_dia": -0.11,
+  "dias_positivos": 16,
+  "top3_dias_pct_do_total": null
+ }
+}

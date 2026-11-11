@@ -1,0 +1,800 @@
+{
+ "estudo H10 (25 moedas)|SHORT_FLUXO|subida": {
+  "A": {
+   "n": 85,
+   "r": -0.149,
+   "dias": 59,
+   "r_dia": -0.049
+  },
+  "B": {
+   "n": 90,
+   "r": -0.405,
+   "dias": 39,
+   "r_dia": -0.302
+  },
+  "apta": false
+ },
+ "estudo H10 (25 moedas)|SHORT_FLUXO|lateral": {
+  "A": {
+   "n": 119,
+   "r": -0.257,
+   "dias": 73,
+   "r_dia": -0.2
+  },
+  "B": {
+   "n": 282,
+   "r": -0.146,
+   "dias": 137,
+   "r_dia": -0.138
+  },
+  "apta": false
+ },
+ "estudo H10 (25 moedas)|SHORT_FLUXO|queda": {
+  "A": {
+   "n": 17,
+   "r": -0.127,
+   "dias": 13,
+   "r_dia": -0.181
+  },
+  "B": {
+   "n": 21,
+   "r": -0.027,
+   "dias": 13,
+   "r_dia": -0.273
+  },
+  "apta": false
+ },
+ "estudo H10 (25 moedas)|SHORT_ISOLADA|subida": {
+  "A": {
+   "n": 229,
+   "r": -0.278,
+   "dias": 113,
+   "r_dia": -0.252
+  },
+  "B": {
+   "n": 189,
+   "r": -0.26,
+   "dias": 53,
+   "r_dia": -0.119
+  },
+  "apta": false
+ },
+ "estudo H10 (25 moedas)|SHORT_ISOLADA|lateral": {
+  "A": {
+   "n": 357,
+   "r": -0.27,
+   "dias": 177,
+   "r_dia": -0.231
+  },
+  "B": {
+   "n": 504,
+   "r": -0.159,
+   "dias": 185,
+   "r_dia": -0.114
+  },
+  "apta": false
+ },
+ "estudo H10 (25 moedas)|SHORT_ISOLADA|queda": {
+  "A": {
+   "n": 44,
+   "r": 0.119,
+   "dias": 28,
+   "r_dia": 0.14
+  },
+  "B": {
+   "n": 50,
+   "r": 0.184,
+   "dias": 23,
+   "r_dia": -0.053
+  },
+  "apta": false
+ },
+ "estudo H10 (25 moedas)|SHORT_MAIORES_RECUO|subida": {
+  "A": {
+   "n": 1,
+   "r": -1.012,
+   "dias": 1,
+   "r_dia": -1.012
+  },
+  "B": {
+   "n": 0,
+   "dias": 0
+  },
+  "apta": false
+ },
+ "estudo H10 (25 moedas)|SHORT_MAIORES_RECUO|lateral": {
+  "A": {
+   "n": 37,
+   "r": -0.431,
+   "dias": 31,
+   "r_dia": -0.426
+  },
+  "B": {
+   "n": 50,
+   "r": -0.199,
+   "dias": 37,
+   "r_dia": -0.204
+  },
+  "apta": false
+ },
+ "estudo H10 (25 moedas)|SHORT_MAIORES_RECUO|queda": {
+  "A": {
+   "n": 44,
+   "r": 0.024,
+   "dias": 28,
+   "r_dia": -0.003
+  },
+  "B": {
+   "n": 28,
+   "r": 0.175,
+   "dias": 17,
+   "r_dia": 0.038
+  },
+  "apta": false
+ },
+ "estudo H10 (25 moedas)|SHORT_MAIORES_TENDENCIA|subida": {
+  "A": {
+   "n": 0,
+   "dias": 0
+  },
+  "B": {
+   "n": 1,
+   "r": -1.009,
+   "dias": 1,
+   "r_dia": -1.009
+  },
+  "apta": false
+ },
+ "estudo H10 (25 moedas)|SHORT_MAIORES_TENDENCIA|lateral": {
+  "A": {
+   "n": 13,
+   "r": -0.442,
+   "dias": 13,
+   "r_dia": -0.442
+  },
+  "B": {
+   "n": 16,
+   "r": 0.491,
+   "dias": 15,
+   "r_dia": 0.504
+  },
+  "apta": false
+ },
+ "estudo H10 (25 moedas)|SHORT_MAIORES_TENDENCIA|queda": {
+  "A": {
+   "n": 18,
+   "r": 0.559,
+   "dias": 14,
+   "r_dia": 0.478
+  },
+  "B": {
+   "n": 5,
+   "r": 1.67,
+   "dias": 5,
+   "r_dia": 1.67
+  },
+  "apta": false
+ },
+ "estudo H10 (25 moedas)|SHORT_TURTLE|subida": {
+  "A": {
+   "n": 27,
+   "r": -0.621,
+   "dias": 15,
+   "r_dia": -0.42
+  },
+  "B": {
+   "n": 77,
+   "r": 0.417,
+   "dias": 24,
+   "r_dia": 0.414
+  },
+  "apta": false
+ },
+ "estudo H10 (25 moedas)|SHORT_TURTLE|lateral": {
+  "A": {
+   "n": 274,
+   "r": 0.255,
+   "dias": 113,
+   "r_dia": 0.241
+  },
+  "B": {
+   "n": 367,
+   "r": 0.175,
+   "dias": 131,
+   "r_dia": 0.198
+  },
+  "apta": true
+ },
+ "estudo H10 (25 moedas)|SHORT_TURTLE|queda": {
+  "A": {
+   "n": 101,
+   "r": 0.279,
+   "dias": 36,
+   "r_dia": 0.239
+  },
+  "B": {
+   "n": 76,
+   "r": 0.069,
+   "dias": 31,
+   "r_dia": 0.092
+  },
+  "apta": false
+ },
+ "estudo H10 (25 moedas)|SHORT_X30|subida": {
+  "A": {
+   "n": 304,
+   "r": -0.205,
+   "dias": 126,
+   "r_dia": -0.18
+  },
+  "B": {
+   "n": 227,
+   "r": -0.305,
+   "dias": 61,
+   "r_dia": -0.153
+  },
+  "apta": false
+ },
+ "estudo H10 (25 moedas)|SHORT_X30|lateral": {
+  "A": {
+   "n": 501,
+   "r": -0.265,
+   "dias": 214,
+   "r_dia": -0.249
+  },
+  "B": {
+   "n": 625,
+   "r": -0.158,
+   "dias": 218,
+   "r_dia": -0.131
+  },
+  "apta": false
+ },
+ "estudo H10 (25 moedas)|SHORT_X30|queda": {
+  "A": {
+   "n": 61,
+   "r": 0.173,
+   "dias": 34,
+   "r_dia": 0.2
+  },
+  "B": {
+   "n": 60,
+   "r": 0.224,
+   "dias": 26,
+   "r_dia": -0.027
+  },
+  "apta": false
+ },
+ "so margem Bybit UE|SHORT_FLUXO|subida": {
+  "A": {
+   "n": 66,
+   "r": -0.106,
+   "dias": 50,
+   "r_dia": -0.048
+  },
+  "B": {
+   "n": 77,
+   "r": -0.417,
+   "dias": 32,
+   "r_dia": -0.302
+  },
+  "apta": false
+ },
+ "so margem Bybit UE|SHORT_FLUXO|lateral": {
+  "A": {
+   "n": 97,
+   "r": -0.21,
+   "dias": 59,
+   "r_dia": -0.104
+  },
+  "B": {
+   "n": 236,
+   "r": -0.139,
+   "dias": 110,
+   "r_dia": -0.122
+  },
+  "apta": false
+ },
+ "so margem Bybit UE|SHORT_FLUXO|queda": {
+  "A": {
+   "n": 13,
+   "r": -0.119,
+   "dias": 10,
+   "r_dia": -0.181
+  },
+  "B": {
+   "n": 13,
+   "r": 0.216,
+   "dias": 7,
+   "r_dia": -0.002
+  },
+  "apta": false
+ },
+ "so margem Bybit UE|SHORT_ISOLADA|subida": {
+  "A": {
+   "n": 189,
+   "r": -0.286,
+   "dias": 106,
+   "r_dia": -0.228
+  },
+  "B": {
+   "n": 169,
+   "r": -0.279,
+   "dias": 50,
+   "r_dia": -0.141
+  },
+  "apta": false
+ },
+ "so margem Bybit UE|SHORT_ISOLADA|lateral": {
+  "A": {
+   "n": 281,
+   "r": -0.242,
+   "dias": 143,
+   "r_dia": -0.204
+  },
+  "B": {
+   "n": 423,
+   "r": -0.13,
+   "dias": 156,
+   "r_dia": -0.062
+  },
+  "apta": false
+ },
+ "so margem Bybit UE|SHORT_ISOLADA|queda": {
+  "A": {
+   "n": 36,
+   "r": 0.068,
+   "dias": 25,
+   "r_dia": 0.136
+  },
+  "B": {
+   "n": 36,
+   "r": 0.338,
+   "dias": 15,
+   "r_dia": 0.036
+  },
+  "apta": false
+ },
+ "so margem Bybit UE|SHORT_MAIORES_RECUO|subida": {
+  "A": {
+   "n": 1,
+   "r": -1.012,
+   "dias": 1,
+   "r_dia": -1.012
+  },
+  "B": {
+   "n": 0,
+   "dias": 0
+  },
+  "apta": false
+ },
+ "so margem Bybit UE|SHORT_MAIORES_RECUO|lateral": {
+  "A": {
+   "n": 37,
+   "r": -0.431,
+   "dias": 31,
+   "r_dia": -0.426
+  },
+  "B": {
+   "n": 50,
+   "r": -0.199,
+   "dias": 37,
+   "r_dia": -0.204
+  },
+  "apta": false
+ },
+ "so margem Bybit UE|SHORT_MAIORES_RECUO|queda": {
+  "A": {
+   "n": 44,
+   "r": 0.024,
+   "dias": 28,
+   "r_dia": -0.003
+  },
+  "B": {
+   "n": 28,
+   "r": 0.175,
+   "dias": 17,
+   "r_dia": 0.038
+  },
+  "apta": false
+ },
+ "so margem Bybit UE|SHORT_MAIORES_TENDENCIA|subida": {
+  "A": {
+   "n": 0,
+   "dias": 0
+  },
+  "B": {
+   "n": 1,
+   "r": -1.009,
+   "dias": 1,
+   "r_dia": -1.009
+  },
+  "apta": false
+ },
+ "so margem Bybit UE|SHORT_MAIORES_TENDENCIA|lateral": {
+  "A": {
+   "n": 13,
+   "r": -0.442,
+   "dias": 13,
+   "r_dia": -0.442
+  },
+  "B": {
+   "n": 16,
+   "r": 0.491,
+   "dias": 15,
+   "r_dia": 0.504
+  },
+  "apta": false
+ },
+ "so margem Bybit UE|SHORT_MAIORES_TENDENCIA|queda": {
+  "A": {
+   "n": 18,
+   "r": 0.559,
+   "dias": 14,
+   "r_dia": 0.478
+  },
+  "B": {
+   "n": 5,
+   "r": 1.67,
+   "dias": 5,
+   "r_dia": 1.67
+  },
+  "apta": false
+ },
+ "so margem Bybit UE|SHORT_TURTLE|subida": {
+  "A": {
+   "n": 21,
+   "r": -0.655,
+   "dias": 13,
+   "r_dia": -0.563
+  },
+  "B": {
+   "n": 68,
+   "r": 0.384,
+   "dias": 22,
+   "r_dia": 0.499
+  },
+  "apta": false
+ },
+ "so margem Bybit UE|SHORT_TURTLE|lateral": {
+  "A": {
+   "n": 230,
+   "r": 0.257,
+   "dias": 102,
+   "r_dia": 0.283
+  },
+  "B": {
+   "n": 307,
+   "r": 0.195,
+   "dias": 117,
+   "r_dia": 0.209
+  },
+  "apta": true
+ },
+ "so margem Bybit UE|SHORT_TURTLE|queda": {
+  "A": {
+   "n": 82,
+   "r": 0.22,
+   "dias": 31,
+   "r_dia": 0.085
+  },
+  "B": {
+   "n": 61,
+   "r": 0.024,
+   "dias": 26,
+   "r_dia": 0.197
+  },
+  "apta": false
+ },
+ "so margem Bybit UE|SHORT_X30|subida": {
+  "A": {
+   "n": 252,
+   "r": -0.188,
+   "dias": 120,
+   "r_dia": -0.154
+  },
+  "B": {
+   "n": 201,
+   "r": -0.307,
+   "dias": 58,
+   "r_dia": -0.173
+  },
+  "apta": false
+ },
+ "so margem Bybit UE|SHORT_X30|lateral": {
+  "A": {
+   "n": 398,
+   "r": -0.238,
+   "dias": 177,
+   "r_dia": -0.22
+  },
+  "B": {
+   "n": 520,
+   "r": -0.124,
+   "dias": 185,
+   "r_dia": -0.1
+  },
+  "apta": false
+ },
+ "so margem Bybit UE|SHORT_X30|queda": {
+  "A": {
+   "n": 49,
+   "r": 0.158,
+   "dias": 30,
+   "r_dia": 0.228
+  },
+  "B": {
+   "n": 44,
+   "r": 0.396,
+   "dias": 17,
+   "r_dia": 0.136
+  },
+  "apta": true
+ },
+ "so margem + juro 0,03%/dia|SHORT_FLUXO|subida": {
+  "A": {
+   "n": 66,
+   "r": -0.117,
+   "dias": 50,
+   "r_dia": -0.058
+  },
+  "B": {
+   "n": 77,
+   "r": -0.428,
+   "dias": 32,
+   "r_dia": -0.311
+  },
+  "apta": false
+ },
+ "so margem + juro 0,03%/dia|SHORT_FLUXO|lateral": {
+  "A": {
+   "n": 97,
+   "r": -0.222,
+   "dias": 59,
+   "r_dia": -0.116
+  },
+  "B": {
+   "n": 236,
+   "r": -0.152,
+   "dias": 110,
+   "r_dia": -0.136
+  },
+  "apta": false
+ },
+ "so margem + juro 0,03%/dia|SHORT_FLUXO|queda": {
+  "A": {
+   "n": 13,
+   "r": -0.128,
+   "dias": 10,
+   "r_dia": -0.19
+  },
+  "B": {
+   "n": 13,
+   "r": 0.198,
+   "dias": 7,
+   "r_dia": -0.017
+  },
+  "apta": false
+ },
+ "so margem + juro 0,03%/dia|SHORT_ISOLADA|subida": {
+  "A": {
+   "n": 189,
+   "r": -0.296,
+   "dias": 106,
+   "r_dia": -0.238
+  },
+  "B": {
+   "n": 169,
+   "r": -0.289,
+   "dias": 50,
+   "r_dia": -0.151
+  },
+  "apta": false
+ },
+ "so margem + juro 0,03%/dia|SHORT_ISOLADA|lateral": {
+  "A": {
+   "n": 281,
+   "r": -0.253,
+   "dias": 143,
+   "r_dia": -0.215
+  },
+  "B": {
+   "n": 423,
+   "r": -0.142,
+   "dias": 156,
+   "r_dia": -0.075
+  },
+  "apta": false
+ },
+ "so margem + juro 0,03%/dia|SHORT_ISOLADA|queda": {
+  "A": {
+   "n": 36,
+   "r": 0.057,
+   "dias": 25,
+   "r_dia": 0.125
+  },
+  "B": {
+   "n": 36,
+   "r": 0.323,
+   "dias": 15,
+   "r_dia": 0.026
+  },
+  "apta": false
+ },
+ "so margem + juro 0,03%/dia|SHORT_MAIORES_RECUO|subida": {
+  "A": {
+   "n": 1,
+   "r": -1.013,
+   "dias": 1,
+   "r_dia": -1.013
+  },
+  "B": {
+   "n": 0,
+   "dias": 0
+  },
+  "apta": false
+ },
+ "so margem + juro 0,03%/dia|SHORT_MAIORES_RECUO|lateral": {
+  "A": {
+   "n": 37,
+   "r": -0.449,
+   "dias": 31,
+   "r_dia": -0.444
+  },
+  "B": {
+   "n": 50,
+   "r": -0.22,
+   "dias": 37,
+   "r_dia": -0.224
+  },
+  "apta": false
+ },
+ "so margem + juro 0,03%/dia|SHORT_MAIORES_RECUO|queda": {
+  "A": {
+   "n": 44,
+   "r": 0.005,
+   "dias": 28,
+   "r_dia": -0.022
+  },
+  "B": {
+   "n": 28,
+   "r": 0.156,
+   "dias": 17,
+   "r_dia": 0.021
+  },
+  "apta": false
+ },
+ "so margem + juro 0,03%/dia|SHORT_MAIORES_TENDENCIA|subida": {
+  "A": {
+   "n": 0,
+   "dias": 0
+  },
+  "B": {
+   "n": 1,
+   "r": -1.023,
+   "dias": 1,
+   "r_dia": -1.023
+  },
+  "apta": false
+ },
+ "so margem + juro 0,03%/dia|SHORT_MAIORES_TENDENCIA|lateral": {
+  "A": {
+   "n": 13,
+   "r": -0.466,
+   "dias": 13,
+   "r_dia": -0.466
+  },
+  "B": {
+   "n": 16,
+   "r": 0.45,
+   "dias": 15,
+   "r_dia": 0.462
+  },
+  "apta": false
+ },
+ "so margem + juro 0,03%/dia|SHORT_MAIORES_TENDENCIA|queda": {
+  "A": {
+   "n": 18,
+   "r": 0.528,
+   "dias": 14,
+   "r_dia": 0.448
+  },
+  "B": {
+   "n": 5,
+   "r": 1.657,
+   "dias": 5,
+   "r_dia": 1.657
+  },
+  "apta": false
+ },
+ "so margem + juro 0,03%/dia|SHORT_TURTLE|subida": {
+  "A": {
+   "n": 21,
+   "r": -0.681,
+   "dias": 13,
+   "r_dia": -0.587
+  },
+  "B": {
+   "n": 68,
+   "r": 0.355,
+   "dias": 22,
+   "r_dia": 0.471
+  },
+  "apta": false
+ },
+ "so margem + juro 0,03%/dia|SHORT_TURTLE|lateral": {
+  "A": {
+   "n": 230,
+   "r": 0.225,
+   "dias": 102,
+   "r_dia": 0.252
+  },
+  "B": {
+   "n": 307,
+   "r": 0.167,
+   "dias": 117,
+   "r_dia": 0.179
+  },
+  "apta": true
+ },
+ "so margem + juro 0,03%/dia|SHORT_TURTLE|queda": {
+  "A": {
+   "n": 82,
+   "r": 0.201,
+   "dias": 31,
+   "r_dia": 0.064
+  },
+  "B": {
+   "n": 61,
+   "r": -0.005,
+   "dias": 26,
+   "r_dia": 0.164
+  },
+  "apta": false
+ },
+ "so margem + juro 0,03%/dia|SHORT_X30|subida": {
+  "A": {
+   "n": 252,
+   "r": -0.199,
+   "dias": 120,
+   "r_dia": -0.164
+  },
+  "B": {
+   "n": 201,
+   "r": -0.316,
+   "dias": 58,
+   "r_dia": -0.182
+  },
+  "apta": false
+ },
+ "so margem + juro 0,03%/dia|SHORT_X30|lateral": {
+  "A": {
+   "n": 398,
+   "r": -0.249,
+   "dias": 177,
+   "r_dia": -0.231
+  },
+  "B": {
+   "n": 520,
+   "r": -0.138,
+   "dias": 185,
+   "r_dia": -0.114
+  },
+  "apta": false
+ },
+ "so margem + juro 0,03%/dia|SHORT_X30|queda": {
+  "A": {
+   "n": 49,
+   "r": 0.146,
+   "dias": 30,
+   "r_dia": 0.216
+  },
+  "B": {
+   "n": 44,
+   "r": 0.381,
+   "dias": 17,
+   "r_dia": 0.124
+  },
+  "apta": true
+ }
+}

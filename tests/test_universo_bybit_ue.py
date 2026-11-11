@@ -91,3 +91,67 @@ class SemCorretoras(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ElegibilidadeShort(unittest.TestCase):
+    INST = {"list": [
+        {"baseCoin": "AVAX", "quoteCoin": "USDC", "status": "Trading", "marginTrading": "utaOnly",
+         "lotSizeFilter": {"minOrderQty": "0.01", "minOrderAmt": "5", "maxOrderQty": "1000"}},
+        {"baseCoin": "ICP", "quoteCoin": "USDC", "status": "Trading", "marginTrading": "none", "lotSizeFilter": {}},
+        {"baseCoin": "OLD", "quoteCoin": "USDC", "status": "Closed", "marginTrading": "both", "lotSizeFilter": {}},
+        {"baseCoin": "SEI", "quoteCoin": "USDC", "status": "Trading", "marginTrading": "both", "lotSizeFilter": {}},
+        {"baseCoin": "AVAX", "quoteCoin": "EUR", "status": "Trading", "marginTrading": "both", "lotSizeFilter": {}}]}
+
+    def test_sem_colateral_nao_inventa_taxa_nem_quantidade(self):
+        from engine import account
+        m = account.interpretar_margem(self.INST, None)
+        self.assertEqual(set(m), {"AVAX", "ICP", "OLD", "SEI"})      # so pares USDC
+        self.assertTrue(m["AVAX"]["short_possivel"])
+        self.assertFalse(m["AVAX"]["confirmado"])
+        self.assertIsNone(m["AVAX"]["taxa_dia_pct"])
+        self.assertIsNone(m["AVAX"]["disponivel_para_emprestar"])
+        self.assertFalse(m["ICP"]["short_possivel"])                 # sem margem spot (a recusa de 22/10)
+        self.assertFalse(m["OLD"]["short_possivel"])                 # instrumento fechado / retirado
+        self.assertEqual(m["AVAX"]["min_ordem_valor"], 5.0)
+
+    def test_com_colateral_confirma_emprestimo_e_taxa(self):
+        from engine import account
+        col = {"list": [{"currency": "AVAX", "borrowable": True, "availableToBorrow": "120", "maxBorrowingAmount": "500",
+                         "hourlyBorrowRate": "0.0000125"},
+                        {"currency": "SEI", "borrowable": False, "availableToBorrow": "0", "hourlyBorrowRate": "0.00001"}]}
+        m = account.interpretar_margem(self.INST, col)
+        self.assertTrue(m["AVAX"]["confirmado"])
+        self.assertAlmostEqual(m["AVAX"]["taxa_dia_pct"], 0.03)
+        self.assertFalse(m["SEI"]["short_possivel"])                 # margem no catalogo, mas nao emprestavel
+        self.assertEqual(m["SEI"]["disponivel_para_emprestar"], 0.0)
+
+    def test_so_get_e_fora_da_execucao(self):
+        from engine import account, executor, scanner
+        src = inspect.getsource(account.margem_detalhe)
+        self.assertNotIn("POST", src)
+        self.assertNotIn("margem_detalhe", inspect.getsource(account.snapshot))
+        self.assertNotIn("margem_detalhe", inspect.getsource(executor))
+        self.assertNotIn("margem_detalhe", inspect.getsource(scanner))
+
+
+class Retiradas(unittest.TestCase):
+    def test_moeda_que_perde_a_margem_sai_dos_shorts(self):
+        st = estado(margem=("BTC",))
+        cg = {"ETH": {"pair": "ETH/USDC", "last": 10.0, "spread_pct": 0.01, "volume_usd": 1e6, "stale": False}}
+        ven, fonte, mg = AR.universo_bybit_ue(st, NOW, fetch=lambda q: cg)
+        self.assertIn("ETH", ven)                                     # continua negociavel a vista
+        self.assertNotIn("ETH", mg)                                   # mas ja nao se vende a descoberto
+
+    def test_lista_de_margem_velha_nao_vale(self):
+        st = estado()
+        st["margem_bybit"]["t"] = NOW - 8 * 86400
+        _, _, mg = AR.universo_bybit_ue(st, NOW, fetch=lambda q: {})
+        self.assertIsNone(mg)
+
+    def test_valores_estranhos_nos_tickers_nao_rebentam(self):
+        st = estado()
+        st["bybit_tickers"]["m"]["BAD"] = [None, None, None, 0.0]
+        ven, _, _ = AR.universo_bybit_ue(st, NOW, fetch=lambda q: {})
+        self.assertIn("BAD", ven)                                     # entra, mas o filtro de liquidez exclui
+        ok, _ = AR.liquid({"BAD": ven["BAD"]}, {"max_venue_spread_pct": 0.3, "min_venue_volume_usd": 25000})
+        self.assertNotIn("BAD", ok)
