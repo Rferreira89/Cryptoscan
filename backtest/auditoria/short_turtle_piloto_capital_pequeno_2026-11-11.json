@@ -1,0 +1,54 @@
+{
+ "teto1|A": {
+  "n": 37,
+  "media_op_ao_acaso": 0.436,
+  "p05": 0.338,
+  "p95": 0.518,
+  "ic90_op_agrupado": [
+   0.1285,
+   0.7276
+  ],
+  "max_dd_r": -3.08
+ },
+ "teto1|B": {
+  "n": 30,
+  "media_op_ao_acaso": 0.299,
+  "p05": 0.177,
+  "p95": 0.433,
+  "ic90_op_agrupado": [
+   -0.0585,
+   0.7231
+  ],
+  "max_dd_r": -4.5
+ },
+ "teto2|A": {
+  "n": 70,
+  "media_op_ao_acaso": 0.418,
+  "p05": 0.35,
+  "p95": 0.488,
+  "ic90_op_agrupado": [
+   0.1378,
+   0.7436
+  ],
+  "max_dd_r": -5.85
+ },
+ "teto2|B": {
+  "n": 58,
+  "media_op_ao_acaso": 0.219,
+  "p05": 0.136,
+  "p95": 0.299,
+  "ic90_op_agrupado": [
+   -0.0661,
+   0.5928
+  ],
+  "max_dd_r": -11.0
+ },
+ "piloto_teto1_30ops": {
+  "ops_por_ano": 14.6,
+  "p_soma_neg": 0.0,
+  "p_dd_le_-6R": 0.603,
+  "p_dd_le_-8R": 0.0,
+  "soma_p50": 9.51,
+  "soma_p05": 3.48
+ }
+}

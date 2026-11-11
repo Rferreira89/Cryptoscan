@@ -43,10 +43,11 @@ class Guarda(unittest.TestCase):
         self.assertEqual(r["estado"], "terminar")
         self.assertFalse(r["pode_abrir"])
 
-    def test_nao_esta_ligada(self):
+    def test_so_o_promo_a_chama_e_so_com_config(self):
         from engine import executor, promo, scanner
-        for m in (executor, promo, scanner):
+        for m in (executor, scanner):
             self.assertNotIn("piloto", inspect.getsource(m))
+        self.assertIn('cfg.get("piloto")', inspect.getsource(promo.cfg_piloto))
         src = inspect.getsource(P)
         for proibido in ("urlopen", "/v5/order", "privado(", "place"):
             self.assertNotIn(proibido, src)
@@ -54,3 +55,50 @@ class Guarda(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class LigacaoPiloto(unittest.TestCase):
+    """Sem a chave "piloto" na configuracao, o dimensionamento e o plano sao exatamente os de antes."""
+
+    def cfg(self, **k):
+        from engine import config
+        c = dict(config.load())
+        c.update(capital_usdc=20.0, fixed_position_usdc=4.4, max_risk_usdc=0.1, max_risk_usdc_normal=0.1,
+                 swing_leverage=10.0, max_position_pct=25.0, risk_pct=1.0, min_order_usdc=5.0, **k)
+        return c
+
+    def test_sem_piloto_a_ordem_minima_continua_recusada(self):
+        from engine import risk
+        sz, why = risk.sizing(11.0, 0.11, 1.0, self.cfg(), short=True)
+        self.assertIsNone(sz)
+        self.assertIn("abaixo da ordem", why)
+
+    def test_com_teto_entra_a_ordem_minima_e_o_risco_cabe(self):
+        from engine import risk
+        sz, why = risk.sizing(11.0, 0.11, 1.0, self.cfg(piloto_teto_pct=3.9), short=True)
+        self.assertIsNotNone(sz, why)
+        self.assertAlmostEqual(sz["usdc"]["position_usdc"], 5.0)
+        self.assertLessEqual(5.0 * 0.11, 20.0 * 3.9 / 100)
+
+    def test_teto_nao_deixa_passar_stop_largo(self):
+        from engine import risk
+        sz, why = risk.sizing(20.0, 0.20, 1.0, self.cfg(piloto_teto_pct=3.9), short=True)
+        self.assertIsNone(sz)
+
+    def test_cfg_piloto_so_para_a_estrategia_e_com_guarda(self):
+        from engine import promo
+        base = {"x": 1}
+        self.assertIs(promo.cfg_piloto("SHORT_TURTLE", {}, base, 0), base)              # sem config: igual
+        c = {"piloto": {"estrategia": "SHORT_TURTLE", "teto_pct": 3.9, "inicio": 0, "perda_max_r": -8}}
+        self.assertNotIn("piloto_teto_pct", promo.cfg_piloto("BOUNCE_X30", {}, c, 0))
+        self.assertEqual(promo.cfg_piloto("SHORT_TURTLE", {"ledger": []}, c, 0)["piloto_teto_pct"], 3.9)
+        perdas = [op(-1.0, d) for d in range(9)]
+        st = {"ledger": perdas}
+        self.assertNotIn("piloto_teto_pct", promo.cfg_piloto("SHORT_TURTLE", st, c, 0))   # -9R <= -8R: suspenso
+        self.assertIn("suspenso", st["piloto"])
+
+    def test_config_de_producao_nao_tem_piloto(self):
+        import json, os
+        raiz = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        with open(os.path.join(raiz, "config.json"), encoding="utf-8") as f:
+            self.assertNotIn("piloto", json.load(f))

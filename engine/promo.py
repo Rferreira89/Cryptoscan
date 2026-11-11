@@ -402,6 +402,23 @@ def champion(state, disabled=()):
     return c[0] if c else None
 
 
+def cfg_piloto(champ, state, cfg, now):
+    """(11/11, PILOTO; so com config "piloto" = {"estrategia", "teto_pct", "inicio", "perda_max_r"}) Para a estrategia do
+    piloto, deixa a ordem minima entrar ate ao teto de risco REAL do piloto, enquanto a guarda (engine/piloto.avaliar)
+    o permitir. Qualquer outra estrategia, ou sem a chave, devolve cfg igual."""
+    pl = cfg.get("piloto") or {}
+    if not pl or champ != pl.get("estrategia") or not pl.get("teto_pct"):
+        return cfg
+    from . import piloto
+    av = piloto.avaliar(state.get("ledger") or [], champ, pl.get("inicio") or 0)
+    if pl.get("perda_max_r") is not None and av["soma_r"] <= pl["perda_max_r"]:
+        av["pode_abrir"] = False
+    if not av["pode_abrir"]:
+        state.setdefault("piloto", {})["suspenso"] = {"t": int(now), "motivos": av["motivos"] or ["perda maxima"]}
+        return cfg
+    return dict(cfg, piloto_teto_pct=float(pl["teto_pct"]))
+
+
 def plan_for(sig, px, cfg):
     """Plano completo (dimensao, alavancagem, USDC) para o sinal do campeao.
     Tres objetivos e tres parciais, como as outras operacoes reais."""
@@ -523,6 +540,7 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
                     falhou = falhou or (champ, sig["t_sig"], "sem margem na Bybit UE: a moeda não se pode vender a descoberto")
                     continue
                 cc = acelerado.cfg_para(champ, state, cfg)       # (30/10) modo acelerado: so com OK final
+                cc = cfg_piloto(champ, state, cc, now)           # (11/11) piloto: desligado sem config "piloto"
                 p, why = short_plan_for(sig, r["price"], cc)
             else:
                 cc = acelerado.cfg_para(champ, state, cfg)

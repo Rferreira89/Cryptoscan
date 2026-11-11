@@ -67,3 +67,29 @@ def avaliar(rows, estrategia, inicio, juros_r=None):
               "abaixo_do_p05_esperado": len(rs) >= N_DECISAO and soma < ESPERADO["p05_soma_30"]}
     return {"pode_abrir": not motivos, "estado": estado, "motivos": motivos, "n": len(rs),
             "soma_r": round(soma, 3), "media_r": None if media is None else round(media, 3), "vs_esperado": vs}
+
+
+# ---------- (11/11) piloto com o capital real: a posicao e a ordem minima, o risco e o que ela impoe ----------
+def sizing_bybit(capital, stop_frac, min_ordem, teto_pct, abertas_pct=(), teto_agregado_pct=None, spread=0.001,
+                 juro_dia_pct=0.03):
+    """Ordem minima da Bybit UE como tamanho (nunca maior). Entra so se o risco REAL no stop (com custos e juro de
+    referencia) ficar <= teto_pct e, somado as posicoes abertas (correlacao 1), <= teto_agregado_pct.
+    Devolve (nocional, risco_pct) ou (None, motivo)."""
+    from . import viabilidade as V
+    r = V.bybit_min(capital, stop_frac, min_ordem, 0.0001, spread, juro_dia_pct, teto_pct=teto_pct)
+    if r is None:
+        return None, "dados invalidos"
+    if not r["cabe_no_capital"]:
+        return None, "a ordem minima nao cabe no capital"
+    if not r["cabe_no_teto"]:
+        return None, f"risco real {r['perda_pct']:.2f}% acima do teto {teto_pct}% (stop {100 * stop_frac:.1f}%)"
+    if teto_agregado_pct is not None and V.agregado(list(abertas_pct) + [r["perda_pct"]]) > teto_agregado_pct + 1e-9:
+        return None, f"risco agregado passaria {teto_agregado_pct}%"
+    return r["nocional"], r["perda_pct"]
+
+
+def limites_usdc(capital, perda_max_pct, r_usdc):
+    """Converte o limite de perda do piloto (percentagem do capital) em R, dado o valor medio de 1R em USDC."""
+    if not r_usdc or r_usdc <= 0:
+        return None
+    return -capital * perda_max_pct / 100 / r_usdc

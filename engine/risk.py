@@ -92,6 +92,14 @@ def sizing(stop_pct, stop_frac, entry, cfg, short=False):
                 and mn <= cap * cfg.get("max_position_pct", 100) / 100 * lev["use"]:
             size_pct = mn / cap * 100
             pos_usdc = mn
+        # (11/11, PILOTO, desligado por omissao) so para a estrategia do piloto aprovado pelo Rui (engine/piloto.py):
+        # a ordem minima entra se o risco REAL que ela impoe no stop (ja com comissoes em stop_pct) ficar <= ao teto
+        # do piloto em % do capital. Sem a chave "piloto_teto_pct" nada muda.
+        pt = cfg.get("piloto_teto_pct")
+        if pos_usdc < mn and pt and mn * stop_pct / 100 <= cap * pt / 100 + 1e-9 \
+                and mn <= cap * lev["use"]:
+            size_pct = mn / cap * 100
+            pos_usdc = mn
         if pos_usdc < mn:
             return None, (f"posição de {pos_usdc:.2f} USDC abaixo da ordem "
                           f"mínima de {mn:g} USDC com o capital atual")
