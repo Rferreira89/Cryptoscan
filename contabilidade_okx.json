@@ -1,0 +1,193 @@
+{
+ "operacoes": [
+  {
+   "corretora": "okx",
+   "estrategia": "panico",
+   "ativo": "CASHCAT",
+   "lado": "LONG",
+   "motivo": "stop",
+   "dia_fecho": 1794268800,
+   "r_bruto": -1.0133,
+   "r_liquido": -1.0186,
+   "custo_r": 0.0053,
+   "deslize_stop_r": -0.0133,
+   "deslize_entrada_r": 0.0,
+   "ret_preco_pct": -15.4242,
+   "completa": true
+  },
+  {
+   "corretora": "okx",
+   "estrategia": "panico",
+   "ativo": "PARTI",
+   "lado": "LONG",
+   "motivo": "stop",
+   "dia_fecho": 1794268800,
+   "r_bruto": -1.222,
+   "r_liquido": -1.229,
+   "custo_r": 0.0071,
+   "deslize_stop_r": -0.222,
+   "deslize_entrada_r": -0.0,
+   "ret_preco_pct": -12.6696,
+   "completa": true
+  },
+  {
+   "corretora": "okx",
+   "estrategia": "panico",
+   "ativo": "PENGU",
+   "lado": "LONG",
+   "motivo": "stop",
+   "dia_fecho": 1794096000,
+   "r_bruto": -0.936,
+   "r_liquido": -0.9491,
+   "custo_r": 0.0131,
+   "deslize_stop_r": 0.064,
+   "deslize_entrada_r": 0.0,
+   "ret_preco_pct": -5.5267,
+   "completa": true
+  },
+  {
+   "corretora": "okx",
+   "estrategia": "panico",
+   "ativo": "HUMA",
+   "lado": "LONG",
+   "motivo": "stop",
+   "dia_fecho": 1793836800,
+   "r_bruto": -1.0,
+   "r_liquido": -0.9794,
+   "custo_r": -0.0206,
+   "deslize_stop_r": -0.0,
+   "deslize_entrada_r": null,
+   "ret_preco_pct": -16.577,
+   "completa": true
+  }
+ ],
+ "relatorio": {
+  "total": {
+   "n": 4,
+   "n_com_dados": 4,
+   "campo": "r_liquido",
+   "soma_r": -4.1761,
+   "expectativa_r": -1.044,
+   "erro_padrao_r": 0.0633,
+   "acerto_pct": 0.0,
+   "profit_factor": 0.0,
+   "drawdown_r": -4.1761,
+   "pior_sequencia_perdas": 4,
+   "custo_medio_r": 0.0012,
+   "deslize_stop_medio_r": -0.0428,
+   "pior_deslize_stop_r": -0.222
+  },
+  "total_bruto": {
+   "n": 4,
+   "n_com_dados": 4,
+   "campo": "r_bruto",
+   "soma_r": -4.1713,
+   "expectativa_r": -1.0428,
+   "erro_padrao_r": 0.0621,
+   "acerto_pct": 0.0,
+   "profit_factor": 0.0,
+   "drawdown_r": -4.1713,
+   "pior_sequencia_perdas": 4,
+   "custo_medio_r": 0.0012,
+   "deslize_stop_medio_r": -0.0428,
+   "pior_deslize_stop_r": -0.222
+  },
+  "incompletas": 0,
+  "por_corretora": {
+   "okx": {
+    "n": 4,
+    "n_com_dados": 4,
+    "campo": "r_liquido",
+    "soma_r": -4.1761,
+    "expectativa_r": -1.044,
+    "erro_padrao_r": 0.0633,
+    "acerto_pct": 0.0,
+    "profit_factor": 0.0,
+    "drawdown_r": -4.1761,
+    "pior_sequencia_perdas": 4,
+    "custo_medio_r": 0.0012,
+    "deslize_stop_medio_r": -0.0428,
+    "pior_deslize_stop_r": -0.222
+   }
+  },
+  "por_estrategia": {
+   "panico": {
+    "n": 4,
+    "n_com_dados": 4,
+    "campo": "r_liquido",
+    "soma_r": -4.1761,
+    "expectativa_r": -1.044,
+    "erro_padrao_r": 0.0633,
+    "acerto_pct": 0.0,
+    "profit_factor": 0.0,
+    "drawdown_r": -4.1761,
+    "pior_sequencia_perdas": 4,
+    "custo_medio_r": 0.0012,
+    "deslize_stop_medio_r": -0.0428,
+    "pior_deslize_stop_r": -0.222
+   }
+  },
+  "por_ativo": {
+   "CASHCAT": {
+    "n": 1,
+    "n_com_dados": 1,
+    "campo": "r_liquido",
+    "soma_r": -1.0186,
+    "expectativa_r": -1.0186,
+    "erro_padrao_r": null,
+    "acerto_pct": 0.0,
+    "profit_factor": 0.0,
+    "drawdown_r": -1.0186,
+    "pior_sequencia_perdas": 1,
+    "custo_medio_r": 0.0053,
+    "deslize_stop_medio_r": -0.0133,
+    "pior_deslize_stop_r": -0.0133
+   },
+   "HUMA": {
+    "n": 1,
+    "n_com_dados": 1,
+    "campo": "r_liquido",
+    "soma_r": -0.9794,
+    "expectativa_r": -0.9794,
+    "erro_padrao_r": null,
+    "acerto_pct": 0.0,
+    "profit_factor": 0.0,
+    "drawdown_r": -0.9794,
+    "pior_sequencia_perdas": 1,
+    "custo_medio_r": -0.0206,
+    "deslize_stop_medio_r": 0.0,
+    "pior_deslize_stop_r": -0.0
+   },
+   "PARTI": {
+    "n": 1,
+    "n_com_dados": 1,
+    "campo": "r_liquido",
+    "soma_r": -1.229,
+    "expectativa_r": -1.229,
+    "erro_padrao_r": null,
+    "acerto_pct": 0.0,
+    "profit_factor": 0.0,
+    "drawdown_r": -1.229,
+    "pior_sequencia_perdas": 1,
+    "custo_medio_r": 0.0071,
+    "deslize_stop_medio_r": -0.222,
+    "pior_deslize_stop_r": -0.222
+   },
+   "PENGU": {
+    "n": 1,
+    "n_com_dados": 1,
+    "campo": "r_liquido",
+    "soma_r": -0.9491,
+    "expectativa_r": -0.9491,
+    "erro_padrao_r": null,
+    "acerto_pct": 0.0,
+    "profit_factor": 0.0,
+    "drawdown_r": -0.9491,
+    "pior_sequencia_perdas": 1,
+    "custo_medio_r": 0.0131,
+    "deslize_stop_medio_r": 0.064,
+    "pior_deslize_stop_r": 0.064
+   }
+  }
+ }
+}
