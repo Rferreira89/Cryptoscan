@@ -51,7 +51,18 @@ jobs:
               && { [ -f derivados.json ] && git add derivados.json || true; } \
               && { [ -f tg_enviadas.json ] && git add tg_enviadas.json || true; } \
               && git commit -q -m "$1 $(date -u +%FT%TZ)" \
-              && git push -q -f "$PUSH_URL" data:data ) || echo "publicacao falhou"
+              && empurrar ) || { echo "publicacao falhou"; return 1; }
+          }
+          # (11/11, revisao) o push do estado tenta 3 vezes (5 s e 15 s); antes falhava em silencio e o ciclo seguinte
+          # partia do estado anterior. Uma falha devolve 1: o executor da Bybit nao e lancado sobre um estado que nao
+          # chegou ao ramo data (leria o estado anterior). O URL com a credencial nunca vai para o registo.
+          empurrar() {
+            for espera in 5 15 0; do
+              if git push -q -f "$PUSH_URL" data:data 2>/tmp/push.err; then return 0; fi
+              echo "push do estado falhou: $(tail -1 /tmp/push.err | sed "s#$PUSH_URL#<url>#g" | cut -c1-160)"
+              [ "$espera" -gt 0 ] && sleep "$espera"
+            done
+            return 1
           }
           while [ "$(date +%s)" -lt "$END" ]; do
             NOW=$(date +%s)
@@ -119,9 +130,10 @@ jobs:
             fi
             if [ "$OK" = 1 ] && [ "$MODE" = monitor ]; then
               if python -m engine.monitor out; then
-                if [ -f out/.publish ]; then rm -f out/.publish; publish monitor; fi
-                # execucao com um toque: o servidor europeu le o estado ja publicado
-                if [ -f out/.exec ]; then rm -f out/.exec; gh workflow run executar.yml --repo "${{ github.repository }}" --ref main || echo "executar nao lancado"; fi
+                PUB=0
+                if [ -f out/.publish ]; then rm -f out/.publish; publish monitor || PUB=1; fi
+                # execucao com um toque: o servidor europeu le o estado ja publicado (so se a publicacao correu bem)
+                if [ -f out/.exec ] && [ "$PUB" = 0 ]; then rm -f out/.exec; gh workflow run executar.yml --repo "${{ github.repository }}" --ref main || echo "executar nao lancado"; fi
               else
                 echo "monitor falhou"
               fi
@@ -131,19 +143,22 @@ jobs:
               if python -m engine.run out > /dev/null 2> /tmp/run.log \
                  || { echo "scan falhou: nova tentativa"; sleep 20; python -m engine.run out > /dev/null 2> /tmp/run.log; }; then
                 head -12 out/resumo.txt
-                publish scan
-                if [ -f out/.exec ]; then rm -f out/.exec; gh workflow run executar.yml --repo "${{ github.repository }}" --ref main || echo "executar nao lancado"; fi
+                if publish scan; then
+                  if [ -f out/.exec ]; then rm -f out/.exec; gh workflow run executar.yml --repo "${{ github.repository }}" --ref main || echo "executar nao lancado"; fi
+                else
+                  echo "estado nao publicado: executor da Bybit nao lancado neste ciclo"
+                fi
               else
                 echo "scan falhou duas vezes"; tail -5 /tmp/run.log
                 { echo "$(date -u +%FT%TZ) scan falhou:"; tail -5 /tmp/run.log; } >> out/erros.txt
                 tail -200 out/erros.txt > /tmp/e.txt && cp /tmp/e.txt out/erros.txt
-                publish erro
+                publish erro || true
               fi
             elif [ "$OK" = 1 ]; then
               echo "testes falharam: scan nao corre"; tail -8 /tmp/testes.log
               { echo "$(date -u +%FT%TZ) testes falharam:"; tail -8 /tmp/testes.log; } >> out/erros.txt
               tail -200 out/erros.txt > /tmp/e.txt && cp /tmp/e.txt out/erros.txt
-              publish erro
+              publish erro || true
             fi
             echo "::endgroup::"
             # combate da arena de hora a hora (o agendamento do GitHub falha
