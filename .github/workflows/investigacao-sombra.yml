@@ -1,0 +1,47 @@
+name: Investigacao em sombra (cacador, robustez, risco, funil; sem execucao)
+# (11/11) Corre os agentes de investigacao sobre as copias publicas e o ramo history. Sem chaves das corretoras,
+# sem ordens, sem escrita em ramos de estrategia. Publica o resultado no ramo `investigacao-sombra` (so R, % e
+# contagens). So manual: ligar um horario e uma decisao do Rui.
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: investigacao-sombra
+  cancel-in-progress: false
+jobs:
+  sombra:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dados publicos
+        run: |
+          rm -rf /tmp/is && mkdir -p /tmp/is/pub /tmp/is/hist /tmp/is/hdel /tmp/is/junto /tmp/is/out
+          for par in data:state.json data:scan.json data:derivados.json data:liquidez.json okx:okx.json okx-tfshort:okx_tfshort.json okx-tfshort:okx_tfshort_sombra.json arena:forma.json; do
+            R=${par%%:*}; F=${par##*:}
+            git fetch -q --depth 1 origin "$R" 2>/dev/null && git show FETCH_HEAD:"$F" > /tmp/is/pub/"$F" 2>/dev/null || rm -f /tmp/is/pub/"$F"
+          done
+          git fetch -q --depth 1 origin history && git archive FETCH_HEAD | tar -x -C /tmp/is/hist
+          git fetch -q --depth 1 origin history-delistadas && git archive FETCH_HEAD | tar -x -C /tmp/is/hdel
+          cp /tmp/is/hist/*.csv.gz /tmp/is/junto/ && for f in /tmp/is/hdel/*.csv.gz; do b=$(basename $f); [ -e /tmp/is/junto/$b ] || cp $f /tmp/is/junto/; done
+          git fetch -q --depth 1 origin dados-novos && git show FETCH_HEAD:$(date -u +%Y-%m).csv > /tmp/is/dn.csv 2>/dev/null || echo "-" > /tmp/is/dn.csv
+          if git fetch -q --depth 1 origin investigacao-sombra 2>/dev/null; then
+            git show FETCH_HEAD:registo_sombra.jsonl > /tmp/is/out/registo_sombra.jsonl 2>/dev/null || true
+          fi
+      - name: Agentes
+        run: |
+          python3 -m pip install -q --user numpy==2.2.6 2>/dev/null || true
+          python3 tools/quant_backtests.py /tmp/is/hist /tmp/is/bt_ops.json --com-ativo
+          python3 backtest/estudos/novos/cacador_ic_historico.py /tmp/is/hist /tmp/is/out/ic_vivas.json > /dev/null
+          python3 backtest/estudos/novos/cacador_ic_historico.py /tmp/is/junto /tmp/is/out/ic_com_retiradas.json > /dev/null
+          python3 tools/quant_robustez.py /tmp/is/bt_ops.json /tmp/is/pub /tmp/is/out/robustez.json /tmp/is/out/robustez.md > /dev/null
+          python3 tools/funil_frequencia.py /tmp/is/pub /tmp/is/out/funil.json > /dev/null
+          python3 tools/agentes_investigacao.py /tmp/is/pub /tmp/is/out/agentes.json --hist /tmp/is/hist --bt /tmp/is/bt_ops.json \
+            --dn /tmp/is/dn.csv --ic /tmp/is/out/ic_vivas.json,/tmp/is/out/ic_com_retiradas.json
+      - name: Publicar
+        env:
+          PUSH_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
+        run: |
+          cd /tmp/is/out && python3 "$GITHUB_WORKSPACE/tools/publicar_estado.py" publicar /tmp/is/out investigacao-sombra \
+            agentes.json oportunidades.json registo_sombra.jsonl robustez.json robustez.md funil.json ic_vivas.json ic_com_retiradas.json
