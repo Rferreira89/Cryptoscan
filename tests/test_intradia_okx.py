@@ -56,3 +56,17 @@ class Criterio(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SeguidorBTC(unittest.TestCase):
+    def test_moeda_atrasada_segue_o_btc(self):
+        c = serie(n=600)
+        i = 550
+        btc = {c[i]["t"]: (100.0, 102.0)}                         # BTC +2% na vela
+        c[i] = dict(c[i], o=10.0, c=10.02, h=10.05, l=9.99)        # a moeda so +0,2%
+        self.assertIn(("SEGUIDOR_BTC", "LONG"), I.sinais(c, I.indicadores(c), i, btc))
+        btc = {c[i]["t"]: (100.0, 98.0)}
+        c[i] = dict(c[i], o=10.0, c=9.99)
+        self.assertIn(("SEGUIDOR_BTC", "SHORT"), I.sinais(c, I.indicadores(c), i, btc))
+        c[i] = dict(c[i], o=10.0, c=9.7)                           # ja acompanhou: nada
+        self.assertNotIn(("SEGUIDOR_BTC", "SHORT"), I.sinais(c, I.indicadores(c), i, btc))

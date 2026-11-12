@@ -32,7 +32,11 @@ H = 3600
 CUSTO_LADO = 0.001
 FUNDING_8H = 0.0001
 HOLD = 24
-FAMILIAS = ("MOMENTO", "RECUO", "REVERSAO", "COMPRESSAO", "FALSO_ROMPIMENTO")
+FAMILIAS = ("MOMENTO", "RECUO", "REVERSAO", "COMPRESSAO", "FALSO_ROMPIMENTO", "SEGUIDOR_BTC")
+# (12/11) SEGUIDOR_BTC: hipotese de atraso (lead-lag) documentada nas cripto: depois de uma vela de 1h do BTC com
+# |retorno| >= 1,5%, as moedas que ainda nao acompanharam (retorno na mesma vela < 1/2 do do BTC, no mesmo sentido)
+# seguem-no nas horas seguintes. LONG se o BTC subiu, SHORT se desceu. Regras fixas antes de ver resultados.
+BTC_MOV, ATRASO = 0.015, 0.5
 
 
 def carregar(p):
@@ -92,11 +96,19 @@ def decil(ind, i):
     return cache[k]
 
 
-def sinais(c, ind, i):
-    """[(familia, lado)] com a vela i FECHADA (so dados ate i)."""
+def sinais(c, ind, i, btc=None):
+    """[(familia, lado)] com a vela i FECHADA (so dados ate i). btc: {t: (abertura, fecho)} da vela de 1h do BTC."""
     if i < 500:
         return []
     out = []
+    if btc is not None:
+        b = btc.get(c[i]["t"])
+        if b and b[0] > 0 and c[i]["o"] > 0:
+            rb, ra = b[1] / b[0] - 1, c[i]["c"] / c[i]["o"] - 1
+            if rb >= BTC_MOV and ra < ATRASO * rb:
+                out.append(("SEGUIDOR_BTC", "LONG"))
+            elif rb <= -BTC_MOV and ra > ATRASO * rb:
+                out.append(("SEGUIDOR_BTC", "SHORT"))
     x, ant = c[i], c[i - 24:i]
     mx, mn = max(y["h"] for y in ant), min(y["l"] for y in ant)
     vm = sum(y["v"] for y in ant) / 24
@@ -159,14 +171,14 @@ def simular(c, i, lado, atr):
     return r, c[i + 1]["t"], t_out
 
 
-def operacoes(c, moeda):
+def operacoes(c, moeda, btc=None):
     ind = indicadores(c)
     livre = {}
     out = []
     for i in range(500, len(c) - 1):
         if c[i]["t"] - c[i - 24]["t"] != 24 * H:
             continue                                         # buraco nas ultimas 24 h: nao se usa
-        for fam, lado in sinais(c, ind, i):
+        for fam, lado in sinais(c, ind, i, btc if moeda != "BTC" else None):
             k = (fam, lado)
             if livre.get(k, 0) > c[i]["t"]:
                 continue
@@ -210,6 +222,8 @@ def avaliar(ops, t0, t1, reps=1000, seed=3):
 
 def correr(pasta, min_velas=2000):
     ops, usadas, t0, t1 = [], [], None, None
+    pb = os.path.join(pasta, "BTC.csv.gz")
+    btc = {x["t"]: (x["o"], x["c"]) for x in carregar(pb)} if os.path.exists(pb) else None
     for f in sorted(os.listdir(pasta)):
         if not f.endswith(".csv.gz"):
             continue
@@ -219,7 +233,7 @@ def correr(pasta, min_velas=2000):
         usadas.append(f[:-7])
         t0 = c[0]["t"] if t0 is None else min(t0, c[0]["t"])
         t1 = c[-1]["t"] if t1 is None else max(t1, c[-1]["t"])
-        ops += operacoes(c, f[:-7])
+        ops += operacoes(c, f[:-7], btc)
     linhas, cortes = avaliar(ops, t0 or 0, t1 or 0) if ops else ([], {})
     return {"moedas": len(usadas), "operacoes": len(ops), "de": t0, "ate": t1, "cortes": cortes, "resultados": linhas,
             "aviso": "So investigacao; substituto a vista USDT para o preco do X-Perp; sem moedas retiradas."}
