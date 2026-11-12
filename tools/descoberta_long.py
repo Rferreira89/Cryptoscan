@@ -219,7 +219,10 @@ def avaliar(ops, btc_px, seed=7, reps=1000):
                      "fora": resumo(fo, campo, rng, reps), "validacao_mais_fora": resumo(va + fo, campo, rng, reps)}
                 vf = R["validacao_mais_fora"]
                 p = 1 - phi(vf["t_dia"]) if vf.get("t_dia") is not None else 1.0
-                base = all(R[x].get("dias", 0) >= MIN_DIAS and (R[x].get("r_dia") or 0) > 0 for x in ("treino", "validacao", "fora"))
+                # (12/11) por dia E por operacao: com risco fixo por operacao (o caso real, ordem minima) R por operacao
+                # negativo perde dinheiro mesmo com R por dia positivo
+                base = all(R[x].get("dias", 0) >= MIN_DIAS and (R[x].get("r_dia") or 0) > 0 and (R[x].get("r_op") or 0) > 0
+                           for x in ("treino", "validacao", "fora")) and (vf.get("pf") or 0) > 1
                 passivo = resumo(va + fo, "r_btc", rng, 200)
                 linhas.append({"estrategia": k, "familia": xs[0]["fam"], "fase": fase, "corretora": corretora, **R,
                                "passivo_btc_r_dia": passivo.get("r_dia"), "p": round(p, 5), "_base": base,
@@ -252,15 +255,18 @@ def avaliar(ops, btc_px, seed=7, reps=1000):
 def classe(l):
     """Tres classes, por regra fixa:
     VANTAGEM DEMONSTRADA: passou o criterio inteiro (candidata).
-    INCONCLUSIVA: R por dia > 0 em VALIDACAO+FORA mas o intervalo inclui zero ou ha menos de 15 dias nalgum periodo.
+    INCONCLUSIVA: R por dia e por operacao > 0 em VALIDACAO+FORA mas o intervalo inclui zero ou ha menos de 15 dias
+    nalgum periodo.
     SEM VANTAGEM: R por dia <= 0 em VALIDACAO+FORA (NEGATIVA se o intervalo inteiro fica abaixo de zero)."""
     vf = l.get("validacao_mais_fora") or {}
     if l.get("candidata"):
         return "VANTAGEM DEMONSTRADA"
     rd = vf.get("r_dia")
     ic = vf.get("ic90_dia") or [None, None]
-    if rd is not None and rd > 0:
+    if rd is not None and rd > 0 and (vf.get("r_op") or 0) > 0:
         return "INCONCLUSIVA"
+    if rd is not None and rd > 0:
+        return "SEM VANTAGEM (positiva por dia, negativa por operacao)"
     if ic[1] is not None and ic[1] < 0:
         return "SEM VANTAGEM (NEGATIVA)"
     return "SEM VANTAGEM"

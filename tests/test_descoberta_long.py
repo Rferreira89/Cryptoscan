@@ -121,3 +121,23 @@ class Dados(unittest.TestCase):
         D._CTX["pasta"] = d
         self.assertEqual(D.funding("BTC"), [(1725148800, 4.1e-05), (1725177600, -3.4e-05)])
         self.assertEqual(D.funding("NADA"), [])
+
+
+class PorOperacao(unittest.TestCase):
+    def test_positivo_por_dia_mas_negativo_por_operacao_nao_passa(self):
+        # dias com 1 sinal ganham pouco; dias com 10 sinais perdem: por dia > 0, por operacao < 0
+        out = []
+        for inicio in (1672531200, D.T_TREINO, D.T_VALID):
+            for d in range(40):
+                t = inicio + d * 3 * DAY
+                if d % 2:
+                    out.append({"k": "X", "fam": "t", "a": "A", "t": t, "t_fim": t + DAY, "r": 0.6, "stop": 0.1, "fase": "subida"})
+                else:
+                    out += [{"k": "X", "fam": "t", "a": f"M{j}", "t": t + j, "t_fim": t + DAY, "r": -0.3, "stop": 0.1,
+                             "fase": "subida"} for j in range(10)]
+        linhas, _ = D.avaliar(out, {}, reps=200)
+        l = [x for x in linhas if x["corretora"] == "bybit_ue"][0]
+        self.assertGreater(l["validacao_mais_fora"]["r_dia"], 0)
+        self.assertLess(l["validacao_mais_fora"]["r_op"], 0)
+        self.assertFalse(l["candidata"])
+        self.assertIn("negativa por operacao", l["classe"])
