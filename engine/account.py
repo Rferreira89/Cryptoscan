@@ -595,6 +595,25 @@ def tickers_usdc():
     return out
 
 
+def juros_taxas():
+    """(12/11) {moeda: juro diario em %} das moedas emprestaveis (account/collateral-info). So GET."""
+    res = get("/v5/account/collateral-info")
+    out = {}
+    for c in res.get("list") or []:
+        h = _num(c.get("hourlyBorrowRate"))
+        if h is not None and (str(c.get("borrowable")).lower() == "true" or c.get("borrowable") is True):
+            out[str(c.get("currency") or "").upper()] = round(h * 24 * 100, 6)
+    return out
+
+
+def _juros_ou_none():
+    try:
+        return juros_taxas() or None
+    except Exception as e:
+        print("juros:", e)
+        return None
+
+
 def _tickers_ou_none():
     try:
         return tickers_usdc() or None
@@ -671,6 +690,66 @@ def margem():
     return sorted(out)
 
 
+# ---------- (11/11, investigacao) elegibilidade real de shorts por moeda ----------
+# (12/11, piloto SHORT_TURTLE) o snapshot le so a taxa de juro por moeda (_juros_ou_none) para a guarda do piloto;
+# a execucao nao usa nada daqui. So GET, chave so de leitura. Endpoints da API v5 da Bybit; se a Bybit UE nao os servir, o campo fica
+# "indisponivel" com o erro, nunca um valor inventado.
+CAMPOS_MARGEM = ("margem_spot", "estado", "emprestavel", "disponivel_para_emprestar", "max_emprestimo",
+                 "taxa_hora_pct", "taxa_dia_pct", "min_ordem_qtd", "min_ordem_valor", "max_ordem_qtd")
+
+
+def _num(x):
+    """Numero ou None (nunca 0 por omissao: um valor que falta fica a faltar)."""
+    try:
+        return None if x is None or x == "" else float(x)
+    except (TypeError, ValueError):
+        return None
+
+
+def interpretar_margem(instrumentos, colateral, base_quote="USDC"):
+    """Funcao pura: junta instruments-info (spot) e account/collateral-info por moeda.
+    instrumentos: result de /v5/market/instruments-info; colateral: result de /v5/account/collateral-info ou
+    None (indisponivel). Devolve {moeda: {campo: valor ou None}} so para pares base/USDC."""
+    col = {}
+    for c in ((colateral or {}).get("list") or []):
+        col[str(c.get("currency") or "").upper()] = c
+    out = {}
+    for x in (instrumentos or {}).get("list") or []:
+        if x.get("quoteCoin") != base_quote:
+            continue
+        b = str(x.get("baseCoin") or "").upper()
+        ls = x.get("lotSizeFilter") or {}
+        c = col.get(b)
+        h = _num((c or {}).get("hourlyBorrowRate"))
+        out[b] = {
+            "margem_spot": str(x.get("marginTrading") or "none").lower() in ("both", "utaonly"),
+            "estado": x.get("status"),
+            "emprestavel": None if c is None else (str(c.get("borrowable")).lower() == "true" or c.get("borrowable") is True),
+            "disponivel_para_emprestar": None if c is None else _num(c.get("availableToBorrow")),
+            "max_emprestimo": None if c is None else _num(c.get("maxBorrowingAmount")),
+            "taxa_hora_pct": None if h is None else h * 100,
+            "taxa_dia_pct": None if h is None else h * 24 * 100,
+            "min_ordem_qtd": _num(ls.get("minOrderQty")), "min_ordem_valor": _num(ls.get("minOrderAmt")),
+            "max_ordem_qtd": _num(ls.get("maxOrderQty"))}
+        out[b]["short_possivel"] = bool(out[b]["margem_spot"] and out[b]["estado"] == "Trading"
+                                        and out[b]["emprestavel"] is not False
+                                        and (out[b]["disponivel_para_emprestar"] is None or out[b]["disponivel_para_emprestar"] > 0))
+        out[b]["confirmado"] = c is not None
+    return out
+
+
+def margem_detalhe():
+    """Le (so GET) instruments-info e collateral-info. Devolve {"moedas": ..., "limitacoes": [...]}."""
+    lim = []
+    inst = get("/v5/market/instruments-info", {"category": "spot"})
+    try:
+        col = get("/v5/account/collateral-info")
+    except AccountError as e:
+        col = None
+        lim.append(f"collateral-info indisponivel: {str(e)[:100]} (emprestavel, quantidade e taxa ficam por confirmar)")
+    return {"moedas": interpretar_margem(inst, col), "limitacoes": lim, "t": int(time.time())}
+
+
 def snapshot(state, now=None):
     """Le a conta e devolve o resumo minimo para publicar. Nunca levanta:
     em caso de erro devolve {'ok': False, 'error': ...}."""
@@ -716,6 +795,7 @@ def snapshot(state, now=None):
                 "expires": info.get("expiredAt"),
                 "fundo": funding(),
                 "margem": _margem_ou_none(),
+                "juros_margem": _juros_ou_none(),
                 "tickers": tk,
                 "movimentos": mv,
                 "saldos": {c: round(held.get(c, 0.0), 10) for c in ("BTC", "ETH", "SOL")},
@@ -735,4 +815,11 @@ def main(out_path, state_path=None):
 
 
 if __name__ == "__main__":
-    main(*sys.argv[1:3])
+    if sys.argv[1:2] == ["--margem"]:               # (11/11) auditoria manual da margem: so GET, chave so de leitura
+        info = get("/v5/user/query-api")
+        if not read_only(info):
+            raise SystemExit("a chave NAO e so de leitura: recusado")
+        with open(sys.argv[2], "w") as f:
+            json.dump(margem_detalhe(), f, indent=1)
+    else:
+        main(*sys.argv[1:3])

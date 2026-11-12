@@ -44,6 +44,9 @@ DEFAULTS = {
     # (28/10, auditoria) estrategias autorizadas pelo Rui a usar dinheiro real; None = sem lista
     # (comportamento antigo). config.json: [] = nenhuma ate passar o criterio unico.
     "real_autorizados": None,
+    # (12/11, OK do Rui 12/11 00:34) piloto real: {"estrategia", "teto_pct", "max_posicoes", "perda_max_r", "juro_max_r",
+    # "dias_max", "inicio"}; None = sem piloto (engine/promo.cfg_piloto, engine/piloto.py)
+    "piloto": None,
     # (30/10, OK do Rui) modo acelerado: meio-Kelly so para estrategias aprovadas (engine/acelerado.py)
     "modo_acelerado": None,
     # (31/10, Rui: "Vamos operar com 20$ e vamos fazer trades com o valor todo") compra no panico com

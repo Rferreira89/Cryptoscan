@@ -210,8 +210,9 @@ LIVE_MIN_N = 8
 
 def live_record(state, k):
     """(n, R medio) das operacoes reais fechadas do lutador k."""
-    rs = [r.get("result_r") for r in state.get("ledger") or []
-          if r.get("strategy") == k and r.get("status") == "CLOSED" and r.get("result_r") is not None]
+    rs = [r.get("result_r") for r in state.get("ledger") or []      # (12/11) sem execucao na corretora nao conta
+          if r.get("strategy") == k and r.get("status") == "CLOSED" and r.get("result_r") is not None
+          and r.get("executed") is not False]
     return len(rs), (sum(rs) / len(rs) if rs else None)
 
 
@@ -402,6 +403,50 @@ def champion(state, disabled=()):
     return c[0] if c else None
 
 
+def cfg_piloto(champ, state, cfg, now):
+    """(11/11, PILOTO; so com config "piloto" = {"estrategia", "teto_pct", "inicio", "perda_max_r"}) Para a estrategia do
+    piloto, deixa a ordem minima entrar ate ao teto de risco REAL do piloto, enquanto a guarda (engine/piloto.avaliar)
+    o permitir. Qualquer outra estrategia, ou sem a chave, devolve cfg igual."""
+    pl = cfg.get("piloto") or {}
+    if not pl or champ != pl.get("estrategia") or not pl.get("teto_pct"):
+        return cfg
+    from . import piloto
+    abertas = [r for r in state.get("ledger") or [] if r.get("strategy") == champ and r.get("mode") == "REAL"
+               and r.get("status") in ("OPEN", "WAITING", "ACTIVE", "TRIGGERED") and r.get("executed") is not False]
+    if len(abertas) >= int(pl.get("max_posicoes") or 1):
+        return dict(cfg, piloto_bloqueio=f"piloto: já há {len(abertas)} posição aberta (máximo {pl.get('max_posicoes') or 1})")
+    av = piloto.avaliar(state.get("ledger") or [], champ, pl.get("inicio") or 0)
+    if pl.get("perda_max_r") is not None and av["soma_r"] <= pl["perda_max_r"]:
+        av["pode_abrir"] = False
+    if not av["pode_abrir"]:
+        state.setdefault("piloto", {})["suspenso"] = {"t": int(now), "motivos": av["motivos"] or ["perda maxima"]}
+        return dict(cfg, piloto_bloqueio="piloto suspenso: " + "; ".join(av["motivos"] or ["perda máxima atingida"]))
+    state.setdefault("piloto", {}).update(estado=av["estado"], n=av["n"], soma_r=av["soma_r"], t=int(now))
+    state["piloto"].pop("suspenso", None)
+    return dict(cfg, piloto_teto_pct=float(pl["teto_pct"]), piloto_juro_max_r=float(pl.get("juro_max_r", 0.06)),
+                piloto_dias_max=float(pl.get("dias_max", 20)))
+
+
+JUROS_IDADE_MAX = 6 * 3600
+
+
+def piloto_juro(state, asset, stop_frac, cfg, now):
+    """(12/11) Guarda do juro do piloto: so com a taxa real da moeda lida ha pouco; custo estimado no prazo maximo da
+    operacao (20 dias) em R <= piloto_juro_max_r. Sem taxa conhecida nao entra. Devolve o motivo ou None."""
+    if "piloto_juro_max_r" not in cfg:
+        return None
+    j = state.get("juros_bybit") or {}
+    taxa = (j.get("m") or {}).get(asset)
+    if taxa is None or now - (j.get("t") or 0) > JUROS_IDADE_MAX:
+        return "piloto: juro real do empréstimo desconhecido ou desatualizado"
+    if not stop_frac or stop_frac <= 0:
+        return "piloto: stop inválido"
+    custo_r = taxa / 100 * cfg.get("piloto_dias_max", 20) / stop_frac
+    if custo_r > cfg["piloto_juro_max_r"] + 1e-12:
+        return f"piloto: juro estimado {custo_r:.3f}R acima de {cfg['piloto_juro_max_r']}R"
+    return None
+
+
 def plan_for(sig, px, cfg):
     """Plano completo (dimensao, alavancagem, USDC) para o sinal do campeao.
     Tres objetivos e tres parciais, como as outras operacoes reais."""
@@ -523,7 +568,11 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
                     falhou = falhou or (champ, sig["t_sig"], "sem margem na Bybit UE: a moeda não se pode vender a descoberto")
                     continue
                 cc = acelerado.cfg_para(champ, state, cfg)       # (30/10) modo acelerado: so com OK final
-                p, why = short_plan_for(sig, r["price"], cc)
+                cc = cfg_piloto(champ, state, cc, now)           # (11/11) piloto: desligado sem config "piloto"
+                why = cc.get("piloto_bloqueio") or piloto_juro(state, a, (sig["stop"] - r["price"]) / r["price"], cc, now)
+                p = None
+                if not why:
+                    p, why = short_plan_for(sig, r["price"], cc)
             else:
                 cc = acelerado.cfg_para(champ, state, cfg)
                 p, why = plan_for(sig, r["price"], cc)

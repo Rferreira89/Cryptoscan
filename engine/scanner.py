@@ -282,6 +282,8 @@ def apply_account(state, eu, now):
         state["bybit_tickers"] = {"t": acc["t"], "m": acc["tickers"]}
     if acc.get("margem"):                    # (22/10) moedas que a Bybit UE deixa vender a descoberto
         state["margem_bybit"] = {"t": acc["t"], "moedas": list(acc["margem"])}
+    if acc.get("juros_margem"):              # (12/11, piloto) juro diario real por moeda (guarda do piloto)
+        state["juros_bybit"] = {"t": acc["t"], "m": dict(acc["juros_margem"])}
     return {"t": acc["t"], "usdc_free": acc.get("usdc_free"),
             "equity": acc.get("equity"), "trades": acc.get("trades") or {},
             "fundo": acc.get("fundo"), "reais": acc.get("reais") or {}, "expira": acc.get("expires")}
