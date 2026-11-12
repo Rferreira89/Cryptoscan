@@ -29,7 +29,7 @@ class Acelerado(unittest.TestCase):
         self.assertTrue(c["modo_acelerado"]["ligado"])          # (30/10) ligado antecipadamente pelo Rui
         self.assertEqual(c["modo_acelerado"]["teto_pct"], 2.5)
         self.assertTrue(c["nucleo_ligado"])                      # (01/11) Rui: "assume riscos e encontra a melhor solucao"
-        self.assertEqual((c["nucleo_moedas"], c["nucleo_fracao"], c["nucleo_dias"], c["nucleo_alavancagem"]), (["BTC"], 1.0, 50, 2))
+        self.assertEqual((c["nucleo_moedas"], c["nucleo_fracao"], c["nucleo_dias"], c["nucleo_alavancagem"]), (["BTC"], 0.5, 50, 1))   # (12/11, OK do Rui 02:13) nucleo a 1x e 50% do capital
         self.assertEqual(c["real_autorizados"], ["SHORT_TURTLE"])   # (12/11) OK do Rui 00:34: so o piloto SHORT_TURTLE               # (05/11) OK do Rui: H45 suspensa do dinheiro real (so papel) apos a validacao independente
         self.assertEqual(c["panico_real"], {"modo": "risco", "max_usdc": 20, "risco_pct": 2, "risco_max_pct": 3,
                                             "so_mercado": True, "composto": True})

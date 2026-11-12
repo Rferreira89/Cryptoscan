@@ -13,9 +13,9 @@
   "nucleo_ligado": true,
   "nucleo_reforcar": true,
   "nucleo_moedas": ["BTC"],
-  "nucleo_fracao": 1.0,
+  "nucleo_fracao": 0.5,
   "nucleo_dias": 50,
-  "nucleo_alavancagem": 2,
+  "nucleo_alavancagem": 1,
   "campeoes_estudo": {
     "lateral": [
       "SHORT_TURTLE"

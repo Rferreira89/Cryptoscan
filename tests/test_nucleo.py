@@ -158,3 +158,32 @@ class Execucao(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class NucleoMeioCapitalSemAlavancagem(unittest.TestCase):
+    """(12/11, OK do Rui 02:13) Nucleo BTC: no maximo 50% do capital e 1x; o resto fica livre para o piloto."""
+    def test_config_de_producao(self):
+        import json, os
+        raiz = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        with open(os.path.join(raiz, "config.json"), encoding="utf-8") as f:
+            c = json.load(f)
+        self.assertEqual((c["nucleo_fracao"], c["nucleo_alavancagem"], c["nucleo_dias"], c["nucleo_moedas"]), (0.5, 1, 50, ["BTC"]))
+
+    def test_compra_so_metade_e_sem_emprestimo(self):
+        from engine import nucleo
+        cfg = {"nucleo_ligado": True, "nucleo_moedas": ["BTC"], "nucleo_fracao": 0.5, "nucleo_dias": 50, "nucleo_alavancagem": 1}
+        daily = {"BTC": [{"c": 100.0 + i} for i in range(60)]}          # acima da media de 50 dias
+        st = {}
+        ped = nucleo.decidir(st, daily, {"BTC": 160.0}, 20.0, 20.0, cfg, 10 ** 9)
+        self.assertEqual(ped, [("nucleo_comprar", "NUCLEO-BTC")])
+        p = st["nucleo"]["plano"]["BTC"]
+        self.assertEqual(p["comprar_usdc"], 10.0)                       # 50% de 20, nunca o saldo todo
+        self.assertEqual(p["alav"], 1.0)
+
+    def test_posicao_existente_nao_e_vendida_pela_mudanca(self):
+        from engine import nucleo
+        cfg = {"nucleo_ligado": True, "nucleo_moedas": ["BTC"], "nucleo_fracao": 0.5, "nucleo_dias": 50, "nucleo_alavancagem": 1,
+               "nucleo_reforcar": True}
+        daily = {"BTC": [{"c": 100.0 + i} for i in range(60)]}
+        st = {"nucleo": {"pos": {"BTC": {"qty": 0.12, "entrada": 150.0}}, "plano": {}, "pedidos": {}}}   # 19,2 USDC: acima do novo alvo
+        self.assertEqual(nucleo.decidir(st, daily, {"BTC": 160.0}, 20.0, 1.0, cfg, 10 ** 9), [])
