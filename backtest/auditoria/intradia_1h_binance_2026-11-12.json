@@ -1,0 +1,743 @@
+{
+ "moedas": 71,
+ "operacoes": 94493,
+ "de": 1728478800,
+ "ate": 1794142800,
+ "cortes": {
+  "treino_ate": 1761310800,
+  "fora_desde": 1777726800
+ },
+ "resultados": [
+  {
+   "estrategia": "COMPRESSAO_LONG",
+   "lado": "LONG",
+   "moedas": 71,
+   "treino": {
+    "n": 2050,
+    "dias": 250,
+    "r_op": -0.0741,
+    "r_dia": -0.2512,
+    "ic90_dia": [
+     -0.3429,
+     -0.1434
+    ],
+    "t_dia": -4.205,
+    "pf": 0.879,
+    "acerto": 0.394,
+    "mediana": -1.051,
+    "p05": -1.154,
+    "max_dd_r": -255.62
+   },
+   "validacao": {
+    "n": 1264,
+    "dias": 151,
+    "r_op": -0.1758,
+    "r_dia": -0.2157,
+    "ic90_dia": [
+     -0.3397,
+     -0.0896
+    ],
+    "t_dia": -2.719,
+    "pf": 0.743,
+    "acerto": 0.337,
+    "mediana": -1.074,
+    "p05": -1.191,
+    "max_dd_r": -289.57
+   },
+   "fora": {
+    "n": 1212,
+    "dias": 157,
+    "r_op": -0.1984,
+    "r_dia": -0.3003,
+    "ic90_dia": [
+     -0.4111,
+     -0.1973
+    ],
+    "t_dia": -4.591,
+    "pf": 0.71,
+    "acerto": 0.341,
+    "mediana": -1.074,
+    "p05": -1.232,
+    "max_dd_r": -253.57
+   },
+   "validacao_mais_fora": {
+    "n": 2476,
+    "dias": 307,
+    "r_op": -0.1869,
+    "r_dia": -0.2562,
+    "ic90_dia": [
+     -0.3351,
+     -0.1757
+    ],
+    "t_dia": -4.994,
+    "pf": 0.727,
+    "acerto": 0.339,
+    "mediana": -1.074,
+    "p05": -1.209,
+    "max_dd_r": -517.25
+   },
+   "p": 1.0,
+   "p_holm": 1.0,
+   "candidata": false,
+   "classe": "SEM VANTAGEM (NEGATIVA)"
+  },
+  {
+   "estrategia": "COMPRESSAO_SHORT",
+   "lado": "SHORT",
+   "moedas": 71,
+   "treino": {
+    "n": 2165,
+    "dias": 260,
+    "r_op": -0.0982,
+    "r_dia": -0.1261,
+    "ic90_dia": [
+     -0.2234,
+     -0.0118
+    ],
+    "t_dia": -1.937,
+    "pf": 0.842,
+    "acerto": 0.383,
+    "mediana": -1.052,
+    "p05": -1.156,
+    "max_dd_r": -333.29
+   },
+   "validacao": {
+    "n": 1481,
+    "dias": 168,
+    "r_op": -0.0012,
+    "r_dia": -0.1105,
+    "ic90_dia": [
+     -0.2298,
+     0.0074
+    ],
+    "t_dia": -1.463,
+    "pf": 0.998,
+    "acerto": 0.413,
+    "mediana": -1.054,
+    "p05": -1.173,
+    "max_dd_r": -116.84
+   },
+   "fora": {
+    "n": 1408,
+    "dias": 163,
+    "r_op": -0.1478,
+    "r_dia": -0.1562,
+    "ic90_dia": [
+     -0.2785,
+     -0.0331
+    ],
+    "t_dia": -2.101,
+    "pf": 0.776,
+    "acerto": 0.369,
+    "mediana": -1.07,
+    "p05": -1.212,
+    "max_dd_r": -305.11
+   },
+   "validacao_mais_fora": {
+    "n": 2889,
+    "dias": 330,
+    "r_op": -0.0727,
+    "r_dia": -0.1326,
+    "ic90_dia": [
+     -0.2171,
+     -0.0386
+    ],
+    "t_dia": -2.497,
+    "pf": 0.885,
+    "acerto": 0.391,
+    "mediana": -1.063,
+    "p05": -1.195,
+    "max_dd_r": -419.04
+   },
+   "p": 0.99374,
+   "p_holm": 1.0,
+   "candidata": false,
+   "classe": "SEM VANTAGEM (NEGATIVA)"
+  },
+  {
+   "estrategia": "FALSO_ROMPIMENTO_LONG",
+   "lado": "LONG",
+   "moedas": 71,
+   "treino": {
+    "n": 11370,
+    "dias": 350,
+    "r_op": -0.1213,
+    "r_dia": 0.1837,
+    "ic90_dia": [
+     0.1109,
+     0.259
+    ],
+    "t_dia": 3.921,
+    "pf": 0.799,
+    "acerto": 0.387,
+    "mediana": -1.037,
+    "p05": -1.12,
+    "max_dd_r": -1683.45
+   },
+   "validacao": {
+    "n": 7419,
+    "dias": 191,
+    "r_op": -0.1384,
+    "r_dia": 0.1014,
+    "ic90_dia": [
+     0.0086,
+     0.1959
+    ],
+    "t_dia": 1.797,
+    "pf": 0.771,
+    "acerto": 0.376,
+    "mediana": -1.038,
+    "p05": -1.143,
+    "max_dd_r": -1224.03
+   },
+   "fora": {
+    "n": 6846,
+    "dias": 190,
+    "r_op": -0.126,
+    "r_dia": 0.0775,
+    "ic90_dia": [
+     -0.0075,
+     0.1641
+    ],
+    "t_dia": 1.525,
+    "pf": 0.787,
+    "acerto": 0.388,
+    "mediana": -1.016,
+    "p05": -1.157,
+    "max_dd_r": -1007.97
+   },
+   "validacao_mais_fora": {
+    "n": 14265,
+    "dias": 380,
+    "r_op": -0.1325,
+    "r_dia": 0.0893,
+    "ic90_dia": [
+     0.0274,
+     0.147
+    ],
+    "t_dia": 2.348,
+    "pf": 0.778,
+    "acerto": 0.381,
+    "mediana": -1.033,
+    "p05": -1.149,
+    "max_dd_r": -1956.03
+   },
+   "p": 0.00944,
+   "p_holm": 0.08494,
+   "candidata": false,
+   "classe": "SEM VANTAGEM (positiva por dia, negativa por operacao)"
+  },
+  {
+   "estrategia": "FALSO_ROMPIMENTO_SHORT",
+   "lado": "SHORT",
+   "moedas": 71,
+   "treino": {
+    "n": 11832,
+    "dias": 354,
+    "r_op": -0.0934,
+    "r_dia": 0.1874,
+    "ic90_dia": [
+     0.1152,
+     0.2584
+    ],
+    "t_dia": 4.207,
+    "pf": 0.843,
+    "acerto": 0.397,
+    "mediana": -1.035,
+    "p05": -1.133,
+    "max_dd_r": -1505.93
+   },
+   "validacao": {
+    "n": 6688,
+    "dias": 190,
+    "r_op": 0.0267,
+    "r_dia": 0.23,
+    "ic90_dia": [
+     0.1402,
+     0.32
+    ],
+    "t_dia": 4.169,
+    "pf": 1.049,
+    "acerto": 0.453,
+    "mediana": -0.328,
+    "p05": -1.142,
+    "max_dd_r": -433.21
+   },
+   "fora": {
+    "n": 7040,
+    "dias": 191,
+    "r_op": -0.0539,
+    "r_dia": 0.1159,
+    "ic90_dia": [
+     0.0418,
+     0.1936
+    ],
+    "t_dia": 2.491,
+    "pf": 0.907,
+    "acerto": 0.422,
+    "mediana": -1.026,
+    "p05": -1.158,
+    "max_dd_r": -827.51
+   },
+   "validacao_mais_fora": {
+    "n": 13728,
+    "dias": 380,
+    "r_op": -0.0146,
+    "r_dia": 0.1735,
+    "ic90_dia": [
+     0.113,
+     0.2345
+    ],
+    "t_dia": 4.791,
+    "pf": 0.974,
+    "acerto": 0.437,
+    "mediana": -0.568,
+    "p05": -1.148,
+    "max_dd_r": -1027.1
+   },
+   "p": 0.0,
+   "p_holm": 1e-05,
+   "candidata": false,
+   "classe": "SEM VANTAGEM (positiva por dia, negativa por operacao)"
+  },
+  {
+   "estrategia": "MOMENTO_LONG",
+   "lado": "LONG",
+   "moedas": 71,
+   "treino": {
+    "n": 5532,
+    "dias": 337,
+    "r_op": -0.0197,
+    "r_dia": -0.2772,
+    "ic90_dia": [
+     -0.3431,
+     -0.214
+    ],
+    "t_dia": -7.039,
+    "pf": 0.967,
+    "acerto": 0.395,
+    "mediana": -1.036,
+    "p05": -1.129,
+    "max_dd_r": -431.91
+   },
+   "validacao": {
+    "n": 3307,
+    "dias": 190,
+    "r_op": -0.0523,
+    "r_dia": -0.2947,
+    "ic90_dia": [
+     -0.3728,
+     -0.2229
+    ],
+    "t_dia": -6.34,
+    "pf": 0.917,
+    "acerto": 0.373,
+    "mediana": -1.044,
+    "p05": -1.143,
+    "max_dd_r": -273.12
+   },
+   "fora": {
+    "n": 3727,
+    "dias": 189,
+    "r_op": -0.1198,
+    "r_dia": -0.2453,
+    "ic90_dia": [
+     -0.3138,
+     -0.1745
+    ],
+    "t_dia": -5.57,
+    "pf": 0.816,
+    "acerto": 0.353,
+    "mediana": -1.05,
+    "p05": -1.164,
+    "max_dd_r": -470.13
+   },
+   "validacao_mais_fora": {
+    "n": 7034,
+    "dias": 378,
+    "r_op": -0.0881,
+    "r_dia": -0.2726,
+    "ic90_dia": [
+     -0.323,
+     -0.2208
+    ],
+    "t_dia": -8.528,
+    "pf": 0.863,
+    "acerto": 0.362,
+    "mediana": -1.047,
+    "p05": -1.153,
+    "max_dd_r": -716.39
+   },
+   "p": 1.0,
+   "p_holm": 1.0,
+   "candidata": false,
+   "classe": "SEM VANTAGEM (NEGATIVA)"
+  },
+  {
+   "estrategia": "MOMENTO_SHORT",
+   "lado": "SHORT",
+   "moedas": 71,
+   "treino": {
+    "n": 5363,
+    "dias": 300,
+    "r_op": -0.0175,
+    "r_dia": -0.3169,
+    "ic90_dia": [
+     -0.3944,
+     -0.237
+    ],
+    "t_dia": -6.382,
+    "pf": 0.969,
+    "acerto": 0.392,
+    "mediana": -0.788,
+    "p05": -1.118,
+    "max_dd_r": -396.39
+   },
+   "validacao": {
+    "n": 3580,
+    "dias": 179,
+    "r_op": -0.0286,
+    "r_dia": -0.2101,
+    "ic90_dia": [
+     -0.3112,
+     -0.0974
+    ],
+    "t_dia": -3.227,
+    "pf": 0.95,
+    "acerto": 0.41,
+    "mediana": -0.673,
+    "p05": -1.134,
+    "max_dd_r": -456.92
+   },
+   "fora": {
+    "n": 3530,
+    "dias": 178,
+    "r_op": -0.1113,
+    "r_dia": -0.325,
+    "ic90_dia": [
+     -0.404,
+     -0.2354
+    ],
+    "t_dia": -6.275,
+    "pf": 0.808,
+    "acerto": 0.396,
+    "mediana": -0.756,
+    "p05": -1.163,
+    "max_dd_r": -525.09
+   },
+   "validacao_mais_fora": {
+    "n": 7110,
+    "dias": 356,
+    "r_op": -0.0696,
+    "r_dia": -0.2647,
+    "ic90_dia": [
+     -0.3331,
+     -0.1975
+    ],
+    "t_dia": -6.347,
+    "pf": 0.879,
+    "acerto": 0.403,
+    "mediana": -0.698,
+    "p05": -1.15,
+    "max_dd_r": -639.47
+   },
+   "p": 1.0,
+   "p_holm": 1.0,
+   "candidata": false,
+   "classe": "SEM VANTAGEM (NEGATIVA)"
+  },
+  {
+   "estrategia": "RECUO_LONG",
+   "lado": "LONG",
+   "moedas": 69,
+   "treino": {
+    "n": 205,
+    "dias": 76,
+    "r_op": 0.0499,
+    "r_dia": 0.1499,
+    "ic90_dia": [
+     -0.0556,
+     0.3747
+    ],
+    "t_dia": 1.125,
+    "pf": 1.089,
+    "acerto": 0.439,
+    "mediana": -1.036,
+    "p05": -1.125,
+    "max_dd_r": -38.61
+   },
+   "validacao": {
+    "n": 124,
+    "dias": 52,
+    "r_op": -0.3765,
+    "r_dia": 0.0338,
+    "ic90_dia": [
+     -0.1985,
+     0.2742
+    ],
+    "t_dia": 0.223,
+    "pf": 0.462,
+    "acerto": 0.274,
+    "mediana": -1.058,
+    "p05": -1.136,
+    "max_dd_r": -55.82
+   },
+   "fora": {
+    "n": 134,
+    "dias": 50,
+    "r_op": 0.0943,
+    "r_dia": 0.0395,
+    "ic90_dia": [
+     -0.1898,
+     0.2533
+    ],
+    "t_dia": 0.286,
+    "pf": 1.209,
+    "acerto": 0.493,
+    "mediana": -0.063,
+    "p05": -1.126,
+    "max_dd_r": -9.13
+   },
+   "validacao_mais_fora": {
+    "n": 258,
+    "dias": 102,
+    "r_op": -0.132,
+    "r_dia": 0.0366,
+    "ic90_dia": [
+     -0.1282,
+     0.2041
+    ],
+    "t_dia": 0.357,
+    "pf": 0.769,
+    "acerto": 0.388,
+    "mediana": -0.601,
+    "p05": -1.127,
+    "max_dd_r": -55.82
+   },
+   "p": 0.36055,
+   "p_holm": 1.0,
+   "candidata": false,
+   "classe": "SEM VANTAGEM (positiva por dia, negativa por operacao)"
+  },
+  {
+   "estrategia": "RECUO_SHORT",
+   "lado": "SHORT",
+   "moedas": 71,
+   "treino": {
+    "n": 534,
+    "dias": 91,
+    "r_op": 0.0451,
+    "r_dia": -0.0005,
+    "ic90_dia": [
+     -0.1771,
+     0.1901
+    ],
+    "t_dia": -0.005,
+    "pf": 1.083,
+    "acerto": 0.429,
+    "mediana": -0.386,
+    "p05": -1.136,
+    "max_dd_r": -69.24
+   },
+   "validacao": {
+    "n": 390,
+    "dias": 94,
+    "r_op": -0.0846,
+    "r_dia": 0.2329,
+    "ic90_dia": [
+     0.0396,
+     0.4224
+    ],
+    "t_dia": 1.934,
+    "pf": 0.858,
+    "acerto": 0.408,
+    "mediana": -1.049,
+    "p05": -1.128,
+    "max_dd_r": -67.31
+   },
+   "fora": {
+    "n": 257,
+    "dias": 81,
+    "r_op": -0.1013,
+    "r_dia": -0.052,
+    "ic90_dia": [
+     -0.2483,
+     0.1358
+    ],
+    "t_dia": -0.435,
+    "pf": 0.837,
+    "acerto": 0.397,
+    "mediana": -1.051,
+    "p05": -1.192,
+    "max_dd_r": -30.8
+   },
+   "validacao_mais_fora": {
+    "n": 647,
+    "dias": 175,
+    "r_op": -0.0913,
+    "r_dia": 0.101,
+    "ic90_dia": [
+     -0.0509,
+     0.2433
+    ],
+    "t_dia": 1.181,
+    "pf": 0.849,
+    "acerto": 0.403,
+    "mediana": -1.05,
+    "p05": -1.15,
+    "max_dd_r": -67.31
+   },
+   "p": 0.1188,
+   "p_holm": 0.83161,
+   "candidata": false,
+   "classe": "SEM VANTAGEM (positiva por dia, negativa por operacao)"
+  },
+  {
+   "estrategia": "REVERSAO_LONG",
+   "lado": "LONG",
+   "moedas": 71,
+   "treino": {
+    "n": 1682,
+    "dias": 205,
+    "r_op": 0.0424,
+    "r_dia": 0.0573,
+    "ic90_dia": [
+     -0.0441,
+     0.1564
+    ],
+    "t_dia": 0.926,
+    "pf": 1.089,
+    "acerto": 0.467,
+    "mediana": -0.16,
+    "p05": -1.057,
+    "max_dd_r": -163.35
+   },
+   "validacao": {
+    "n": 835,
+    "dias": 123,
+    "r_op": -0.0894,
+    "r_dia": -0.1066,
+    "ic90_dia": [
+     -0.23,
+     0.027
+    ],
+    "t_dia": -1.405,
+    "pf": 0.818,
+    "acerto": 0.401,
+    "mediana": -0.298,
+    "p05": -1.065,
+    "max_dd_r": -128.07
+   },
+   "fora": {
+    "n": 602,
+    "dias": 128,
+    "r_op": 0.0802,
+    "r_dia": 0.0653,
+    "ic90_dia": [
+     -0.0497,
+     0.1839
+    ],
+    "t_dia": 0.923,
+    "pf": 1.195,
+    "acerto": 0.503,
+    "mediana": 0.016,
+    "p05": -1.056,
+    "max_dd_r": -53.16
+   },
+   "validacao_mais_fora": {
+    "n": 1437,
+    "dias": 251,
+    "r_op": -0.0184,
+    "r_dia": -0.0189,
+    "ic90_dia": [
+     -0.1009,
+     0.0685
+    ],
+    "t_dia": -0.364,
+    "pf": 0.96,
+    "acerto": 0.444,
+    "mediana": -0.173,
+    "p05": -1.062,
+    "max_dd_r": -132.5
+   },
+   "p": 0.64207,
+   "p_holm": 1.0,
+   "candidata": false,
+   "classe": "SEM VANTAGEM"
+  },
+  {
+   "estrategia": "REVERSAO_SHORT",
+   "lado": "SHORT",
+   "moedas": 71,
+   "treino": {
+    "n": 2169,
+    "dias": 288,
+    "r_op": -0.0825,
+    "r_dia": 0.0252,
+    "ic90_dia": [
+     -0.0572,
+     0.1145
+    ],
+    "t_dia": 0.484,
+    "pf": 0.846,
+    "acerto": 0.427,
+    "mediana": -0.622,
+    "p05": -1.06,
+    "max_dd_r": -234.45
+   },
+   "validacao": {
+    "n": 853,
+    "dias": 160,
+    "r_op": 0.1665,
+    "r_dia": 0.1788,
+    "ic90_dia": [
+     0.0648,
+     0.2839
+    ],
+    "t_dia": 2.65,
+    "pf": 1.38,
+    "acerto": 0.53,
+    "mediana": 0.229,
+    "p05": -1.064,
+    "max_dd_r": -29.79
+   },
+   "fora": {
+    "n": 894,
+    "dias": 171,
+    "r_op": -0.1072,
+    "r_dia": -0.0521,
+    "ic90_dia": [
+     -0.1446,
+     0.0428
+    ],
+    "t_dia": -0.882,
+    "pf": 0.81,
+    "acerto": 0.415,
+    "mediana": -1.021,
+    "p05": -1.064,
+    "max_dd_r": -146.56
+   },
+   "validacao_mais_fora": {
+    "n": 1747,
+    "dias": 330,
+    "r_op": 0.0264,
+    "r_dia": 0.0583,
+    "ic90_dia": [
+     -0.0146,
+     0.1321
+    ],
+    "t_dia": 1.291,
+    "pf": 1.052,
+    "acerto": 0.471,
+    "mediana": -0.221,
+    "p05": -1.064,
+    "max_dd_r": -146.56
+   },
+   "p": 0.09835,
+   "p_holm": 0.78681,
+   "candidata": false,
+   "classe": "INCONCLUSIVA"
+  }
+ ],
+ "aviso": "So investigacao; substituto a vista USDT para o preco do X-Perp; sem moedas retiradas."
+}
