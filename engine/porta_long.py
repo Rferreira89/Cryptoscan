@@ -44,8 +44,9 @@ def avaliar(descoberta, ledger, papel_transversal, motores, inicio=0):
     for l in linhas:
         k, fase = l.get("estrategia"), l.get("fase")
         falta = []
-        if l.get("classe") != CLASSE_OK:
-            falta.append(f"classe {l.get('classe')}")
+        classe = l.get("classe") or l.get("veredicto")      # ficheiros antigos da descoberta: "veredicto"
+        if str(classe or "").upper() != CLASSE_OK:
+            falta.append(f"classe {classe}")
         if l.get("robusta") is not True:
             falta.append("robustez a parametros vizinhos nao provada")
         pp = _papel(k, ledger, papel_transversal)
@@ -56,7 +57,8 @@ def avaliar(descoberta, ledger, papel_transversal, motores, inicio=0):
         if k not in (motores or ()):
             falta.append("sem motor ao vivo no scanner")
         chave = f"{k}|{fase}"
-        rel[chave] = {"falta": falta, "papel": pp, "classe": l.get("classe")}
+        # "motivos" (e nao "falta": a publicacao publica apaga chaves comecadas por "falta", pensadas para dinheiro)
+        rel[chave] = {"motivos": falta, "papel": pp, "classe": classe}
         if not falta:
             pilotos.append({"estrategia": k, "fase": fase, "teto_pct": TETO_LONG_PCT, "max_posicoes": 1,
                             "perda_max_r": -8, "juro_max_r": 0.06, "dias_max": 20, "inicio": inicio,
@@ -78,7 +80,7 @@ def piloto_de(cfg, estrategia):
 
 def reduzir(descoberta, papel):
     """O minimo a guardar no estado (sem dinheiro): linhas bybit_ue da descoberta e os R do papel continuo."""
-    lin = [{k: l.get(k) for k in ("estrategia", "fase", "corretora", "classe", "robusta")}
+    lin = [{k: l.get(k) for k in ("estrategia", "fase", "corretora", "classe", "veredicto", "robusta")}
            for l in ((descoberta or {}).get("resultados") or []) if l.get("corretora") == "bybit_ue"]
     fech = [{"k": o.get("k"), "r": o.get("r")} for o in ((papel or {}).get("fechadas") or [])][-2000:]
     return {"descoberta": {"resultados": lin}, "papel": {"fechadas": fech}}

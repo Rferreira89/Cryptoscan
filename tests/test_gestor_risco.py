@@ -49,7 +49,7 @@ class Porta(unittest.TestCase):
                                     (self.desc(), self.papel(40, 1.0), set(), "motor")):
             p, rel = PL.avaliar(d, led, None, mot)
             self.assertEqual(p, [])
-            self.assertTrue(any(motivo in f for f in rel["L1|subida"]["falta"]), (motivo, rel))
+            self.assertTrue(any(motivo in f for f in rel["L1|subida"]["motivos"]), (motivo, rel))
 
     def test_teto_long_nunca_passa_1(self):
         cfg = {"piloto": {"estrategia": "SHORT_TURTLE", "teto_pct": 5},
@@ -110,3 +110,14 @@ class NoCircuito(unittest.TestCase):
         d, st = self.correr([aberta("AAA", 0.1, "SHORT_TURTLE")])
         self.assertEqual(d, {})
         self.assertIn("já há uma posição real aberta em AAA", st["promo_lost"][-1]["reason"])
+
+
+class Publico(unittest.TestCase):
+    def test_relatorio_da_porta_sobrevive_a_publicacao(self):
+        from engine import publico
+        d = {"resultados": [{"estrategia": "L1", "fase": "subida", "corretora": "bybit_ue",
+                             "veredicto": "sem vantagem demonstrada"}]}
+        st = {"ledger": [], "porta_dados": PL.reduzir(d, None)}
+        PL.aplicar({}, st, {"L1"}, 1)
+        pub = publico.limpar({"porta_long": st["porta_long"]})
+        self.assertIn("classe sem vantagem demonstrada", pub["porta_long"]["relatorio"]["L1|subida"]["motivos"])

@@ -113,7 +113,7 @@ def correr(pasta):
     r = {"bybit_ue": bybit(St), "okx": okx(O), "papel_transversal": papel_continuo(_j(os.path.join(pasta, "papel.json")))}
     pt = St.get("porta_long") or {}
     r["porta_long"] = {"pilotos_em_real": pt.get("pilotos") or [],
-                       "a_falhar": {k: v.get("falta") for k, v in list((pt.get("relatorio") or {}).items())[:40]}}
+                       "a_falhar": {k: v.get("motivos") for k, v in list((pt.get("relatorio") or {}).items())[:40]}}
     pl = St.get("promo_lost") or []
     r["bybit_ue"]["perdidas_por_capacidade"] = sum(1 for x in pl if (x.get("reason") or "").startswith("capacidade"))
     r["decisoes"] = decisoes(r)
