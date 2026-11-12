@@ -82,6 +82,16 @@ def indicadores(c):
     return {"atr": atr, "rsi": rsi, "e50": e50, "e200": e200, "bb": larg}
 
 
+def decil(ind, i):
+    """Decil mais baixo da largura das bandas nas 500 velas ANTES de i, recalculado de 24 em 24 velas (so passado)."""
+    k = i - i % 24
+    cache = ind.setdefault("_decil", {})
+    if k not in cache:
+        hist = sorted(b[0] for b in ind["bb"][max(0, k - 500):k] if b and b[0] is not None)
+        cache[k] = hist[len(hist) // 10] if len(hist) >= 100 else None
+    return cache[k]
+
+
 def sinais(c, ind, i):
     """[(familia, lado)] com a vela i FECHADA (so dados ate i)."""
     if i < 500:
@@ -106,8 +116,8 @@ def sinais(c, ind, i):
     if r6 >= 0.06 and x["c"] < x["o"]:
         out.append(("REVERSAO", "SHORT"))
     bb = ind["bb"][i]
-    hist = sorted(b[0] for b in ind["bb"][i - 500:i] if b and b[0] is not None)
-    if bb and bb[0] is not None and hist and bb[0] <= hist[len(hist) // 10]:
+    lim = decil(ind, i)
+    if bb and bb[0] is not None and lim is not None and bb[0] <= lim:
         if x["c"] > bb[1]:
             out.append(("COMPRESSAO", "LONG"))
         elif x["c"] < bb[2]:
@@ -183,7 +193,10 @@ def avaliar(ops, t0, t1, reps=1000, seed=3):
              "fora": D.resumo(fo, "R", rng, reps), "validacao_mais_fora": D.resumo(va + fo, "R", rng, reps)}
         vf = R["validacao_mais_fora"]
         p = 1 - D.phi(vf["t_dia"]) if vf.get("t_dia") is not None else 1.0
-        base = all(R[x].get("dias", 0) >= D.MIN_DIAS and (R[x].get("r_dia") or 0) > 0 for x in ("treino", "validacao", "fora"))
+        # (12/11) por dia E por operacao: com risco fixo por operacao (o caso real, ordem minima) um R por operacao
+        # negativo perde dinheiro mesmo com R por dia positivo (os dias de muitos sinais perdem, os de poucos ganham)
+        base = all(R[x].get("dias", 0) >= D.MIN_DIAS and (R[x].get("r_dia") or 0) > 0 and (R[x].get("r_op") or 0) > 0
+                   for x in ("treino", "validacao", "fora")) and (vf.get("pf") or 0) > 1
         linhas.append({"estrategia": k, "lado": k.rsplit("_", 1)[1], "moedas": len({o["a"] for o in xs}), **R, "p": round(p, 5),
                        "_base": base})
         ps.append(p)
