@@ -1008,6 +1008,29 @@ def load_forma():
         return None
 
 
+def load_porta(state):
+    """(12/11) Evidencia da porta do LONG real: descoberta semanal e papel continuo (ramos publicos). So no GitHub
+    Actions; falha de rede mantem a ultima guardada."""
+    repo = os.environ.get("GITHUB_REPOSITORY")
+    if not repo:
+        return
+    import urllib.request
+    from . import porta_long
+
+    def ler(ramo, f):
+        try:
+            with urllib.request.urlopen(f"https://raw.githubusercontent.com/{repo}/{ramo}/{f}", timeout=10) as r:
+                return json.loads(r.read().decode())
+        except Exception:
+            return None
+    d, p = ler("descoberta-long", "descoberta_long.json"), ler("papel-transversal", "papel.json")
+    if d is not None or p is not None:
+        ant = state.get("porta_dados") or {}
+        novo = porta_long.reduzir(d, p)
+        state["porta_dados"] = {"descoberta": novo["descoberta"] if d is not None else ant.get("descoberta"),
+                                "papel": novo["papel"] if p is not None else ant.get("papel")}
+
+
 def exec_after(state, events, now):
     """Ganchos da execucao: TP1 / tempo / sem reacao em operacoes executadas
     pelo programa, e aviso ao ciclo para lancar o servidor europeu."""
@@ -1063,6 +1086,10 @@ def main():
         print("ringue longo:", e)
     process_inbox(state, _load("scan.json", None))
     apply_admin(state, send=alerts.send if alerts.configured() else None)
+    try:
+        load_porta(state)
+    except Exception as e:
+        print("porta:", e)
     res, state, events = scanner.run(state=state, forma=load_forma(),
                                      eu=europa.load())
     try:                                      # modo automatico (desligado ate a prova estar feita)

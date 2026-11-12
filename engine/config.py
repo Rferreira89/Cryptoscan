@@ -47,6 +47,8 @@ DEFAULTS = {
     # (12/11, OK do Rui 12/11 00:34) piloto real: {"estrategia", "teto_pct", "max_posicoes", "perda_max_r", "juro_max_r",
     # "dias_max", "inicio"}; None = sem piloto (engine/promo.cfg_piloto, engine/piloto.py)
     "piloto": None,
+    "risco_agregado_max_pct": 5.0,        # (12/11) teto do risco real aberto somado, % do capital da conta
+    "pilotos_long": None,                 # (12/11) LONG em real a 1% que passaram a porta (engine/porta_long)
     # (30/10, OK do Rui) modo acelerado: meio-Kelly so para estrategias aprovadas (engine/acelerado.py)
     "modo_acelerado": None,
     # (31/10, Rui: "Vamos operar com 20$ e vamos fazer trades com o valor todo") compra no panico com

@@ -1,0 +1,39 @@
+name: Papel continuo transversal (LONG e SHORT)
+# (12/11, ordem do Rui 15:44) Papel para a frente das familias transversais de tools/long_transversal (forca
+# relativa, rotacao, estrutura+fluxo, resiliencia, aceleracao; SHORT fraqueza relativa, quebra com fluxo, excesso,
+# perda de momento), com dados publicos ao vivo, uma vez por dia num servidor do GitHub: nunca ocupa o servidor
+# europeu da conta e do executor. Nenhuma ordem: e a validacao em papel que a porta do LONG real exige.
+on:
+  schedule:
+    - cron: "37 0 * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: papel-transversal
+  cancel-in-progress: false
+jobs:
+  papel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Papel
+        env:
+          DATA_KEY: ${{ secrets.DATA_KEY }}
+        run: |
+          if [ -f STOP ]; then echo "STOP"; exit 0; fi
+          python -m unittest -q tests.test_papel_transversal tests.test_long_transversal
+          git fetch -q origin data && { git show FETCH_HEAD:cofre_state.json > /tmp/state.json 2>/dev/null || git show FETCH_HEAD:state.json > /tmp/state.json; } || echo '{}' > /tmp/state.json
+          pip install -q cryptography==43.0.3 || true
+          python -m engine.cifra abrir /tmp/state.json
+          mkdir -p out
+          if git fetch -q origin papel-transversal 2>/dev/null; then git show FETCH_HEAD:papel.json > out/papel.json || true; fi
+          python -m tools.papel_transversal /tmp/state.json out/papel.json
+          cd out && git init -q -b papel-transversal && git config user.name cryptoscan-bot \
+            && git config user.email bot@users.noreply.github.com \
+            && git add papel.json && git commit -q -m "papel $(date -u +%FT%TZ)" \
+            && git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" papel-transversal:papel-transversal

@@ -47,7 +47,9 @@ class Guarda(unittest.TestCase):
         from engine import executor, promo, scanner
         self.assertNotIn("piloto", inspect.getsource(executor))
         self.assertNotIn("cfg_piloto", inspect.getsource(scanner))
-        self.assertIn('cfg.get("piloto")', inspect.getsource(promo.cfg_piloto))
+        from engine import porta_long
+        self.assertIn("piloto_de", inspect.getsource(promo.cfg_piloto))            # (12/11) piloto ou LONG da porta
+        self.assertIn('cfg or {}).get("piloto")', inspect.getsource(porta_long.piloto_de))
         src = inspect.getsource(P)
         for proibido in ("urlopen", "/v5/order", "privado(", "place"):
             self.assertNotIn(proibido, src)

@@ -13,6 +13,17 @@ si em cada dia (o ringue avalia cada moeda sozinha). Familias novas, com regras 
   ACELERACAO       subida a 7 dias > 10% e > metade da de 20 dias, volume 7d/30d >= 2, BTC acima da media de 50.
                    Saida: 5 dias ou stop de 2 ATR.
 
+SHORT (12/11 15:44, ordem do Rui: SHORT fora do regime lateral; regras escritas antes de ver resultados; so moedas
+com margem na Bybit UE quando --bybit-margem e dado; custos +0,03%/dia de juro do emprestimo):
+  FRAQUEZA_RELATIVA  BTC abaixo da media de 200; moeda abaixo da sua media de 50; as 3 de MENOR forca relativa a 20
+                     dias face ao BTC (e < 0). Saida: 10 dias ou stop de 2 ATR acima.
+  QUEBRA_FLUXO       fecho abaixo do minimo dos 60 dias anteriores, volume 7d/30d >= 1,5, abaixo da media de 50.
+                     Saida: 10 dias ou stop de 2 ATR acima.
+  EXCESSO            subida a 7 dias >= 40% e primeiro fecho abaixo do fecho anterior (perda de impulso), BTC abaixo
+                     da media de 50. Saida: 5 dias ou stop de 2 ATR acima.
+  PERDA_MOMENTO      forca relativa a 60 dias no decil de cima mas a 7 dias < -10% face ao BTC e fecho abaixo da
+                     media de 20. Saida: 10 dias ou stop de 2 ATR acima.
+
 Sem olhar para o futuro: sinal no fecho do dia d com dados ate d; entrada na abertura de d+1; stop pelo minimo do
 dia (sai ao preco do stop, ou a abertura se abrir abaixo); saida por tempo no fecho. Uma operacao aberta por moeda e
 familia. Liquidez por data (mediana 30 dias >= 5 M USD na vespera). Custos Bybit UE 0,35%/lado (comissao+deslize)
@@ -62,6 +73,8 @@ def indicadores(dd):
             "i": i, "c": x["c"], "r7": c[i] / c[i - 7] - 1, "r10": c[i] / c[i - 10] - 1, "r20": c[i] / c[i - 20] - 1,
             "r60": c[i] / c[i - 60] - 1, "ma50": sum(c[i - 49:i + 1]) / 50, "atr": sum(trs[i - 13:i + 1]) / 14,
             "max60": max(y["h"] for y in dd[i - 59:i + 1]), "fluxo": v7 / v30 if v30 > 0 else 0.0,
+            "min60_ant": min(y["l"] for y in dd[i - 60:i]), "ma20": sum(c[i - 19:i + 1]) / 20,
+            "desce_hoje": c[i] < c[i - 1],
             "liq": vols[len(vols) // 2],
             "ma200": sum(c[i - 199:i + 1]) / 200 if i >= 199 else None,
             "c3": max(c[i - 3:i]) if i >= 3 else None}
@@ -103,14 +116,42 @@ def sinais(dia, ind, btc):
         out["RESILIENCIA"] = sorted((a for a in viv if rs10[a] > 0), key=lambda a: -rs10[a])[:3]
     if b["c"] > b["ma50"]:
         out["ACELERACAO"] = [a for a, x in viv.items() if x["r7"] > 0.10 and x["r7"] > 0.5 * x["r20"] and x["fluxo"] >= 2]
+    # ---- SHORT ----
+    if b["ma200"] and b["c"] < b["ma200"]:
+        out["FRAQUEZA_RELATIVA"] = sorted((a for a, x in viv.items() if x["c"] < x["ma50"] and rs[a] < 0),
+                                          key=lambda a: rs[a])[:3]
+    out["QUEBRA_FLUXO"] = [a for a, x in viv.items() if x["c"] < x["min60_ant"] and x["fluxo"] >= 1.5
+                           and x["c"] < x["ma50"]]
+    if b["c"] < b["ma50"]:
+        out["EXCESSO"] = [a for a, x in viv.items() if x["r7"] >= 0.40 and x["desce_hoje"]]
+    if len(viv) >= 10:
+        rs60 = {a: x["r60"] - b["r60"] for a, x in viv.items()}
+        c60 = sorted(rs60.values())[int(0.9 * len(rs60))]
+        out["PERDA_MOMENTO"] = [a for a, x in viv.items() if rs60[a] >= c60 and x["r7"] - b["r7"] < -0.10
+                                and x["c"] < x["ma20"]]
     return out
 
 
 REGRAS = {"FORCA_RELATIVA": (10, 2.0), "ROTACAO": (7, 2.5), "ESTRUTURA_FLUXO": (15, 2.0), "RESILIENCIA": (10, 2.0),
-          "ACELERACAO": (5, 2.0)}
+          "ACELERACAO": (5, 2.0), "FRAQUEZA_RELATIVA": (10, 2.0), "QUEBRA_FLUXO": (10, 2.0), "EXCESSO": (5, 2.0),
+          "PERDA_MOMENTO": (10, 2.0)}
+SHORTS = {"FRAQUEZA_RELATIVA", "QUEBRA_FLUXO", "EXCESSO", "PERDA_MOMENTO"}
+JURO_DIA = 0.0003
 
 
-def operacoes(series, fases):
+def sair_short(dd, i_ent, stop, h):
+    """Venda na abertura de dd[i_ent]; recompra no stop (acima) ou por tempo."""
+    for j in range(i_ent, min(len(dd), i_ent + h)):
+        x = dd[j]
+        if x["o"] >= stop:
+            return x["o"], x["t"]
+        if x["h"] >= stop:
+            return stop, x["t"] + DAY // 2
+    j = min(len(dd), i_ent + h) - 1
+    return dd[j]["c"], dd[j]["t"] + DAY - 1
+
+
+def operacoes(series, fases, margem=None):
     """series: {moeda: [velas diarias]} (com BTC). Devolve operacoes no formato de tools/descoberta_long."""
     ind = {a: indicadores(dd) for a, dd in series.items() if a not in ESTAVEIS}
     btc = ind.pop("BTC", {})
@@ -127,19 +168,30 @@ def operacoes(series, fases):
                 if i_ent >= len(dd):
                     continue
                 ent = dd[i_ent]["o"]
-                stop = ent - m_atr * x["atr"]
-                if stop <= 0 or ent <= 0:
-                    continue
-                px, t_fim = sair(dd, i_ent, stop, h)
-                frac = (ent - stop) / ent
-                r = (px / ent - 1 - CUSTO_BYBIT) / frac
+                if k in SHORTS:
+                    if margem is not None and a not in margem:
+                        continue
+                    stop = ent + m_atr * x["atr"]
+                    if ent <= 0:
+                        continue
+                    px, t_fim = sair_short(dd, i_ent, stop, h)
+                    frac = (stop - ent) / ent
+                    dias = max(0.0, (t_fim - dd[i_ent]["t"]) / DAY)
+                    r = (1 - px / ent - CUSTO_BYBIT - JURO_DIA * dias) / frac
+                else:
+                    stop = ent - m_atr * x["atr"]
+                    if stop <= 0 or ent <= 0:
+                        continue
+                    px, t_fim = sair(dd, i_ent, stop, h)
+                    frac = (ent - stop) / ent
+                    r = (px / ent - 1 - CUSTO_BYBIT) / frac
                 aberta[(k, a)] = t_fim // DAY + 1
-                out.append({"k": k, "fam": FAMILIA, "a": a, "t": int(dd[i_ent]["t"]), "t_fim": int(t_fim),
+                out.append({"k": k, "fam": FAMILIA, "lado": "SHORT" if k in SHORTS else "LONG", "a": a, "t": int(dd[i_ent]["t"]), "t_fim": int(t_fim),
                             "r": round(r, 5), "stop": round(frac, 5), "fase": fases.get(dia)})
     return out
 
 
-def correr(pasta, saida=None, bybit=None):
+def correr(pasta, saida=None, bybit=None, margem=None):
     from tools import arena_ringue as AR
     series, btc4 = {}, None
     for f in sorted(os.listdir(pasta)):
@@ -156,7 +208,7 @@ def correr(pasta, saida=None, bybit=None):
         if len(dd) >= 90:
             series[a] = dd
     fases = AR.regime_by_day(btc4)
-    ops = operacoes(series, fases)
+    ops = operacoes(series, fases, margem)
     btc_px = {x["t"]: x["c"] for x in btc4}
     linhas, red = DL.avaliar([dict(o) for o in ops], btc_px)
     res = {"moedas": len(series), "operacoes": len(ops), "resultados": linhas, "redundantes": red}
@@ -176,7 +228,8 @@ if __name__ == "__main__":
     by = None
     if "--bybit" in a:
         by = set(json.load(open(a[a.index("--bybit") + 1])))
-    r = correr(a[1], a[2], by)
+    mg = set(json.load(open(a[a.index("--bybit-margem") + 1]))) if "--bybit-margem" in a else None
+    r = correr(a[1], a[2], by, mg)
     for l in r["resultados"] + ((r.get("so_bybit_ue") or {}).get("resultados") or []):
         vf = l["validacao_mais_fora"]
         print(l["estrategia"], l["fase"], l["corretora"], l["classe"], "| treino", l["treino"].get("r_op"),

@@ -102,9 +102,20 @@ def decisoes(r):
     return out
 
 
+def papel_continuo(P):
+    """Papel continuo transversal (ramo papel-transversal): por familia, LONG e SHORT. E PAPEL, nunca real."""
+    return {"ultimo_dia": (P or {}).get("ultimo_dia"), "abertas": len((P or {}).get("abertas") or []),
+            "por_familia": (P or {}).get("resumo") or {}}
+
+
 def correr(pasta):
     St, O = _j(os.path.join(pasta, "state.json")), _j(os.path.join(pasta, "okx.json"))
-    r = {"bybit_ue": bybit(St), "okx": okx(O)}
+    r = {"bybit_ue": bybit(St), "okx": okx(O), "papel_transversal": papel_continuo(_j(os.path.join(pasta, "papel.json")))}
+    pt = St.get("porta_long") or {}
+    r["porta_long"] = {"pilotos_em_real": pt.get("pilotos") or [],
+                       "a_falhar": {k: v.get("falta") for k, v in list((pt.get("relatorio") or {}).items())[:40]}}
+    pl = St.get("promo_lost") or []
+    r["bybit_ue"]["perdidas_por_capacidade"] = sum(1 for x in pl if (x.get("reason") or "").startswith("capacidade"))
     r["decisoes"] = decisoes(r)
     return dict(r, aviso="REAL so com execucao confirmada na corretora; PAPEL e SOMBRA nunca somados ao REAL; tudo em R.")
 

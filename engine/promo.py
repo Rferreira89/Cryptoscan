@@ -190,6 +190,45 @@ def family(k):
     return "sobrevenda"
 
 
+RISCO_AGREGADO_MAX = 5.0      # (12/11, ordem do Rui) % do capital da conta, todas as posicoes reais abertas
+
+
+def risco_aberto(state):
+    """{"pct": risco real aberto em % do capital (soma de risk_pct), "moedas": moedas com posicao real aberta}.
+    Conta as posicoes REAIS executadas e ainda abertas de TODAS as estrategias, LONG e SHORT."""
+    pct, moedas = 0.0, set()
+    for r in state.get("ledger") or []:
+        if r.get("mode") == "REAL" and r.get("status") in ("OPEN", "WAITING", "ACTIVE", "TRIGGERED") \
+                and r.get("executed") is not False and r.get("user_result_r") is None and not r.get("fora_programa"):
+            pct += float(r.get("risk_pct") or 0)
+            if r.get("asset"):
+                moedas.add(r["asset"])
+    return {"pct": round(pct, 4), "moedas": moedas}
+
+
+def travao_conta(state, cfg, now):
+    """(12/11, ordem do Rui) limites da CONTA Bybit, somando todas as estrategias reais executadas: -3R no dia UTC e
+    -8R acumulado desde o inicio do piloto. Devolve o motivo ou None."""
+    pl = cfg.get("piloto") or {}
+    inicio = int(pl.get("inicio") or 0)
+    dia = int(now) // 86400
+    hoje = acum = 0.0
+    for r in state.get("ledger") or []:
+        if r.get("mode") != "REAL" or r.get("status") != "CLOSED" or r.get("executed") is not True \
+                or r.get("result_r") is None:
+            continue
+        t = int(r.get("closed_at") or 0)
+        if t >= inicio:
+            acum += float(r["result_r"])
+        if t // 86400 == dia:
+            hoje += float(r["result_r"])
+    if hoje <= -3.0:
+        return f"perda do dia {hoje:+.2f}R (limite -3R)"
+    if acum <= float(pl.get("perda_max_r") or -8):
+        return f"perda acumulada {acum:+.2f}R (limite {float(pl.get('perda_max_r') or -8):g}R)"
+    return None
+
+
 def family_open(state):
     """{familia: operacoes reais abertas} (registo)."""
     out = {}
@@ -407,8 +446,9 @@ def cfg_piloto(champ, state, cfg, now):
     """(11/11, PILOTO; so com config "piloto" = {"estrategia", "teto_pct", "inicio", "perda_max_r"}) Para a estrategia do
     piloto, deixa a ordem minima entrar ate ao teto de risco REAL do piloto, enquanto a guarda (engine/piloto.avaliar)
     o permitir. Qualquer outra estrategia, ou sem a chave, devolve cfg igual."""
-    pl = cfg.get("piloto") or {}
-    if not pl or champ != pl.get("estrategia") or not pl.get("teto_pct"):
+    from .porta_long import piloto_de
+    pl = piloto_de(cfg, champ)               # (12/11) o piloto SHORT_TURTLE ou um LONG da porta (teto <= 1%)
+    if not pl or not pl.get("teto_pct"):
         return cfg
     from . import piloto
     abertas = [r for r in state.get("ledger") or [] if r.get("strategy") == champ and r.get("mode") == "REAL"
@@ -599,12 +639,25 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
                 lost(state, now, a, falhou[0], f"plano: {falhou[2]}")
     out, ok = {}, []
     fam = family_open(state)
+    risco = risco_aberto(state)
+    teto_ag = float(cfg.get("risco_agregado_max_pct") or RISCO_AGREGADO_MAX)
+    trav = travao_conta(state, cfg, now)
     for rank, a, champ, sig, p, d0 in sorted(cands, key=lambda x: x[0]):
         seen[a] = sig["t_sig"]
+        # (12/11 15:44, ordem do Rui) gestor global de risco da conta: uma posicao por moeda e o risco REAL aberto de
+        # todas as estrategias (LONG e SHORT) mais o desta nunca passa o teto agregado (5% do capital). Uma
+        # oportunidade valida so e recusada aqui por falta de capacidade de risco (fica registada como tal).
+        if trav:
+            lost(state, now, a, champ, f"travão da conta: {trav}")
+            continue
+        if a in risco["moedas"]:
+            lost(state, now, a, champ, f"capacidade: já há uma posição real aberta em {a}")
+            continue
         f = family(champ)
-        pl = cfg.get("piloto") or {}
+        from .porta_long import piloto_de
+        pl = piloto_de(cfg, champ)
         # (12/11) a estrategia do piloto usa o seu numero de vagas (config "piloto.max_posicoes"); as outras, 1 por familia
-        lim = int(pl.get("max_posicoes") or 1) if champ == pl.get("estrategia") else MAX_PER_FAMILY
+        lim = int(pl.get("max_posicoes") or 1) if pl else MAX_PER_FAMILY
         if fam.get(f, 0) >= lim:
             lost(state, now, a, champ, f"diversificação: já há {fam[f]} operações da família "
                  f"«{FAMILIAS[f]}» abertas (máximo {lim})")
@@ -617,6 +670,7 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
             continue
         bar["n"] += 1
         fam[f] = fam.get(f, 0) + 1
+        risco["moedas"].add(a)
         ok.append((rank, a, champ, sig, p, d0))
     # Uma so aposta (decisao do Rui, 2026-10-15): sinais da mesma familia na
     # mesma vela de 4H reagem ao mesmo movimento e ganham ou perdem juntos
@@ -663,6 +717,13 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
         xs = [x for x in xs if x]
         ok = [y for y in ok if (family(y[2]), y[3]["t_sig"]) != (f, t)] + xs
     for rank, a, champ, sig, p, d0 in sorted(ok, key=lambda x: x[0]):
+        # teto agregado com os planos FINAIS (depois de dividir o risco das apostas da mesma familia na mesma vela)
+        novo = float(p.get("risk_pct") or 0)
+        if risco["pct"] + novo > teto_ag + 1e-9:
+            lost(state, now, a, champ, f"capacidade: risco aberto {risco['pct']:.2f}% + {novo:.2f}% passaria o teto "
+                 f"agregado de {teto_ag:g}% da conta")
+            continue
+        risco["pct"] += novo
         short = p.get("side") == "SHORT"
         out[a] = {
             "decision": "SHORT" if short else "LONG", "side": "SHORT" if short else "LONG",

@@ -320,6 +320,11 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
     now = int(now or time.time())
     state = state if state is not None else {}
     cfg = dict(cfg or config.load())
+    try:                                      # (12/11) porta automatica do LONG real (engine/porta_long)
+        from . import porta_long
+        cfg = porta_long.aplicar(cfg, state, set(promo.registry()), now)
+    except Exception as e:                    # nunca para o scanner; sem porta = sem LONG novo em real
+        print("porta_long:", e)
     ra = cfg.get("real_autorizados")          # (28/10) antes do travao: a prova so conta as autorizadas
     promo.AUTORIZADOS = None if ra is None else set(ra)
     ledger.fix_stop_exits(state)
