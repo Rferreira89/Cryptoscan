@@ -7,8 +7,10 @@ on:
       dias:
         description: "Dias de historico"
         default: "365"
+  # (12/11 09:20) em lotes de 7 min nas janelas livres do servidor europeu (Europa ~:03/:18/:33/:48, agente OKX ~:08),
+  # ate a recolha ficar completa; depois volta a semanal
   schedule:
-    - cron: "23 6 * * 1"
+    - cron: "22,52 * * * *"
 permissions:
   contents: write
 concurrency:
@@ -17,19 +19,25 @@ concurrency:
 jobs:
   velas:
     runs-on: [self-hosted, eu]
-    timeout-minutes: 300
+    timeout-minutes: 9
     steps:
       - uses: actions/checkout@v4
       - name: Recolher (incremental sobre o ramo okx-1h)
         run: |
           if [ -f STOP ]; then echo "STOP"; exit 0; fi
-          rm -rf /tmp/okx1h && mkdir -p /tmp/okx1h
-          if git fetch -q origin okx-1h 2>/dev/null; then git archive FETCH_HEAD | tar -x -C /tmp/okx1h; fi
-          python3 -m tools.okx_velas_1h /tmp/okx1h --dias "${{ github.event.inputs.dias || '365' }}"
+          C="$HOME/okx1h-cache"
+          # cache persistente no servidor; aproveita o que o lote interrompido de 07:31 ja gravou em /tmp/okx1h
+          if [ ! -d "$C" ] && [ -d /tmp/okx1h ]; then mv /tmp/okx1h "$C"; fi
+          mkdir -p "$C"
+          if [ -z "$(ls -A "$C" 2>/dev/null)" ] && git fetch -q origin okx-1h 2>/dev/null; then git archive FETCH_HEAD | tar -x -C "$C"; fi
+          if [ -f "$C/meta.json" ] && grep -q '"completo": true' "$C/meta.json" && [ "${{ github.event_name }}" = "schedule" ] \
+             && [ $(( $(date +%s) - $(stat -c %Y "$C/meta.json") )) -lt 518400 ]; then echo "completa e recente"; touch "$C/.saltar"; exit 0; fi
+          rm -f "$C/.saltar"
+          python3 -m tools.okx_velas_1h "$C" --dias "${{ github.event.inputs.dias || '365' }}" --orcamento 420 --fios 3
       - name: Publicar no ramo okx-1h
         run: |
-          if [ -f STOP ]; then exit 0; fi
-          cd /tmp/okx1h && rm -rf .git && git init -q -b okx-1h && git config user.name cryptoscan-bot \
+          if [ -f STOP ] || [ -f "$HOME/okx1h-cache/.saltar" ]; then exit 0; fi
+          rm -rf /tmp/okx1h-pub && cp -r "$HOME/okx1h-cache" /tmp/okx1h-pub && cd /tmp/okx1h-pub && rm -rf .git && git init -q -b okx-1h && git config user.name cryptoscan-bot \
             && git config user.email bot@users.noreply.github.com && git add . \
             && git commit -q -m "okx 1h $(date -u +%FT%TZ)" \
             && git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" okx-1h:okx-1h

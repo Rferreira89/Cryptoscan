@@ -27,5 +27,36 @@ class Recolha(unittest.TestCase):
         self.assertEqual(V.ler(p), {t: [str(x) for x in v] for t, v in r.items()})
 
 
+class Lotes(unittest.TestCase):
+    """(12/11 09:20) Orcamento por lote: uma serie interrompida nao e gravada (nada fica a meio)."""
+
+    def test_interrompida_nao_grava(self):
+        d = tempfile.mkdtemp()
+        with mock.patch.object(V, "instrumentos", return_value={"AAA": "AAA-USD_UM_XPERP"}), \
+                mock.patch.object(V, "velas", side_effect=V.Interrompido("x")):
+            m = V.correr(d, dias=10, orcamento=1, fios=1)
+        self.assertFalse(m["completo"])
+        self.assertEqual(m["por_fazer"], 2)
+        self.assertFalse(os.path.exists(os.path.join(d, "AAA.csv.gz")))
+
+    def test_completa_e_sem_a_vista(self):
+        d = tempfile.mkdtemp()
+        t = 1_800_000_000 // 3600 * 3600
+
+        def falsa(host, i, desde, ja, fim=None):
+            return {} if host == V.GLOBAL else {t: ["1", "1", "1", "1", "1"]}
+        with mock.patch.object(V, "instrumentos", return_value={"AAA": "AAA-USD_UM_XPERP"}), \
+                mock.patch.object(V, "velas", side_effect=falsa):
+            m = V.correr(d, dias=10, fios=2)
+        self.assertTrue(m["completo"])
+        self.assertEqual(m["sem_substituto_a_vista"], ["AAA"])
+        self.assertTrue(os.path.exists(os.path.join(d, "xperp", "AAA.csv.gz")))
+        self.assertEqual(V.ler(os.path.join(d, "AAA.csv.gz")), {})
+
+    def test_velas_respeita_fim(self):
+        with self.assertRaises(V.Interrompido):
+            V.velas("h", "X", 0, {}, fim=0)
+
+
 if __name__ == "__main__":
     unittest.main()
