@@ -27,7 +27,7 @@ class Configuracao(unittest.TestCase):
         self.assertEqual(c["real_autorizados"], ["SHORT_TURTLE"])
         p = c["piloto"]
         self.assertEqual(p["estrategia"], "SHORT_TURTLE")
-        self.assertLessEqual(p["teto_pct"], 4)
+        self.assertLessEqual(p["teto_pct"], 5)                  # proposta 5%: so com OK do Rui
         self.assertEqual(p["max_posicoes"], 1)
         self.assertEqual(p["perda_max_r"], -8)
         self.assertLessEqual(p["juro_max_r"], 0.06)
