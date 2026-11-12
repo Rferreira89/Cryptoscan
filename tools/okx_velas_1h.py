@@ -46,12 +46,19 @@ def get(url, tentativas=4):
     return []
 
 
+CONTRATOS = {}
+
+
 def instrumentos():
+    """{BASE: instId} dos X-Perps vivos; guarda em CONTRATOS a especificacao (para saber o que o saldo consegue
+    negociar: valor minimo = minSz x ctVal x preco)."""
     out = {}
     for i in get(f"{BASE}/api/v5/public/instruments?instType=FUTURES"):
         iid = i.get("instId", "")
         if "XPERP" in iid and i.get("state") == "live":
-            out[iid.split("-")[0]] = iid
+            b = iid.split("-")[0]
+            out[b] = iid
+            CONTRATOS[b] = {k: i.get(k) for k in ("instId", "ctVal", "ctValCcy", "minSz", "lotSz", "lever", "ctType")}
     return out
 
 
@@ -144,7 +151,7 @@ def correr(pasta, dias=365, maximo=400, orcamento=0, fios=3):
         list(ex.map(uma, trabalho))
     meta = {"t": int(time.time()), "xperps": len(inst), "series": len(trabalho), "novas": res["feitas"],
             "atualizadas": res["atualizadas"], "por_fazer": res["por_fazer"], "completo": res["por_fazer"] == 0,
-            "sem_substituto_a_vista": sorted(res["vazias"]), "dias": dias, "duracao_s": int(time.time() - t0),
+            "sem_substituto_a_vista": sorted(res["vazias"]), "contratos": CONTRATOS, "dias": dias, "duracao_s": int(time.time() - t0),
             "nota": "a vista USDT da OKX como substituto do X-Perp (mesmo ativo); xperp/ = o proprio contrato"}
     with open(os.path.join(pasta, "meta.json"), "w") as f:
         json.dump(meta, f, indent=1)
