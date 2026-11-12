@@ -1,0 +1,2511 @@
+{
+ "t": 1794476008,
+ "xperps": 263,
+ "series": 526,
+ "novas": 19,
+ "atualizadas": 114,
+ "por_fazer": 0,
+ "completo": true,
+ "sem_substituto_a_vista": [
+  "0G",
+  "AAOI",
+  "AAPL",
+  "ACU",
+  "ADBE",
+  "ALAB",
+  "AMAT",
+  "AMD",
+  "AMZN",
+  "ANTHROPIC",
+  "APP",
+  "APR",
+  "ARM",
+  "ARX",
+  "ASML",
+  "ASTS",
+  "AVGO",
+  "AXIS",
+  "AXTI",
+  "BE",
+  "BEAT",
+  "BILL",
+  "BMNR",
+  "BSB",
+  "BSP",
+  "BTW",
+  "BZ",
+  "CAP",
+  "CASHCAT",
+  "CBRS",
+  "CL",
+  "CNPY",
+  "COHR",
+  "COIN",
+  "CRCL",
+  "CRDO",
+  "CRWV",
+  "CXMT",
+  "DDOG",
+  "DELL",
+  "DGAI",
+  "DNA",
+  "DRAM",
+  "ENSO",
+  "ESP",
+  "EWY",
+  "EWZ",
+  "FLNC",
+  "FLOCK",
+  "GEV",
+  "GLW",
+  "GOOGL",
+  "GPRO",
+  "H",
+  "HOME",
+  "HOOD",
+  "IBM",
+  "INTC",
+  "IONQ",
+  "IREN",
+  "KII",
+  "KO",
+  "KORU",
+  "LITE",
+  "LLY",
+  "LUNR",
+  "MARA",
+  "META",
+  "MINIMAX",
+  "MRNA",
+  "MRVL",
+  "MSFT",
+  "MSTR",
+  "MU",
+  "MUU",
+  "NBIS",
+  "NFLX",
+  "NOW",
+  "NVDA",
+  "O",
+  "OKTA",
+  "ON",
+  "ONDS",
+  "OPENAI",
+  "OPN",
+  "ORCL",
+  "OURA",
+  "PANW",
+  "PENG",
+  "PIEVERSE",
+  "PLTR",
+  "PURR",
+  "QCOM",
+  "QQQ",
+  "QUANT",
+  "RAVE",
+  "RKLB",
+  "RLS",
+  "SAMSUNG",
+  "SKDD",
+  "SKHY",
+  "SKHYNIX",
+  "SMCI",
+  "SNDK",
+  "SNXX",
+  "SOFTBANK",
+  "SOON",
+  "SOXL",
+  "SOXS",
+  "SPCX",
+  "SPY",
+  "TQQQ",
+  "TRIA",
+  "TSLA",
+  "TSM",
+  "UB",
+  "UNITREE",
+  "UP",
+  "US100",
+  "US500",
+  "USAR",
+  "USELESS",
+  "WDC",
+  "XAG",
+  "XAU",
+  "XIAOMI",
+  "ZHIPU",
+  "ZKP"
+ ],
+ "contratos": {
+  "ANTHROPIC": {
+   "instId": "ANTHROPIC-USD_UM_XPERP-310912",
+   "ctVal": "1",
+   "ctValCcy": "ANTHROPIC",
+   "minSz": "0.001",
+   "lotSz": "0.001",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "BTC": {
+   "instId": "BTC-USD_UM_XPERP-310404",
+   "ctVal": "0.0001",
+   "ctValCcy": "BTC",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "ETH": {
+   "instId": "ETH-USD_UM_XPERP-310404",
+   "ctVal": "0.001",
+   "ctValCcy": "ETH",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "OKB": {
+   "instId": "OKB-USD_UM_XPERP-311003",
+   "ctVal": "0.01",
+   "ctValCcy": "OKB",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "SOL": {
+   "instId": "SOL-USD_UM_XPERP-310404",
+   "ctVal": "0.01",
+   "ctValCcy": "SOL",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "DOGE": {
+   "instId": "DOGE-USD_UM_XPERP-310404",
+   "ctVal": "10",
+   "ctValCcy": "DOGE",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "XRP": {
+   "instId": "XRP-USD_UM_XPERP-310404",
+   "ctVal": "1",
+   "ctValCcy": "XRP",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "BCH": {
+   "instId": "BCH-USD_UM_XPERP-310530",
+   "ctVal": "0.01",
+   "ctValCcy": "BCH",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "DOOD": {
+   "instId": "DOOD-USD_UM_XPERP-311024",
+   "ctVal": "1000",
+   "ctValCcy": "DOOD",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "ZEC": {
+   "instId": "ZEC-USD_UM_XPERP-310530",
+   "ctVal": "0.01",
+   "ctValCcy": "ZEC",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "0G": {
+   "instId": "0G-USD_UM_XPERP-310905",
+   "ctVal": "1",
+   "ctValCcy": "0G",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "AAOI": {
+   "instId": "AAOI-USD_UM_XPERP-310711",
+   "ctVal": "1",
+   "ctValCcy": "AAOI",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "AAPL": {
+   "instId": "AAPL-USD_UM_XPERP-310613",
+   "ctVal": "1",
+   "ctValCcy": "AAPL",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "AAVE": {
+   "instId": "AAVE-USD_UM_XPERP-310704",
+   "ctVal": "0.1",
+   "ctValCcy": "AAVE",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "ACT": {
+   "instId": "ACT-USD_UM_XPERP-310704",
+   "ctVal": "1",
+   "ctValCcy": "ACT",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "10",
+   "ctType": "linear"
+  },
+  "ACU": {
+   "instId": "ACU-USD_UM_XPERP-310822",
+   "ctVal": "10",
+   "ctValCcy": "ACU",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "10",
+   "ctType": "linear"
+  },
+  "ADA": {
+   "instId": "ADA-USD_UM_XPERP-310404",
+   "ctVal": "10",
+   "ctValCcy": "ADA",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "ADBE": {
+   "instId": "ADBE-USD_UM_XPERP-311003",
+   "ctVal": "1",
+   "ctValCcy": "ADBE",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "AEON": {
+   "instId": "AEON-USD_UM_XPERP-310801",
+   "ctVal": "10",
+   "ctValCcy": "AEON",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "AERO": {
+   "instId": "AERO-USD_UM_XPERP-310912",
+   "ctVal": "10",
+   "ctValCcy": "AERO",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "AGLD": {
+   "instId": "AGLD-USD_UM_XPERP-310926",
+   "ctVal": "1",
+   "ctValCcy": "AGLD",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "AI": {
+   "instId": "AI-USD_UM_XPERP-310704",
+   "ctVal": "100",
+   "ctValCcy": "AI",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "10",
+   "ctType": "linear"
+  },
+  "ALAB": {
+   "instId": "ALAB-USD_UM_XPERP-311031",
+   "ctVal": "1",
+   "ctValCcy": "ALAB",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "10",
+   "ctType": "linear"
+  },
+  "ALGO": {
+   "instId": "ALGO-USD_UM_XPERP-310711",
+   "ctVal": "10",
+   "ctValCcy": "ALGO",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "ALLO": {
+   "instId": "ALLO-USD_UM_XPERP-310718",
+   "ctVal": "10",
+   "ctValCcy": "ALLO",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "10",
+   "ctType": "linear"
+  },
+  "AMAT": {
+   "instId": "AMAT-USD_UM_XPERP-310926",
+   "ctVal": "1",
+   "ctValCcy": "AMAT",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "AMD": {
+   "instId": "AMD-USD_UM_XPERP-310711",
+   "ctVal": "1",
+   "ctValCcy": "AMD",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "AMZN": {
+   "instId": "AMZN-USD_UM_XPERP-310613",
+   "ctVal": "1",
+   "ctValCcy": "AMZN",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "APE": {
+   "instId": "APE-USD_UM_XPERP-311003",
+   "ctVal": "0.1",
+   "ctValCcy": "APE",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "APP": {
+   "instId": "APP-USD_UM_XPERP-311003",
+   "ctVal": "1",
+   "ctValCcy": "APP",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "APR": {
+   "instId": "APR-USD_UM_XPERP-310815",
+   "ctVal": "10",
+   "ctValCcy": "APR",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "APT": {
+   "instId": "APT-USD_UM_XPERP-310815",
+   "ctVal": "1",
+   "ctValCcy": "APT",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "AR": {
+   "instId": "AR-USD_UM_XPERP-310926",
+   "ctVal": "0.1",
+   "ctValCcy": "AR",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "ARB": {
+   "instId": "ARB-USD_UM_XPERP-310815",
+   "ctVal": "10",
+   "ctValCcy": "ARB",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "ARM": {
+   "instId": "ARM-USD_UM_XPERP-310822",
+   "ctVal": "1",
+   "ctValCcy": "ARM",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "ARX": {
+   "instId": "ARX-USD_UM_XPERP-310627",
+   "ctVal": "10",
+   "ctValCcy": "ARX",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "ASML": {
+   "instId": "ASML-USD_UM_XPERP-311031",
+   "ctVal": "1",
+   "ctValCcy": "ASML",
+   "minSz": "0.001",
+   "lotSz": "0.001",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "ASTER": {
+   "instId": "ASTER-USD_UM_XPERP-310829",
+   "ctVal": "1",
+   "ctValCcy": "ASTER",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "ASTS": {
+   "instId": "ASTS-USD_UM_XPERP-310926",
+   "ctVal": "1",
+   "ctValCcy": "ASTS",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "ATOM": {
+   "instId": "ATOM-USD_UM_XPERP-310912",
+   "ctVal": "1",
+   "ctValCcy": "ATOM",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "AVAX": {
+   "instId": "AVAX-USD_UM_XPERP-310530",
+   "ctVal": "10",
+   "ctValCcy": "AVAX",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "AVGO": {
+   "instId": "AVGO-USD_UM_XPERP-310829",
+   "ctVal": "1",
+   "ctValCcy": "AVGO",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "AVNT": {
+   "instId": "AVNT-USD_UM_XPERP-310815",
+   "ctVal": "1",
+   "ctValCcy": "AVNT",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "AXIS": {
+   "instId": "AXIS-USD_UM_XPERP-311024",
+   "ctVal": "10",
+   "ctValCcy": "AXIS",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "AXS": {
+   "instId": "AXS-USD_UM_XPERP-311010",
+   "ctVal": "0.1",
+   "ctValCcy": "AXS",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "AXTI": {
+   "instId": "AXTI-USD_UM_XPERP-310822",
+   "ctVal": "1",
+   "ctValCcy": "AXTI",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "BASED": {
+   "instId": "BASED-USD_UM_XPERP-310704",
+   "ctVal": "10",
+   "ctValCcy": "BASED",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "BAT": {
+   "instId": "BAT-USD_UM_XPERP-311024",
+   "ctVal": "10",
+   "ctValCcy": "BAT",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "BE": {
+   "instId": "BE-USD_UM_XPERP-310829",
+   "ctVal": "1",
+   "ctValCcy": "BE",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "BEAT": {
+   "instId": "BEAT-USD_UM_XPERP-310620",
+   "ctVal": "1",
+   "ctValCcy": "BEAT",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "10",
+   "ctType": "linear"
+  },
+  "BICO": {
+   "instId": "BICO-USD_UM_XPERP-310704",
+   "ctVal": "1",
+   "ctValCcy": "BICO",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "10",
+   "ctType": "linear"
+  },
+  "BILL": {
+   "instId": "BILL-USD_UM_XPERP-310718",
+   "ctVal": "100",
+   "ctValCcy": "BILL",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "BIO": {
+   "instId": "BIO-USD_UM_XPERP-310808",
+   "ctVal": "1",
+   "ctValCcy": "BIO",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "BLUR": {
+   "instId": "BLUR-USD_UM_XPERP-311017",
+   "ctVal": "10",
+   "ctValCcy": "BLUR",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "BMNR": {
+   "instId": "BMNR-USD_UM_XPERP-310822",
+   "ctVal": "1",
+   "ctValCcy": "BMNR",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "BNB": {
+   "instId": "BNB-USD_UM_XPERP-310523",
+   "ctVal": "0.01",
+   "ctValCcy": "BNB",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "BONK": {
+   "instId": "BONK-USD_UM_XPERP-310725",
+   "ctVal": "100000",
+   "ctValCcy": "BONK",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "BSB": {
+   "instId": "BSB-USD_UM_XPERP-310718",
+   "ctVal": "10",
+   "ctValCcy": "BSB",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "10",
+   "ctType": "linear"
+  },
+  "BSP": {
+   "instId": "BSP-USD_UM_XPERP-311017",
+   "ctVal": "1",
+   "ctValCcy": "BSP",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "10",
+   "ctType": "linear"
+  },
+  "BTW": {
+   "instId": "BTW-USD_UM_XPERP-311024",
+   "ctVal": "1",
+   "ctValCcy": "BTW",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "BZ": {
+   "instId": "BZ-USD_UM_XPERP-310509",
+   "ctVal": "0.01",
+   "ctValCcy": "BZ",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "CAP": {
+   "instId": "CAP-USD_UM_XPERP-310704",
+   "ctVal": "100",
+   "ctValCcy": "CAP",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "CASHCAT": {
+   "instId": "CASHCAT-USD_UM_XPERP-310926",
+   "ctVal": "10",
+   "ctValCcy": "CASHCAT",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "CBRS": {
+   "instId": "CBRS-USD_UM_XPERP-310704",
+   "ctVal": "1",
+   "ctValCcy": "CBRS",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "CFX": {
+   "instId": "CFX-USD_UM_XPERP-310926",
+   "ctVal": "10",
+   "ctValCcy": "CFX",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "CHIP": {
+   "instId": "CHIP-USD_UM_XPERP-310822",
+   "ctVal": "100",
+   "ctValCcy": "CHIP",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "CL": {
+   "instId": "CL-USD_UM_XPERP-310509",
+   "ctVal": "0.1",
+   "ctValCcy": "CL",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "CNPY": {
+   "instId": "CNPY-USD_UM_XPERP-310926",
+   "ctVal": "10",
+   "ctValCcy": "CNPY",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "COHR": {
+   "instId": "COHR-USD_UM_XPERP-310919",
+   "ctVal": "1",
+   "ctValCcy": "COHR",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "COIN": {
+   "instId": "COIN-USD_UM_XPERP-310801",
+   "ctVal": "1",
+   "ctValCcy": "COIN",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "CORE": {
+   "instId": "CORE-USD_UM_XPERP-310926",
+   "ctVal": "1",
+   "ctValCcy": "CORE",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "CP": {
+   "instId": "CP-USD_UM_XPERP-310905",
+   "ctVal": "100",
+   "ctValCcy": "CP",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "CRCL": {
+   "instId": "CRCL-USD_UM_XPERP-310704",
+   "ctVal": "1",
+   "ctValCcy": "CRCL",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "CRDO": {
+   "instId": "CRDO-USD_UM_XPERP-310926",
+   "ctVal": "1",
+   "ctValCcy": "CRDO",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "CRV": {
+   "instId": "CRV-USD_UM_XPERP-310815",
+   "ctVal": "1",
+   "ctValCcy": "CRV",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "CRWV": {
+   "instId": "CRWV-USD_UM_XPERP-310822",
+   "ctVal": "1",
+   "ctValCcy": "CRWV",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "CT": {
+   "instId": "CT-USD_UM_XPERP-311003",
+   "ctVal": "10",
+   "ctValCcy": "CT",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "CXMT": {
+   "instId": "CXMT-USD_UM_XPERP-311017",
+   "ctVal": "1",
+   "ctValCcy": "CXMT",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "DASH": {
+   "instId": "DASH-USD_UM_XPERP-310829",
+   "ctVal": "0.01",
+   "ctValCcy": "DASH",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "DDOG": {
+   "instId": "DDOG-USD_UM_XPERP-311114",
+   "ctVal": "1",
+   "ctValCcy": "DDOG",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "10",
+   "ctType": "linear"
+  },
+  "DELL": {
+   "instId": "DELL-USD_UM_XPERP-310822",
+   "ctVal": "1",
+   "ctValCcy": "DELL",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "DGAI": {
+   "instId": "DGAI-USD_UM_XPERP-310919",
+   "ctVal": "10",
+   "ctValCcy": "DGAI",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "DNA": {
+   "instId": "DNA-USD_UM_XPERP-311017",
+   "ctVal": "10",
+   "ctValCcy": "DNA",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "DOS": {
+   "instId": "DOS-USD_UM_XPERP-310815",
+   "ctVal": "10",
+   "ctValCcy": "DOS",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "DOT": {
+   "instId": "DOT-USD_UM_XPERP-310808",
+   "ctVal": "1",
+   "ctValCcy": "DOT",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "DRAM": {
+   "instId": "DRAM-USD_UM_XPERP-310627",
+   "ctVal": "1",
+   "ctValCcy": "DRAM",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "DYDX": {
+   "instId": "DYDX-USD_UM_XPERP-310822",
+   "ctVal": "1",
+   "ctValCcy": "DYDX",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "EDGE": {
+   "instId": "EDGE-USD_UM_XPERP-310822",
+   "ctVal": "10",
+   "ctValCcy": "EDGE",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "EIGEN": {
+   "instId": "EIGEN-USD_UM_XPERP-311003",
+   "ctVal": "1",
+   "ctValCcy": "EIGEN",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "ENA": {
+   "instId": "ENA-USD_UM_XPERP-310613",
+   "ctVal": "100",
+   "ctValCcy": "ENA",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "ENSO": {
+   "instId": "ENSO-USD_UM_XPERP-310822",
+   "ctVal": "1",
+   "ctValCcy": "ENSO",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "ESP": {
+   "instId": "ESP-USD_UM_XPERP-310801",
+   "ctVal": "100",
+   "ctValCcy": "ESP",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "ETC": {
+   "instId": "ETC-USD_UM_XPERP-310808",
+   "ctVal": "10",
+   "ctValCcy": "ETC",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "ETHFI": {
+   "instId": "ETHFI-USD_UM_XPERP-310822",
+   "ctVal": "1",
+   "ctValCcy": "ETHFI",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "EWY": {
+   "instId": "EWY-USD_UM_XPERP-310704",
+   "ctVal": "1",
+   "ctValCcy": "EWY",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "EWZ": {
+   "instId": "EWZ-USD_UM_XPERP-311010",
+   "ctVal": "1",
+   "ctValCcy": "EWZ",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "FET": {
+   "instId": "FET-USD_UM_XPERP-310912",
+   "ctVal": "10",
+   "ctValCcy": "FET",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "FIL": {
+   "instId": "FIL-USD_UM_XPERP-310718",
+   "ctVal": "0.1",
+   "ctValCcy": "FIL",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "FLNC": {
+   "instId": "FLNC-USD_UM_XPERP-310919",
+   "ctVal": "1",
+   "ctValCcy": "FLNC",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "FLOCK": {
+   "instId": "FLOCK-USD_UM_XPERP-310926",
+   "ctVal": "100",
+   "ctValCcy": "FLOCK",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "GALA": {
+   "instId": "GALA-USD_UM_XPERP-310822",
+   "ctVal": "10",
+   "ctValCcy": "GALA",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "GEV": {
+   "instId": "GEV-USD_UM_XPERP-311031",
+   "ctVal": "1",
+   "ctValCcy": "GEV",
+   "minSz": "0.001",
+   "lotSz": "0.001",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "GLW": {
+   "instId": "GLW-USD_UM_XPERP-310926",
+   "ctVal": "1",
+   "ctValCcy": "GLW",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "GOOGL": {
+   "instId": "GOOGL-USD_UM_XPERP-310613",
+   "ctVal": "1",
+   "ctValCcy": "GOOGL",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "GPRO": {
+   "instId": "GPRO-USD_UM_XPERP-311107",
+   "ctVal": "1",
+   "ctValCcy": "GPRO",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "10",
+   "ctType": "linear"
+  },
+  "GRASS": {
+   "instId": "GRASS-USD_UM_XPERP-310829",
+   "ctVal": "1",
+   "ctValCcy": "GRASS",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "GRVT": {
+   "instId": "GRVT-USD_UM_XPERP-310801",
+   "ctVal": "10",
+   "ctValCcy": "GRVT",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "H": {
+   "instId": "H-USD_UM_XPERP-310815",
+   "ctVal": "100",
+   "ctValCcy": "H",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "10",
+   "ctType": "linear"
+  },
+  "HBAR": {
+   "instId": "HBAR-USD_UM_XPERP-310815",
+   "ctVal": "100",
+   "ctValCcy": "HBAR",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "HOME": {
+   "instId": "HOME-USD_UM_XPERP-310808",
+   "ctVal": "100",
+   "ctValCcy": "HOME",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "HOOD": {
+   "instId": "HOOD-USD_UM_XPERP-310801",
+   "ctVal": "1",
+   "ctValCcy": "HOOD",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "HUMA": {
+   "instId": "HUMA-USD_UM_XPERP-311031",
+   "ctVal": "100",
+   "ctValCcy": "HUMA",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "HYPE": {
+   "instId": "HYPE-USD_UM_XPERP-310523",
+   "ctVal": "0.1",
+   "ctValCcy": "HYPE",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "IBM": {
+   "instId": "IBM-USD_UM_XPERP-311024",
+   "ctVal": "1",
+   "ctValCcy": "IBM",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "ICP": {
+   "instId": "ICP-USD_UM_XPERP-310711",
+   "ctVal": "1",
+   "ctValCcy": "ICP",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "INJ": {
+   "instId": "INJ-USD_UM_XPERP-310711",
+   "ctVal": "0.1",
+   "ctValCcy": "INJ",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "INTC": {
+   "instId": "INTC-USD_UM_XPERP-310627",
+   "ctVal": "1",
+   "ctValCcy": "INTC",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "IONQ": {
+   "instId": "IONQ-USD_UM_XPERP-310926",
+   "ctVal": "1",
+   "ctValCcy": "IONQ",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "IOST": {
+   "instId": "IOST-USD_UM_XPERP-310919",
+   "ctVal": "1000",
+   "ctValCcy": "IOST",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "10",
+   "ctType": "linear"
+  },
+  "DATA": {
+   "instId": "DATA-USD_UM_XPERP-311003",
+   "ctVal": "10",
+   "ctValCcy": "DATA",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "IREN": {
+   "instId": "IREN-USD_UM_XPERP-310926",
+   "ctVal": "1",
+   "ctValCcy": "IREN",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "IRYS": {
+   "instId": "IRYS-USD_UM_XPERP-310530",
+   "ctVal": "100",
+   "ctValCcy": "IRYS",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "JTO": {
+   "instId": "JTO-USD_UM_XPERP-310725",
+   "ctVal": "1",
+   "ctValCcy": "JTO",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "JUP": {
+   "instId": "JUP-USD_UM_XPERP-310829",
+   "ctVal": "10",
+   "ctValCcy": "JUP",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "KAITO": {
+   "instId": "KAITO-USD_UM_XPERP-310725",
+   "ctVal": "1",
+   "ctValCcy": "KAITO",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "KII": {
+   "instId": "KII-USD_UM_XPERP-310926",
+   "ctVal": "100",
+   "ctValCcy": "KII",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "KITE": {
+   "instId": "KITE-USD_UM_XPERP-310905",
+   "ctVal": "10",
+   "ctValCcy": "KITE",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "10",
+   "ctType": "linear"
+  },
+  "KMNO": {
+   "instId": "KMNO-USD_UM_XPERP-310926",
+   "ctVal": "100",
+   "ctValCcy": "KMNO",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "KO": {
+   "instId": "KO-USD_UM_XPERP-310912",
+   "ctVal": "1",
+   "ctValCcy": "KO",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "KORU": {
+   "instId": "KORU-USD_UM_XPERP-310919",
+   "ctVal": "1",
+   "ctValCcy": "KORU",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "10",
+   "ctType": "linear"
+  },
+  "KSM": {
+   "instId": "KSM-USD_UM_XPERP-310919",
+   "ctVal": "0.1",
+   "ctValCcy": "KSM",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "LDO": {
+   "instId": "LDO-USD_UM_XPERP-310822",
+   "ctVal": "1",
+   "ctValCcy": "LDO",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "LINK": {
+   "instId": "LINK-USD_UM_XPERP-310523",
+   "ctVal": "1",
+   "ctValCcy": "LINK",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "LIT": {
+   "instId": "LIT-USD_UM_XPERP-310704",
+   "ctVal": "1",
+   "ctValCcy": "LIT",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "LITE": {
+   "instId": "LITE-USD_UM_XPERP-310815",
+   "ctVal": "1",
+   "ctValCcy": "LITE",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "LLY": {
+   "instId": "LLY-USD_UM_XPERP-311024",
+   "ctVal": "1",
+   "ctValCcy": "LLY",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "LTC": {
+   "instId": "LTC-USD_UM_XPERP-310404",
+   "ctVal": "0.1",
+   "ctValCcy": "LTC",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "LUNR": {
+   "instId": "LUNR-USD_UM_XPERP-311114",
+   "ctVal": "1",
+   "ctValCcy": "LUNR",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "10",
+   "ctType": "linear"
+  },
+  "MARA": {
+   "instId": "MARA-USD_UM_XPERP-311114",
+   "ctVal": "1",
+   "ctValCcy": "MARA",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "10",
+   "ctType": "linear"
+  },
+  "META": {
+   "instId": "META-USD_UM_XPERP-310613",
+   "ctVal": "1",
+   "ctValCcy": "META",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "MET": {
+   "instId": "MET-USD_UM_XPERP-310926",
+   "ctVal": "1",
+   "ctValCcy": "MET",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "MEW": {
+   "instId": "MEW-USD_UM_XPERP-311024",
+   "ctVal": "1000",
+   "ctValCcy": "MEW",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "MINIMAX": {
+   "instId": "MINIMAX-USD_UM_XPERP-310919",
+   "ctVal": "1",
+   "ctValCcy": "MINIMAX",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "MINA": {
+   "instId": "MINA-USD_UM_XPERP-310926",
+   "ctVal": "1",
+   "ctValCcy": "MINA",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "MON": {
+   "instId": "MON-USD_UM_XPERP-310711",
+   "ctVal": "10",
+   "ctValCcy": "MON",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "MOODENG": {
+   "instId": "MOODENG-USD_UM_XPERP-310815",
+   "ctVal": "10",
+   "ctValCcy": "MOODENG",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "MORPHO": {
+   "instId": "MORPHO-USD_UM_XPERP-310905",
+   "ctVal": "1",
+   "ctValCcy": "MORPHO",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "MRNA": {
+   "instId": "MRNA-USD_UM_XPERP-310905",
+   "ctVal": "1",
+   "ctValCcy": "MRNA",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "MRVL": {
+   "instId": "MRVL-USD_UM_XPERP-310627",
+   "ctVal": "1",
+   "ctValCcy": "MRVL",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "MSFT": {
+   "instId": "MSFT-USD_UM_XPERP-310613",
+   "ctVal": "1",
+   "ctValCcy": "MSFT",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "MSTR": {
+   "instId": "MSTR-USD_UM_XPERP-310704",
+   "ctVal": "1",
+   "ctValCcy": "MSTR",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "MU": {
+   "instId": "MU-USD_UM_XPERP-310627",
+   "ctVal": "1",
+   "ctValCcy": "MU",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "MUU": {
+   "instId": "MUU-USD_UM_XPERP-310926",
+   "ctVal": "1",
+   "ctValCcy": "MUU",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "NBIS": {
+   "instId": "NBIS-USD_UM_XPERP-310711",
+   "ctVal": "1",
+   "ctValCcy": "NBIS",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "NEAR": {
+   "instId": "NEAR-USD_UM_XPERP-310613",
+   "ctVal": "1",
+   "ctValCcy": "NEAR",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "NES": {
+   "instId": "NES-USD_UM_XPERP-310627",
+   "ctVal": "10",
+   "ctValCcy": "NES",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "NFLX": {
+   "instId": "NFLX-USD_UM_XPERP-311010",
+   "ctVal": "1",
+   "ctValCcy": "NFLX",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "NIGHT": {
+   "instId": "NIGHT-USD_UM_XPERP-310718",
+   "ctVal": "100",
+   "ctValCcy": "NIGHT",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "NOT": {
+   "instId": "NOT-USD_UM_XPERP-310905",
+   "ctVal": "100",
+   "ctValCcy": "NOT",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "NOW": {
+   "instId": "NOW-USD_UM_XPERP-311031",
+   "ctVal": "1",
+   "ctValCcy": "NOW",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "NVDA": {
+   "instId": "NVDA-USD_UM_XPERP-310613",
+   "ctVal": "1",
+   "ctValCcy": "NVDA",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "O": {
+   "instId": "O-USD_UM_XPERP-310620",
+   "ctVal": "10",
+   "ctValCcy": "O",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "OKTA": {
+   "instId": "OKTA-USD_UM_XPERP-310829",
+   "ctVal": "1",
+   "ctValCcy": "OKTA",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "10",
+   "ctType": "linear"
+  },
+  "OL": {
+   "instId": "OL-USD_UM_XPERP-310912",
+   "ctVal": "100",
+   "ctValCcy": "OL",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "10",
+   "ctType": "linear"
+  },
+  "ON": {
+   "instId": "ON-USD_UM_XPERP-311031",
+   "ctVal": "1",
+   "ctValCcy": "ON",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "10",
+   "ctType": "linear"
+  },
+  "ONDO": {
+   "instId": "ONDO-USD_UM_XPERP-310620",
+   "ctVal": "10",
+   "ctValCcy": "ONDO",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "ONDS": {
+   "instId": "ONDS-USD_UM_XPERP-311114",
+   "ctVal": "1",
+   "ctValCcy": "ONDS",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "10",
+   "ctType": "linear"
+  },
+  "ONE": {
+   "instId": "ONE-USD_UM_XPERP-311003",
+   "ctVal": "100",
+   "ctValCcy": "ONE",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "10",
+   "ctType": "linear"
+  },
+  "ONT": {
+   "instId": "ONT-USD_UM_XPERP-310829",
+   "ctVal": "10",
+   "ctValCcy": "ONT",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "OP": {
+   "instId": "OP-USD_UM_XPERP-310815",
+   "ctVal": "1",
+   "ctValCcy": "OP",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "OPENAI": {
+   "instId": "OPENAI-USD_UM_XPERP-310905",
+   "ctVal": "1",
+   "ctValCcy": "OPENAI",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "OPN": {
+   "instId": "OPN-USD_UM_XPERP-310822",
+   "ctVal": "10",
+   "ctValCcy": "OPN",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "ORCL": {
+   "instId": "ORCL-USD_UM_XPERP-310912",
+   "ctVal": "1",
+   "ctValCcy": "ORCL",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "ORDI": {
+   "instId": "ORDI-USD_UM_XPERP-310815",
+   "ctVal": "0.1",
+   "ctValCcy": "ORDI",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "OURA": {
+   "instId": "OURA-USD_UM_XPERP-311010",
+   "ctVal": "1",
+   "ctValCcy": "OURA",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "PANW": {
+   "instId": "PANW-USD_UM_XPERP-311024",
+   "ctVal": "1",
+   "ctValCcy": "PANW",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "PARTI": {
+   "instId": "PARTI-USD_UM_XPERP-311010",
+   "ctVal": "10",
+   "ctValCcy": "PARTI",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "10",
+   "ctType": "linear"
+  },
+  "PENGU": {
+   "instId": "PENGU-USD_UM_XPERP-310711",
+   "ctVal": "100",
+   "ctValCcy": "PENGU",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "PENDLE": {
+   "instId": "PENDLE-USD_UM_XPERP-310919",
+   "ctVal": "1",
+   "ctValCcy": "PENDLE",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "PENG": {
+   "instId": "PENG-USD_UM_XPERP-311010",
+   "ctVal": "1",
+   "ctValCcy": "PENG",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "PEOPLE": {
+   "instId": "PEOPLE-USD_UM_XPERP-311003",
+   "ctVal": "100",
+   "ctValCcy": "PEOPLE",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "PEPE": {
+   "instId": "PEPE-USD_UM_XPERP-310404",
+   "ctVal": "1000000",
+   "ctValCcy": "PEPE",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "PIEVERSE": {
+   "instId": "PIEVERSE-USD_UM_XPERP-310822",
+   "ctVal": "10",
+   "ctValCcy": "PIEVERSE",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "PLTR": {
+   "instId": "PLTR-USD_UM_XPERP-310801",
+   "ctVal": "1",
+   "ctValCcy": "PLTR",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "POL": {
+   "instId": "POL-USD_UM_XPERP-310829",
+   "ctVal": "10",
+   "ctValCcy": "POL",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "PONS": {
+   "instId": "PONS-USD_UM_XPERP-310919",
+   "ctVal": "10",
+   "ctValCcy": "PONS",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "PROS": {
+   "instId": "PROS-USD_UM_XPERP-310801",
+   "ctVal": "1",
+   "ctValCcy": "PROS",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "PUMP": {
+   "instId": "PUMP-USD_UM_XPERP-310404",
+   "ctVal": "1000",
+   "ctValCcy": "PUMP",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "PURR": {
+   "instId": "PURR-USD_UM_XPERP-311003",
+   "ctVal": "1",
+   "ctValCcy": "PURR",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "PYTH": {
+   "instId": "PYTH-USD_UM_XPERP-310829",
+   "ctVal": "10",
+   "ctValCcy": "PYTH",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "QCOM": {
+   "instId": "QCOM-USD_UM_XPERP-310801",
+   "ctVal": "1",
+   "ctValCcy": "QCOM",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "QQQ": {
+   "instId": "QQQ-USD_UM_XPERP-310613",
+   "ctVal": "1",
+   "ctValCcy": "QQQ",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "QUANT": {
+   "instId": "QUANT-USD_UM_XPERP-311003",
+   "ctVal": "0.01",
+   "ctValCcy": "QUANT",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "RAVE": {
+   "instId": "RAVE-USD_UM_XPERP-310815",
+   "ctVal": "10",
+   "ctValCcy": "RAVE",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "RAY": {
+   "instId": "RAY-USD_UM_XPERP-310919",
+   "ctVal": "1",
+   "ctValCcy": "RAY",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "RE": {
+   "instId": "RE-USD_UM_XPERP-310620",
+   "ctVal": "10",
+   "ctValCcy": "RE",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "RENDER": {
+   "instId": "RENDER-USD_UM_XPERP-310711",
+   "ctVal": "1",
+   "ctValCcy": "RENDER",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "RESOLV": {
+   "instId": "RESOLV-USD_UM_XPERP-310704",
+   "ctVal": "10",
+   "ctValCcy": "RESOLV",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "RKLB": {
+   "instId": "RKLB-USD_UM_XPERP-310822",
+   "ctVal": "1",
+   "ctValCcy": "RKLB",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "RLS": {
+   "instId": "RLS-USD_UM_XPERP-310829",
+   "ctVal": "100",
+   "ctValCcy": "RLS",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "ROBO": {
+   "instId": "ROBO-USD_UM_XPERP-310815",
+   "ctVal": "100",
+   "ctValCcy": "ROBO",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "SAHARA": {
+   "instId": "SAHARA-USD_UM_XPERP-310912",
+   "ctVal": "10",
+   "ctValCcy": "SAHARA",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "SAMSUNG": {
+   "instId": "SAMSUNG-USD_UM_XPERP-310704",
+   "ctVal": "1",
+   "ctValCcy": "SAMSUNG",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "SAND": {
+   "instId": "SAND-USD_UM_XPERP-311010",
+   "ctVal": "10",
+   "ctValCcy": "SAND",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "SEI": {
+   "instId": "SEI-USD_UM_XPERP-310926",
+   "ctVal": "10",
+   "ctValCcy": "SEI",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "SHIB": {
+   "instId": "SHIB-USD_UM_XPERP-310801",
+   "ctVal": "1000000",
+   "ctValCcy": "SHIB",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "SKDD": {
+   "instId": "SKDD-USD_UM_XPERP-310926",
+   "ctVal": "1",
+   "ctValCcy": "SKDD",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "SKHYNIX": {
+   "instId": "SKHYNIX-USD_UM_XPERP-310704",
+   "ctVal": "1",
+   "ctValCcy": "SKHYNIX",
+   "minSz": "0.001",
+   "lotSz": "0.001",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "SKHY": {
+   "instId": "SKHY-USD_UM_XPERP-310822",
+   "ctVal": "1",
+   "ctValCcy": "SKHY",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "SLX": {
+   "instId": "SLX-USD_UM_XPERP-310606",
+   "ctVal": "10",
+   "ctValCcy": "SLX",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "SMCI": {
+   "instId": "SMCI-USD_UM_XPERP-310926",
+   "ctVal": "1",
+   "ctValCcy": "SMCI",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "SNDK": {
+   "instId": "SNDK-USD_UM_XPERP-310627",
+   "ctVal": "1",
+   "ctValCcy": "SNDK",
+   "minSz": "0.001",
+   "lotSz": "0.001",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "SNXX": {
+   "instId": "SNXX-USD_UM_XPERP-310822",
+   "ctVal": "1",
+   "ctValCcy": "SNXX",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "SOFTBANK": {
+   "instId": "SOFTBANK-USD_UM_XPERP-310704",
+   "ctVal": "1",
+   "ctValCcy": "SOFTBANK",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "10",
+   "ctType": "linear"
+  },
+  "SOON": {
+   "instId": "SOON-USD_UM_XPERP-311003",
+   "ctVal": "10",
+   "ctValCcy": "SOON",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "SOPH": {
+   "instId": "SOPH-USD_UM_XPERP-310912",
+   "ctVal": "100",
+   "ctValCcy": "SOPH",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "10",
+   "ctType": "linear"
+  },
+  "SOXL": {
+   "instId": "SOXL-USD_UM_XPERP-310627",
+   "ctVal": "1",
+   "ctValCcy": "SOXL",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "SOXS": {
+   "instId": "SOXS-USD_UM_XPERP-310912",
+   "ctVal": "1",
+   "ctValCcy": "SOXS",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "SPCX": {
+   "instId": "SPCX-USD_UM_XPERP-310613",
+   "ctVal": "0.01",
+   "ctValCcy": "SPCX",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "SPK": {
+   "instId": "SPK-USD_UM_XPERP-310829",
+   "ctVal": "100",
+   "ctValCcy": "SPK",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "SPY": {
+   "instId": "SPY-USD_UM_XPERP-310613",
+   "ctVal": "1",
+   "ctValCcy": "SPY",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "STRK": {
+   "instId": "STRK-USD_UM_XPERP-310919",
+   "ctVal": "1",
+   "ctValCcy": "STRK",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "STX": {
+   "instId": "STX-USD_UM_XPERP-310829",
+   "ctVal": "10",
+   "ctValCcy": "STX",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "SUI": {
+   "instId": "SUI-USD_UM_XPERP-310404",
+   "ctVal": "1",
+   "ctValCcy": "SUI",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "SUSHI": {
+   "instId": "SUSHI-USD_UM_XPERP-310912",
+   "ctVal": "1",
+   "ctValCcy": "SUSHI",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "TAO": {
+   "instId": "TAO-USD_UM_XPERP-310523",
+   "ctVal": "0.01",
+   "ctValCcy": "TAO",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "TIA": {
+   "instId": "TIA-USD_UM_XPERP-310905",
+   "ctVal": "1",
+   "ctValCcy": "TIA",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "GRAM": {
+   "instId": "GRAM-USD_UM_XPERP-310620",
+   "ctVal": "1",
+   "ctValCcy": "GRAM",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "TQQQ": {
+   "instId": "TQQQ-USD_UM_XPERP-311017",
+   "ctVal": "1",
+   "ctValCcy": "TQQQ",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "10",
+   "ctType": "linear"
+  },
+  "TRB": {
+   "instId": "TRB-USD_UM_XPERP-310815",
+   "ctVal": "0.1",
+   "ctValCcy": "TRB",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "TRIA": {
+   "instId": "TRIA-USD_UM_XPERP-310905",
+   "ctVal": "100",
+   "ctValCcy": "TRIA",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "10",
+   "ctType": "linear"
+  },
+  "TRUMP": {
+   "instId": "TRUMP-USD_UM_XPERP-310704",
+   "ctVal": "0.1",
+   "ctValCcy": "TRUMP",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "TRX": {
+   "instId": "TRX-USD_UM_XPERP-310523",
+   "ctVal": "10",
+   "ctValCcy": "TRX",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "TSLA": {
+   "instId": "TSLA-USD_UM_XPERP-310613",
+   "ctVal": "1",
+   "ctValCcy": "TSLA",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "TSM": {
+   "instId": "TSM-USD_UM_XPERP-310926",
+   "ctVal": "1",
+   "ctValCcy": "TSM",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "UB": {
+   "instId": "UB-USD_UM_XPERP-310627",
+   "ctVal": "100",
+   "ctValCcy": "UB",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "UNI": {
+   "instId": "UNI-USD_UM_XPERP-310718",
+   "ctVal": "1",
+   "ctValCcy": "UNI",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "UNITREE": {
+   "instId": "UNITREE-USD_UM_XPERP-311017",
+   "ctVal": "1",
+   "ctValCcy": "UNITREE",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "UP": {
+   "instId": "UP-USD_UM_XPERP-310919",
+   "ctVal": "10",
+   "ctValCcy": "UP",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "10",
+   "ctType": "linear"
+  },
+  "US100": {
+   "instId": "US100-USD_UM_XPERP-311010",
+   "ctVal": "1",
+   "ctValCcy": "US100",
+   "minSz": "0.0001",
+   "lotSz": "0.0001",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "US500": {
+   "instId": "US500-USD_UM_XPERP-311107",
+   "ctVal": "1",
+   "ctValCcy": "US500",
+   "minSz": "0.001",
+   "lotSz": "0.001",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "USAR": {
+   "instId": "USAR-USD_UM_XPERP-310926",
+   "ctVal": "1",
+   "ctValCcy": "USAR",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "USELESS": {
+   "instId": "USELESS-USD_UM_XPERP-310912",
+   "ctVal": "10",
+   "ctValCcy": "USELESS",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "10",
+   "ctType": "linear"
+  },
+  "VIRTUAL": {
+   "instId": "VIRTUAL-USD_UM_XPERP-310815",
+   "ctVal": "1",
+   "ctValCcy": "VIRTUAL",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "VVV": {
+   "instId": "VVV-USD_UM_XPERP-310704",
+   "ctVal": "0.1",
+   "ctValCcy": "VVV",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "W": {
+   "instId": "W-USD_UM_XPERP-311017",
+   "ctVal": "1",
+   "ctValCcy": "W",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "WDC": {
+   "instId": "WDC-USD_UM_XPERP-310829",
+   "ctVal": "1",
+   "ctValCcy": "WDC",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "WIF": {
+   "instId": "WIF-USD_UM_XPERP-310815",
+   "ctVal": "1",
+   "ctValCcy": "WIF",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "WLD": {
+   "instId": "WLD-USD_UM_XPERP-310613",
+   "ctVal": "10",
+   "ctValCcy": "WLD",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "WLFI": {
+   "instId": "WLFI-USD_UM_XPERP-310725",
+   "ctVal": "10",
+   "ctValCcy": "WLFI",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "XAG": {
+   "instId": "XAG-USD_UM_XPERP-310509",
+   "ctVal": "0.01",
+   "ctValCcy": "XAG",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "XAU": {
+   "instId": "XAU-USD_UM_XPERP-310502",
+   "ctVal": "0.001",
+   "ctValCcy": "XAU",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "XDP": {
+   "instId": "XDP-USD_UM_XPERP-311003",
+   "ctVal": "100",
+   "ctValCcy": "XDP",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "XIAOMI": {
+   "instId": "XIAOMI-USD_UM_XPERP-310919",
+   "ctVal": "1",
+   "ctValCcy": "XIAOMI",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "XLM": {
+   "instId": "XLM-USD_UM_XPERP-310704",
+   "ctVal": "100",
+   "ctValCcy": "XLM",
+   "minSz": "0.1",
+   "lotSz": "0.1",
+   "lever": "50",
+   "ctType": "linear"
+  },
+  "XPL": {
+   "instId": "XPL-USD_UM_XPERP-310711",
+   "ctVal": "10",
+   "ctValCcy": "XPL",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "YB": {
+   "instId": "YB-USD_UM_XPERP-310829",
+   "ctVal": "1",
+   "ctValCcy": "YB",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "ZAMA": {
+   "instId": "ZAMA-USD_UM_XPERP-310725",
+   "ctVal": "10",
+   "ctValCcy": "ZAMA",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "ZEN": {
+   "instId": "ZEN-USD_UM_XPERP-310912",
+   "ctVal": "0.1",
+   "ctValCcy": "ZEN",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "ZHIPU": {
+   "instId": "ZHIPU-USD_UM_XPERP-310926",
+   "ctVal": "1",
+   "ctValCcy": "ZHIPU",
+   "minSz": "0.01",
+   "lotSz": "0.01",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "ZIL": {
+   "instId": "ZIL-USD_UM_XPERP-310801",
+   "ctVal": "100",
+   "ctValCcy": "ZIL",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "ZKP": {
+   "instId": "ZKP-USD_UM_XPERP-310905",
+   "ctVal": "10",
+   "ctValCcy": "ZKP",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  },
+  "ZRO": {
+   "instId": "ZRO-USD_UM_XPERP-310822",
+   "ctVal": "1",
+   "ctValCcy": "ZRO",
+   "minSz": "1",
+   "lotSz": "1",
+   "lever": "20",
+   "ctType": "linear"
+  }
+ },
+ "dias": 365,
+ "duracao_s": 182,
+ "nota": "a vista USDT da OKX como substituto do X-Perp (mesmo ativo); xperp/ = o proprio contrato"
+}
