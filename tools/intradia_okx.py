@@ -220,8 +220,23 @@ def avaliar(ops, t0, t1, reps=1000, seed=3):
     return linhas, {"treino_ate": corte_v, "fora_desde": corte_f}
 
 
-def correr(pasta, min_velas=2000):
-    ops, usadas, t0, t1 = [], [], None, None
+def nocional_minimo(spec, preco):
+    """Valor minimo de uma ordem num X-Perp: minSz contratos x ctVal (em moeda base) x preco. None se nao se sabe."""
+    try:
+        return float(spec["minSz"]) * float(spec["ctVal"]) * float(preco)
+    except (KeyError, TypeError, ValueError):
+        return None
+
+
+def correr(pasta, min_velas=2000, nocional_max=None):
+    """nocional_max (opcional, so na linha de comandos): exclui os contratos cuja ordem minima passa desse valor, para
+    o estudo so contar o que o saldo consegue negociar (especificacao em meta.json da recolha)."""
+    ops, usadas, t0, t1, fora = [], [], None, None, []
+    contratos = {}
+    try:
+        contratos = json.load(open(os.path.join(pasta, "meta.json"))).get("contratos") or {}
+    except (OSError, ValueError):
+        pass
     pb = os.path.join(pasta, "BTC.csv.gz")
     btc = {x["t"]: (x["o"], x["c"]) for x in carregar(pb)} if os.path.exists(pb) else None
     for f in sorted(os.listdir(pasta)):
@@ -230,19 +245,25 @@ def correr(pasta, min_velas=2000):
         c = carregar(os.path.join(pasta, f))
         if len(c) < min_velas:
             continue
+        if nocional_max is not None and f[:-7] != "BTC":
+            nm = nocional_minimo(contratos.get(f[:-7]) or {}, c[-1]["c"])
+            if nm is None or nm > nocional_max:
+                fora.append(f[:-7])
+                continue
         usadas.append(f[:-7])
         t0 = c[0]["t"] if t0 is None else min(t0, c[0]["t"])
         t1 = c[-1]["t"] if t1 is None else max(t1, c[-1]["t"])
         ops += operacoes(c, f[:-7], btc)
     linhas, cortes = avaliar(ops, t0 or 0, t1 or 0) if ops else ([], {})
-    return {"moedas": len(usadas), "operacoes": len(ops), "de": t0, "ate": t1, "cortes": cortes, "resultados": linhas,
+    return {"moedas": len(usadas), "excluidas_por_ordem_minima": len(fora), "operacoes": len(ops), "de": t0, "ate": t1, "cortes": cortes, "resultados": linhas,
             "aviso": "So investigacao; substituto a vista USDT para o preco do X-Perp; sem moedas retiradas."}
 
 
 if __name__ == "__main__":
     a = sys.argv
     mv = int(a[a.index("--min-velas") + 1]) if "--min-velas" in a else 2000
-    r = correr(a[1], mv)
+    nm = float(a[a.index("--nocional-max") + 1]) if "--nocional-max" in a else None
+    r = correr(a[1], mv, nm)
     with open(a[2], "w", encoding="utf-8") as f:
         json.dump(r, f, ensure_ascii=False, indent=1)
     print("moedas", r["moedas"], "operacoes", r["operacoes"])

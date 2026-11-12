@@ -70,3 +70,10 @@ class SeguidorBTC(unittest.TestCase):
         self.assertIn(("SEGUIDOR_BTC", "SHORT"), I.sinais(c, I.indicadores(c), i, btc))
         c[i] = dict(c[i], o=10.0, c=9.7)                           # ja acompanhou: nada
         self.assertNotIn(("SEGUIDOR_BTC", "SHORT"), I.sinais(c, I.indicadores(c), i, btc))
+
+
+class Nocional(unittest.TestCase):
+    def test_nocional_minimo(self):
+        from tools import intradia_okx as I
+        self.assertAlmostEqual(I.nocional_minimo({"minSz": "1", "ctVal": "0.01"}, 50000), 500.0)
+        self.assertIsNone(I.nocional_minimo({}, 1.0))
