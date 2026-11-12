@@ -152,7 +152,9 @@ def deep_check(row, src_order, now):
                 best = (r["n"], cs, r, src.name, i)
             # historico curto nesta fonte (ativo listado ha pouco tempo):
             # tenta a seguinte e fica com a que tiver mais velas
-            if r["n"] >= validate.MIN_HISTORY[tf]:
+            # (12/11) so para quando a fonte tem o que a ANALISE precisa (analysis.MIN_BARS = 210), nao so o minimo
+            # da validacao (200): GRASS (202 na OKX) e CHIP (205) eram recusadas com 499 velas disponiveis na KuCoin
+            if r["n"] >= max(validate.MIN_HISTORY[tf], analysis.MIN_BARS):
                 break
         if best is not None:
             _, cs, rep, used, i = best
