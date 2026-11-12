@@ -448,6 +448,11 @@ class VendaADescoberto(unittest.TestCase):
         self.debt = {"v": 0.0}
 
     def post(self, path, body):
+        # (12/11, BNB) como a Bybit: ordem limite com valor abaixo do minimo e recusada (170140); antes a simulacao
+        # aceitava 4,99 USDC e escondia o arredondamento ao lote que recusou a BNB real
+        if path == "/v5/order/create" and body.get("price") and body.get("qty") and "triggerPrice" not in body \
+                and float(body["qty"]) * float(body["price"]) < float(self.inst["min_amt"]) - 1e-9:
+            raise self.X.ExecError("/v5/order/create: 170140 Order value exceeded lower limit.")
         self.calls.append((path, dict(body)))
         if path == "/v5/order/create" and body.get("side") == "Sell":
             self.debt["v"] += float(body["qty"])
@@ -460,7 +465,7 @@ class VendaADescoberto(unittest.TestCase):
         X = self.X
         ps = [mock.patch.object(X, "instrument", return_value=self.inst),
               mock.patch.object(X, "post", side_effect=self.post),
-              mock.patch.object(X, "wallet", return_value={}),
+              mock.patch.object(X, "wallet", return_value={"list": [{"totalEquity": "20"}]}),
               mock.patch.object(X, "usdc_free", return_value=70.0),
               mock.patch.object(X, "coin_debt", side_effect=lambda w, c: self.debt["v"]),
               mock.patch.object(X, "held", return_value=0.0),

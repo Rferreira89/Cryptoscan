@@ -21,9 +21,12 @@ class Base(VendaADescoberto):
         self.sent = []
         return lambda t, html=False: self.sent.append(t)
 
-    def short_state(self, usdc=5.0, tp=(78.0,), partials=(100,)):
+    def short_state(self, usdc=5.0, tp=(78.0,), partials=(100,), maxv=None):
+        # (12/11) como o dimensionamento real: o plano leva o valor maximo que o teto do piloto permite (4% de 20 com
+        # stop de 11% -> 7,27), para o executor poder subir um lote quando o arredondamento fica abaixo do minimo
         sig = {"status": "ACTIVE", "mode": "REAL", "plan": {"side": "SHORT", "entry_zone": [99.5, 100.5], "stop": 111.0,
-               "tp": list(tp), "partials": list(partials), "position_usdc": usdc}}
+               "tp": list(tp), "partials": list(partials), "position_usdc": usdc,
+               "max_position_usdc": maxv if maxv is not None else round(20 * 0.04 / 0.11, 2)}}
         return {"signals": {"op1": sig}, "ledger": [{"id": "op1", "asset": "SEI", "pair": "SEI/USDC", "side": "SHORT",
                                                      "strategy": "SHORT_TURTLE", "issued_at": NOW}]}
 
@@ -41,6 +44,16 @@ class Base(VendaADescoberto):
 
 
 class ShortPontaAPonta(Base):
+    def test_sem_teto_no_plano_recusa_sem_enviar(self):
+        """Plano sem valor maximo e arredondamento abaixo do minimo: recusa com motivo claro, nada enviado."""
+        ex = {"ops": {}}
+        st = self.short_state(5.0)
+        st["signals"]["op1"]["plan"].pop("max_position_usdc")
+        res = self.run_with(self.X.do_short, st, {"op": "op1"}, ex, NOW, self.snd(), last_price=100.0, best_bid=99.9)
+        self.assertIn("abaixo do mínimo", res)
+        self.assertEqual(self.vendas(), [])
+        self.assertEqual(ex["ops"]["op1"]["status"], "recusada")
+
     def test_dimensionamento_do_piloto_entrada_stop_e_fecho(self):
         # 1) risco real: ordem minima de 5 com stop de 11% = 2,75% de 20 -> cabe no teto de 4%
         sz, why = risk.sizing(11.0, 0.11, 100.0, cfg_piloto_teste(piloto_teto_pct=4.0), short=True)
@@ -48,13 +61,17 @@ class ShortPontaAPonta(Base):
         usdc = sz["usdc"]["position_usdc"]
         self.assertEqual(usdc, 5.0)
         self.assertLessEqual(usdc * 0.11, 20.0 * 0.04)
-        # 2) entrada: venda com margem, stop e objetivo ANEXADOS a ordem
-        ex, st = {"ops": {}}, self.short_state(usdc)
+        # 2) entrada: venda com margem, stop e objetivo ANEXADOS a ordem; 5 USDC a 99,8 com lote 0,001 arredondava
+        # para 4,99 (< minimo, recusado pela Bybit como a BNB de 12/11): sobe um lote, dentro do teto
+        ex, st = {"ops": {}}, self.short_state(usdc, maxv=sz["usdc"]["max_position_usdc"])
         res = self.run_with(self.X.do_short, st, {"op": "op1"}, ex, NOW, self.snd(), last_price=100.0, best_bid=99.9)
         self.assertEqual(res, "ok")
         v = self.vendas()
         self.assertEqual(len(v), 1)
         self.assertEqual((v[0]["isLeverage"], v[0]["stopLoss"], v[0]["takeProfit"]), (1, "111.00", "78.00"))
+        val = float(v[0]["qty"]) * float(v[0]["price"])
+        self.assertGreaterEqual(val, 5.0)
+        self.assertLessEqual(val * 0.11, 20.0 * 0.04)
         self.assertTrue(ex["ops"]["op1"]["partes"][0]["anexo"])
         # 3) reinicio / pedido repetido: nunca uma segunda venda
         self.assertEqual(self.run_with(self.X.do_short, st, {"op": "op1"}, ex, NOW + 5, self.snd(), last_price=100.0),

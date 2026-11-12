@@ -127,6 +127,11 @@ def sizing(stop_pct, stop_frac, entry, cfg, short=False):
                 "collateral_usdc": round(pos_usdc / lev["use"], 2),
                 "borrowed_usdc": round(pos_usdc - pos_usdc / lev["use"], 2),
                 "risk_usdc": round(pos_usdc * stop_pct / 100, 2)}
+        # (12/11, BNB recusada: 170140) valor maximo que o risco autorizado permite, para o executor poder subir UM
+        # nivel de lote quando o arredondamento deixa a ordem abaixo do minimo da Bybit (nunca acima deste valor)
+        lim_r = cap * livre / 100 if pt else (teto if fixed and teto else None)
+        if lim_r and stop_pct > 0:
+            usdc["max_position_usdc"] = round(max(pos_usdc, lim_r / (stop_pct / 100)), 2)
     return {"leverage": lev_fields(), "usdc": usdc, "size_pct": size_pct,
             "partials": partials}, None
 
