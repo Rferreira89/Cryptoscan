@@ -7,10 +7,9 @@ on:
       dias:
         description: "Dias de historico"
         default: "365"
-  # (12/11 09:20) em lotes de 7 min nas janelas livres do servidor europeu (Europa ~:03/:18/:33/:48, agente OKX ~:08),
-  # ate a recolha ficar completa; depois volta a semanal
+  # (12/11) recolha completa as 09:27; atualizacao semanal num lote de 7 min (cache persistente no servidor europeu)
   schedule:
-    - cron: "22,52 * * * *"
+    - cron: "22 6 * * 1"
 permissions:
   contents: write
 concurrency:
