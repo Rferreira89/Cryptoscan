@@ -407,8 +407,11 @@ def cfg_piloto(champ, state, cfg, now):
     """(11/11, PILOTO; so com config "piloto" = {"estrategia", "teto_pct", "inicio", "perda_max_r"}) Para a estrategia do
     piloto, deixa a ordem minima entrar ate ao teto de risco REAL do piloto, enquanto a guarda (engine/piloto.avaliar)
     o permitir. Qualquer outra estrategia, ou sem a chave, devolve cfg igual."""
-    pl = cfg.get("piloto") or {}
-    if not pl or champ != pl.get("estrategia") or not pl.get("teto_pct"):
+    # (12/11, preparacao LONG) "piloto" pode ser um piloto ou uma lista de pilotos (um por estrategia, LONG ou SHORT)
+    pls = cfg.get("piloto") or []
+    pls = [pls] if isinstance(pls, dict) else list(pls)
+    pl = next((x for x in pls if x.get("estrategia") == champ and x.get("teto_pct")), None)
+    if not pl:
         return cfg
     from . import piloto
     abertas = [r for r in state.get("ledger") or [] if r.get("strategy") == champ and r.get("mode") == "REAL"
@@ -419,12 +422,19 @@ def cfg_piloto(champ, state, cfg, now):
     if pl.get("perda_max_r") is not None and av["soma_r"] <= pl["perda_max_r"]:
         av["pode_abrir"] = False
     if not av["pode_abrir"]:
-        state.setdefault("piloto", {})["suspenso"] = {"t": int(now), "motivos": av["motivos"] or ["perda maxima"]}
+        _estado_piloto(state, champ, pls)["suspenso"] = {"t": int(now), "motivos": av["motivos"] or ["perda maxima"]}
         return dict(cfg, piloto_bloqueio="piloto suspenso: " + "; ".join(av["motivos"] or ["perda máxima atingida"]))
-    state.setdefault("piloto", {}).update(estado=av["estado"], n=av["n"], soma_r=av["soma_r"], t=int(now))
-    state["piloto"].pop("suspenso", None)
+    ep = _estado_piloto(state, champ, pls)
+    ep.update(estado=av["estado"], n=av["n"], soma_r=av["soma_r"], t=int(now))
+    ep.pop("suspenso", None)
     return dict(cfg, piloto_teto_pct=float(pl["teto_pct"]), piloto_juro_max_r=float(pl.get("juro_max_r", 0.06)),
                 piloto_dias_max=float(pl.get("dias_max", 20)))
+
+
+def _estado_piloto(state, champ, pls):
+    """Um so piloto: state["piloto"] (como desde 12/11). Varios: state["piloto"][estrategia]."""
+    st = state.setdefault("piloto", {})
+    return st if len(pls) <= 1 else st.setdefault(champ, {})
 
 
 JUROS_IDADE_MAX = 6 * 3600
@@ -575,7 +585,10 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
                     p, why = short_plan_for(sig, r["price"], cc)
             else:
                 cc = acelerado.cfg_para(champ, state, cfg)
-                p, why = plan_for(sig, r["price"], cc)
+                cc = cfg_piloto(champ, state, cc, now)           # (12/11) piloto LONG: so com config; sem ela, igual
+                why, p = cc.get("piloto_bloqueio"), None
+                if not why:
+                    p, why = plan_for(sig, r["price"], cc)
             if p and cc.get("acelerado_pct"):
                 p["acelerado_pct"] = cc["acelerado_pct"]
             if not p:

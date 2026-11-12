@@ -95,3 +95,26 @@ class Juros(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class VariosPilotos(unittest.TestCase):
+    """(12/11, preparacao) LONG e SHORT em piloto ao mesmo tempo: cada um com os seus limites e o seu registo."""
+    CFG = {"piloto": [PL["piloto"], {"estrategia": "LONG_X", "teto_pct": 2, "perda_max_r": -5, "max_posicoes": 1, "inicio": 0}]}
+
+    def test_cada_estrategia_tem_o_seu_teto(self):
+        st = {"ledger": []}
+        self.assertEqual(promo.cfg_piloto("SHORT_TURTLE", st, dict(self.CFG), NOW)["piloto_teto_pct"], 4.0)
+        self.assertEqual(promo.cfg_piloto("LONG_X", st, dict(self.CFG), NOW)["piloto_teto_pct"], 2.0)
+        self.assertNotIn("piloto_teto_pct", promo.cfg_piloto("OUTRA", st, dict(self.CFG), NOW))
+        self.assertEqual(set(st["piloto"]), {"SHORT_TURTLE", "LONG_X"})
+
+    def test_a_perda_de_um_nao_suspende_o_outro(self):
+        perdas = [dict(op(-1.0, d), strategy="LONG_X") for d in range(5)]
+        st = {"ledger": perdas}
+        self.assertIn("piloto_bloqueio", promo.cfg_piloto("LONG_X", st, dict(self.CFG), NOW))
+        self.assertIn("piloto_teto_pct", promo.cfg_piloto("SHORT_TURTLE", st, dict(self.CFG), NOW))
+
+    def test_um_so_piloto_fica_como_estava(self):
+        st = {"ledger": []}
+        promo.cfg_piloto("SHORT_TURTLE", st, dict(PL), NOW)
+        self.assertEqual(st["piloto"]["estado"], "a correr")
