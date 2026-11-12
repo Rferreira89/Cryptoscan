@@ -2455,3 +2455,20 @@ ronda os 74%.
   positivas; (3) morte rápida a contar acontecimentos; (4) corte dos clones
   só com representantes vivos; (5) o caso CAPITULACAO_R2 fora da
   classificação.
+
+## 2026-11-12 (dados novos, caçador noturno) — sem hipótese nova; acompanhamento H52, H53, H57–H60
+
+- **Registo (dia par, SHORT)**: nenhum. As ideias SHORT com os campos novos
+  continuam cobertas — H52 (queda com OI a subir), H59 (subida com OI a cair
+  e financiamento positivo) — e a "subida alavancada que falha" (contratos e
+  financiamento a subir antes do primeiro dia vermelho) tem a mesma lógica
+  do excesso de longs da H44, já chumbada; trocar o financiamento pelos
+  contratos seria variante cosmética. Sem ideia séria, não se regista nada.
+- **Acompanhamento** (ramo `dados-novos` com velas de 05/11 a 11/11, lidas
+  só por `dados_para_avaliar`): H52 — a acumular: 0 de 30 (5 dias depois do
+  registo); H53 — a acumular: 0 de 30, controlo 0 de 10 (4 dias); H57, H58,
+  H59 — a acumular: 0 de 30 (1 dia); H60 — a acumular: 0 de 30, controlo 0
+  de 10 (0 dias; a vela de 11/11 é do próprio dia do registo). O regime
+  precisa de 10–11 dias de aquecimento: primeiras operações possíveis por
+  volta de 17–18/11 (H52/H53), 21/11 (H57–H59) e 22/11 (H60).
+- Nenhum resultado em dados antigos foi usado como validação.
