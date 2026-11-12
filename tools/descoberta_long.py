@@ -35,8 +35,15 @@ FAMILIAS = {
     "reversao apos capitulacao": ["CAPITULACAO", "BOUNCE_X30", "BOUNCE_ISOLADA"],
     "recuperacao de niveis": ["RETESTE", "REVERSAO_INTERVALO"],
     "expansao de volatilidade": ["SQUEEZE_BB"],
+    "fluxo e financiamento": ["BOUNCE_FLUXO", "MAIORES_FUNDING"],
 }
-SEM_DADOS = ["BOUNCE_MACRO", "BOUNCE_FLUXO", "MAIORES_FUNDING", "BOUNCE_LSR", "BOUNCE_DESALAV"]   # precisam de fluxo/macro por data
+# (12/11) BOUNCE_FLUXO usa so o volume comprador agressivo das velas (tb), que o historico tem: passa a ser avaliada.
+# MAIORES_FUNDING usa o funding do ramo history (so desde 2024-09: sem periodo de treino, no maximo INCONCLUSIVA).
+SEM_DADOS = {
+    "BOUNCE_LSR": "racio long/short da Binance: a API gratuita so da os ultimos 30 dias",
+    "BOUNCE_DESALAV": "open interest da Binance: a API gratuita so da os ultimos 30 dias",
+    "BOUNCE_MACRO": "estado macro (S&P 500, dolar, VIX) por data: nao ha historico no repositorio",
+}
 MAIORES = {"BTC", "ETH", "SOL"}
 OKX_CUSTO, BYBIT_CUSTO, OKX_FUNDING_DIA = 0.002, 0.007, 0.0003
 
@@ -68,11 +75,32 @@ def liquidez(c4):
 _CTX = {}
 
 
+def funding(a):
+    """[(t, taxa)] do ramo history (pasta/funding/<moeda>.csv.gz), ou [] se nao houver."""
+    p = os.path.join(_CTX.get("pasta", ""), "funding", a + ".csv.gz")
+    if not os.path.exists(p):
+        return []
+    out = []
+    for l in gzip.open(p, "rt").read().split():
+        z = l.split(",")
+        try:
+            t = int(float(z[0]))
+            out.append((t // 1000 if t > 1e11 else t, float(z[1])))
+        except (ValueError, IndexError):
+            continue
+    return sorted(out)
+
+
 def _preparar(pasta):
     from tools import arena_ringue as AR
     btc = carregar(os.path.join(pasta, "BTC.csv.gz"))
     _CTX.update(pasta=pasta, btc=btc, acima=AR.btc_above(btc), fases=AR.regime_by_day(btc),
                 btc_px={x["t"]: x["c"] for x in btc})
+
+
+def _preparar_so(pasta, so):
+    _preparar(pasta)
+    _CTX["so"] = set(so)
 
 
 def trabalho(a):
@@ -85,10 +113,13 @@ def trabalho(a):
         return []
     if len(c4) < 400:
         return []
-    AR.CTX.update(btc=_CTX["btc"], bars={"BTC": _CTX["btc"], a: c4}, funding={}, rank={}, daily={a: B.daily(c4)})
+    AR.CTX.update(btc=_CTX["btc"], bars={"BTC": _CTX["btc"], a: c4}, funding={a: funding(a)}, rank={},
+                  daily={a: B.daily(c4)}, asset=a)
     lq, out = liquidez(c4), []
     for fam, ks in FAMILIAS.items():
         for k in ks:
+            if _CTX.get("so") and k not in _CTX["so"]:
+                continue
             if k.startswith("MAIORES_") and a not in MAIORES:
                 continue
             fn = AR.NEW_SIGS.get(k) or AR.MAIORES_SIGS.get(k)
@@ -260,13 +291,14 @@ def portao(linhas, fase_atual):
                        "ESPERA: nenhuma familia LONG tem vantagem demonstrada nesta fase"}
 
 
-def correr(pasta, moedas=None, processos=1, reps=1000):
+def correr(pasta, moedas=None, processos=1, reps=1000, so=None):
     _preparar(pasta)
+    _CTX["so"] = set(so or [])
     todas = sorted(f[:-7] for f in os.listdir(pasta) if f.endswith(".csv.gz"))
     moedas = [m for m in (moedas or todas) if m in todas]
     if processos > 1:
         from multiprocessing import Pool
-        with Pool(processos, initializer=_preparar, initargs=(pasta,)) as pool:
+        with Pool(processos, initializer=_preparar_so, initargs=(pasta, sorted(_CTX["so"]))) as pool:
             ops = [t for r in pool.imap_unordered(trabalho, moedas, chunksize=2) for t in r]
     else:
         ops = [t for a in moedas for t in trabalho(a)]
@@ -298,7 +330,8 @@ elif __name__ == "__main__":
     a = sys.argv
     moedas = a[a.index("--moedas") + 1].split(",") if "--moedas" in a else None
     proc = int(a[a.index("--processos") + 1]) if "--processos" in a else 1
-    r = correr(a[1], moedas, proc)
+    so = a[a.index("--estrategias") + 1].split(",") if "--estrategias" in a else None
+    r = correr(a[1], moedas, proc, so=so)
     with open(a[2], "w", encoding="utf-8") as f:
         json.dump(r, f, ensure_ascii=False, indent=1)
     print(json.dumps(r["portao"], ensure_ascii=False))
