@@ -62,3 +62,13 @@ class StopConfirmado(unittest.TestCase):
     def test_sem_stop_registado_so_o_aviso_de_stop(self):
         chaves, _ = self._ops({"stop": None, "t_fill": self.now - 5 * 3600})
         self.assertEqual(chaves, ["stop-A"])
+
+
+class Europa(unittest.TestCase):
+    def test_servidor_europeu_parado(self):
+        import tools.vigia as V
+        self.assertEqual(V.problemas_bybit({"margem_bybit": {"t": 1000}}, 1000 + 30 * 60), [])
+        p = V.problemas_bybit({"margem_bybit": {"t": 1000}}, 1000 + 100 * 60)
+        self.assertEqual(p[0][0], "europa")
+        self.assertIn("1 h 40 min", p[0][1])
+        self.assertEqual(V.problemas_bybit({}, 10 ** 9), [])

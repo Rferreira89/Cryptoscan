@@ -9,10 +9,15 @@ falha de um seja vista pelo outro). So le o estado publico (precos e ids, sem va
   - (11/11) uma operacao real aberta cujo stop nao e confirmado NA OKX ha mais de 3 h (stop_ok, gravado pelo
     confirmar_stops do agente) com o agente a correr: a consulta a OKX esta a falhar em silencio ou o stop nao cobre a
     posicao, e o registo do stop no estado ja nao prova que a protecao existe.
+  - (12/11) o servidor europeu da Bybit nao le a conta ha mais de 45 min (margem_bybit.t, escrito pelo ciclo Europa a
+    cada 15 min): sem leitura da conta nao ha entradas novas nem execucao (a recolha OKX de 12/11 07:31 prendeu-o
+    100 min sem aviso).
 Cada aviso repete no maximo de 6 em 6 horas (ficheiro local do ciclo)."""
 import json, os, sys, time, urllib.request
 
 URL = "https://raw.githubusercontent.com/Rferreira89/Cryptoscan/okx/okx.json"
+URL_BYBIT = "https://raw.githubusercontent.com/Rferreira89/Cryptoscan/data/state.json"
+EUROPA_S = 45 * 60
 MEM = os.environ.get("VIGIA_MEM", "/tmp/vigia.json")
 LIMITE_S, REPETE_S, ATRASO_SAIDA_S, STOP_OK_S = 9000, 6 * 3600, 7200, 3 * 3600
 
@@ -47,6 +52,16 @@ def problemas(st, now):
     return out
 
 
+def problemas_bybit(st, now):
+    t = ((st or {}).get("margem_bybit") or {}).get("t") or 0
+    if t and now - t > EUROPA_S:
+        m = int((now - t) // 60)
+        return [("europa", f"⚠️ Vigia: o servidor europeu não lê a conta da Bybit há {m // 60} h {m % 60} min. Sem "
+                           "essa leitura o programa não abre operações nem executa ordens; os stops já colocados "
+                           "continuam na Bybit.")]
+    return []
+
+
 def telegram(txt):
     t, c = (os.environ.get("TELEGRAM_BOT_TOKEN") or "").strip(), (os.environ.get("TELEGRAM_CHAT_ID") or "").strip()
     if not t or not c:
@@ -70,7 +85,12 @@ def main():
         mem = json.load(open(MEM))
     except Exception:
         mem = {}
-    for chave, msg in problemas(st, now):
+    lista = problemas(st, now)
+    try:
+        lista += problemas_bybit(json.loads(urllib.request.urlopen(URL_BYBIT + f"?t={int(now)}", timeout=20).read()), now)
+    except Exception as e:
+        print("vigia: sem estado da Bybit", type(e).__name__)
+    for chave, msg in lista:
         if now - mem.get(chave, 0) >= REPETE_S:
             telegram(msg); mem[chave] = now
             print("vigia:", chave)
