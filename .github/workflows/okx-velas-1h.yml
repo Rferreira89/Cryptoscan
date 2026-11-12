@@ -1,0 +1,35 @@
+name: OKX - velas de 1h (so leitura publica)
+# (12/11, autorizado pelo Rui 07:29) Recolha historica de velas de 1h dos X-Perps da OKX (e do mesmo ativo a vista)
+# para a investigacao intradiaria. So pedidos publicos GET, SEM chaves; publica no ramo `okx-1h`. Manual e semanal.
+on:
+  workflow_dispatch:
+    inputs:
+      dias:
+        description: "Dias de historico"
+        default: "365"
+  schedule:
+    - cron: "23 6 * * 1"
+permissions:
+  contents: write
+concurrency:
+  group: okx-velas-1h
+  cancel-in-progress: false
+jobs:
+  velas:
+    runs-on: [self-hosted, eu]
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - name: Recolher (incremental sobre o ramo okx-1h)
+        run: |
+          if [ -f STOP ]; then echo "STOP"; exit 0; fi
+          rm -rf /tmp/okx1h && mkdir -p /tmp/okx1h
+          if git fetch -q origin okx-1h 2>/dev/null; then git archive FETCH_HEAD | tar -x -C /tmp/okx1h; fi
+          python3 -m tools.okx_velas_1h /tmp/okx1h --dias "${{ github.event.inputs.dias || '365' }}"
+      - name: Publicar no ramo okx-1h
+        run: |
+          if [ -f STOP ]; then exit 0; fi
+          cd /tmp/okx1h && rm -rf .git && git init -q -b okx-1h && git config user.name cryptoscan-bot \
+            && git config user.email bot@users.noreply.github.com && git add . \
+            && git commit -q -m "okx 1h $(date -u +%FT%TZ)" \
+            && git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" okx-1h:okx-1h
