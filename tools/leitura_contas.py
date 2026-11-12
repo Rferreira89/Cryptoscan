@@ -98,6 +98,13 @@ def bybit(acc):
         livre = acc.usdc_free(w) or 0
         pub["verificacoes"] = {"usdc_livre_cobre_ordem_minima_5": livre >= 5.0, "ha_dividas_de_margem": bool(acc.debts(w)),
                                "moedas_com_saldo": sorted(c for c, q in acc.coins(w).items() if q and c not in ("USDC",))}
+        try:                                                # so sim/nao: nunca quantidades nem valores
+            tk = acc.tickers_usdc()
+            det = {c: (q * (tk.get(c) or [0])[0]) for c, q in acc.coins(w).items() if c != "USDC" and q}
+            pub["verificacoes"]["moedas_com_mais_de_1_usdc"] = sorted(c for c, v in det.items() if v >= 1.0)
+            pub["verificacoes"]["moedas_com_mais_de_5_usdc"] = sorted(c for c, v in det.items() if v >= 5.0)
+        except Exception as e:                              # noqa: BLE001
+            pub["verificacoes"]["moedas_valor"] = f"erro {type(e).__name__}"
         try:
             oo = acc.open_orders()
             pub["verificacoes"]["ordens_abertas"] = len(oo) if isinstance(oo, list) else None
