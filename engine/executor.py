@@ -278,6 +278,7 @@ def best_bid(symbol):
         return None
 
 
+SHORT_SALDO_MAX_USDC = 1.0      # (12/11) saldo da propria moeda acima disto: nao se vende a descoberto
 SHORT_MAX_SLIP = 0.006          # (23/10) venda a descoberto: no maximo 0,6% abaixo do ultimo preco
 
 
@@ -455,6 +456,18 @@ def do_buy(state, req, ex, now, send):
         return why
     inst = instrument(symbol)
     w = wallet()
+    # (12/11, montagem final) sentidos incompativeis: com uma venda a descoberto aberta nesta moeda (divida da
+    # moeda), uma compra so devolveria o emprestimo e desfazia o short sem registo. Nunca os dois ao mesmo tempo.
+    try:
+        divida = coin_debt(w, rec["asset"])
+    except Exception:                                    # noqa: BLE001 (sem leitura nao se arrisca)
+        divida = None
+    if divida is None or divida > 0:
+        why = (f"há uma venda a descoberto aberta em {rec['asset']} (moeda emprestada): compra recusada para não "
+               "cruzar os dois sentidos" if divida else f"não consegui confirmar se há empréstimo de {rec['asset']}")
+        send(f"⚠️ Não executei {rec['asset']}: {why}. Nada foi comprado.")
+        ex["ops"][op] = {"asset": rec["asset"], "status": "recusada", "motivo": why, "t": now}
+        return why
     size = float(plan.get("position_usdc") or rec.get("position_usdc") or 0)
     free = usdc_free(w)
     if size <= 0:
@@ -677,6 +690,19 @@ def do_short(state, req, ex, now, send):
         return why
     inst = instrument(symbol)
     w = wallet()
+    # (12/11, montagem final) sentidos incompativeis: se a conta TEM esta moeda (nucleo ou outra compra), a venda
+    # com margem vendia primeiro essas moedas em vez de as pedir emprestadas: desfazia a posicao comprada e o
+    # "short" nao existia. Com saldo da moeda acima de 1 USDC, a venda a descoberto e recusada.
+    try:
+        tem = float(held(w, rec["asset"]) or 0) * float(px or 0)
+    except Exception:                                    # noqa: BLE001
+        tem = None
+    if tem is None or tem >= SHORT_SALDO_MAX_USDC:
+        why = (f"a conta tem {rec['asset']} em carteira: a venda a descoberto venderia essas moedas em vez de as pedir "
+               "emprestadas" if tem else f"não consegui confirmar o saldo de {rec['asset']}")
+        send(f"⚠️ Não executei a venda de {rec['asset']}: {why}. Nada foi vendido.")
+        ex["ops"][op] = {"asset": rec["asset"], "status": "recusada", "motivo": why, "t": now}
+        return why
     free = usdc_free(w)
     size = float(plan.get("position_usdc") or rec.get("position_usdc") or 0)
     try:
