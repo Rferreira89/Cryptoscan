@@ -95,10 +95,59 @@ def bybit(acc):
     try:
         w = acc.get("/v5/account/wallet-balance", {"accountType": "UNIFIED"})
         priv["bybit"] = {"equity": acc.equity(w), "usdc_livre": acc.usdc_free(w), "dividas": acc.debts(w)}
+        livre = acc.usdc_free(w) or 0
+        pub["verificacoes"] = {"usdc_livre_cobre_ordem_minima_5": livre >= 5.0, "ha_dividas_de_margem": bool(acc.debts(w)),
+                               "moedas_com_saldo": sorted(c for c, q in acc.coins(w).items() if q and c not in ("USDC",))}
+        try:
+            oo = acc.open_orders()
+            pub["verificacoes"]["ordens_abertas"] = len(oo) if isinstance(oo, list) else None
+        except Exception as e:                              # noqa: BLE001
+            pub["verificacoes"]["ordens_abertas"] = f"erro {type(e).__name__}"
     except acc.AccountError as e:
         avisos.append(f"wallet: {str(e)[:100]}")
     pub["avisos"] = avisos
     return pub, priv
+
+
+def regime_btc(velas_diarias):
+    """Regime pela regra da producao (engine/arena.market_regime) com velas diarias [(t, o, h, l, c)] fechadas."""
+    from engine import arena
+    d = [{"t": int(t), "o": o, "h": h, "l": l, "c": c} for t, o, h, l, c in sorted(velas_diarias)]
+    if len(d) < 200:
+        return {"regime": None, "velas": len(d)}
+    c = [x["c"] for x in d]
+    s50, s200 = sum(c[-50:]) / 50, sum(c[-200:]) / 200
+    return {"regime": arena.market_regime(btc1d=d), "velas": len(d), "ultimo_dia": d[-1]["t"], "fecho": c[-1],
+            "sma50": round(s50, 2), "sma200": round(s200, 2), "ret30_pct": round((c[-1] / c[-31] - 1) * 100, 2)}
+
+
+def velas_okx(pedido, base="https://eea.okx.com"):
+    out = []
+    for url in ("/api/v5/market/candles?instId=BTC-USDT&bar=1Dutc&limit=300",
+                "/api/v5/market/history-candles?instId=BTC-USDT&bar=1Dutc&limit=100&after={}"):
+        if "{}" in url:
+            if not out:
+                break
+            url = url.format(min(x[0] for x in out) * 1000)
+        d = pedido(base, url)
+        for r in d.get("data") or []:
+            if str(r[8] if len(r) > 8 else "1") == "1":                # so velas confirmadas (fechadas)
+                out.append((int(r[0]) // 1000, float(r[1]), float(r[2]), float(r[3]), float(r[4])))
+    return sorted(set(out))
+
+
+def velas_bybit():
+    import json as _j
+    import urllib.request
+    req = urllib.request.Request("https://api.bybit.eu/v5/market/kline?category=spot&symbol=BTCUSDC&interval=D&limit=400",
+                                 headers={"User-Agent": "cryptoscan/1.0"})
+    with urllib.request.urlopen(req, timeout=20) as r:
+        d = _j.loads(r.read())
+    rows = (d.get("result") or {}).get("list") or []
+    import time as _t
+    hoje = int(_t.time()) // 86400 * 86400
+    return sorted((int(x[0]) // 1000, float(x[1]), float(x[2]), float(x[3]), float(x[4])) for x in rows
+                  if int(x[0]) // 1000 < hoje)                           # tira o dia por fechar
 
 
 def resumo_privado(priv, pub):
@@ -137,6 +186,16 @@ def main(saida=None):
             pub["bybit"] = {"erro": type(e).__name__}
     else:
         pub["bybit"] = {"erro": "sem chave"}
+    reg = {}
+    try:
+        reg["okx_btc_usdt"] = regime_btc(velas_okx(OV.pedido))
+    except Exception as e:                                  # noqa: BLE001
+        reg["okx_btc_usdt"] = {"erro": type(e).__name__}
+    try:
+        reg["bybit_ue_btc_usdc"] = regime_btc(velas_bybit())
+    except Exception as e:                                  # noqa: BLE001
+        reg["bybit_ue_btc_usdc"] = {"erro": type(e).__name__}
+    pub["regime"] = reg
     OV.telegram(resumo_privado(priv, pub))
     txt = json.dumps(pub, ensure_ascii=False, separators=(",", ":"))
     if saida:
