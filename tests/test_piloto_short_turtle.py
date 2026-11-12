@@ -27,7 +27,7 @@ class Configuracao(unittest.TestCase):
         self.assertEqual(c["real_autorizados"], ["SHORT_TURTLE"])
         p = c["piloto"]
         self.assertEqual(p["estrategia"], "SHORT_TURTLE")
-        self.assertLessEqual(p["teto_pct"], 4)
+        self.assertLessEqual(p["teto_pct"], 5)                  # (12/11 09:06) teto 5% autorizado pelo Rui
         self.assertEqual(p["max_posicoes"], 1)
         self.assertEqual(p["perda_max_r"], -8)
         self.assertLessEqual(p["juro_max_r"], 0.06)
@@ -95,3 +95,33 @@ class Juros(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Teto5(unittest.TestCase):
+    """(12/11 09:06) Teto 5% autorizado. Capital SINTETICO (30) com a configuracao real (capital composto, risco normal
+    0,5%, ordem minima 5): a ordem minima entra se o risco real no stop (comissoes incluidas em stop_pct) <= teto do
+    capital. Acima do teto continua recusado; a posicao nunca passa da ordem minima e nao usa emprestimo de USDC."""
+
+    def _cfg(self, teto):
+        from engine import config, scanner
+        c = dict(config.load("config.json"))
+        c["capital_usdc"] = 30.0
+        c.update(scanner.compounding(c, [], 0))
+        return dict(c, piloto_teto_pct=teto)
+
+    def test_teto_efetivo(self):
+        from engine import risk
+        for stop, teto, entra in ((26.0, 5, True), (26.0, 4, False), (20.0, 4, True), (31.0, 5, False)):
+            p, why = risk.sizing(stop, stop / 100, 1.0, self._cfg(teto), short=True)
+            self.assertEqual(p is not None, entra, (stop, teto, why))
+            if p:
+                self.assertEqual(p["usdc"]["position_usdc"], 5.0)
+                self.assertLessEqual(p["usdc"]["risk_usdc"], 30 * teto / 100 + 1e-9)
+                self.assertEqual(p["usdc"]["borrowed_usdc"], 0.0)
+
+    def test_config_aplica_5(self):
+        from engine import config, promo
+        c = config.load("config.json")
+        cc = promo.cfg_piloto("SHORT_TURTLE", {"ledger": []}, c, c["piloto"]["inicio"] + 3600)
+        self.assertEqual(cc["piloto_teto_pct"], 5.0)
+        self.assertIsNone(promo.cfg_piloto("OUTRA", {"ledger": []}, c, 0).get("piloto_teto_pct"))

@@ -31,7 +31,7 @@
     "imposto_pct": 28
   },
   "real_autorizados": ["SHORT_TURTLE"],
-  "piloto": {"estrategia": "SHORT_TURTLE", "teto_pct": 4, "max_posicoes": 1, "perda_max_r": -8, "juro_max_r": 0.06, "dias_max": 20, "inicio": 1794441600, "autorizado": "Rui, 12/11/2026 00:34"},
+  "piloto": {"estrategia": "SHORT_TURTLE", "teto_pct": 5, "max_posicoes": 1, "perda_max_r": -8, "juro_max_r": 0.06, "dias_max": 20, "inicio": 1794441600, "autorizado": "Rui, 12/11/2026 00:34; teto 5%: Rui, 12/11/2026 09:06"},
   "modo_acelerado": {
     "ligado": true,
     "teto_pct": 2.5,
