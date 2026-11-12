@@ -150,6 +150,35 @@ def velas_bybit():
                   if int(x[0]) // 1000 < hoje)                           # tira o dia por fechar
 
 
+def stops_short_turtle(moedas, min_ordem):
+    """Stop atual da SHORT_TURTLE (2 x ATR diario de 20 dias, como tools/arena_ringue.sig_turtle) por moeda, com velas
+    diarias fechadas da Bybit UE (USDC), e a perda no stop de uma ordem minima (sem dados da conta)."""
+    import json as _j
+    import time as _t
+    import urllib.request
+    hoje = int(_t.time()) // 86400 * 86400
+    out = {}
+    for b in moedas:
+        try:
+            req = urllib.request.Request(f"https://api.bybit.eu/v5/market/kline?category=spot&symbol={b}USDC&interval=D&limit=30",
+                                         headers={"User-Agent": "cryptoscan/1.0"})
+            with urllib.request.urlopen(req, timeout=20) as r:
+                rows = sorted((int(x[0]) // 1000, float(x[2]), float(x[3]), float(x[4]))
+                              for x in (_j.loads(r.read()).get("result") or {}).get("list") or [] if int(x[0]) // 1000 < hoje)
+            if len(rows) < 21:
+                out[b] = {"erro": "velas insuficientes"}
+                continue
+            tr = [max(rows[k][1], rows[k - 1][3]) - min(rows[k][2], rows[k - 1][3]) for k in range(len(rows) - 20, len(rows))]
+            n = sum(tr) / 20
+            px = rows[-1][3]
+            mn = (min_ordem.get(b) or {}).get("min_ordem_valor") or 5.0
+            out[b] = {"stop_pct": round(200 * n / px, 2), "ordem_minima": mn,
+                      "perda_no_stop_usdc_ordem_minima": round(mn * (2 * n / px + 2 * 0.0035 + 0.001), 4)}
+        except Exception as e:                              # noqa: BLE001
+            out[b] = {"erro": type(e).__name__}
+    return out
+
+
 def resumo_privado(priv, pub):
     """Texto para o Telegram: saldos e o capital minimo por cenario de risco (so para o Rui)."""
     linhas = ["🔎 Leitura das contas (só leitura, nada alterado)"]
@@ -196,6 +225,11 @@ def main(saida=None):
     except Exception as e:                                  # noqa: BLE001
         reg["bybit_ue_btc_usdc"] = {"erro": type(e).__name__}
     pub["regime"] = reg
+    try:
+        by = pub.get("bybit") or {}
+        pub["stops_short_turtle"] = stops_short_turtle(sorted(by.get("margem") or {}), by.get("minimos_usdc") or {})
+    except Exception as e:                                  # noqa: BLE001
+        pub["stops_short_turtle"] = {"erro": type(e).__name__}
     OV.telegram(resumo_privado(priv, pub))
     txt = json.dumps(pub, ensure_ascii=False, separators=(",", ":"))
     if saida:
