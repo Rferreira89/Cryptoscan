@@ -147,3 +147,20 @@ class Executor(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Capital2110(unittest.TestCase):
+    """(12/11) Com 21,10 USD e os minimos reais lidos na OKX (DOGE 10 x 1, SUI 1 x 1, AVAX 0,1 x 1... ): so os
+    contratos pequenos cabem; os outros ficam de fora sem subir o risco."""
+    def test_so_cabem_os_contratos_pequenos(self):
+        info = {"DOGE": dict(INFO["DOGE"]), "SUI": dict(INFO["SUI"]),
+                "AVAX": {"inst": "AVAX-USD_UM_XPERP-1", "ctVal": 1.0, "minSz": 1.0, "lotSz": 1.0, "tick": 0.001, "lever": 20}}
+        sin = {"DOGE": {"t": 1, "entrada": 0.0676, "atr_pct": 0.05, "w": 0.089},
+               "SUI": {"t": 1, "entrada": 0.82, "atr_pct": 0.069, "w": 0.062},
+               "AVAX": {"t": 1, "entrada": 8.47, "atr_pct": 0.063, "w": 0.0695}}
+        okx, R = OKXFalsa(), {}
+        msgs = X.volta(R, sin, info, 21.10, okx, CFG, now=1)
+        self.assertEqual(set(R["ops"]), {"DOGE", "SUI"})
+        self.assertTrue(any("AVAX" in m and "minimo do contrato" in m for m in msgs))
+        bruta = sum(o["nocional"] for o in R["ops"].values()) / 21.10
+        self.assertLess(bruta, 0.5)
