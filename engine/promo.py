@@ -423,8 +423,12 @@ def cfg_piloto(champ, state, cfg, now):
         return dict(cfg, piloto_bloqueio="piloto suspenso: " + "; ".join(av["motivos"] or ["perda máxima atingida"]))
     state.setdefault("piloto", {}).update(estado=av["estado"], n=av["n"], soma_r=av["soma_r"], t=int(now))
     state["piloto"].pop("suspenso", None)
+    # (12/11, ordem do Rui 09:06) concorrencia: com mais de uma vaga, o risco ABERTO somado (risk_pct das posicoes reais
+    # do piloto) mais o da nova fica <= teto agregado (omissao: o teto por operacao; nunca o teto inteiro a cada uma)
+    aberto = round(sum(float(r.get("risk_pct") or 0) for r in abertas), 4)
     return dict(cfg, piloto_teto_pct=float(pl["teto_pct"]), piloto_juro_max_r=float(pl.get("juro_max_r", 0.06)),
-                piloto_dias_max=float(pl.get("dias_max", 20)))
+                piloto_dias_max=float(pl.get("dias_max", 20)), piloto_risco_aberto_pct=aberto,
+                piloto_teto_agregado_pct=float(pl.get("teto_agregado_pct") or pl["teto_pct"]))
 
 
 JUROS_IDADE_MAX = 6 * 3600
@@ -598,9 +602,12 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
     for rank, a, champ, sig, p, d0 in sorted(cands, key=lambda x: x[0]):
         seen[a] = sig["t_sig"]
         f = family(champ)
-        if fam.get(f, 0) >= MAX_PER_FAMILY:
+        pl = cfg.get("piloto") or {}
+        # (12/11) a estrategia do piloto usa o seu numero de vagas (config "piloto.max_posicoes"); as outras, 1 por familia
+        lim = int(pl.get("max_posicoes") or 1) if champ == pl.get("estrategia") else MAX_PER_FAMILY
+        if fam.get(f, 0) >= lim:
             lost(state, now, a, champ, f"diversificação: já há {fam[f]} operações da família "
-                 f"«{FAMILIAS[f]}» abertas (máximo {MAX_PER_FAMILY})")
+                 f"«{FAMILIAS[f]}» abertas (máximo {lim})")
             continue
         if bar["t"] != sig["t_sig"]:
             bar.update(t=sig["t_sig"], n=0, fam={})

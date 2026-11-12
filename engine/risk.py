@@ -96,10 +96,20 @@ def sizing(stop_pct, stop_frac, entry, cfg, short=False):
         # a ordem minima entra se o risco REAL que ela impoe no stop (ja com comissoes em stop_pct) ficar <= ao teto
         # do piloto em % do capital. Sem a chave "piloto_teto_pct" nada muda.
         pt = cfg.get("piloto_teto_pct")
-        if pos_usdc < mn and pt and mn * stop_pct / 100 <= cap * pt / 100 + 1e-9 \
+        livre = min(pt or 0, (cfg.get("piloto_teto_agregado_pct") or pt or 0) - cfg.get("piloto_risco_aberto_pct", 0))
+        if pos_usdc < mn and pt and mn * stop_pct / 100 <= cap * livre / 100 + 1e-9 \
                 and mn <= cap * lev["use"]:
             size_pct = mn / cap * 100
             pos_usdc = mn
+        # (12/11) piloto com vagas: risco desta + risco aberto do piloto <= teto agregado (% do capital)
+        if pt and pos_usdc >= mn and cfg.get("piloto_teto_agregado_pct") is not None and \
+                pos_usdc * stop_pct / 100 > cap * (cfg["piloto_teto_agregado_pct"]
+                                                   - cfg.get("piloto_risco_aberto_pct", 0)) / 100 + 1e-9:
+            return None, (f"risco agregado do piloto passaria {cfg['piloto_teto_agregado_pct']:g}% "
+                          f"(aberto {cfg.get('piloto_risco_aberto_pct', 0):g}%)")
+        if pos_usdc < mn and pt and mn * stop_pct / 100 <= cap * pt / 100 + 1e-9:
+            return None, (f"risco agregado do piloto passaria {cfg.get('piloto_teto_agregado_pct') or pt:g}% "
+                          f"(aberto {cfg.get('piloto_risco_aberto_pct', 0):g}%)")
         if pos_usdc < mn:
             return None, (f"posição de {pos_usdc:.2f} USDC abaixo da ordem "
                           f"mínima de {mn:g} USDC com o capital atual")

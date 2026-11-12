@@ -125,3 +125,34 @@ class Teto5(unittest.TestCase):
         cc = promo.cfg_piloto("SHORT_TURTLE", {"ledger": []}, c, c["piloto"]["inicio"] + 3600)
         self.assertEqual(cc["piloto_teto_pct"], 5.0)
         self.assertIsNone(promo.cfg_piloto("OUTRA", {"ledger": []}, c, 0).get("piloto_teto_pct"))
+
+
+class Concorrencia(unittest.TestCase):
+    """(12/11) Vagas do piloto com risco AGREGADO aberto <= teto: a 2.a posicao so entra se a soma couber; o motivo
+    de recusa diz que foi o agregado. Em producao max_posicoes continua 1 (a simulacao da carteira passou os -8R)."""
+
+    def _cfg(self, aberto):
+        c = Teto5._cfg(self, 5)
+        return dict(c, piloto_teto_agregado_pct=5.0, piloto_risco_aberto_pct=aberto)
+
+    def test_segunda_cabe_ou_nao(self):
+        from engine import risk
+        p, _ = risk.sizing(12.0, 0.12, 1.0, self._cfg(2.0), short=True)      # 2% + 2% <= 5%
+        self.assertIsNotNone(p)
+        p, why = risk.sizing(20.0, 0.20, 1.0, self._cfg(2.0), short=True)    # 2% + 3,3% > 5%
+        self.assertIsNone(p)
+        self.assertIn("agregado", why)
+
+    def test_cfg_piloto_soma_risco_aberto(self):
+        from engine import config, promo
+        c = dict(config.load("config.json"))
+        c["piloto"] = dict(c["piloto"], max_posicoes=2, teto_agregado_pct=5)
+        led = [{"strategy": "SHORT_TURTLE", "mode": "REAL", "status": "OPEN", "risk_pct": 1.7}]
+        cc = promo.cfg_piloto("SHORT_TURTLE", {"ledger": led}, c, c["piloto"]["inicio"] + 3600)
+        self.assertEqual((cc["piloto_risco_aberto_pct"], cc["piloto_teto_agregado_pct"]), (1.7, 5.0))
+        c["piloto"]["max_posicoes"] = 1
+        self.assertIn("piloto_bloqueio", promo.cfg_piloto("SHORT_TURTLE", {"ledger": led}, c, c["piloto"]["inicio"] + 1))
+
+    def test_producao_uma_vaga(self):
+        import json
+        self.assertEqual(json.load(open("config.json"))["piloto"]["max_posicoes"], 1)
