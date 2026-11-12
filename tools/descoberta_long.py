@@ -199,6 +199,7 @@ def avaliar(ops, btc_px, seed=7, reps=1000):
         l["p_holm"] = round(adj, 5)
         l["candidata"] = bool(l.pop("_base") and ic is not None and ic > 0 and adj < 0.05)
         l["veredicto"] = "CANDIDATA (papel/sombra; real so com aprovacao)" if l["candidata"] else "sem vantagem demonstrada"
+        l["classe"] = classe(l)
     # redundancia: correlacao dos resultados diarios (Bybit) entre estrategias
     dias = {k: por_dia([o for o in ops if o["k"] == k], "r_bybit") for k in {o["k"] for o in ops}}
     red = []
@@ -215,6 +216,40 @@ def avaliar(ops, btc_px, seed=7, reps=1000):
                     if c >= 0.7:
                         red.append({"a": a, "b": b, "corr": round(c, 2), "dias_comuns": len(com)})
     return linhas, red
+
+
+def classe(l):
+    """Tres classes, por regra fixa:
+    VANTAGEM DEMONSTRADA: passou o criterio inteiro (candidata).
+    INCONCLUSIVA: R por dia > 0 em VALIDACAO+FORA mas o intervalo inclui zero ou ha menos de 15 dias nalgum periodo.
+    SEM VANTAGEM: R por dia <= 0 em VALIDACAO+FORA (NEGATIVA se o intervalo inteiro fica abaixo de zero)."""
+    vf = l.get("validacao_mais_fora") or {}
+    if l.get("candidata"):
+        return "VANTAGEM DEMONSTRADA"
+    rd = vf.get("r_dia")
+    ic = vf.get("ic90_dia") or [None, None]
+    if rd is not None and rd > 0:
+        return "INCONCLUSIVA"
+    if ic[1] is not None and ic[1] < 0:
+        return "SEM VANTAGEM (NEGATIVA)"
+    return "SEM VANTAGEM"
+
+
+def markdown(r):
+    """Tabela legivel do resultado (uma linha por estrategia, fase e corretora)."""
+    out = [f"Moedas avaliadas: {r.get('moedas_avaliadas')} (com operacoes: {r.get('moedas_com_operacoes')}); operacoes: {r.get('operacoes')}.",
+           f"BTC comprar e manter (%): {r.get('btc_comprar_e_manter_pct')}.", f"Portao: {r.get('portao', {}).get('decisao')}", "",
+           "| Estrategia | Familia | Fase | Corretora | Classe | Treino R/dia (dias) | Validacao R/dia (dias) | Fora R/dia (dias) | Val+Fora R/op | Val+Fora R/dia [IC90] | PF | Pior DD (R) | BTC passivo R/dia | p Holm |",
+           "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
+    for l in sorted(r.get("resultados") or [], key=lambda l: (classe(l), l["estrategia"], l["fase"], l["corretora"])):
+        vf = l["validacao_mais_fora"]
+        c = lambda x: f"{x.get('r_dia')} ({x.get('dias', 0)})"
+        out.append(f"| {l['estrategia']} | {l['familia']} | {l['fase']} | {l['corretora']} | {classe(l)} | {c(l['treino'])} | {c(l['validacao'])} | "
+                   f"{c(l['fora'])} | {vf.get('r_op')} | {vf.get('r_dia')} {vf.get('ic90_dia')} | {vf.get('pf')} | {vf.get('max_dd_r')} | "
+                   f"{l.get('passivo_btc_r_dia')} | {l.get('p_holm')} |")
+    if r.get("redundantes"):
+        out += ["", "Redundantes (correlacao diaria >= 0,7): " + "; ".join(f"{x['a']} ~ {x['b']} ({x['corr']})" for x in r["redundantes"])]
+    return "\n".join(out) + "\n"
 
 
 def portao(linhas, fase_atual):
@@ -252,7 +287,14 @@ def correr(pasta, moedas=None, processos=1, reps=1000):
             "aviso": "So investigacao. Historico nao e garantia. Nenhuma estrategia passa a dinheiro real sem aprovacao do Rui."}
 
 
-if __name__ == "__main__":
+if __name__ == "__main__" and sys.argv[1:2] == ["--resumir"]:
+    with open(sys.argv[2], encoding="utf-8") as f:
+        _r = json.load(f)
+    with open(sys.argv[3], "w", encoding="utf-8") as f:
+        f.write(markdown(_r))
+    from collections import Counter
+    print(dict(Counter(classe(l) for l in _r["resultados"])))
+elif __name__ == "__main__":
     a = sys.argv
     moedas = a[a.index("--moedas") + 1].split(",") if "--moedas" in a else None
     proc = int(a[a.index("--processos") + 1]) if "--processos" in a else 1

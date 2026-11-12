@@ -105,6 +105,30 @@ def build_universe(data):
     return uni
 
 
+EXTERNOS = ("volume baixo", "spread excessivo")
+MARGEM_IDADE_MAX = 7 * 86400
+
+
+def incluir_margem(uni, eligible, state, now):
+    """(12/11, cobertura) Moedas que a Bybit UE deixa vender a descoberto e que estao listadas na Bybit UE entram na
+    analise mesmo que o filtro de DESCOBERTA externo (volume/spread somados nas fontes Binance/OKX/KuCoin) as tenha
+    deixado de fora: sao instrumentos executaveis da conta. A liquidez e o spread da PROPRIA Bybit UE continuam a ser
+    verificados mais a frente (venue.check, ordem <= volume/200), por isso nada passa a ser negociado sem liquidez."""
+    mg = state.get("margem_bybit") or {}
+    if not mg.get("moedas") or now - (mg.get("t") or 0) > MARGEM_IDADE_MAX:
+        return []
+    ja = {r["asset"] for r in eligible}
+    out = []
+    for r in uni:
+        if r["asset"] in mg["moedas"] and r["asset"] not in ja and r.get("on_venue") and r["excluded_for"] \
+                and all(x in EXTERNOS for x in r["excluded_for"]):
+            r["eligible"] = True
+            r["incluida_por"] = "margem na Bybit UE (short executavel); filtro externo: " + ", ".join(r["excluded_for"])
+            r["excluded_for"] = []
+            out.append(r)
+    return out
+
+
 def deep_check(row, src_order, now):
     """Velas + validacao para um ativo. Usa a 1a fonte que responder."""
     out = {"timeframes": {}, "flags": []}
@@ -359,6 +383,7 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
             r["eligible"] = False
             r["excluded_for"].append("não listado na Bybit UE")
     eligible = [r for r in uni if r["eligible"]][:DEEP_N]
+    eligible += incluir_margem(uni, eligible, state, now)
     with ThreadPoolExecutor(max_workers=6) as ex:
         for row, deep in zip(eligible, ex.map(
                 lambda r: deep_check(r, live, now), eligible)):

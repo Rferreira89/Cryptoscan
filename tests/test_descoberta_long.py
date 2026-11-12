@@ -87,3 +87,18 @@ class SoInvestigacao(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Classes(unittest.TestCase):
+    def test_tres_classes(self):
+        boa, _ = D.avaliar(ops("BOA", "subida", (0.5, 0.5, 0.5)), {}, reps=300)
+        self.assertEqual(boa[0]["classe"], "VANTAGEM DEMONSTRADA")
+        poucos, _ = D.avaliar(ops("POUCOS", "subida", (0.5, 0.5, 0.5), dias=6), {}, reps=300)
+        self.assertEqual(poucos[0]["classe"], "INCONCLUSIVA")       # positivo mas sem dias suficientes
+        ma, _ = D.avaliar(ops("MA", "subida", (0.1, -0.5, -0.5)), {}, reps=300)
+        self.assertEqual(ma[0]["classe"], "SEM VANTAGEM (NEGATIVA)")
+
+    def test_markdown_tem_todas_as_linhas(self):
+        linhas, red = D.avaliar(ops("BOA", "subida", (0.5, 0.5, 0.5)), {}, reps=100)
+        md = D.markdown({"resultados": linhas, "redundantes": red, "portao": D.portao(linhas, "subida")})
+        self.assertEqual(md.count("| BOA |"), 2)
