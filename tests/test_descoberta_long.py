@@ -102,3 +102,22 @@ class Classes(unittest.TestCase):
         linhas, red = D.avaliar(ops("BOA", "subida", (0.5, 0.5, 0.5)), {}, reps=100)
         md = D.markdown({"resultados": linhas, "redundantes": red, "portao": D.portao(linhas, "subida")})
         self.assertEqual(md.count("| BOA |"), 2)
+
+
+class Dados(unittest.TestCase):
+    def test_fluxo_e_funding_avaliadas_e_as_outras_com_motivo(self):
+        todas = [k for ks in D.FAMILIAS.values() for k in ks]
+        self.assertIn("BOUNCE_FLUXO", todas)
+        self.assertIn("MAIORES_FUNDING", todas)
+        self.assertEqual(set(D.SEM_DADOS), {"BOUNCE_LSR", "BOUNCE_DESALAV", "BOUNCE_MACRO"})
+        self.assertTrue(all("30 dias" in v or "historico" in v for v in D.SEM_DADOS.values()))
+
+    def test_funding_le_o_ramo_history(self):
+        import gzip, os, tempfile
+        d = tempfile.mkdtemp()
+        os.makedirs(os.path.join(d, "funding"))
+        with gzip.open(os.path.join(d, "funding", "BTC.csv.gz"), "wt") as f:
+            f.write("1725177600,-3.4e-05\n1725148800,4.1e-05\n")
+        D._CTX["pasta"] = d
+        self.assertEqual(D.funding("BTC"), [(1725148800, 4.1e-05), (1725177600, -3.4e-05)])
+        self.assertEqual(D.funding("NADA"), [])

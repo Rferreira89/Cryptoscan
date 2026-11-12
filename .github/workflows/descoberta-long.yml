@@ -39,6 +39,7 @@ jobs:
           git archive origin/history-delistadas | tar -x -C /tmp/ret
           for f in /tmp/ramo/*.csv.gz; do [ -f "/tmp/hist/$(basename $f)" ] || cp "$f" /tmp/hist/; done
           for f in /tmp/ret/*.csv.gz; do [ -f "/tmp/hist/$(basename $f)" ] || cp "$f" /tmp/hist/; done
+          mkdir -p /tmp/hist/funding && cp -n /tmp/ramo/funding/*.csv.gz /tmp/hist/funding/ 2>/dev/null || true
           ls /tmp/hist/*.csv.gz | wc -l
       - name: Avaliar
         run: |

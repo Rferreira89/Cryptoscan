@@ -1,0 +1,596 @@
+{
+ "gerado": 1794467861,
+ "dados_ate": 1794153600,
+ "moedas_avaliadas": 256,
+ "operacoes": 762,
+ "moedas_com_operacoes": 154,
+ "btc_comprar_e_manter_pct": {
+  "treino": 44.4,
+  "validacao": 153.1,
+  "fora": -29.2
+ },
+ "criterio": "R/dia > 0 e >= 15 dias em TREINO, VALIDACAO e FORA; IC90 inferior > 0 em VALIDACAO+FORA; Holm < 0,05",
+ "portao": {
+  "fase_atual": "lateral",
+  "long_permitido": false,
+  "candidatas": [],
+  "decisao": "ESPERA: nenhuma familia LONG tem vantagem demonstrada nesta fase"
+ },
+ "resultados": [
+  {
+   "estrategia": "BOUNCE_FLUXO",
+   "familia": "fluxo e financiamento",
+   "fase": "subida",
+   "corretora": "bybit_ue",
+   "treino": {
+    "n": 27,
+    "dias": 17,
+    "r_op": -0.059,
+    "r_dia": -0.2785,
+    "ic90_dia": [
+     -0.5712,
+     0.0306
+    ],
+    "t_dia": -1.471,
+    "pf": 0.827,
+    "acerto": 0.667,
+    "mediana": 0.17,
+    "p05": -1.028,
+    "max_dd_r": -7.38
+   },
+   "validacao": {
+    "n": 109,
+    "dias": 28,
+    "r_op": -0.1347,
+    "r_dia": -0.2921,
+    "ic90_dia": [
+     -0.5297,
+     -0.0558
+    ],
+    "t_dia": -2.042,
+    "pf": 0.734,
+    "acerto": 0.459,
+    "mediana": -0.467,
+    "p05": -1.027,
+    "max_dd_r": -33.1
+   },
+   "fora": {
+    "n": 10,
+    "dias": 8,
+    "r_op": -0.3548,
+    "r_dia": -0.3334,
+    "ic90_dia": [
+     -0.8077,
+     0.2234
+    ],
+    "t_dia": -1.009,
+    "pf": 0.421,
+    "acerto": 0.4,
+    "mediana": -1.007,
+    "p05": -1.055,
+    "max_dd_r": -5.21
+   },
+   "validacao_mais_fora": {
+    "n": 119,
+    "dias": 36,
+    "r_op": -0.1532,
+    "r_dia": -0.3013,
+    "ic90_dia": [
+     -0.4939,
+     -0.0661
+    ],
+    "t_dia": -2.301,
+    "pf": 0.703,
+    "acerto": 0.454,
+    "mediana": -0.6,
+    "p05": -1.028,
+    "max_dd_r": -33.1
+   },
+   "passivo_btc_r_dia": -0.1188,
+   "p": 0.9893,
+   "moedas": 86,
+   "p_holm": 1.0,
+   "candidata": false,
+   "veredicto": "sem vantagem demonstrada",
+   "classe": "SEM VANTAGEM (NEGATIVA)"
+  },
+  {
+   "estrategia": "BOUNCE_FLUXO",
+   "familia": "fluxo e financiamento",
+   "fase": "subida",
+   "corretora": "okx",
+   "treino": {
+    "n": 27,
+    "dias": 17,
+    "r_op": 0.0394,
+    "r_dia": -0.1722,
+    "ic90_dia": [
+     -0.4471,
+     0.1315
+    ],
+    "t_dia": -0.925,
+    "pf": 1.131,
+    "acerto": 0.667,
+    "mediana": 0.222,
+    "p05": -0.934,
+    "max_dd_r": -5.93
+   },
+   "validacao": {
+    "n": 109,
+    "dias": 28,
+    "r_op": -0.0531,
+    "r_dia": -0.1962,
+    "ic90_dia": [
+     -0.4194,
+     0.0366
+    ],
+    "t_dia": -1.409,
+    "pf": 0.883,
+    "acerto": 0.477,
+    "mediana": -0.394,
+    "p05": -0.957,
+    "max_dd_r": -27.8
+   },
+   "fora": {
+    "n": 10,
+    "dias": 8,
+    "r_op": -0.2426,
+    "r_dia": -0.2072,
+    "ic90_dia": [
+     -0.6495,
+     0.2789
+    ],
+    "t_dia": -0.65,
+    "pf": 0.544,
+    "acerto": 0.4,
+    "mediana": -0.646,
+    "p05": -0.965,
+    "max_dd_r": -4.29
+   },
+   "validacao_mais_fora": {
+    "n": 119,
+    "dias": 36,
+    "r_op": -0.069,
+    "r_dia": -0.1986,
+    "ic90_dia": [
+     -0.3985,
+     0.0039
+    ],
+    "t_dia": -1.563,
+    "pf": 0.85,
+    "acerto": 0.471,
+    "mediana": -0.417,
+    "p05": -0.961,
+    "max_dd_r": -27.8
+   },
+   "passivo_btc_r_dia": -0.1188,
+   "p": 0.94097,
+   "moedas": 86,
+   "p_holm": 1.0,
+   "candidata": false,
+   "veredicto": "sem vantagem demonstrada",
+   "classe": "SEM VANTAGEM"
+  },
+  {
+   "estrategia": "BOUNCE_FLUXO",
+   "familia": "fluxo e financiamento",
+   "fase": "lateral",
+   "corretora": "bybit_ue",
+   "treino": {
+    "n": 166,
+    "dias": 63,
+    "r_op": -0.16,
+    "r_dia": -0.2973,
+    "ic90_dia": [
+     -0.4445,
+     -0.1505
+    ],
+    "t_dia": -3.247,
+    "pf": 0.623,
+    "acerto": 0.506,
+    "mediana": 0.022,
+    "p05": -1.03,
+    "max_dd_r": -31.87
+   },
+   "validacao": {
+    "n": 266,
+    "dias": 65,
+    "r_op": -0.22,
+    "r_dia": -0.2587,
+    "ic90_dia": [
+     -0.3957,
+     -0.1304
+    ],
+    "t_dia": -3.21,
+    "pf": 0.452,
+    "acerto": 0.489,
+    "mediana": -0.031,
+    "p05": -1.021,
+    "max_dd_r": -69.78
+   },
+   "fora": {
+    "n": 106,
+    "dias": 30,
+    "r_op": -0.1484,
+    "r_dia": -0.2588,
+    "ic90_dia": [
+     -0.4686,
+     -0.0247
+    ],
+    "t_dia": -1.856,
+    "pf": 0.605,
+    "acerto": 0.519,
+    "mediana": 0.018,
+    "p05": -1.027,
+    "max_dd_r": -27.92
+   },
+   "validacao_mais_fora": {
+    "n": 372,
+    "dias": 95,
+    "r_op": -0.1996,
+    "r_dia": -0.2587,
+    "ic90_dia": [
+     -0.3826,
+     -0.1439
+    ],
+    "t_dia": -3.688,
+    "pf": 0.494,
+    "acerto": 0.497,
+    "mediana": 0.0,
+    "p05": -1.025,
+    "max_dd_r": -84.54
+   },
+   "passivo_btc_r_dia": 0.0467,
+   "p": 0.99989,
+   "moedas": 144,
+   "p_holm": 1.0,
+   "candidata": false,
+   "veredicto": "sem vantagem demonstrada",
+   "classe": "SEM VANTAGEM (NEGATIVA)"
+  },
+  {
+   "estrategia": "BOUNCE_FLUXO",
+   "familia": "fluxo e financiamento",
+   "fase": "lateral",
+   "corretora": "okx",
+   "treino": {
+    "n": 166,
+    "dias": 63,
+    "r_op": -0.0682,
+    "r_dia": -0.186,
+    "ic90_dia": [
+     -0.3243,
+     -0.0314
+    ],
+    "t_dia": -2.063,
+    "pf": 0.818,
+    "acerto": 0.524,
+    "mediana": 0.071,
+    "p05": -0.95,
+    "max_dd_r": -19.92
+   },
+   "validacao": {
+    "n": 266,
+    "dias": 65,
+    "r_op": -0.1479,
+    "r_dia": -0.1675,
+    "ic90_dia": [
+     -0.2876,
+     -0.046
+    ],
+    "t_dia": -2.126,
+    "pf": 0.594,
+    "acerto": 0.496,
+    "mediana": -0.012,
+    "p05": -0.957,
+    "max_dd_r": -56.07
+   },
+   "fora": {
+    "n": 106,
+    "dias": 30,
+    "r_op": -0.0484,
+    "r_dia": -0.1358,
+    "ic90_dia": [
+     -0.3541,
+     0.0915
+    ],
+    "t_dia": -0.96,
+    "pf": 0.85,
+    "acerto": 0.566,
+    "mediana": 0.077,
+    "p05": -0.936,
+    "max_dd_r": -23.9
+   },
+   "validacao_mais_fora": {
+    "n": 372,
+    "dias": 95,
+    "r_op": -0.1196,
+    "r_dia": -0.1575,
+    "ic90_dia": [
+     -0.2721,
+     -0.0488
+    ],
+    "t_dia": -2.263,
+    "pf": 0.661,
+    "acerto": 0.516,
+    "mediana": 0.05,
+    "p05": -0.954,
+    "max_dd_r": -62.77
+   },
+   "passivo_btc_r_dia": 0.0467,
+   "p": 0.98818,
+   "moedas": 144,
+   "p_holm": 1.0,
+   "candidata": false,
+   "veredicto": "sem vantagem demonstrada",
+   "classe": "SEM VANTAGEM (NEGATIVA)"
+  },
+  {
+   "estrategia": "MAIORES_FUNDING",
+   "familia": "fluxo e financiamento",
+   "fase": "subida",
+   "corretora": "bybit_ue",
+   "treino": {
+    "n": 0,
+    "dias": 0
+   },
+   "validacao": {
+    "n": 5,
+    "dias": 5,
+    "r_op": -0.545,
+    "r_dia": -0.545,
+    "ic90_dia": [
+     -0.923,
+     -0.105
+    ],
+    "t_dia": -1.981,
+    "pf": 0.147,
+    "acerto": 0.2,
+    "mediana": -0.642,
+    "p05": -1.035,
+    "max_dd_r": -3.19
+   },
+   "fora": {
+    "n": 6,
+    "dias": 5,
+    "r_op": -0.6385,
+    "r_dia": -0.7003,
+    "ic90_dia": [
+     -1.0284,
+     -0.3628
+    ],
+    "t_dia": -3.328,
+    "pf": 0.091,
+    "acerto": 0.167,
+    "mediana": -1.016,
+    "p05": -1.063,
+    "max_dd_r": -3.83
+   },
+   "validacao_mais_fora": {
+    "n": 11,
+    "dias": 10,
+    "r_op": -0.596,
+    "r_dia": -0.6226,
+    "ic90_dia": [
+     -0.8575,
+     -0.3647
+    ],
+    "t_dia": -3.767,
+    "pf": 0.115,
+    "acerto": 0.182,
+    "mediana": -1.016,
+    "p05": -1.063,
+    "max_dd_r": -7.02
+   },
+   "passivo_btc_r_dia": -0.381,
+   "p": 0.99992,
+   "moedas": 3,
+   "p_holm": 1.0,
+   "candidata": false,
+   "veredicto": "sem vantagem demonstrada",
+   "classe": "SEM VANTAGEM (NEGATIVA)"
+  },
+  {
+   "estrategia": "MAIORES_FUNDING",
+   "familia": "fluxo e financiamento",
+   "fase": "subida",
+   "corretora": "okx",
+   "treino": {
+    "n": 0,
+    "dias": 0
+   },
+   "validacao": {
+    "n": 5,
+    "dias": 5,
+    "r_op": -0.399,
+    "r_dia": -0.399,
+    "ic90_dia": [
+     -0.7435,
+     -0.0353
+    ],
+    "t_dia": -1.641,
+    "pf": 0.199,
+    "acerto": 0.2,
+    "mediana": -0.425,
+    "p05": -0.855,
+    "max_dd_r": -2.49
+   },
+   "fora": {
+    "n": 6,
+    "dias": 5,
+    "r_op": -0.3885,
+    "r_dia": -0.4541,
+    "ic90_dia": [
+     -0.7516,
+     -0.1178
+    ],
+    "t_dia": -2.142,
+    "pf": 0.246,
+    "acerto": 0.333,
+    "mediana": -0.559,
+    "p05": -0.93,
+    "max_dd_r": -2.53
+   },
+   "validacao_mais_fora": {
+    "n": 11,
+    "dias": 10,
+    "r_op": -0.3932,
+    "r_dia": -0.4265,
+    "ic90_dia": [
+     -0.6488,
+     -0.1898
+    ],
+    "t_dia": -2.8,
+    "pf": 0.225,
+    "acerto": 0.273,
+    "mediana": -0.559,
+    "p05": -0.93,
+    "max_dd_r": -5.03
+   },
+   "passivo_btc_r_dia": -0.381,
+   "p": 0.99744,
+   "moedas": 3,
+   "p_holm": 1.0,
+   "candidata": false,
+   "veredicto": "sem vantagem demonstrada",
+   "classe": "SEM VANTAGEM (NEGATIVA)"
+  },
+  {
+   "estrategia": "MAIORES_FUNDING",
+   "familia": "fluxo e financiamento",
+   "fase": "lateral",
+   "corretora": "bybit_ue",
+   "treino": {
+    "n": 0,
+    "dias": 0
+   },
+   "validacao": {
+    "n": 44,
+    "dias": 34,
+    "r_op": -0.3845,
+    "r_dia": -0.3229,
+    "ic90_dia": [
+     -0.518,
+     -0.115
+    ],
+    "t_dia": -2.436,
+    "pf": 0.319,
+    "acerto": 0.318,
+    "mediana": -0.661,
+    "p05": -1.061,
+    "max_dd_r": -20.03
+   },
+   "fora": {
+    "n": 23,
+    "dias": 20,
+    "r_op": -0.2127,
+    "r_dia": -0.1233,
+    "ic90_dia": [
+     -0.4611,
+     0.2641
+    ],
+    "t_dia": -0.525,
+    "pf": 0.621,
+    "acerto": 0.348,
+    "mediana": -0.684,
+    "p05": -1.046,
+    "max_dd_r": -8.58
+   },
+   "validacao_mais_fora": {
+    "n": 67,
+    "dias": 54,
+    "r_op": -0.3255,
+    "r_dia": -0.249,
+    "ic90_dia": [
+     -0.4372,
+     -0.0599
+    ],
+    "t_dia": -2.075,
+    "pf": 0.422,
+    "acerto": 0.328,
+    "mediana": -0.675,
+    "p05": -1.05,
+    "max_dd_r": -24.49
+   },
+   "passivo_btc_r_dia": 0.0967,
+   "p": 0.98101,
+   "moedas": 3,
+   "p_holm": 1.0,
+   "candidata": false,
+   "veredicto": "sem vantagem demonstrada",
+   "classe": "SEM VANTAGEM (NEGATIVA)"
+  },
+  {
+   "estrategia": "MAIORES_FUNDING",
+   "familia": "fluxo e financiamento",
+   "fase": "lateral",
+   "corretora": "okx",
+   "treino": {
+    "n": 0,
+    "dias": 0
+   },
+   "validacao": {
+    "n": 44,
+    "dias": 34,
+    "r_op": -0.2416,
+    "r_dia": -0.195,
+    "ic90_dia": [
+     -0.4069,
+     0.0332
+    ],
+    "t_dia": -1.479,
+    "pf": 0.482,
+    "acerto": 0.318,
+    "mediana": -0.524,
+    "p05": -0.937,
+    "max_dd_r": -15.3
+   },
+   "fora": {
+    "n": 23,
+    "dias": 20,
+    "r_op": -0.0625,
+    "r_dia": 0.021,
+    "ic90_dia": [
+     -0.3444,
+     0.3987
+    ],
+    "t_dia": 0.09,
+    "pf": 0.865,
+    "acerto": 0.348,
+    "mediana": -0.592,
+    "p05": -0.903,
+    "max_dd_r": -5.9
+   },
+   "validacao_mais_fora": {
+    "n": 67,
+    "dias": 54,
+    "r_op": -0.1801,
+    "r_dia": -0.115,
+    "ic90_dia": [
+     -0.298,
+     0.0937
+    ],
+    "t_dia": -0.962,
+    "pf": 0.612,
+    "acerto": 0.328,
+    "mediana": -0.56,
+    "p05": -0.932,
+    "max_dd_r": -15.3
+   },
+   "passivo_btc_r_dia": 0.0967,
+   "p": 0.83198,
+   "moedas": 3,
+   "p_holm": 1.0,
+   "candidata": false,
+   "veredicto": "sem vantagem demonstrada",
+   "classe": "SEM VANTAGEM"
+  }
+ ],
+ "redundantes": [],
+ "sem_dados_para_avaliar": {
+  "BOUNCE_LSR": "racio long/short da Binance: a API gratuita so da os ultimos 30 dias",
+  "BOUNCE_DESALAV": "open interest da Binance: a API gratuita so da os ultimos 30 dias",
+  "BOUNCE_MACRO": "estado macro (S&P 500, dolar, VIX) por data: nao ha historico no repositorio"
+ },
+ "aviso": "So investigacao. Historico nao e garantia. Nenhuma estrategia passa a dinheiro real sem aprovacao do Rui."
+}
