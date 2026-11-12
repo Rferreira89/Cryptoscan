@@ -177,8 +177,14 @@ class KuCoin:
         return out
 
     def candles(self, base, tf, limit=500):
+        # (12/11) sem startAt/endAt a KuCoin so devolve as ultimas ~100 velas: MNT e POPCAT (so na KuCoin) ficavam
+        # sempre com "historico insuficiente" (precisam de 200). Com o intervalo pedido devolve ate 1500.
+        import time as _t
+        fim = int(_t.time())
+        seg = TF_SECONDS.get(tf) or {"1m": 60}.get(tf, 14400)
         d = _get(self.base_url + "/api/v1/market/candles",
-                 {"symbol": f"{base}-{QUOTE}", "type": self._tf[tf]})
+                 {"symbol": f"{base}-{QUOTE}", "type": self._tf[tf],
+                  "startAt": fim - min(limit, 1500) * seg, "endAt": fim})
         if d.get("code") != "200000":
             raise SourceError(f"code {d.get('code')}: {d.get('msg')}")
         # [time(s), open, close, high, low, volume, turnover]
