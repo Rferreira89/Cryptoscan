@@ -27,7 +27,7 @@ def carregar_series(moedas, dias, agora, buscar=None):
         from tools import arena_ringue as AR
 
         def buscar(b):
-            return AR.fetch(b, agora, need=dias * 6)
+            return AR.fetch(b, int(agora), need=dias * 6)
     out, erros = {}, {}
     for b in sorted(set(moedas) | {"BTC"}):
         try:
@@ -132,7 +132,7 @@ def resumo(est):
 
 
 def correr(estado_pub, saida, dias=260, agora=None, buscar=None):
-    agora = agora or time.time()
+    agora = int(agora or time.time())
     St = json.load(open(estado_pub)) if estado_pub and os.path.exists(estado_pub) else {}
     moedas = sorted(((St.get("bybit_tickers") or {}).get("m") or {}).keys())
     margem = set((St.get("margem_bybit") or {}).get("moedas") or [])
