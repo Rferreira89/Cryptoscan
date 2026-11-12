@@ -28,15 +28,18 @@ def carregar_series(moedas, dias, agora, buscar=None):
 
         def buscar(b):
             return AR.fetch(b, agora, need=dias * 6)
-    out = {}
+    out, erros = {}, {}
     for b in sorted(set(moedas) | {"BTC"}):
         try:
             c4 = buscar(b)
-        except Exception:                                # noqa: BLE001
+        except Exception as e:                           # noqa: BLE001
+            erros[type(e).__name__ + ": " + str(e)[:80]] = erros.get(type(e).__name__ + ": " + str(e)[:80], 0) + 1
             continue
         dd = L.diario([x for x in c4 if x["t"] + 4 * 3600 <= agora])
         if len(dd) >= 61:
             out[b] = dd
+    if erros:
+        print("papel_transversal: falhas a buscar velas:", erros)
     return out
 
 
