@@ -1,6 +1,6 @@
 name: Historico diario de indices e metais (C2, so investigacao)
 # (13/11, ordem do Rui, C2) Historico diario GRATUITO (Stooq, sem chave) dos ativos por baixo dos X-Perps da OKX
-# (S&P 500, Nasdaq 100, ouro, prata, petroleo), porque os contratos da OKX so tem 1 semana a 6 meses de historia.
+# (S&P 500, Nasdaq 100, ouro, prata, petroleo) da FRED e da API publica do Yahoo, porque os contratos da OKX so tem 1 semana a 6 meses de historia.
 # So GET publicos num servidor do GitHub (nunca no servidor europeu); publica no ramo indices-diario.
 on:
   workflow_dispatch:
@@ -16,10 +16,16 @@ jobs:
       - name: Recolher
         run: |
           mkdir -p /tmp/ind && cd /tmp/ind
-          for s in "^spx" "^ndx" "xauusd" "xagusd" "cl.f"; do
-            n=$(echo "$s" | tr -d '^' | tr '.' '_')
-            curl -sS -m 60 -A "Mozilla/5.0" "https://stooq.com/q/d/l/?s=${s}&i=d" -o "${n}.csv" || true
-            head -c 200 "${n}.csv"; echo; wc -l "${n}.csv"
+          # FRED (Reserva Federal de St. Louis, CSV oficial gratuito): indices
+          for s in SP500 NASDAQ100; do
+            curl -sS -m 60 "https://fred.stlouisfed.org/graph/fredgraph.csv?id=${s}" -o "fred_${s}.csv" || true
+            head -3 "fred_${s}.csv"; wc -l "fred_${s}.csv"
+          done
+          # Yahoo (API publica de graficos, JSON): futuros de ouro, prata e petroleo e os indices (verificacao cruzada)
+          for s in "GC=F" "SI=F" "CL=F" "%5EGSPC" "%5ENDX"; do
+            n=$(echo "$s" | tr -d '=%^' )
+            curl -sS -m 60 -A "Mozilla/5.0" "https://query1.finance.yahoo.com/v8/finance/chart/${s}?range=15y&interval=1d" -o "yahoo_${n}.json" || true
+            head -c 160 "yahoo_${n}.json"; echo
           done
           ls -la
           git init -q -b indices-diario && git config user.name cryptoscan-bot && git config user.email bot@users.noreply.github.com \
