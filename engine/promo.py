@@ -646,6 +646,11 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
             if falhou:                         # nenhum campeao conseguiu plano nesta moeda
                 seen[a] = falhou[1]
                 lost(state, now, a, falhou[0], f"plano: {falhou[2]}", falhou[3], r["price"])
+    try:                                      # (13/11, D1) BEAR e ANALYST em observacao: nunca mudam cands
+        from . import bear
+        bear.observar(state, cands, {r.get("asset"): r.get("derivatives") or {} for r in rows}, now)
+    except Exception as e:
+        print("bear:", e)
     out, ok = {}, []
     fam = family_open(state)
     risco = risco_aberto(state)
