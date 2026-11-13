@@ -481,6 +481,10 @@ def correr(st, novos, now, msgs):
                 R["avisados"].append(chave_p)
                 msgs.append(f"📝 OKX — {base}: sinal de pânico (H40) só em papel; a H40 está suspensa do dinheiro real.")
             continue
+        if sig.get("tipo") in ("isolado", None) and h40:
+            # (13/11, ordem do Rui) panico ISOLADO reprovado para dinheiro real (22 em papel, -0,60R/op, PF 0,28,
+            # IC95 abaixo de 0): nunca entra em real, mesmo que a configuracao volte a ligar a H40 ou o "so_mercado"
+            continue
         if c.get("so_mercado", True) and sig.get("tipo") not in ("mercado", "recuo"):
             # (04/11, H40) o panico isolado perdeu na metade recente (-0,126R); o do mercado todo deu +0,17R/+0,41R
             chave_i = f"i:{base}:{sig['t_sig']}"

@@ -294,13 +294,21 @@ class Execucao(unittest.TestCase):
         ordens = [c for p_, c in posts if p_ == "/api/v5/trade/order"]
         return st, ordens, msgs
 
-    def test_h40_limitada_isolado_entra_com_1pct(self):
+    def test_h40_isolado_reprovado_nunca_entra(self):
+        """(13/11, ordem do Rui) panico isolado reprovado para dinheiro real: nem com a H40 e o isolado ligados."""
         now = 2_000_000_000
         st, ordens, _ = self._corre([("ISO", {"t_sig": now - H4, "lim": 0.0236, "atr": 0.001, "tipo": "isolado"})],
                                     dict(panico_real=True, so_mercado=False))
+        self.assertEqual(ordens, [])
+        self.assertNotIn("ISO", st["real"]["ops"])
+
+    def test_h40_limitada_mercado_entra_com_1pct(self):
+        now = 2_000_000_000
+        st, ordens, _ = self._corre([("MKT", {"t_sig": now - H4, "lim": 0.0236, "atr": 0.001, "tipo": "mercado"})],
+                                    dict(panico_real=True, so_mercado=False))
         self.assertEqual(len(ordens), 1)
         self.assertLessEqual(float(ordens[0]["sz"]) * 10.0 * 0.002, 0.2 + 1e-9)          # 1% de 20 USD
-        op = st["real"]["ops"]["ISO"]
+        op = st["real"]["ops"]["MKT"]
         self.assertEqual(op["estrategia"], "panico"); self.assertLessEqual(op["risco_pct"], 1.0)
 
     def test_h40_minimo_acima_de_1pct_nao_entra(self):
