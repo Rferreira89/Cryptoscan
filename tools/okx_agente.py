@@ -11,7 +11,7 @@ okx_config.json ligados (H40 "panico_real", desligada desde 10/11; H46 "recuo_re
 Dados: so a API publica da OKX (velas de 4H e financiamento dos perpetuos USDT), sem chave.
 Estado: okx.json no ramo "okx" (repositorio publico: so precos publicos e resultados em R e %, nunca dinheiro real).
 """
-import json, os, socket, sys, time, urllib.request
+import json, os, re, socket, sys, time, urllib.request
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from engine import papel_panico as P            # noqa: E402  (mesma regra e mesmas saidas do papel da Bybit)
@@ -123,15 +123,32 @@ def tamanho(conta, lim, stop, info):
     return round(nominal, 2), round(minimo, 2), nominal >= minimo
 
 
+def executar_real(st, now, msgs):
+    """Dinheiro real na OKX (okx_config.json "real": true): acompanha ordens e posicoes, confirma stops e passa os
+    sinais pendentes ao executor (que decide pelos interruptores). Corre em todas as voltas, completas ou leves."""
+    try:
+        import okx_exec
+        novos_real = sorted(st["pend"].items(), key=lambda kv: nota(kv[1], kv[1].get("tipo")), reverse=True)
+        novos_real += [(a, {**s_, "tipo": "recuo"}) for a, s_ in sorted(((st.get("recuo") or {}).get("pend") or {}).items())
+                       if a not in st["pend"]]
+        okx_exec.correr(st, novos_real, now, msgs)
+    except Exception as e:
+        msgs.append(f"⚠️ OKX real: erro na execução ({type(e).__name__}); nada novo foi enviado.")
+        print("okx_exec erro:", type(e).__name__, str(e)[:120])
+
+
 def correr(st, now):
     st.setdefault("pend", {}); st.setdefault("abertas", {}); st.setdefault("fechadas", [])
     st.setdefault("conta_sim", CONTA0); st.setdefault("ultimo", {}); cache = st.setdefault("funding", {})
     lista = moedas()
     btc = velas(lista["BTC"]["inst"]) if "BTC" in lista else []
     msgs, novos, vistas, radar = [], [], 0, []
+    ultima_fechada, atrasadas = now - now % H4 - H4, 0                  # (13/11) abertura da ultima vela de 4H fechada
     for a, info in sorted(lista.items()):
         c4 = velas(info["inst"])
         time.sleep(0.12)
+        if not c4 or c4[-1]["t"] < ultima_fechada:
+            atrasadas += 1                                              # API sem dados ou vela ainda nao confirmada
         if len(c4) < P.ATR_N + 20:
             continue
         vistas += 1
@@ -192,15 +209,7 @@ def correr(st, now):
         msgs += okx_recuo.correr(st, radar, lista, now)
     except Exception as e:
         print("recuo erro:", type(e).__name__)
-    try:                                         # (04/11) dinheiro real na OKX (okx_config.json "real": true)
-        import okx_exec
-        novos_real = sorted(st["pend"].items(), key=lambda kv: nota(kv[1], kv[1].get("tipo")), reverse=True)
-        novos_real += [(a, {**s_, "tipo": "recuo"}) for a, s_ in sorted(((st.get("recuo") or {}).get("pend") or {}).items())
-                       if a not in st["pend"]]
-        okx_exec.correr(st, novos_real, now, msgs)
-    except Exception as e:
-        msgs.append(f"⚠️ OKX real: erro na execução ({type(e).__name__}); nada novo foi enviado.")
-        print("okx_exec erro:", type(e).__name__, str(e)[:120])
+    executar_real(st, now, msgs)
     try:
         tem = set(st["abertas"]) | set(st["pend"]) | set((st.get("real") or {}).get("ops") or {})
         st["radar"] = radar_quase([x for x in radar if x[0] not in tem], btc, cache)
@@ -209,6 +218,7 @@ def correr(st, now):
             msgs.append(m)
     except Exception as e:
         print("radar erro:", type(e).__name__)
+    st.setdefault("volta", {}).update(t_completa=int(now), atrasadas=atrasadas, leve=False)
     st["resumo"] = {"t": int(now), "contratos": len(lista), "analisados": vistas, "pendentes": sorted(st["pend"]),
                     "abertas": sorted(st["abertas"]), "n": len(st["fechadas"]),
                     "r_medio": round(sum(x["r"] for x in st["fechadas"]) / len(st["fechadas"]), 3) if st["fechadas"] else None,
@@ -343,32 +353,80 @@ def volta_repetida(st, now):
     return t >= now - now % H4 + MARGEM_FECHO
 
 
+# (13/11) Volta leve. As decisoes do papel (execucao das limites, stop/objetivo/tempo, sinais novos, radar, recuo H46)
+# so usam velas de 4H FECHADAS: entre dois fechos as tres voltas intermedias pediam as mesmas ~290 series de velas
+# (~2 min do servidor europeu, partilhado com o executor da Bybit; a 12/11 uma fila prendeu o agente 76 min). Leve =
+# a ultima volta completa foi feita nesta janela de 4H, pelo menos 5 min depois do fecho, e nessa volta TODOS os
+# contratos ja tinham a ultima vela fechada (atrasadas = 0). A parte do dinheiro real corre SEMPRE (ordens, stops,
+# cancelamentos, sinais pendentes) e o relatorio diario do radar tambem. Na duvida (sem registo, atrasos, janela
+# nova, relogio para tras) a volta e completa, como antes.
+CAMPOS_VOLTA = ("t_completa", "atrasadas", "leves")
+
+
+def volta_leve(st, now):
+    v = st.get("volta") or {}
+    tc = v.get("t_completa") or 0
+    if not tc or v.get("atrasadas") != 0 or not (st.get("resumo") or {}).get("t") or tc > now:
+        return False
+    return tc >= now - now % H4 + MARGEM_FECHO
+
+
+def correr_leve(st, now):
+    msgs = []
+    executar_real(st, now, msgs)
+    try:
+        m = relatorio_radar(st, now)
+        if m:
+            msgs.append(m)
+    except Exception as e:
+        print("radar erro:", type(e).__name__)
+    st["resumo"]["t"] = int(now)                 # batimento (vigia e Sala de controlo): o agente esta vivo
+    return msgs
+
+
 def main(caminho):
     st = json.load(open(caminho)) if os.path.exists(caminho) else {}
     primeira = not st
     now = time.time()
     v = st.get("volta") or {}
+    manter = {k: v[k] for k in CAMPOS_VOLTA if k in v}
     if volta_repetida(st, now):
-        st["volta"] = {"t": int(now), "saltada": True, "saltadas": int(v.get("saltadas") or 0) + 1}
+        st["volta"] = {"t": int(now), "saltada": True, "saltadas": int(v.get("saltadas") or 0) + 1, **manter}
         json.dump(st, open(caminho, "w"), separators=(",", ":"))
         print(f"volta repetida: a anterior comecou ha {int((now - st['resumo']['t']) // 60)} min com as mesmas velas "
               f"de 4H; saltada (sem pedidos a OKX). Total saltadas: {st['volta']['saltadas']}")
         return 0
-    st["volta"] = {"t": int(now), "saltada": False, "saltadas": int(v.get("saltadas") or 0)}
-    msgs = correr(st, now)
-    json.dump(st, open(caminho, "w"), separators=(",", ":"))
-    r = st["resumo"]
-    print(f"contratos {r['contratos']} | analisados {r['analisados']} | pendentes {r['pendentes']} | abertas {r['abertas']} | "
-          f"fechadas {r['n']} | R medio {r['r_medio']} | conta simulada {r['conta_sim_pct']:+.2f}%")
-    if primeira:
-        msgs.insert(0, f"🤖 Agente OKX ligado: analisa {r['analisados']} perpétuos de cripto da OKX de hora a hora "
-                       "(compra no pânico, só papel). Avisa aqui quando houver oportunidades.")
-    import re
-    for m in msgs:
+    st["volta"] = {"t": int(now), "saltada": False, "saltadas": int(v.get("saltadas") or 0), **manter}
+    if volta_leve(st, now):
+        st["volta"].update(leve=True, leves=int(v.get("leves") or 0) + 1)
+        msgs = correr_leve(st, now)
+        json.dump(st, open(caminho, "w"), separators=(",", ":"))
+        print(f"volta leve: sem vela de 4H nova desde a volta completa de ha {int((now - st['volta']['t_completa']) // 60)} min; "
+              f"so a execucao real e a gestao (sem pedidos de velas). Total leves: {st['volta']['leves']}")
+    else:
+        msgs = correr(st, now)
+        json.dump(st, open(caminho, "w"), separators=(",", ":"))
+        _imprimir_resumo(st)
+    for m in _avisos(st, msgs, primeira):
         telegram(m)
         if "OKX real" in m:                      # registo publico: sem numeros (podem ser valores da conta)
             print("msg:", re.sub(r"\d", "#", m)[:200])
     return 0
+
+
+def _imprimir_resumo(st):
+    r = st["resumo"]
+    print(f"contratos {r['contratos']} | analisados {r['analisados']} | pendentes {r['pendentes']} | abertas {r['abertas']} | "
+          f"fechadas {r['n']} | R medio {r['r_medio']} | conta simulada {r['conta_sim_pct']:+.2f}% | "
+          f"atrasadas {st['volta'].get('atrasadas')}")
+
+
+def _avisos(st, msgs, primeira):
+    if primeira:
+        r = st["resumo"]
+        msgs.insert(0, f"🤖 Agente OKX ligado: analisa {r['analisados']} perpétuos de cripto da OKX de hora a hora "
+                       "(compra no pânico, só papel). Avisa aqui quando houver oportunidades.")
+    return msgs
 
 
 if __name__ == "__main__":
