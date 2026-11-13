@@ -2037,3 +2037,83 @@ Notas para as próximas execuções:
   H16; 15 sinais); **27** contra os mesmos dados (diários agendados); 64 no
   contador global de estudos offline. Com 27 tentativas, a probabilidade de
   pelo menos um falso positivo a 5% ronda os 75%.
+
+**Resultados** (ramo `history`, 4H até 2026-11-08 16:00 UTC; 70 moedas além
+do BTC; compras só com o BTC acima da média de 200 dias, shorts sem esse
+filtro; juros da margem nos shorts; 0,25% + 0,1% por lado;
+`backtest/afinacao_h16_sessao_asia.json`; código
+`tools/afinacao_h16_sessao_asia.py`; testes do fecho da sessão, das velas
+fechadas, da fase lateral, do limiar e do controlo europeu em
+`tests/test_afinacao_h16.py`). Percentil = posição do R médio face a 1000
+carteiras de entradas ao acaso com a mesma geometria.
+
+| Config. | B: op. | B: R médio | B: perc. | A: op. | A: R médio | A: perc. | corr. X30 (B/A) |
+|---|---|---|---|---|---|---|---|
+| A1 compra, Ásia ≤ −3% | 1172 | −0,283 | 3,3 | 2124 | −0,214 | 91,1 | 0,14 / 0,04 |
+| A2 short, Ásia ≥ +3% | 4549 | −0,202 | 100 | 6633 | −0,217 | 100 | 0,04 / 0,03 |
+| A3 short, Ásia ≥ +5% | 5801 | −0,185 | 100 | 8463 | −0,215 | 100 | 0,04 / 0,05 |
+| A4 compra, Ásia ≤ −5% | 426 | −0,178 | 55 | 862 | −0,026 | 100 | 0,04 / 0,06 |
+| A5 controlo compra, Europa (08→16h) | 1430 | −0,279 | 2,7 | 2190 | −0,272 | 3,4 | 0,09 / 0,04 |
+| A6 controlo short, Europa (08→16h) | 4130 | −0,220 | 100 | 5965 | −0,250 | 99,6 | 0,05 / 0,10 |
+
+- **Todas as quatro candidatas têm R médio negativo em B e em A.** A1 −0,28R
+  e −0,21R; A2 −0,20R e −0,22R; A3 −0,19R e −0,22R; A4 −0,18R e −0,03R.
+  Reverter o movimento da sessão asiática perde dinheiro em ambas as
+  janelas, com milhares de operações (nada de amostra curta).
+- **O percentil 100 dos shorts (A2, A3) é um artefacto, não uma vantagem.**
+  Os shorts têm esta geometria (objetivo pequeno — a abertura da sessão —,
+  stop largo além do extremo, mais juros da margem) a perder muito ao acaso:
+  a mediana do acaso é −0,26 a −0,28R e o p95 −0,25 a −0,26R. Um short que dá
+  −0,20R "bate o acaso" só porque o short ao acaso com a mesma forma perde
+  ainda mais. A regra da equipa (R médio positivo **e** acima do p95) e o
+  critério pré-registado (R > 0) rejeitam-no de imediato. Lição a fixar: em
+  shorts com objetivo curto e stop largo, o percentil contra o acaso sozinho
+  não diz nada; é preciso o R > 0.
+- **O efeito de sessão existe, mas é fraco e não paga.** Na compra, a sessão
+  asiática (A1) bate o seu controlo europeu (A5) na janela A (−0,21R contra
+  −0,27R), mas em B são iguais (−0,28R contra −0,28R): o efeito não se repete
+  nas duas janelas, e mesmo onde aparece deixa a entrada a perder. Na venda,
+  a sessão asiática (A2/A3) é **igual ou pior** do que o controlo europeu
+  (A6): não há reversão asiática do lado curto.
+- **A família é mesmo diferente da sobrevenda** (correlação diária com o
+  BOUNCE_X30 / SHORT_X30 entre 0,03 e 0,14, bem abaixo de 0,5): a
+  sazonalidade intradiária não é uma variante disfarçada da sobrevenda — só
+  que, como a sobrevenda na lateral, não tem vantagem fora do episódio.
+
+**Veredicto: REJEITADA** (pelo critério pré-registado: R médio negativo em B
+e em A nas quatro candidatas; o controlo europeu não fica consistentemente
+abaixo; o percentil só passa nos shorts por causa do acaso negativo). Nada
+entra no ringue; REAL_OK não se mexe.
+
+Notas para as próximas execuções:
+
+- Lição nova: **o percentil contra o acaso não substitui o R > 0, sobretudo
+  em shorts** — a geometria do short (objetivo curto, stop largo, juros) faz
+  o acaso perder muito, e qualquer short pouco menos mau "passa" o percentil.
+  Exigir sempre as duas coisas (como manda a regra 1 da equipa).
+- Lição: a sazonalidade intradiária (hora da sessão) não é vantagem em 4H —
+  o efeito de sessão que existe é pequeno demais para os 0,7% de custos de
+  ida e volta e não se repete entre janelas. A família fica marcada como
+  explorada (como a compressão de volatilidade e a quebra de caixa).
+- Regime atual **lateral**, BTC **abaixo** da média de 200 dias (compras
+  bloqueadas ao vivo); regimes sem campeão vivo: **todos**. Fora da
+  sobrevenda, sem família que bata o acaso **com R > 0** de forma estável:
+  **subida**, **lateral** e, pelo que a H14/H15 mostraram, nenhuma entrada de
+  compra fiável; na **queda** só SHORT_X30, SHORT_ISOLADA e SHORT_FALSO_ROMP
+  ganham no ringue longo (não disponíveis fora da queda).
+- Proposta para a próxima execução (H17): a lateral continua sem família
+  fora da sobrevenda. Como as ideias de **preço/hora em 4H** estão agora
+  esgotadas deste lado (recuo, compressão, caixa, sessão), a próxima deve vir
+  de uma **fonte de dados que o ringue de 4H não usa**: ou (a) o diário com
+  um filtro de **dispersão do universo** (quando a maioria das moedas se move
+  junta, as reversões individuais falham; quando a dispersão é alta, a
+  reversão à média do rácio moeda/BTC paga — ligar à H9/H10 do rácio, que
+  morreram sem filtro de dispersão), ou (b) deixar a afinação de 4H e propor
+  ao Rui, numa sessão, mover a procura de famílias novas para o diário, onde
+  o ringue longo mostra que a estrutura de regime é mais estável. Antes de
+  pré-registar (a), confirmar no `investigacao.md` que a dispersão do
+  universo não foi testada como filtro (a H9/H10 usaram o rácio sem ela).
+- Hipóteses testadas até agora: 16 entradas neste diário (H1 a H16; 15
+  sinais); 27 contra os mesmos dados (diários agendados); 64 no contador
+  global de estudos offline. Com 27 tentativas, a probabilidade de pelo
+  menos um falso positivo a 5% ronda os 75%.
