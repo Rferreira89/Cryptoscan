@@ -1,0 +1,39 @@
+name: Arquivo diario de derivados (B3)
+# (13/11, ordem do Rui) uma linha por moeda e por dia com funding, OI, racio long/short, base, posicionamento e
+# liquidacoes, a partir do que o programa ja publica (sem pedidos novos, sem custos). So acrescenta, nunca apaga.
+# Servidor do GitHub: nunca ocupa o servidor europeu.
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: derivados-diario
+  cancel-in-progress: false
+jobs:
+  arquivo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Acrescentar
+        run: |
+          if [ -f STOP ]; then exit 0; fi
+          python -m unittest -q tests.test_derivados_diario
+          git fetch -q origin data okx
+          git show origin/data:scan.json > /tmp/scan.json || echo '{}' > /tmp/scan.json
+          git show origin/okx:okx.json > /tmp/okx.json || echo '{}' > /tmp/okx.json
+          mkdir -p /tmp/arq
+          # o arquivo existente tem de ser lido inteiro: se o ramo existe e a leitura falha, nao se publica nada
+          if git ls-remote --exit-code -q origin refs/heads/derivados-diario >/dev/null 2>&1; then
+            git fetch -q origin derivados-diario && git archive FETCH_HEAD | tar -x -C /tmp/arq || { echo "arquivo ilegivel"; exit 1; }
+          fi
+          python -m tools.derivados_diario /tmp/scan.json /tmp/okx.json /tmp/arq
+          cd /tmp/arq && rm -rf .git && git init -q -b derivados-diario && git config user.name cryptoscan-bot \
+            && git config user.email bot@users.noreply.github.com && git add -A \
+            && git commit -q -m "derivados $(date -u +%FT%TZ)" \
+            && git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" derivados-diario:derivados-diario
