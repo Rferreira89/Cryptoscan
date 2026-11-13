@@ -1968,3 +1968,72 @@ Notas para as próximas execuções:
   sinais); 26 contra os mesmos dados (diários agendados); 63 no contador
   global de estudos offline. Com 26 tentativas, a probabilidade de pelo
   menos um falso positivo a 5% ronda os 74%.
+
+### 2026-11-13 — H16: reverter o movimento da sessão asiática na lateral (SESSAO_ASIA / SHORT_SESSAO_ASIA)
+
+**Escrito antes de correr qualquer teste.**
+
+- Porque não a compressão diária proposta a 11/11: a investigação já a
+  testou (2026-10-07, caixa estreita de N dias no mínimo de 120 dias,
+  rejeitada: a quebra de caixa apertada não bate a quebra simples). Passa-se
+  à alternativa registada: **sazonalidade intradiária** (família
+  **sazonalidade/fluxo de sessão**, fora da sobrevenda — o gatilho é a hora
+  e o movimento da sessão, não o RSI).
+- Situação (scan.json de 13/11 08:20 UTC): regime **lateral** (desde
+  2026-10-15); BTC **abaixo** da média de 200 dias (−2,3%), por isso as
+  compras estão bloqueadas ao vivo e só os shorts operam. Nenhum campeão
+  vivo. Combate de 90 d (forma.json): acima do p95 só sobrevenda
+  (BOUNCE_AMPLITUDE, G0, DESALAV, V2/V3, CAPITULACAO, SQUEEZE, DIP_TREND) e
+  REVERSAO_INTERVALO no limite (−0,054R contra p95 −0,055R). Ringue longo,
+  **lateral**: fora da sobrevenda ninguém acima do p95 (SHORT_TURTLE
+  +0,44R em 151 op., mas o acaso com a mesma geometria dá p95 +0,86R);
+  **subida**: LIQUIDITY_SWEEP, REJEITADOS, PULLBACK (amostras de 10-13 op.,
+  a H15 mostrou que são episódios); **queda**: SHORT_X30, SHORT_ISOLADA,
+  SHORT_FALSO_ROMP. Regimes sem campeão vivo: **todos**.
+- Hipótese (lógica de mercado): entre as 00:00 e as 08:00 UTC (Ásia, antes
+  da abertura europeia) a liquidez das altcoins é a mais fina do dia; num
+  mercado lateral (sem tendência a empurrar) um movimento forte nessa
+  sessão é sobretudo fluxo de poucos participantes e tende a ser devolvido
+  quando a Europa e os EUA entram. Compra-se a queda da sessão asiática (ou
+  vende-se a descoberto a subida) às 08:00 UTC, objetivo na abertura da
+  sessão (00:00 UTC), stop além do extremo da sessão.
+- Regra (só velas fechadas de 4H; o sinal só se avalia na vela que fecha às
+  08:00 UTC): sessão = as duas velas de 00:00 e 04:00 UTC; movimento =
+  fecho das 08:00 ÷ abertura das 00:00 − 1; fase do BTC (`_fase_btc`, dia
+  fechado anterior) = lateral; stop = extremo da sessão (mínimo para a
+  compra, máximo para o short) afastado 0,5 ATR(14) de 4H (distância 1% a
+  10%); objetivo = abertura da sessão (≥ 1% a favor); saída por tempo ao fim
+  de 16 h; breakeven depois do objetivo como no ringue (`generic_trades`,
+  entrada na abertura da vela seguinte). Shorts = a mesma função nas velas
+  espelho (`SHORT_SIGS`), com os juros da margem.
+- Grelha (6, escrita antes de testar; A5 e A6 são controlos e não podem ser
+  escolhidos):
+  A1 compra, queda da sessão asiática ≤ −3%;
+  A2 short, subida da sessão asiática ≥ +3%;
+  A3 A2 com ≥ +5%;
+  A4 A1 com ≤ −5%;
+  A5 controlo de A1 na sessão europeia (08:00→16:00 UTC, entrada às 16:00);
+  A6 controlo de A2 na sessão europeia.
+- Custos: 0,25% de comissão e 0,1% de slippage por lado (os do ringue,
+  `PB.FEE_PCT`, `PB.SLIP_PCT`); compras só com o BTC acima da média de 200
+  dias, como no ringue; shorts sem esse filtro (como no ringue).
+- Janelas (ramo `history`, 4H): **B (decide)** 2021-08-01 a 2024-10-10;
+  **A (confirma)** 2024-10-11 ao fim; **C** últimos 90 d; **L** últimos
+  365 d.
+- Acaso: `arena.control_rs` (mesma moeda, ±90 velas, mesma geometria), p95
+  do `judge` e percentil contra 1000 carteiras ao acaso.
+- Critérios (todos, para A1-A4): em B ≥ 30 op., R médio > 0, percentil > 95
+  e R > 0 sem a melhor moeda; em A ≥ 15 op., R médio > 0 e percentil > 95; o
+  controlo europeu do mesmo lado (A5 para A1/A4, A6 para A2/A3) abaixo em B e
+  em A (senão o efeito não é da sessão asiática); correlação diária com o
+  BOUNCE_X30 (compras) ou SHORT_X30 (shorts) < 0,5 (senão é outra
+  sobrevenda/sobrecompra). Entra no ringue **só se passar**, como SESSAO_ASIA
+  (NEW_SIGS) ou SHORT_SESSAO_ASIA (SHORT_SIGS); o ringue decide. REAL_OK não
+  se mexe.
+- Previsão honesta: provável falhar. Efeitos de hora do dia em cripto são
+  pequenos face a 0,7% de custos de ida e volta, e um movimento de 3% em 8 h
+  numa altcoin pode ser notícia (que não reverte).
+- Hipóteses testadas até agora (com esta): 16 entradas neste diário (H1 a
+  H16; 15 sinais); **27** contra os mesmos dados (diários agendados); 64 no
+  contador global de estudos offline. Com 27 tentativas, a probabilidade de
+  pelo menos um falso positivo a 5% ronda os 75%.
