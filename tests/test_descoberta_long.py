@@ -141,3 +141,39 @@ class PorOperacao(unittest.TestCase):
         self.assertLess(l["validacao_mais_fora"]["r_op"], 0)
         self.assertFalse(l["candidata"])
         self.assertIn("negativa por operacao", l["classe"])
+
+
+class Robustez(unittest.TestCase):
+    """(13/11, A4) grelha de robustez: vizinhos da familia, custos x1,5/x2, metades de moedas, anos."""
+
+    def ops(self, k, r, fam="F", moedas=("AAA", "BBB", "CCC", "DDD"), stop=0.05):
+        import time as _t
+        from tools import descoberta_long as D
+        out = []
+        for ano in (2024, 2025, 2026):
+            for i in range(30):
+                t = int(_t.mktime((ano, 8, 1, 0, 0, 0, 0, 0, 0))) + i * 86400
+                for a in moedas:
+                    out.append({"k": k, "fam": fam, "a": a, "t": max(t, D.T_TREINO + 1), "t_fim": t + 3600, "r": r,
+                                "r_bybit": r, "stop": stop, "fase": "lateral"})
+        return out
+
+    def test_robusta_e_fragil(self):
+        from tools import descoberta_long as D
+        ops = self.ops("A", 0.5) + self.ops("B", 0.4) + self.ops("C", 0.3) + self.ops("Z", 0.5, fam="G")
+        linhas = [{"estrategia": k, "familia": f, "fase": "lateral", "corretora": "bybit_ue",
+                   "validacao_mais_fora": {"r_op": r}} for k, f, r in (("A", "F", 0.5), ("B", "F", 0.4), ("C", "F", 0.3),
+                                                                      ("Z", "G", 0.5))]
+        D.robustez(ops, linhas)
+        a, z = linhas[0], linhas[3]
+        self.assertTrue(a["robusta"], a["fragil"])
+        self.assertIn("vizinhos", z["fragil"])                    # sem variantes na familia: nao prova robustez
+        self.assertFalse(z["robusta"])
+
+    def test_custos_derrubam(self):
+        from tools import descoberta_long as D
+        ops = self.ops("A", 0.05) + self.ops("B", 0.4) + self.ops("C", 0.3)
+        linhas = [{"estrategia": k, "familia": "F", "fase": "lateral", "corretora": "bybit_ue",
+                   "validacao_mais_fora": {"r_op": r}} for k, r in (("A", 0.05), ("B", 0.4), ("C", 0.3))]
+        D.robustez(ops, linhas)
+        self.assertIn("custos", linhas[0]["fragil"])               # 0,05R - 0,07R de custos a mais < 0

@@ -252,6 +252,52 @@ def avaliar(ops, btc_px, seed=7, reps=1000):
     return linhas, red
 
 
+def robustez(ops, linhas, campo_por=None):
+    """(13/11, A4, ordem do Rui) Grelha de robustez guardada em cada linha bybit_ue (so funcoes puras, sem dados novos):
+      vizinhos   variantes da MESMA familia (as lutadoras diferem nos parametros): >= 50% delas com R/op > 0 em
+                 validacao+fora na mesma fase (com >= 2 variantes; uma estrategia sem vizinhas nao prova robustez)
+      custos     R/op em validacao+fora > 0 com custos x1,5 e x2 (0,70% ida e volta a mais por cada x1)
+      metades    moedas divididas em duas metades fixas (paridade de um hash do nome): R/op > 0 nas duas
+      anos       em validacao+fora, >= 2/3 dos anos com >= 10 operacoes com R/op > 0
+    robusta = todas as verificacoes passam; fragil = a lista das que falham."""
+    import zlib
+    CUSTO = 0.007
+    vf_r = {}
+    for l in linhas:
+        if l["corretora"] == "bybit_ue":
+            vf_r[(l["estrategia"], l["fase"])] = l["validacao_mais_fora"].get("r_op")
+    for l in linhas:
+        if l["corretora"] != "bybit_ue":
+            continue
+        xs = [o for o in ops if o["k"] == l["estrategia"] and o["fase"] == l["fase"] and o["t"] >= T_TREINO]
+        g = {"n_validacao_mais_fora": len(xs)}
+        irmas = sorted({o["k"] for o in ops if o["fam"] == l["familia"] and o["k"] != l["estrategia"]})
+        viz = [vf_r.get((k, l["fase"])) for k in irmas if vf_r.get((k, l["fase"])) is not None]
+        g["vizinhos"] = {"n": len(viz), "positivas": sum(1 for v in viz if v > 0),
+                         "passa": len(viz) >= 2 and sum(1 for v in viz if v > 0) >= 0.5 * len(viz)}
+        cs = {}
+        for mult in (1.5, 2.0):
+            rr = [o["r_bybit"] - (mult - 1) * CUSTO / max(o["stop"], 1e-6) for o in xs]
+            cs[f"x{mult:g}"] = round(sum(rr) / len(rr), 4) if rr else None
+        g["custos"] = dict(cs, passa=bool(xs) and all(v is not None and v > 0 for v in cs.values()))
+        mets = {0: [], 1: []}
+        for o in xs:
+            mets[zlib.crc32(o["a"].encode()) % 2].append(o["r_bybit"])
+        mr = {k: (round(sum(v) / len(v), 4) if v else None) for k, v in mets.items()}
+        g["metades"] = {"r_op": [mr[0], mr[1]], "passa": all(v is not None and v > 0 for v in mr.values())}
+        anos = {}
+        for o in xs:
+            anos.setdefault(time.gmtime(o["t"]).tm_year, []).append(o["r_bybit"])
+        ok = {a: sum(v) / len(v) > 0 for a, v in anos.items() if len(v) >= 10}
+        g["anos"] = {"positivos": sum(ok.values()), "avaliados": len(ok),
+                     "passa": bool(ok) and sum(ok.values()) >= (2 / 3) * len(ok)}
+        falha = [c for c in ("vizinhos", "custos", "metades", "anos") if not g[c]["passa"]]
+        l["robustez"] = g
+        l["robusta"] = not falha
+        l["fragil"] = falha
+    return linhas
+
+
 def classe(l):
     """Tres classes, por regra fixa:
     VANTAGEM DEMONSTRADA: passou o criterio inteiro (candidata).
@@ -309,6 +355,7 @@ def correr(pasta, moedas=None, processos=1, reps=1000, so=None):
     else:
         ops = [t for a in moedas for t in trabalho(a)]
     linhas, red = avaliar(ops, _CTX["btc_px"], reps=reps)
+    robustez(ops, linhas)                         # (13/11, A4) grelha de robustez guardada em cada linha
     btc = _CTX["btc"]
     fase = _CTX["fases"].get(max(_CTX["fases"])) if _CTX["fases"] else None
 
