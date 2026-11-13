@@ -466,6 +466,8 @@ def cfg_piloto(champ, state, cfg, now):
     # (12/11, ordem do Rui 09:06) concorrencia: com mais de uma vaga, o risco ABERTO somado (risk_pct das posicoes reais
     # do piloto) mais o da nova fica <= teto agregado (omissao: o teto por operacao; nunca o teto inteiro a cada uma)
     aberto = round(sum(float(r.get("risk_pct") or 0) for r in abertas), 4)
+    if pl.get("risco_alvo_pct"):                 # (13/11, B1) SHORT_TURTLE: risco-alvo 2,5% (Rui)
+        cfg = dict(cfg, piloto_risco_alvo_pct=min(float(pl["risco_alvo_pct"]), float(pl["teto_pct"])))
     return dict(cfg, piloto_teto_pct=float(pl["teto_pct"]), piloto_juro_max_r=float(pl.get("juro_max_r", 0.06)),
                 piloto_dias_max=float(pl.get("dias_max", 20)), piloto_risco_aberto_pct=aberto,
                 piloto_teto_agregado_pct=float(pl.get("teto_agregado_pct") or pl["teto_pct"]))
@@ -622,6 +624,12 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
                 p, why = plan_for(sig, r["price"], cc)
             if p and cc.get("acelerado_pct"):
                 p["acelerado_pct"] = cc["acelerado_pct"]
+            if p:                                  # (13/11, E2) lote e minimos da Bybit no planeamento
+                lote = ((state.get("lotes_bybit") or {}).get("m") or {}).get(a)
+                if lote:
+                    wl = validar_lote(p, r["price"], lote, p.get("stop") or sig["stop"])
+                    if wl:
+                        p, why = None, wl
             if not p:
                 falhou = falhou or (champ, sig["t_sig"], why, sig)
                 continue
@@ -751,6 +759,48 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
 def arena_base(k):
     import re
     return re.sub(r"_R\d+$", "", k or "")
+
+
+def validar_lote(p, px, lote, stop):
+    """(13/11, E2) Valida o plano contra as regras de ordem da Bybit UE ANTES do executor: quantidade arredondada ao
+    lote ao pior preco da ordem limite, quantidade e valor minimos, risco efetivo depois do arredondamento (stop real
+    do plano, comissoes 0,25%/lado). Sobe um lote so ate max_position_usdc (o risco autorizado). Altera p no sitio e
+    devolve None, ou o motivo da recusa."""
+    import math
+    from .executor import LIMIT_SLIP, SHORT_MAX_SLIP
+    try:
+        passo, qmin, vmin = float(lote[0]), float(lote[1] or 0), float(lote[2] or 0)
+    except (TypeError, ValueError, IndexError):
+        return None                              # regras desconhecidas: o executor continua a guardar
+    if passo <= 0 or not px:
+        return None
+    short = p.get("side") == "SHORT"
+    lim = px * (1 - SHORT_MAX_SLIP) if short else px * (1 + LIMIT_SLIP)
+    pos = float(p.get("position_usdc") or 0)
+    maxp = float(p.get("max_position_usdc") or pos)
+    qty = math.floor(pos / lim / passo + 1e-9) * passo
+    if qty < qmin - 1e-12 or qty * lim < vmin - 1e-9:
+        qty = math.ceil(max(qmin, vmin * 1.002 / lim) / passo - 1e-9) * passo
+    val = qty * lim
+    if qty <= 0:
+        return "lote: quantidade nula depois de arredondar ao lote da Bybit"
+    if val > maxp + 1e-9:
+        return (f"lote: a ordem mínima da Bybit depois de arredondar ao lote ({val:.2f} USDC) passa o risco "
+                f"autorizado ({maxp:.2f} USDC)")
+    risco = qty * abs(float(stop) - lim) + 0.0025 * qty * (lim + float(stop))
+    mr = p.get("max_risk_usdc")
+    if mr is not None and risco > float(mr) * 1.001:
+        return f"lote: risco efetivo depois do arredondamento ({risco:.3f}) passa o autorizado ({float(mr):.3f}) USDC"
+    f = val / pos if pos else 1.0
+    for k in ("position_usdc", "collateral_usdc", "risk_usdc"):
+        if p.get(k) is not None:
+            p[k] = round(float(p[k]) * f, 2)
+    for k in ("risk_pct", "position_pct"):
+        if p.get(k) is not None:
+            p[k] = round(float(p[k]) * f, 3)
+    p["lote"] = {"qtd": round(qty, 12), "passo": passo, "qtd_min": qmin, "valor_min": vmin,
+                 "preco_limite": lim, "risco_efetivo": round(risco, 4)}
+    return None
 
 
 def lost(state, now, asset, champ, why, sig=None, price=None, plano=None, extra=None):

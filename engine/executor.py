@@ -360,7 +360,12 @@ def repay_usdc(amount):
     return post("/v5/account/repay", {"coin": "USDC", "amount": f"{amt:.2f}"})
 
 
-def qty_ordem(quote, lim, inst, max_quote=None):
+def risco_ordem(qty, lim, stop, fee=0.0025):
+    """Risco no stop de uma ordem (moeda x distancia ao stop + comissoes de entrada e saida)."""
+    return qty * abs(float(stop) - lim) + fee * qty * (lim + float(stop))
+
+
+def qty_ordem(quote, lim, inst, max_quote=None, stop=None, max_risk=None):
     """(12/11, BNB recusada com 170140) Quantidade da ordem: 'quote' USDC ao preco 'lim', arredondada ao lote.
     Arredondar para baixo pode deixar o valor abaixo do minimo da Bybit (5 USDC a 0,007 BNB davam 4,6 USDC). Nesse
     caso sobe UM nivel de lote ate ao minimo, mas so se o valor resultante couber em max_quote (o maximo que o risco
@@ -369,9 +374,17 @@ def qty_ordem(quote, lim, inst, max_quote=None):
     qty = floor_to(quote / lim, inst["base_step"])
     mn = float(inst.get("min_amt") or 0)
     if qty * lim >= mn - 1e-9:
+        # (13/11, B1/E2) risco efetivo ao pior preco da ordem e com o stop do plano: nunca acima do autorizado
+        if max_risk is not None and stop is not None and risco_ordem(qty, lim, stop) > max_risk * 1.001:
+            q3 = qty - step
+            if q3 > 0 and q3 * lim >= mn - 1e-9 and risco_ordem(q3, lim, stop) <= max_risk * 1.001:
+                return float(fmt(q3, inst["base_step"]))
+            raise ExecError(f"risco efetivo da ordem ({risco_ordem(qty, lim, stop):.3f}) passa o autorizado "
+                            f"({max_risk:.3f}) USDC ao pior preço da ordem: nada enviado")
         return qty
     q2 = math.ceil(mn * 1.002 / lim / step - 1e-9) * step
-    if max_quote is not None and q2 * lim <= max_quote + 1e-9:
+    if max_quote is not None and q2 * lim <= max_quote + 1e-9 \
+            and (max_risk is None or stop is None or risco_ordem(q2, lim, stop) <= max_risk * 1.001):
         return float(fmt(q2, inst["base_step"]))
     raise ExecError(f"valor abaixo do mínimo da Bybit depois de arredondar ao lote ({qty * lim:.2f} < {mn:g} USDC)"
                     + (f"; subir ao lote seguinte ({q2 * lim:.2f}) passava o risco autorizado" if max_quote else ""))
@@ -388,7 +401,7 @@ def valor_max(plan, cap=None):
     return min(v, cap) if cap else v
 
 
-def place_part(symbol, quote, tp, stop, inst, tag, px=None, margin=False, max_quote=None):
+def place_part(symbol, quote, tp, stop, inst, tag, px=None, margin=False, max_quote=None, max_risk=None):
     """Compra 'quote' USDC com TP e stop da Bybit anexados.
 
     A Bybit UE so aceita TP/SL anexados em ordens LIMITE (provado no
@@ -398,7 +411,7 @@ def place_part(symbol, quote, tp, stop, inst, tag, px=None, margin=False, max_qu
     um stop condicional."""
     px = px or last_price(symbol)
     lim = float(fmt(px * (1 + LIMIT_SLIP), inst["tick"])) or px
-    qty = qty_ordem(quote, lim, inst, max_quote)
+    qty = qty_ordem(quote, lim, inst, max_quote, stop, max_risk)
     base = {"category": "spot", "symbol": symbol, "side": "Buy", "orderType": "Limit",
             "timeInForce": "IOC", "price": fmt(lim, inst["tick"]),
             "qty": fmt(qty, inst["base_step"]), "orderLinkId": f"{LINK}{tag}"[:36]}
@@ -534,8 +547,9 @@ def do_buy(state, req, ex, now, send):
     for i, (q, tp) in enumerate(parts):
         try:
             mq = valor_max(plan, cap) if len(parts) == 1 else None
+            mr = plan.get("max_risk_usdc") if len(parts) == 1 else None
             oid, attached = place_part(symbol, q, tp, plan["stop"], inst, f"{_tag(op)}-{i}",
-                                       margin=margin, max_quote=mq)
+                                       margin=margin, max_quote=mq, max_risk=float(mr) if mr is not None else None)
         except ExecError as e:
             o["erro"] = str(e)[:120]
             break
@@ -641,7 +655,7 @@ def short_check(state, op, price, now):
     return plan, None
 
 
-def place_short_part(symbol, quote, tp, stop, inst, tag, px=None, max_quote=None):
+def place_short_part(symbol, quote, tp, stop, inst, tag, px=None, max_quote=None, max_risk=None):
     """Vende a descoberto ~'quote' USDC (moeda emprestada) com TP/SL anexados;
     limite IOC ligeiramente abaixo do preco (executa ja ou nao executa)."""
     px = px or last_price(symbol)
@@ -653,7 +667,7 @@ def place_short_part(symbol, quote, tp, stop, inst, tag, px=None, max_quote=None
         raise ExecError(f"livro fino: o melhor comprador está {100 * (1 - bid / px):.2f}% abaixo do último preço")
     alvo = min(px * (1 - LIMIT_SLIP), bid * 0.998) if bid else px * (1 - LIMIT_SLIP)
     lim = float(fmt(max(alvo, px * (1 - SHORT_MAX_SLIP)), inst["tick"])) or px
-    qty = qty_ordem(quote, lim, inst, max_quote)
+    qty = qty_ordem(quote, lim, inst, max_quote, stop, max_risk)
     base = {"category": "spot", "symbol": symbol, "side": "Sell", "orderType": "Limit",
             "timeInForce": "IOC", "price": fmt(lim, inst["tick"]), "isLeverage": 1,
             "qty": fmt(qty, inst["base_step"]), "orderLinkId": f"{LINK}{tag}"[:36]}
@@ -756,7 +770,9 @@ def do_short(state, req, ex, now, send):
             # (a Bybit recusa o mesmo orderLinkId); a primeira nunca executou, por isso nao duplica
             tag = f"{_tag(op)}-v{i}" + (f"m{str(req['manual'])[-4:]}" if req.get("manual") else "")
             mq = valor_max(plan, cap) if len(parts) == 1 else None
-            oid, attached = place_short_part(symbol, q, tp, plan["stop"], inst, tag, px=px, max_quote=mq)
+            mr = plan.get("max_risk_usdc") if len(parts) == 1 else None
+            oid, attached = place_short_part(symbol, q, tp, plan["stop"], inst, tag, px=px, max_quote=mq,
+                                             max_risk=float(mr) if mr is not None else None)
         except ExecError as e:
             o["erro"] = str(e)[:120]
             break

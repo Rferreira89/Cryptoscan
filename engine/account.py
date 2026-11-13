@@ -595,6 +595,31 @@ def tickers_usdc():
     return out
 
 
+def lotes_usdc():
+    """(13/11, E2) Regras de ordem da Bybit UE por par USDC (instruments-info, so GET):
+    {base: [passo do lote em moeda, quantidade minima, valor minimo em USDC, passo do preco]}. O planeamento valida o
+    lote e o minimo ANTES do executor (a BNB de 12/11 foi recusada por arredondamento ao lote)."""
+    d = get("/v5/market/instruments-info", {"category": "spot"})
+    out = {}
+    for x in d.get("list") or []:
+        if x.get("quoteCoin") != "USDC" or x.get("status") not in (None, "Trading"):
+            continue
+        ls, pf = x.get("lotSizeFilter") or {}, x.get("priceFilter") or {}
+        v = [_num(ls.get("basePrecision")), _num(ls.get("minOrderQty")), _num(ls.get("minOrderAmt")),
+             _num(pf.get("tickSize"))]
+        if v[0]:
+            out[str(x.get("baseCoin") or "").upper()] = v
+    return out
+
+
+def _lotes_ou_none():
+    try:
+        return lotes_usdc() or None
+    except Exception as e:
+        print("lotes:", e)
+        return None
+
+
 def juros_taxas():
     """(12/11) {moeda: juro diario em %} das moedas emprestaveis (account/collateral-info). So GET."""
     res = get("/v5/account/collateral-info")
@@ -796,6 +821,7 @@ def snapshot(state, now=None):
                 "fundo": funding(),
                 "margem": _margem_ou_none(),
                 "juros_margem": _juros_ou_none(),
+                "lotes": _lotes_ou_none(),
                 "tickers": tk,
                 "movimentos": mv,
                 "saldos": {c: round(held.get(c, 0.0), 10) for c in ("BTC", "ETH", "SOL")},

@@ -115,6 +115,77 @@ def apply(state, ex):
                                user_result_r=ledger.user_close_r(rec, o["saida"], parts, _fee_pct()))
                 except Exception:
                     pass
+    try:                                     # (13/11, A3) estados das ordens; recusadas sem execucao saem de OPEN
+        reconciliar_ordens(state, ex, now)
+    except Exception as e:
+        print("reconciliar ordens:", e)
+
+
+ESTADOS_ORDEM = ("SINAL", "ORDEM_ENVIADA", "EXECUTADA", "RECUSADA", "FALHOU", "EXPIRADA", "CANCELADA")
+
+
+def estado_ordem(rec, op, pedidos):
+    """(13/11, A3) Estado inequivoco da ordem de uma operacao REAL, so a partir de factos: o registo do executor
+    (op) e os pedidos ainda por executar. Nunca deduz uma execucao que o executor nao confirmou."""
+    if op:
+        st = op.get("status")
+        if st in ("aberta", "fechada") and op.get("entrada"):
+            return "EXECUTADA"
+        if st in ("pendente", "verificar"):
+            return "ORDEM_ENVIADA"
+        if st == "cancelada" and not op.get("entrada"):
+            return "CANCELADA"
+        if st == "recusada" and not op.get("entrada"):
+            txt = f"{op.get('motivo') or ''} {op.get('erro') or ''}".lower()
+            return "FALHOU" if ("inesperado" in txt or "falhou" in txt and "bybit" not in txt) else "RECUSADA"
+    if rec.get("executed") is True:
+        return "EXECUTADA"
+    if rec.get("executed") is False and rec.get("recusada"):
+        return "RECUSADA"
+    if rec.get("id") in pedidos:
+        return "ORDEM_ENVIADA"
+    if rec.get("status") == "CANCELLED":
+        return "EXPIRADA"
+    return "SINAL"
+
+
+def reconciliar_ordens(state, ex, now):
+    """(13/11, A3) Marca estado_ordem em todas as operacoes REAIS e tira de OPEN as que a corretora recusou ou que
+    falharam SEM nenhuma execucao (BNB de 12/11): passam a CANCELLED com o motivo, o sinal deixa de ser seguido como
+    se tivesse entrado e o resultado contrafactual passa para a sombra das rejeitadas (filtro "execução").
+    So mexe em registos com executed=False e sem preco de execucao: nunca fecha nem altera uma posicao real."""
+    ops = (ex or {}).get("ops") or {}
+    pedidos = {r.get("op") for r in state.get("exec_req") or []} | {r.get("id") for r in state.get("exec_req") or []}
+    sigs = state.get("signals") or {}
+    feitas = []
+    for rec in state.get("ledger") or []:
+        if rec.get("mode") != "REAL":
+            continue
+        op = ops.get(rec.get("id")) if isinstance(ops.get(rec.get("id")), dict) else None
+        e = estado_ordem(rec, op, pedidos)
+        rec["estado_ordem"] = e
+        if e in ("RECUSADA", "FALHOU") and rec.get("executed") is False and not rec.get("exec_price") \
+                and not (op or {}).get("entrada") and rec.get("status") in ("WAITING", "OPEN", "ACTIVE", "TRIGGERED"):
+            motivo = rec.get("recusada") or (op or {}).get("motivo") or "recusada pela Bybit"
+            rec.update(status="CANCELLED", closed_at=int(now), reason="NAO_EXECUTADA")
+            s = sigs.get(rec["id"])
+            if s and s.get("status") in ("ACTIVE", "TRIGGERED"):
+                s.update(status="CANCELLED", closed_at=int(now), close_reason="ordem não executada: " + str(motivo)[:100])
+            try:
+                from . import sombra_rejeitadas
+                pl = (s or {}).get("plan") or {}
+                t_sig = int((rec.get("issued_at") or now) // 14400 * 14400)
+                sig = {"side": rec.get("side") or "LONG", "stop": rec.get("stop"), "tp": rec.get("tp"),
+                       "partials": rec.get("partials") or pl.get("partials"), "t_sig": t_sig,
+                       "hold_s": pl.get("max_hold_s"), "breakeven": pl.get("breakeven", True)}
+                px = rec.get("entry") or (sum(rec["entry_zone"]) / 2 if rec.get("entry_zone") else None)
+                sombra_rejeitadas.registar(state, rec.get("opened_at") or rec.get("issued_at") or now, rec["asset"],
+                                           rec.get("strategy"), f"execução: {str(motivo)[:120]}", sig, px,
+                                           {"risk_pct": rec.get("risk_pct"), "position_pct": rec.get("position_pct")})
+            except Exception as er:
+                print("sombra execucao:", er)
+            feitas.append(rec["id"])
+    return feitas
 
 
 def abertas(ex):

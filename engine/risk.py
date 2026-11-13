@@ -101,6 +101,20 @@ def sizing(stop_pct, stop_frac, entry, cfg, short=False):
                 and mn <= cap * lev["use"]:
             size_pct = mn / cap * 100
             pos_usdc = mn
+        # (13/11, B1, autorizado pelo Rui) risco-ALVO do piloto (SHORT_TURTLE 2,5%): a posicao cresce ate o risco no
+        # stop (comissoes ja em stop_pct) ser o alvo, nunca acima do risco livre dentro do teto agregado, nunca acima
+        # do capital (sem alavancagem, sem USDC emprestado). O alvo nao e obrigacao: o minimo/lote decide depois.
+        alvo = cfg.get("piloto_risco_alvo_pct")
+        if pt and alvo:
+            lev = dict(lev, use=1.0)
+            alvo_ef = max(0.0, min(float(alvo), livre))
+            # o alvo vale ao PIOR preco que a ordem limite aceita (venda 0,6% abaixo, compra 0,3% acima)
+            folga = 0.6 if short else 0.3
+            pos_alvo = min(cap * alvo_ef / 100 / ((stop_pct + folga) / 100), cap)
+            pos_alvo = math.floor(pos_alvo * 100) / 100        # ao centimo, para baixo: nunca acima do livre
+            if pos_alvo > pos_usdc:
+                pos_usdc = pos_alvo
+                size_pct = pos_usdc / cap * 100
         # (12/11) piloto com vagas: risco desta + risco aberto do piloto <= teto agregado (% do capital)
         if pt and pos_usdc >= mn and cfg.get("piloto_teto_agregado_pct") is not None and \
                 pos_usdc * stop_pct / 100 > cap * (cfg["piloto_teto_agregado_pct"]
@@ -130,8 +144,18 @@ def sizing(stop_pct, stop_frac, entry, cfg, short=False):
         # (12/11, BNB recusada: 170140) valor maximo que o risco autorizado permite, para o executor poder subir UM
         # nivel de lote quando o arredondamento deixa a ordem abaixo do minimo da Bybit (nunca acima deste valor)
         lim_r = cap * livre / 100 if pt else (teto if fixed and teto else None)
+        lim_pos = lim_r
+        if pt and cfg.get("piloto_risco_alvo_pct"):
+            # (13/11) com risco-alvo, o arredondamento ao lote so pode subir a POSICAO ate ao alvo (ou ao risco que a
+            # ordem minima ja impoe); o risco efetivo ao pior preco da ordem nunca passa o AUTORIZADO (lim_r: teto
+            # por operacao e livre dentro do agregado)
+            if pos_usdc > mn + 1e-9:              # o alvo decidiu o tamanho: o lote nao o faz crescer
+                lim_pos = cap * max(0.0, min(float(cfg["piloto_risco_alvo_pct"]), livre)) / 100
+            # na ordem minima, o lote pode subir ate ao risco autorizado (lim_r), como antes do alvo
         if lim_r and stop_pct > 0:
-            usdc["max_position_usdc"] = round(max(pos_usdc, lim_r / (stop_pct / 100)), 2)
+            usdc["max_position_usdc"] = round(max(pos_usdc, lim_pos / (stop_pct / 100)), 2)
+            if pt:
+                usdc["max_risk_usdc"] = round(lim_r, 4)
     return {"leverage": lev_fields(), "usdc": usdc, "size_pct": size_pct,
             "partials": partials}, None
 
