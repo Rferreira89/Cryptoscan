@@ -1,0 +1,966 @@
+{
+ "testes": 30,
+ "linhas": [
+  {
+   "ativo": "SP500",
+   "regra": "MA200",
+   "modo": "L",
+   "dias": 2512,
+   "desde": "2016-11-14",
+   "periodos": {
+    "treino": {
+     "ret_pct": 10.5,
+     "sharpe": 0.25
+    },
+    "validacao": {
+     "ret_pct": -8.7,
+     "sharpe": -0.29
+    },
+    "fora": {
+     "ret_pct": 13.2,
+     "sharpe": 0.47
+    }
+   },
+   "validacao_mais_fora": {
+    "ret_pct": 3.4,
+    "sharpe": 0.12
+   },
+   "comprar_manter_vf": {
+    "ret_pct": 11.6,
+    "sharpe": 0.21
+   },
+   "p": 0.3983,
+   "p_holm": 1.0,
+   "vantagem": false
+  },
+  {
+   "ativo": "SP500",
+   "regra": "MA200",
+   "modo": "LS",
+   "dias": 2512,
+   "desde": "2016-11-14",
+   "periodos": {
+    "treino": {
+     "ret_pct": -27.4,
+     "sharpe": -0.27
+    },
+    "validacao": {
+     "ret_pct": -25.9,
+     "sharpe": -0.56
+    },
+    "fora": {
+     "ret_pct": 0.0,
+     "sharpe": 0.08
+    }
+   },
+   "validacao_mais_fora": {
+    "ret_pct": -25.9,
+    "sharpe": -0.26
+   },
+   "comprar_manter_vf": {
+    "ret_pct": 11.6,
+    "sharpe": 0.21
+   },
+   "p": 0.7224,
+   "p_holm": 1.0,
+   "vantagem": false
+  },
+  {
+   "ativo": "SP500",
+   "regra": "DON",
+   "modo": "L",
+   "dias": 2512,
+   "desde": "2016-11-14",
+   "periodos": {
+    "treino": {
+     "ret_pct": 17.3,
+     "sharpe": 0.45
+    },
+    "validacao": {
+     "ret_pct": -5.4,
+     "sharpe": -0.22
+    },
+    "fora": {
+     "ret_pct": -4.3,
+     "sharpe": -0.16
+    }
+   },
+   "validacao_mais_fora": {
+    "ret_pct": -9.5,
+    "sharpe": -0.19
+   },
+   "comprar_manter_vf": {
+    "ret_pct": 11.6,
+    "sharpe": 0.21
+   },
+   "p": 0.664,
+   "p_holm": 1.0,
+   "vantagem": false
+  },
+  {
+   "ativo": "SP500",
+   "regra": "DON",
+   "modo": "LS",
+   "dias": 2512,
+   "desde": "2016-11-14",
+   "periodos": {
+    "treino": {
+     "ret_pct": -33.7,
+     "sharpe": -0.37
+    },
+    "validacao": {
+     "ret_pct": -27.7,
+     "sharpe": -0.62
+    },
+    "fora": {
+     "ret_pct": -37.5,
+     "sharpe": -1.1
+    }
+   },
+   "validacao_mais_fora": {
+    "ret_pct": -54.8,
+    "sharpe": -0.84
+   },
+   "comprar_manter_vf": {
+    "ret_pct": 11.6,
+    "sharpe": 0.21
+   },
+   "p": 0.9699,
+   "p_holm": 1.0,
+   "vantagem": false
+  },
+  {
+   "ativo": "SP500",
+   "regra": "SEM",
+   "modo": "L",
+   "dias": 2512,
+   "desde": "2016-11-14",
+   "periodos": {
+    "treino": {
+     "ret_pct": -1.1,
+     "sharpe": 0.08
+    },
+    "validacao": {
+     "ret_pct": 5.0,
+     "sharpe": 0.23
+    },
+    "fora": {
+     "ret_pct": 2.9,
+     "sharpe": 0.15
+    }
+   },
+   "validacao_mais_fora": {
+    "ret_pct": 8.1,
+    "sharpe": 0.18
+   },
+   "comprar_manter_vf": {
+    "ret_pct": 11.6,
+    "sharpe": 0.21
+   },
+   "p": 0.3409,
+   "p_holm": 1.0,
+   "vantagem": false
+  },
+  {
+   "ativo": "SP500",
+   "regra": "SEM",
+   "modo": "LS",
+   "dias": 2512,
+   "desde": "2016-11-14",
+   "periodos": {
+    "treino": {
+     "ret_pct": -37.8,
+     "sharpe": -0.44
+    },
+    "validacao": {
+     "ret_pct": -0.6,
+     "sharpe": 0.08
+    },
+    "fora": {
+     "ret_pct": -15.5,
+     "sharpe": -0.35
+    }
+   },
+   "validacao_mais_fora": {
+    "ret_pct": -16.0,
+    "sharpe": -0.12
+   },
+   "comprar_manter_vf": {
+    "ret_pct": 11.6,
+    "sharpe": 0.21
+   },
+   "p": 0.6036,
+   "p_holm": 1.0,
+   "vantagem": false
+  },
+  {
+   "ativo": "NASDAQ100",
+   "regra": "MA200",
+   "modo": "L",
+   "dias": 10297,
+   "desde": "1986-01-02",
+   "periodos": {
+    "treino": {
+     "ret_pct": 128.0,
+     "sharpe": 0.31
+    },
+    "validacao": {
+     "ret_pct": 1.5,
+     "sharpe": 0.08
+    },
+    "fora": {
+     "ret_pct": 126.4,
+     "sharpe": 0.56
+    }
+   },
+   "validacao_mais_fora": {
+    "ret_pct": 129.9,
+    "sharpe": 0.34
+   },
+   "comprar_manter_vf": {
+    "ret_pct": 278.7,
+    "sharpe": 0.4
+   },
+   "p": 0.0628,
+   "p_holm": 1.0,
+   "vantagem": false
+  },
+  {
+   "ativo": "NASDAQ100",
+   "regra": "MA200",
+   "modo": "LS",
+   "dias": 10297,
+   "desde": "1986-01-02",
+   "periodos": {
+    "treino": {
+     "ret_pct": -64.1,
+     "sharpe": -0.03
+    },
+    "validacao": {
+     "ret_pct": -62.4,
+     "sharpe": -0.32
+    },
+    "fora": {
+     "ret_pct": 15.4,
+     "sharpe": 0.18
+    }
+   },
+   "validacao_mais_fora": {
+    "ret_pct": -56.6,
+    "sharpe": -0.07
+   },
+   "comprar_manter_vf": {
+    "ret_pct": 278.7,
+    "sharpe": 0.4
+   },
+   "p": 0.6203,
+   "p_holm": 1.0,
+   "vantagem": false
+  },
+  {
+   "ativo": "NASDAQ100",
+   "regra": "DON",
+   "modo": "L",
+   "dias": 10297,
+   "desde": "1986-01-02",
+   "periodos": {
+    "treino": {
+     "ret_pct": 67.8,
+     "sharpe": 0.24
+    },
+    "validacao": {
+     "ret_pct": 10.7,
+     "sharpe": 0.15
+    },
+    "fora": {
+     "ret_pct": 66.3,
+     "sharpe": 0.49
+    }
+   },
+   "validacao_mais_fora": {
+    "ret_pct": 84.2,
+    "sharpe": 0.32
+   },
+   "comprar_manter_vf": {
+    "ret_pct": 278.7,
+    "sharpe": 0.4
+   },
+   "p": 0.0742,
+   "p_holm": 1.0,
+   "vantagem": false
+  },
+  {
+   "ativo": "NASDAQ100",
+   "regra": "DON",
+   "modo": "LS",
+   "dias": 10297,
+   "desde": "1986-01-02",
+   "periodos": {
+    "treino": {
+     "ret_pct": -93.7,
+     "sharpe": -0.32
+    },
+    "validacao": {
+     "ret_pct": -71.2,
+     "sharpe": -0.44
+    },
+    "fora": {
+     "ret_pct": -66.3,
+     "sharpe": -0.35
+    }
+   },
+   "validacao_mais_fora": {
+    "ret_pct": -90.3,
+    "sharpe": -0.39
+   },
+   "comprar_manter_vf": {
+    "ret_pct": 278.7,
+    "sharpe": 0.4
+   },
+   "p": 0.9623,
+   "p_holm": 1.0,
+   "vantagem": false
+  },
+  {
+   "ativo": "NASDAQ100",
+   "regra": "SEM",
+   "modo": "L",
+   "dias": 10297,
+   "desde": "1986-01-02",
+   "periodos": {
+    "treino": {
+     "ret_pct": 163.3,
+     "sharpe": 0.33
+    },
+    "validacao": {
+     "ret_pct": 13.2,
+     "sharpe": 0.16
+    },
+    "fora": {
+     "ret_pct": 146.0,
+     "sharpe": 0.54
+    }
+   },
+   "validacao_mais_fora": {
+    "ret_pct": 178.5,
+    "sharpe": 0.37
+   },
+   "comprar_manter_vf": {
+    "ret_pct": 278.7,
+    "sharpe": 0.4
+   },
+   "p": 0.0462,
+   "p_holm": 1.0,
+   "vantagem": false
+  },
+  {
+   "ativo": "NASDAQ100",
+   "regra": "SEM",
+   "modo": "LS",
+   "dias": 10297,
+   "desde": "1986-01-02",
+   "periodos": {
+    "treino": {
+     "ret_pct": -44.7,
+     "sharpe": 0.05
+    },
+    "validacao": {
+     "ret_pct": -53.3,
+     "sharpe": -0.22
+    },
+    "fora": {
+     "ret_pct": 53.2,
+     "sharpe": 0.3
+    }
+   },
+   "validacao_mais_fora": {
+    "ret_pct": -28.4,
+    "sharpe": 0.04
+   },
+   "comprar_manter_vf": {
+    "ret_pct": 278.7,
+    "sharpe": 0.4
+   },
+   "p": 0.4272,
+   "p_holm": 1.0,
+   "vantagem": false
+  },
+  {
+   "ativo": "OURO",
+   "regra": "MA200",
+   "modo": "L",
+   "dias": 3771,
+   "desde": "2011-11-14",
+   "periodos": {
+    "treino": {
+     "ret_pct": -38.1,
+     "sharpe": -0.78
+    },
+    "validacao": {
+     "ret_pct": -13.4,
+     "sharpe": -0.2
+    },
+    "fora": {
+     "ret_pct": 71.5,
+     "sharpe": 0.86
+    }
+   },
+   "validacao_mais_fora": {
+    "ret_pct": 48.6,
+    "sharpe": 0.4
+   },
+   "comprar_manter_vf": {
+    "ret_pct": 73.9,
+    "sharpe": 0.49
+   },
+   "p": 0.1361,
+   "p_holm": 1.0,
+   "vantagem": false
+  },
+  {
+   "ativo": "OURO",
+   "regra": "MA200",
+   "modo": "LS",
+   "dias": 3771,
+   "desde": "2011-11-14",
+   "periodos": {
+    "treino": {
+     "ret_pct": -57.5,
+     "sharpe": -0.78
+    },
+    "validacao": {
+     "ret_pct": -45.6,
+     "sharpe": -0.88
+    },
+    "fora": {
+     "ret_pct": 69.6,
+     "sharpe": 0.79
+    }
+   },
+   "validacao_mais_fora": {
+    "ret_pct": -7.8,
+    "sharpe": 0.04
+   },
+   "comprar_manter_vf": {
+    "ret_pct": 73.9,
+    "sharpe": 0.49
+   },
+   "p": 0.4601,
+   "p_holm": 1.0,
+   "vantagem": false
+  },
+  {
+   "ativo": "OURO",
+   "regra": "DON",
+   "modo": "L",
+   "dias": 3771,
+   "desde": "2011-11-14",
+   "periodos": {
+    "treino": {
+     "ret_pct": -22.5,
+     "sharpe": -0.49
+    },
+    "validacao": {
+     "ret_pct": 2.3,
+     "sharpe": 0.11
+    },
+    "fora": {
+     "ret_pct": 37.3,
+     "sharpe": 0.62
+    }
+   },
+   "validacao_mais_fora": {
+    "ret_pct": 40.5,
+    "sharpe": 0.4
+   },
+   "comprar_manter_vf": {
+    "ret_pct": 73.9,
+    "sharpe": 0.49
+   },
+   "p": 0.1361,
+   "p_holm": 1.0,
+   "vantagem": false
+  },
+  {
+   "ativo": "OURO",
+   "regra": "DON",
+   "modo": "LS",
+   "dias": 3771,
+   "desde": "2011-11-14",
+   "periodos": {
+    "treino": {
+     "ret_pct": -45.3,
+     "sharpe": -0.53
+    },
+    "validacao": {
+     "ret_pct": -36.3,
+     "sharpe": -0.63
+    },
+    "fora": {
+     "ret_pct": -14.9,
+     "sharpe": -0.11
+    }
+   },
+   "validacao_mais_fora": {
+    "ret_pct": -45.8,
+    "sharpe": -0.34
+   },
+   "comprar_manter_vf": {
+    "ret_pct": 73.9,
+    "sharpe": 0.49
+   },
+   "p": 0.825,
+   "p_holm": 1.0,
+   "vantagem": false
+  },
+  {
+   "ativo": "OURO",
+   "regra": "SEM",
+   "modo": "L",
+   "dias": 3771,
+   "desde": "2011-11-14",
+   "periodos": {
+    "treino": {
+     "ret_pct": -40.8,
+     "sharpe": -0.92
+    },
+    "validacao": {
+     "ret_pct": 6.6,
+     "sharpe": 0.19
+    },
+    "fora": {
+     "ret_pct": 57.2,
+     "sharpe": 0.73
+    }
+   },
+   "validacao_mais_fora": {
+    "ret_pct": 67.6,
+    "sharpe": 0.49
+   },
+   "comprar_manter_vf": {
+    "ret_pct": 73.9,
+    "sharpe": 0.49
+   },
+   "p": 0.0885,
+   "p_holm": 1.0,
+   "vantagem": false
+  },
+  {
+   "ativo": "OURO",
+   "regra": "SEM",
+   "modo": "LS",
+   "dias": 3771,
+   "desde": "2011-11-14",
+   "periodos": {
+    "treino": {
+     "ret_pct": -61.2,
+     "sharpe": -0.88
+    },
+    "validacao": {
+     "ret_pct": -17.3,
+     "sharpe": -0.22
+    },
+    "fora": {
+     "ret_pct": 41.3,
+     "sharpe": 0.55
+    }
+   },
+   "validacao_mais_fora": {
+    "ret_pct": 16.9,
+    "sharpe": 0.21
+   },
+   "comprar_manter_vf": {
+    "ret_pct": 73.9,
+    "sharpe": 0.49
+   },
+   "p": 0.2871,
+   "p_holm": 1.0,
+   "vantagem": false
+  },
+  {
+   "ativo": "PRATA",
+   "regra": "MA200",
+   "modo": "L",
+   "dias": 3770,
+   "desde": "2011-11-14",
+   "periodos": {
+    "treino": {
+     "ret_pct": -58.8,
+     "sharpe": -0.96
+    },
+    "validacao": {
+     "ret_pct": 9.9,
+     "sharpe": 0.23
+    },
+    "fora": {
+     "ret_pct": 50.9,
+     "sharpe": 0.49
+    }
+   },
+   "validacao_mais_fora": {
+    "ret_pct": 65.9,
+    "sharpe": 0.37
+   },
+   "comprar_manter_vf": {
+    "ret_pct": 98.7,
+    "sharpe": 0.44
+   },
+   "p": 0.1526,
+   "p_holm": 1.0,
+   "vantagem": false
+  },
+  {
+   "ativo": "PRATA",
+   "regra": "MA200",
+   "modo": "LS",
+   "dias": 3770,
+   "desde": "2011-11-14",
+   "periodos": {
+    "treino": {
+     "ret_pct": -78.1,
+     "sharpe": -0.79
+    },
+    "validacao": {
+     "ret_pct": -28.9,
+     "sharpe": -0.09
+    },
+    "fora": {
+     "ret_pct": 4.1,
+     "sharpe": 0.25
+    }
+   },
+   "validacao_mais_fora": {
+    "ret_pct": -25.9,
+    "sharpe": 0.09
+   },
+   "comprar_manter_vf": {
+    "ret_pct": 98.7,
+    "sharpe": 0.44
+   },
+   "p": 0.3983,
+   "p_holm": 1.0,
+   "vantagem": false
+  },
+  {
+   "ativo": "PRATA",
+   "regra": "DON",
+   "modo": "L",
+   "dias": 3770,
+   "desde": "2011-11-14",
+   "periodos": {
+    "treino": {
+     "ret_pct": -28.2,
+     "sharpe": -0.37
+    },
+    "validacao": {
+     "ret_pct": -16.2,
+     "sharpe": -0.08
+    },
+    "fora": {
+     "ret_pct": 82.0,
+     "sharpe": 0.68
+    }
+   },
+   "validacao_mais_fora": {
+    "ret_pct": 52.6,
+    "sharpe": 0.35
+   },
+   "comprar_manter_vf": {
+    "ret_pct": 98.7,
+    "sharpe": 0.44
+   },
+   "p": 0.1704,
+   "p_holm": 1.0,
+   "vantagem": false
+  },
+  {
+   "ativo": "PRATA",
+   "regra": "DON",
+   "modo": "LS",
+   "dias": 3770,
+   "desde": "2011-11-14",
+   "periodos": {
+    "treino": {
+     "ret_pct": -39.2,
+     "sharpe": -0.18
+    },
+    "validacao": {
+     "ret_pct": -65.9,
+     "sharpe": -0.66
+    },
+    "fora": {
+     "ret_pct": -0.5,
+     "sharpe": 0.22
+    }
+   },
+   "validacao_mais_fora": {
+    "ret_pct": -66.1,
+    "sharpe": -0.18
+   },
+   "comprar_manter_vf": {
+    "ret_pct": 98.7,
+    "sharpe": 0.44
+   },
+   "p": 0.6847,
+   "p_holm": 1.0,
+   "vantagem": false
+  },
+  {
+   "ativo": "PRATA",
+   "regra": "SEM",
+   "modo": "L",
+   "dias": 3770,
+   "desde": "2011-11-14",
+   "periodos": {
+    "treino": {
+     "ret_pct": -30.9,
+     "sharpe": -0.44
+    },
+    "validacao": {
+     "ret_pct": -20.9,
+     "sharpe": -0.08
+    },
+    "fora": {
+     "ret_pct": 62.7,
+     "sharpe": 0.53
+    }
+   },
+   "validacao_mais_fora": {
+    "ret_pct": 28.8,
+    "sharpe": 0.28
+   },
+   "comprar_manter_vf": {
+    "ret_pct": 98.7,
+    "sharpe": 0.44
+   },
+   "p": 0.2248,
+   "p_holm": 1.0,
+   "vantagem": false
+  },
+  {
+   "ativo": "PRATA",
+   "regra": "SEM",
+   "modo": "LS",
+   "dias": 3770,
+   "desde": "2011-11-14",
+   "periodos": {
+    "treino": {
+     "ret_pct": -43.4,
+     "sharpe": -0.22
+    },
+    "validacao": {
+     "ret_pct": -63.1,
+     "sharpe": -0.6
+    },
+    "fora": {
+     "ret_pct": 26.6,
+     "sharpe": 0.37
+    }
+   },
+   "validacao_mais_fora": {
+    "ret_pct": -53.3,
+    "sharpe": -0.06
+   },
+   "comprar_manter_vf": {
+    "ret_pct": 98.7,
+    "sharpe": 0.44
+   },
+   "p": 0.5702,
+   "p_holm": 1.0,
+   "vantagem": false
+  },
+  {
+   "ativo": "PETROLEO",
+   "regra": "MA200",
+   "modo": "L",
+   "dias": 3770,
+   "desde": "2011-11-14",
+   "periodos": {
+    "treino": {
+     "ret_pct": -24.5,
+     "sharpe": -0.14
+    },
+    "validacao": {
+     "ret_pct": -31.8,
+     "sharpe": -0.18
+    },
+    "fora": {
+     "ret_pct": -28.7,
+     "sharpe": -0.14
+    }
+   },
+   "validacao_mais_fora": {
+    "ret_pct": -51.4,
+    "sharpe": -0.16
+   },
+   "comprar_manter_vf": {
+    "ret_pct": -20.1,
+    "sharpe": 0.22
+   },
+   "p": 0.6728,
+   "p_holm": 1.0,
+   "vantagem": false
+  },
+  {
+   "ativo": "PETROLEO",
+   "regra": "MA200",
+   "modo": "LS",
+   "dias": 3770,
+   "desde": "2011-11-14",
+   "periodos": {
+    "treino": {
+     "ret_pct": -48.0,
+     "sharpe": -0.13
+    },
+    "validacao": {
+     "ret_pct": -89.5,
+     "sharpe": -0.6
+    },
+    "fora": {
+     "ret_pct": -66.6,
+     "sharpe": -0.53
+    }
+   },
+   "validacao_mais_fora": {
+    "ret_pct": -96.5,
+    "sharpe": -0.56
+   },
+   "comprar_manter_vf": {
+    "ret_pct": -20.1,
+    "sharpe": 0.22
+   },
+   "p": 0.936,
+   "p_holm": 1.0,
+   "vantagem": false
+  },
+  {
+   "ativo": "PETROLEO",
+   "regra": "DON",
+   "modo": "L",
+   "dias": 3770,
+   "desde": "2011-11-14",
+   "periodos": {
+    "treino": {
+     "ret_pct": -15.0,
+     "sharpe": -0.09
+    },
+    "validacao": {
+     "ret_pct": 32.4,
+     "sharpe": 0.44
+    },
+    "fora": {
+     "ret_pct": 0.4,
+     "sharpe": 0.13
+    }
+   },
+   "validacao_mais_fora": {
+    "ret_pct": 32.9,
+    "sharpe": 0.28
+   },
+   "comprar_manter_vf": {
+    "ret_pct": -20.1,
+    "sharpe": 0.22
+   },
+   "p": 0.2221,
+   "p_holm": 1.0,
+   "vantagem": false
+  },
+  {
+   "ativo": "PETROLEO",
+   "regra": "DON",
+   "modo": "LS",
+   "dias": 3770,
+   "desde": "2011-11-14",
+   "periodos": {
+    "treino": {
+     "ret_pct": -49.0,
+     "sharpe": -0.14
+    },
+    "validacao": {
+     "ret_pct": -69.1,
+     "sharpe": -0.15
+    },
+    "fora": {
+     "ret_pct": -43.4,
+     "sharpe": -0.18
+    }
+   },
+   "validacao_mais_fora": {
+    "ret_pct": -82.5,
+    "sharpe": -0.16
+   },
+   "comprar_manter_vf": {
+    "ret_pct": -20.1,
+    "sharpe": 0.22
+   },
+   "p": 0.6681,
+   "p_holm": 1.0,
+   "vantagem": false
+  },
+  {
+   "ativo": "PETROLEO",
+   "regra": "SEM",
+   "modo": "L",
+   "dias": 3770,
+   "desde": "2011-11-14",
+   "periodos": {
+    "treino": {
+     "ret_pct": -25.4,
+     "sharpe": -0.14
+    },
+    "validacao": {
+     "ret_pct": 9.1,
+     "sharpe": 0.24
+    },
+    "fora": {
+     "ret_pct": -31.2,
+     "sharpe": -0.19
+    }
+   },
+   "validacao_mais_fora": {
+    "ret_pct": -25.0,
+    "sharpe": 0.03
+   },
+   "comprar_manter_vf": {
+    "ret_pct": -20.1,
+    "sharpe": 0.22
+   },
+   "p": 0.4635,
+   "p_holm": 1.0,
+   "vantagem": false
+  },
+  {
+   "ativo": "PETROLEO",
+   "regra": "SEM",
+   "modo": "LS",
+   "dias": 3770,
+   "desde": "2011-11-14",
+   "periodos": {
+    "treino": {
+     "ret_pct": -49.0,
+     "sharpe": -0.14
+    },
+    "validacao": {
+     "ret_pct": -70.6,
+     "sharpe": -0.17
+    },
+    "fora": {
+     "ret_pct": -69.6,
+     "sharpe": -0.6
+    }
+   },
+   "validacao_mais_fora": {
+    "ret_pct": -91.1,
+    "sharpe": -0.32
+   },
+   "comprar_manter_vf": {
+    "ret_pct": -20.1,
+    "sharpe": 0.22
+   },
+   "p": 0.8126,
+   "p_holm": 1.0,
+   "vantagem": false
+  }
+ ],
+ "aviso": "ativos por baixo dos X-Perps, nao os contratos da OKX; futuros continuos sem ajuste de mudanca de contrato"
+}

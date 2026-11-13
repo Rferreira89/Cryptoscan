@@ -1,0 +1,117 @@
+{
+ "operacoes": 1585,
+ "moedas": 124,
+ "periodos": {
+  "treino": {
+   "n": 792,
+   "ret_liquido_pct": -0.109,
+   "convergencia_pct": 0.011,
+   "acerto_pct": 45.2
+  },
+  "validacao": {
+   "n": 396,
+   "ret_liquido_pct": -0.385,
+   "convergencia_pct": -0.02,
+   "acerto_pct": 44.9
+  },
+  "fora": {
+   "n": 397,
+   "ret_liquido_pct": -1.131,
+   "convergencia_pct": 0.091,
+   "acerto_pct": 45.6
+  }
+ },
+ "qualidade_mais_paradas": [
+  {
+   "moeda": "PEOPLE",
+   "horas": 1032,
+   "sem_volume_pct": 82.7,
+   "premio_mediano_pct": -0.139
+  },
+  {
+   "moeda": "ONT",
+   "horas": 1872,
+   "sem_volume_pct": 81.5,
+   "premio_mediano_pct": -0.086
+  },
+  {
+   "moeda": "AGLD",
+   "horas": 1249,
+   "sem_volume_pct": 81.0,
+   "premio_mediano_pct": -0.116
+  },
+  {
+   "moeda": "YB",
+   "horas": 1921,
+   "sem_volume_pct": 80.7,
+   "premio_mediano_pct": -0.174
+  },
+  {
+   "moeda": "KSM",
+   "horas": 1321,
+   "sem_volume_pct": 79.6,
+   "premio_mediano_pct": -0.175
+  },
+  {
+   "moeda": "SAHARA",
+   "horas": 1489,
+   "sem_volume_pct": 79.6,
+   "premio_mediano_pct": -0.16
+  },
+  {
+   "moeda": "CORE",
+   "horas": 1177,
+   "sem_volume_pct": 76.2,
+   "premio_mediano_pct": -0.104
+  },
+  {
+   "moeda": "DATA",
+   "horas": 1081,
+   "sem_volume_pct": 76.2,
+   "premio_mediano_pct": 0.275
+  },
+  {
+   "moeda": "SPK",
+   "horas": 1825,
+   "sem_volume_pct": 74.7,
+   "premio_mediano_pct": -0.049
+  },
+  {
+   "moeda": "AVNT",
+   "horas": 2162,
+   "sem_volume_pct": 71.0,
+   "premio_mediano_pct": -0.224
+  },
+  {
+   "moeda": "PROS",
+   "horas": 2520,
+   "sem_volume_pct": 69.0,
+   "premio_mediano_pct": -0.116
+  },
+  {
+   "moeda": "AXS",
+   "horas": 840,
+   "sem_volume_pct": 67.9,
+   "premio_mediano_pct": -0.106
+  },
+  {
+   "moeda": "TRB",
+   "horas": 2184,
+   "sem_volume_pct": 66.9,
+   "premio_mediano_pct": -0.101
+  },
+  {
+   "moeda": "MOODENG",
+   "horas": 2254,
+   "sem_volume_pct": 65.5,
+   "premio_mediano_pct": -0.164
+  },
+  {
+   "moeda": "CFX",
+   "horas": 1249,
+   "sem_volume_pct": 65.3,
+   "premio_mediano_pct": -0.065
+  }
+ ],
+ "veredicto": "sem vantagem: o premio nao converge de forma negociavel em 24 h e a perna X-Perp perde nos tres periodos; os premios grandes coincidem com horas sem volume (preco parado)"
+}
