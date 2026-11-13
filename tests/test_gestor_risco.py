@@ -101,10 +101,16 @@ class NoCircuito(unittest.TestCase):
     def test_capacidade(self):
         d, _ = self.correr([])
         self.assertEqual(len(d), 1)
+        self.assertNotIn("_px", d["AAA"]["plan"])
         novo = d["AAA"]["plan"]["risk_pct"]
         d, st = self.correr([aberta("ZZZ", 5.0 - novo + 0.01, "SHORT_TURTLE")])
         self.assertEqual(d, {})
         self.assertIn("capacidade", st["promo_lost"][-1]["reason"])
+        # (13/11, A1) a recusa entra na sombra com o plano completo
+        ab = list(st["sombra_rejeitadas"]["abertas"].values())
+        self.assertEqual((len(ab), ab[0]["filtro"], ab[0]["asset"]), (1, "capacidade", "AAA"))
+        self.assertEqual(ab[0]["plano"]["stop"], 80.0)
+        self.assertNotIn("_px", d.get("AAA", {}).get("plan", {}))
         d, st = self.correr([aberta("ZZZ", 5.0 - novo - 0.01, "SHORT_TURTLE")])
         self.assertEqual(len(d), 1)
         d, st = self.correr([aberta("AAA", 0.1, "SHORT_TURTLE")])

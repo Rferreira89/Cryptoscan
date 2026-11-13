@@ -636,6 +636,13 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
             result["paper_shadow"] = paper_shadow.update(state, eligible, c4s, now)
     except Exception as e:  # nunca pode parar o scan
         result["paper_shadow"] = {"erro": str(e)[:120]}
+    # (13/11, A1) sombra das oportunidades rejeitadas pelo motor de sinais: avanca e fecha com as regras originais
+    try:
+        from . import sombra_rejeitadas
+        sombra_rejeitadas.atualizar(state, c4s, now)
+        result["sombra_rejeitadas"] = sombra_rejeitadas.resumo(state)
+    except Exception as e:  # nunca pode parar o scan
+        result["sombra_rejeitadas"] = {"erro": str(e)[:120]}
     # papel automatico dos qualificados no combate (sem papel proprio)
     try:
         result["paper_ring"] = paper_ring.update(state, eligible, c4s, now, market_ok)

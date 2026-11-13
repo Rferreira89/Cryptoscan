@@ -114,6 +114,11 @@ def correr(pasta):
     pt = St.get("porta_long") or {}
     r["porta_long"] = {"pilotos_em_real": pt.get("pilotos") or [],
                        "a_falhar": {k: v.get("motivos") for k, v in list((pt.get("relatorio") or {}).items())[:40]}}
+    try:                                               # (13/11, A1) sombra das rejeitadas
+        from engine import sombra_rejeitadas
+        r["sombra_rejeitadas"] = sombra_rejeitadas.resumo(St) if St.get("sombra_rejeitadas") else {"fechadas": 0}
+    except Exception as e:
+        r["sombra_rejeitadas"] = {"erro": str(e)[:80]}
     pl = St.get("promo_lost") or []
     r["bybit_ue"]["perdidas_por_capacidade"] = sum(1 for x in pl if (x.get("reason") or "").startswith("capacidade"))
     r["decisoes"] = decisoes(r)

@@ -597,19 +597,19 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
                 continue
             if illiquid:
                 seen[a] = sig["t_sig"]
-                lost(state, now, a, champ, "liquidez: " + (d0.get("reason") or "sem par negociável na Bybit UE"))
+                lost(state, now, a, champ, "liquidez: " + (d0.get("reason") or "sem par negociável na Bybit UE"), sig, r["price"])
                 break
             why = block_for(a)
             if why:
                 seen[a] = sig["t_sig"]
-                lost(state, now, a, champ, f"evento: {why}")
+                lost(state, now, a, champ, f"evento: {why}", sig, r["price"])
                 break
             if sig.get("side") == "SHORT":
                 if not cfg.get("shorts"):
                     continue
                 mg = (state.get("margem_bybit") or {}).get("moedas")
                 if mg and a not in mg:            # (22/10) a Bybit UE nao empresta esta moeda
-                    falhou = falhou or (champ, sig["t_sig"], "sem margem na Bybit UE: a moeda não se pode vender a descoberto")
+                    falhou = falhou or (champ, sig["t_sig"], "sem margem na Bybit UE: a moeda não se pode vender a descoberto", sig)
                     continue
                 cc = acelerado.cfg_para(champ, state, cfg)       # (30/10) modo acelerado: so com OK final
                 cc = cfg_piloto(champ, state, cc, now)           # (11/11) piloto: desligado sem config "piloto"
@@ -623,20 +623,21 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
             if p and cc.get("acelerado_pct"):
                 p["acelerado_pct"] = cc["acelerado_pct"]
             if not p:
-                falhou = falhou or (champ, sig["t_sig"], why)
+                falhou = falhou or (champ, sig["t_sig"], why, sig)
                 continue
             vw = venue.vol_ordem(d0.get("venue"), p.get("position_usdc"), cfg)
             if vw:
                 seen[a] = sig["t_sig"]
-                lost(state, now, a, champ, "liquidez: " + vw)
+                lost(state, now, a, champ, "liquidez: " + vw, sig, r["price"], p)
                 falhou = None
                 break
             cands.append((rank, a, champ, sig, p, d0))
+            p.setdefault("_px", r["price"])
             break
         else:
             if falhou:                         # nenhum campeao conseguiu plano nesta moeda
                 seen[a] = falhou[1]
-                lost(state, now, a, falhou[0], f"plano: {falhou[2]}")
+                lost(state, now, a, falhou[0], f"plano: {falhou[2]}", falhou[3], r["price"])
     out, ok = {}, []
     fam = family_open(state)
     risco = risco_aberto(state)
@@ -648,10 +649,10 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
         # todas as estrategias (LONG e SHORT) mais o desta nunca passa o teto agregado (5% do capital). Uma
         # oportunidade valida so e recusada aqui por falta de capacidade de risco (fica registada como tal).
         if trav:
-            lost(state, now, a, champ, f"travão da conta: {trav}")
+            lost(state, now, a, champ, f"travão da conta: {trav}", sig, p.get("_px"), p)
             continue
         if a in risco["moedas"]:
-            lost(state, now, a, champ, f"capacidade: já há uma posição real aberta em {a}")
+            lost(state, now, a, champ, f"capacidade: já há uma posição real aberta em {a}", sig, p.get("_px"), p)
             continue
         f = family(champ)
         from .porta_long import piloto_de
@@ -660,13 +661,13 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
         lim = int(pl.get("max_posicoes") or 1) if pl else MAX_PER_FAMILY
         if fam.get(f, 0) >= lim:
             lost(state, now, a, champ, f"diversificação: já há {fam[f]} operações da família "
-                 f"«{FAMILIAS[f]}» abertas (máximo {lim})")
+                 f"«{FAMILIAS[f]}» abertas (máximo {lim})", sig, p.get("_px"), p)
             continue
         if bar["t"] != sig["t_sig"]:
             bar.update(t=sig["t_sig"], n=0, fam={})
         if bar["n"] >= MAX_PER_BAR:
             lost(state, now, a, champ, f"limite de {MAX_PER_BAR} entradas por vela de 4H "
-                 "(proteção contra quedas em cadeia)")
+                 "(proteção contra quedas em cadeia)", sig, p.get("_px"), p)
             continue
         bar["n"] += 1
         fam[f] = fam.get(f, 0) + 1
@@ -699,7 +700,7 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
             for y in xs:
                 if y is not x0:
                     lost(state, now, y[1], y[2], "uma só aposta: ficou só o melhor sinal da família nesta "
-                         "vela, inteiro, para poder proteger o lucro no TP1")
+                         "vela, inteiro, para poder proteger o lucro no TP1", y[3], y[4].get("_px"), y[4])
             x0[4]["cluster"] = {"n": k, "familia": FAMILIAS.get(f, f), "melhor": True}
             ok = [y for y in ok if (family(y[2]), y[3]["t_sig"]) != (f, t)] + [x0]
             continue
@@ -709,10 +710,11 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
                                                           (0.998 if short else 1.002), c2)
             if p2:
                 p2["cluster"] = {"n": k, "familia": FAMILIAS.get(f, f)}
+                p2["_px"] = p.get("_px")
                 xs[i] = (rank, a, champ, sig, p2, d0)
             else:                                # metade nao cabe na ordem minima: fica de fora
                 lost(state, now, a, champ, "risco dividido com outro sinal da mesma família "
-                     "nesta vela não cabe na ordem mínima")
+                     "nesta vela não cabe na ordem mínima", sig, p.get("_px"), p)
                 xs[i] = None
         xs = [x for x in xs if x]
         ok = [y for y in ok if (family(y[2]), y[3]["t_sig"]) != (f, t)] + xs
@@ -721,9 +723,10 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
         novo = float(p.get("risk_pct") or 0)
         if risco["pct"] + novo > teto_ag + 1e-9:
             lost(state, now, a, champ, f"capacidade: risco aberto {risco['pct']:.2f}% + {novo:.2f}% passaria o teto "
-                 f"agregado de {teto_ag:g}% da conta")
+                 f"agregado de {teto_ag:g}% da conta", sig, p.get("_px"), p)
             continue
         risco["pct"] += novo
+        p.pop("_px", None)                   # so servia para a sombra das rejeitadas
         short = p.get("side") == "SHORT"
         out[a] = {
             "decision": "SHORT" if short else "LONG", "side": "SHORT" if short else "LONG",
@@ -750,11 +753,18 @@ def arena_base(k):
     return re.sub(r"_R\d+$", "", k or "")
 
 
-def lost(state, now, asset, champ, why):
-    """Regista uma oportunidade de um campeao que nao virou sinal."""
+def lost(state, now, asset, champ, why, sig=None, price=None, plano=None, extra=None):
+    """Regista uma oportunidade de um campeao que nao virou sinal. (13/11, A1) com o sinal e o preco da decisao,
+    a oportunidade entra tambem na sombra das rejeitadas (engine/sombra_rejeitadas), com o plano completo."""
     lst = state.setdefault("promo_lost", [])
     lst.append({"t": int(now), "asset": asset, "strategy": champ, "reason": why})
     del lst[:-100]
+    if sig is not None and price:
+        try:
+            from . import sombra_rejeitadas
+            sombra_rejeitadas.registar(state, now, asset, champ, why, sig, price, plano, extra)
+        except Exception as e:                 # a sombra nunca pode parar o scanner
+            print("sombra:", e)
 
 
 def filtro_novo(state):
