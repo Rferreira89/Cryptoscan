@@ -1,20 +1,20 @@
 # Diário de investigação
 
-**Hipóteses testadas contra esta reserva: 26** (12 neste diário: compra de
+**Hipóteses testadas contra esta reserva: 27** (12 neste diário: compra de
 quedas, compressão, oversold bounce 4H, day trade 1H, bounce com outras
 saídas, sweep a mercado, funding negativo, quebra com compradores,
 capitulação do mercado, atraso face ao BTC, resiliente, impulso de
-amplitude; mais 14 no diário de afinação, H1 a H13 e H15). Atualizado em
-2026-11-12 (sem hipótese nova nesta corrida nem nas anteriores desde
+amplitude; mais 15 no diário de afinação, H1 a H13, H15 e H16). Atualizado
+em 2026-11-13 (sem hipótese nova nesta corrida nem nas anteriores desde
 2026-10-20; a afinação testou a H13 em 2026-11-04, a H14 em 2026-11-06,
-uma medição de lutadores existentes que não conta como hipótese nova, e a
-H15 em 2026-11-11, rejeitada). O contador global do
+uma medição de lutadores existentes que não conta como hipótese nova, a
+H15 em 2026-11-11 e a H16 em 2026-11-13, ambas rejeitadas). O contador global do
 programa (`engine/hipoteses.py` mais `backtest/hipoteses_offline.json`,
 contra dados que incluem esta reserva) já vai em 87 (ringue longo,
 2026-11-04), mais os estudos H38–H41 de 03–04/11 em `backtest/estudos/`.
 Quanto maior este número, maior a probabilidade de uma hipótese passar por
-sorte: com 26 testes, a probabilidade de pelo menos um falso positivo a 5%
-já ronda os 74% (e as várias configurações de cada grelha aumentam-na
+sorte: com 27 testes, a probabilidade de pelo menos um falso positivo a 5%
+já ronda os 75% (e as várias configurações de cada grelha aumentam-na
 ainda mais).
 
 Uma hipótese por entrada, com o veredicto. Método: `tools/research.py`
@@ -207,6 +207,7 @@ o Rui), e o morto fica registado. Um por corrida, na segunda vaga.
 | BOUNCE_DESALAV | 2026-10-29 10:55 UTC (clone de BOUNCE_V2, correlação 0,96) | não é desempenho: no combate de 90 dias tinha 20 op., 17 ganhadoras, +0,451R, com o acaso a mediana −0,434R e p95 −0,134R (acima do p95; validação interna 19 op. fora, +0,348R). Foi morta ao chegar às 20 operações como clone de BOUNCE_V2, que está morta desde 2026-10-22: terceira vez o mesmo defeito do corte dos clones (ver entrada de 2026-10-29) | sem sucessor (seria outro clone; a correção é no corte dos clones, numa sessão com o Rui) | — |
 | BOUNCE_V1 | 2026-10-30 19:40 UTC (forma recente, morte rápida; 10 op., −0,703R) | a saída, não a entrada: no mesmo combate e nas mesmas moedas o gatilho com a saída G0 tem 24 op., +0,59R (acima do p95 do acaso); a saída V1 (plano do sistema ao vivo: 1.º objetivo mais longe, até 30 dias, stop na entrada só depois do 1.º objetivo) devolve as subidas na lateral (stops depois de +1,0R a +1,5R a favor); 9 das 16 operações locais nasceram no mesmo dia (2026-10-09), um só acontecimento (ver entrada de 2026-10-31) | sem sucessor (a correção é a saída G0, que já existe e está morta como clone; um sucessor seria outro clone) | — |
 | BOUNCE_MACRO_R2 | 2026-11-04 06:40 UTC (forma recente, morte rápida; 10 op., −0,614R) | a mesma função de BOUNCE_MACRO (`sig_macro`), regressada a 2026-10-26: 7 op. em só 4 dias (3 na mesma vela de 26/10), 5 stops; o filtro macro tira as melhores sobrevendas (no combate de 90 dias, X30 sem filtro +0,06R contra −0,12R com filtro) e a família X30 na lateral passou de +0,21R para −0,31R entre as duas metades do ringue longo; o regresso foi decidido com uma prova que já não se aguentava (ver entrada de 2026-11-04) | sem sucessor (a correção é tirar o filtro, que é o BOUNCE_X30, morto como clone; e a família perde na metade recente) | — |
+| VOLUME_ACUMULACAO_R2 | 2026-11-13 03:45 UTC (forma recente, morte rápida; 10 op., −0,506R) | a mesma função de VOLUME_ACUMULACAO (`sig_volume`), regressada a 2026-10-24 pela regra do regresso (regime lateral): desde então 10 op., 2 ganhadoras, 8 stops (−0,63R); no combate de 90 dias 46 op., −0,357R, abaixo da mediana do acaso (−0,26R; últimos 30 dias −0,72R em 17 op.); no ringue longo a lateral dá −0,18R e −0,76R nas duas metades; no desenho continua no percentil 80 do acaso (sem vantagem provada) com a geometria a perder também ao acaso (−0,14R). Sem causa única (ver entrada de 2026-11-13) | sem sucessor (segunda morte da mesma função; trocar a saída só leva ao nível do acaso, que também perde) | — |
 
 ## Hipóteses anteriores a este diário (até 2026-10-02, período 2021-2026)
 
@@ -2472,3 +2473,98 @@ ronda os 74%.
   precisa de 10–11 dias de aquecimento: primeiras operações possíveis por
   volta de 17–18/11 (H52/H53), 21/11 (H57–H59) e 22/11 (H60).
 - Nenhum resultado em dados antigos foi usado como validação.
+
+## 2026-11-13 — Sem hipótese nova hoje; autópsia de VOLUME_ACUMULACAO_R2 (sem sucessor)
+
+**Veredicto da corrida: nenhuma hipótese testada.** O contador desta
+reserva passa a 27 por causa da afinação (H16 SESSAO_ASIA, testada e
+rejeitada hoje). Com 27 testes contra a mesma reserva, a probabilidade de
+pelo menos um falso positivo a 5% ronda os 75%.
+
+- **Histórico** (ramo `history`): último commit 2026-11-08 13:22 UTC (5
+  dias de atraso, dentro do limite de 7; não foi preciso lançar o
+  workflow). Janela de 24 meses: desenho 2024-11-08 → 2026-05-08, reserva
+  2026-05-08 → 2026-11-08. Atenção: amanhã ou depois o atraso passa de 7
+  dias e a próxima corrida terá de lançar primeiro "Historico para
+  backtest".
+- **Arena** (scan.json do ramo `data`, 2026-11-13): **9 lutadores a
+  competir** (mínimo 5), `recrutar` falso. Um morto novo:
+  VOLUME_ACUMULACAO_R2 (2026-11-13 03:45 UTC). Fila do Rui vazia.
+
+### Autópsia de VOLUME_ACUMULACAO_R2 (sem sucessor)
+
+Dados: `state.json` do ramo `data` (arena → mortos, renascidos, longo),
+`forma.json` do ramo `arena` (2026-11-13 11:23 UTC, 56 moedas) e
+`tools/autopsia_arena.py` só na janela de desenho (a reserva não foi
+usada). Números em `backtest/autopsia_2026-11-13.json`.
+
+- **Quem é**: a mesma função de VOLUME_ACUMULACAO (`sig_volume`: vela de
+  4H com volume ≥ 3× a mediana de 30, ≥ 55% de compradores a mercado,
+  preço quase parado em 3 velas, fecho na metade de cima; stop no mínimo
+  de 6 velas − 0,2 ATR; objetivos 2R e 4R, 5 dias). A original morreu a
+  2026-10-16 (autópsia de 2026-10-17: sem causa clara). Regressou como
+  VOLUME_ACUMULACAO_R2 a 2026-10-24 00:05 UTC pela regra do regresso
+  (`engine/arena.rebirth`, regime lateral) e morreu por morte rápida.
+- **As operações desde o regresso** (ringue longo): 27/10 −1,03R; 28/10
+  −1,02R; 30/10 +1,14R e −1,01R (mesma vela); 09/11 00h +0,74R e −1,03R
+  (mesma vela); 09/11 12h −1,01R; 11/11 −1,02R; 12/11 00h −1,03R; 12/11
+  16h −1,03R. 10 op. (8 velas diferentes), 2 ganhadoras, 8 stops, −0,63R.
+- **Combate de 90 dias**: 46 op., 14 ganhadoras, −0,357R; acaso mediana
+  −0,26R, p95 −0,005R — abaixo da mediana do acaso, ou seja, o momento de
+  entrada é hoje PIOR do que entrar num dia qualquer com a mesma
+  geometria. Validação interna: dentro 29 op. −0,145R, fora (últimos 30
+  dias) 17 op. −0,719R: está a piorar.
+- **Ringue longo (365 dias)**: 43 op., −0,343R. Na lateral, onde
+  regressou: 29 op., −0,481R, metades −0,18R e −0,76R (reservado 7 op.,
+  −0,77R). Na subida: 14 op., −0,055R (p95 do acaso +0,38R).
+- **Desenho (2024-11-08 → 2026-05-08)**: 78 op., −0,036R, 45% de acerto;
+  acaso mediana −0,14R, p95 +0,067R: **percentil 79,9** (igual ao de
+  2026-10-17, 82). Saídas: 40 stops (−1,02R, espalhados por todas as
+  durações: 9 em <12h, 19 em 12–48h, 12 em >48h), 22 por tempo (+0,72R),
+  10 no zero, 6 no 2.º objetivo. Custo médio 0,16R por operação. Só 32%
+  chegam ao 1.º objetivo. Por hora de sinal, as 00h UTC dão +0,56R em 14
+  op. e as restantes perdem — 14 operações não chegam para nada e um
+  filtro de hora seria escolhido depois de ver os dados (a afinação acabou
+  de chumbar a sessão asiática, H16).
+- **Porque não há sucessor**: não há uma causa única. No desenho a
+  entrada está um pouco acima do acaso, sem significância; a geometria
+  (2R/4R, 5 dias) perde mesmo com entradas ao acaso (−0,14R), por isso
+  trocar a saída só levaria ao nível do acaso, que também é negativo; e
+  nos últimos 90 dias a entrada caiu para baixo da mediana do acaso. Não
+  há um filtro que ataque uma causa demonstrada — inventar um seria
+  procurar nos dados.
+- **Defeito do regresso (segunda vez)**: tal como BOUNCE_MACRO_R2 (morta
+  a 2026-11-04), este regresso foi decidido com o registo da lateral e
+  morreu em 20 dias; hoje esse registo tem as duas metades negativas. Não
+  mexo em `engine/`: reforça a proposta para a sessão com o Rui de exigir
+  as duas metades do ringue longo positivas para um regresso.
+
+### Resto da arena (combate de 90 dias, 2026-11-13 11:23 UTC)
+
+- BOUNCE_AMPLITUDE 15 op., 15 ganhadoras, +0,813R (acaso mediana −0,367R,
+  p95 +0,028R): continua o único claramente acima do acaso, mas chumbou no
+  critério da conta e 15 em 15 são poucos acontecimentos independentes.
+- REVERSAO_INTERVALO 29 op., 20 ganhadoras, −0,058R (p95 −0,063R): de novo
+  acima do p95 por 0,005R, mas a validação fora (11 op.) dá −0,214R.
+  Margem sem significado.
+- CAPITULACAO (função de CAPITULACAO_R2) 45 op., +0,048R (p95 −0,181R),
+  fora 27 op. +0,166R: acima do acaso no combate; a seguir.
+- MAIORES_RECUO 17 op., −0,019R (p95 +0,09R). BREAKOUT_R2 (2 op.),
+  SHORT_SQUEEZE (4 op.), MAIORES_TENDENCIA (3 op.) e BOUNCE_MEDO (2 op.)
+  continuam sem ganhadoras.
+
+- **Porque não há hipótese nova**: as mesmas razões de 2026-10-21 a
+  2026-11-12. As famílias de entrada em 4H estão esgotadas contra esta
+  reserva; as ideias com fonte nova (H52, H53, H57–H60) estão registadas e
+  só podem ser avaliadas com dados posteriores ao registo; testá-las aqui
+  com dados antigos estragaria esse teste limpo. Vigésima terceira
+  corrida seguida sem hipótese nova.
+- Proposta para a próxima corrida: lançar primeiro o workflow do
+  histórico (o atraso vai passar de 7 dias); autópsia se morrer alguém
+  (BREAKOUT_R2, SHORT_SQUEEZE, MAIORES_TENDENCIA e BOUNCE_MEDO são os
+  candidatos à morte rápida). Mantém-se para a sessão com o Rui: (1) passar
+  esta corrida a semanal enquanto não houver dados novos; (2) regresso dos
+  mortos só com as duas metades do ringue longo positivas (dois regressos
+  já morreram em menos de três semanas); (3) morte rápida a contar
+  acontecimentos; (4) corte dos clones só com representantes vivos; (5) o
+  caso CAPITULACAO_R2 fora da classificação.
