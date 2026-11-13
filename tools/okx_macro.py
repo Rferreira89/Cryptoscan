@@ -14,6 +14,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 import okx_agente as A                           # noqa: E402  (mesma ligacao IPv4, pedidos e Telegram)
 
 N, SUBIDA_DIAS, CUSTO = 50, 10, 0.001
+FUND_DIA = 0.0003            # (13/11) financiamento estimado 0,01%/8 h, pago enquanto a posicao esta aberta
 # (04/11) ETF alavancados/inversos e de volatilidade: perdem valor com o tempo por construcao; a tendencia neles engana
 FORA = {"SQQQ", "TQQQ", "SOXS", "SOXL", "UVXY", "VXX", "TSLL", "TSLQ", "NVDL", "NVDD", "SPXU", "SPXL", "UPRO", "SDS", "QID",
         "LABU", "LABD", "MSTU", "MSTZ", "CONL"}
@@ -76,8 +77,10 @@ def correr(st):
         vistos += 1
         entra, sai, forca, px, m = s
         op = M["abertas"].get(base)
+        if op:                                       # (13/11) avaliacao da aberta ao ultimo fecho diario
+            op.update(px=px, t_px=d[-1]["t"])
         if op and sai and d[-1]["t"] > op["t"]:
-            ret = px / op["entrada"] - 1 - 2 * CUSTO
+            ret = px / op["entrada"] - 1 - 2 * CUSTO - FUND_DIA * max(0, (d[-1]["t"] - op["t"]) / 86400)
             M["fechadas"].append({"asset": base, "t": op["t"], "t_fim": d[-1]["t"], "ret_pct": round(100 * ret, 2)})
             M["abertas"].pop(base)
             rs = [x["ret_pct"] for x in M["fechadas"]]
@@ -95,10 +98,45 @@ def correr(st):
     rs = [x["ret_pct"] for x in M["fechadas"]]
     M["resumo"] = {"analisados": vistos, "sem_historico": sem_hist, "abertas": sorted(M["abertas"]), "n": len(rs),
                    "ret_medio_pct": round(sum(rs) / len(rs), 2) if rs else None}
+    try:
+        M["resumo"].update(avaliar(M, xperps_eea()))
+    except Exception as e:                           # a avaliacao nunca para o agente
+        M["resumo"]["avaliacao_erro"] = str(e)[:100]
     for b in [b for b in curtos if lista and b not in lista]:   # API em baixo (lista vazia) nao apaga
         curtos.pop(b)
     del M["fechadas"][:-1000]
     return msgs
+
+
+def xperps_eea():
+    """Bases com X-Perp vivo na OKX EEA (o que a conta pode negociar; o agente le os perpetuos SWAP)."""
+    return {i["instId"].split("-")[0] for i in A.get("/api/v5/public/instruments?instType=FUTURES")
+            if "XPERP" in i.get("instId", "") and i.get("state") == "live"}
+
+
+def avaliar(M, eea, agora=None):
+    """(13/11, ordem do Rui) Avaliacao da carteira em papel: abertas ao ultimo fecho com custos e financiamento,
+    exposicao, resultado por instrumento e o que e negociavel na conta OKX EEA. Em %, nunca dinheiro."""
+    agora = agora or time.time()
+    ab = []
+    for b, op in sorted((M.get("abertas") or {}).items()):
+        if not op.get("px"):
+            ab.append({"asset": b, "avaliada": False, "negociavel_eea": b in eea})
+            continue
+        dias = max(0.0, ((op.get("t_px") or agora) - op["t"]) / 86400)
+        ab.append({"asset": b, "avaliada": True, "dias": round(dias, 1), "negociavel_eea": b in eea,
+                   "ret_pct": round(100 * (op["px"] / op["entrada"] - 1 - 2 * CUSTO - FUND_DIA * dias), 2)})
+    av = [x["ret_pct"] for x in ab if x.get("avaliada")]
+    por = {}
+    for f in M.get("fechadas") or []:
+        por.setdefault(f["asset"], []).append(f["ret_pct"])
+    fech = M.get("fechadas") or []
+    return {"abertas_avaliadas": ab, "abertas_n": len(ab), "abertas_sem_preco": sum(1 for x in ab if not x.get("avaliada")),
+            "ret_aberto_medio_pct": round(sum(av) / len(av), 2) if av else None,
+            "negociaveis_eea_abertas": sum(1 for x in ab if x["negociavel_eea"]),
+            "fechadas_negociaveis_eea": sum(1 for f in fech if f["asset"] in eea),
+            "por_instrumento": {k: {"n": len(v), "ret_medio_pct": round(sum(v) / len(v), 2)} for k, v in sorted(por.items())},
+            "nota": "papel/sombra; sem posicoes reais; financiamento estimado 0,01%/8h"}
 
 
 def retirar_fora(M, lista):
