@@ -119,6 +119,58 @@ def apply(state, ex):
         reconciliar_ordens(state, ex, now)
     except Exception as e:
         print("reconciliar ordens:", e)
+    try:                                     # (13/11, A2) nenhuma falha de execucao sem aviso confirmado
+        reconciliar_avisos(state, ex, now)
+    except Exception as e:
+        print("reconciliar avisos:", e)
+
+
+A2_DESDE = 1794528000        # 13/11/2026 00:00 UTC: ordens anteriores (BNB de 12/11) ja foram tratadas a parte
+
+
+def avisos_em_falta(state, ex, now):
+    """Ordens recusadas/falhadas no executor sem nenhum aviso CONFIRMADO pelo Telegram (id de mensagem) para essa
+    ordem, e ainda sem aviso de reconciliacao enviado. Ignora o que tem menos de 10 min (o executor ainda envia)."""
+    enviados = {a.get("op") for a in (ex or {}).get("avisos") or [] if a.get("estado") in ("enviado", "duplicado")}
+    feitos = state.get("avisos_reconciliados") or {}
+    out = []
+    for k, o in ((ex or {}).get("ops") or {}).items():
+        if not isinstance(o, dict) or o.get("status") != "recusada" or o.get("entrada"):
+            continue
+        t = int(o.get("t") or o.get("criado") or (ex or {}).get("t") or 0)
+        if not t or t < A2_DESDE or now - t < 600 or now - t > 3 * 86400 or k in enviados:
+            continue
+        f = feitos.get(k) or {}
+        if f.get("message_id") or int(f.get("tentativas") or 0) >= 3:
+            continue
+        out.append((k, o))
+    return out
+
+
+def reconciliar_avisos(state, ex, now):
+    from . import alerts
+    if not alerts.configured():
+        return []
+    feitos = state.setdefault("avisos_reconciliados", {})
+    led = {r["id"]: r for r in state.get("ledger") or []}
+    out = []
+    for k, o in avisos_em_falta(state, ex, now):
+        a = o.get("asset") or (led.get(k) or {}).get("asset") or k[:20]
+        motivo = str(o.get("motivo") or o.get("erro") or "recusada")[:160]
+        txt = (f"⚠️ Ordem não executada: {a} ({(led.get(k) or {}).get('strategy') or '?'}). Motivo: {motivo}. "
+               "Nada foi comprado nem vendido. (Aviso de reconciliação: o executor não confirmou a entrega do aviso.)")
+        f = feitos.setdefault(k, {"tentativas": 0})
+        f["tentativas"] = int(f.get("tentativas") or 0) + 1
+        try:
+            mid = alerts.send(txt)
+            f.update(message_id=mid if isinstance(mid, int) and not isinstance(mid, bool) else None,
+                     estado="enviado" if mid else "duplicado", t=int(now))
+        except Exception as e:
+            f.update(estado="falhou", erro=str(e)[:120], t=int(now))
+        out.append(k)
+    for k in [k for k, v in feitos.items() if now - int(v.get("t") or now) > 7 * 86400]:
+        del feitos[k]
+    return out
 
 
 ESTADOS_ORDEM = ("SINAL", "ORDEM_ENVIADA", "EXECUTADA", "RECUSADA", "FALHOU", "EXPIRADA", "CANCELADA")

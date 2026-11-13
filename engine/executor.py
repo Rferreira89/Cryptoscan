@@ -2038,11 +2038,33 @@ def main(state_path, ex_in, out):
     ex.setdefault("ops", {})
     ex.setdefault("feitos", [])
 
-    def send(text, html=False):
+    avisos = ex.setdefault("avisos", [])
+    atual = {"op": None, "acao": None}
+
+    def send(text, html=False, _reenvio=None):
+        """(13/11, A2) Cada aviso fica registado no exec.json: enviado (com o id da mensagem confirmado pelo
+        Telegram), duplicado (igual a outro enviado ha pouco) ou falhou (com o erro); os falhados voltam a ser
+        enviados na volta seguinte, no maximo 3 vezes em 24 h."""
+        import hashlib
+        reg = _reenvio or {"t": now, "op": atual["op"], "acao": atual["acao"], "tentativas": 0,
+                           "hash": hashlib.sha1(text.encode()).hexdigest()[:12], "texto": text[:600], "html": html}
+        reg["tentativas"] = int(reg.get("tentativas") or 0) + 1
         try:
-            alerts.send(text, html=html)
+            mid = alerts.send(text, html=html)
+            reg.update(estado="enviado" if mid else "duplicado",
+                       message_id=mid if isinstance(mid, int) and not isinstance(mid, bool) else None, erro=None,
+                       t_envio=now)
         except Exception as e:
+            reg.update(estado="falhou", erro=str(e)[:160])
             print("TELEGRAM FALHOU", e)
+        if _reenvio is None:
+            avisos.append(reg)
+        del avisos[:-200]
+        return reg.get("estado") == "enviado"
+
+    for reg in [a for a in avisos if a.get("estado") == "falhou" and int(a.get("tentativas") or 0) < 3
+                and now - int(a.get("t") or now) < 86400]:
+        send("(reenvio) " + reg.get("texto", ""), reg.get("html", False), _reenvio=reg)
 
     ex["t"] = now
     if not configured():
@@ -2074,6 +2096,7 @@ def main(state_path, ex_in, out):
         else:
             reqs.append({"id": f"manual-{forced}-{now}", "acao": forced, "op": "", "t": now})
     for r in reqs:
+        atual.update(op=r.get("op"), acao=r.get("acao"))
         res = "ignorado"
         if not ex["pronto"]:
             if r.get("acao") in ("comprar", "vender", "teste", "parar"):

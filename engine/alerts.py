@@ -95,7 +95,9 @@ def send(text, markup=None, html=False):
         raise AlertError(f"Telegram: {d.get('description')}")
     _sent()[k] = now
     _guardar(now)
-    return True
+    # (13/11, A2) confirmacao de entrega: o Telegram devolve o id da mensagem criada no chat (verdadeiro como antes)
+    mid = (d.get("result") or {}).get("message_id")
+    return int(mid) if mid else True
 
 
 if __name__ == "__main__":
