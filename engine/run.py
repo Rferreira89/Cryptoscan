@@ -1215,6 +1215,13 @@ def main():
                                        conta.get("usdc_free"), cfg_n, res["generated_at"]):
             execucao.request(state, acao, op, res["generated_at"])
         res["nucleo"] = nucleo.resumo(state)
+        # (13/11, A5) resumo publico sem dinheiro: o estado do nucleo passa a ser verificavel no ramo data
+        _n = res["nucleo"] or {}
+        state["nucleo_publico"] = {"t": int(res["generated_at"]), "ligado": bool(cfg_n.get("nucleo_ligado")),
+                                   "regra_dias": int(cfg_n.get("nucleo_dias") or nucleo.DIAS),
+                                   "moedas": list(cfg_n.get("nucleo_moedas") or nucleo.MOEDAS),
+                                   "em_posicao": sorted((_n.get("pos") or {}).keys()),
+                                   "acima_da_media": {a: (p or {}).get("acima") for a, p in (_n.get("plano") or {}).items()}}
     except Exception as e:
         print("nucleo:", e)
     try:                                     # pos-morte das operacoes reais (engine/posmortem.py)
