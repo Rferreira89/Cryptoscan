@@ -1423,7 +1423,7 @@ def acaso_teste(pares, p95, now, rng, reps=ACASO_POR_TESTE, pk=None):
     return reps, pa, pn
 
 
-def clones(groups, out, t0, now, lim=CLONE_CORR, min_n=20):
+def clones(groups, out, t0, now, lim=CLONE_CORR, min_n=20, mortos=None):
     """{lutador: {de, corr}}: quem tem resultados diarios correlacionados acima
     de lim com um lutador melhor (o melhor de cada grupo fica)."""
     dias = range(t0 // DAY, now // DAY + 1)
@@ -1432,7 +1432,11 @@ def clones(groups, out, t0, now, lim=CLONE_CORR, min_n=20):
         ok = sum(1 for r in rgs if r.get("passa_atual"))
         pr = [r.get("avg_r") for r in rgs if (r.get("n") or 0) >= min_n and r.get("avg_r") is not None]
         return (ok, max(pr) if pr else ((out.get(k) or {}).get("avg_r") or -9))
-    cand = sorted((k for k, trs in groups.items() if len(trs) >= min_n and k != "REJEITADOS"),
+        mortos = set(mortos or ())
+    cand = sorted((k for k, trs in groups.items()
+                   if len(trs) >= min_n and k != "REJEITADOS"
+                   and k not in mortos
+                   and (out.get(k) or {}).get("veredicto") != "MORTA"),
                   key=score, reverse=True)
     ser = {k: {d: sum(v) for d, v in _por_dia(groups[k]).items()} for k in cand}
     def corr(a, b):
@@ -1476,7 +1480,7 @@ def juros_short_r(t, juros_dia_pct):
 
 
 def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None, funding=None, oi=None,
-        macro=None, ls=None, renascidos=None, regimes=False, margem=None):
+        macro=None, ls=None, renascidos=None, regimes=False, margem=None, mortos=None):
     """margem: moedas que a Bybit UE deixa vender a descoberto (instruments-info, marginTrading). Com a lista,
     os lutadores SHORT so combatem nessas moedas (antes combatiam em todas, incluindo as que a conta nao pode
     vender). None = lista desconhecida: comportamento antigo, assinalado em 'shorts_universo'."""
@@ -1570,7 +1574,7 @@ def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None, funding=None, oi=None,
         res["acaso_filtro"] = {rg: dict(v, taxa_atual=round(v["passam_atual"] / v["testes"] * 100, 1) if v["testes"] else None,
                                          taxa_novo=round(v["passam_novo"] / v["testes"] * 100, 1) if v["testes"] else None)
                                for rg, v in ACASO.items()}
-        res["clones"] = clones(groups, out, t0, now)
+        res["clones"] = clones(groups, out, t0, now, mortos=mortos)
     return res
 
 
@@ -1690,14 +1694,17 @@ def main(dest, days=DAYS, state_path=None, longo=False):
             ls[base] = [tuple(x) for x in c["ls"]]
     macro = {k: [tuple(x) for x in v] for k, v in ((eu or {}).get("macro") or {}).items()}
     renascidos = {}
-    try:
-        if state_path and os.path.exists(state_path):
-            with open(state_path) as f:
-                renascidos = ((json.load(f).get("arena") or {}).get("renascidos")) or {}
-    except Exception as e:
-        print("estado ilegível:", e, file=sys.stderr)
+mortos = {}
+try:
+    if state_path and os.path.exists(state_path):
+        with open(state_path) as f:
+            ar_state = json.load(f).get("arena") or {}
+            renascidos = ar_state.get("renascidos") or {}
+            mortos = ar_state.get("mortos") or {}
+except Exception as e:
+    print("estado ilegível:", e, file=sys.stderr)
     res = run(bars, cfg, now, days, bars1h=bars1h, funding=funding, oi=oi, macro=macro, ls=ls,
-              renascidos=renascidos, regimes=longo, margem=margem)
+                        renascidos=renascidos, regimes=longo, margem=margem, mortos=mortos)
     res["universo_fonte"] = fonte_ven
     res["shorts_universo"] = (sorted(set(margem) & set(bars)) if margem is not None
                               else "lista de margem desconhecida: shorts em todas as moedas (como antes)")
