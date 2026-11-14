@@ -75,6 +75,43 @@ class TestGravarTextoObrigatorio(unittest.TestCase):
         )
         self.assertEqual(temporarios, [])
 
+    def test_leitura_com_ler_texto(self):
+        original = '{"segredo": 456}'
+
+        with patch.object(cifra, "senha", return_value="chave-teste"):
+            cifra.gravar_texto_obrigatorio(self.path, original)
+            recuperado = cifra.ler_texto(self.path)
+
+        self.assertEqual(recuperado, original)
+
+    def test_leitura_cifrada_sem_chave(self):
+        with patch.object(cifra, "senha", return_value="chave-teste"):
+            cifra.gravar_texto_obrigatorio(
+                self.path, '{"segredo": 789}'
+            )
+
+        with patch.object(cifra, "senha", return_value=""):
+            with self.assertRaises(cifra.SemChave):
+                cifra.ler_texto(self.path)
+
+    def test_leitura_cifrada_com_chave_errada(self):
+        with patch.object(cifra, "senha", return_value="chave-correta"):
+            cifra.gravar_texto_obrigatorio(
+                self.path, '{"segredo": 789}'
+            )
+
+        with patch.object(cifra, "senha", return_value="chave-errada"):
+            with self.assertRaises(cifra.Invalido):
+                cifra.ler_texto(self.path)
+
+    def test_leitura_texto_antigo_sem_cifra(self):
+        original = '{"formato": "antigo", "valor": 123}'
+        self.path.write_text(original, encoding="utf-8")
+
+        recuperado = cifra.ler_texto(self.path)
+
+        self.assertEqual(recuperado, original)
+
 
 if __name__ == "__main__":
     unittest.main()
