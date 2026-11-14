@@ -1083,6 +1083,15 @@ def _breakeven_long(state, req, ex, now, send):
     return "ok"
 
 
+def quantidade_long_a_fechar(op_qty, held_qty, nucleo_qty=0.0):
+    """Quantidade máxima da operação que ainda pode ser vendida."""
+    restante = max(0.0, float(held_qty) - float(nucleo_qty))
+    registada = max(0.0, float(op_qty))
+    return min(restante, registada)
+
+
+def do_close(state, req, ex, now, send, why="saída do plano"):
+      
 def do_close(state, req, ex, now, send, why="saída do plano"):
     op = ex["ops"].get(req["op"]) or {}
     if op.get("status") != "aberta":
