@@ -25,7 +25,7 @@ import hmac
 import json
 import os
 import sys
-
+import tempfile
 VERSAO, ITER = "cs1", 200_000
 _CACHE = {}
 
@@ -201,8 +201,44 @@ def gravar_texto(caminho, texto):
     if ativa():
         texto = json.dumps(cifrar_bytes(texto.encode()), separators=(",", ":"))
     with open(caminho, "w") as f:
-        f.write(texto)
+        f.write(texto) 
+def gravar_texto_obrigatorio(caminho, texto):
+    """Grava texto cifrado obrigatoriamente, sem fallback em claro."""
+    if not ativa():
+        raise SemChave("DATA_KEY em falta: escrita cifrada recusada")
 
+    if not isinstance(texto, str):
+        raise TypeError("texto tem de ser uma string")
+
+    envelope = cifrar_bytes(texto.encode("utf-8"))
+    payload = json.dumps(envelope, separators=(",", ":"))
+
+    diretorio = os.path.dirname(os.path.abspath(caminho))
+    fd, temporario = tempfile.mkstemp(
+        prefix=".cryptoscan-",
+        dir=diretorio
+    )
+
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            f.write(payload)
+            f.flush()
+            os.fsync(f.fileno())
+
+        os.replace(temporario, caminho)
+
+    except Exception:
+        try:
+            os.close(fd)
+        except OSError:
+            pass
+
+        try:
+            os.unlink(temporario)
+        except OSError:
+            pass
+
+        raise
 
 # ---------- linha de comandos ----------
 
