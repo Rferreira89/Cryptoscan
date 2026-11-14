@@ -24,7 +24,7 @@ TF = 14400
 # compra quedas de mercado e os sinais chegam em grupo, em moedas que se
 # mexem juntas. No maximo MAX_PER_BAR entradas novas por vela de 4H; o resto
 # fica registado como oportunidade perdida.
-MAX_PER_BAR = 2
+MAX_PER_BAR = 4
 # Lutadores cujo codigo de sinal foi revisto numa sessao com o Rui e que por
 # isso podem ser campeoes com dinheiro real. Os lutadores novos criados pelos
 # agentes entram no combate e em papel ao vivo sozinhos; para dinheiro real
@@ -166,7 +166,7 @@ def growth(state, cfg):
 # "Nao quero todos os analistas numa estrategia so": as familias agrupam os
 # lutadores que reagem ao mesmo fenomeno de mercado e por isso ganham e perdem
 # juntos. No maximo MAX_PER_FAMILY operacoes reais abertas da mesma familia.
-MAX_PER_FAMILY = 1     # Rui, 20/10: uma de cada familia (as copias contam uma vez)
+MAX_PER_FAMILY = 4     # Rui, 20/10: uma de cada familia (as copias contam uma vez)
 FAMILIAS = {"maiores": "Equipa das maiores (BTC, ETH, SOL)", "sobrevenda": "Sobrevenda a virar", "tendencia": "Tendência e rompimento",
             "volatilidade": "Volatilidade", "volume": "Volume anormal (acumulação)", "capitulacao": "Capitulação", "short": "Venda a descoberto"}
 
@@ -559,18 +559,19 @@ def short_plan_for(sig, px, cfg):
             "no_react_s": sig.get("no_react_s"), "trail_r": sig.get("trail_r")}, None
 
 
+
 def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
-    """{ativo: decisao LONG} para os sinais frescos dos campeoes (o melhor
-    campeao com sinal ganha a moeda). Cada vela de sinal so e usada uma vez
-    por moeda. block_for(ativo) -> motivo ou None. Os sinais bloqueados por
-    evento ficam em state["promo_lost"]."""
+    """{ativo: decisao LONG ou SHORT} para os sinais frescos dos campeoes.
+    O melhor campeao com sinal ganha a moeda. Cada vela de sinal so e usada
+    uma vez por moeda. block_for(ativo) -> motivo ou None.
+    Os sinais bloqueados ficam registados em state["promo_lost"].
+    """
     if isinstance(champs, str):
         champs = [champs]
     champs = [k for k in (champs or []) if registry().get(k)]
-    if not market_ok:                         # BTC abaixo da SMA200: so vendas a descoberto
-        champs = [k for k in champs if arena_base(k).startswith("SHORT_")]
     if not champs:
         return {}
+
     seen = state.setdefault("promo_last", {})
     bar = state.setdefault("promo_bar", {"t": 0, "n": 0})
     set_context(rows, bars)
