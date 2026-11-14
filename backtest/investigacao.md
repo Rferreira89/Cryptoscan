@@ -2657,3 +2657,38 @@ Sessão com o Rui. Decisões binárias a partir da auditoria do relatório do ag
 - 27 testes contra a reserva → risco de pelo menos um falso positivo ~75%. Disciplina de múltiplos testes continua a ser o ponto fraco.
 - Separação rígida LONG/SHORT reduz o universo de descoberta; a reavaliar mais tarde.
 - 24 corridas sem hipótese nova não prova esgotamento real do espaço de ideias; pode ser estreiteza do mecanismo de geração.
+
+## 2026-11-14 — Ordem operacional (fase agressiva): pré-registo
+
+**Escrito e guardado em commit antes de correr qualquer teste.** Ordem do Rui de 2026-11-14 13:56.
+
+- **CAPITULACAO_R2 morta** por decisão do Rui (commit acdf3ab, `engine/arena.MORTES_DECIDIDAS`): "a função tem
+  edge (+0,08R em 46 op.), o lutador destrói valor (−0,66R em 3 op.)". Morte definitiva, sem regresso por
+  mudança de regime. A função `sig_capitulacao` fica como base do CAP_MERCADO_V2 abaixo.
+- **Sem shorts nesta corrida. Sem hipóteses além destas duas.**
+- Método comum: `tools/research_rlib.evaluate` (carteira 4 × 25%, uma por moeda; 0,25% + 0,1% por lado; últimos
+  24 meses, 18 de desenho e 6 de reserva; walk-forward treino 183 / teste 91; acaso ±90 velas com a mesma
+  geometria). Cada combinação é avaliada sozinha (walk-forward, reserva e acaso próprios). Critérios: os seis de
+  sempre (`tools/research.py`; o 3.º, grelha estável, conta as 4 combinações da hipótese) e o acaso fora da
+  amostra com **percentil ≥ 90** (ordem do Rui, em vez de > p95). Menos de 40 operações no walk-forward =
+  AMOSTRA INSUFICIENTE. **Veredicto máximo: PARA PAPEL.** Código: `tools/research_fase_agressiva.py`.
+
+### CAP_MERCADO_V2 (prioridade 1)
+
+- Gatilho: vela de 4H com volume ≥ 3× a média das 20 anteriores, pavio inferior ≥ 50% da amplitude, fecho no terço
+  superior, mínimo pelo menos 8% abaixo do máximo das 18 velas anteriores (regras de `sig_capitulacao`).
+- Mercado: pelo menos N **outras** moedas com queda ≥ 5% na mesma vela (mínimo da vela ≥ 5% abaixo do fecho da
+  vela anterior, a medida de despejo do CAP_MERCADO de 2026-10-15). Sem filtro do BTC (pode estar abaixo da SMA200).
+- Stop no mínimo da vela − 0,1 ATR14; objetivo único a K R (na abertura da entrada); sem stop na entrada; saída ao
+  fim de 3 dias. Prioridade nas vagas: maior volume relativo.
+- Grelha (4): N ∈ {3, 5} × K ∈ {1,5; 2}.
+
+### BOUNCE_LARGO (prioridade 2)
+
+- BTC acima da SMA200 diária (último dia fechado).
+- RSI14 4H < X numa das últimas 3 velas; fecho acima do máximo da vela anterior com RSI a subir; volume da vela
+  ≥ V × média das 20 anteriores.
+- Stop: o mais baixo de (mínimo das últimas 6 velas − 0,1 ATR) e (fecho − 1,25 ATR). 50% na SMA20 de 4H, resto no
+  máximo das 42 velas anteriores; stop na entrada depois do 1.º; saída ao fim de 5 dias (regras de
+  `tools/research_bounce.py` com H = 5 e o filtro de volume). Prioridade nas vagas: RSI mais baixo.
+- Grelha (4): X ∈ {30, 35} × V ∈ {2,0; 2,5}.
