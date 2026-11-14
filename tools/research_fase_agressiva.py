@@ -26,6 +26,7 @@ Metodo: tools/research_rlib.evaluate (carteira 4 x 25%, custos 0,25% + 0,1% por 
 Cada combinacao e avaliada sozinha (walk-forward, reserva e acaso proprios); o criterio 3 (grelha estavel)
 usa a fracao das 4 combinacoes da hipotese com retorno positivo no desenho. Criterio do acaso (ordem do Rui):
 percentil >= 90 fora da amostra (em vez de > p95). Veredicto maximo: PARA PAPEL.
+Regras da fase (Rui, 2026-11-14 14:21): >= p90 -> PARA PAPEL sem pedir autorizacao; >= 15 op. e > p80 -> RECRUTAR.
 
 Uso: python -m tools.research_fase_agressiva <historico> [saida.json]
 """
@@ -108,10 +109,16 @@ def linha(res, share):
     crit["7_acaso_percentil_90"] = pct is not None and pct >= PCTIL_MIN
     n_wf = res["walk_forward"]["oos_trades"]
     seis = all(v for k, v in crit.items() if not k.startswith("7_"))
-    if n_wf < 40:
-        ver = "AMOSTRA INSUFICIENTE"
-    elif seis and crit["7_acaso_percentil_90"]:
+    # regras da fase (Rui, 2026-11-14 14:21): >= p90 contra o acaso -> PARA PAPEL na mesma corrida, sem pedir
+    # autorizacao (os seis criterios ficam registados, nao bloqueiam o papel); >= 15 op. e acima do p80 ->
+    # RECRUTAR para a arena (mesmo com mais de 5 vivos)
+    n_fa = fa.get("n") or 0
+    if crit["7_acaso_percentil_90"]:
         ver = "PARA PAPEL"
+    elif n_fa >= 15 and pct is not None and pct > 80:
+        ver = "RECRUTAR"
+    elif n_wf < 40:
+        ver = "AMOSTRA INSUFICIENTE"
     else:
         ver = "NAO VALIDADA"
     return {"operacoes_fora_amostra": fa.get("n"), "operacoes_walk_forward": n_wf,
