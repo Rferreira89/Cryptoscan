@@ -359,3 +359,24 @@ class QuantidadeLongFechar(unittest.TestCase):
 
     def test_sem_saldo(self):
         self.assertEqual(X.quantidade_long_a_fechar(10, 0), 0)
+class RegistoExecucaoInvalido(unittest.TestCase):
+    def test_registo_existente_corrompido_falha_fechado(self):
+        import json
+        import os
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as d:
+            state_path = os.path.join(d, "state.json")
+            ex_in = os.path.join(d, "exec.json")
+            out = os.path.join(d, "out.json")
+
+            with open(state_path, "w") as f:
+                json.dump({}, f)
+
+            with open(ex_in, "w") as f:
+                f.write("{json_corrompido")
+
+            with self.assertRaises(json.JSONDecodeError):
+                X.main(state_path, ex_in, out)
+
+            self.assertFalse(os.path.exists(out))
