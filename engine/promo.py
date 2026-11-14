@@ -24,7 +24,7 @@ TF = 14400
 # compra quedas de mercado e os sinais chegam em grupo, em moedas que se
 # mexem juntas. No maximo MAX_PER_BAR entradas novas por vela de 4H; o resto
 # fica registado como oportunidade perdida.
-MAX_PER_BAR = 2
+MAX_PER_BAR = 4
 # Lutadores cujo codigo de sinal foi revisto numa sessao com o Rui e que por
 # isso podem ser campeoes com dinheiro real. Os lutadores novos criados pelos
 # agentes entram no combate e em papel ao vivo sozinhos; para dinheiro real
