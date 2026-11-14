@@ -1,0 +1,200 @@
+
+FAILED (failures=1, errors=1)
+2026-10-24T10:40:17Z testes falharam:
+  File "/home/runner/work/Cryptoscan/Cryptoscan/tests/test_amplitude.py", line 37, in test_oscilar_entre_queda_e_capitulacao_nao_repete
+    self.assertEqual(sum(1 for a in avisos if a), 1)
+AssertionError: 0 != 1
+
+----------------------------------------------------------------------
+Ran 575 tests in 10.478s
+
+FAILED (failures=1, errors=1)
+2026-11-05T09:20:13Z testes falharam:
+  File "/home/runner/work/Cryptoscan/Cryptoscan/tests/test_cifra.py", line 50, in test_ficheiros_e_linha_de_comandos
+    self.assertNotIn("120", open(p).read())
+AssertionError: '120' unexpectedly found in '{"cifra":"cs1","it":200000,"sal":"HTo0CgJwWp6UYVBPBwZQsg==","iv":"ORWhM9AyFg+4ipXK7IsoYg==","selo":"3pTytL0NlBMRQypsxRiuw3TF8Z/aHmAH3/1aL9J9120=","dados":"6YOAqS/CdZ2CZpxpz3v3GtNdFQ=="}'
+
+----------------------------------------------------------------------
+Ran 781 tests in 6.960s
+
+FAILED (failures=1)
+2026-11-13T23:35:34Z testes falharam:
+              ^^^^
+NameError: name 'bars' is not defined. Did you mean: 'vars'?
+
+
+----------------------------------------------------------------------
+Ran 1146 tests in 26.578s
+
+FAILED (errors=37)
+2026-11-13T23:40:34Z testes falharam:
+              ^^^^
+NameError: name 'bars' is not defined. Did you mean: 'vars'?
+
+
+----------------------------------------------------------------------
+Ran 1146 tests in 26.425s
+
+FAILED (errors=37)
+2026-11-13T23:45:35Z testes falharam:
+              ^^^^
+NameError: name 'bars' is not defined. Did you mean: 'vars'?
+
+
+----------------------------------------------------------------------
+Ran 1146 tests in 26.888s
+
+FAILED (errors=37)
+2026-11-13T23:50:35Z testes falharam:
+              ^^^^
+NameError: name 'bars' is not defined. Did you mean: 'vars'?
+
+
+----------------------------------------------------------------------
+Ran 1146 tests in 26.480s
+
+FAILED (errors=37)
+2026-11-13T23:55:35Z testes falharam:
+              ^^^^
+NameError: name 'bars' is not defined. Did you mean: 'vars'?
+
+
+----------------------------------------------------------------------
+Ran 1146 tests in 26.486s
+
+FAILED (errors=37)
+2026-11-14T00:00:33Z testes falharam:
+              ^^^^
+NameError: name 'bars' is not defined. Did you mean: 'vars'?
+
+
+----------------------------------------------------------------------
+Ran 1146 tests in 26.463s
+
+FAILED (errors=37)
+2026-11-14T00:05:33Z testes falharam:
+              ^^^^
+NameError: name 'bars' is not defined. Did you mean: 'vars'?
+
+
+----------------------------------------------------------------------
+Ran 1146 tests in 26.447s
+
+FAILED (errors=37)
+2026-11-14T00:10:32Z testes falharam:
+              ^^^^
+NameError: name 'bars' is not defined. Did you mean: 'vars'?
+
+
+----------------------------------------------------------------------
+Ran 1146 tests in 26.374s
+
+FAILED (errors=37)
+2026-11-14T15:30:33Z testes falharam:
++ (2.5, 5, 1)
+?          ^
+
+
+----------------------------------------------------------------------
+Ran 1313 tests in 25.404s
+
+FAILED (failures=4)
+2026-11-14T15:35:32Z testes falharam:
++ (2.5, 5, 1)
+?          ^
+
+
+----------------------------------------------------------------------
+Ran 1313 tests in 25.037s
+
+FAILED (failures=4)
+2026-11-14T15:40:33Z testes falharam:
++ (2.5, 5, 1)
+?          ^
+
+
+----------------------------------------------------------------------
+Ran 1313 tests in 25.494s
+
+FAILED (failures=4)
+2026-11-14T15:45:33Z testes falharam:
++ (2.5, 5, 1)
+?          ^
+
+
+----------------------------------------------------------------------
+Ran 1313 tests in 25.224s
+
+FAILED (failures=4)
+2026-11-14T15:50:33Z testes falharam:
++ (2.5, 5, 1)
+?          ^
+
+
+----------------------------------------------------------------------
+Ran 1313 tests in 25.419s
+
+FAILED (failures=4)
+2026-11-14T15:55:33Z testes falharam:
++ (2.5, 5, 1)
+?          ^
+
+
+----------------------------------------------------------------------
+Ran 1313 tests in 25.229s
+
+FAILED (failures=4)
+2026-11-14T16:00:34Z testes falharam:
++ (2.5, 5, 1)
+?          ^
+
+
+----------------------------------------------------------------------
+Ran 1313 tests in 25.250s
+
+FAILED (failures=7)
+2026-11-14T16:05:33Z testes falharam:
++ (2.5, 5, 1)
+?          ^
+
+
+----------------------------------------------------------------------
+Ran 1313 tests in 25.509s
+
+FAILED (failures=7)
+2026-11-14T16:10:33Z testes falharam:
++ (2.5, 5, 1)
+?          ^
+
+
+----------------------------------------------------------------------
+Ran 1313 tests in 25.209s
+
+FAILED (failures=7)
+2026-11-14T16:15:33Z testes falharam:
++ (2.5, 5, 1)
+?          ^
+
+
+----------------------------------------------------------------------
+Ran 1313 tests in 25.385s
+
+FAILED (failures=7)
+2026-11-14T16:20:33Z testes falharam:
++ (2.5, 5, 1)
+?          ^
+
+
+----------------------------------------------------------------------
+Ran 1313 tests in 24.918s
+
+FAILED (failures=7)
+2026-11-14T16:25:33Z testes falharam:
++ (2.5, 5, 1)
+?          ^
+
+
+----------------------------------------------------------------------
+Ran 1313 tests in 24.971s
+
+FAILED (failures=7)

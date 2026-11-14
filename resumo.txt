@@ -1,0 +1,114 @@
+STATUS OK
+  binance  OK 776 pares
+  okx      OK 485 pares
+  kucoin   OK 803 pares
+  bybit-eu {'ok': True, 'pairs': 80}
+COUNTS {'pairs_seen': 979, 'eligible': 79, 'deep_checked': 79, 'data_valid': 59, 'data_invalid': 0, 'long': 0, 'short': 0, 'watch_short': 1, 'paper': 0, 'watchlist': 0, 'no_trade': 79}
+DERIVADOS {'ok': True, 'with_perp': 76, 'incomplete': 0, 'binance': 57}
+EUROPA {'ok': True, 't': 1794674224, 'moedas': 120} CONTA lida
+REGIME BTC BEAR
+  BTC      NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  ETH      NO TRADE  -     NEUTRAL     -                -        score - | nenhuma estratégia aplicável em regime NEUTRAL
+  SOL      NO TRADE  -     STRONG BEAR -                -        score - | LIQUIDITY_SWEEP: sweep de fundo em regime de descida forte
+      rejeitado LIQUIDITY_SWEEP: sweep de fundo em regime de descida forte
+  XRP      NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  BNB      NO TRADE  -     NEUTRAL     -                -        score - | nenhuma estratégia aplicável em regime NEUTRAL
+  NEAR     NO TRADE  -     NEUTRAL     -                -        score - | nenhuma estratégia aplicável em regime NEUTRAL
+  XLM      NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  PEPE     NO TRADE  -     STRONG BULL -                -        score - | LIQUIDITY_SWEEP: estratégia desligada
+      rejeitado LIQUIDITY_SWEEP: estratégia desligada
+  HYPE     NO TRADE  -     NEUTRAL     -                -        score - | nenhuma estratégia aplicável em regime NEUTRAL
+  DOGE     NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  UNI      NO TRADE  -     HIGH VOLATILITY -                -        score - | regime HIGH VOLATILITY: sem vantagem identificável
+  SUI      NO TRADE  -     STRONG BEAR -                -        score - | LIQUIDITY_SWEEP: sweep de fundo em regime de descida forte
+      rejeitado LIQUIDITY_SWEEP: sweep de fundo em regime de descida forte
+  ENA      NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  LTC      NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  LINK     NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  AVAX     NO TRADE  -     BEAR        -                -        score - | LIQUIDITY_SWEEP: estratégia desligada
+      rejeitado LIQUIDITY_SWEEP: estratégia desligada
+  TRX      SHORT? WATCHLIST BREAKOUT_SHORT WAITING score 80 | zona [0.31012, 0.3107] stop 0.31218 tp [0.302, 0.29861, 0.29531] rr 2.76 risco 0.06 | confirmação por fecho de 4H abaixo de 0.31012, com entrada entre 0.31012 e 0.3107
+  TRX      NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  ADA      NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  INJ      NO TRADE  -     BULL        -                -        score - | nenhuma estratégia aplicável em regime BULL
+  ARB      NO TRADE  -     NEUTRAL     -                -        score - | NEWS RISK: Desbloqueio ARB (92,65M, ~1,3%) dentro da janela de risco, sem compras novas
+  WLD      NO TRADE  -     BEAR        -                -        score - | LIQUIDITY_SWEEP: estratégia desligada
+      rejeitado LIQUIDITY_SWEEP: estratégia desligada
+  AAVE     NO TRADE  -     HIGH VOLATILITY -                -        score - | regime HIGH VOLATILITY: sem vantagem identificável
+  DOT      NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  ASTER    NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  PUMP     NO TRADE  -     -           -                -        score - | spread elevado na Bybit UE
+  FIL      NO TRADE  -     STRONG BEAR -                -        score - | LIQUIDITY_SWEEP: sweep de fundo em regime de descida forte
+      rejeitado LIQUIDITY_SWEEP: sweep de fundo em regime de descida forte
+  TRUMP    NO TRADE  -     -           -                -        score - | spread elevado na Bybit UE
+  ONDO     NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  SEI      NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  GRAM     NO TRADE  -     -           -                -        score - | spread elevado na Bybit UE
+  SHIB     NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  PENGU    NO TRADE  -     STRONG BEAR -                -        score - | LIQUIDITY_SWEEP: sweep de fundo em regime de descida forte
+      rejeitado LIQUIDITY_SWEEP: sweep de fundo em regime de descida forte
+  TIA      NO TRADE  -     HIGH VOLATILITY -                -        score - | regime HIGH VOLATILITY: sem vantagem identificável
+  ZRO      NO TRADE  -     RANGE       -                -        score - | LIQUIDITY_SWEEP: estratégia desligada
+      rejeitado LIQUIDITY_SWEEP: estratégia desligada
+  ICP      NO TRADE  -     STRONG BEAR -                -        score - | LIQUIDITY_SWEEP: sweep de fundo em regime de descida forte
+      rejeitado LIQUIDITY_SWEEP: sweep de fundo em regime de descida forte
+  HBAR     NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  LIT      NO TRADE  -     RANGE       -                -        score - | LIQUIDITY_SWEEP: estratégia desligada
+      rejeitado LIQUIDITY_SWEEP: estratégia desligada
+  BCH      NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  WIF      NO TRADE  -     STRONG BEAR -                -        score - | LIQUIDITY_SWEEP: sweep de fundo em regime de descida forte
+      rejeitado LIQUIDITY_SWEEP: sweep de fundo em regime de descida forte
+  APT      NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  STRK     NO TRADE  -     RANGE       -                -        score - | NEWS RISK: Desbloqueio STRK (127M, ~1,7%) dentro da janela de risco, sem compras novas
+  XPL      NO TRADE  -     STRONG BEAR -                -        score - | LIQUIDITY_SWEEP: sweep de fundo em regime de descida forte
+      rejeitado LIQUIDITY_SWEEP: sweep de fundo em regime de descida forte
+  RENDER   NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  PONS     NO TRADE  -     -           -                -        score - | dados inválidos ou histórico insuficiente
+  OP       NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  BONK     NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  POL      NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  VIRTUAL  NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  PYTH     NO TRADE  -     RANGE       -                -        score - | LIQUIDITY_SWEEP: estratégia desligada
+      rejeitado LIQUIDITY_SWEEP: estratégia desligada
+  CRV      NO TRADE  -     -           -                -        score - | spread elevado na Bybit UE
+  W        NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+  ZAMA     NO TRADE  -     NEUTRAL     -                -        score - | nenhuma estratégia aplicável em regime NEUTRAL
+  PENDLE   NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  ATOM     NO TRADE  -     BEAR        -                -        score - | LIQUIDITY_SWEEP: estratégia desligada
+      rejeitado LIQUIDITY_SWEEP: estratégia desligada
+  AERO     NO TRADE  -     -           -                -        score - | spread elevado na Bybit UE
+  EIGEN    NO TRADE  -     STRONG BEAR -                -        score - | LIQUIDITY_SWEEP: sweep de fundo em regime de descida forte
+      rejeitado LIQUIDITY_SWEEP: sweep de fundo em regime de descida forte
+  ALGO     NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  SLX      NO TRADE  -     -           -                -        score - | dados inválidos ou histórico insuficiente
+  ZK       NO TRADE  -     -           -                -        score - | spread elevado na Bybit UE
+  PLUME    NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  KII      NO TRADE  -     -           -                -        score - | dados inválidos ou histórico insuficiente
+  CHIP     NO TRADE  -     -           -                -        score - | dados inválidos ou histórico insuficiente
+  S        NO TRADE  -     BEAR        -                -        score - | LIQUIDITY_SWEEP: estratégia desligada
+      rejeitado LIQUIDITY_SWEEP: estratégia desligada
+  HUMA     NO TRADE  -     -           -                -        score - | spread elevado na Bybit UE
+  APE      NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+  SKY      NO TRADE  -     BEAR        -                -        score - | LIQUIDITY_SWEEP: estratégia desligada
+      rejeitado LIQUIDITY_SWEEP: estratégia desligada
+  GALA     NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  LINEA    NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+  CC       NO TRADE  -     BEAR        -                -        score - | LIQUIDITY_SWEEP: estratégia desligada
+      rejeitado LIQUIDITY_SWEEP: estratégia desligada
+  PNUT     NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+  KAIA     NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+  MON      NO TRADE  -     -           -                -        score - | spread elevado na Bybit UE
+  NXPC     NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+  ENS      NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+  OPG      NO TRADE  -     -           -                -        score - | dados inválidos ou histórico insuficiente
+  AVNT     NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+  ZORA     NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+  POPCAT   NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  MNT      NO TRADE  -     STRONG BEAR -                -        score - | LIQUIDITY_SWEEP: sweep de fundo em regime de descida forte
+      rejeitado LIQUIDITY_SWEEP: sweep de fundo em regime de descida forte
+FILTRO DE MERCADO {'btc_above_sma200': False, 'close': 68314.0, 'sma200': 73091.58, 'distance_pct': -6.5, 'since': 1794528030}
+PAPEL TENDENCIA capital -3.04% n 1 posicoes []
+REGISTO {'REAL:BREAKOUT': {'n': 4, 'wins': 0, 'sum_r': -4.243}, 'REAL:PULLBACK': {'n': 2, 'wins': 0, 'sum_r': -2.605}, 'REAL:LIQUIDITY_SWEEP': {'n': 3, 'wins': 1, 'sum_r': -1.438}, 'REAL:BOUNCE_X30': {'n': 4, 'wins': 0, 'sum_r': -4.0}, 'REAL:BOUNCE_SQUEEZE': {'n': 4, 'wins': 2, 'sum_r': 0.059}, 'REAL:SHORT_TURTLE': {'n': 3, 'wins': 3, 'sum_r': 2.298}} TRAVAO None
+SINAIS ATIVOS 2
+  BTC-SHORT_TURTLE-1794499232 TRIGGERED {'side': 'SHORT', 'leverage': {'use': 1.0, 'max_safe': 5.0, 'needed': 1.0, 'collateral_pct': 22.3, 'borrowed_pct': 0.0, 'liquidation_est': None}, 'position_usdc': 5.0, 'collateral_usdc': 5.0, 'borrowed_usdc': 0.0, 'risk_usdc': 0.31, 'max_position_usdc': 17.86, 'entry_zone': [71494.52440000001, 71852.7134], 'entry_ref': 71494.52440000001, 'stop': 75621.22932718742, 'tp': [64987.643356279244, 56975.89711014276, 56975.89711014276], 'tp_projected': [], 'partials': [100, 0, 0], 'rr': 3.16, 'rr_tp1': 1.37, 'rr_tp3': 3.16, 'stop_pct': 6.29, 'stop_atr': None, 'position_pct': 22.3, 'risk_pct': 1.4, 'breakeven': True, 'max_hold_s': 1728000, 'no_react_s': None, 'trail_r': 1.0}
+  XLM-SHORT_TURTLE-1794673840 TRIGGERED {'side': 'SHORT', 'leverage': {'use': 1.0, 'max_safe': 2.5, 'needed': 1.0, 'collateral_pct': 21.9, 'borrowed_pct': 0.0, 'liquidation_est': None}, 'position_usdc': 5.02, 'collateral_usdc': 5.02, 'borrowed_usdc': 0.0, 'risk_usdc': 0.64, 'max_position_usdc': 6.46, 'max_risk_usdc': 0.823, 'entry_zone': [0.13692559999999998, 0.13761159999999997], 'entry_ref': 0.13692559999999998, 'stop': 0.15363886803156823, 'tp': [0.11802986350124031, 0.09582128653161005, 0.09582128653161005], 'tp_projected': [], 'partials': [100, 0, 0], 'rr': 2.32, 'rr_tp1': 1.05, 'rr_tp3': 2.32, 'stop_pct': 12.74, 'stop_atr': None, 'position_pct': 21.982, 'risk_pct': 2.8, 'breakeven': True, 'max_hold_s': 1728000, 'no_react_s': None, 'trail_r': 1.0, 'lote': {'qtd': 36.8, 'passo': 0.1, 'qtd_min': 0.1, 'valor_min': 5.0, 'preco_limite': 0.1363768, 'risco_efetivo': 0.6619}}
