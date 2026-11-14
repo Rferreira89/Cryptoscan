@@ -141,6 +141,13 @@ def correr(st, now):
     st.setdefault("pend", {}); st.setdefault("abertas", {}); st.setdefault("fechadas", [])
     st.setdefault("conta_sim", CONTA0); st.setdefault("ultimo", {}); cache = st.setdefault("funding", {})
     lista = moedas()
+    # (14/11) Lista de contratos vazia = a API publica da OKX nao respondeu (get() devolve [] em qualquer erro). Antes
+    # esta volta contava "atrasadas 0" (nenhum contrato percorrido) e as voltas seguintes da janela de 4H ficavam
+    # leves (sem velas, sem gerir o papel nem procurar sinais ate ao fecho seguinte); apagava a cache do financiamento
+    # e o radar. Agora: a volta fica marcada como atrasada (a proxima e completa) e a cache e o radar ficam como estavam.
+    sem_lista = not lista
+    if sem_lista:
+        print("lista de contratos da OKX vazia (API sem resposta): volta degradada; a proxima volta e completa")
     btc = velas(lista["BTC"]["inst"]) if "BTC" in lista else []
     msgs, novos, vistas, radar = [], [], 0, []
     ultima_fechada, atrasadas = now - now % H4 - H4, 0                  # (13/11) abertura da ultima vela de 4H fechada
@@ -191,7 +198,7 @@ def correr(st, now):
             continue
         st["pend"][a] = s
         novos.append((a, s, info))
-    for k in [k for k in cache if k.split("-")[0] not in lista]:
+    for k in [k for k in cache if k.split("-")[0] not in lista] if not sem_lista else []:
         cache.pop(k)
     if novos:
         novos.sort(key=lambda x: nota(x[1], x[1].get("tipo")), reverse=True)
@@ -212,12 +219,16 @@ def correr(st, now):
     executar_real(st, now, msgs)
     try:
         tem = set(st["abertas"]) | set(st["pend"]) | set((st.get("real") or {}).get("ops") or {})
-        st["radar"] = radar_quase([x for x in radar if x[0] not in tem], btc, cache)
+        if not sem_lista:
+            st["radar"] = radar_quase([x for x in radar if x[0] not in tem], btc, cache)
         m = relatorio_radar(st, now)
         if m:
             msgs.append(m)
     except Exception as e:
         print("radar erro:", type(e).__name__)
+    if sem_lista:
+        atrasadas = max(1, int((st.get("resumo") or {}).get("contratos") or 0))
+        st.setdefault("volta", {})["sem_lista"] = int(st["volta"].get("sem_lista") or 0) + 1
     st.setdefault("volta", {}).update(t_completa=int(now), atrasadas=atrasadas, leve=False)
     st["resumo"] = {"t": int(now), "contratos": len(lista), "analisados": vistas, "pendentes": sorted(st["pend"]),
                     "abertas": sorted(st["abertas"]), "n": len(st["fechadas"]),
@@ -360,7 +371,7 @@ def volta_repetida(st, now):
 # contratos ja tinham a ultima vela fechada (atrasadas = 0). A parte do dinheiro real corre SEMPRE (ordens, stops,
 # cancelamentos, sinais pendentes) e o relatorio diario do radar tambem. Na duvida (sem registo, atrasos, janela
 # nova, relogio para tras) a volta e completa, como antes.
-CAMPOS_VOLTA = ("t_completa", "atrasadas", "leves")
+CAMPOS_VOLTA = ("t_completa", "atrasadas", "leves", "sem_lista")
 
 
 def volta_leve(st, now):
