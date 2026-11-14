@@ -24,6 +24,10 @@ def update(state, rows, bars, now, market_ok=True):
         from tools.arena_ringue import PAPEL_ESTUDO, PAPEL_FASE
     except Exception:
         PAPEL_ESTUDO, PAPEL_FASE = (), {}
+    try:                                       # (14/11) compras de estudo sem o filtro do BTC (CAP_MERCADO_V2)
+        from tools.arena_ringue import PAPEL_SEM_FILTRO_BTC
+    except Exception:
+        PAPEL_SEM_FILTRO_BTC = ()
     active += [k for k in PAPEL_ESTUDO if k in reg and k not in active and k not in promo.REAL_OK]
     # (23/10) campeoes tirados do dinheiro real (familia so em papel, deriva) continuam medidos aqui
     active += [k for k in (state.get("so_papel") or {}) if k in reg and k not in active]
@@ -49,7 +53,7 @@ def update(state, rows, bars, now, market_ok=True):
                     "breakeven": pos.get("breakeven", True), "fase": pos.get("fase")}])[-300:]
                 del b["open"][a]
         short_k = k.startswith("SHORT_")
-        if k not in active or (not market_ok and not short_k):    # os shorts nao dependem do filtro de compras
+        if k not in active or (not market_ok and not short_k and k not in PAPEL_SEM_FILTRO_BTC):    # os shorts nao dependem do filtro de compras
             continue
         promo.set_context(rows, bars)
         try:
@@ -80,9 +84,13 @@ def update(state, rows, bars, now, market_ok=True):
                 pos["max_hold"] = sig["hold_s"]
             b["open"][a] = pos
     out = {k: {"n": len(v["closed"]), "open": sorted(v["open"])} for k, v in st.items()}
+    try:
+        from tools.arena_ringue import PAPEL_N_MIN
+    except Exception:
+        PAPEL_N_MIN = {}
     for k in PAPEL_ESTUDO:
         if k in out:
-            out[k]["prova"] = prova_estudo(st[k]["closed"], PAPEL_FASE.get(k, "subida"))
+            out[k]["prova"] = prova_estudo(st[k]["closed"], PAPEL_FASE.get(k, "subida"), n_min=PAPEL_N_MIN.get(k, 20))
     return out
 
 
@@ -90,7 +98,7 @@ def prova_estudo(closed, fase="subida", n_min=20, r_min=0.15):
     """Regra fixada a 22/10 (antes de haver resultados): com n_min operacoes em
     papel na fase, R medio >= r_min e as duas metades a ganhar -> pode ir a
     dinheiro real com o OK do Rui; R medio < 0 -> sai; senao, continua."""
-    rs = [c["r"] for c in closed if c.get("fase") == fase and c.get("r") is not None]
+    rs = [c["r"] for c in closed if (fase is None or c.get("fase") == fase) and c.get("r") is not None]
     n = len(rs)
     r = round(sum(rs) / n, 3) if n else None
     h = n // 2

@@ -1074,8 +1074,94 @@ def sig_short_falso_rompimento(m4):
     return s and dict(s, gatilho="furou o máximo de 20 dias e voltou a fechar abaixo (falso rompimento)")
 
 
-PAPEL_ESTUDO = ("TURTLE_FORTES", "SHORT_FALSO_ROMP")    # so em papel: fora de promo.REAL_OK
-PAPEL_FASE = {"TURTLE_FORTES": "subida", "SHORT_FALSO_ROMP": "queda"}
+# ---------- (14/11, ordem do Rui, fase agressiva) CAP_MERCADO_V2 e BOUNCE_LARGO: PARA PAPEL ----------
+# >= percentil 90 contra o acaso fora da amostra (tools/research_fase_agressiva, backtest/investigacao.md
+# 2026-11-14). So papel: fora de promo.REAL_OK, por isso nunca vao a dinheiro real (mesmo sem real_autorizados).
+
+_DESP = {"chave": None, "t": {}}
+
+
+def _despejos():
+    """{t de abertura da vela: moedas com minimo >= 5% abaixo do fecho anterior} das velas em CTX["bars"]."""
+    bars = CTX.get("bars") or {}
+    chave = (id(bars), len(bars), sum(len(c) for c in bars.values()), max((c[-1]["t"] for c in bars.values() if c), default=0))
+    if _DESP["chave"] != chave:
+        out = {}
+        for a, c4 in bars.items():
+            for i in range(1, len(c4)):
+                if c4[i - 1]["t"] == c4[i]["t"] - H4 and c4[i]["l"] <= 0.95 * c4[i - 1]["c"]:
+                    out.setdefault(c4[i]["t"], set()).add(a)
+        _DESP.update(chave=chave, t=out)
+    return _DESP["t"]
+
+
+def sig_cap_mercado_v2(n, k):
+    """Capitulacao de 4H (volume >= 3x, pavio >= 50%, fecho no terco superior, minimo >= 8% abaixo do maximo das
+    18 velas anteriores) com pelo menos n outras moedas com queda >= 5% na mesma vela. Stop no minimo - 0,1 ATR,
+    objetivo k R, sem stop na entrada, saida em 3 dias. Sem filtro do BTC."""
+    def f(c4):
+        if len(c4) < 60:
+            return None
+        b = c4[-1]
+        rg = b["h"] - b["l"]
+        vavg = sum(x["v"] for x in c4[-21:-1]) / 20
+        if rg <= 0 or vavg <= 0 or b["v"] < 3 * vavg:
+            return None
+        wick = min(b["o"], b["c"]) - b["l"]
+        if wick < 0.5 * rg or b["c"] < b["l"] + 2 / 3 * rg or b["l"] > 0.92 * max(x["h"] for x in c4[-19:-1]):
+            return None
+        outras = len(_despejos().get(b["t"], set()) - {CTX.get("asset")})
+        if outras < n:
+            return None
+        at = PB.atr(c4[-100:])[-1]
+        if not at:
+            return None
+        stop = b["l"] - 0.1 * at
+        if not 0 < stop < b["c"]:
+            return None
+        return {"stop": stop, "tp": [b["c"] + k * (b["c"] - stop)], "partials": [100], "breakeven": False,
+                "hold_s": 3 * DAY, "atr": at,
+                "gatilho": f"capitulação de 4H com {outras} outras moedas a cair 5% na mesma vela"}
+    return f
+
+
+def sig_bounce_largo(x, v):
+    """RSI14 4H < x numa das ultimas 3 velas, fecho acima do maximo anterior com RSI a subir, volume >= v x media 20.
+    Stop min(minimo 6 velas - 0,1 ATR, fecho - 1,25 ATR); 50% na SMA20, resto no maximo de 42 velas; stop na
+    entrada depois do 1.o; 5 dias. O BTC acima da SMA200 e o filtro de compras do motor (market_ok / above)."""
+    from tools import research_bounce as RB, research_rlib as RL
+
+    class _Sim(dict):
+        def get(self, *_):
+            return True
+
+    def f(c4):
+        if len(c4) < 120:
+            return None
+        w = c4[-120:]
+        vavg = sum(y["v"] for y in w[-21:-1]) / 20
+        if vavg <= 0 or w[-1]["v"] < v * vavg:
+            return None
+        s = RB.signals(w, _Sim(), x, False).get(w[-1]["t"] + H4)
+        if not s:
+            return None
+        return {"stop": s["stop"], "tp": list(s["tp"]), "partials": list(s["partials"]), "breakeven": True,
+                "hold_s": 5 * DAY, "atr": RL.atr(w)[-1],
+                "gatilho": f"RSI 4H abaixo de {x} a virar com volume {w[-1]['v'] / vavg:.1f}x a média"}
+    return f
+
+
+FASE_AGRESSIVA_SIGS = {
+    "CAP_MERCADO_V2_N3K15": sig_cap_mercado_v2(3, 1.5), "CAP_MERCADO_V2_N3K2": sig_cap_mercado_v2(3, 2.0),
+    "CAP_MERCADO_V2_N5K15": sig_cap_mercado_v2(5, 1.5), "CAP_MERCADO_V2_N5K2": sig_cap_mercado_v2(5, 2.0),
+    "BOUNCE_LARGO_X30V20": sig_bounce_largo(30, 2.0), "BOUNCE_LARGO_X35V20": sig_bounce_largo(35, 2.0)}
+# compras que operam em papel mesmo com o BTC abaixo da SMA200 (engine/paper_ring)
+PAPEL_SEM_FILTRO_BTC = ("CAP_MERCADO_V2_N3K15", "CAP_MERCADO_V2_N3K2", "CAP_MERCADO_V2_N5K15", "CAP_MERCADO_V2_N5K2")
+
+PAPEL_ESTUDO = ("TURTLE_FORTES", "SHORT_FALSO_ROMP", *FASE_AGRESSIVA_SIGS)    # so em papel: fora de promo.REAL_OK
+PAPEL_FASE = {"TURTLE_FORTES": "subida", "SHORT_FALSO_ROMP": "queda",
+              **{k: None for k in FASE_AGRESSIVA_SIGS}}    # (14/11) todas as fases; prova so com >= 25 em papel
+PAPEL_N_MIN = {k: 25 for k in FASE_AGRESSIVA_SIGS}
 
 MAIORES_SIGS = {"MAIORES_RECUO": sig_maiores_recuo, "MAIORES_TENDENCIA": sig_maiores_tendencia,
                 "MAIORES_FUNDING": sig_maiores_funding}
@@ -1100,7 +1186,8 @@ NEW_SIGS = {"BRK_ESPACO": sig_breakout_espaco, "RETESTE": sig_reteste,
             "FIBO_RECUO": sig_fibo,
             **MAIORES_SIGS,
             "BOUNCE_AMPLITUDE": sig_amplitude,
-            "TURTLE_FORTES": sig_turtle_fortes}
+            "TURTLE_FORTES": sig_turtle_fortes,
+            **FASE_AGRESSIVA_SIGS}
 
 
 def fetch_funding(base, now, days):

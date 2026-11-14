@@ -2699,3 +2699,30 @@ Sessão com o Rui. Decisões binárias a partir da auditoria do relatório do ag
 3. Mínimo de lutadores vivos na arena: 5. Recrutamento: sempre que existir candidato com ≥ 15 operações e acima do percentil 80 do acaso, mesmo que já haja mais de 5 vivos.
 4. CAPITULACAO_R2 está morta de forma definitiva (commit acdf3ab). Não reabre com mudança de regime.
 5. Nesta fase agressiva: prioridade a volume de operações e a sinais com edge parcial já observado. O controlo de risco faz-se no papel e no critério da conta (após 25 op.), não matando candidatos cedo demais.
+
+## 2026-11-14 — Resultados CAP_MERCADO_V2 e BOUNCE_LARGO
+
+Histórico atualizado (run 43602248366): última vela do BTC 2026-11-14 12:00 (atraso 0,4 h; antes: 2026-11-08 12:00).
+66 moedas. Desenho 2024-11-14 a 2026-05-13, reserva 2026-05-14 a 2026-11-13. Ficheiro:
+`backtest/research_fase_agressiva.json`. Operações = fora da amostra (walk-forward + reserva); R médio = R por
+operação fora da amostra, com custos.
+
+| Combinação | Operações | R médio | Percentil acaso | Critérios falhados | Veredicto |
+|---|---|---|---|---|---|
+| CAP_MERCADO_V2 N3 K1,5 | 73 | −0,083 | 96,4 | 2, 6 | PARA PAPEL |
+| CAP_MERCADO_V2 N3 K2 | 73 | −0,061 | 96,6 | 6 | PARA PAPEL |
+| CAP_MERCADO_V2 N5 K1,5 | 65 | −0,057 | 98,2 | 6 | PARA PAPEL |
+| CAP_MERCADO_V2 N5 K2 | 65 | −0,041 | 98,3 | 6 | PARA PAPEL |
+| BOUNCE_LARGO X30 V2,0 | 59 | −0,019 | 99,1 | 3, 6 | PARA PAPEL |
+| BOUNCE_LARGO X30 V2,5 | 35 | −0,166 | 79,1 | 1, 2, 3, 6, acaso | AMOSTRA INSUFICIENTE |
+| BOUNCE_LARGO X35 V2,0 | 86 | −0,157 | 93,9 | 1, 2, 3, 4, 6 | PARA PAPEL |
+| BOUNCE_LARGO X35 V2,5 | 51 | −0,287 | 44,3 | 1, 2, 3, 5, 6, acaso | AMOSTRA INSUFICIENTE |
+
+- Nota obrigatória: as seis PARA PAPEL têm R médio fora da amostra **negativo**; o percentil alto vem de o acaso
+  com a mesma geometria ser ainda pior. Nenhuma passa os seis critérios. PARA PAPEL só pela regra de 14/11.
+- Recrutamento (≥ 15 op. e > p80): nenhuma combinação além das PARA PAPEL.
+- Ligação ao papel (commit seguinte): as seis entram em `tools/arena_ringue.FASE_AGRESSIVA_SIGS` (arena e
+  `engine/paper_ring`, PAPEL_ESTUDO), fora de `promo.REAL_OK`: nunca dinheiro real, mesmo com
+  `real_autorizados` null. CAP_MERCADO_V2 opera em papel com o BTC abaixo da SMA200 (PAPEL_SEM_FILTRO_BTC).
+  Prova da conta só com ≥ 25 operações em papel, todas as fases. Sinais ao vivo conferidos contra os da
+  investigação em SOL, DOGE e AVAX (mesmas contagens).
