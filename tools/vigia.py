@@ -54,6 +54,13 @@ def problemas(st, now):
 
 def problemas_bybit(st, now):
     t = ((st or {}).get("margem_bybit") or {}).get("t") or 0
+    scan = max((st or {}).get("scan_times") or [0])
+    if scan and now - scan > EUROPA_S:
+        # (14/11) se o proprio scanner parou de publicar, a culpa nao e do servidor europeu: o aviso diz o certo
+        m = int((now - scan) // 60)
+        return [("europa", f"⚠️ Vigia: o scanner não publica um ciclo há {m // 60} h {m % 60} min (ver erros.txt no "
+                           "ramo data). Sem ciclos o programa não abre operações nem executa ordens; os stops já "
+                           "colocados continuam na Bybit.")]
     if t and now - t > EUROPA_S:
         m = int((now - t) // 60)
         return [("europa", f"⚠️ Vigia: o servidor europeu não lê a conta da Bybit há {m // 60} h {m % 60} min. Sem "

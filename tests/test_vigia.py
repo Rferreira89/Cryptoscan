@@ -72,3 +72,5 @@ class Europa(unittest.TestCase):
         self.assertEqual(p[0][0], "europa")
         self.assertIn("1 h 40 min", p[0][1])
         self.assertEqual(V.problemas_bybit({}, 10 ** 9), [])
+        p = V.problemas_bybit({"margem_bybit": {"t": 1000}, "scan_times": [1000]}, 1000 + 50 * 60)
+        self.assertIn("scanner não publica", p[0][1])
