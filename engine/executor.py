@@ -1091,8 +1091,6 @@ def quantidade_long_a_fechar(op_qty, held_qty, nucleo_qty=0.0):
 
 
 def do_close(state, req, ex, now, send, why="saída do plano"):
-      
-def do_close(state, req, ex, now, send, why="saída do plano"):
     op = ex["ops"].get(req["op"]) or {}
     if op.get("status") != "aberta":
         return "sem operação aberta do programa"
@@ -1105,16 +1103,9 @@ def do_close(state, req, ex, now, send, why="saída do plano"):
         except ExecError as e:
             op.setdefault("avisos", []).append(f"cancelar: {str(e)[:80]}")
     time.sleep(1)
-    # moedas ja vendidas desde a compra (objetivos atingidos pela Bybit)
-    try:
-        r = get("/v5/execution/list", {"category": "spot", "symbol": op["symbol"],
-                                       "startTime": int(op["criado"] * 1000), "limit": 100})
-        sold_tp = sum(float(e["execQty"]) for e in r.get("list") or [] if e.get("side") == "Sell")
-    except ExecError:
-        sold_tp = 0.0
     nucleo_q = float(((ex.get("nucleo") or {}).get(op["asset"]) or {}).get("qty") or 0)
-    have = max(0.0, held(wallet(), op["asset"]) - nucleo_q)      # nunca vende o nucleo
-    qty = max(0.0, min(have, op["qty"] - sold_tp))
+    have = max(0.0, held(wallet(), op["asset"]) - nucleo_q)
+    qty = quantidade_long_a_fechar(op.get("qty") or 0, have)
     oid = sell_all(op["symbol"], qty, inst, f"{_tag(req['op'])}-f")
     op.update(status="fechada", fechado=now, motivo=why)
     if op.get("emprestado"):                 # a venda abate a divida; confirma
