@@ -463,6 +463,55 @@ def espelho_sinais(st_bybit, now):
     return out
 
 
+def velas_4h(inst, n=300):
+    """Velas de 4H FECHADAS da OKX ({t,o,h,l,c,v}, a mais antiga primeiro); [] se falhar."""
+    try:
+        d = A.get(f"/api/v5/market/candles?instId={inst}&bar=4H&limit={n}")
+    except Exception:
+        return []
+    out = [{"t": int(x[0]) // 1000, "o": float(x[1]), "h": float(x[2]), "l": float(x[3]), "c": float(x[4]),
+            "v": float(x[5])} for x in d or [] if len(x) > 8 and str(x[8]) == "1"]
+    return sorted(out, key=lambda b: b["t"])
+
+
+def campeoes_sinais(st_bybit, xp, now, velas=velas_4h):
+    """(14/11, Rui: "nao tem de ser os mesmos ativos, pode haver outros em boa posicao") Os campeoes atuais da arena
+    (os que a Bybit esta a usar: campeoes_ant; fora os que a Bybit so tem em papel) procuram sinal em TODOS os X-Perps
+    negociaveis na conta da OKX, com as velas de 4H da propria OKX e a mesma funcao de sinal da Bybit
+    (tools/arena_ringue.SINAIS). So sinais da vela que acabou de fechar. [(base, sinal no formato espelho)]."""
+    sb = st_bybit or {}
+    champs = [k for k in sb.get("campeoes_ant") or [] if k not in (sb.get("so_papel") or {})
+              and k not in ((sb.get("arena") or {}).get("mortos") or {})]
+    if not champs or not xp:
+        return []
+    from tools import arena_ringue as AR
+    reg = {k: AR.SINAIS[k] for k in champs if k in AR.SINAIS}
+    if not reg:
+        return []
+    bars = {}
+    for base, info in sorted(xp.items()):
+        c4 = velas(info["inst"])
+        if len(c4) >= 200:
+            bars[base] = c4
+    AR.CTX.update(btc=bars.get("BTC"), bars=bars, daily={}, rank={}, funding={}, oi={}, macro={}, ls={})
+    out = []
+    for base, c4 in bars.items():
+        AR.CTX["asset"] = base
+        px = c4[-1]["c"]
+        for k, fn in reg.items():
+            try:
+                s = fn(c4, px, None)
+            except Exception:
+                s = None
+            if not s or now >= int(s["t_sig"]) + H4 or not s.get("tp"):
+                continue
+            out.append((base, {"tipo": "espelho", "lado": "SHORT" if s.get("side") == "SHORT" else "LONG",
+                               "stop": float(s["stop"]), "alvo": float(s["tp"][0]), "t_sig": int(s["t_sig"]),
+                               "hold_s": int(s.get("hold_s") or 18 * H4), "estrategia": k, "origem": "okx"}))
+            break                                   # o melhor campeao com sinal ganha a moeda (como na Bybit)
+    return out
+
+
 def ler_bybit():
     """state.json publico do motor da Bybit (ramo data). None se nao der para ler: sem espelho nessa volta."""
     repo = os.environ.get("GITHUB_REPOSITORY") or "Rferreira89/Cryptoscan"
@@ -590,7 +639,7 @@ def correr(st, novos, now, msgs):
                 chave_e = f"e:{base}:{sig_t(base, novos)}"
                 if chave_e not in avisados:
                     avisados.append(chave_e)
-                    msgs.append(f"⏭️ OKX real — {base}: o preço na OKX já está fora do plano do campeão da Bybit "
+                    msgs.append(f"⏭️ OKX real — {base}: o preço na OKX já está fora do plano do campeão "
                                 "(passou o stop ou o objetivo); não entrei.")
                 continue
             short_e = sig.get("lado") == "SHORT"

@@ -365,6 +365,36 @@ class Execucao(unittest.TestCase):
                          ("espelho", "SHORT", 0.15, 0.12, 1728000, t0))
         self.assertEqual(self.E.espelho_sinais(None, now), [])
 
+    def test_campeoes_procuram_sinal_em_todos_os_xperps(self):
+        from unittest import mock
+        from tools import arena_ringue as AR
+        now = 2_000_000_000
+        t_ult = now // H4 * H4 - H4                       # vela que acabou de fechar
+        velas = lambda inst: [{"t": t_ult - (299 - i) * H4, "o": 1, "h": 1, "l": 1, "c": 1, "v": 1} for i in range(300)]
+        sinal = lambda c4, px, cfg=None: ({"side": "SHORT", "stop": 1.1, "tp": [0.9, 0.8], "hold_s": 86400,
+                                           "t_sig": c4[-1]["t"] + H4} if AR.CTX["asset"] == "ADA" else None)
+        xp = {b: self.info(inst=f"{b}-USD_UM_XPERP-1") for b in ("ADA", "DOT", "BTC")}
+        sb = {"campeoes_ant": ["SHORT_TURTLE", "MORTO", "PAPEL"], "so_papel": {"PAPEL": {}},
+              "arena": {"mortos": {"MORTO": {}}}}
+        reg = AR._Sinais({"SHORT_TURTLE": sinal, "MORTO": lambda *a: 1 / 0, "PAPEL": lambda *a: 1 / 0})
+        with mock.patch.object(AR, "SINAIS", reg):
+            out = self.E.campeoes_sinais(sb, xp, now, velas=velas)
+        self.assertEqual([a for a, _ in out], ["ADA"])
+        s = out[0][1]
+        self.assertEqual((s["tipo"], s["lado"], s["stop"], s["alvo"], s["estrategia"], s["origem"]),
+                         ("espelho", "SHORT", 1.1, 0.9, "SHORT_TURTLE", "okx"))
+        with mock.patch.object(AR, "SINAIS", reg):     # vela velha: nada
+            self.assertEqual(self.E.campeoes_sinais(sb, xp, now + 2 * H4, velas=velas), [])
+        self.assertEqual(self.E.campeoes_sinais({}, xp, now, velas=velas), [])
+
+    def test_velas_4h_so_fechadas_e_por_ordem(self):
+        from unittest import mock
+        d = [["3000000", "1", "2", "0.5", "1.5", "10", "", "", "0"], ["2000000", "1", "2", "0.5", "1.4", "9", "", "", "1"],
+             ["1000000", "1", "2", "0.5", "1.3", "8", "", "", "1"]]
+        with mock.patch.object(self.E.A, "get", return_value=d):
+            v = self.E.velas_4h("X")
+        self.assertEqual([b["t"] for b in v], [1000, 2000])
+
     def test_espelho_nao_e_cancelado_pela_suspensao(self):
         from engine import suspensao
         op = {"estado": "pendente", "estrategia": "espelho"}

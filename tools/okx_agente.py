@@ -131,9 +131,20 @@ def executar_real(st, now, msgs):
         novos_real = sorted(st["pend"].items(), key=lambda kv: nota(kv[1], kv[1].get("tipo")), reverse=True)
         novos_real += [(a, {**s_, "tipo": "recuo"}) for a, s_ in sorted(((st.get("recuo") or {}).get("pend") or {}).items())
                        if a not in st["pend"]]
-        if okx_exec.cfg().get("espelho_real"):        # (14/11, Rui) campeoes da arena da Bybit tambem na OKX
+        if okx_exec.cfg().get("espelho_real") and all(okx_exec._chaves()):
+            # (14/11, Rui) campeoes da arena tambem na OKX: primeiro o que a Bybit decidiu nesta vela, depois os
+            # mesmos campeoes nos X-Perps da OKX (podem ser outras moedas)
+            sb = okx_exec.ler_bybit()
             vistos = {a for a, _ in novos_real}
-            novos_real += [(a, s_) for a, s_ in okx_exec.espelho_sinais(okx_exec.ler_bybit(), now) if a not in vistos]
+            for a, s_ in okx_exec.espelho_sinais(sb, now):
+                if a not in vistos:
+                    novos_real.append((a, s_)); vistos.add(a)
+            try:
+                for a, s_ in okx_exec.campeoes_sinais(sb, okx_exec.xperps(), now):
+                    if a not in vistos:
+                        novos_real.append((a, s_)); vistos.add(a)
+            except Exception as e:
+                print("campeoes na OKX:", type(e).__name__, str(e)[:120])
         okx_exec.correr(st, novos_real, now, msgs)
     except Exception as e:
         msgs.append(f"⚠️ OKX real: erro na execução ({type(e).__name__}); nada novo foi enviado.")
