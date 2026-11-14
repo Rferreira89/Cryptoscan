@@ -338,3 +338,24 @@ class VigiaDeStops(unittest.TestCase):
         self.assertEqual(run.stop_watch(st, conta, NOW + 8000), [])
         self.assertEqual(st["stop_watch"], {})
         self.assertEqual(run.stop_watch(st, None, NOW), [])
+class QuantidadeLongFechar(unittest.TestCase):
+    def test_fecha_quantidade_registada(self):
+        self.assertEqual(X.quantidade_long_a_fechar(10, 10), 10)
+
+    def test_nao_ultrapassa_saldo_disponivel(self):
+        self.assertEqual(X.quantidade_long_a_fechar(10, 6), 6)
+
+    def test_nao_ultrapassa_quantidade_registada(self):
+        self.assertEqual(X.quantidade_long_a_fechar(6, 10), 6)
+
+    def test_subtrai_nucleo(self):
+        self.assertEqual(X.quantidade_long_a_fechar(10, 10, 3), 7)
+
+    def test_saldo_negativo(self):
+        self.assertEqual(X.quantidade_long_a_fechar(10, -2), 0)
+
+    def test_quantidade_registada_negativa(self):
+        self.assertEqual(X.quantidade_long_a_fechar(-2, 10), 0)
+
+    def test_sem_saldo(self):
+        self.assertEqual(X.quantidade_long_a_fechar(10, 0), 0)
