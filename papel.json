@@ -1,0 +1,94 @@
+{
+ "abertas": [
+  {
+   "k": "FORCA_RELATIVA",
+   "a": "PEPE",
+   "lado": "LONG",
+   "fase": "lateral",
+   "sinal_dia": 20768,
+   "t": 1794441600,
+   "ent": 4.52e-06,
+   "m_atr": 2.0,
+   "h": 10,
+   "stop": 3.384285714285714e-06
+  },
+  {
+   "k": "FRAQUEZA_RELATIVA",
+   "a": "WLD",
+   "lado": "SHORT",
+   "fase": "queda",
+   "sinal_dia": 20769,
+   "t": 1794528000,
+   "ent": 0.3012,
+   "m_atr": 2.0,
+   "h": 10,
+   "stop": 0.3552428571428572
+  },
+  {
+   "k": "FRAQUEZA_RELATIVA",
+   "a": "TRUMP",
+   "lado": "SHORT",
+   "fase": "queda",
+   "sinal_dia": 20769,
+   "t": 1794528000,
+   "ent": 1.114,
+   "m_atr": 2.0,
+   "h": 10,
+   "stop": 1.3555714285714286
+  }
+ ],
+ "fechadas": [],
+ "t": 1794639519,
+ "resumo": {
+  "FORCA_RELATIVA": {
+   "n": 0,
+   "lado": "LONG",
+   "abertas": 1
+  },
+  "ROTACAO": {
+   "n": 0,
+   "lado": "LONG",
+   "abertas": 0
+  },
+  "ESTRUTURA_FLUXO": {
+   "n": 0,
+   "lado": "LONG",
+   "abertas": 0
+  },
+  "RESILIENCIA": {
+   "n": 0,
+   "lado": "LONG",
+   "abertas": 0
+  },
+  "ACELERACAO": {
+   "n": 0,
+   "lado": "LONG",
+   "abertas": 0
+  },
+  "FRAQUEZA_RELATIVA": {
+   "n": 0,
+   "lado": "SHORT",
+   "abertas": 2
+  },
+  "QUEBRA_FLUXO": {
+   "n": 0,
+   "lado": "SHORT",
+   "abertas": 0
+  },
+  "EXCESSO": {
+   "n": 0,
+   "lado": "SHORT",
+   "abertas": 0
+  },
+  "PERDA_MOMENTO": {
+   "n": 0,
+   "lado": "SHORT",
+   "abertas": 0
+  }
+ },
+ "universo": {
+  "moedas": 80,
+  "margem": 33
+ },
+ "ultimo_dia": 20770
+}
