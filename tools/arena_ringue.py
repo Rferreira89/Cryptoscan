@@ -1432,7 +1432,7 @@ def clones(groups, out, t0, now, lim=CLONE_CORR, min_n=20, mortos=None):
         ok = sum(1 for r in rgs if r.get("passa_atual"))
         pr = [r.get("avg_r") for r in rgs if (r.get("n") or 0) >= min_n and r.get("avg_r") is not None]
         return (ok, max(pr) if pr else ((out.get(k) or {}).get("avg_r") or -9))
-        mortos = set(mortos or ())
+    mortos = set(mortos or ())
     cand = sorted((k for k, trs in groups.items()
                    if len(trs) >= min_n and k != "REJEITADOS"
                    and k not in mortos
@@ -1694,17 +1694,17 @@ def main(dest, days=DAYS, state_path=None, longo=False):
             ls[base] = [tuple(x) for x in c["ls"]]
     macro = {k: [tuple(x) for x in v] for k, v in ((eu or {}).get("macro") or {}).items()}
     renascidos = {}
-mortos = {}
-try:
-    if state_path and os.path.exists(state_path):
-        with open(state_path) as f:
-            ar_state = json.load(f).get("arena") or {}
-            renascidos = ar_state.get("renascidos") or {}
-            mortos = ar_state.get("mortos") or {}
-except Exception as e:
-    print("estado ilegível:", e, file=sys.stderr)
+    mortos = {}
+    try:
+        if state_path and os.path.exists(state_path):
+            with open(state_path) as f:
+                ar_state = json.load(f).get("arena") or {}
+                renascidos = ar_state.get("renascidos") or {}
+                mortos = ar_state.get("mortos") or {}
+    except Exception as e:
+        print("estado ilegível:", e, file=sys.stderr)
     res = run(bars, cfg, now, days, bars1h=bars1h, funding=funding, oi=oi, macro=macro, ls=ls,
-                        renascidos=renascidos, regimes=longo, margem=margem, mortos=mortos)
+              renascidos=renascidos, regimes=longo, margem=margem, mortos=mortos)
     res["universo_fonte"] = fonte_ven
     res["shorts_universo"] = (sorted(set(margem) & set(bars)) if margem is not None
                               else "lista de margem desconhecida: shorts em todas as moedas (como antes)")
