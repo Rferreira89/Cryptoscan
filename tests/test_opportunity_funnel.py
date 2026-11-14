@@ -119,8 +119,8 @@ class TestBuildEvent(unittest.TestCase):
             "positive_inf": float("inf"),
             "negative_inf": float("-inf"),
             "text": "invalid",
-            "empty_key": 99,
-            123: 88,
+            "empty_key": "": 99,
+"   ": 98,
         }
 
         event = build_event(
