@@ -46,6 +46,21 @@ class Arena(unittest.TestCase):
         self.assertNotIn("PULLBACK", arena.dead_paper(st))
         self.assertTrue(res["recrutar"])          # menos de 5 lutadores vivos
 
+    def test_capitulacao_r2_morta_por_decisao(self):
+        # (14/11, ordem do Rui) CAPITULACAO_R2 morre por decisao, sem regresso por regime
+        st = {"ledger": led(3, -0.66, strategy="CAPITULACAO_R2"),
+              "arena": {"renascidos": {"CAPITULACAO_R2": {"base": "CAPITULACAO", "desde": 1, "de": "CAPITULACAO",
+                                                          "regime": "lateral"}}}}
+        res = arena.update(st, {"AAA": flat_bars()}, 1_900_000_000, seed=1)
+        m = st["arena"]["mortos"]["CAPITULACAO_R2"]
+        self.assertTrue(m["decisao"])
+        self.assertIn("decisão do Rui 14/11", m["motivo"])
+        row = next(b for b in res["classificacao"] if b["id"] == "CAPITULACAO_R2")
+        self.assertEqual(row["estado"], "MORTA")
+        st["mercado"] = {"regime": "queda", "desde": 0}
+        self.assertEqual([e for e in arena.rebirth(st, 1_900_000_000 + 30 * 86400, "queda")
+                          if e["antes"] == arena.persona("CAPITULACAO_R2")], [])
+
     def test_aviso_so_na_mudanca(self):
         st = {"ledger": led(22, -1.0)}
         bars = {"AAA": flat_bars()}

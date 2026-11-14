@@ -81,6 +81,21 @@ def base_key(k):
     return re.sub(r"_R\d+$", "", k)
 
 
+# (14/11, ordem do Rui) mortes decididas pelo Rui: definitivas e sem regresso por mudanca de regime
+MORTES_DECIDIDAS = {
+    "CAPITULACAO_R2": "decisão do Rui 14/11: a função tem edge (+0,08R em 46 op.), o lutador destrói valor "
+                      "(−0,66R em 3 op.)",
+}
+
+
+def aplicar_mortes_decididas(ar, now):
+    mortos = ar.setdefault("mortos", {})
+    for k, motivo in MORTES_DECIDIDAS.items():
+        if k not in mortos:
+            mortos[k] = {"t": int(now), "motivo": motivo, "decisao": True}
+    return mortos
+
+
 def clones_de(ar):
     """{lutador: {de, corr}} dos clones do ringue longo (tools/arena_ringue.clones)."""
     return ((ar or {}).get("longo") or {}).get("clones") or {}
@@ -102,7 +117,7 @@ def rebirth(state, now, regime):
     out = []
     for k, m in (ar.get("mortos") or {}).items():
         m.setdefault("regime", regime)        # morreu no regime em que o vimos morrer
-        if m.get("renasceu") or m.get("clone") or now - mk["desde"] < REGIME_STABLE:
+        if m.get("renasceu") or m.get("clone") or m.get("decisao") or now - mk["desde"] < REGIME_STABLE:
             continue                           # clones nao regressam: a aposta ja esta no ringue
         b = base_key(k)
         # o ringue longo (365 dias por regime) diz se a familia presta neste regime
@@ -331,7 +346,8 @@ def update(state, bars, now, seed=None, forma=None):
                        "lutadores": _forma_rows(forma)}
     fm = ar.get("forma") or {}
     frows = _forma_rows(fm)
-    mortos = ar.setdefault("mortos", {})
+    ar.setdefault("status", {})
+    mortos = aplicar_mortes_decididas(ar, now)
     ctrl = ar.setdefault("ctrl", {})
     rng = random.Random(seed if seed is not None else now)
     all_t = trades(state)
