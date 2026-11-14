@@ -5,7 +5,7 @@ quedas, compressão, oversold bounce 4H, day trade 1H, bounce com outras
 saídas, sweep a mercado, funding negativo, quebra com compradores,
 capitulação do mercado, atraso face ao BTC, resiliente, impulso de
 amplitude; mais 15 no diário de afinação, H1 a H13, H15 e H16). Atualizado
-em 2026-11-13 (sem hipótese nova nesta corrida nem nas anteriores desde
+em 2026-11-14 (sem hipótese nova nesta corrida nem nas anteriores desde
 2026-10-20; a afinação testou a H13 em 2026-11-04, a H14 em 2026-11-06,
 uma medição de lutadores existentes que não conta como hipótese nova, a
 H15 em 2026-11-11 e a H16 em 2026-11-13, ambas rejeitadas). O contador global do
@@ -2568,3 +2568,50 @@ usada). Números em `backtest/autopsia_2026-11-13.json`.
   já morreram em menos de três semanas); (3) morte rápida a contar
   acontecimentos; (4) corte dos clones só com representantes vivos; (5) o
   caso CAPITULACAO_R2 fora da classificação.
+
+## 2026-11-14 — Sem hipótese nova hoje (sem mortos novos; fila vazia)
+
+**Veredicto da corrida: nenhuma hipótese testada.** O contador desta
+reserva fica em 27 (a afinação não testou hipótese nova desde a H16 de
+2026-11-13). Com 27 testes contra a mesma reserva, a probabilidade de pelo
+menos um falso positivo a 5% ronda os 75%.
+
+- **Histórico** (ramo `history`): último commit 2026-11-08 13:22 UTC,
+  última vela de 4H 2026-11-08 12:00 UTC (6 dias de atraso, dentro do
+  limite de 7; não foi preciso lançar o workflow). Janela de 24 meses:
+  desenho 2024-11-08 → 2026-05-08, reserva 2026-05-08 → 2026-11-08.
+  **Amanhã o atraso passa de 7 dias**: a próxima corrida tem de lançar
+  primeiro "Historico para backtest".
+- **Arena** (scan.json do ramo `data`): **9 lutadores a competir**
+  (mínimo 5), `recrutar` falso. Nenhum morto novo desde
+  VOLUME_ACUMULACAO_R2 (autópsia feita a 2026-11-13). Entrou um lutador
+  novo, SHORT_TURTLE_SHORT (3 op.; é de venda, fora desta investigação,
+  que é só de compras). Fila do Rui vazia.
+- **Combate de 90 dias** (`forma.json`, 2026-11-14 11:23 UTC):
+  BOUNCE_AMPLITUDE 15 op., 15 ganhadoras, +0,72R (acaso mediana −0,43R,
+  p95 −0,06R), ainda sem operações nos últimos 30 dias e chumbada no
+  critério da conta. CAPITULACAO (função de CAPITULACAO_R2) 46 op.,
+  +0,08R, acima do p95 (−0,19R), com os últimos 30 dias a +0,21R em 28
+  op.; mas CAPITULACAO_R2 como lutador tem 3 op., −0,66R. REVERSAO_INTERVALO
+  30 op., −0,022R, acima do p95 (−0,074R), mas fora (11 op.) −0,21R.
+  MAIORES_RECUO 17 op., −0,02R. BREAKOUT_R2, SHORT_SQUEEZE,
+  MAIORES_TENDENCIA e BOUNCE_MEDO continuam sem ganhadoras (2 a 4 op.):
+  candidatos à morte rápida quando chegarem às 10.
+- **Porque não há hipótese nova**: as mesmas razões de 2026-10-21 a
+  2026-11-13. As famílias de entrada de compra em 4H estão esgotadas
+  contra esta reserva (27 testes aqui, mais de 87 no contador global
+  contra dados que a incluem); as ideias com fonte nova (H52, H53,
+  H57–H60) estão registadas e só podem ser avaliadas com dados
+  posteriores ao registo. Uma hipótese escolhida agora seria escolhida
+  depois de ver estes dados, e não teria lógica económica que não esteja
+  já coberta. Vigésima quarta corrida seguida sem hipótese nova.
+- Testes: 1312, todos a passar.
+- Proposta para a próxima corrida: lançar primeiro o workflow do
+  histórico; autópsia se morrer alguém. Mantém-se para a sessão com o Rui:
+  (1) passar esta corrida a semanal enquanto não houver dados novos;
+  (2) regresso dos mortos só com as duas metades do ringue longo
+  positivas; (3) morte rápida a contar acontecimentos; (4) corte dos
+  clones só com representantes vivos (o commit de 2026-11-13 23:33
+  "Fix dead strategy exclusion in arena clones" parece tratar disto: a
+  confirmar nessa sessão); (5) o caso CAPITULACAO_R2 fora da
+  classificação.
