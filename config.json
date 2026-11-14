@@ -1,4 +1,6 @@
 {
+  "require_btc_above_sma200": false,
+"shorts": true,
   "max_risk_usdc": 2.5,
   "fee_pct": 0.25,
   "max_rr_tp1": 2.5,
@@ -21,17 +23,27 @@
       "SHORT_TURTLE"
     ]
   },
-  "familias_so_papel": [
-    "sobrevenda"
-  ],
+  "familias_so_papel": [],
+  
   "liberdade": {
     "deposito_mensal": 300,
     "rendimento_mensal": 2000,
     "levantamento_pct": 5,
     "imposto_pct": 28
   },
-  "real_autorizados": ["SHORT_TURTLE"],
-  "piloto": {"estrategia": "SHORT_TURTLE", "teto_pct": 5, "risco_alvo_pct": 2.5, "max_posicoes": 1, "perda_max_r": -8, "juro_max_r": 0.06, "dias_max": 20, "inicio": 1794441600, "autorizado": "Rui, 12/11/2026 00:34; teto 5%: Rui, 12/11/2026 09:06; risco-alvo 2,5%: Rui, 13/11/2026 01:03"},
+  "real_autorizados": null,
+  "piloto": {
+  "estrategia": "SHORT_TURTLE",
+  "teto_pct": 5,
+  "teto_agregado_pct": 5,
+  "risco_alvo_pct": 2.5,
+  "max_posicoes": 2,
+  "perda_max_r": -8,
+  "juro_max_r": 0.06,
+  "dias_max": 20,
+  "inicio": 1794441600,
+  "autorizado": "Rui, 12/11/2026 00:34; teto 5%: Rui, 12/11/2026 09:06; risco-alvo 2,5%: Rui, 13/11/2026 01:03"
+},
   "modo_acelerado": {
     "ligado": true,
     "teto_pct": 2.5,
