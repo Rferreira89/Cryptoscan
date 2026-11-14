@@ -22,6 +22,8 @@ acompanhar (11/11, P2). Na Bybit o executor do panico tem o seu proprio tratamen
 ESTRATEGIAS_OKX = {
     # estrategia no registo da operacao -> interruptor em okx_config.json
     "panico": "panico_real", None: "panico_real", "recuo": "recuo_real",
+    # (14/11, Rui: os campeoes da arena tambem na OKX, com a mesma configuracao da Bybit)
+    "espelho": "espelho_real",
 }
 
 

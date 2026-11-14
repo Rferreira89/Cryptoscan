@@ -266,7 +266,9 @@ class Execucao(unittest.TestCase):
         c = json.load(open(os.path.join(os.path.dirname(__file__), "..", "okx_config.json")))
         self.assertEqual((c["real"], c["recuo_real"], c["panico_real"]), (True, True, False))   # (10/11, ordem do Rui) H40 suspensa do real
         self.assertEqual((c["panico_risco_pct"], c["panico_risco_max_pct"], c["panico_max_posicoes"], c["risco_total_max_pct"],
-                          c["so_mercado"]), (1.0, 1.0, 3, 3.0, True))   # (10/11, OK do Rui) so o panico do mercado todo
+                          c["so_mercado"]), (1.0, 1.0, 3, 5.0, True))   # (10/11, OK do Rui) so o panico do mercado todo; (14/11) teto 5% como na Bybit
+        self.assertEqual((c["espelho_real"], c["espelho_risco_short_pct"], c["espelho_teto_short_pct"], c["espelho_risco_long_pct"],
+                          c["espelho_teto_long_pct"], c["espelho_max_posicoes"]), (True, 2.5, 5.0, 1.0, 1.0, 2))   # (14/11, Rui)
         self.assertEqual((c["risco_pct"], c["alavancagem"], c["max_posicoes"], c["recuo_risco_pct"]), (2.0, 10, 30, 1.0))
 
 
@@ -293,6 +295,98 @@ class Execucao(unittest.TestCase):
             self.E.correr(st, sinais, now, msgs)
         ordens = [c for p_, c in posts if p_ == "/api/v5/trade/order"]
         return st, ordens, msgs
+
+    # ---------- (14/11, Rui) campeoes da arena da Bybit tambem na OKX ----------
+    def _esp(self, sinais, last, cfg_extra=None, ops=None, now=2_000_000_000):
+        from unittest import mock
+        with mock.patch.object(self.E.A, "get", return_value=[{"last": str(last)}]):
+            return self._corre(sinais, dict(dict(espelho_real=True, risco_total_max_pct=5.0), **(cfg_extra or {})), ops=ops, now=now)
+
+    def test_espelho_short_vende_com_o_stop_e_objetivo_do_campeao(self):
+        now = 2_000_000_000
+        sig = {"tipo": "espelho", "lado": "SHORT", "stop": 0.0260, "alvo": 0.0200, "t_sig": now - 600, "hold_s": 20 * 86400,
+               "estrategia": "SHORT_TURTLE", "id": "X-SHORT_TURTLE-1"}
+        st, ordens, msgs = self._esp([("XLM", sig)], 0.0236)
+        self.assertEqual(len(ordens), 1)
+        o = ordens[0]
+        self.assertEqual(o["side"], "sell")
+        self.assertEqual(float(o["attachAlgoOrds"][0]["slTriggerPx"]), 0.026)
+        self.assertEqual(float(o["attachAlgoOrds"][0]["tpTriggerPx"]), 0.02)
+        self.assertLess(float(o["px"]), 0.0236)                                  # limite 0,2% abaixo: entra ja
+        op = st["real"]["ops"]["XLM"]
+        self.assertEqual((op["estrategia"], op["lado"], op["hold_s"], op["estrategia_bybit"]),
+                         ("espelho", "SHORT", 20 * 86400, "SHORT_TURTLE"))
+        self.assertLessEqual(op["risco_pct"], 5.0)
+        self.assertEqual(op["valido_ate"], now - 600 + H4)
+        self.assertTrue(any("campeão da arena SHORT_TURTLE" in m and "venda a descoberto" in m for m in msgs))
+
+    def test_espelho_desligado_nao_entra(self):
+        now = 2_000_000_000
+        sig = {"tipo": "espelho", "lado": "SHORT", "stop": 0.0260, "alvo": 0.0200, "t_sig": now - 600}
+        _, ordens, _ = self._esp([("XLM", sig)], 0.0236, dict(espelho_real=False))
+        self.assertEqual(ordens, [])
+
+    def test_espelho_preco_fora_do_plano_nao_entra(self):
+        now = 2_000_000_000
+        sig = {"tipo": "espelho", "lado": "SHORT", "stop": 0.0260, "alvo": 0.0200, "t_sig": now - 600}
+        _, ordens, msgs = self._esp([("XLM", sig)], 0.0262)                     # ja acima do stop
+        self.assertEqual(ordens, []); self.assertTrue(any("fora do plano" in m for m in msgs))
+
+    def test_espelho_long_arrisca_1pct(self):
+        now = 2_000_000_000
+        sig = {"tipo": "espelho", "lado": "LONG", "stop": 0.0226, "alvo": 0.0280, "t_sig": now - 600}
+        st, ordens, _ = self._esp([("ABC", sig)], 0.0236)
+        self.assertEqual(len(ordens), 1); self.assertEqual(ordens[0]["side"], "buy")
+        self.assertLessEqual(st["real"]["ops"]["ABC"]["risco_pct"], 1.0)
+
+    def test_espelho_maximo_2_posicoes(self):
+        now = 2_000_000_000
+        ops = {b: {"inst": f"{b}-USD_UM_XPERP-1", "ordId": "9", "estado": "aberta", "estrategia": "espelho", "risco_pct": 1.0,
+                   "t_sig": now - H4, "lado": "SHORT"} for b in ("A", "B")}
+        sig = {"tipo": "espelho", "lado": "SHORT", "stop": 0.0260, "alvo": 0.0200, "t_sig": now - 600}
+        _, ordens, msgs = self._esp([("XLM", sig)], 0.0236, ops=ops)
+        self.assertEqual(ordens, []); self.assertTrue(any("máximo 2" in m for m in msgs))
+
+    def test_espelho_sinais_so_da_vela_atual_e_reais(self):
+        now = 2_000_000_000
+        t0 = now // H4 * H4
+        st_b = {"ledger": [
+            {"id": "XLM-1", "asset": "XLM", "mode": "REAL", "status": "OPEN", "side": "SHORT", "issued_at": t0 + 100,
+             "stop": 0.15, "tp": [0.12, 0.1], "strategy": "SHORT_TURTLE"},
+            {"id": "BTC-1", "asset": "BTC", "mode": "REAL", "status": "OPEN", "side": "SHORT", "issued_at": t0 - H4 + 100,
+             "stop": 75000, "tp": [65000], "strategy": "SHORT_TURTLE"},                      # vela anterior
+            {"id": "ETH-1", "asset": "ETH", "mode": "PAPER", "status": "OPEN", "issued_at": t0 + 100, "stop": 1, "tp": [2]},
+            {"id": "SOL-1", "asset": "SOL", "mode": "REAL", "status": "CLOSED", "issued_at": t0 + 100, "stop": 1, "tp": [2]}],
+            "signals": {"XLM-1": {"plan": {"max_hold_s": 1728000, "side": "SHORT"}}}}
+        out = self.E.espelho_sinais(st_b, now)
+        self.assertEqual([a for a, _ in out], ["XLM"])
+        s = out[0][1]
+        self.assertEqual((s["tipo"], s["lado"], s["stop"], s["alvo"], s["hold_s"], s["t_sig"]),
+                         ("espelho", "SHORT", 0.15, 0.12, 1728000, t0))
+        self.assertEqual(self.E.espelho_sinais(None, now), [])
+
+    def test_espelho_nao_e_cancelado_pela_suspensao(self):
+        from engine import suspensao
+        op = {"estado": "pendente", "estrategia": "espelho"}
+        self.assertEqual(suspensao.decidir({"real": True, "espelho_real": True}, op), "manter")
+        self.assertEqual(suspensao.decidir({"real": True, "espelho_real": False}, op), "cancelar_pendente")
+
+    def test_stop_reposto_num_short_compra_para_fechar(self):
+        from unittest import mock
+        posts = []
+
+        def privado(metodo, path, corpo=None):
+            if metodo == "POST":
+                posts.append(corpo)
+                return {"code": "0", "data": [{"sCode": "0"}]}
+            if "positions" in path:
+                return {"code": "0", "data": [{"pos": "-3"}]}
+            return {"code": "0", "data": []}
+        R = {"ops": {"XLM": {"inst": "XLM-USD_UM_XPERP-1", "estado": "aberta", "lado": "SHORT", "stop": 0.15, "alvo": 0.12,
+                             "entrada": 0.137}}}
+        with mock.patch.object(self.E, "privado", privado):
+            self.E.confirmar_stops(R, 2_000_000_000, [])
+        self.assertEqual((posts[0]["side"], posts[0]["sz"], posts[0]["reduceOnly"]), ("buy", "3", True))
 
     def test_h40_isolado_reprovado_nunca_entra(self):
         """(13/11, ordem do Rui) panico isolado reprovado para dinheiro real: nem com a H40 e o isolado ligados."""

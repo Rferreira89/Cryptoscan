@@ -30,7 +30,11 @@ CFG_PADRAO = {"real": False, "so_mercado": True, "risco_pct": 1.0, "risco_max_pc
               "panico_real": False,
               # (08/11, OK do Rui) H40 de volta a real com risco limitado: 1% por operacao (sem tolerancia acima),
               # no maximo 3 posicoes H40 e teto de risco aberto de 3% da conta somando TODAS as estrategias
-              "panico_risco_pct": 1.0, "panico_risco_max_pct": 1.0, "panico_max_posicoes": 3, "risco_total_max_pct": 3.0}
+              "panico_risco_pct": 1.0, "panico_risco_max_pct": 1.0, "panico_max_posicoes": 3, "risco_total_max_pct": 3.0,
+              # (14/11, Rui: "os campeoes da arena tambem na OKX, com a mesma configuracao") espelho dos sinais REAIS
+              # da Bybit: so com "espelho_real": true; risco como na Bybit (SHORT 2,5% alvo, teto 5%; LONG 1%)
+              "espelho_real": False, "espelho_risco_short_pct": 2.5, "espelho_teto_short_pct": 5.0,
+              "espelho_risco_long_pct": 1.0, "espelho_teto_long_pct": 1.0, "espelho_max_posicoes": 2}
 
 
 def cfg():
@@ -105,12 +109,18 @@ def plano(sig, info, eq, c):
     """Ordem para um sinal: limite, stop, objetivo e contratos para arriscar risco_pct da conta; None se nao cabe."""
     tick = info["tick"] or 1e-8
     lim = _passo(sig["lim"], tick)
-    stop = lim - 2 * sig["atr"]
-    if stop <= 0 or lim <= 0:
-        return None
-    alvo = lim + 2 * (lim - stop)
+    short = sig.get("lado") == "SHORT"
+    if sig.get("tipo") == "espelho":            # (14/11) stop e objetivo do campeao da Bybit, tal e qual
+        stop, alvo = float(sig["stop"]), float(sig["alvo"])
+        if lim <= 0 or stop <= 0 or alvo <= 0 or not ((alvo < lim < stop) if short else (stop < lim < alvo)):
+            return None
+    else:
+        stop = lim - 2 * sig["atr"]
+        if stop <= 0 or lim <= 0:
+            return None
+        alvo = lim + 2 * (lim - stop)
     risco = eq * c["risco_pct"] / 100
-    por_contrato = info["ctVal"] * (lim - stop) if info.get("ctType") != "inverse" else info["ctVal"] * (1 / stop - 1 / lim) * lim
+    por_contrato = info["ctVal"] * abs(lim - stop) if info.get("ctType") != "inverse" else info["ctVal"] * abs(1 / stop - 1 / lim) * lim
     if por_contrato <= 0:
         return None
     sz = _passo(risco / por_contrato, info["lotSz"] or info["minSz"] or 1)
@@ -122,7 +132,7 @@ def plano(sig, info, eq, c):
             return None
     nominal = sz * info["ctVal"] * lim
     # a liquidacao (~1/alav) tem de ficar bem abaixo do stop: alav <= 1 / (1,5 x distancia do stop)
-    dist = (lim - stop) / lim
+    dist = abs(lim - stop) / lim
     alav = max(1, min(int(c["alavancagem"]), info.get("lever") or 1, int(1 / (1.5 * dist))))
     return {"lim": lim, "stop": _passo(stop, tick), "alvo": _passo(alvo, tick), "sz": sz, "nominal": round(nominal, 2),
             "risco_usd": round(sz * por_contrato, 3), "alav": alav,
@@ -136,7 +146,9 @@ def abrir(base, sig, info, eq, c, now, msgs):
         return None
     privado("POST", "/api/v5/account/set-leverage", {"instId": info["inst"], "lever": str(p["alav"]), "mgnMode": "isolated"})
     cl = f"cs{base[:8]}{int(sig['t_sig']) % 100000000}".replace("-", "")[:32]
-    corpo = {"instId": info["inst"], "tdMode": "isolated", "side": "buy", "ordType": "limit", "px": p["px_s"], "sz": p["sz_s"],
+    short = sig.get("lado") == "SHORT"
+    corpo = {"instId": info["inst"], "tdMode": "isolated", "side": "sell" if short else "buy", "ordType": "limit",
+             "px": p["px_s"], "sz": p["sz_s"],
              "clOrdId": cl, "attachAlgoOrds": [{"tpTriggerPx": p["alvo_s"], "tpOrdPx": "-1",
                                                 "slTriggerPx": p["stop_s"], "slOrdPx": "-1"}]}
     r = privado("POST", "/api/v5/trade/order", corpo)
@@ -150,12 +162,20 @@ def abrir(base, sig, info, eq, c, now, msgs):
     if r.get("code") != "0" or d.get("sCode") not in ("0", None):
         msgs.append(f"⚠️ OKX real — {base}: a OKX recusou a ordem ({d.get('sCode') or r.get('code')}: {(d.get('sMsg') or r.get('msg') or '')[:90]}).")
         return None
-    msgs.append(f"📌 OKX real — {base}: ordem limite de compra a {p['px_s']} ({p['sz_s']} contratos, ~{p['nominal']} USD, "
+    esp = sig.get("tipo") == "espelho"
+    msgs.append(f"📌 OKX real — {base}: ordem limite de {'venda a descoberto' if short else 'compra'} a {p['px_s']} "
+                f"({p['sz_s']} contratos, ~{p['nominal']} USD, "
                 f"{p['alav']}x isolada). Stop {p['stop_s']} e objetivo {p['alvo_s']} anexados; risco ~{p['risco_usd']} USD "
-                f"({100 * p['risco_usd'] / eq:.1f}% da conta). Válida 8 h.")
+                f"({100 * p['risco_usd'] / eq:.1f}% da conta). Válida {'até ao fim da vela de 4H' if esp else '8 h'}.")
     # repositorio publico: o estado guarda so precos e ids, nunca tamanhos nem valores da conta
-    return {"inst": info["inst"], "ordId": d.get("ordId"), "clOrdId": cl, "estado": "pendente", "t_sig": sig["t_sig"],
-            "valido_ate": sig["t_sig"] + 3 * H4, "criado": int(now), **{k: p[k] for k in ("lim", "stop", "alvo", "alav")}}
+    op = {"inst": info["inst"], "ordId": d.get("ordId"), "clOrdId": cl, "estado": "pendente", "t_sig": sig["t_sig"],
+          "valido_ate": sig["t_sig"] + (H4 if esp else 3 * H4), "criado": int(now),
+          **{k: p[k] for k in ("lim", "stop", "alvo", "alav")}}
+    if short:
+        op["lado"] = "SHORT"
+    if esp:
+        op.update(hold_s=int(sig.get("hold_s") or 18 * H4), estrategia_bybit=sig.get("estrategia"), id_bybit=sig.get("id"))
+    return op
 
 
 CODIGOS_JA_FINAL = ("51400", "51401", "51402")     # ja executada, ja cancelada ou ja concluida: o estado final decide
@@ -245,14 +265,15 @@ def acompanhar_estado(base, op, d, now, msgs):
         if st == "partially_filled":
             op["parcial"] = True
         sz_exec = d.get("accFillSz") or "?"
-        op["sair_em"] = op["t_fill"] + 18 * H4
-        msgs.append(f"✅ OKX real — {base}: compra executada a {op['entrada']:.6g} ({sz_exec} contratos). "
-                    f"Stop e objetivo na OKX; saída por tempo dentro de 72 h.")
+        op["sair_em"] = op["t_fill"] + int(op.get("hold_s") or 18 * H4)
+        verbo = "venda a descoberto executada" if op.get("lado") == "SHORT" else "compra executada"
+        msgs.append(f"✅ OKX real — {base}: {verbo} a {op['entrada']:.6g} ({sz_exec} contratos). "
+                    f"Stop e objetivo na OKX; saída por tempo dentro de {int(op.get('hold_s') or 18 * H4) // 3600} h.")
     elif st in ("canceled", "mmp_canceled") and executado > 0:
         # (10/11) cancelada DEPOIS de executar em parte: a parte executada e uma posicao e continua a ser gerida
         op.update(estado="aberta", entrada=float(d.get("avgPx") or op["lim"]),
                   t_fill=int(int(d.get("fillTime") or now * 1000) / 1000), parcial=True)
-        op["sair_em"] = op["t_fill"] + 18 * H4
+        op["sair_em"] = op["t_fill"] + int(op.get("hold_s") or 18 * H4)
         msgs.append(f"✅ OKX real — {base}: ordem cancelada com execução parcial ({d.get('accFillSz')} contratos a "
                     f"{op['entrada']:.6g}); essa parte fica aberta e protegida pelo stop.")
     elif st in ("canceled", "mmp_canceled") and d.get("accFillSz") not in (None, ""):
@@ -305,7 +326,7 @@ def acompanhar(base, op, now, msgs):
         motivo = None
         if aberta and now >= op["sair_em"]:
             privado("POST", "/api/v5/trade/close-position", {"instId": op["inst"], "mgnMode": "isolated", "autoCxl": True})
-            motivo = "tempo (72 h)"
+            motivo = f"tempo ({int(op.get('hold_s') or 18 * H4) // 3600} h)"
         elif not aberta:
             motivo = "stop ou objetivo"
         if motivo:
@@ -317,7 +338,8 @@ def acompanhar(base, op, now, msgs):
                         (f": resultado {float(pnl):+.3f} USD." if pnl not in (None, "") else "."))
             saida = float(px) if px else None
             op.update(estado="fechada", motivo=motivo, saida=saida, fechado=int(now),
-                      ret_pct=round(100 * (saida / op["entrada"] - 1), 2) if saida and op.get("entrada") else None)
+                      ret_pct=round((-100 if op.get("lado") == "SHORT" else 100) * (saida / op["entrada"] - 1), 2)
+                      if saida and op.get("entrada") else None)
             return True
     return False
 
@@ -414,6 +436,64 @@ def aplicar_suspensao(base, op, c, now, msgs):
 
 
 R_AVISOS = set()
+ESPELHO_FOLGA = 0.002          # limite 0,2% para o lado pior do preco atual: entra ja, como o mercado da Bybit
+
+
+ESTADOS_VIVOS = ("OPEN", "ACTIVE", "TRIGGERED", "WAITING")
+
+
+def espelho_sinais(st_bybit, now):
+    """(14/11, Rui: os campeoes da arena tambem na OKX) [(base, sinal)] das operacoes REAIS que o motor da Bybit decidiu
+    na vela de 4H atual (registo publico, ramo data: sem valores da conta), com o stop, o objetivo (o 1.o) e o tempo
+    maximo do proprio plano. Recusadas pela Bybit tambem contam (a decisao e do campeao, a OKX e outra conta);
+    so ficam de fora as fechadas e as de velas anteriores (o preco ja andou)."""
+    sinais = (st_bybit or {}).get("signals") or {}
+    out = []
+    for r in (st_bybit or {}).get("ledger") or []:
+        if r.get("mode") != "REAL" or r.get("status") not in ESTADOS_VIVOS or not r.get("asset"):
+            continue
+        t_sig = int(r.get("issued_at") or 0) // H4 * H4
+        if not t_sig or now >= t_sig + H4 or not r.get("stop") or not r.get("tp"):
+            continue
+        plano_b = (sinais.get(r.get("id")) or {}).get("plan") or {}
+        lado = "SHORT" if (r.get("side") or plano_b.get("side")) == "SHORT" else "LONG"
+        out.append((r["asset"], {"tipo": "espelho", "lado": lado, "stop": float(r["stop"]), "alvo": float(r["tp"][0]),
+                                 "t_sig": t_sig, "hold_s": int(plano_b.get("max_hold_s") or 18 * H4),
+                                 "estrategia": r.get("strategy"), "id": r.get("id")}))
+    return out
+
+
+def ler_bybit():
+    """state.json publico do motor da Bybit (ramo data). None se nao der para ler: sem espelho nessa volta."""
+    repo = os.environ.get("GITHUB_REPOSITORY") or "Rferreira89/Cryptoscan"
+    try:
+        req = urllib.request.Request(f"https://raw.githubusercontent.com/{repo}/data/state.json?t={int(time.time())}",
+                                     headers={"User-Agent": "cryptoscan/1.0", "Cache-Control": "no-cache"})
+        with urllib.request.urlopen(req, timeout=25) as r:
+            return json.loads(r.read())
+    except Exception:
+        return None
+
+
+def sig_t(base, novos):
+    return next((s.get("t_sig") for b, s in novos if b == base), "?")
+
+
+def espelho_preco(base, sig, info):
+    """(14/11) Sinal do campeao da Bybit com o preco de entrada da OKX agora: limite 0,2% para o lado pior; None se o
+    preco ja passou o stop ou o objetivo (o plano deixou de valer) ou se nao ha preco."""
+    try:
+        t = A.get(f"/api/v5/market/ticker?instId={info['inst']}")
+        last = float((t or [{}])[0].get("last") or 0)
+    except Exception:
+        last = 0
+    if last <= 0:
+        return None
+    short = sig.get("lado") == "SHORT"
+    lim = last * (1 - ESPELHO_FOLGA) if short else last * (1 + ESPELHO_FOLGA)
+    if not ((float(sig["alvo"]) < lim < float(sig["stop"])) if short else (float(sig["stop"]) < lim < float(sig["alvo"]))):
+        return None
+    return {**sig, "lim": lim}
 
 
 def correr(st, novos, now, msgs):
@@ -429,7 +509,7 @@ def correr(st, novos, now, msgs):
     reconciliar(R, now, msgs)
     for base in list(R["ops"]):
         op = R["ops"][base]
-        if c.get("so_mercado", True) and op.get("estado") == "pendente" and op.get("estrategia") != "recuo" \
+        if c.get("so_mercado", True) and op.get("estado") == "pendente" and op.get("estrategia") not in ("recuo", "espelho") \
                 and not op.get("cancelar_pedido") \
                 and ((st.get("pend") or {}).get(base) or {}).get("tipo") == "isolado":
             # (04/11, H40) ordem posta antes do filtro num panico isolado: pede o cancelamento, uma vez.
@@ -471,8 +551,11 @@ def correr(st, novos, now, msgs):
         recuo = sig.get("tipo") == "recuo"
         if recuo and not c.get("recuo_real"):
             continue
+        esp = sig.get("tipo") == "espelho"                        # (14/11) campeoes da arena (sinais REAIS da Bybit)
+        if esp and not c.get("espelho_real"):
+            continue
         h40 = sig.get("tipo") in ("mercado", "isolado", None)      # sinais do panico do agente (tools/okx_agente.py)
-        if not recuo and not h40:
+        if not recuo and not h40 and not esp:
             continue                                              # estrategia desconhecida: nunca abre ordens reais
         if h40 and not c.get("panico_real", False):
             # (05/11, OK do Rui) H40 suspensa do dinheiro real: o sinal fica so em papel (a H46 continua)
@@ -485,7 +568,7 @@ def correr(st, novos, now, msgs):
             # (13/11, ordem do Rui) panico ISOLADO reprovado para dinheiro real (22 em papel, -0,60R/op, PF 0,28,
             # IC95 abaixo de 0): nunca entra em real, mesmo que a configuracao volte a ligar a H40 ou o "so_mercado"
             continue
-        if c.get("so_mercado", True) and sig.get("tipo") not in ("mercado", "recuo"):
+        if c.get("so_mercado", True) and sig.get("tipo") not in ("mercado", "recuo", "espelho"):
             # (04/11, H40) o panico isolado perdeu na metade recente (-0,126R); o do mercado todo deu +0,17R/+0,41R
             chave_i = f"i:{base}:{sig['t_sig']}"
             if chave_i not in R.setdefault("avisados", []):
@@ -501,9 +584,31 @@ def correr(st, novos, now, msgs):
             continue
         avisados = R.setdefault("avisados", [])
         n0 = len(msgs)
+        if esp:
+            sig = espelho_preco(base, sig, info)
+            if not sig:
+                chave_e = f"e:{base}:{sig_t(base, novos)}"
+                if chave_e not in avisados:
+                    avisados.append(chave_e)
+                    msgs.append(f"⏭️ OKX real — {base}: o preço na OKX já está fora do plano do campeão da Bybit "
+                                "(passou o stop ou o objetivo); não entrei.")
+                continue
+            short_e = sig.get("lado") == "SHORT"
+            n_esp = sum(1 for o in R["ops"].values() if o.get("estrategia") == "espelho")
+            if n_esp >= int(c.get("espelho_max_posicoes", 2)):
+                chave_m = f"me:{base}:{sig['t_sig']}"
+                if chave_m not in avisados:
+                    avisados.append(chave_m)
+                    msgs.append(f"⏭️ OKX real — {base}: já há {n_esp} posições dos campeões da arena na OKX "
+                                f"(máximo {c.get('espelho_max_posicoes', 2)}); não entrei.")
+                continue
         # (04/11, OK do Rui) H46 recuo na subida com dinheiro real antes das 30 em papel, mas com metade do risco (1%)
         cc = {**c, "risco_pct": float(c.get("recuo_risco_pct") or 1.0),
               "risco_max_pct": min(float(c.get("risco_max_pct", 2.0)), 2.0)} if recuo else c
+        if esp:
+            # (14/11, Rui) mesma configuracao da Bybit: SHORT 2,5% alvo (teto 5% se a ordem minima obrigar), LONG 1%
+            cc = {**c, "risco_pct": float(c["espelho_risco_short_pct"] if short_e else c["espelho_risco_long_pct"]),
+                  "risco_max_pct": float(c["espelho_teto_short_pct"] if short_e else c["espelho_teto_long_pct"])}
         if h40:
             # (08/11, OK do Rui) H40 com risco limitado: 1% por operacao e no maximo 3 posicoes H40 ao mesmo tempo
             cc = {**c, "risco_pct": float(c.get("panico_risco_pct", 1.0)),
@@ -530,6 +635,9 @@ def correr(st, novos, now, msgs):
             op["risco_pct"] = round(100 * p["risco_usd"] / eq, 2)
         if op and h40:
             op["estrategia"] = "panico"
+        if op and esp:
+            op["estrategia"] = "espelho"
+            msgs[-1] = msgs[-1].replace("OKX real — ", f"OKX real (campeão da arena {sig.get('estrategia')}) — ", 1)
         if op and recuo:
             op["estrategia"] = "recuo"
             msgs[-1] = msgs[-1].replace("OKX real — ", "OKX real (recuo na subida, H46) — ", 1)
@@ -560,10 +668,10 @@ def stop_completo(op):
     a2 = privado("GET", f"/api/v5/trade/orders-algo-pending?instId={op['inst']}&ordType=oco")
     if any(r.get("code") != "0" for r in (pos, a1, a2)):
         return None
-    q = sum(float(x.get("pos") or 0) for x in pos.get("data") or [])
+    q = abs(sum(float(x.get("pos") or 0) for x in pos.get("data") or []))
     if q <= 0:
         return None                                        # ja fechou: o acompanhar trata disso
-    return PROT.stop_cobre((a1.get("data") or []) + (a2.get("data") or []), q, "LONG", op.get("entrada"))
+    return PROT.stop_cobre((a1.get("data") or []) + (a2.get("data") or []), q, op.get("lado") or "LONG", op.get("entrada"))
 
 
 def confirmar_stops(R, now, msgs):
@@ -594,7 +702,8 @@ def confirmar_stops(R, now, msgs):
         pos = privado("GET", f"/api/v5/account/positions?instId={op['inst']}")
         if pos.get("code") != "0":
             continue
-        sz = next((x.get("pos") for x in (pos.get("data") or []) if float(x.get("pos") or 0) > 0), None)
+        sz = next((str(abs(float(x.get("pos")))).rstrip("0").rstrip(".") for x in (pos.get("data") or [])
+                   if float(x.get("pos") or 0) != 0), None)       # (14/11) os shorts tem pos negativo
         if not sz:
             continue                                     # ja fechou: o acompanhar trata disso na volta seguinte
         ok = False
@@ -605,7 +714,8 @@ def confirmar_stops(R, now, msgs):
                 msgs.append(f"🚨 OKX real — {base}: a OKX não mostra stop ativo nesta posição (já o repus uma vez). Confirma já na app da OKX.")
             continue
         if op.get("stop"):
-            corpo = {"instId": op["inst"], "tdMode": "isolated", "side": "sell", "ordType": "oco" if op.get("alvo") else "conditional",
+            corpo = {"instId": op["inst"], "tdMode": "isolated", "side": "buy" if op.get("lado") == "SHORT" else "sell",
+                     "ordType": "oco" if op.get("alvo") else "conditional",
                      "sz": sz, "reduceOnly": True, "slTriggerPx": str(op["stop"]), "slOrdPx": "-1"}
             if op.get("alvo"):
                 corpo.update(tpTriggerPx=str(op["alvo"]), tpOrdPx="-1")
@@ -633,9 +743,16 @@ def reconciliar(R, now, msgs):
         inst, base = x["instId"], x["instId"].split("-")[0]
         ant = next((h for h in reversed(R["hist"]) if h.get("inst") == inst), {})
         t_fill = int(int(x.get("cTime") or now * 1000) / 1000)
+        short = float(x.get("pos") or 0) < 0 or x.get("posSide") == "short"
         op = {"inst": inst, "ordId": ant.get("ordId"), "estado": "aberta", "entrada": float(x.get("avgPx") or 0), "t_fill": t_fill,
-              "sair_em": t_fill + 18 * H4, "stop": ant.get("stop"), "alvo": ant.get("alvo"), "alav": int(float(x.get("lever") or 0) or 0),
+              "sair_em": t_fill + int(ant.get("hold_s") or 18 * H4), "stop": ant.get("stop"), "alvo": ant.get("alvo"),
+              "alav": int(float(x.get("lever") or 0) or 0),
               "t_sig": ant.get("t_sig"), "criado": int(now), "adotada": True}
+        for k in ("estrategia", "hold_s", "estrategia_bybit", "id_bybit"):
+            if ant.get(k):
+                op[k] = ant[k]
+        if short:
+            op["lado"] = "SHORT"
         R["ops"][base] = op
         if ant:
             R["hist"].remove(ant)
@@ -643,8 +760,10 @@ def reconciliar(R, now, msgs):
         algos2 = privado("GET", f"/api/v5/trade/orders-algo-pending?instId={inst}&ordType=oco")
         tem_stop = any(a.get("slTriggerPx") for a in (algos.get("data") or []) + (algos2.get("data") or []))
         if not tem_stop and op["stop"]:
-            r = privado("POST", "/api/v5/trade/order-algo", {"instId": inst, "tdMode": "isolated", "side": "sell", "ordType": "oco",
-                                                            "sz": x.get("pos"), "reduceOnly": True,
+            r = privado("POST", "/api/v5/trade/order-algo", {"instId": inst, "tdMode": "isolated",
+                                                            "side": "buy" if short else "sell", "ordType": "oco",
+                                                            "sz": str(abs(float(x.get("pos")))).rstrip("0").rstrip("."),
+                                                            "reduceOnly": True,
                                                             "slTriggerPx": str(op["stop"]), "slOrdPx": "-1",
                                                             "tpTriggerPx": str(op["alvo"]), "tpOrdPx": "-1"})
             tem_stop = r.get("code") == "0"
