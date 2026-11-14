@@ -2692,3 +2692,10 @@ Sessão com o Rui. Decisões binárias a partir da auditoria do relatório do ag
   máximo das 42 velas anteriores; stop na entrada depois do 1.º; saída ao fim de 5 dias (regras de
   `tools/research_bounce.py` com H = 5 e o filtro de volume). Prioridade nas vagas: RSI mais baixo.
 - Grelha (4): X ∈ {30, 35} × V ∈ {2,0; 2,5}.
+## REGRA DE AGRESSIVIDADE OPERACIONAL — 2026-11-14 (decisão do Rui)
+
+1. Qualquer hipótese que fique ≥ percentil 90 contra o acaso (fora da amostra) recebe **PARA PAPEL** na mesma corrida, sem nova autorização.
+2. O critério da conta só é aplicado depois de ≥ 25 operações em papel (não antes).
+3. Mínimo de lutadores vivos na arena: 5. Recrutamento: sempre que existir candidato com ≥ 15 operações e acima do percentil 80 do acaso, mesmo que já haja mais de 5 vivos.
+4. CAPITULACAO_R2 está morta de forma definitiva (commit acdf3ab). Não reabre com mudança de regime.
+5. Nesta fase agressiva: prioridade a volume de operações e a sinais com edge parcial já observado. O controlo de risco faz-se no papel e no critério da conta (após 25 op.), não matando candidatos cedo demais.
