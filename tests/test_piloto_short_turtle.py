@@ -24,11 +24,11 @@ class Configuracao(unittest.TestCase):
     def test_config_so_com_os_limites_autorizados(self):
         with open(os.path.join(RAIZ, "config.json"), encoding="utf-8") as f:
             c = json.load(f)
-        self.assertEqual(c["real_autorizados"], ["SHORT_TURTLE"])
+        self.assertIsNone(c["real_autorizados"])               # (14/11 15:28, Rui: "manter tal como está") 
         p = c["piloto"]
         self.assertEqual(p["estrategia"], "SHORT_TURTLE")
         self.assertLessEqual(p["teto_pct"], 5)                  # (12/11 09:06) teto 5% autorizado pelo Rui
-        self.assertEqual(p["max_posicoes"], 1)
+        self.assertEqual(p["max_posicoes"], 2)                 # (14/11 15:28, Rui: "manter tal como está") 
         self.assertEqual(p["perda_max_r"], -8)
         self.assertLessEqual(p["juro_max_r"], 0.06)
 
@@ -155,4 +155,4 @@ class Concorrencia(unittest.TestCase):
 
     def test_producao_uma_vaga(self):
         import json
-        self.assertEqual(json.load(open("config.json"))["piloto"]["max_posicoes"], 1)
+        self.assertEqual(json.load(open("config.json"))["piloto"]["max_posicoes"], 2)   # (14/11 15:28, Rui: "manter tal como está") 

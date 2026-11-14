@@ -17,7 +17,7 @@ def cfg(aberto=0.0):
 class Alvo(unittest.TestCase):
     def test_config_de_producao(self):
         c = config.load("config.json")
-        self.assertEqual((c["piloto"]["risco_alvo_pct"], c["piloto"]["teto_pct"], c["piloto"]["max_posicoes"]), (2.5, 5, 1))
+        self.assertEqual((c["piloto"]["risco_alvo_pct"], c["piloto"]["teto_pct"], c["piloto"]["max_posicoes"]), (2.5, 5, 2))   # (14/11 15:28, Rui: "manter tal como está") 
         self.assertEqual(cfg()["piloto_risco_alvo_pct"], 2.5)
 
     def test_alvo_ao_pior_preco_sem_emprestimo(self):

@@ -410,8 +410,9 @@ class CampeoesPorFase(unittest.TestCase):
         longo = {"stop": 80.0, "tp": [90.0], "partials": [100], "hold_s": 86400, "t_sig": c4[-1]["t"] + TF}
         st = state_with({"BOUNCE_G0": f(26, 0.8, -0.2)})
         with mock.patch.object(promo, "registry", return_value={"BOUNCE_G0": lambda c, px, cfg: longo}):
-            self.assertEqual(promo.decisions(st, [row], {"AAA": c4}, CFG, now, ["BOUNCE_G0"], False,
-                                             lambda a: None), {})
+            # (14/11 15:55, Rui: "manter tal como está"): o BTC abaixo da SMA200 ja nao trava as compras
+            self.assertIn("AAA", promo.decisions(st, [row], {"AAA": c4}, CFG, now, ["BOUNCE_G0"], False,
+                                                 lambda a: None))
 
 
 class MargemBybit(unittest.TestCase):
@@ -443,13 +444,14 @@ class ProvaDupla(unittest.TestCase):
             self.assertEqual(promo.champions(st, {"BOUNCE_SQUEEZE"}, "lateral", True), [])
 
     def test_uma_de_cada_familia(self):
-        self.assertEqual(promo.MAX_PER_FAMILY, 1)
+        self.assertEqual((promo.MAX_PER_FAMILY, promo.MAX_PER_BAR), (4, 4))   # (14/11 15:55, Rui: "manter tal como está")
         st = {"ledger": [{"mode": "REAL", "status": "OPEN", "strategy": "BOUNCE_X30"}]}
         c4 = bars()
         now = c4[-1]["t"] + TF + 60
         sig = {"stop": 80.0, "tp": [90.0], "partials": [100], "hold_s": 86400, "t_sig": c4[-1]["t"] + TF}
         row = {"asset": "AAA", "price": 84.1, "decision": {"decision": "NO TRADE", "venue": {"pair": "AAA/USDC"}}}
-        with mock.patch.object(promo, "registry", return_value={"BOUNCE_SQUEEZE": lambda c, px, cfg: sig}):
+        with mock.patch.object(promo, "registry", return_value={"BOUNCE_SQUEEZE": lambda c, px, cfg: sig}), \
+                mock.patch.object(promo, "MAX_PER_FAMILY", 1):       # o mecanismo, com o limite a 1
             d = promo.decisions(st, [row], {"AAA": c4}, CFG, now, ["BOUNCE_SQUEEZE"], True, lambda a: None)
         self.assertEqual(d, {})
         self.assertIn("diversificação", st["promo_lost"][-1]["reason"])

@@ -32,7 +32,8 @@ class Familias(unittest.TestCase):
                "TURTLE": lambda c, p, cfg=None: dict(sig)}
         reg["BOUNCE_FLUXO"] = lambda c, p, cfg=None: dict(sig)
         with mock.patch.object(promo, "registry", lambda: reg), \
-                mock.patch.object(promo, "set_context", lambda r, b: None):
+                mock.patch.object(promo, "set_context", lambda r, b: None), \
+                mock.patch.object(promo, "MAX_PER_FAMILY", 1):       # o mecanismo; producao: 4 (Rui, 14/11)
             out = promo.decisions(st, rows, {"AAA": bars(), "BBB": bars()}, CFG, NOW + 60,
                                   ["BOUNCE_FLUXO"], True, lambda a: None)
         self.assertEqual(out, {})                          # sobrevenda ja tem 2 abertas
