@@ -4,6 +4,9 @@ tools/arena_ringue.SINAIS que nao tenha papel proprio (o Bounce ja tem o
 seu em engine/paper_bounce.py) passa a operar em papel aqui, sem mais
 nenhuma intervencao. As operacoes fechadas entram na arena como operacoes
 ao vivo desse lutador. Nunca gera ordens nem mensagens de compra.
+
+(15/11, Rui): kill automatico se R medio < 0 com >= KILL_N operacoes;
+avisos Telegram em abertura, fecho e retirada do papel.
 """
 from . import promo, trade
 
@@ -11,10 +14,29 @@ TF = 14400
 MAX_POS = 6
 FEE_PCT, SLIP_PCT = 0.25, 0.1
 OWN_PAPER = ("BOUNCE_G0", "BOUNCE_V1", "BOUNCE_V2", "BOUNCE_V3")
+KILL_N = 20  # (15/11) sai do papel com R medio negativo a partir desta amostra
+
+
+def _tg(txt):
+    """Envia Telegram se estiver configurado; nunca interrompe o papel."""
+    try:
+        from . import alerts
+        if alerts.configured():
+            alerts.send(txt)
+    except Exception:
+        pass
+
+
+def _r_medio(closed):
+    rs = [c["r"] for c in closed if c.get("r") is not None]
+    if not rs:
+        return 0, None
+    return len(rs), round(sum(rs) / len(rs), 3)
 
 
 def update(state, rows, bars, now, market_ok=True):
     st = state.setdefault("paper_ring", {})
+    killed = state.setdefault("papel_kill", {})
     reg = promo.registry()
     # os qualificados com codigo revisto ja operam a dinheiro real (registo)
     active = [k for k, _ in promo.qualified(state)
@@ -31,6 +53,8 @@ def update(state, rows, bars, now, market_ok=True):
     active += [k for k in PAPEL_ESTUDO if k in reg and k not in active and k not in promo.REAL_OK]
     # (23/10) campeoes tirados do dinheiro real (familia so em papel, deriva) continuam medidos aqui
     active += [k for k in (state.get("so_papel") or {}) if k in reg and k not in active]
+    # (15/11) mortos pelo kill de R negativo nao voltam a abrir
+    active = [k for k in active if k not in killed]
     fase = (state.get("mercado") or {}).get("regime")
     for k in set(st) | set(active):
         b = st.setdefault(k, {"open": {}, "closed": [], "last": {}})
@@ -44,16 +68,34 @@ def update(state, rows, bars, now, market_ok=True):
                 trade.step(pos, x["o"], x["h"], x["l"], x["c"], x["t"] + TF)
                 pos["next_t"] = x["t"] + TF
             if pos["closed"]:
-                b["closed"] = (b["closed"] + [{
+                rec = {
                     "asset": a, "opened_at": pos["opened_at"],
                     "closed_at": pos.get("closed_at") or now, "r": round(pos["r"], 3),
                     "reason": pos["exit_reason"], "entry": pos["entry"],
                     "stop": pos["stop0"], "tp": list(pos["tps"]),
                     "partials": list(pos["partials"]),
-                    "breakeven": pos.get("breakeven", True), "fase": pos.get("fase")}])[-300:]
+                    "breakeven": pos.get("breakeven", True), "fase": pos.get("fase"),
+                    "side": pos.get("side", "LONG")}
+                b["closed"] = (b["closed"] + [rec])[-300:]
                 del b["open"][a]
+                lado = rec.get("side") or "LONG"
+                _tg(f"PAPEL FECHO {k} {lado} {a} R={rec['r']:+.2f} "
+                    f"motivo={rec.get('reason') or '?'} entrada={rec.get('entry')}")
+        # kill: >= KILL_N op. e R medio < 0 -> fora do papel (e Telegram)
+        if k not in killed:
+            n, rm = _r_medio(b["closed"])
+            if n >= KILL_N and rm is not None and rm < 0:
+                killed[k] = {"t": int(now), "n": n, "r": rm,
+                             "motivo": f"R medio {rm} em {n} op. de papel"}
+                _tg(f"PAPEL KILL {k}: {n} op., R medio={rm}. Fora do papel. "
+                    f"Nao reabre ate ordem manual.")
+                if k in active:
+                    active = [x for x in active if x != k]
+                # nao abre novas; posicoes abertas continuam ate fechar
+                continue
         short_k = k.startswith("SHORT_")
-        if k not in active or (not market_ok and not short_k and k not in PAPEL_SEM_FILTRO_BTC):    # os shorts nao dependem do filtro de compras
+        if k not in active or k in killed or (
+                not market_ok and not short_k and k not in PAPEL_SEM_FILTRO_BTC):
             continue
         promo.set_context(rows, bars)
         try:
@@ -73,16 +115,20 @@ def update(state, rows, bars, now, market_ok=True):
                 continue
             b["last"][a] = sig["t_sig"]
             lado = "SHORT" if sig.get("side") == "SHORT" else "LONG"
-            ok = (sig["tp"][0] < r["price"] < sig["stop"]) if lado == "SHORT" else (sig["stop"] < r["price"] < sig["tp"][0])
+            ok = (sig["tp"][0] < r["price"] < sig["stop"]) if lado == "SHORT" else (
+                sig["stop"] < r["price"] < sig["tp"][0])
             if not ok:
                 continue
             pos = trade.open_position(sig, r["price"], sig["t_sig"], FEE_PCT, SLIP_PCT,
                                       breakeven=sig.get("breakeven", True), side=lado)
             pos["next_t"] = c4[-1]["t"] + TF
             pos["fase"] = fase
+            pos["side"] = lado
             if sig.get("hold_s"):
                 pos["max_hold"] = sig["hold_s"]
             b["open"][a] = pos
+            _tg(f"PAPEL ABRE {k} {lado} {a} @ {r['price']} "
+                f"stop={sig.get('stop')} tp={sig.get('tp')}")
     out = {k: {"n": len(v["closed"]), "open": sorted(v["open"])} for k, v in st.items()}
     try:
         from tools.arena_ringue import PAPEL_N_MIN
@@ -90,14 +136,21 @@ def update(state, rows, bars, now, market_ok=True):
         PAPEL_N_MIN = {}
     for k in PAPEL_ESTUDO:
         if k in out:
-            out[k]["prova"] = prova_estudo(st[k]["closed"], PAPEL_FASE.get(k, "subida"), n_min=PAPEL_N_MIN.get(k, 20))
+            out[k]["prova"] = prova_estudo(
+                st[k]["closed"], PAPEL_FASE.get(k, "subida"),
+                n_min=PAPEL_N_MIN.get(k, 20))
+            if k in killed:
+                out[k]["prova"]["estado"] = "chumbado"
+                out[k]["kill"] = killed[k]
     return out
 
 
 def prova_estudo(closed, fase="subida", n_min=20, r_min=0.15):
     """Regra fixada a 22/10 (antes de haver resultados): com n_min operacoes em
     papel na fase, R medio >= r_min e as duas metades a ganhar -> pode ir a
-    dinheiro real com o OK do Rui; R medio < 0 -> sai; senao, continua."""
+    dinheiro real com o OK do Rui; R medio < 0 -> sai; senao, continua.
+    (15/11) o kill efectivo (>= KILL_N e R<0 em todas as fases) esta em update().
+    """
     rs = [c["r"] for c in closed if (fase is None or c.get("fase") == fase) and c.get("r") is not None]
     n = len(rs)
     r = round(sum(rs) / n, 3) if n else None
@@ -107,7 +160,7 @@ def prova_estudo(closed, fase="subida", n_min=20, r_min=0.15):
         estado = "a medir"
     elif r >= r_min and met and min(met) > 0:
         estado = "aprovado: pede o OK do Rui"
-    elif r < 0:
+    elif r is not None and r < 0:
         estado = "chumbado"
     else:
         estado = "a medir"
