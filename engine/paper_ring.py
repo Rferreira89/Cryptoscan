@@ -7,6 +7,7 @@ ao vivo desse lutador. Nunca gera ordens nem mensagens de compra.
 
 (15/11, Rui): kill automatico se R medio < 0 com >= KILL_N operacoes;
 avisos Telegram em abertura, fecho e retirada do papel.
+Venue deste motor: Bybit (o OKX tem caminhos proprios).
 """
 from . import promo, trade
 
@@ -15,6 +16,7 @@ MAX_POS = 6
 FEE_PCT, SLIP_PCT = 0.25, 0.1
 OWN_PAPER = ("BOUNCE_G0", "BOUNCE_V1", "BOUNCE_V2", "BOUNCE_V3")
 KILL_N = 20  # (15/11) sai do papel com R medio negativo a partir desta amostra
+VENUE = "Bybit"  # paper_ring = Bybit; OKX nao passa por aqui
 
 
 def _tg(txt):
@@ -75,23 +77,22 @@ def update(state, rows, bars, now, market_ok=True):
                     "stop": pos["stop0"], "tp": list(pos["tps"]),
                     "partials": list(pos["partials"]),
                     "breakeven": pos.get("breakeven", True), "fase": pos.get("fase"),
-                    "side": pos.get("side", "LONG")}
+                    "side": pos.get("side", "LONG"), "venue": VENUE}
                 b["closed"] = (b["closed"] + [rec])[-300:]
                 del b["open"][a]
                 lado = rec.get("side") or "LONG"
-                _tg(f"PAPEL FECHO {k} {lado} {a} R={rec['r']:+.2f} "
+                _tg(f"[{VENUE}] PAPEL FECHO {k} {lado} {a} R={rec['r']:+.2f} "
                     f"motivo={rec.get('reason') or '?'} entrada={rec.get('entry')}")
         # kill: >= KILL_N op. e R medio < 0 -> fora do papel (e Telegram)
         if k not in killed:
             n, rm = _r_medio(b["closed"])
             if n >= KILL_N and rm is not None and rm < 0:
-                killed[k] = {"t": int(now), "n": n, "r": rm,
+                killed[k] = {"t": int(now), "n": n, "r": rm, "venue": VENUE,
                              "motivo": f"R medio {rm} em {n} op. de papel"}
-                _tg(f"PAPEL KILL {k}: {n} op., R medio={rm}. Fora do papel. "
+                _tg(f"[{VENUE}] PAPEL KILL {k}: {n} op., R medio={rm}. Fora do papel. "
                     f"Nao reabre ate ordem manual.")
                 if k in active:
                     active = [x for x in active if x != k]
-                # nao abre novas; posicoes abertas continuam ate fechar
                 continue
         short_k = k.startswith("SHORT_")
         if k not in active or k in killed or (
@@ -124,10 +125,11 @@ def update(state, rows, bars, now, market_ok=True):
             pos["next_t"] = c4[-1]["t"] + TF
             pos["fase"] = fase
             pos["side"] = lado
+            pos["venue"] = VENUE
             if sig.get("hold_s"):
                 pos["max_hold"] = sig["hold_s"]
             b["open"][a] = pos
-            _tg(f"PAPEL ABRE {k} {lado} {a} @ {r['price']} "
+            _tg(f"[{VENUE}] PAPEL ABRE {k} {lado} {a} @ {r['price']} "
                 f"stop={sig.get('stop')} tp={sig.get('tp')}")
     out = {k: {"n": len(v["closed"]), "open": sorted(v["open"])} for k, v in st.items()}
     try:
