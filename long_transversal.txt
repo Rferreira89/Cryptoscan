@@ -1,0 +1,42 @@
+ACELERACAO subida bybit_ue INCONCLUSIVA | treino -0.1244 59 | val 0.6693 59 | fora -0.0643 16 | VF r_dia 0.4159 [0.101, 0.7846] pf 2.752 holm 1.0
+ACELERACAO subida okx INCONCLUSIVA | treino -0.1053 59 | val 0.6917 59 | fora -0.0376 16 | VF r_dia 0.4381 [0.0823, 0.837] pf 2.891 holm 0.88946
+ACELERACAO lateral bybit_ue SEM VANTAGEM (NEGATIVA) | treino 0.0465 87 | val -0.3102 37 | fora -0.2247 31 | VF r_dia -0.2087 [-0.3887, -0.0008] pf 0.443 holm 1.0
+ACELERACAO lateral okx SEM VANTAGEM | treino 0.0677 87 | val -0.2899 37 | fora -0.196 31 | VF r_dia -0.1857 [-0.3695, 0.0513] pf 0.474 holm 1.0
+ESTRUTURA_FLUXO subida bybit_ue INCONCLUSIVA | treino 0.064 47 | val 0.6573 57 | fora 0.2661 15 | VF r_dia 0.717 [0.1256, 1.4151] pf 2.025 holm 1.0
+ESTRUTURA_FLUXO subida okx INCONCLUSIVA | treino 0.0732 47 | val 0.6702 57 | fora 0.277 15 | VF r_dia 0.7293 [0.1084, 1.457] pf 2.069 holm 1.0
+ESTRUTURA_FLUXO lateral bybit_ue SEM VANTAGEM (NEGATIVA) | treino 0.1186 95 | val -0.4405 65 | fora -0.3802 52 | VF r_dia -0.4157 [-0.5702, -0.2466] pf 0.415 holm 1.0
+ESTRUTURA_FLUXO lateral okx SEM VANTAGEM (NEGATIVA) | treino 0.1296 95 | val -0.4268 65 | fora -0.3632 52 | VF r_dia -0.4004 [-0.5531, -0.2363] pf 0.425 holm 1.0
+ESTRUTURA_FLUXO queda bybit_ue SEM VANTAGEM | treino -0.6977 7 | val -0.7897 2 | fora 0.1129 3 | VF r_dia -0.0202 [-0.8285, 0.9474] pf 0.69 holm 1.0
+ESTRUTURA_FLUXO queda okx SEM VANTAGEM (positiva por dia, negativa por operacao) | treino -0.6844 7 | val -0.7448 2 | fora 0.1204 3 | VF r_dia 0.0014 [-0.7951, 1.0398] pf 0.714 holm 1.0
+EXCESSO lateral bybit_ue INCONCLUSIVA | treino -0.1202 28 | val 0.1078 15 | fora 0.2149 11 | VF r_dia 0.1885 [-0.0436, 0.4068] pf 1.593 holm 1.0
+EXCESSO lateral okx INCONCLUSIVA | treino -0.1075 28 | val 0.1224 15 | fora 0.2316 11 | VF r_dia 0.2043 [-0.0248, 0.4225] pf 1.671 holm 1.0
+EXCESSO queda bybit_ue INCONCLUSIVA | treino 0.1853 18 | val None 0 | fora 0.4174 5 | VF r_dia 0.4174 [0.2095, 0.6273] pf None holm 0.05476
+EXCESSO queda okx INCONCLUSIVA | treino 0.1965 18 | val None 0 | fora 0.4312 5 | VF r_dia 0.4312 [0.2224, 0.64] pf None holm 0.04085
+FORCA_RELATIVA subida bybit_ue INCONCLUSIVA | treino 0.1885 82 | val 0.1116 75 | fora -0.1109 20 | VF r_dia 0.0744 [-0.1745, 0.3519] pf 1.123 holm 1.0
+FORCA_RELATIVA subida okx INCONCLUSIVA | treino 0.1998 82 | val 0.125 75 | fora -0.097 20 | VF r_dia 0.0881 [-0.1569, 0.3833] pf 1.152 holm 1.0
+FORCA_RELATIVA lateral bybit_ue SEM VANTAGEM (NEGATIVA) | treino 0.1864 103 | val -0.1917 142 | fora -0.0791 66 | VF r_dia -0.1614 [-0.2695, -0.0479] pf 0.66 holm 1.0
+FORCA_RELATIVA lateral okx SEM VANTAGEM (NEGATIVA) | treino 0.1988 103 | val -0.1783 142 | fora -0.062 66 | VF r_dia -0.1467 [-0.2619, -0.0284] pf 0.683 holm 1.0
+FRAQUEZA_RELATIVA lateral bybit_ue SEM VANTAGEM | treino -0.0856 171 | val -0.2653 51 | fora 0.0695 104 | VF r_dia -0.0688 [-0.1823, 0.0465] pf 0.879 holm 1.0
+FRAQUEZA_RELATIVA lateral okx SEM VANTAGEM | treino -0.0698 171 | val -0.252 51 | fora 0.0895 104 | VF r_dia -0.0506 [-0.1671, 0.0624] pf 0.923 holm 1.0
+FRAQUEZA_RELATIVA queda bybit_ue INCONCLUSIVA | treino -0.0799 96 | val -0.1477 8 | fora 0.0788 45 | VF r_dia 0.0604 [-0.0644, 0.1982] pf 1.173 holm 1.0
+FRAQUEZA_RELATIVA queda okx INCONCLUSIVA | treino -0.071 96 | val -0.1352 8 | fora 0.0902 45 | VF r_dia 0.0721 [-0.0522, 0.2031] pf 1.228 holm 1.0
+PERDA_MOMENTO subida bybit_ue SEM VANTAGEM | treino -0.2686 32 | val -0.1507 30 | fora 0.3202 5 | VF r_dia -0.05 [-0.2549, 0.1475] pf 0.708 holm 1.0
+PERDA_MOMENTO subida okx SEM VANTAGEM | treino -0.2574 32 | val -0.1413 30 | fora 0.3283 5 | VF r_dia -0.0407 [-0.2381, 0.1467] pf 0.729 holm 1.0
+PERDA_MOMENTO lateral bybit_ue SEM VANTAGEM | treino 0.0302 113 | val -0.0782 80 | fora 0.02 37 | VF r_dia -0.0375 [-0.1301, 0.066] pf 0.83 holm 1.0
+PERDA_MOMENTO lateral okx SEM VANTAGEM | treino 0.0388 113 | val -0.0683 80 | fora 0.0304 37 | VF r_dia -0.0272 [-0.1154, 0.0698] pf 0.863 holm 1.0
+PERDA_MOMENTO queda bybit_ue INCONCLUSIVA | treino 0.066 36 | val -0.1022 2 | fora 0.2418 15 | VF r_dia 0.2176 [0.0651, 0.3626] pf 3.6 holm 0.36155
+PERDA_MOMENTO queda okx INCONCLUSIVA | treino 0.073 36 | val -0.0936 2 | fora 0.249 15 | VF r_dia 0.225 [0.0831, 0.377] pf 3.776 holm 0.30144
+QUEBRA_FLUXO subida bybit_ue INCONCLUSIVA | treino None 0 | val 0.167 1 | fora None 0 | VF r_dia 0.167 [None, None] pf 1.535 holm 1.0
+QUEBRA_FLUXO subida okx INCONCLUSIVA | treino None 0 | val 0.1738 1 | fora None 0 | VF r_dia 0.1738 [None, None] pf 1.563 holm 1.0
+QUEBRA_FLUXO lateral bybit_ue INCONCLUSIVA | treino 0.12 8 | val 0.0151 7 | fora 0.3943 6 | VF r_dia 0.3077 [-0.1246, 0.73] pf 1.744 holm 1.0
+QUEBRA_FLUXO lateral okx INCONCLUSIVA | treino 0.1307 8 | val 0.0231 7 | fora 0.4123 6 | VF r_dia 0.3223 [-0.0858, 0.749] pf 1.82 holm 1.0
+QUEBRA_FLUXO queda bybit_ue SEM VANTAGEM | treino -0.1171 12 | val None 0 | fora -0.4916 7 | VF r_dia -0.0372 [-0.3981, 0.3254] pf 0.129 holm 1.0
+QUEBRA_FLUXO queda okx SEM VANTAGEM | treino -0.1097 12 | val None 0 | fora -0.4798 7 | VF r_dia -0.0262 [-0.3885, 0.3337] pf 0.134 holm 1.0
+RESILIENCIA lateral bybit_ue SEM VANTAGEM | treino -0.1458 5 | val -0.0306 2 | fora -0.634 1 | VF r_dia -0.2317 [None, None] pf 0.68 holm 1.0
+RESILIENCIA lateral okx SEM VANTAGEM | treino -0.1352 5 | val -0.0188 2 | fora -0.6041 1 | VF r_dia -0.2139 [None, None] pf 0.701 holm 1.0
+RESILIENCIA queda bybit_ue INCONCLUSIVA | treino -0.2134 7 | val None 0 | fora 0.1906 2 | VF r_dia 0.1906 [None, None] pf 2.627 holm 0.0
+RESILIENCIA queda okx INCONCLUSIVA | treino -0.2052 7 | val None 0 | fora 0.2085 2 | VF r_dia 0.2085 [None, None] pf 2.809 holm 0.0
+ROTACAO subida bybit_ue INCONCLUSIVA | treino -0.0035 25 | val 0.0965 22 | fora 0.143 6 | VF r_dia 0.1381 [-0.1859, 0.5347] pf 1.27 holm 1.0
+ROTACAO subida okx INCONCLUSIVA | treino 0.0097 25 | val 0.11 22 | fora 0.1597 6 | VF r_dia 0.1524 [-0.1797, 0.5288] pf 1.313 holm 1.0
+ROTACAO lateral bybit_ue SEM VANTAGEM (NEGATIVA) | treino 0.2131 33 | val -0.2056 38 | fora -0.1429 22 | VF r_dia -0.1709 [-0.2899, -0.0466] pf 0.536 holm 1.0
+ROTACAO lateral okx SEM VANTAGEM (NEGATIVA) | treino 0.2277 33 | val -0.1917 38 | fora -0.126 22 | VF r_dia -0.1561 [-0.2832, -0.033] pf 0.563 holm 1.0
