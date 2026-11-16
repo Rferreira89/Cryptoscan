@@ -833,10 +833,11 @@ def snapshot(state, now=None):
 def main(out_path, state_path=None):
     state = {}
     if state_path and os.path.exists(state_path):
-        state = json.load(open(state_path))
+        with open(state_path, encoding="utf-8") as f:
+            state = json.load(f)
     snap = snapshot(state)
-    with open(out_path, "w") as f:
-        json.dump(snap, f, indent=1)
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(snap, f, indent=1, ensure_ascii=False)
     print(json.dumps(snap, indent=1))
 
 
