@@ -84,14 +84,14 @@ Próximo passo: implementar suporte de dados 30m em módulos isolados e respetiv
 
 ## Pipeline de dados históricos já implementado na branch
 
-- `engine/quick_opportunities_data.py`: descarga paginada de Binance Spot klines 30m por intervalo UTC, deduplicação/ordenação, validação de velas fechadas, execução do backtest e persistência de candles e relatórios JSON por símbolo.
+- `engine/quick_opportunities_data.py`: descarga paginada de Binance, Bybit Spot e OKX Spot 30m por intervalo UTC; paginação própria por API, deduplicação/ordenação, exclusão de candles OKX ainda não confirmados, validação, backtest e relatórios por venue/símbolo.
 - `tools/quick_opportunities.py`: CLI de investigação, sem credenciais privadas e sem ligação ao executor.
 - `.github/workflows/quick-opportunities-tests.yml`: CI isolado para os testes do motor e do paginador.
 - Exemplo:
   ```bash
-  python -m tools.quick_opportunities --symbols BTCUSDT,ETHUSDT,SOLUSDT --start 2026-01-01T00:00:00Z --end 2026-11-01T00:00:00Z --out backtest/quick-opportunities-data
+  python -m tools.quick_opportunities --venue both --symbols BTCUSDT,ETHUSDT,SOLUSDT --start 2026-01-01T00:00:00Z --end 2026-11-01T00:00:00Z --out backtest/quick-opportunities-data
   ```
-- A primeira fase usa Binance Spot para obter histórico longo. SHORT continua a ser apenas estudo do movimento de preço; não valida borrow/perpétuos. Funding é um parâmetro fixo opcional, não histórico.
+- O pipeline suporta Bybit Spot e OKX Spot em paralelo (também Binance Spot como referência). SHORT continua a ser apenas estudo do movimento de preço; não valida borrow/perpétuos. Funding é um parâmetro fixo opcional, não histórico.
 - Os relatórios incluem provenance/venue, intervalo pedido, estado da validação, pressupostos de custos, trades e métricas por família/lado/regime.
 - A CI foi criada nesta branch. Ainda falta confirmar execução verde e correr o pipeline sobre dados históricos reais; nenhum resultado de rentabilidade foi produzido ou validado nesta etapa.
 
