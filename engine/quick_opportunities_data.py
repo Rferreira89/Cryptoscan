@@ -17,7 +17,7 @@ from engine import quick_opportunities_derivatives as DERIV
 
 INTERVAL_MS = {"30m": 30 * 60 * 1000}
 BINANCE_KLINES = "https://data-api.binance.vision/api/v3/klines"
-BYBIT_KLINES = "https://api.bybit.com/v5/market/kline"
+BYBIT_KLINES = "https://api.bybit.eu/v5/market/kline"
 OKX_HISTORY = "https://www.okx.com/api/v5/market/history-candles"
 PAGE_LIMITS = {"binance": 1000, "bybit": 1000, "okx": 300}
 
@@ -257,7 +257,7 @@ def _parse_date_ms(value):
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Quick Opportunities research backtest")
     parser.add_argument("--venue", choices=("bybit", "okx", "binance", "both", "okx-futures", "bybit-futures", "both-futures"),
-                        default="both-futures")
+                        default="both")
     parser.add_argument("--symbols", required=True,
                         help="pares separados por virgula, ex. BTCUSDT,ETHUSDT")
     parser.add_argument("--start", required=True, help="ISO-8601 UTC")
@@ -267,7 +267,7 @@ def main(argv=None):
     parser.add_argument("--slippage-pct", type=float, default=0.05)
     args = parser.parse_args(argv)
     start_ms, end_ms = _parse_date_ms(args.start), _parse_date_ms(args.end)
-    venues = (("bybit", "okx") if args.venue == "both" else
+    venues = (("bybit", "okx-futures") if args.venue == "both" else
               ("bybit-futures", "okx-futures") if args.venue == "both-futures" else\n              (args.venue,))
     summaries = []
     for venue in venues:
