@@ -739,9 +739,24 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
             lost(state, now, a, champ, f"capacidade: risco aberto {risco['pct']:.2f}% + {novo:.2f}% passaria o teto "
                  f"agregado de {teto_ag:g}% da conta", sig, p.get("_px"), p)
             continue
-        risco["pct"] += novo
-        p.pop("_px", None)                   # so servia para a sombra das rejeitadas
+                risco["pct"] += novo
         short = p.get("side") == "SHORT"
+        # (16/11) piloto TURTLE LONG: so passa se a guarda autorizar (0,5%, 1 pos, kill -3R)
+        if champ == "TURTLE" and not short:
+            try:
+                from . import piloto_turtle_long as PTL
+                ops = state.get("piloto_turtle_ops") or []
+                risco_real = float(p.get("risk_pct") or 0)
+                ok_ptl, motivo = PTL.pode_abrir(ops, "Bybit EU", risco_real)
+                if not ok_ptl:
+                    lost(state, now, a, champ, f"piloto TURTLE LONG: {motivo}", sig, p.get("_px"), p)
+                    continue
+                p["piloto"] = "TURTLE_LONG"
+                p["exchange"] = "Bybit EU"
+            except Exception as e:
+                lost(state, now, a, champ, f"piloto TURTLE LONG: erro na guarda ({type(e).__name__})", sig, p.get("_px"), p)
+                continue
+        p.pop("_px", None)
         out[a] = {
             "decision": "SHORT" if short else "LONG", "side": "SHORT" if short else "LONG",
             "mode": "REAL", "validated": False,
