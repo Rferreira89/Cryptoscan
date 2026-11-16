@@ -55,10 +55,10 @@ Cada família deve ser testada isoladamente e em LONG/SHORT, sem presumir simetr
 ## Implementação inicial já criada na branch isolada
 
 - `engine/sources.py`: mapeamentos 30m nos adaptadores públicos.
-- `engine/quick_opportunities.py`: classificação local de regime, hipóteses transparentes de breakout/breakdown, momentum e reversão, simulação na vela seguinte, stop conservador quando stop e alvo tocam na mesma vela, custos e resumo bootstrap preliminar.
+- `engine/quick_opportunities.py`: classificação local de regime, hipóteses transparentes de breakout/breakdown, momentum e reversão, simulação na vela seguinte, stop conservador (inclui gaps), custos, backtest por família/direção e resumo bootstrap preliminar.
 - `tests/test_quick_opportunities.py`: testes unitários iniciais para mapeamentos, vela ainda aberta, horizonte, custos e estatísticas.
 - O módulo não é importado pelo scanner nem por executores; nenhuma ordem é possível através dele.
-- Ainda não existe backtest de mercado, prova de edge, benchmark aleatório, validação walk-forward ou dados de derivados históricos.
+- O loop de backtest está implementado, mas ainda não foi executado sobre histórico real. Não existe prova de edge, benchmark aleatório, validação walk-forward ou dados de derivados históricos.
 
 ## Fases de implementação
 1. Auditoria do estado da branch e dos dados históricos de 30m.
