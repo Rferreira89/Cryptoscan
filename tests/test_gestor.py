@@ -39,8 +39,11 @@ class Familias(unittest.TestCase):
         self.assertEqual(out, {})                          # sobrevenda ja tem 2 abertas
         self.assertIn("diversificação", st["promo_lost"][-1]["reason"])
         st2 = {"ledger": led}
+        # Este teste isola o limite por família; a guarda do piloto TURTLE
+        # tem testes próprios e deve ser autorizada explicitamente aqui.
         with mock.patch.object(promo, "registry", lambda: reg), \
-                mock.patch.object(promo, "set_context", lambda r, b: None):
+                mock.patch.object(promo, "set_context", lambda r, b: None), \
+                mock.patch("engine.piloto_turtle_long.pode_abrir", return_value=(True, "ok")):
             out = promo.decisions(st2, rows[:1], {"AAA": bars()}, CFG, NOW + 60,
                                   ["TURTLE"], True, lambda a: None)
         self.assertIn("AAA", out)                          # outra familia entra
