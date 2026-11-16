@@ -582,11 +582,6 @@ def correr(st, novos, now, msgs):
     del R["hist"][:-500]
     if not c["real"] or not novos:
         return
-    settlement = privado("GET", "/api/v5/account/config")
-    settle_ok, settle_reason = DERIV.validate_okx_account_config(settlement)
-    if not settle_ok:
-        msgs.append(f"🔒 OKX real: {settle_reason}; nenhuma ordem nova. As posições abertas continuam a ser geridas.")
-        return
     eq = equity()
     if not eq:
         msgs.append("⚠️ OKX real: não consegui ler o saldo da conta; nenhuma ordem nova.")
@@ -599,6 +594,11 @@ def correr(st, novos, now, msgs):
     guardar_pico(R, pico)
     if eq < pico * (1 - c["travao_queda_pct"] / 100):
         msgs.append(f"🛑 OKX real: a conta está {c['travao_queda_pct']}% abaixo do máximo; travão ligado, sem ordens novas.")
+        return
+    settlement = privado("GET", "/api/v5/account/config")
+    settle_ok, settle_reason = DERIV.validate_okx_account_config(settlement)
+    if not settle_ok:
+        msgs.append(f"🔒 OKX real: {settle_reason}; nenhuma ordem nova. As posições abertas continuam a ser geridas.")
         return
     xp = xperps()
     tent = R.setdefault("colocados", [])          # so os sinais com ordem posta (uma recusa por tamanho volta a tentar)
