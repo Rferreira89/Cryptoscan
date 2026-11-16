@@ -168,4 +168,54 @@ def simulate_candidate(candles, signal_index, candidate, fee_pct=0.1,
         "entry": entry, "exit": exit_fill, "exit_reason": reason,
         "gross_r": gross, "costs_r": costs_r, "net_r": gross - costs_r,
         "bars_held": exit_index - signal_index,
+        "entry_t": int(candles[signal_index + 1]["t"]),
+        "exit_t": int(candles[exit_index]["t"]),
+    }
+
+
+
+def evaluate_trades(results, min_trades=100, bootstrap_samples=2000, seed=7):
+    """Resumo descritivo e IC bootstrap da media de R liquido.
+
+    O IC nao corrige data snooping/hipoteses multiplas; a aprovacao exige
+    walk-forward, periodo intocado e correcao Holm fora desta funcao.
+    """
+    import random
+
+    rows = [r for r in results if r.get("status") == "CLOSED"
+            and isinstance(r.get("net_r"), (int, float))]
+    values = [float(r["net_r"]) for r in rows]
+    n = len(values)
+    if not n:
+        return {"trades": 0, "adequate_sample": False,
+                "mean_net_r": None, "ci95_mean_net_r": None,
+                "profit_factor": None, "win_rate": None, "max_drawdown_r": None}
+    wins = sum(x > 0 for x in values)
+    gross_win = sum(x for x in values if x > 0)
+    gross_loss = abs(sum(x for x in values if x < 0))
+    pf = (gross_win / gross_loss) if gross_loss else (float("inf") if gross_win else None)
+    equity = peak = drawdown = 0.0
+    for value in values:
+        equity += value
+        peak = max(peak, equity)
+        drawdown = max(drawdown, peak - equity)
+    rng = random.Random(seed)
+    means = []
+    if bootstrap_samples > 0:
+        for _ in range(bootstrap_samples):
+            means.append(sum(values[rng.randrange(n)] for _ in range(n)) / n)
+    means.sort()
+    ci = None
+    if means:
+        ci = [means[int(0.025 * (len(means) - 1))],
+              means[int(0.975 * (len(means) - 1))]]
+    return {
+        "trades": n, "adequate_sample": n >= min_trades,
+        "mean_net_r": sum(values) / n,
+        "ci95_mean_net_r": ci,
+        "profit_factor": pf,
+        "win_rate": wins / n,
+        "max_drawdown_r": drawdown,
+        "positive_mean_ci": bool(ci and ci[0] > 0),
+        "warning": "descritivo; nao substitui walk-forward nem correcao de hipoteses multiplas",
     }
