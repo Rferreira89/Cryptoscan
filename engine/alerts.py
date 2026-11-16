@@ -48,7 +48,7 @@ def _guardar(now):
     for k in [k for k, t in s.items() if now - t > 2 * DEDUP_S]:
         del s[k]
     try:
-        with open(DEDUP_FILE, "w") as f:
+        with open(DEDUP_FILE, "w", encoding="utf-8") as f:
             json.dump(s, f)
     except OSError:
         pass
