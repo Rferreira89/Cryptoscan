@@ -45,7 +45,7 @@ def okx_usdc_xperps(request=_get):
     for item in response.get("data", []):
         inst_id = item.get("instId", "")
         family = item.get("instFamily", "")
-        if (item.get("state") != "live" or "_UM_XPERP-" not in inst_id
+        if (item.get("state") != "live" or not inst_id.endswith("_UM_XPERP")
                 or not family.endswith("_UM") or item.get("ctType") != "linear"):
             continue
         base = inst_id.split("-")[0]
