@@ -2122,7 +2122,7 @@ def main(state_path, ex_in, out):
         ex["feitos"] = (ex["feitos"] + [r["id"]])[-300:]
         ex.setdefault("log", []).append({"t": now, "id": r["id"], "acao": r.get("acao"), "res": str(res)[:160]})
         ex["log"] = ex["log"][-100:]
-    with open(out, "w") as f:
+    with open(out, "w", encoding="utf-8") as f:
         json.dump(ex, f, indent=1, ensure_ascii=False)
     print(f"pronto={ex['pronto']} ({ex['chave']}) pedidos={len(reqs)}")
 
