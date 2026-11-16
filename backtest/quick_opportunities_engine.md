@@ -81,3 +81,17 @@ Cada família deve ser testada isoladamente e em LONG/SHORT, sem presumir simetr
 - A branch antiga investigacao-agressivo diverge da main (21 commits à frente e 14 atrás na comparação efetuada em 2026-11-16). Esta investigação começa numa branch nova criada a partir da main para evitar misturar alterações antigas.
 
 Próximo passo: implementar suporte de dados 30m em módulos isolados e respetivos testes, depois construir o motor de papel e o backtest próprio.
+
+## Pipeline de dados históricos já implementado na branch
+
+- `engine/quick_opportunities_data.py`: descarga paginada de Binance Spot klines 30m por intervalo UTC, deduplicação/ordenação, validação de velas fechadas, execução do backtest e persistência de candles e relatórios JSON por símbolo.
+- `tools/quick_opportunities.py`: CLI de investigação, sem credenciais privadas e sem ligação ao executor.
+- `.github/workflows/quick-opportunities-tests.yml`: CI isolado para os testes do motor e do paginador.
+- Exemplo:
+  ```bash
+  python -m tools.quick_opportunities --symbols BTCUSDT,ETHUSDT,SOLUSDT --start 2026-01-01T00:00:00Z --end 2026-11-01T00:00:00Z --out backtest/quick-opportunities-data
+  ```
+- A primeira fase usa Binance Spot para obter histórico longo. SHORT continua a ser apenas estudo do movimento de preço; não valida borrow/perpétuos. Funding é um parâmetro fixo opcional, não histórico.
+- Os relatórios incluem provenance/venue, intervalo pedido, estado da validação, pressupostos de custos, trades e métricas por família/lado/regime.
+- A CI foi criada nesta branch. Ainda falta confirmar execução verde e correr o pipeline sobre dados históricos reais; nenhum resultado de rentabilidade foi produzido ou validado nesta etapa.
+
