@@ -1,6 +1,7 @@
 import unittest
 
 from engine import quick_opportunities_derivatives as D
+from engine import quick_opportunities as Q
 
 
 def okx_instrument(inst="BTC-USDT-SWAP", state="live", settle="USDT",
@@ -99,6 +100,22 @@ class DerivativesAdapterTests(unittest.TestCase):
         rows = D.fetch_bybit_funding_history("BTCUSDT", 0, 10_000_000,
                                               request, pause_seconds=0)
         self.assertEqual(rows, [(3600, 0.0001)])
+
+
+    def test_historical_funding_is_charged_to_long_and_credited_to_short(self):
+        candles = [{"t": i * Q.BAR_SECONDS, "o": 100, "h": 101,
+                    "l": 99, "c": 100, "v": 10} for i in range(10)]
+        long_trade = Q.simulate_candidate(
+            candles, 0, {"side": "LONG", "stop": 90, "target": 120},
+            fee_pct=0, slippage_pct=0, funding_events=[(3600, 0.001)])
+        short_trade = Q.simulate_candidate(
+            candles, 0, {"side": "SHORT", "stop": 110, "target": 80},
+            fee_pct=0, slippage_pct=0, funding_events=[(3600, 0.001)])
+        self.assertEqual(long_trade["status"], "CLOSED")
+        self.assertEqual(short_trade["status"], "CLOSED")
+        self.assertGreater(long_trade["costs_r"], short_trade["costs_r"])
+        self.assertAlmostEqual(long_trade["funding_cost_pct"], 0.1)
+        self.assertAlmostEqual(short_trade["funding_cost_pct"], -0.1)
 
     def test_rejects_unaligned_candle_range(self):
         with self.assertRaises(ValueError):
