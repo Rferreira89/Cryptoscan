@@ -43,8 +43,11 @@ def select_liquid_xperps(instruments, tickers, limit=DEFAULT_MAX_ASSETS):
             last = float(ticker.get("last") or 0)
             contracts = float(ticker.get("vol24h") or 0)
             contract_value = float(info.get("contract_value") or 0)
+            value_currency = str(info.get("contract_value_currency") or "").upper()
             if contracts > 0 and contract_value > 0:
                 volume_usd = contracts * contract_value
+                if value_currency != "USD":
+                    volume_usd *= last
             else:
                 base_volume = float(ticker.get("volCcy24h") or 0)
                 volume_usd = base_volume * last
