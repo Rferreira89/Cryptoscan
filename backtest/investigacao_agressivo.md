@@ -12,4 +12,17 @@
 - SHORT_SOBRECOMPRA em papel.
 - paper_trend e paper_bounce com limites aumentados.
 
-Produção intacta.
+## Regra de activação real (Rui, 2026-11-16)
+
+Quando uma estratégia demonstrar vantagem líquida consistente em papel
+(R médio > 0, amostra suficiente, kill não activado), pode ser candidata
+a activação automática em dinheiro real, **individualmente** e com os
+limites de risco já autorizados.
+
+Condições mínimas antes de propor:
+- ≥ 25 operações em papel
+- R médio > 0
+- não morta pelo kill
+- proposta explícita antes de qualquer activação
+
+Produção intacta até essa proposta ser aceite.
