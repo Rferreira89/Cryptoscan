@@ -87,7 +87,9 @@ def xperps():
     out = {}
     for i in A.get("/api/v5/public/instruments?instType=FUTURES"):
         iid = i.get("instId", "")
-        if "XPERP" not in iid or iid not in conta or i.get("state") != "live":
+        if ("_UM_XPERP-" not in iid or iid not in conta or i.get("state") != "live"
+                or i.get("ctType") != "linear"
+                or not str(i.get("instFamily") or "").endswith("_UM")):
             continue
         base = iid.split("-")[0]
         out[base] = {"inst": iid, "ctVal": float(i.get("ctVal") or 0), "minSz": float(i.get("minSz") or 0),
