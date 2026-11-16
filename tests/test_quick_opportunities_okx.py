@@ -61,6 +61,18 @@ class OkxQuickOpportunityTests(unittest.TestCase):
         self.assertEqual(rows[0]["base"], "ETH")
         self.assertEqual(rows[0]["inst_id"], "ETH-USD_UM_XPERP")
 
+    def test_one_contract_feed_failure_does_not_escape_worker(self):
+        info = self.instruments()["BTC"]
+        info = {**info, "base": "BTC"}
+        with mock.patch.object(D, "fetch_okx_xperp_candles",
+                               side_effect=RuntimeError("temporary API failure")):
+            returned, candidates, report = Q._fetch_one(
+                info, 0, Q.BAR_MS, 1800, request=lambda *_: {})
+        self.assertEqual(returned["base"], "BTC")
+        self.assertEqual(candidates, [])
+        self.assertEqual(report["status"], "DATA SOURCE ERROR")
+        self.assertIn("temporary API failure", report["error"])
+
     def test_ignores_missing_or_zero_volume_contracts(self):
         tickers = [{"instId": "BTC-USD_UM_XPERP", "volCcy24h": "0"}]
         self.assertEqual(Q.select_liquid_xperps(self.instruments(), tickers), [])
