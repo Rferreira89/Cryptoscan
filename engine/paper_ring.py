@@ -9,8 +9,11 @@ ao vivo desse lutador. Nunca gera ordens nem mensagens de compra.
 avisos Telegram em abertura, fecho e retirada do papel.
 (16/11): anti-repeticao Telegram por (tipo, estrategia, moeda, t_sig).
 (16/11): SHORT_SOBRECOMPRA_X70V25 via tools.sig_short_sobrecompra.ensure().
+(16/11): dedup ficheiro + bloqueio de re-ABRE; ignora asset AAA (teste).
 Venue deste motor: Bybit (o OKX tem caminhos proprios).
 """
+import os
+
 from . import promo, trade
 
 TF = 14400
@@ -19,19 +22,27 @@ FEE_PCT, SLIP_PCT = 0.25, 0.1
 OWN_PAPER = ("BOUNCE_G0", "BOUNCE_V1", "BOUNCE_V2", "BOUNCE_V3")
 KILL_N = 20
 VENUE = "Bybit"
+SKIP_ASSETS = frozenset({"AAA", "TEST", "DEMO"})  # precos sinteticos no Telegram
 
 
 def _tg(state, key, txt):
+    """Uma mensagem por chave; grava em alerts.DEDUP_FILE se existir."""
     sent = state.setdefault("papel_tg", {})
     if key in sent:
         return False
     try:
         from . import alerts
+        if not alerts.DEDUP_FILE:
+            alerts.DEDUP_FILE = os.environ.get("TG_DEDUP_FILE") or "tg_enviadas.json"
         if alerts.configured():
-            alerts.send(txt)
+            ok = alerts.send(txt)
+            if ok is False:
+                # dedup do alerts (6h) — nao marcar no state para nao crescer sem envio
+                sent[key] = True
+                return False
         sent[key] = True
-        if len(sent) > 500:
-            for k in list(sent)[: len(sent) - 400]:
+        if len(sent) > 800:
+            for k in list(sent)[: len(sent) - 600]:
                 del sent[k]
         return True
     except Exception:
@@ -48,7 +59,6 @@ def _r_medio(closed):
 def update(state, rows, bars, now, market_ok=True):
     st = state.setdefault("paper_ring", {})
     killed = state.setdefault("papel_kill", {})
-    # (16/11) SHORT_SOBRECOMPRA_X70V25 em papel
     extra_estudo, extra_fase, extra_nmin = (), {}, {}
     try:
         from tools import sig_short_sobrecompra as SS
@@ -124,6 +134,8 @@ def update(state, rows, bars, now, market_ok=True):
             CTX = {}
         for r in rows:
             a, c4 = r.get("asset"), bars.get(r.get("asset"))
+            if a in SKIP_ASSETS:
+                continue
             CTX["asset"] = a
             if not c4 or a in b["open"] or len(b["open"]) >= MAX_POS:
                 continue
@@ -133,11 +145,19 @@ def update(state, rows, bars, now, market_ok=True):
                 continue
             if not sig or now - sig["t_sig"] > TF or b["last"].get(a) == sig["t_sig"]:
                 continue
+            # nao reabrir o mesmo t_sig ja fechado (estado pode perder open entre scans)
+            if any(c.get("opened_at") == sig["t_sig"] for c in b["closed"][-50:]):
+                b["last"][a] = sig["t_sig"]
+                continue
             b["last"][a] = sig["t_sig"]
             lado = "SHORT" if sig.get("side") == "SHORT" else "LONG"
             ok = (sig["tp"][0] < r["price"] < sig["stop"]) if lado == "SHORT" else (
                 sig["stop"] < r["price"] < sig["tp"][0])
             if not ok:
+                continue
+            # anti-spam: se ja avisamos este ABRE, nao abrir de novo nesta sessao
+            tg_key = f"ABRE|{k}|{a}|{sig['t_sig']}"
+            if (state.get("papel_tg") or {}).get(tg_key):
                 continue
             pos = trade.open_position(sig, r["price"], sig["t_sig"], FEE_PCT, SLIP_PCT,
                                       breakeven=sig.get("breakeven", True), side=lado)
@@ -148,7 +168,7 @@ def update(state, rows, bars, now, market_ok=True):
             if sig.get("hold_s"):
                 pos["max_hold"] = sig["hold_s"]
             b["open"][a] = pos
-            _tg(state, f"ABRE|{k}|{a}|{sig['t_sig']}",
+            _tg(state, tg_key,
                 f"[{VENUE}] PAPEL ABRE {k} {lado} {a} @ {r['price']} "
                 f"stop={sig.get('stop')} tp={sig.get('tp')}")
     out = {k: {"n": len(v["closed"]), "open": sorted(v["open"])} for k, v in st.items()}
