@@ -70,6 +70,15 @@ class QuickOpportunitiesTests(unittest.TestCase):
         self.assertEqual(result["exit_reason"], "STOP")
         self.assertEqual(result["exit"], 98)
 
+    def test_stop_gap_fills_at_worse_open_price(self):
+        data = candles(4)
+        data[1].update({"o": 96, "h": 97, "l": 95, "c": 96})
+        result = Q.simulate_candidate(data, 0,
+                                      {"side": "LONG", "stop": 98, "target": 104},
+                                      fee_pct=0, slippage_pct=0)
+        self.assertEqual(result["exit_reason"], "STOP")
+        self.assertEqual(result["exit"], 96)
+
     def test_incomplete_horizon_is_not_counted_as_closed_trade(self):
         data = candles(4)
         result = Q.simulate_candidate(data, 0,
