@@ -268,7 +268,8 @@ def main(argv=None):
     args = parser.parse_args(argv)
     start_ms, end_ms = _parse_date_ms(args.start), _parse_date_ms(args.end)
     venues = (("bybit", "okx-futures") if args.venue == "both" else
-              ("bybit-futures", "okx-futures") if args.venue == "both-futures" else\n              (args.venue,))
+              ("bybit-futures", "okx-futures") if args.venue == "both-futures" else
+              (args.venue,))
     summaries = []
     for venue in venues:
         for symbol in [x.strip().upper() for x in args.symbols.split(",") if x.strip()]:
