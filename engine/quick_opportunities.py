@@ -170,6 +170,7 @@ def simulate_candidate(candles, signal_index, candidate, fee_pct=0.1,
     costs_r = (entry * cost_pct / 100) / risk
     return {
         "status": "CLOSED", "side": side, "family": candidate.get("family"),
+        "regime": candidate.get("regime"), "asset": candidate.get("asset"),
         "entry_index": signal_index + 1, "exit_index": exit_index,
         "entry": entry, "exit": exit_fill, "exit_reason": reason,
         "gross_r": gross, "costs_r": costs_r, "net_r": gross - costs_r,
@@ -225,3 +226,46 @@ def evaluate_trades(results, min_trades=100, bootstrap_samples=2000, seed=7):
         "positive_mean_ci": bool(ci and ci[0] > 0),
         "warning": "bootstrap i.i.d. descritivo; trades sobrepostos/correlacionados exigem bootstrap por blocos; nao substitui walk-forward nem correcao de hipoteses multiplas",
     }
+
+
+
+def backtest_series(candles, asset="UNKNOWN", fee_pct=0.1,
+                    slippage_pct=0.05, funding_pct=0.0):
+    """Backtest exploratorio por familia/direcao numa serie OHLCV.
+
+    Cada familia+direcao e avaliada separadamente e nao abre nova operacao
+    enquanto a anterior dessa mesma familia/direcao estiver ativa. Familias
+    diferentes podem sobrepor-se: nao somar os resultados como carteira sem
+    um simulador de portfolio e limites de exposicao.
+    """
+    trades, next_available = [], {}
+    first = MIN_BARS - 1
+    last_signal = len(candles) - MAX_HOLD_BARS - 1
+    for i in range(first, last_signal + 1):
+        window = candles[max(0, i - 59):i + 1]
+        candidates = detect_opportunities(window, asset)
+        for candidate in candidates:
+            key = (candidate["family"], candidate["side"])
+            if i < next_available.get(key, first):
+                continue
+            result = simulate_candidate(
+                candles, i, candidate, fee_pct=fee_pct,
+                slippage_pct=slippage_pct, funding_pct=funding_pct)
+            if result.get("status") != "CLOSED":
+                continue
+            next_available[key] = result["exit_index"] + 1
+            trades.append(result)
+    return trades
+
+
+def evaluate_by_family(results, min_trades=100, bootstrap_samples=2000):
+    """Avalia cada familia/direcao/regime separadamente; nunca agrega clones."""
+    groups = {}
+    for row in results:
+        key = (row.get("family"), row.get("side"), row.get("regime"))
+        groups.setdefault(key, []).append(row)
+    out = {}
+    for key, rows in sorted(groups.items(), key=lambda item: str(item[0])):
+        out["|".join(str(x) for x in key)] = evaluate_trades(
+            rows, min_trades=min_trades, bootstrap_samples=bootstrap_samples)
+    return out
