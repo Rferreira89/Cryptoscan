@@ -7,6 +7,7 @@ ao vivo desse lutador. Nunca gera ordens nem mensagens de compra.
 
 (15/11, Rui): kill automatico se R medio < 0 com >= KILL_N operacoes;
 avisos Telegram em abertura, fecho e retirada do papel.
+(16/11): anti-repeticao Telegram por (tipo, estrategia, moeda, t_sig).
 Venue deste motor: Bybit (o OKX tem caminhos proprios).
 """
 from . import promo, trade
@@ -19,14 +20,24 @@ KILL_N = 20  # (15/11) sai do papel com R medio negativo a partir desta amostra
 VENUE = "Bybit"  # paper_ring = Bybit; OKX nao passa por aqui
 
 
-def _tg(txt):
-    """Envia Telegram se estiver configurado; nunca interrompe o papel."""
+def _tg(state, key, txt):
+    """Envia Telegram uma vez por chave (ABRE/FECHO/KILL + estrategia + moeda + t).
+    Nunca interrompe o papel."""
+    sent = state.setdefault("papel_tg", {})
+    if key in sent:
+        return False
     try:
         from . import alerts
         if alerts.configured():
             alerts.send(txt)
+        sent[key] = True
+        # limitar crescimento do estado
+        if len(sent) > 500:
+            for k in list(sent)[: len(sent) - 400]:
+                del sent[k]
+        return True
     except Exception:
-        pass
+        return False
 
 
 def _r_medio(closed):
@@ -81,7 +92,9 @@ def update(state, rows, bars, now, market_ok=True):
                 b["closed"] = (b["closed"] + [rec])[-300:]
                 del b["open"][a]
                 lado = rec.get("side") or "LONG"
-                _tg(f"[{VENUE}] PAPEL FECHO {k} {lado} {a} R={rec['r']:+.2f} "
+                t_key = rec.get("opened_at") or now
+                _tg(state, f"FECHO|{k}|{a}|{t_key}",
+                    f"[{VENUE}] PAPEL FECHO {k} {lado} {a} R={rec['r']:+.2f} "
                     f"motivo={rec.get('reason') or '?'} entrada={rec.get('entry')}")
         # kill: >= KILL_N op. e R medio < 0 -> fora do papel (e Telegram)
         if k not in killed:
@@ -89,7 +102,8 @@ def update(state, rows, bars, now, market_ok=True):
             if n >= KILL_N and rm is not None and rm < 0:
                 killed[k] = {"t": int(now), "n": n, "r": rm, "venue": VENUE,
                              "motivo": f"R medio {rm} em {n} op. de papel"}
-                _tg(f"[{VENUE}] PAPEL KILL {k}: {n} op., R medio={rm}. Fora do papel. "
+                _tg(state, f"KILL|{k}|{n}|{rm}",
+                    f"[{VENUE}] PAPEL KILL {k}: {n} op., R medio={rm}. Fora do papel. "
                     f"Nao reabre ate ordem manual.")
                 if k in active:
                     active = [x for x in active if x != k]
@@ -129,7 +143,8 @@ def update(state, rows, bars, now, market_ok=True):
             if sig.get("hold_s"):
                 pos["max_hold"] = sig["hold_s"]
             b["open"][a] = pos
-            _tg(f"[{VENUE}] PAPEL ABRE {k} {lado} {a} @ {r['price']} "
+            _tg(state, f"ABRE|{k}|{a}|{sig['t_sig']}",
+                f"[{VENUE}] PAPEL ABRE {k} {lado} {a} @ {r['price']} "
                 f"stop={sig.get('stop')} tp={sig.get('tp')}")
     out = {k: {"n": len(v["closed"]), "open": sorted(v["open"])} for k, v in st.items()}
     try:
