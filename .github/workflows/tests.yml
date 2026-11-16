@@ -1,12 +1,15 @@
 name: Testes
 on:
   push:
-    branches: [main, investigacao/correcao-promo-syntax-20261116]
-    paths: ["engine/**", "tools/**", "tests/**"]
+    branches: [main, investigacao/correcao-promo-syntax-20261116, quick-opportunities-okx-xperps]
+    paths: ["engine/**", "tools/**", "tests/**", ".github/workflows/tests.yml"]
+  pull_request:
+    branches: [main]
+    paths: ["engine/**", "tools/**", "tests/**", ".github/workflows/tests.yml"]
 jobs:
   tests:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

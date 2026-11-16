@@ -1,7 +1,8 @@
 """Quick Opportunities -> Telegram bridge.
 
-Consumes already-fetched, closed 30m USDC candles. It deliberately does not
-import an exchange executor, submit orders, change account settings or infer
+Formats and sends research-only candidates built from validated, closed 30m
+candles. The live scanner currently supplies OKX USD_UM X-Perps. This module
+never imports an executor, submits orders, changes account settings or infers
 that a candidate has a statistical edge.
 """
 from __future__ import annotations
@@ -32,17 +33,39 @@ def format_candidate(candidate: dict) -> str:
     stop = float(candidate["stop"])
     target = float(candidate["target"])
     signal_t = int(candidate["signal_t"])
+    if candidate.get("venue") == "OKX" and candidate.get("market_type") == "USD_UM_XPERP":
+        class_labels = {
+            "crypto": "Cripto",
+            "equity": "Ações/ETF",
+            "precious_metal": "Metais preciosos",
+        }
+        asset_class = class_labels.get(candidate.get("asset_class"), "Classe por confirmar")
+        market_line = (
+            f"Mercado: OKX USD_UM X-Perp | Classe: {asset_class}"
+            f" | Contrato: {candidate.get('instrument_id', '-')}"
+            "\nLiquidação do contrato/conta: confirmar separadamente (USD/USDC/USDG)"
+        )
+        safety_line = (
+            "\nSem ordem enviada. Dados dos próprios futuros OKX; edge estatístico "
+            "ainda não aprovado e execução desativada."
+        )
+    else:
+        market_line = "Mercado: spot USDC (referência de preço)"
+        safety_line = (
+            "\nSem ordem enviada. SHORT não é executável em spot. "
+            "Edge estatístico ainda não aprovado."
+        )
     return (
         f"{ALERT_PREFIX}\n"
         f"Ativo: {asset} | {side} | Estratégia: {family}\n"
+        f"{market_line}\n"
         f"Regime: {regime} | Fecho do sinal: {close:.10g}\n"
         f"Stop indicativo: {stop:.10g} | Alvo indicativo: {target:.10g}\n"
         f"Horizonte máximo: {int(candidate.get('max_hold_bars', 8)) * 30} min "
         f"| score exploratório: {candidate.get('score', '-')}"
         f"\nMotivo: {candidate.get('reason', '-')}"
         f"\nID: {_signal_id(candidate)}"
-        "\nSem ordem enviada. Spot USDC é apenas fonte de preço; SHORT "
-        "não é executável em spot. Edge estatístico ainda não aprovado."
+        f"{safety_line}"
     )
 
 
@@ -68,7 +91,7 @@ def scan_candles(candles_by_asset, sender=None):
     """Detect candidates from validated, closed 30m candles and notify Telegram.
 
     candles_by_asset: {asset: chronological list[OHLCV dict]}. The caller must
-    fetch only USDC-quoted markets and remove the currently-forming candle.
+    identify the source instrument and remove the currently-forming candle.
     """
     candidates = []
     for asset, candles in sorted(candles_by_asset.items()):

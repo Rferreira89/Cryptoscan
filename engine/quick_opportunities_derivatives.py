@@ -1,4 +1,4 @@
-"""Read-only derivatives market data for the account's OKX Europe USDC X-Perps.
+"""Read-only derivatives market data for the OKX Europe USD_UM X-Perps.
 
 No private endpoints, credentials, account setting changes or order placement.
 X-Perps use the USD_UM instrument family; settlement currency is selected at
@@ -36,8 +36,21 @@ def validate_okx_account_config(config):
     return True, "USDC confirmado"
 
 
+def _asset_class(inst_category):
+    """Map OKX's documented instrument categories to supported research universes."""
+    return {
+        "1": "crypto",
+        "3": "equity",
+        "4": "precious_metal",
+    }.get(str(inst_category or ""))
+
+
 def okx_usdc_xperps(request=_get):
-    """Discover live linear OKX USD_UM X-Perps; settlement is account-selected (USDC required)."""
+    """Discover live linear OKX USD_UM X-Perps for crypto, equities and precious metals.
+
+    The function name is retained for backwards compatibility. It does not
+    assert that every contract or the user's account settles in USDC.
+    """
     response = request(OKX + "/api/v5/public/instruments", {"instType": "FUTURES"})
     if not isinstance(response, dict) or response.get("code") != "0":
         raise SourceError(f"OKX FUTURES instruments: resposta inválida {response}")
@@ -45,15 +58,20 @@ def okx_usdc_xperps(request=_get):
     for item in response.get("data", []):
         inst_id = item.get("instId", "")
         family = item.get("instFamily", "")
-        if (item.get("state") != "live" or "_UM_XPERP-" not in inst_id
-                or not family.endswith("_UM") or item.get("ctType") != "linear"):
+        rule_type = str(item.get("ruleType") or "").lower()
+        asset_class = _asset_class(item.get("instCategory"))
+        if (item.get("state") != "live" or not inst_id.endswith("_UM_XPERP")
+                or not family.endswith("_UM") or item.get("ctType") != "linear"
+                or rule_type == "pre_market" or asset_class is None):
             continue
         base = inst_id.split("-")[0]
         try:
             info = {
                 "venue": "okx", "market_type": "usd_margined_xperp",
+                "asset_class": asset_class,
                 "inst_id": inst_id, "inst_family": family, "base": base,
-                "quote": "USD", "settlement_currency_required": "USDC",
+                "quote": "USD", "settlement_currency_target": "USDC",
+                "settlement_currency_options": ["USD", "USDC", "USDG"],
                 "settle_currency_metadata": item.get("settleCcy"),
                 "contract_value": float(item["ctVal"]),
                 "contract_value_currency": item.get("ctValCcy"),
