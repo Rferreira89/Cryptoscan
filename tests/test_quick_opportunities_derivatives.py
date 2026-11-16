@@ -40,7 +40,7 @@ class USDCAccountAdapterTests(unittest.TestCase):
         self.assertEqual(result["BTC"]["asset_class"], "crypto")
         self.assertEqual(result["BTC"]["inst_id"], "BTC-USD_UM_XPERP")
         self.assertEqual(result["BTC"]["market_type"], "usd_margined_xperp")
-        self.assertEqual(result["BTC"]["settlement_currency_required"], "USDC")
+        self.assertEqual(result["BTC"]["settlement_currency_target"], "USDC")
         self.assertAlmostEqual(result["BTC"]["contract_value"], 0.0001)
 
     def test_prefers_furthest_expiry_generation(self):
