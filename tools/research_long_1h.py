@@ -1,7 +1,10 @@
-"""Investigacao LONG_TENDENCIA_1H — pré-registo 2026-11-16.
+"""Investigacao LONG_TENDENCIA_1H v2 — 2026-11-16.
 
-Grelha: k in {1.5, 2.0} x H in {8, 16}h x V in {1.5, 2.0}.
-Só long. Contexto 4H forte + rompimento de máximo 1H com volume.
+Ajuste apos 0 sinais na v1. Filtros mais abertos:
+- RSI 40-70 (antes 50-70)
+- rompimento maximo das ultimas 3 velas (antes 5)
+- volume >= 1.2x (grelha V in {1.2, 1.5})
+Contexto 4H mantido.
 Uso: python -m tools.research_long_1h <pasta_4h> <pasta_1h> [saida.json]
 """
 import gzip
@@ -18,7 +21,7 @@ from tools.research_dip import window
 H1 = 3600
 PCTIL_MIN = 90
 MIN_STOP = 0.012
-GRID = [{"k": k, "H": h, "V": v} for k in (1.5, 2.0) for h in (8, 16) for v in (1.5, 2.0)]
+GRID = [{"k": k, "H": h, "V": v} for k in (1.5, 2.0) for h in (8, 16) for v in (1.2, 1.5)]
 
 
 def load_1h_folder(folder, min_bars=200):
@@ -63,7 +66,7 @@ def _ema_list(xs, n):
 
 
 def long_tendencia_signals(c1, c4, k_r, hold_h, vol_mult):
-    """Sinais de LONG_TENDENCIA_1H."""
+    """Sinais de LONG_TENDENCIA_1H v2."""
     out = {}
     if not c1 or len(c1) < 40 or not c4 or len(c4) < 60:
         return out
@@ -73,7 +76,7 @@ def long_tendencia_signals(c1, c4, k_r, hold_h, vol_mult):
     e50_4 = _ema_list(c4_closes, 50)[-1]
     if e20_4 is None or e50_4 is None or not (e20_4 > e50_4 and c4[-1]["c"] > e50_4):
         return out
-    # EMA20 4H a subir (fecho actual > fecho de 4 velas atrás)
+    # EMA20 4H a subir (fecho actual > fecho de 4 velas atras)
     if len(c4) < 8 or c4[-1]["c"] <= c4[-5]["c"]:
         return out
 
@@ -84,11 +87,11 @@ def long_tendencia_signals(c1, c4, k_r, hold_h, vol_mult):
     for i in range(30, len(c1) - 1):
         if rs[i] is None or at[i] is None:
             continue
-        if not (50 <= rs[i] <= 70):
+        if not (40 <= rs[i] <= 70):
             continue
-        # rompimento do máximo das últimas 5 velas
-        hi5 = max(c1[j]["h"] for j in range(i - 5, i))
-        if c1[i]["c"] <= hi5:
+        # rompimento do maximo das ultimas 3 velas
+        hi3 = max(c1[j]["h"] for j in range(i - 3, i))
+        if c1[i]["c"] <= hi3:
             continue
         # volume
         vavg = sum(c1[j]["v"] for j in range(i - 20, i)) / 20.0
@@ -168,7 +171,7 @@ def main(folder4, folder1, out="backtest/research_long_1h.json"):
     res = {"moedas": len(assets), "ultima_vela_btc_1h": data1["BTC"][-1]["t"],
            "janela": {"d0": d0, "ds": ds, "d1": d1},
            "pre_registo": "backtest/pre_registo_long_1h.md",
-           "nota": "LONG_TENDENCIA_1H — nova hipótese"}
+           "nota": "LONG_TENDENCIA_1H v2 — filtros abertos"}
 
     out_grid = {}
     for cfg in GRID:
