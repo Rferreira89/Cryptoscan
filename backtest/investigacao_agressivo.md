@@ -1,15 +1,15 @@
 # Investigação agressivo — 2026-11-16
 
-## Motor de decisão (papel)
+## Motor central de oportunidades (papel)
 
-- `engine/regime_select.py`: prioriza LONG em subida, SHORT em descida, ambos em lateral/desconhecido.
-- `paper_ring.py` usa `regime_select.prefer` antes de abrir posição.
+- `engine/opportunity_engine.py`: classifica setups por regime, R/R, distância de stop e histórico.
+- `paper_ring.py`: só abre se score >= 25. Regista o score na posição e no Telegram.
+- `regime_select.py`: prioriza lado adequado ao regime.
 
-## Capacidade LONG/SHORT em papel
+## Capacidade LONG/SHORT
 
-- paper_ring: longs sem veto BTC; MAX_POS=12; regime-aware.
-- paper_trend: MAX_POS=8; market_ok não veto.
-- paper_bounce: MAX_POS=8.
-- SHORT_SOBRECOMPRA_X70V25 continua em papel.
+- Longs sem veto BTC.
+- SHORT_SOBRECOMPRA em papel.
+- paper_trend e paper_bounce com limites aumentados.
 
 Produção intacta.
