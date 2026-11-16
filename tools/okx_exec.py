@@ -679,9 +679,32 @@ def correr(st, novos, now, msgs):
                 avisados.append(chave_r)
                 msgs.append(f"⏭️ OKX real — {base}: o risco aberto passaria {c.get('risco_total_max_pct', 3.0)}% da conta; fica só em papel.")
             continue
+                # (16/11) piloto TURTLE LONG na OKX: so abre se a guarda autorizar (0,5%, 1 pos, kill -3R)
+        if (sig.get("estrategia") == "TURTLE" or sig.get("strategy") == "TURTLE") and sig.get("lado") != "SHORT":
+            try:
+                import sys
+                from pathlib import Path
+                sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "engine"))
+                import piloto_turtle_long as PTL
+                ops_ptl = [{"exchange": "OKX", "r": float(o.get("r") or 0), "aberto": True}
+                           for o in R["ops"].values() if o.get("piloto") == "TURTLE_LONG"]
+                risco_real = round(100 * p["risco_usd"] / eq, 2) if p else None
+                ok_ptl, motivo = PTL.pode_abrir(ops_ptl, "OKX", risco_real)
+                if not ok_ptl:
+                    chave_t = f"t:{base}:{sig.get('t_sig')}"
+                    if chave_t not in avisados:
+                        avisados.append(chave_t)
+                        msgs.append(f"⏭️ OKX real — {base}: piloto TURTLE LONG recusou ({motivo}).")
+                    continue
+            except Exception as e:
+                msgs.append(f"⏭️ OKX real — {base}: piloto TURTLE LONG erro na guarda ({type(e).__name__}).")
+                continue
         op = abrir(base, sig, info, eq, cc, now, msgs)
         if op and p:
             op["risco_pct"] = round(100 * p["risco_usd"] / eq, 2)
+            if (sig.get("estrategia") == "TURTLE" or sig.get("strategy") == "TURTLE") and sig.get("lado") != "SHORT":
+                op["piloto"] = "TURTLE_LONG"
+                op["exchange"] = "OKX"
         if op and h40:
             op["estrategia"] = "panico"
         if op and esp:
