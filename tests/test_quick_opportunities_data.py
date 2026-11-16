@@ -1,4 +1,6 @@
+import tempfile
 import unittest
+from pathlib import Path
 
 from engine import quick_opportunities_data as D
 
@@ -27,6 +29,18 @@ class QuickOpportunitiesDataTests(unittest.TestCase):
             D.PAGE_LIMIT = original_limit
         self.assertEqual([r["t"] for r in rows], [0, 1800, 3600])
         self.assertEqual(calls, [0, 2 * step])
+
+    def test_historical_backtest_validates_against_requested_end(self):
+        step = 30 * 60 * 1000
+        history = [kline(i * step) for i in range(80)]
+        with tempfile.TemporaryDirectory() as tmp:
+            report = D.run_symbol(
+                "BTCUSDT", 0, 80 * step, tmp,
+                request=lambda *_: history, fee_pct=0, slippage_pct=0)
+            self.assertEqual(report["validation"]["status"], "VALID")
+            self.assertEqual(report["candles"], 80)
+            self.assertTrue((Path(tmp) / "BTCUSDT_30m.json").exists())
+            self.assertTrue((Path(tmp) / "BTCUSDT_report.json").exists())
 
     def test_rejects_unaligned_range(self):
         with self.assertRaises(ValueError):
