@@ -13,13 +13,35 @@ class OkxQuickOpportunityTests(unittest.TestCase):
                 "inst_id": "BTC-USD_UM_XPERP",
                 "inst_family": "BTC-USD_UM",
                 "contract_type": "linear",
+                "asset_class": "crypto",
                 "contract_value": 0.01,
+                "contract_multiplier": 1,
             },
             "ETH": {
                 "inst_id": "ETH-USD_UM_XPERP",
                 "inst_family": "ETH-USD_UM",
                 "contract_type": "linear",
+                "asset_class": "crypto",
                 "contract_value": 0.1,
+                "contract_multiplier": 1,
+            },
+            "AAPL": {
+                "inst_id": "AAPL-USD_UM_XPERP",
+                "inst_family": "AAPL-USD_UM",
+                "contract_type": "linear",
+                "asset_class": "equity",
+                "contract_value": 1,
+                "contract_value_currency": "AAPL",
+                "contract_multiplier": 1,
+            },
+            "XAU": {
+                "inst_id": "XAU-USD_UM_XPERP",
+                "inst_family": "XAU-USD_UM",
+                "contract_type": "linear",
+                "asset_class": "precious_metal",
+                "contract_value": 1,
+                "contract_value_currency": "XAU",
+                "contract_multiplier": 1,
             },
             "BAD": {
                 "inst_id": "BAD-USDT-SWAP",
@@ -61,6 +83,26 @@ class OkxQuickOpportunityTests(unittest.TestCase):
         self.assertEqual(rows[0]["base"], "ETH")
         self.assertEqual(rows[0]["inst_id"], "ETH-USD_UM_XPERP")
 
+    def test_equity_and_precious_metal_xperps_are_included_and_classified(self):
+        tickers = [
+            {"instId": "AAPL-USD_UM_XPERP", "vol24h": "100", "last": "200"},
+            {"instId": "XAU-USD_UM_XPERP", "vol24h": "10", "last": "2500"},
+        ]
+        rows = Q.select_liquid_xperps(self.instruments(), tickers)
+        by_base = {row["base"]: row for row in rows}
+        self.assertEqual(by_base["AAPL"]["asset_class"], "equity")
+        self.assertEqual(by_base["XAU"]["asset_class"], "precious_metal")
+        self.assertEqual(by_base["AAPL"]["volume_24h_contract_quote"], 20000)
+        self.assertEqual(by_base["XAU"]["volume_24h_contract_quote"], 25000)
+
+    def test_contract_multiplier_is_included_in_notional_volume(self):
+        info = {**self.instruments()["BTC"], "contract_multiplier": 10}
+        rows = Q.select_liquid_xperps(
+            {"BTC": info},
+            [{"instId": info["inst_id"], "vol24h": "2", "last": "30000"}],
+        )
+        self.assertEqual(rows[0]["volume_24h_contract_quote"], 6000)
+
     def test_one_contract_feed_failure_does_not_escape_worker(self):
         info = self.instruments()["BTC"]
         info = {**info, "base": "BTC"}
@@ -85,11 +127,13 @@ class OkxQuickOpportunityTests(unittest.TestCase):
             "regime": "bearish", "score": 2, "reason": "momentum negativo",
             "venue": "OKX", "market_type": "USD_UM_XPERP",
             "instrument_id": "ETH-USD_UM_XPERP",
+            "asset_class": "equity",
         }
         message = T.format_candidate(candidate)
         self.assertIn("OKX USD_UM X-Perp", message)
         self.assertIn("ETH-USD_UM_XPERP", message)
-        self.assertIn("USDC", message)
+        self.assertIn("Ações/ETF", message)
+        self.assertIn("USD/USDC/USDG", message)
         self.assertIn("execução desativada", message)
         self.assertNotIn("SHORT não é executável em spot", message)
 
@@ -104,6 +148,7 @@ class OkxQuickOpportunityTests(unittest.TestCase):
             "regime": "bearish", "score": 2, "reason": "momentum negativo",
             "venue": "OKX", "market_type": "USD_UM_XPERP",
             "instrument_id": info["inst_id"],
+            "asset_class": "crypto",
         }
         seen = {}
         with mock.patch.object(Q, "_public_universe", return_value=([info], 1)), \
