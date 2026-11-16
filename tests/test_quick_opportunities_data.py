@@ -30,7 +30,7 @@ class QuickOpportunitiesDataTests(unittest.TestCase):
                 return [kline(0), kline(step)]
             return [kline(step), kline(2 * step)]
         try:
-            rows = D.fetch_binance_history("BTCUSDT", 0, 3 * step,
+            rows = D.fetch_binance_history("BTCUSDC", 0, 3 * step,
                                            request=fake_request, pause_seconds=0)
         finally:
             D.PAGE_LIMITS["binance"] = original
@@ -48,7 +48,7 @@ class QuickOpportunitiesDataTests(unittest.TestCase):
                 bybit_kline(step), bybit_kline(2 * step)]
             return {"retCode": 0, "result": {"list": batch}}
         try:
-            rows = D.fetch_bybit_history("BTCUSDT", 0, 3 * step,
+            rows = D.fetch_bybit_history("BTCUSDC", 0, 3 * step,
                                          request=fake_request, pause_seconds=0)
         finally:
             D.PAGE_LIMITS["bybit"] = original
@@ -67,12 +67,12 @@ class QuickOpportunitiesDataTests(unittest.TestCase):
                 okx_kline(step), okx_kline(0, confirm="0")]
             return {"code": "0", "data": batch}
         try:
-            rows = D.fetch_okx_history("BTCUSDT", 0, 3 * step,
+            rows = D.fetch_okx_history("BTCUSDC", 0, 3 * step,
                                        request=fake_request, pause_seconds=0)
         finally:
             D.PAGE_LIMITS["okx"] = original
         self.assertEqual([r["t"] for r in rows], [1800, 3600])
-        self.assertEqual(calls[0]["instId"], "BTC-USDT")
+        self.assertEqual(calls[0]["instId"], "BTC-USDC")
         self.assertEqual(calls[0]["bar"], "30m")
         self.assertEqual(int(calls[1]["after"]), step)
 
@@ -81,27 +81,27 @@ class QuickOpportunitiesDataTests(unittest.TestCase):
         history = [kline(i * step) for i in range(80)]
         with tempfile.TemporaryDirectory() as tmp:
             report = D.run_symbol(
-                "BTCUSDT", 0, 80 * step, tmp, venue="binance",
+                "BTCUSDC", 0, 80 * step, tmp, venue="binance",
                 request=lambda *_: history, fee_pct=0, slippage_pct=0)
             self.assertEqual(report["validation"]["status"], "VALID")
             self.assertEqual(report["candles"], 80)
             self.assertEqual(report["venue"], "binance")
-            self.assertTrue((Path(tmp) / "binance_BTCUSDT_30m.json").exists())
-            self.assertTrue((Path(tmp) / "binance_BTCUSDT_report.json").exists())
+            self.assertTrue((Path(tmp) / "binance_BTCUSDC_30m.json").exists())
+            self.assertTrue((Path(tmp) / "binance_BTCUSDC_report.json").exists())
 
     def test_rejects_unaligned_range(self):
         with self.assertRaises(ValueError):
-            D.fetch_binance_history("BTCUSDT", 1, 1800000,
+            D.fetch_binance_history("BTCUSDC", 1, 1800000,
                                     request=lambda *_: [])
 
-    def test_rejects_non_usdt_symbol(self):
+    def test_rejects_non_usdc_symbol(self):
         with self.assertRaises(ValueError):
-            D.fetch_bybit_history("BTCUSDC", 0, 1800000,
+            D.fetch_bybit_history("BTCUSDT", 0, 1800000,
                                   request=lambda *_: {})
 
     def test_unknown_venue_is_rejected(self):
         with self.assertRaises(ValueError):
-            D.fetch_history("unknown", "BTCUSDT", 0, 1800000)
+            D.fetch_history("unknown", "BTCUSDC", 0, 1800000)
 
 
 if __name__ == "__main__":
