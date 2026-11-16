@@ -255,8 +255,8 @@ def _parse_date_ms(value):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Quick Opportunities research backtest")
-    parser.add_argument("--venue", choices=("bybit", "okx", "binance", "both"),
-                        default="both")
+    parser.add_argument("--venue", choices=("bybit", "okx", "binance", "both", "okx-futures", "bybit-futures", "both-futures"),
+                        default="both-futures")
     parser.add_argument("--symbols", required=True,
                         help="pares separados por virgula, ex. BTCUSDT,ETHUSDT")
     parser.add_argument("--start", required=True, help="ISO-8601 UTC")
