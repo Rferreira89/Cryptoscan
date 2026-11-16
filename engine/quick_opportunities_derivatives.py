@@ -45,8 +45,10 @@ def okx_usdc_xperps(request=_get):
     for item in response.get("data", []):
         inst_id = item.get("instId", "")
         family = item.get("instFamily", "")
+        rule_type = str(item.get("ruleType") or "").lower()
         if (item.get("state") != "live" or not inst_id.endswith("_UM_XPERP")
-                or not family.endswith("_UM") or item.get("ctType") != "linear"):
+                or not family.endswith("_UM") or item.get("ctType") != "linear"
+                or rule_type == "pre_market"):
             continue
         base = inst_id.split("-")[0]
         try:
