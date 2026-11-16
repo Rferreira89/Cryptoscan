@@ -21,6 +21,7 @@ import sys as _sys
 _sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 from engine import suspensao as SUSP  # noqa: E402  (10/11: estrategia suspensa -> cancela so entradas pendentes)
 from engine import protecao as PROT  # noqa: E402  (10/11: stop cobre a posicao toda, do lado certo)
+from engine import quick_opportunities_derivatives as DERIV  # noqa: E402
 
 H4 = 14400
 CFG_PADRAO = {"real": False, "so_mercado": True, "risco_pct": 1.0, "risco_max_pct": 2.0, "alavancagem": 10, "max_posicoes": 40, "travao_queda_pct": 25,
@@ -96,19 +97,6 @@ def xperps():
                      "lotSz": float(i.get("lotSz") or 0), "tick": float(i.get("tickSz") or 0), "ctType": i.get("ctType"),
                      "lever": int(float(i.get("lever") or 1))}
     return out
-
-
-def validar_liquidacao_usdc(config):
-    """Falha fechada: não abrir novas posições se a conta USD-M não liquidar em USDC."""
-    if not isinstance(config, dict) or config.get("code") != "0":
-        return False, "não foi possível confirmar a moeda de liquidação da conta"
-    rows = config.get("data") or []
-    if not rows:
-        return False, "a OKX não devolveu a moeda de liquidação da conta"
-    settle = str(rows[0].get("settleCcy") or "").upper()
-    if settle != "USDC":
-        return False, f"a conta está configurada para {settle or 'moeda desconhecida'}, não USDC"
-    return True, "USDC confirmado"
 
 
 def equity():
@@ -595,7 +583,7 @@ def correr(st, novos, now, msgs):
     if not c["real"] or not novos:
         return
     settlement = privado("GET", "/api/v5/account/config")
-    settle_ok, settle_reason = validar_liquidacao_usdc(settlement)
+    settle_ok, settle_reason = DERIV.validate_okx_account_config(settlement)
     if not settle_ok:
         msgs.append(f"🔒 OKX real: {settle_reason}; nenhuma ordem nova. As posições abertas continuam a ser geridas.")
         return
