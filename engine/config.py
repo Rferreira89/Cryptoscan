@@ -1,4 +1,4 @@
-"""Parametros do sistema. Podem ser alterados em config.json na raiz."""
+""Parametros do sistema. Podem ser alterados em config.json na raiz."""
 import json
 import os
 
@@ -105,6 +105,8 @@ DEFAULTS = {
     "max_daily_loss_r": 3.0,
     "max_weekly_loss_r": 6.0,
     "cooldown_after_losses": 3,     # perdas seguidas -> pausa de 24h (0 = desligado; config.json tem 0 desde 18/10)
+    # (16/11) piloto experimental TURTLE LONG (0,5%, 1 pos/exchange, kill -3R)
+    "piloto_turtle_long": {},
 }
 
 
