@@ -156,8 +156,13 @@ def scan_okx_xperps(now, seen_ids=None, sender=None,
         "status": "OK",
         "venue": "OKX",
         "market_type": "USD_UM_XPERP",
-        "settlement_currency_required": "USDC",
+        "settlement_currency_target": "USDC",
+        "settlement_currency_options": ["USD", "USDC", "USDG"],
         "account_settlement_confirmed": False,
+        "asset_class_counts": {
+            asset_class: sum(1 for info in selected if info.get("asset_class") == asset_class)
+            for asset_class in ("crypto", "equity", "precious_metal")
+        },
         "instruments_seen": instruments_seen,
         "assets_requested": len(selected),
         "assets_with_valid_data": sum(
