@@ -1,12 +1,10 @@
 """Investigacao ATAQUE_1H (long + short) — pre-registo 2026-11-15.
 
 Grelha por lado: k in {1.5, 2.0} x H in {12, 24} horas.
-Dados: 4H em <hist4> (contexto EMA20/50); 1H em <hist1> (ramo okx-1h).
-Long: research_rlib em 1H. Short: velas 1H espelhadas + mesma geometria.
-Stop min 1.2%. Percentil acaso >= 90. Veredicto max PARA PAPEL.
-
+Dados: 4H em <hist4>; 1H em <hist1> (ramo okx-1h). Ficheiros 1H vazios sao ignorados.
 Uso: python -m tools.research_ataque_1h <pasta_4h> <pasta_1h> [saida.json]
 """
+import gzip
 import json
 import os
 import sys
@@ -23,6 +21,36 @@ H1 = 3600
 PCTIL_MIN = 90
 MIN_STOP = 0.012
 GRID = [{"k": k, "H": h} for k in (1.5, 2.0) for h in (12, 24)]
+
+
+def load_1h_folder(folder, min_bars=200):
+    """Carrega *.csv.gz de 1H; salta ficheiros vazios ou invalidos (okx-1h tem stubs)."""
+    out = {}
+    for fn in sorted(os.listdir(folder)):
+        if not fn.endswith(".csv.gz"):
+            continue
+        path = os.path.join(folder, fn)
+        if os.path.getsize(path) < 100:
+            continue
+        asset = fn.replace(".csv.gz", "")
+        try:
+            rows = []
+            with gzip.open(path, "rt") as f:
+                for line in f:
+                    z = line.strip().split(",")
+                    if len(z) < 6:
+                        continue
+                    rows.append({
+                        "t": int(float(z[0])), "o": float(z[1]), "h": float(z[2]),
+                        "l": float(z[3]), "c": float(z[4]), "v": float(z[5]),
+                    })
+            rows.sort(key=lambda x: x["t"])
+            if len(rows) < min_bars:
+                continue
+            out[asset] = rows
+        except Exception as e:
+            print("skip", asset, type(e).__name__, flush=True)
+    return out
 
 
 def _ema_list(xs, n):
@@ -48,7 +76,6 @@ def _ctx4(c4):
 
 
 def long_signals(c1, c4, k_r, hold_h):
-    """{t_entrada: sig} na abertura da vela seguinte ao gatilho."""
     out = {}
     if not c1 or len(c1) < 40:
         return out
@@ -79,12 +106,10 @@ def long_signals(c1, c4, k_r, hold_h):
 
 
 def short_signals_mirrored(c1_mir, c4, k_r, hold_h):
-    """Short no real = long no espelho com contexto 4H invertido (EMA20 < EMA50)."""
     out = {}
     if not c1_mir or len(c1_mir) < 40:
         return out
     e20_4, e50_4, c4c = _ctx4(c4) if c4 else (None, None, None)
-    # no preco real queremos EMA20 < EMA50; no espelho 1/p isso inverte as EMAs relativas
     if e20_4 is not None and e50_4 is not None:
         if not (e20_4 < e50_4 and c4c < e50_4):
             return out
@@ -97,7 +122,6 @@ def short_signals_mirrored(c1_mir, c4, k_r, hold_h):
         if rs[i] is None or at[i] is None or ema20[i] is None:
             continue
         b = c1_mir[i]
-        # no espelho: toque EMA por baixo e fecha acima ~ short real
         if not (b["l"] <= ema20[i] and b["c"] > ema20[i]):
             continue
         if not (35 <= rs[i] <= 55):
@@ -162,14 +186,13 @@ def main(folder4, folder1, out="backtest/research_ataque_1h.json"):
     print("load 4h", folder4, flush=True)
     data4, _ = B.load_all(folder4)
     print("load 1h", folder1, flush=True)
-    data1, _ = B.load_all(folder1, min_bars=200)
-    # so moedas com 1H e 4H
+    data1 = load_1h_folder(folder1, min_bars=200)
     assets = [a for a in data1 if a in data4 and data1[a] and data4[a]]
     data1 = {a: data1[a] for a in assets}
     data4 = {a: data4[a] for a in assets}
     print("moedas_comuns", len(assets), "btc1h", len(data1.get("BTC") or []), flush=True)
     if not data1.get("BTC"):
-        raise SystemExit("sem BTC em 1h")
+        raise SystemExit("sem BTC em 1h com barras suficientes")
 
     bars, days = prepare(data4)
     S = {"BTC": Series(bars["BTC"])}
@@ -177,7 +200,6 @@ def main(folder4, folder1, out="backtest/research_ataque_1h.json"):
     majors = [a for a in MAJORS21 if a in data1]
     base = btc_sma200(S, days)
     warm = days[0] + 210
-
     mir1 = {a: SH.mirror(c) for a, c in data1.items()}
 
     def long_factory(cfg):
@@ -204,7 +226,6 @@ def main(folder4, folder1, out="backtest/research_ataque_1h.json"):
 
     res = {"moedas": len(assets), "ultima_vela_btc_1h": data1["BTC"][-1]["t"],
            "pre_registo": "backtest/pre_registo_short_ataque_1h.md"}
-
     res["ATAQUE_1H_LONG"], res["ATAQUE_1H_LONG_fracao"] = avaliar_lado(
         "ATAQUE_1H_LONG", long_factory, data1, majors, base, d0, ds, d1, warm)
     res["ATAQUE_1H_SHORT"], res["ATAQUE_1H_SHORT_fracao"] = avaliar_lado(
@@ -222,10 +243,9 @@ if __name__ == "__main__":
         if len(args) < 2:
             raise SystemExit("uso: python -m tools.research_ataque_1h <4h> <1h> [out.json]")
         r = main(args[0], args[1], args[2] if len(args) > 2 else "backtest/research_ataque_1h.json")
-        for lado in ("ATAQUE_1H_LONG", "ATAQUE_1H_SHORT"):
-            print("===", lado, "fracao", r.get(lado.replace("ATAQUE_1H_", "ATAQUE_1H_") + "_fracao") if False else r.get(lado + "_fracao" if not lado.endswith("LONG") and not lado.endswith("SHORT") else None))
-            fr = r.get("ATAQUE_1H_LONG_fracao" if "LONG" in lado else "ATAQUE_1H_SHORT_fracao")
-            print(lado, "fracao", fr)
+        for lado, frk in (("ATAQUE_1H_LONG", "ATAQUE_1H_LONG_fracao"),
+                          ("ATAQUE_1H_SHORT", "ATAQUE_1H_SHORT_fracao")):
+            print(lado, "fracao", r.get(frk), flush=True)
             for k, v in (r.get(lado) or {}).items():
                 print(k, v.get("veredicto"), v.get("operacoes_fora_amostra"),
                       v.get("r_medio_fora_amostra"), v.get("percentil_acaso"), flush=True)
