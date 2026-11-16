@@ -1,10 +1,7 @@
-"""Investigacao LONG_TENDENCIA_1H v2 — 2026-11-16.
+"""Investigacao LONG_TENDENCIA_1H v3 — 2026-11-16.
 
-Ajuste apos 0 sinais na v1. Filtros mais abertos:
-- RSI 40-70 (antes 50-70)
-- rompimento maximo das ultimas 3 velas (antes 5)
-- volume >= 1.2x (grelha V in {1.2, 1.5})
-Contexto 4H mantido.
+Sem contexto 4H obrigatorio (estava a gerar 0 sinais).
+So gatilho 1H: RSI 40-70 + rompimento maximo 3 velas + volume >= V.
 Uso: python -m tools.research_long_1h <pasta_4h> <pasta_1h> [saida.json]
 """
 import gzip
@@ -52,32 +49,10 @@ def load_1h_folder(folder, min_bars=200):
     return out
 
 
-def _ema_list(xs, n):
-    if len(xs) < n:
-        return [None] * len(xs)
-    out, k, e = [None] * len(xs), 2 / (n + 1), None
-    for i, x in enumerate(xs):
-        if i == n - 1:
-            e = sum(xs[:n]) / n
-        elif i >= n:
-            e = x * k + e * (1 - k)
-        out[i] = e
-    return out
-
-
-def long_tendencia_signals(c1, c4, k_r, hold_h, vol_mult):
-    """Sinais de LONG_TENDENCIA_1H v2."""
+def long_tendencia_signals(c1, k_r, hold_h, vol_mult):
+    """Sinais de LONG_TENDENCIA_1H v3 — so 1H."""
     out = {}
-    if not c1 or len(c1) < 40 or not c4 or len(c4) < 60:
-        return out
-    # contexto 4H
-    c4_closes = [b["c"] for b in c4]
-    e20_4 = _ema_list(c4_closes, 20)[-1]
-    e50_4 = _ema_list(c4_closes, 50)[-1]
-    if e20_4 is None or e50_4 is None or not (e20_4 > e50_4 and c4[-1]["c"] > e50_4):
-        return out
-    # EMA20 4H a subir (fecho actual > fecho de 4 velas atras)
-    if len(c4) < 8 or c4[-1]["c"] <= c4[-5]["c"]:
+    if not c1 or len(c1) < 40:
         return out
 
     closes = [b["c"] for b in c1]
@@ -171,12 +146,12 @@ def main(folder4, folder1, out="backtest/research_long_1h.json"):
     res = {"moedas": len(assets), "ultima_vela_btc_1h": data1["BTC"][-1]["t"],
            "janela": {"d0": d0, "ds": ds, "d1": d1},
            "pre_registo": "backtest/pre_registo_long_1h.md",
-           "nota": "LONG_TENDENCIA_1H v2 — filtros abertos"}
+           "nota": "LONG_TENDENCIA_1H v3 — so gatilho 1H"}
 
     out_grid = {}
     for cfg in GRID:
         key = json.dumps(cfg, sort_keys=True)
-        sigs = {a: long_tendencia_signals(data1[a], data4.get(a), cfg["k"], cfg["H"], cfg["V"]) for a in data1}
+        sigs = {a: long_tendencia_signals(data1[a], cfg["k"], cfg["H"], cfg["V"]) for a in data1}
         print("nsinais", cfg, sum(len(v) for v in sigs.values()), flush=True)
         out_grid[key] = avaliar_cfg(cfg, data1, sigs, d0, ds, d1)
 
