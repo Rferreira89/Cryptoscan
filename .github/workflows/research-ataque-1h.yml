@@ -1,0 +1,44 @@
+name: Research ATAQUE 1H (long+short)
+# Disparar: Actions -> este workflow -> Run workflow
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: research-ataque-1h
+  cancel-in-progress: false
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Historico 4H (history) + 1H (okx-1h)
+        run: |
+          mkdir -p /tmp/hist4 /tmp/hist1
+          git fetch -q origin history okx-1h || true
+          mkdir -p /tmp/r4 /tmp/r1
+          git archive origin/history | tar -x -C /tmp/r4
+          git archive origin/okx-1h | tar -x -C /tmp/r1
+          for f in /tmp/r4/*.csv.gz; do [ -f "$f" ] && cp "$f" /tmp/hist4/; done
+          for f in /tmp/r1/*.csv.gz; do [ -f "$f" ] && cp "$f" /tmp/hist1/; done
+          # se 1h estiver em subpasta
+          for f in /tmp/r1/1h/*.csv.gz /tmp/r1/**/*.csv.gz; do
+            [ -f "$f" ] && cp -n "$f" /tmp/hist1/ 2>/dev/null || true
+          done
+          echo "4h: $(ls /tmp/hist4/*.csv.gz 2>/dev/null | wc -l)  1h: $(ls /tmp/hist1/*.csv.gz 2>/dev/null | wc -l)"
+      - name: Correr ATAQUE_1H long+short
+        run: |
+          mkdir -p out
+          python -m tools.research_ataque_1h /tmp/hist4 /tmp/hist1 out/research_ataque_1h.json
+          head -c 6000 out/research_ataque_1h.json || true
+      - name: Publicar ramo research-ataque-1h
+        run: |
+          if [ ! -s out/research_ataque_1h.json ]; then echo "sem resultados"; exit 1; fi
+          cd out && git init -q -b research-ataque-1h && git config user.name cryptoscan-bot \
+            && git config user.email bot@users.noreply.github.com \
+            && git add -A && git commit -q -m "research ataque 1h $(date -u +%FT%TZ)" \
+            && git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" research-ataque-1h:research-ataque-1h
