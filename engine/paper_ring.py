@@ -10,6 +10,8 @@ avisos Telegram em abertura, fecho e retirada do papel.
 (16/11): anti-repeticao Telegram por (tipo, estrategia, moeda, t_sig).
 (16/11): SHORT_SOBRECOMPRA_X70V25 via tools.sig_short_sobrecompra.ensure().
 (16/11): dedup ficheiro + bloqueio de re-ABRE; ignora asset AAA (teste).
+(16/11 fix): SKIP_ASSETS so bloqueia mensagens Telegram, nao as posicoes
+(os testes usam AAA como fixture).
 Venue deste motor: Bybit (o OKX tem caminhos proprios).
 """
 import os
@@ -22,7 +24,7 @@ FEE_PCT, SLIP_PCT = 0.25, 0.1
 OWN_PAPER = ("BOUNCE_G0", "BOUNCE_V1", "BOUNCE_V2", "BOUNCE_V3")
 KILL_N = 20
 VENUE = "Bybit"
-SKIP_ASSETS = frozenset({"AAA", "TEST", "DEMO"})  # precos sinteticos no Telegram
+SKIP_TG_ASSETS = frozenset({"AAA", "TEST", "DEMO"})  # so Telegram; posicoes passam
 
 
 def _tg(state, key, txt):
@@ -30,6 +32,11 @@ def _tg(state, key, txt):
     sent = state.setdefault("papel_tg", {})
     if key in sent:
         return False
+    # nao enviar Telegram para assets de teste
+    for bad in SKIP_TG_ASSETS:
+        if f"|{bad}|" in key or key.endswith(f"|{bad}"):
+            sent[key] = True
+            return False
     try:
         from . import alerts
         if not alerts.DEDUP_FILE:
@@ -37,7 +44,6 @@ def _tg(state, key, txt):
         if alerts.configured():
             ok = alerts.send(txt)
             if ok is False:
-                # dedup do alerts (6h) — nao marcar no state para nao crescer sem envio
                 sent[key] = True
                 return False
         sent[key] = True
@@ -134,8 +140,6 @@ def update(state, rows, bars, now, market_ok=True):
             CTX = {}
         for r in rows:
             a, c4 = r.get("asset"), bars.get(r.get("asset"))
-            if a in SKIP_ASSETS:
-                continue
             CTX["asset"] = a
             if not c4 or a in b["open"] or len(b["open"]) >= MAX_POS:
                 continue
@@ -145,7 +149,6 @@ def update(state, rows, bars, now, market_ok=True):
                 continue
             if not sig or now - sig["t_sig"] > TF or b["last"].get(a) == sig["t_sig"]:
                 continue
-            # nao reabrir o mesmo t_sig ja fechado (estado pode perder open entre scans)
             if any(c.get("opened_at") == sig["t_sig"] for c in b["closed"][-50:]):
                 b["last"][a] = sig["t_sig"]
                 continue
@@ -155,7 +158,6 @@ def update(state, rows, bars, now, market_ok=True):
                 sig["stop"] < r["price"] < sig["tp"][0])
             if not ok:
                 continue
-            # anti-spam: se ja avisamos este ABRE, nao abrir de novo nesta sessao
             tg_key = f"ABRE|{k}|{a}|{sig['t_sig']}"
             if (state.get("papel_tg") or {}).get(tg_key):
                 continue
