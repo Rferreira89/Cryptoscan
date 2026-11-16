@@ -71,7 +71,9 @@ class QuickOpportunitiesTelegramTests(unittest.TestCase):
         self.assertEqual(result["assets_requested"], 1)
         self.assertEqual(result["assets_with_valid_data"], 1)
         self.assertEqual(result["source_by_asset"], {"ETH": "okx"})
-        self.assertEqual(result["candidates"], [])
+        self.assertEqual(len(result["candidates"]), 1)
+        self.assertEqual(result["candidates"][0]["side"], "SHORT")
+        self.assertEqual(len(result["telegram_sent"]), 1)
 
 
 if __name__ == "__main__":
