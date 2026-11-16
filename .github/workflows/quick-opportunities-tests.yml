@@ -26,6 +26,6 @@ jobs:
         with:
           python-version: "3.12"
       - name: Testes do motor Quick Opportunities e Telegram
-        run: python -m unittest -v tests.test_quick_opportunities tests.test_quick_opportunities_data tests.test_quick_opportunities_derivatives tests.test_okx_usdc_settlement tests.test_quick_opportunities_telegram
+        run: python -m unittest -v tests.test_quick_opportunities tests.test_quick_opportunities_data tests.test_quick_opportunities_derivatives tests.test_okx_usdc_settlement tests.test_quick_opportunities_telegram tests.test_sources_usdc
       - name: Suite completa de regressao
         run: python -m unittest discover -q -s tests -t .
