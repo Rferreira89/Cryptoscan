@@ -1,1 +1,1 @@
-$(cat /tmp/promo.py)
+RESTAURAR
