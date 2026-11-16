@@ -63,6 +63,16 @@ class QuickOpportunitiesTests(unittest.TestCase):
                                       {"side": "LONG", "stop": 90, "target": 120})
         self.assertEqual(result["status"], "OPEN_AT_END")
 
+    def test_evaluation_uses_net_r_and_marks_small_samples(self):
+        report = Q.evaluate_trades([{"status": "CLOSED", "net_r": 1.0},
+                                    {"status": "CLOSED", "net_r": -0.5}],
+                                   min_trades=100, bootstrap_samples=100)
+        self.assertEqual(report["trades"], 2)
+        self.assertFalse(report["adequate_sample"])
+        self.assertAlmostEqual(report["mean_net_r"], 0.25)
+        self.assertEqual(report["win_rate"], 0.5)
+        self.assertEqual(report["max_drawdown_r"], 0.5)
+
     def test_invalid_side_is_rejected(self):
         result = Q.simulate_candidate(candles(3), 0,
                                       {"side": "FLAT", "stop": 99, "target": 101})
