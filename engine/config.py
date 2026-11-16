@@ -1,4 +1,4 @@
-""Parametros do sistema. Podem ser alterados em config.json na raiz."""
+"""Parametros do sistema. Podem ser alterados em config.json na raiz."""
 import json
 import os
 
