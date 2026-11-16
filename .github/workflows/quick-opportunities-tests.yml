@@ -8,7 +8,7 @@ on:
       - "tests/**"
       - ".github/workflows/quick-opportunities-tests.yml"
   push:
-    branches: [main, investigacao-quick-opportunities, investigacao-usdc-xperps, integracao-quick-opportunities-telegram]
+    branches: [main, investigacao-quick-opportunities, investigacao-usdc-xperps, integracao-quick-opportunities-telegram, scanner-usdc-feed]
     paths:
       - "engine/**"
       - "tools/**"
