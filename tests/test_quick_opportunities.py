@@ -1,0 +1,60 @@
+import unittest
+
+from engine import quick_opportunities as Q
+
+
+def candles(n=80, price=100.0, step=0.0, volume=100.0):
+    out = []
+    for i in range(n):
+        c = price + i * step
+        out.append({"t": i * Q.BAR_SECONDS, "o": c - 0.1, "h": c + 0.5,
+                    "l": c - 0.5, "c": c, "v": volume, "tb": None})
+    return out
+
+
+class QuickOpportunitiesTests(unittest.TestCase):
+    def test_regime_requires_enough_history(self):
+        self.assertEqual(Q.classify_regime(candles(20)), "insufficient_data")
+
+    def test_detect_returns_empty_for_short_history(self):
+        self.assertEqual(Q.detect_opportunities(candles(30)), [])
+
+    def test_candidates_are_long_or_short_and_have_four_hour_horizon(self):
+        data = candles(80, step=0.05)
+        found = Q.detect_opportunities(data, "TEST")
+        for item in found:
+            self.assertIn(item["side"], ("LONG", "SHORT"))
+            self.assertEqual(item["max_hold_bars"], 8)
+            self.assertLessEqual(abs(item["target"] - item["signal_close"]),
+                                 item["risk_per_unit"] * 2.01)
+
+    def test_simulation_enters_only_next_bar_and_charges_costs(self):
+        data = candles(5)
+        data[1].update({"o": 100, "h": 100.5, "l": 99.5, "c": 100})
+        candidate = {"side": "LONG", "family": "test", "stop": 98,
+                     "target": 104}
+        result = Q.simulate_candidate(data, 0, candidate, fee_pct=0.1,
+                                      slippage_pct=0.05)
+        self.assertEqual(result["status"], "CLOSED")
+        self.assertEqual(result["entry_index"], 1)
+        self.assertGreater(result["costs_r"], 0)
+        self.assertAlmostEqual(result["net_r"], result["gross_r"] - result["costs_r"])
+
+    def test_stop_wins_when_stop_and_target_hit_same_bar(self):
+        data = candles(4)
+        data[1].update({"o": 100, "h": 105, "l": 95, "c": 100})
+        candidate = {"side": "LONG", "family": "test", "stop": 98,
+                     "target": 104}
+        result = Q.simulate_candidate(data, 0, candidate, fee_pct=0,
+                                      slippage_pct=0)
+        self.assertEqual(result["exit_reason"], "STOP")
+        self.assertEqual(result["exit"], 98)
+
+    def test_invalid_side_is_rejected(self):
+        result = Q.simulate_candidate(candles(3), 0,
+                                      {"side": "FLAT", "stop": 99, "target": 101})
+        self.assertEqual(result["status"], "INVALID_SIDE")
+
+
+if __name__ == "__main__":
+    unittest.main()
