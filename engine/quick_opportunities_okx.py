@@ -73,9 +73,15 @@ def _public_universe(request=_get, limit=DEFAULT_MAX_ASSETS):
 
 
 def _fetch_one(info, start_ms, end_ms, now, request):
-    candles = derivatives.fetch_okx_xperp_candles(
-        info["inst_id"], start_ms, end_ms, request=request, pause_seconds=0)
-    clean, report = engine.prepare_30m_candles(candles, now)
+    try:
+        candles = derivatives.fetch_okx_xperp_candles(
+            info["inst_id"], start_ms, end_ms, request=request, pause_seconds=0)
+        clean, report = engine.prepare_30m_candles(candles, now)
+    except Exception as exc:
+        return info, [], {
+            "status": "DATA SOURCE ERROR",
+            "error": f"{type(exc).__name__}: {str(exc)[:120]}",
+        }
     if report.get("status") != "VALID" or len(clean) < engine.MIN_BARS:
         return info, [], report
     candidates = engine.detect_opportunities(clean, info["base"])
