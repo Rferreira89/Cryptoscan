@@ -36,8 +36,21 @@ def validate_okx_account_config(config):
     return True, "USDC confirmado"
 
 
+def _asset_class(inst_category):
+    """Map OKX's documented instrument categories to supported research universes."""
+    return {
+        "1": "crypto",
+        "3": "equity",
+        "4": "precious_metal",
+    }.get(str(inst_category or ""))
+
+
 def okx_usdc_xperps(request=_get):
-    """Discover live linear OKX USD_UM X-Perps; settlement is account-selected (USDC required)."""
+    """Discover live linear OKX USD_UM X-Perps for crypto, equities and precious metals.
+
+    The function name is retained for backwards compatibility. It does not
+    assert that every contract or the user's account settles in USDC.
+    """
     response = request(OKX + "/api/v5/public/instruments", {"instType": "FUTURES"})
     if not isinstance(response, dict) or response.get("code") != "0":
         raise SourceError(f"OKX FUTURES instruments: resposta inválida {response}")
@@ -46,14 +59,16 @@ def okx_usdc_xperps(request=_get):
         inst_id = item.get("instId", "")
         family = item.get("instFamily", "")
         rule_type = str(item.get("ruleType") or "").lower()
+        asset_class = _asset_class(item.get("instCategory"))
         if (item.get("state") != "live" or not inst_id.endswith("_UM_XPERP")
                 or not family.endswith("_UM") or item.get("ctType") != "linear"
-                or rule_type == "pre_market"):
+                or rule_type == "pre_market" or asset_class is None):
             continue
         base = inst_id.split("-")[0]
         try:
             info = {
                 "venue": "okx", "market_type": "usd_margined_xperp",
+                "asset_class": asset_class,
                 "inst_id": inst_id, "inst_family": family, "base": base,
                 "quote": "USD", "settlement_currency_required": "USDC",
                 "settle_currency_metadata": item.get("settleCcy"),
