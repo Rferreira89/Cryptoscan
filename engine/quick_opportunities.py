@@ -151,10 +151,12 @@ def simulate_candidate(candles, signal_index, candidate, fee_pct=0.1,
         bar = candles[j]
         if side == "LONG":
             stop_hit, target_hit = float(bar["l"]) <= stop, float(bar["h"]) >= target
+            stop_fill = min(stop, float(bar["o"])) if float(bar["o"]) <= stop else stop
         else:
             stop_hit, target_hit = float(bar["h"]) >= stop, float(bar["l"]) <= target
-        if stop_hit:  # conservador: stop primeiro se ambos forem tocados
-            exit_price, reason, exit_index = stop, "STOP", j
+            stop_fill = max(stop, float(bar["o"])) if float(bar["o"]) >= stop else stop
+        if stop_hit:  # stop primeiro; gap executa ao preco de abertura, nunca ao nivel idealizado
+            exit_price, reason, exit_index = stop_fill, "STOP", j
             break
         if target_hit:
             exit_price, reason, exit_index = target, "TARGET", j
@@ -176,7 +178,7 @@ def simulate_candidate(candles, signal_index, candidate, fee_pct=0.1,
         "gross_r": gross, "costs_r": costs_r, "net_r": gross - costs_r,
         "bars_held": exit_index - signal_index,
         "entry_t": int(candles[signal_index + 1]["t"]),
-        "exit_t": int(candles[exit_index]["t"]),
+        "exit_t": int(candles[exit_index]["t"]) + BAR_SECONDS,
     }
 
 
