@@ -1,0 +1,84 @@
+{
+ "moedas": 234,
+ "ultima_vela_btc": 1794657600,
+ "pre_registo": "backtest/pre_registo_short_ataque_1h.md",
+ "SHORT_SOBRECOMPRA": {
+  "{\"V\": 2.0, \"X\": 70}": {
+   "operacoes_fora_amostra": 171,
+   "operacoes_walk_forward": 115,
+   "operacoes_reserva": 56,
+   "r_medio_fora_amostra": -0.035,
+   "percentil_acaso": 96.0,
+   "criterios": {
+    "1_oos_retorno_e_sharpe": false,
+    "2_janelas_positivas": false,
+    "3_grelha_estavel": true,
+    "4_grandes_moedas_2021": false,
+    "5_melhor_que_btc_sma200": false,
+    "6_reserva_sharpe_positivo": true,
+    "7_acaso_percentil_90": true
+   },
+   "seis_passam": false,
+   "veredicto": "PARA PAPEL"
+  },
+  "{\"V\": 2.5, \"X\": 70}": {
+   "operacoes_fora_amostra": 129,
+   "operacoes_walk_forward": 80,
+   "operacoes_reserva": 49,
+   "r_medio_fora_amostra": 0.044,
+   "percentil_acaso": 99.1,
+   "criterios": {
+    "1_oos_retorno_e_sharpe": false,
+    "2_janelas_positivas": false,
+    "3_grelha_estavel": true,
+    "4_grandes_moedas_2021": false,
+    "5_melhor_que_btc_sma200": false,
+    "6_reserva_sharpe_positivo": true,
+    "7_acaso_percentil_90": true
+   },
+   "seis_passam": false,
+   "veredicto": "PARA PAPEL"
+  },
+  "{\"V\": 2.0, \"X\": 75}": {
+   "operacoes_fora_amostra": 97,
+   "operacoes_walk_forward": 72,
+   "operacoes_reserva": 25,
+   "r_medio_fora_amostra": -0.006,
+   "percentil_acaso": 98.4,
+   "criterios": {
+    "1_oos_retorno_e_sharpe": false,
+    "2_janelas_positivas": false,
+    "3_grelha_estavel": true,
+    "4_grandes_moedas_2021": false,
+    "5_melhor_que_btc_sma200": true,
+    "6_reserva_sharpe_positivo": true,
+    "7_acaso_percentil_90": true
+   },
+   "seis_passam": false,
+   "veredicto": "PARA PAPEL"
+  },
+  "{\"V\": 2.5, \"X\": 75}": {
+   "operacoes_fora_amostra": 79,
+   "operacoes_walk_forward": 51,
+   "operacoes_reserva": 28,
+   "r_medio_fora_amostra": -0.008,
+   "percentil_acaso": 96.8,
+   "criterios": {
+    "1_oos_retorno_e_sharpe": false,
+    "2_janelas_positivas": false,
+    "3_grelha_estavel": true,
+    "4_grandes_moedas_2021": false,
+    "5_melhor_que_btc_sma200": false,
+    "6_reserva_sharpe_positivo": true,
+    "7_acaso_percentil_90": true
+   },
+   "seis_passam": false,
+   "veredicto": "PARA PAPEL"
+  }
+ },
+ "SHORT_SOBRECOMPRA_fracao_grelha": 1.0,
+ "ATAQUE_1H": {
+  "estado": "pendente",
+  "motivo": "requer historico 1h/"
+ }
+}
