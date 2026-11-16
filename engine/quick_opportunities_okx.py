@@ -21,15 +21,10 @@ DEFAULT_WORKERS = 6
 
 def select_liquid_xperps(instruments, tickers, limit=DEFAULT_MAX_ASSETS):
     """Join live linear USD_UM X-Perps to OKX FUTURES tickers and rank by quote volume."""
-    by_id = {}
-    for item in tickers or []:
-        inst_id = str(item.get("instId") or "")
-        try:
-            volume = float(item.get("volCcy24h") or item.get("vol24h") or 0)
-        except (TypeError, ValueError):
-            volume = 0.0
-        if inst_id and volume > 0:
-            by_id[inst_id] = volume
+    ticker_by_id = {
+        str(item.get("instId") or ""): item
+        for item in (tickers or []) if item.get("instId")
+    }
 
     selected = []
     for base, info in (instruments or {}).items():
@@ -39,10 +34,24 @@ def select_liquid_xperps(instruments, tickers, limit=DEFAULT_MAX_ASSETS):
                 or not family.endswith("_UM")
                 or info.get("contract_type") != "linear"):
             continue
-        volume = by_id.get(inst_id)
-        if volume is None:
+        ticker = ticker_by_id.get(inst_id)
+        if not ticker:
             continue
-        selected.append((volume, base, info))
+        # Normaliza para notional USD: contratos * valor USD/contrato.
+        # Se só existir volume em moeda-base, converte-o pelo último preço.
+        try:
+            last = float(ticker.get("last") or 0)
+            contracts = float(ticker.get("vol24h") or 0)
+            contract_value = float(info.get("contract_value") or 0)
+            if contracts > 0 and contract_value > 0:
+                volume_usd = contracts * contract_value
+            else:
+                base_volume = float(ticker.get("volCcy24h") or 0)
+                volume_usd = base_volume * last
+        except (TypeError, ValueError):
+            volume_usd = 0.0
+        if volume_usd > 0:
+            selected.append((volume_usd, base, info))
     selected.sort(key=lambda row: (-row[0], row[1]))
     return [
         {**info, "base": base, "volume_24h_contract_quote": volume}
