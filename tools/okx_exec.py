@@ -41,7 +41,8 @@ def cfg():
     c = dict(CFG_PADRAO)
     p = os.path.join(os.path.dirname(__file__), "..", "okx_config.json")
     if os.path.exists(p):
-        c.update(json.load(open(p)))
+        with open(p, encoding="utf-8") as f:
+            c.update(json.load(f))
     return c
 
 
