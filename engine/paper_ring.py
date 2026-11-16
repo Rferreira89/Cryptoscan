@@ -13,12 +13,14 @@ avisos Telegram em abertura, fecho e retirada do papel.
 (16/11 investigacao): MAX_POS 6 -> 12 para permitir mais operacoes simultaneas em papel.
 (16/11 investigacao): longs em papel nao sao bloqueados por market_ok (BTC como contexto, nao veto).
 (16/11 investigacao): regime_select prioriza lado adequado ao regime.
+(16/11 investigacao): opportunity_engine classifica setups; score minimo 25 para abrir.
 Venue deste motor: Bybit (o OKX tem caminhos proprios).
 """
 import os
 
 from . import promo, trade
 from . import regime_select
+from . import opportunity_engine as OE
 
 TF = 14400
 MAX_POS = 12  # investigacao: era 6; permite mais posicoes simultaneas em papel
@@ -27,6 +29,7 @@ OWN_PAPER = ("BOUNCE_G0", "BOUNCE_V1", "BOUNCE_V2", "BOUNCE_V3")
 KILL_N = 20
 VENUE = "Bybit"
 SKIP_ASSETS = frozenset({"AAA", "TEST", "DEMO"})  # precos sinteticos no Telegram
+MIN_SCORE = 25  # investigacao: setups abaixo disto nao abrem em papel
 
 
 def _tg(state, key, txt):
@@ -157,6 +160,10 @@ def update(state, rows, bars, now, market_ok=True):
                 sig["stop"] < r["price"] < sig["tp"][0])
             if not ok:
                 continue
+            # opportunity engine: score minimo
+            sc, _ = OE.score(sig, r["price"], fase, lado, None)
+            if sc < MIN_SCORE:
+                continue
             tg_key = f"ABRE|{k}|{a}|{sig['t_sig']}"
             if (state.get("papel_tg") or {}).get(tg_key):
                 continue
@@ -166,12 +173,13 @@ def update(state, rows, bars, now, market_ok=True):
             pos["fase"] = fase
             pos["side"] = lado
             pos["venue"] = VENUE
+            pos["score"] = sc
             if sig.get("hold_s"):
                 pos["max_hold"] = sig["hold_s"]
             b["open"][a] = pos
             _tg(state, tg_key,
                 f"[{VENUE}] PAPEL ABRE {k} {lado} {a} @ {r['price']} "
-                f"stop={sig.get('stop')} tp={sig.get('tp')}")
+                f"stop={sig.get('stop')} tp={sig.get('tp')} score={sc}")
     out = {k: {"n": len(v["closed"]), "open": sorted(v["open"])} for k, v in st.items()}
     try:
         from tools.arena_ringue import PAPEL_N_MIN
