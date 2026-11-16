@@ -139,7 +139,8 @@ def simulate_candidate(candles, signal_index, candidate, fee_pct=0.1,
     if risk <= 0:
         return {"status": "INVALID_RISK"}
     exit_price, reason, exit_index = None, None, None
-    last_index = min(len(candles) - 1, signal_index + max(1, min(max_hold_bars, MAX_HOLD_BARS)))
+    horizon_end = signal_index + max(1, min(max_hold_bars, MAX_HOLD_BARS))
+    last_index = min(len(candles) - 1, horizon_end)
     for j in range(signal_index + 1, last_index + 1):
         bar = candles[j]
         if side == "LONG":
@@ -152,12 +153,14 @@ def simulate_candidate(candles, signal_index, candidate, fee_pct=0.1,
         if target_hit:
             exit_price, reason, exit_index = target, "TARGET", j
             break
+    if exit_price is None and last_index < horizon_end:
+        return {"status": "OPEN_AT_END"}
     if exit_price is None:
         exit_index = last_index
         exit_price, reason = float(candles[last_index]["c"]), "TIME_EXIT"
     exit_fill = exit_price * (1 - slippage_pct / 100 * direction)
     gross = direction * (exit_fill - entry) / risk
-    cost_pct = (2 * fee_pct) + (2 * slippage_pct) + max(0.0, funding_pct)
+    cost_pct = (2 * fee_pct) + max(0.0, funding_pct)  # slippage ja refletido nos fills
     costs_r = (entry * cost_pct / 100) / risk
     return {
         "status": "CLOSED", "side": side, "family": candidate.get("family"),
