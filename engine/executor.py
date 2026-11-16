@@ -2030,9 +2030,14 @@ ACTIONS = {"vender": do_short, "teste_short": do_test_short, "limpar_short": do_
 def main(state_path, ex_in, out):
     from . import alerts
     now = int(time.time())
-    state = json.load(open(state_path)) if os.path.exists(state_path) else {}
+    if os.path.exists(state_path):
+        with open(state_path, encoding="utf-8") as f:
+            state = json.load(f)
+    else:
+        state = {}
     try:
-        ex = json.load(open(ex_in))
+        with open(ex_in, encoding="utf-8") as f:
+            ex = json.load(f)
     except Exception:
         ex = {}
     ex.setdefault("ops", {})
@@ -2117,7 +2122,7 @@ def main(state_path, ex_in, out):
         ex["feitos"] = (ex["feitos"] + [r["id"]])[-300:]
         ex.setdefault("log", []).append({"t": now, "id": r["id"], "acao": r.get("acao"), "res": str(res)[:160]})
         ex["log"] = ex["log"][-100:]
-    with open(out, "w") as f:
+    with open(out, "w", encoding="utf-8") as f:
         json.dump(ex, f, indent=1, ensure_ascii=False)
     print(f"pronto={ex['pronto']} ({ex['chave']}) pedidos={len(reqs)}")
 

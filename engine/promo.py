@@ -1,4 +1,4 @@
-""Promocao pela arena (decisao do Rui, 2026-10-13: "quero continuar com
+"""Promocao pela arena (decisao do Rui, 2026-10-13: "quero continuar com
 operacoes e sinais em tempo real e com dinheiro real ... sempre as melhores
 estrategias").
 
@@ -167,8 +167,8 @@ def growth(state, cfg):
 # lutadores que reagem ao mesmo fenomeno de mercado e por isso ganham e perdem
 # juntos. No maximo MAX_PER_FAMILY operacoes reais abertas da mesma familia.
 MAX_PER_FAMILY = 4     # Rui, 20/10: uma de cada familia (as copias contam uma vez)
-FAMILIAS = {"maiores": "Equipa das maiores (BTC, ETH, SOL)", "sobrevenda": "Sobrevenda a virar", "tendencia": "TendÃªncia e rompimento",
-            "volatilidade": "Volatilidade", "volume": "Volume anormal (acumulaÃ§Ã£o)", "capitulacao": "CapitulaÃ§Ã£o", "short": "Venda a descoberto"}
+FAMILIAS = {"maiores": "Equipa das maiores (BTC, ETH, SOL)", "sobrevenda": "Sobrevenda a virar", "tendencia": "Tendência e rompimento",
+            "volatilidade": "Volatilidade", "volume": "Volume anormal (acumulação)", "capitulacao": "Capitulação", "short": "Venda a descoberto"}
 
 
 def family(k):
@@ -263,13 +263,13 @@ def suspended(state, contas_mes=True):
     for k, f in lut.items():
         n, r = live_record(state, k)
         if n >= LIVE_MIN_N and r is not None and (r <= -0.5 or r <= (f.get("avg_r") or 0) - 1.0):
-            out[k] = (f"no dinheiro real: {r:+.2f}R em {n} operaÃ§Ãµes, contra "
+            out[k] = (f"no dinheiro real: {r:+.2f}R em {n} operações, contra "
                       f"{(f.get('avg_r') or 0):+.2f}R previstos no combate")
         # diretriz do Rui (2026-10-15): so tem lugar no escritorio quem e
         # lucrativo e leva a carteira ao objetivo. Com 10 operacoes reais e
         # resultado medio negativo, perde o lugar ate provar de novo.
         elif n >= LUCRO_MIN_N and r is not None and r < 0:
-            out[k] = f"nÃ£o Ã© lucrativo no dinheiro real: {r:+.2f}R em {n} operaÃ§Ãµes (diretriz do objetivo)"
+            out[k] = f"não é lucrativo no dinheiro real: {r:+.2f}R em {n} operações (diretriz do objetivo)"
         elif contas_mes:
             conta = contas(f)
             if conta:
@@ -291,8 +291,8 @@ def contas(f):
     fora = ((f or {}).get("validacao") or {}).get("fora") or {}
     n, liq = fora.get("n") or 0, fora.get("avg_r_liq")
     if n >= CONTAS_MIN_N and liq is not None and liq <= 0:
-        return (f"nÃ£o pagou as contas do mÃªs: {n} operaÃ§Ãµes nos Ãºltimos 30 dias, "
-                f"{liq * n:+.2f}R depois de comissÃµes e spread real")
+        return (f"não pagou as contas do mês: {n} operações nos últimos 30 dias, "
+                f"{liq * n:+.2f}R depois de comissões e spread real")
     return None
 
 
@@ -357,7 +357,7 @@ SO_PAPEL_FAM = set()        # familias que nunca usam dinheiro real (config "fam
 # criterio unico (dois periodos, correcao para testes multiplos, custos a dobrar, 3 meses em papel).
 # None = regra desligada (testes antigos); o scanner preenche com config "real_autorizados".
 AUTORIZADOS = None
-SEM_AUTORIZACAO = "em papel atÃ© passar o critÃ©rio de 28/10 e ter a autorizaÃ§Ã£o do Rui"
+SEM_AUTORIZACAO = "em papel até passar o critério de 28/10 e ter a autorização do Rui"
 DERIVA_LIMITE, DERIVA_MIN = -0.15, 80
 RECENTE_MIN = 40              # (27/10, OK do Rui) bloco mais recente do ringue nesta fase
 
@@ -369,13 +369,13 @@ def deriva(state, k, fase):
     f = ((((state.get("arena") or {}).get("longo") or {}).get("lutadores") or {}).get(k) or {}).get("por_regime", {}).get(fase) or {}
     met, n = f.get("metades"), f.get("n") or 0
     if met and len(met) == 2 and met[1] is not None and n / 2 >= DERIVA_MIN and met[1] < DERIVA_LIMITE:
-        return f"deriva: 2.Âª metade do ano na fase {fase} em {met[1]:+.2f}R ({n // 2} op.), abaixo de {DERIVA_LIMITE:+.2f}R"
+        return f"deriva: 2.ª metade do ano na fase {fase} em {met[1]:+.2f}R ({n // 2} op.), abaixo de {DERIVA_LIMITE:+.2f}R"
     # regra mais rapida (27/10, OK do Rui): as operacoes mais recentes desta fase (bloco reservado
     # do ringue de um ano) abaixo do mesmo limite tambem passam a papel. O Ramiro estava com a
     # 2.a metade em -0,01R mas as 65 mais recentes em -0,27R e o combate de 90 dias em -0,78R.
     rec = (f.get("qualidade") or {}).get("reservado") or {}
     if (rec.get("n") or 0) >= RECENTE_MIN and rec.get("avg_r") is not None and rec["avg_r"] < DERIVA_LIMITE:
-        return (f"deriva recente: Ãºltimas {rec['n']} operaÃ§Ãµes na fase {fase} em {rec['avg_r']:+.2f}R, "
+        return (f"deriva recente: últimas {rec['n']} operações na fase {fase} em {rec['avg_r']:+.2f}R, "
                 f"abaixo de {DERIVA_LIMITE:+.2f}R")
     return None
 
@@ -414,7 +414,7 @@ def champions(state, disabled=(), fase=None, por_fase=False):
         for k in list(out):
             if family(k) in SO_PAPEL_FAM:
                 out.remove(k)
-                papel[k] = f"famÃ­lia Â«{FAMILIAS.get(family(k), family(k))}Â» sÃ³ em papel (decisÃ£o do Rui, 23/10)"
+                papel[k] = f"família «{FAMILIAS.get(family(k), family(k))}» só em papel (decisão do Rui, 23/10)"
         if AUTORIZADOS is not None:
             for k in list(out):
                 if k not in AUTORIZADOS:
@@ -454,13 +454,13 @@ def cfg_piloto(champ, state, cfg, now):
     abertas = [r for r in state.get("ledger") or [] if r.get("strategy") == champ and r.get("mode") == "REAL"
                and r.get("status") in ("OPEN", "WAITING", "ACTIVE", "TRIGGERED") and r.get("executed") is not False]
     if len(abertas) >= int(pl.get("max_posicoes") or 1):
-        return dict(cfg, piloto_bloqueio=f"piloto: jÃ¡ hÃ¡ {len(abertas)} posiÃ§Ã£o aberta (mÃ¡ximo {pl.get('max_posicoes') or 1})")
+        return dict(cfg, piloto_bloqueio=f"piloto: já há {len(abertas)} posição aberta (máximo {pl.get('max_posicoes') or 1})")
     av = piloto.avaliar(state.get("ledger") or [], champ, pl.get("inicio") or 0)
     if pl.get("perda_max_r") is not None and av["soma_r"] <= pl["perda_max_r"]:
         av["pode_abrir"] = False
     if not av["pode_abrir"]:
         state.setdefault("piloto", {})["suspenso"] = {"t": int(now), "motivos": av["motivos"] or ["perda maxima"]}
-        return dict(cfg, piloto_bloqueio="piloto suspenso: " + "; ".join(av["motivos"] or ["perda mÃ¡xima atingida"]))
+        return dict(cfg, piloto_bloqueio="piloto suspenso: " + "; ".join(av["motivos"] or ["perda máxima atingida"]))
     state.setdefault("piloto", {}).update(estado=av["estado"], n=av["n"], soma_r=av["soma_r"], t=int(now))
     state["piloto"].pop("suspenso", None)
     # (12/11, ordem do Rui 09:06) concorrencia: com mais de uma vaga, o risco ABERTO somado (risk_pct das posicoes reais
@@ -484,9 +484,9 @@ def piloto_juro(state, asset, stop_frac, cfg, now):
     j = state.get("juros_bybit") or {}
     taxa = (j.get("m") or {}).get(asset)
     if taxa is None or now - (j.get("t") or 0) > JUROS_IDADE_MAX:
-        return "piloto: juro real do emprÃ©stimo desconhecido ou desatualizado"
+        return "piloto: juro real do empréstimo desconhecido ou desatualizado"
     if not stop_frac or stop_frac <= 0:
-        return "piloto: stop invÃ¡lido"
+        return "piloto: stop inválido"
     custo_r = taxa / 100 * cfg.get("piloto_dias_max", 20) / stop_frac
     if custo_r > cfg["piloto_juro_max_r"] + 1e-12:
         return f"piloto: juro estimado {custo_r:.3f}R acima de {cfg['piloto_juro_max_r']}R"
@@ -500,7 +500,7 @@ def plan_for(sig, px, cfg):
     lo, hi = px * 0.997, px * 1.002
     entry = hi
     if not (0 < stop < lo) or tps[0] <= entry:
-        return None, "plano invÃ¡lido ao preÃ§o atual"
+        return None, "plano inválido ao preço atual"
     fee = cfg["fee_pct"] / 100
     ru = entry - stop + fee * (entry + stop)
     stop_pct = ru / entry * 100
@@ -535,7 +535,7 @@ def short_plan_for(sig, px, cfg):
     lo, hi = px * 0.998, px * 1.003
     entry = lo                                  # pior preco para quem vende
     if not (stop > hi and tps[0] < entry):
-        return None, "plano de short invÃ¡lido ao preÃ§o atual"
+        return None, "plano de short inválido ao preço atual"
     fee = cfg["fee_pct"] / 100
     ru = stop - entry + fee * (entry + stop)
     stop_pct = ru / entry * 100
@@ -600,7 +600,7 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
                 continue
             if illiquid:
                 seen[a] = sig["t_sig"]
-                lost(state, now, a, champ, "liquidez: " + (d0.get("reason") or "sem par negociÃ¡vel na Bybit UE"), sig, r["price"])
+                lost(state, now, a, champ, "liquidez: " + (d0.get("reason") or "sem par negociável na Bybit UE"), sig, r["price"])
                 break
             why = block_for(a)
             if why:
@@ -612,7 +612,7 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
                     continue
                 mg = (state.get("margem_bybit") or {}).get("moedas")
                 if mg and a not in mg:            # (22/10) a Bybit UE nao empresta esta moeda
-                    falhou = falhou or (champ, sig["t_sig"], "sem margem na Bybit UE: a moeda nÃ£o se pode vender a descoberto", sig)
+                    falhou = falhou or (champ, sig["t_sig"], "sem margem na Bybit UE: a moeda não se pode vender a descoberto", sig)
                     continue
                 cc = acelerado.cfg_para(champ, state, cfg)       # (30/10) modo acelerado: so com OK final
                 cc = cfg_piloto(champ, state, cc, now)           # (11/11) piloto: desligado sem config "piloto"
@@ -663,10 +663,10 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
         # todas as estrategias (LONG e SHORT) mais o desta nunca passa o teto agregado (5% do capital). Uma
         # oportunidade valida so e recusada aqui por falta de capacidade de risco (fica registada como tal).
         if trav:
-            lost(state, now, a, champ, f"travÃ£o da conta: {trav}", sig, p.get("_px"), p)
+            lost(state, now, a, champ, f"travão da conta: {trav}", sig, p.get("_px"), p)
             continue
         if a in risco["moedas"]:
-            lost(state, now, a, champ, f"capacidade: jÃ¡ hÃ¡ uma posiÃ§Ã£o real aberta em {a}", sig, p.get("_px"), p)
+            lost(state, now, a, champ, f"capacidade: já há uma posição real aberta em {a}", sig, p.get("_px"), p)
             continue
         f = family(champ)
         from .porta_long import piloto_de
@@ -674,14 +674,14 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
         # (12/11) a estrategia do piloto usa o seu numero de vagas (config "piloto.max_posicoes"); as outras, 1 por familia
         lim = int(pl.get("max_posicoes") or 1) if pl else MAX_PER_FAMILY
         if fam.get(f, 0) >= lim:
-            lost(state, now, a, champ, f"diversificaÃ§Ã£o: jÃ¡ hÃ¡ {fam[f]} operaÃ§Ãµes da famÃ­lia "
-                 f"Â«{FAMILIAS[f]}Â» abertas (mÃ¡ximo {lim})", sig, p.get("_px"), p)
+            lost(state, now, a, champ, f"diversificação: já há {fam[f]} operações da família "
+                 f"«{FAMILIAS[f]}» abertas (máximo {lim})", sig, p.get("_px"), p)
             continue
         if bar["t"] != sig["t_sig"]:
             bar.update(t=sig["t_sig"], n=0, fam={})
         if bar["n"] >= MAX_PER_BAR:
             lost(state, now, a, champ, f"limite de {MAX_PER_BAR} entradas por vela de 4H "
-                 "(proteÃ§Ã£o contra quedas em cadeia)", sig, p.get("_px"), p)
+                 "(proteção contra quedas em cadeia)", sig, p.get("_px"), p)
             continue
         bar["n"] += 1
         fam[f] = fam.get(f, 0) + 1
@@ -713,7 +713,7 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
                 (not q0 or q0.get("partials", [100, 0])[1] == 0):
             for y in xs:
                 if y is not x0:
-                    lost(state, now, y[1], y[2], "uma sÃ³ aposta: ficou sÃ³ o melhor sinal da famÃ­lia nesta "
+                    lost(state, now, y[1], y[2], "uma só aposta: ficou só o melhor sinal da família nesta "
                          "vela, inteiro, para poder proteger o lucro no TP1", y[3], y[4].get("_px"), y[4])
             x0[4]["cluster"] = {"n": k, "familia": FAMILIAS.get(f, f), "melhor": True}
             ok = [y for y in ok if (family(y[2]), y[3]["t_sig"]) != (f, t)] + [x0]
@@ -727,8 +727,8 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
                 p2["_px"] = p.get("_px")
                 xs[i] = (rank, a, champ, sig, p2, d0)
             else:                                # metade nao cabe na ordem minima: fica de fora
-                lost(state, now, a, champ, "risco dividido com outro sinal da mesma famÃ­lia "
-                     "nesta vela nÃ£o cabe na ordem mÃ­nima", sig, p.get("_px"), p)
+                lost(state, now, a, champ, "risco dividido com outro sinal da mesma família "
+                     "nesta vela não cabe na ordem mínima", sig, p.get("_px"), p)
                 xs[i] = None
         xs = [x for x in xs if x]
         ok = [y for y in ok if (family(y[2]), y[3]["t_sig"]) != (f, t)] + xs
@@ -761,18 +761,18 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
             "decision": "SHORT" if short else "LONG", "side": "SHORT" if short else "LONG",
             "mode": "REAL", "validated": False,
             "strategy": champ, "state": "READY", "plan": p, "score": 75 - rank,
-            "score_label": "campeÃ£o da arena", "confidence": "MÃDIA",
+            "score_label": "campeão da arena", "confidence": "MÉDIA",
             "regime": d0.get("regime"), "regime_changed": False,
             "conflicts": [], "warnings": [], "venue": d0["venue"],
             "families": {"combate de 90 dias acima do acaso": 1.0,
-                         "gatilho do campeÃ£o": 0.8},
-            "notes": [f"CampeÃ£o da arena ({champ}): no combate dos Ãºltimos "
+                         "gatilho do campeão": 0.8},
+            "notes": [f"Campeão da arena ({champ}): no combate dos últimos "
                       "90 dias bateu 95% das entradas ao acaso"]
                      + (["Venda a descoberto em margem spot: pedes a moeda emprestada, vendes "
                          "e recompras mais barato. Perda limitada pelo stop acima; pagas juros "
                          "pela moeda emprestada."] if short else []),
-            "trigger": sig.get("gatilho") or "gatilho do campeÃ£o",
-            "reason": "campeÃ£o da arena", "checks": d0.get("checks", []),
+            "trigger": sig.get("gatilho") or "gatilho do campeão",
+            "reason": "campeão da arena", "checks": d0.get("checks", []),
             "rejected": []}
     return out
 
@@ -806,7 +806,7 @@ def validar_lote(p, px, lote, stop):
     if qty <= 0:
         return "lote: quantidade nula depois de arredondar ao lote da Bybit"
     if val > maxp + 1e-9:
-        return (f"lote: a ordem mÃ­nima da Bybit depois de arredondar ao lote ({val:.2f} USDC) passa o risco "
+        return (f"lote: a ordem mínima da Bybit depois de arredondar ao lote ({val:.2f} USDC) passa o risco "
                 f"autorizado ({maxp:.2f} USDC)")
     risco = qty * abs(float(stop) - lim) + 0.0025 * qty * (lim + float(stop))
     mr = p.get("max_risk_usdc")

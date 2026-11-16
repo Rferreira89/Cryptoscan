@@ -1,8 +1,8 @@
 name: Testes
 on:
   push:
-    branches: [main]
-    paths: ["engine/**", "tests/**"]
+    branches: [main, investigacao/correcao-promo-syntax-20261116]
+    paths: ["engine/**", "tools/**", "tests/**"]
 jobs:
   tests:
     runs-on: ubuntu-latest

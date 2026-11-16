@@ -16,9 +16,11 @@ class Executor(unittest.TestCase):
     def correr(self, envio, ex0=None):
         d = tempfile.mkdtemp()
         st = os.path.join(d, "st.json")
-        json.dump({"exec_req": [{"id": "vender-op1", "acao": "vender", "op": "op1", "t": NOW}]}, open(st, "w"))
+        with open(st, "w", encoding="utf-8") as f:
+            json.dump({"exec_req": [{"id": "vender-op1", "acao": "vender", "op": "op1", "t": NOW}]}, f)
         ein = os.path.join(d, "in.json")
-        json.dump(ex0 or {}, open(ein, "w"))
+        with open(ein, "w", encoding="utf-8") as f:
+            json.dump(ex0 or {}, f)
         out = os.path.join(d, "out.json")
 
         def recusa(state, req, ex, now, send):           # a corretora simulada recusa a ordem
@@ -32,7 +34,8 @@ class Executor(unittest.TestCase):
                 mock.patch.object(alerts, "send", side_effect=envio), \
                 mock.patch("time.time", return_value=NOW):
             X.main(st, ein, out)
-        return json.load(open(out))
+        with open(out, encoding="utf-8") as f:
+            return json.load(f)
 
     def test_regista_id_da_mensagem(self):
         ex = self.correr(lambda t, html=False: 4321)

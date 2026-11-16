@@ -29,7 +29,8 @@ def _sent():
         _SENT = {}
         if DEDUP_FILE and os.path.exists(DEDUP_FILE):
             try:
-                _SENT = json.load(open(DEDUP_FILE))
+                with open(DEDUP_FILE, encoding="utf-8") as f:
+                    _SENT = json.load(f)
             except (OSError, ValueError):
                 _SENT = {}
     return _SENT
@@ -47,7 +48,7 @@ def _guardar(now):
     for k in [k for k, t in s.items() if now - t > 2 * DEDUP_S]:
         del s[k]
     try:
-        with open(DEDUP_FILE, "w") as f:
+        with open(DEDUP_FILE, "w", encoding="utf-8") as f:
             json.dump(s, f)
     except OSError:
         pass
