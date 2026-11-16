@@ -4,20 +4,20 @@ Branch isolada. Produção intacta.
 
 ## Alterações feitas
 
-- `engine/paper_ring.py`: MAX_POS 6 → 12 (papel). Permite mais posições simultâneas sem alterar risco real.
+- `engine/paper_ring.py`: MAX_POS 6 → 12 (papel).
+- `engine/paper_bounce.py`: MAX_POS 4 → 8 (papel).
 
-## Estado das estratégias long 1H (research)
+## Limites ainda presentes (não alterados — real)
 
-| Estratégia | R médio | Estado |
-|-------------|----------|--------|
-| ATAQUE_1H long | ≈ -0,26 | Rejeitada |
-| LONG_TENDENCIA_1H v3 | ≈ -0,22 | Rejeitada |
-| LONG_BOUNCE_1H | ≈ -0,03 a -0,15 | RECRUTAR / amostra pequena; R ainda ≤ 0 |
+- `promo.py`: MAX_PER_BAR = 4, MAX_PER_FAMILY = 4, RISCO_AGREGADO_MAX = 5.0, REAL_MIN_R = 0.15.
+- Estes afectam dinheiro real. Não alterados sem autorização.
 
-Nenhuma long 1H com R > 0. Não sobe a papel nem real.
+## Estado long 1H
 
-## Próximo (na branch)
+Nenhuma com R > 0. Arquivadas.
 
-- Auditar outros limites (cooldowns, filtros BTC, max posições por estratégia).
-- Nova lógica long (ex.: 4H puro ou bounce mais selectivo) se justificado.
-- Só activar em papel após research com R > 0.
+## Próximo na branch
+
+- Continuar auditoria de cooldowns e filtros.
+- Nova lógica long (ex.: 4H puro ou liquidity sweep) se justificada.
+- Só papel após research com R > 0.
