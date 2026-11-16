@@ -209,7 +209,7 @@ def run_derivatives_symbol(symbol, start_ms, end_ms, output_dir, venue="okx",
     if venue != "okx":
         raise ValueError("o único mercado de derivados suportado para esta conta é OKX X-Perps USDC")
     instruments = DERIV.list_account_market(venue, request=request)
-    info = instruments.get(symbol.upper())
+    info = instruments.get(symbol.upper().removesuffix("USDC"))
     if not info:
         raise SourceError(f"{venue}/{symbol}: X-Perp linear indisponível")
     candles = DERIV.fetch_okx_xperp_candles(info["inst_id"], start_ms, end_ms, request=request)
