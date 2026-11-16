@@ -8,8 +8,9 @@ Regras (iguais as testadas em tools/research.py, configuracao escolhida
 pelo walk-forward): compra quando o fecho diario supera o maximo dos 20
 dias anteriores com o preco acima da media de 200 dias; stop inicial a
 2 ATR(20); sai quando o fecho diario fica abaixo do minimo dos 20 dias
-anteriores. Risco de 1% por operacao, maximo de 4 posicoes, so grandes
-moedas de 2021 listadas na Bybit UE.
+anteriores. Risco de 1% por operacao, maximo de 8 posicoes (investigacao),
+so grandes moedas de 2021 listadas na Bybit UE.
+(16/11 investigacao): MAX_POS 4->8; market_ok nao e veto absoluto.
 """
 from . import ledger, risk
 
@@ -17,7 +18,7 @@ MAJORS21 = ["BTC", "ETH", "BNB", "XRP", "ADA", "DOGE", "SOL", "DOT", "LTC",
             "LINK", "BCH", "XLM", "UNI", "AVAX", "TRX", "ATOM", "FIL", "ALGO",
             "AAVE", "NEAR", "ICP", "HBAR", "CRV", "INJ"]
 N, M, K_ATR = 20, 20, 2.0
-MAX_POS, CAP, SLIP = 4, 0.25, 0.001
+MAX_POS, CAP, SLIP = 8, 0.25, 0.001  # investigacao: era 4
 
 
 def _atr(c, n=20):
@@ -86,8 +87,6 @@ def _close(st, ev, a, px, reason, fee, now, cfg):
     ev.append({"t": now, "event": "PAPER_SELL", "id": f"paper-{a}",
                "asset": a, "price": exit_px, "r": rec["r"],
                "reason": reason, "pair": p["pair"],
-               # a venda segue a compra: uma posicao aberta a dinheiro real
-               # recebe o aviso de venda real mesmo que a regra mude depois
                "real": bool(p.get("real", True))})
 
 
@@ -98,8 +97,6 @@ def update(state, rows, daily, cfg, now, market_ok=True, halted=None):
     fee = cfg["fee_pct"] / 100
     ev = []
     sync_real(state)
-    # limite de operacoes partilhado com os sinais de 4H
-    # (operacoes marcadas "nao executei" nao ocupam vaga)
     no_ids, no_trend = ledger.declined(state)
     live = [(k, s) for k, s in state.get("signals", {}).items()
             if s["status"] in ("ACTIVE", "TRIGGERED")
@@ -125,12 +122,12 @@ def update(state, rows, daily, cfg, now, market_ok=True, halted=None):
                 close(a, px, "TRAIL")
         elif new_day and sum(1 for x in st["positions"]
                              if x not in no_trend) + live_4h < max_pos \
-                and a not in live_assets and not halted and \
-                (market_ok or not cfg.get("require_btc_above_sma200")):
+                and a not in live_assets and not halted:
+            # investigacao: market_ok nao e veto absoluto (BTC como contexto)
             sma = sum(x["c"] for x in c[-200:]) / 200
             atr = _atr(c)
             brk = last["c"] > max(x["h"] for x in c[-1 - N:-1])
-            late = px > last["c"] + atr          # nao perseguir o preco
+            late = px > last["c"] + atr
             if brk and last["c"] > sma and not late and atr > 0:
                 entry = px * (1 + SLIP)
                 stop = entry - K_ATR * atr
@@ -147,11 +144,11 @@ def update(state, rows, daily, cfg, now, market_ok=True, halted=None):
                     r_usdc = cap * frac * risk_unit / entry
                     max_risk = cfg.get("max_risk_usdc", float("inf"))
                     if r_usdc > max_risk + 1e-9:
-                        frac *= max_risk / r_usdc    # stop largo: posicao menor
+                        frac *= max_risk / r_usdc
                 pos_usdc = cap * frac if cap else None
                 if cap and pos_usdc < cfg.get("min_order_usdc", 5.0):
                     st["last_day"][a] = last["t"]
-                    continue                 # abaixo da ordem minima
+                    continue
                 st["positions"][a] = {
                     "entry": entry, "stop0": stop, "entry_t": now,
                     "pair": r["venue"]["pair"], "position_pct": round(frac * 100, 1),
