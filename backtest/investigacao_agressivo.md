@@ -2,27 +2,24 @@
 
 Branch isolada. Produção intacta.
 
-## Prioridade operacional
+## Capacidade LONG estrutural (papel)
 
-Estratégia com R positivo medido: **SHORT_SOBRECOMPRA_X70V25** (R +0,044, p99).
-Já registada em papel via `tools/sig_short_sobrecompra.py` + `engine/paper_ring.py`.
+- `engine/paper_ring.py`: longs **não** são mais bloqueados por `market_ok=False`.
+  BTC passa a ser contexto, não veto universal. Permite longs em altcoins com força individual.
 
-Objectivo: maximizar operações desta estratégia em papel (kill se R < 0 com ≥ 20 op.) antes de qualquer real.
+## Limites de papel aumentados
 
-## Alterações feitas (papel)
+- `paper_ring.py`: MAX_POS 6 → 12.
+- `paper_bounce.py`: MAX_POS 4 → 8.
 
-- `engine/paper_ring.py`: MAX_POS 6 → 12.
-- `engine/paper_bounce.py`: MAX_POS 4 → 8.
+## Estratégia short prioritária
 
-## Limites de real (não alterados)
+SHORT_SOBRECOMPRA_X70V25 continua em papel (R +0,044 research). Kill se R < 0 com ≥ 20 op.
 
-- MAX_PER_BAR = 4, MAX_PER_FAMILY = 4, RISCO_AGREGADO_MAX = 5.0.
+## Longs 1H research
 
-## Longs 1H
+Arquivados (R ≤ 0). Não insistidos.
 
-Arquivados (R ≤ 0). Não desenvolvidos mais nesta linha.
+## Limites de real (intactos)
 
-## Próximo operacional
-
-- Monitorizar SHORT_SOBRECOMPRA em papel até ≥ 25 op. e R > 0.
-- Só depois pedir autorização para real com teto.
+MAX_PER_BAR, MAX_PER_FAMILY, RISCO_AGREGADO_MAX — não alterados.
