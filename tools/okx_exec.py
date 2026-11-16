@@ -874,5 +874,6 @@ def cofre(caminho):
     out = {"t": int(time.time()), "equity_usd": float(d0.get("totalEq") or 0), "moedas": moedas, "posicoes": pos,
            "ordens": ordens, "fechadas": fech, "pnl_aberto_usd": round(sum(p["pnl_usd"] for p in pos), 4),
            "pnl_fechado_usd": round(sum(f["pnl_usd"] for f in fech), 4)}
-    json.dump(out, open(caminho, "w"))
+    with open(caminho, "w", encoding="utf-8") as f:
+        json.dump(out, f, ensure_ascii=False)
     return True
