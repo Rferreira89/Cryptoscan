@@ -29,8 +29,8 @@ class OkxQuickOpportunityTests(unittest.TestCase):
 
     def test_selects_only_live_xperp_metadata_and_ranks_by_volume(self):
         tickers = [
-            {"instId": "BTC-USD_UM_XPERP-USD", "volCcy24h": "1000"},
-            {"instId": "ETH-USD_UM_XPERP-USD", "volCcy24h": "5000"},
+            {"instId": "BTC-USD_UM_XPERP-USD", "volCcy24h": "1000", "last": "3000"},
+            {"instId": "ETH-USD_UM_XPERP-USD", "volCcy24h": "5000", "last": "2000"},
             {"instId": "BAD-USDT-SWAP", "volCcy24h": "9000"},
         ]
         rows = Q.select_liquid_xperps(self.instruments(), tickers, limit=1)
