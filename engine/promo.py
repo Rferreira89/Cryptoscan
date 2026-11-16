@@ -1,4 +1,4 @@
-""Promocao pela arena (decisao do Rui, 2026-10-13: "quero continuar com
+"""Promocao pela arena (decisao do Rui, 2026-10-13: "quero continuar com
 operacoes e sinais em tempo real e com dinheiro real ... sempre as melhores
 estrategias").
 
