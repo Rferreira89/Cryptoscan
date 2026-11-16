@@ -44,6 +44,16 @@
   "inicio": 1794441600,
   "autorizado": "Rui, 12/11/2026 00:34; teto 5%: Rui, 12/11/2026 09:06; risco-alvo 2,5%: Rui, 13/11/2026 01:03"
 },
+  "piloto_turtle_long": {
+    "ligado": true,
+    "estrategia": "TURTLE",
+    "risco_max_pct": 0.5,
+    "max_posicoes_por_exchange": 1,
+    "perda_max_r": -3,
+    "exchanges": ["Bybit EU", "OKX"],
+    "inicio": 1794799200,
+    "autorizado": "Rui, 16/11/2026: piloto experimental LONG a 0,5%, 1 pos/exchange, kill -3R"
+  },
   "modo_acelerado": {
     "ligado": true,
     "teto_pct": 2.5,
