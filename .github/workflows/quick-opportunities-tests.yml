@@ -8,7 +8,7 @@ on:
       - "tests/**"
       - ".github/workflows/quick-opportunities-tests.yml"
   push:
-    branches: [main, investigacao-quick-opportunities, investigacao-usdc-xperps]
+    branches: [main, investigacao-quick-opportunities, investigacao-usdc-xperps, integracao-quick-opportunities-telegram]
     paths:
       - "engine/**"
       - "tools/**"
@@ -25,7 +25,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Testes do motor Quick Opportunities
-        run: python -m unittest -v tests.test_quick_opportunities tests.test_quick_opportunities_data tests.test_quick_opportunities_derivatives tests.test_okx_usdc_settlement
+      - name: Testes do motor Quick Opportunities e Telegram
+        run: python -m unittest -v tests.test_quick_opportunities tests.test_quick_opportunities_data tests.test_quick_opportunities_derivatives tests.test_okx_usdc_settlement tests.test_quick_opportunities_telegram
       - name: Suite completa de regressao
         run: python -m unittest discover -q -s tests -t .
