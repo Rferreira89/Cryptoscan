@@ -1,4 +1,4 @@
-"""Read-only derivatives market data for the account's OKX Europe USDC X-Perps.
+"""Read-only derivatives market data for the OKX Europe USD_UM X-Perps.
 
 No private endpoints, credentials, account setting changes or order placement.
 X-Perps use the USD_UM instrument family; settlement currency is selected at
@@ -70,7 +70,7 @@ def okx_usdc_xperps(request=_get):
                 "venue": "okx", "market_type": "usd_margined_xperp",
                 "asset_class": asset_class,
                 "inst_id": inst_id, "inst_family": family, "base": base,
-                "quote": "USD", "settlement_currency_required": "USDC",
+                "quote": "USD", "settlement_currency_target": "USDC",\n                "settlement_currency_options": ["USD", "USDC", "USDG"],
                 "settle_currency_metadata": item.get("settleCcy"),
                 "contract_value": float(item["ctVal"]),
                 "contract_value_currency": item.get("ctValCcy"),
