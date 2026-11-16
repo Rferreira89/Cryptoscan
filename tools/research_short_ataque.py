@@ -49,12 +49,16 @@ def ss_signals_mirrored(c4_mir, x, v):
         ma20 = sum(closes[i - 19:i + 1]) / 20.0
         hi42 = max(c4_mir[j]["h"] for j in range(max(0, i - 41), i + 1))
         te = c4_mir[i]["t"] + TF
+        # rank: research_rlib.simulate ordena por rank (menor primeiro = prioritario)
+        rank = float(rs[i]) if rs[i] is not None else 50.0
         if ma20 > c4_mir[i]["c"] * 1.01:
             two = hi42 > ma20 * 1.005
             out[te] = {"stop": stop, "tp": [ma20, hi42] if two else [ma20],
-                       "partials": [50, 50] if two else [100], "breakeven": True}
+                       "partials": [50, 50] if two else [100], "breakeven": True,
+                       "rank": rank}
         else:
-            out[te] = {"stop": stop, "tp_r": 2.0, "partials": [100], "breakeven": True}
+            out[te] = {"stop": stop, "tp_r": 2.0, "partials": [100], "breakeven": True,
+                       "rank": rank}
     return out
 
 
