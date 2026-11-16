@@ -36,8 +36,12 @@ class QuickOpportunitiesTests(unittest.TestCase):
         self.assertEqual(Q.detect_opportunities(candles(30)), [])
 
     def test_candidates_are_long_or_short_and_have_four_hour_horizon(self):
-        data = candles(80, step=0.05)
+        data = candles(80)
+        data[-1].update({"o": 100.0, "h": 103.2, "l": 99.8,
+                         "c": 103.0, "v": 250.0})
         found = Q.detect_opportunities(data, "TEST")
+        self.assertTrue(found)
+        self.assertIn("volume_breakout", [item["family"] for item in found])
         for item in found:
             self.assertIn(item["side"], ("LONG", "SHORT"))
             self.assertEqual(item["max_hold_bars"], 8)
