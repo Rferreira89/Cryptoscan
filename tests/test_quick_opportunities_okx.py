@@ -3,6 +3,7 @@ from unittest import mock
 
 from engine import quick_opportunities_okx as Q
 from engine import quick_opportunities_telegram as T
+from engine import quick_opportunities_derivatives as D
 
 
 class OkxQuickOpportunityTests(unittest.TestCase):
@@ -26,6 +27,28 @@ class OkxQuickOpportunityTests(unittest.TestCase):
                 "contract_type": "linear",
             },
         }
+
+    def test_public_discovery_accepts_canonical_okx_xperp_id(self):
+        response = {
+            "code": "0",
+            "data": [{
+                "instId": "BTC-USD_UM_XPERP",
+                "instFamily": "BTC-USD_UM",
+                "state": "live",
+                "ctType": "linear",
+                "ctVal": "0.01",
+                "ctValCcy": "BTC",
+                "minSz": "1",
+                "lotSz": "1",
+                "tickSz": "0.1",
+                "expTime": "",
+            }],
+        }
+        instruments = D.okx_usdc_xperps(
+            request=lambda url, params: response)
+        self.assertIn("BTC", instruments)
+        self.assertEqual(instruments["BTC"]["inst_id"], "BTC-USD_UM_XPERP")
+        self.assertEqual(instruments["BTC"]["contract_value_currency"], "BTC")
 
     def test_selects_only_live_xperp_metadata_and_ranks_by_volume(self):
         tickers = [
