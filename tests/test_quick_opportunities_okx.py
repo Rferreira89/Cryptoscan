@@ -9,13 +9,13 @@ class OkxQuickOpportunityTests(unittest.TestCase):
     def instruments(self):
         return {
             "BTC": {
-                "inst_id": "BTC-USD_UM_XPERP-USD",
+                "inst_id": "BTC-USD_UM_XPERP",
                 "inst_family": "BTC-USD_UM",
                 "contract_type": "linear",
                 "contract_value": 0.01,
             },
             "ETH": {
-                "inst_id": "ETH-USD_UM_XPERP-USD",
+                "inst_id": "ETH-USD_UM_XPERP",
                 "inst_family": "ETH-USD_UM",
                 "contract_type": "linear",
                 "contract_value": 0.1,
@@ -29,17 +29,17 @@ class OkxQuickOpportunityTests(unittest.TestCase):
 
     def test_selects_only_live_xperp_metadata_and_ranks_by_volume(self):
         tickers = [
-            {"instId": "BTC-USD_UM_XPERP-USD", "volCcy24h": "1000", "last": "3000"},
-            {"instId": "ETH-USD_UM_XPERP-USD", "volCcy24h": "5000", "last": "2000"},
+            {"instId": "BTC-USD_UM_XPERP", "volCcy24h": "1000", "last": "3000"},
+            {"instId": "ETH-USD_UM_XPERP", "volCcy24h": "5000", "last": "2000"},
             {"instId": "BAD-USDT-SWAP", "volCcy24h": "9000"},
         ]
         rows = Q.select_liquid_xperps(self.instruments(), tickers, limit=1)
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]["base"], "ETH")
-        self.assertEqual(rows[0]["inst_id"], "ETH-USD_UM_XPERP-USD")
+        self.assertEqual(rows[0]["inst_id"], "ETH-USD_UM_XPERP")
 
     def test_ignores_missing_or_zero_volume_contracts(self):
-        tickers = [{"instId": "BTC-USD_UM_XPERP-USD", "volCcy24h": "0"}]
+        tickers = [{"instId": "BTC-USD_UM_XPERP", "volCcy24h": "0"}]
         self.assertEqual(Q.select_liquid_xperps(self.instruments(), tickers), [])
 
     def test_okx_alert_identifies_contract_and_does_not_claim_account_confirmed(self):
@@ -49,11 +49,11 @@ class OkxQuickOpportunityTests(unittest.TestCase):
             "stop": 3050.0, "target": 2900.0, "max_hold_bars": 8,
             "regime": "bearish", "score": 2, "reason": "momentum negativo",
             "venue": "OKX", "market_type": "USD_UM_XPERP",
-            "instrument_id": "ETH-USD_UM_XPERP-USD",
+            "instrument_id": "ETH-USD_UM_XPERP",
         }
         message = T.format_candidate(candidate)
         self.assertIn("OKX USD_UM X-Perp", message)
-        self.assertIn("ETH-USD_UM_XPERP-USD", message)
+        self.assertIn("ETH-USD_UM_XPERP", message)
         self.assertIn("USDC", message)
         self.assertIn("execução desativada", message)
         self.assertNotIn("SHORT não é executável em spot", message)
