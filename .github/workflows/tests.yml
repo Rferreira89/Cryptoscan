@@ -1,7 +1,7 @@
 name: Testes
 on:
   push:
-    branches: [main, investigacao/correcao-promo-syntax-20261116]
+    branches: [main, investigacao/correcao-promo-syntax-20261116, investigacao/corrigir-bybit-429-20261116]
     paths: ["engine/**", "tools/**", "tests/**"]
 jobs:
   tests:

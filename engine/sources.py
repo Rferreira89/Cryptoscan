@@ -7,6 +7,8 @@ import json
 import time
 import urllib.request
 import urllib.parse
+from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 
 TIMEOUT = 15
 UA = {"User-Agent": "cryptoscan-engine/1.0"}
@@ -19,12 +21,34 @@ class SourceError(Exception):
 
 
 RETRIES = 3
-RETRY_WAIT = 3  # segundos; cresce a cada tentativa
+RETRY_WAIT = 5  # segundos; cresce a cada tentativa
+
+
+def _retry_delay(error, attempt):
+    """Respeita Retry-After (segundos ou HTTP-date), sobretudo em HTTP 429."""
+    fallback = RETRY_WAIT * (attempt + 1)
+    headers = getattr(error, "headers", None)
+    value = headers.get("Retry-After") if headers is not None else None
+    if value:
+        try:
+            return min(90.0, max(0.0, float(value)))
+        except (TypeError, ValueError):
+            try:
+                when = parsedate_to_datetime(value)
+                if when.tzinfo is None:
+                    when = when.replace(tzinfo=timezone.utc)
+                return min(90.0, max(0.0, (when - datetime.now(timezone.utc)).total_seconds()))
+            except (TypeError, ValueError, OverflowError):
+                pass
+    return fallback
 
 
 def _get(url, params=None):
-    """GET com repeticao: uma falha passageira (limite de pedidos, rede)
-    nao deve deixar o scan inteiro sem uma fonte."""
+    """GET com backoff compativel com os limites da fonte.
+
+    Um HTTP 429 pode exigir esperar mais do que os 3/6 segundos antigos;
+    ignorar Retry-After esgotava as tentativas antes de a quota recuperar.
+    """
     if params:
         url += "?" + urllib.parse.urlencode(params)
     err = None
@@ -39,7 +63,8 @@ def _get(url, params=None):
             if code in (400, 401, 403, 404, 451):  # nao adianta repetir
                 break
             if i < RETRIES - 1:
-                time.sleep(RETRY_WAIT * (i + 1))
+                delay = _retry_delay(e, i) if code == 429 else RETRY_WAIT * (i + 1)
+                time.sleep(delay)
     raise SourceError(f"{type(err).__name__}: {err}") from err
 
 
