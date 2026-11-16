@@ -17,7 +17,8 @@ Estado: investigação isolada; sem integração no scanner, sem execução de o
 - Horizonte máximo de posição: 8 velas de 30 minutos (4 horas); saídas antecipadas por stop, alvo ou invalidação.
 - Usar apenas velas fechadas. Sinal calculado no fecho de uma vela; execução simulada nunca antes da vela seguinte.
 - Validar timestamps, lacunas, duplicados, OHLCV, atraso e divergência entre fontes.
-- Confirmar suporte real de 30m em cada adaptador antes de o ativar. Não assumir que todas as fontes oferecem o mesmo histórico.
+- Suporte 30m adicionado aos adaptadores públicos Binance, OKX, KuCoin e Bybit; a disponibilidade/qualidade deve ser verificada em runtime e por ativo.
+- Os adaptadores atuais consultam candles SPOT. Um sinal SHORT é apenas hipótese analítica: não significa que exista contrato perpétuo, margem/borrow disponível ou permissão de short na venue. A executabilidade SHORT exige instrumento e custos próprios.
 
 ### 2. Famílias de hipóteses
 Cada família deve ser testada isoladamente e em LONG/SHORT, sem presumir simetria:
@@ -50,6 +51,14 @@ Cada família deve ser testada isoladamente e em LONG/SHORT, sem presumir simetr
 - Comparar com entradas aleatórias condicionadas ao mesmo universo, horário e regime; preservar o critério do projeto de superar o percentil 95 do acaso.
 - Corrigir testes múltiplos quando forem exploradas muitas variantes; publicar intervalos de confiança e número efetivo de operações.
 - Não aprovar uma hipótese apenas por score ou por lucro bruto.
+
+## Implementação inicial já criada na branch isolada
+
+- `engine/sources.py`: mapeamentos 30m nos adaptadores públicos.
+- `engine/quick_opportunities.py`: classificação local de regime, hipóteses transparentes de breakout/breakdown, momentum e reversão, simulação na vela seguinte, stop conservador quando stop e alvo tocam na mesma vela, custos e resumo bootstrap preliminar.
+- `tests/test_quick_opportunities.py`: testes unitários iniciais para mapeamentos, vela ainda aberta, horizonte, custos e estatísticas.
+- O módulo não é importado pelo scanner nem por executores; nenhuma ordem é possível através dele.
+- Ainda não existe backtest de mercado, prova de edge, benchmark aleatório, validação walk-forward ou dados de derivados históricos.
 
 ## Fases de implementação
 1. Auditoria do estado da branch e dos dados históricos de 30m.
