@@ -24,7 +24,7 @@ a ultima vela fechada fecha acima do maximo da anterior com o RSI a subir;
 sem operacao se a media de 20 velas ficar a menos de 1% acima do fecho.
 Entrada ao preco do scan logo a seguir ao fecho da vela (aproxima a
 abertura seguinte). Stops e objetivos sao verificados vela a vela de 4H,
-como na investigacao. Ate 4 posicoes por forma de sair, uma por moeda,
+como na investigacao. Ate 8 posicoes por forma de sair (investigacao: era 4), uma por moeda,
 25% cada; com mais sinais do que vagas, primeiro o RSI mais baixo.
 """
 from . import risk, trade
@@ -32,7 +32,7 @@ from . import risk, trade
 TF = 14400
 DAY = 86400
 X, LOW_BARS, HIGH_BARS, MIN_ATR, MIN_TP1 = 25, 6, 42, 1.25, 0.01
-MAX_POS, FRAC = 4, 0.25
+MAX_POS, FRAC = 8, 0.25  # investigacao: era 4
 FEE_PCT, SLIP_PCT = 0.25, 0.1
 GEOS = {"G0": {"hold": 3 * DAY, "name": "original"},
         "V1": {"hold": 30 * DAY, "name": "saída do sistema ao vivo"},
