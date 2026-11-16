@@ -200,6 +200,51 @@ def run_symbol(symbol, start_ms, end_ms, output_dir, venue="bybit",
     return report
 
 
+
+def run_derivatives_symbol(symbol, start_ms, end_ms, output_dir, venue="okx",
+                           fee_pct=0.05, slippage_pct=0.05, request=_get):
+    """Backtest verified linear perpetual contracts with historical funding."""
+    venue = venue.lower()
+    instruments = DERIV.list_linear_perpetuals(venue, request=request)
+    info = instruments.get(symbol.upper())
+    if not info:
+        raise SourceError(f"{venue}/{symbol}: contrato linear USDT perpétuo indisponível")
+    if venue == "okx":
+        candles = DERIV.fetch_okx_swap_candles(info["inst_id"], start_ms, end_ms, request=request)
+    else:
+        candles = DERIV.fetch_bybit_linear_candles(info["inst_id"], start_ms, end_ms, request=request)
+    funding = DERIV.fetch_funding_history(venue, info["inst_id"], start_ms, end_ms, request=request)
+    clean, validation = prepare_30m_candles(candles, end_ms // 1000)
+    if validation["status"] == "DATA INVALID":
+        raise SourceError(f"{venue}/{symbol}: dados invalidos: {validation['issues']}")
+    trades = backtest_series(clean, asset=symbol, fee_pct=fee_pct,
+                             slippage_pct=slippage_pct, funding_events=funding)
+    report = {
+        "schema_version": 3, "engine": "quick_opportunities",
+        "venue": venue, "market_type": "linear_perpetual", "instrument": info,
+        "symbol": symbol.upper(), "timeframe": "30m",
+        "requested_start_ms": start_ms, "requested_end_ms": end_ms,
+        "candles": len(clean), "funding_events": len(funding),
+        "funding_source": "historical_exchange_realized_rates",
+        "validation": validation,
+        "cost_assumptions_pct": {"fee_per_side": fee_pct,
+                                 "slippage_per_side": slippage_pct,
+                                 "funding_historical": True},
+        "short_execution_validated": False, "trades": trades,
+        "by_family_side_regime": evaluate_by_family(trades),
+    }
+    out = Path(output_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    (out / f"{venue}_{symbol.upper()}_linear_perpetual_30m.json").write_text(
+        json.dumps({"metadata": {k: v for k, v in report.items()
+                                 if k not in ("trades", "by_family_side_regime")},
+                    "candles": clean, "funding_events": funding},
+                   indent=2), encoding="utf-8")
+    (out / f"{venue}_{symbol.upper()}_linear_perpetual_report.json").write_text(
+        json.dumps(report, indent=2), encoding="utf-8")
+    return report
+
+
 def _parse_date_ms(value):
     from datetime import datetime, timezone
     parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
@@ -221,13 +266,19 @@ def main(argv=None):
     parser.add_argument("--slippage-pct", type=float, default=0.05)
     args = parser.parse_args(argv)
     start_ms, end_ms = _parse_date_ms(args.start), _parse_date_ms(args.end)
-    venues = ("bybit", "okx") if args.venue == "both" else (args.venue,)
+    venues = (("bybit", "okx") if args.venue == "both" else\n              ("bybit-futures", "okx-futures") if args.venue == "both-futures" else\n              (args.venue,))
     summaries = []
     for venue in venues:
         for symbol in [x.strip().upper() for x in args.symbols.split(",") if x.strip()]:
-            summaries.append(run_symbol(symbol, start_ms, end_ms, args.out,
-                                         venue=venue, fee_pct=args.fee_pct,
-                                         slippage_pct=args.slippage_pct))
+            if venue.endswith("-futures"):
+                summaries.append(run_derivatives_symbol(
+                    symbol, start_ms, end_ms, args.out,
+                    venue=venue.removesuffix("-futures"),
+                    fee_pct=args.fee_pct, slippage_pct=args.slippage_pct))
+            else:
+                summaries.append(run_symbol(symbol, start_ms, end_ms, args.out,
+                                             venue=venue, fee_pct=args.fee_pct,
+                                             slippage_pct=args.slippage_pct))
     print(json.dumps(summaries, indent=2))
 
 
