@@ -81,6 +81,49 @@ def scan_candles(candles_by_asset, sender=None):
             "candidates": candidates, "telegram_sent": sent}
 
 
+
+def scan_universe(rows, sources, now, sender=None, max_workers=8):
+    """Fetch and validate closed 30m USDC candles for executable scanner assets.
+
+    Only assets already admitted by the main scanner are considered. Each asset
+    is fetched from its own USDC ticker sources; invalid/stale data triggers a
+    source fallback. No USDT symbol translation or order placement occurs.
+    """
+    from concurrent.futures import ThreadPoolExecutor
+
+    def one(row):
+        asset = row["asset"]
+        allowed = set(row.get("sources") or [])
+        errors = []
+        for src in sources:
+            if src.name not in allowed:
+                continue
+            try:
+                raw = src.candles(asset, "30m", limit=100)
+                clean, report = validate_usdc_ohlcv(raw, now)
+                if report.get("status") == "VALID" and len(clean) >= engine.MIN_BARS:
+                    return asset, clean, src.name, report, errors
+                errors.append(f"{src.name}: {report.get('status')} ({report.get('n', 0)} velas)")
+            except Exception as exc:
+                errors.append(f"{src.name}: {type(exc).__name__}")
+        return asset, [], None, {"status": "DATA INVALID", "n": 0}, errors
+
+    ordered = sorted(rows, key=lambda row: row.get("volume_24h", 0), reverse=True)
+    with ThreadPoolExecutor(max_workers=max(1, int(max_workers))) as pool:
+        fetched = list(pool.map(one, ordered))
+    candles_by_asset = {asset: candles for asset, candles, _, _, _ in fetched if candles}
+    source_by_asset = {asset: src for asset, candles, src, _, _ in fetched if candles}
+    scan = scan_candles(candles_by_asset, sender=sender)
+    scan.update({
+        "assets_requested": len(ordered),
+        "assets_with_valid_data": len(candles_by_asset),
+        "source_by_asset": source_by_asset,
+        "data_errors": {asset: errors for asset, candles, _, _, errors in fetched if errors},
+        "telegram_configured": alerts.configured() if sender is None else None,
+    })
+    return scan
+
+
 def validate_usdc_ohlcv(candles, now):
     """Validate 30m OHLCV and discard the forming candle using core validator."""
     clean, report = engine.prepare_30m_candles(candles, now)
