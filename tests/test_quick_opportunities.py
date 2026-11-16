@@ -20,6 +20,15 @@ class QuickOpportunitiesTests(unittest.TestCase):
         self.assertEqual(S.OKX._tf["30m"], "30m")
         self.assertEqual(S.KuCoin._tf["30m"], "30min")
 
+    def test_prepare_30m_drops_forming_candle(self):
+        data = candles(80)
+        now = data[-1]["t"] + Q.BAR_SECONDS + 10
+        forming = dict(data[-1], t=now - (now % Q.BAR_SECONDS))
+        data.append(forming)
+        clean, report = Q.prepare_30m_candles(data, now)
+        self.assertEqual(report["status"], "VALID")
+        self.assertEqual(len(clean), 80)
+
     def test_regime_requires_enough_history(self):
         self.assertEqual(Q.classify_regime(candles(20)), "insufficient_data")
 
