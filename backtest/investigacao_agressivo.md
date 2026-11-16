@@ -1,23 +1,19 @@
 # Investigação agressivo — 2026-11-16
 
-Branch isolada. Produção intacta.
+## Auditoria dos commits
 
-## Capacidade LONG em papel
+- `2a1ed74` (paper_ring): veto market_ok removido para longs. Anti-duplicação intacta (last[t_sig], closed, tg_key). Stops via trade.step. MAX_POS=12 respeitado.
+- `6e603d2` (paper_trend): veto market_ok removido; MAX_POS=8. Continua a exigir breakout + acima SMA200 + não late. Limitado a MAJORS21. Stops e trail intactos.
+- `cce61f5` (paper_bounce): MAX_POS=8. Lógica de sinal inalterada.
 
-- `paper_ring.py`: longs não bloqueados por market_ok (BTC como contexto).
-- `paper_trend.py`: MAX_POS 4→8; market_ok não veto absoluto. Estratégia LONG diária existente agora mais operacional em papel.
-- `paper_bounce.py`: MAX_POS 4→8.
-- `paper_ring.py`: MAX_POS 6→12.
+Sem regressões visíveis no código. Sem duplicação de posições por construção.
 
-## SHORT prioritário
+## Impacto operacional
 
-SHORT_SOBRECOMPRA_X70V25 continua em papel.
+Ainda não mensurável em dados vivos de papel (alterações recentes). Não há comparação quantitativa de sinais/operações/R antes vs depois.
 
-## Repositórios externos (nota)
+## Protecções
 
-- CCXT: já amplamente usado para exchanges; licença MIT. Sem necessidade de nova integração pesada.
-- Freqtrade / Nautilus / VectorBT / Jesse / Hummingbot: licenças permissivas na maioria, mas dependências pesadas. Não integrados para não aumentar complexidade sem ganho operacional imediato.
-
-## Longs 1H research
-
-Arquivados.
+- Kill se R < 0 com ≥ 20 op. (paper_ring).
+- Stops e trail intactos.
+- Não se forçam entradas em queda sistémica (regras de sinal de cada estratégia mantidas).
