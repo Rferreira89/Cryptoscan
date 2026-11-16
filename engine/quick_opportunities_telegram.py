@@ -1,7 +1,8 @@
 """Quick Opportunities -> Telegram bridge.
 
-Consumes already-fetched, closed 30m USDC candles. It deliberately does not
-import an exchange executor, submit orders, change account settings or infer
+Formats and sends research-only candidates built from validated, closed 30m
+candles. The live scanner currently supplies OKX USD_UM X-Perps. This module
+never imports an executor, submits orders, changes account settings or infers
 that a candidate has a statistical edge.
 """
 from __future__ import annotations
@@ -83,7 +84,7 @@ def scan_candles(candles_by_asset, sender=None):
     """Detect candidates from validated, closed 30m candles and notify Telegram.
 
     candles_by_asset: {asset: chronological list[OHLCV dict]}. The caller must
-    fetch only USDC-quoted markets and remove the currently-forming candle.
+    identify the source instrument and remove the currently-forming candle.
     """
     candidates = []
     for asset, candles in sorted(candles_by_asset.items()):
