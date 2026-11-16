@@ -13,7 +13,7 @@ from concurrent.futures import ThreadPoolExecutor
 from . import (analysis, maquina_tempo, config, consultas, debate, derivatives, diretor, europa, liga, events as calendar, ledger, short,
                arena, paper_bounce, paper_ring, paper_shadow, promo, rewards,
                liquidity, paper_trend, regime, review,
-               signals,
+               signals, quick_opportunities_telegram as quick_tg, alerts,
                sources, validate, venue, volume)
 
 MIN_VOLUME_USD = 1_000_000       # 2026-10-13: alinhado com o combate da arena (todas as moedas da Bybit UE)
@@ -393,6 +393,20 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
             r["excluded_for"].append("não listado na Bybit UE")
     eligible = [r for r in uni if r["eligible"]][:DEEP_N]
     eligible += incluir_margem(uni, eligible, state, now)
+
+    # Quick Opportunities: candles 30m USDC validadas, apenas para ativos
+    # admitidos pelo scanner e listados na Bybit EU. Alertas nao executam ordens.
+    if alerts.configured():
+        try:
+            result["quick_opportunities"] = quick_tg.scan_universe(
+                eligible, live, now, max_workers=8)
+        except Exception as e:
+            result["quick_opportunities"] = {
+                "status": "ERROR", "error": f"{type(e).__name__}: {str(e)[:160]}"}
+    else:
+        result["quick_opportunities"] = {
+            "status": "SKIPPED", "reason": "Telegram não configurado"}
+
     with ThreadPoolExecutor(max_workers=6) as ex:
         for row, deep in zip(eligible, ex.map(
                 lambda r: deep_check(r, live, now), eligible)):
