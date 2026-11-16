@@ -1,23 +1,23 @@
-name: Quick Opportunities - testes isolados
+name: Quick Opportunities - testes isolados e suite completa
 on:
   pull_request:
     branches: [main]
     paths:
-      - "engine/quick_opportunities.py"
-      - "engine/quick_opportunities_data.py"
-      - "tests/test_quick_opportunities*.py"
+      - "engine/**"
+      - "tools/**"
+      - "tests/**"
       - ".github/workflows/quick-opportunities-tests.yml"
   push:
-    branches: [investigacao-quick-opportunities]
+    branches: [main, investigacao-quick-opportunities]
     paths:
-      - "engine/quick_opportunities.py"
-      - "engine/quick_opportunities_data.py"
-      - "tests/test_quick_opportunities*.py"
+      - "engine/**"
+      - "tools/**"
+      - "tests/**"
       - ".github/workflows/quick-opportunities-tests.yml"
 permissions:
   contents: read
 jobs:
-  isolated-tests:
+  quick-opportunities:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -25,5 +25,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Testes unitarios do motor Quick Opportunities
-        run: python -m unittest -v tests.test_quick_opportunities tests.test_quick_opportunities_data
+      - name: Testes do motor Quick Opportunities
+        run: python -m unittest -v tests.test_quick_opportunities tests.test_quick_opportunities_data tests.test_quick_opportunities_derivatives
+      - name: Suite completa de regressao
+        run: python -m unittest discover -q -s tests -t .
