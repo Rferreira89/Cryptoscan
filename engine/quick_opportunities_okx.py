@@ -44,8 +44,9 @@ def select_liquid_xperps(instruments, tickers, limit=DEFAULT_MAX_ASSETS):
             contracts = float(ticker.get("vol24h") or 0)
             contract_value = float(info.get("contract_value") or 0)
             value_currency = str(info.get("contract_value_currency") or "").upper()
-            if contracts > 0 and contract_value > 0:
-                volume_usd = contracts * contract_value
+            multiplier = float(info.get("contract_multiplier") or 1)
+            if contracts > 0 and contract_value > 0 and multiplier > 0:
+                volume_usd = contracts * contract_value * multiplier
                 if value_currency != "USD":
                     volume_usd *= last
             else:
@@ -91,6 +92,7 @@ def _fetch_one(info, start_ms, end_ms, now, request):
             "market_type": "USD_UM_XPERP",
             "instrument_id": info["inst_id"],
             "settlement_currency_required": "USDC",
+            "asset_class": info.get("asset_class", "unclassified"),
             "source_timeframe": "30m",
         })
     return info, candidates, report
