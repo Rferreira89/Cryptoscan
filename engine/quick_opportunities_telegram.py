@@ -35,28 +35,28 @@ def format_candidate(candidate: dict) -> str:
     if candidate.get("venue") == "OKX" and candidate.get("market_type") == "USD_UM_XPERP":
         market_line = (
             f"Mercado: OKX USD_UM X-Perp | Contrato: {candidate.get('instrument_id', '-')}"
-            "\\nLiquidação exigida: USDC (configuração da conta ainda não confirmada)"
+            "\nLiquidação exigida: USDC (configuração da conta ainda não confirmada)"
         )
         safety_line = (
-            "\\nSem ordem enviada. Dados dos próprios futuros OKX; edge estatístico "
+            "\nSem ordem enviada. Dados dos próprios futuros OKX; edge estatístico "
             "ainda não aprovado e execução desativada."
         )
     else:
         market_line = "Mercado: spot USDC (referência de preço)"
         safety_line = (
-            "\\nSem ordem enviada. SHORT não é executável em spot. "
+            "\nSem ordem enviada. SHORT não é executável em spot. "
             "Edge estatístico ainda não aprovado."
         )
     return (
-        f"{ALERT_PREFIX}\\n"
-        f"Ativo: {asset} | {side} | Estratégia: {family}\\n"
-        f"{market_line}\\n"
-        f"Regime: {regime} | Fecho do sinal: {close:.10g}\\n"
-        f"Stop indicativo: {stop:.10g} | Alvo indicativo: {target:.10g}\\n"
+        f"{ALERT_PREFIX}\n"
+        f"Ativo: {asset} | {side} | Estratégia: {family}\n"
+        f"{market_line}\n"
+        f"Regime: {regime} | Fecho do sinal: {close:.10g}\n"
+        f"Stop indicativo: {stop:.10g} | Alvo indicativo: {target:.10g}\n"
         f"Horizonte máximo: {int(candidate.get('max_hold_bars', 8)) * 30} min "
         f"| score exploratório: {candidate.get('score', '-')}"
-        f"\\nMotivo: {candidate.get('reason', '-')}"
-        f"\\nID: {_signal_id(candidate)}"
+        f"\nMotivo: {candidate.get('reason', '-')}"
+        f"\nID: {_signal_id(candidate)}"
         f"{safety_line}"
     )
 
