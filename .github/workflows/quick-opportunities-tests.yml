@@ -1,0 +1,31 @@
+name: Quick Opportunities - testes isolados e suite completa
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "engine/**"
+      - "tools/**"
+      - "tests/**"
+      - ".github/workflows/quick-opportunities-tests.yml"
+  push:
+    branches: [main, investigacao-quick-opportunities]
+    paths:
+      - "engine/**"
+      - "tools/**"
+      - "tests/**"
+      - ".github/workflows/quick-opportunities-tests.yml"
+permissions:
+  contents: read
+jobs:
+  quick-opportunities:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Testes do motor Quick Opportunities
+        run: python -m unittest -v tests.test_quick_opportunities tests.test_quick_opportunities_data tests.test_quick_opportunities_derivatives
+      - name: Suite completa de regressao
+        run: python -m unittest discover -q -s tests -t .
