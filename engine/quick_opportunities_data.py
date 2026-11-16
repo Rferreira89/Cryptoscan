@@ -7,7 +7,6 @@ availability or executable short PnL.
 """
 import argparse
 import json
-import time
 from pathlib import Path
 
 from engine.sources import _get, _candle, SourceError, TF_SECONDS
@@ -66,8 +65,11 @@ def run_symbol(symbol, start_ms, end_ms, output_dir,
                request=_get):
     """Fetch, validate, backtest and persist one symbol's isolated results."""
     candles = fetch_binance_history(symbol, start_ms, end_ms, request=request)
-    now = int(time.time())
-    clean, validation = prepare_30m_candles(candles, now)
+    # Validar a frescura relativamente ao fim do intervalo historico pedido,
+    # nao ao relogio atual; caso contrario qualquer dataset antigo seria
+    # rejeitado como atrasado, apesar de estar completo para o periodo.
+    validation_time = end_ms // 1000
+    clean, validation = prepare_30m_candles(candles, validation_time)
     if validation["status"] == "DATA INVALID":
         raise SourceError(f"{symbol}: dados invalidos: {validation['issues']}")
     trades = backtest_series(clean, asset=symbol, fee_pct=fee_pct,
