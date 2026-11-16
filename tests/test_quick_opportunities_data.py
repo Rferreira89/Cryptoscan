@@ -74,7 +74,7 @@ class QuickOpportunitiesDataTests(unittest.TestCase):
         self.assertEqual([r["t"] for r in rows], [1800, 3600])
         self.assertEqual(calls[0]["instId"], "BTC-USDT")
         self.assertEqual(calls[0]["bar"], "30m")
-        self.assertEqual(calls[1]["after"], str(step))
+        self.assertEqual(int(calls[1]["after"]), step)
 
     def test_historical_run_saves_venue_specific_report(self):
         step = 30 * 60 * 1000
