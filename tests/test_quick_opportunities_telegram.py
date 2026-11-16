@@ -52,6 +52,27 @@ class QuickOpportunitiesTelegramTests(unittest.TestCase):
         self.assertEqual(result["telegram_sent"], [])
         self.assertEqual(sent, [])
 
+    def test_scan_universe_fetches_only_valid_usdc_sources(self):
+        class Source:
+            name = "okx"
+            def candles(self, asset, tf, limit=100):
+                self.assert_request(asset, tf, limit)
+                return [{"t": 1800 * i, "o": 100.0, "h": 101.0,
+                         "l": 99.0, "c": 100.0, "v": 10.0}
+                        for i in range(100)]
+            @staticmethod
+            def assert_request(asset, tf, limit):
+                if (asset, tf, limit) != ("ETH", "30m", 100):
+                    raise AssertionError("request fora do contrato USDC 30m")
+
+        result = T.scan_universe(
+            [{"asset": "ETH", "sources": ["okx"], "volume_24h": 1000}],
+            [Source()], now=1800 * 100, sender=lambda msg: 1)
+        self.assertEqual(result["assets_requested"], 1)
+        self.assertEqual(result["assets_with_valid_data"], 1)
+        self.assertEqual(result["source_by_asset"], {"ETH": "okx"})
+        self.assertEqual(result["candidates"], [])
+
 
 if __name__ == "__main__":
     unittest.main()
