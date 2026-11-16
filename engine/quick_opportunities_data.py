@@ -25,8 +25,8 @@ PAGE_LIMITS = {"binance": 1000, "bybit": 1000, "okx": 300}
 def _validate_request(symbol, start_ms, end_ms, interval):
     if interval not in INTERVAL_MS:
         raise ValueError("intervalo nao suportado")
-    if not symbol or not symbol.upper().endswith("USDT"):
-        raise ValueError("symbol deve ser um par USDT, por exemplo ETHUSDT")
+    if not symbol or not symbol.upper().endswith("USDC"):
+        raise ValueError("symbol deve ser um par USDC, por exemplo ETHUSDC")
     step = INTERVAL_MS[interval]
     if start_ms < 0 or end_ms <= start_ms:
         raise ValueError("intervalo temporal invalido")
@@ -116,7 +116,7 @@ def fetch_okx_history(symbol, start_ms, end_ms, interval="30m",
     cursor = end_ms
     while cursor > start_ms:
         response = request(OKX_HISTORY, {
-            "instId": symbol.upper().replace("USDT", "-USDT"),
+            "instId": symbol.upper().replace("USDC", "-USDC"),
             "bar": "30m", "after": cursor, "limit": PAGE_LIMITS["okx"],
         })
         if not isinstance(response, dict) or response.get("code") != "0":
@@ -204,17 +204,16 @@ def run_symbol(symbol, start_ms, end_ms, output_dir, venue="bybit",
 
 def run_derivatives_symbol(symbol, start_ms, end_ms, output_dir, venue="okx",
                            fee_pct=0.05, slippage_pct=0.05, request=_get):
-    """Backtest verified linear perpetual contracts with historical funding."""
+    """Backtest OKX Europe USD_UM X-Perps; account settlement must be USDC."""
     venue = venue.lower()
-    instruments = DERIV.list_linear_perpetuals(venue, request=request)
-    info = instruments.get(symbol.upper())
+    if venue != "okx":
+        raise ValueError("o único mercado de derivados suportado para esta conta é OKX X-Perps USDC")
+    instruments = DERIV.list_account_market(venue, request=request)
+    info = instruments.get(symbol.upper().removesuffix("USDC"))
     if not info:
-        raise SourceError(f"{venue}/{symbol}: contrato linear USDT perpétuo indisponível")
-    if venue == "okx":
-        candles = DERIV.fetch_okx_swap_candles(info["inst_id"], start_ms, end_ms, request=request)
-    else:
-        candles = DERIV.fetch_bybit_linear_candles(info["inst_id"], start_ms, end_ms, request=request)
-    funding = DERIV.fetch_funding_history(venue, info["inst_id"], start_ms, end_ms, request=request)
+        raise SourceError(f"{venue}/{symbol}: X-Perp linear indisponível")
+    candles = DERIV.fetch_okx_xperp_candles(info["inst_id"], start_ms, end_ms, request=request)
+    funding = DERIV.fetch_okx_xperp_funding_history(info["inst_id"], start_ms, end_ms, request=request)
     clean, validation = prepare_30m_candles(candles, end_ms // 1000)
     if validation["status"] == "DATA INVALID":
         raise SourceError(f"{venue}/{symbol}: dados invalidos: {validation['issues']}")
@@ -222,7 +221,7 @@ def run_derivatives_symbol(symbol, start_ms, end_ms, output_dir, venue="okx",
                              slippage_pct=slippage_pct, funding_events=funding)
     report = {
         "schema_version": 3, "engine": "quick_opportunities",
-        "venue": venue, "market_type": "linear_perpetual", "instrument": info,
+        "venue": venue, "market_type": "usd_margined_xperp", "settlement_currency_required": "USDC", "instrument": info,
         "symbol": symbol.upper(), "timeframe": "30m",
         "requested_start_ms": start_ms, "requested_end_ms": end_ms,
         "candles": len(clean), "funding_events": len(funding),
@@ -256,10 +255,10 @@ def _parse_date_ms(value):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Quick Opportunities research backtest")
-    parser.add_argument("--venue", choices=("bybit", "okx", "binance", "both", "okx-futures", "bybit-futures", "both-futures"),
+    parser.add_argument("--venue", choices=("bybit", "okx", "binance", "both", "okx-xperps"),
                         default="both")
     parser.add_argument("--symbols", required=True,
-                        help="pares separados por virgula, ex. BTCUSDT,ETHUSDT")
+                        help="pares USDC separados por virgula, ex. BTCUSDC,ETHUSDC")
     parser.add_argument("--start", required=True, help="ISO-8601 UTC")
     parser.add_argument("--end", required=True, help="ISO-8601 UTC exclusivo")
     parser.add_argument("--out", default="backtest/quick-opportunities-data")
@@ -267,16 +266,15 @@ def main(argv=None):
     parser.add_argument("--slippage-pct", type=float, default=0.05)
     args = parser.parse_args(argv)
     start_ms, end_ms = _parse_date_ms(args.start), _parse_date_ms(args.end)
-    venues = (("bybit", "okx-futures") if args.venue == "both" else
-              ("bybit-futures", "okx-futures") if args.venue == "both-futures" else
+    venues = (("bybit", "okx-xperps") if args.venue == "both" else
               (args.venue,))
     summaries = []
     for venue in venues:
         for symbol in [x.strip().upper() for x in args.symbols.split(",") if x.strip()]:
-            if venue.endswith("-futures"):
+            if venue.endswith("-xperps"):
                 summaries.append(run_derivatives_symbol(
                     symbol, start_ms, end_ms, args.out,
-                    venue=venue.removesuffix("-futures"),
+                    venue="okx",
                     fee_pct=args.fee_pct, slippage_pct=args.slippage_pct))
             else:
                 summaries.append(run_symbol(symbol, start_ms, end_ms, args.out,

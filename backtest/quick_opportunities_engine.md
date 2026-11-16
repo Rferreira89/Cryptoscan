@@ -82,16 +82,16 @@ Cada família deve ser testada isoladamente e em LONG/SHORT, sem presumir simetr
 
 Próximo passo: implementar suporte de dados 30m em módulos isolados e respetivos testes, depois construir o motor de papel e o backtest próprio.
 
-## Pipeline de dados históricos já implementado na branch
+## Pipeline de dados históricos adaptado à conta USDC
 
-- `engine/quick_opportunities_data.py`: descarga paginada de Binance, Bybit Spot e OKX Spot 30m por intervalo UTC; paginação própria por API, deduplicação/ordenação, exclusão de candles OKX ainda não confirmados, validação, backtest e relatórios por venue/símbolo.
+- `engine/quick_opportunities_data.py`: descarga paginada de Bybit EU Spot USDC, OKX Spot USDC e Binance USDC 30m; para derivados usa OKX USD-M X-Perps (`FUTURES`, `*_UM_XPERP-*`) com funding histórico. Bybit derivatives USDT/global foram removidos do caminho desta conta.
 - `tools/quick_opportunities.py`: CLI de investigação, sem credenciais privadas e sem ligação ao executor.
 - `.github/workflows/quick-opportunities-tests.yml`: CI isolado para os testes do motor e do paginador.
 - Exemplo:
   ```bash
-  python -m tools.quick_opportunities --venue both --symbols BTCUSDT,ETHUSDT,SOLUSDT --start 2026-01-01T00:00:00Z --end 2026-11-01T00:00:00Z --out backtest/quick-opportunities-data
+  python -m tools.quick_opportunities --venue both --symbols BTCUSDC,ETHUSDC,SOLUSDC --start 2026-01-01T00:00:00Z --end 2026-11-01T00:00:00Z --out backtest/quick-opportunities-data
   ```
-- O pipeline suporta Bybit Spot e OKX Spot em paralelo (também Binance Spot como referência). SHORT continua a ser apenas estudo do movimento de preço; não valida borrow/perpétuos. Funding é um parâmetro fixo opcional, não histórico.
+- O pipeline `--venue both` usa Bybit EU Spot USDC e OKX X-Perps; `--venue okx-xperps` executa apenas o backtest X-Perps. Os X-Perps têm livro USD unificado e a moeda de liquidação é uma definição da conta. A execução live deve confirmar `GET /api/v5/account/config` com `settleCcy=USDC`; o código falha fechado se a conta estiver em USD/USDG ou se a leitura falhar. Nenhuma configuração da conta é alterada automaticamente.
 - Os relatórios incluem provenance/venue, intervalo pedido, estado da validação, pressupostos de custos, trades e métricas por família/lado/regime.
-- A CI foi criada nesta branch. Ainda falta confirmar execução verde e correr o pipeline sobre dados históricos reais; nenhum resultado de rentabilidade foi produzido ou validado nesta etapa.
+- A CI foi criada nesta branch. Ainda falta confirmar execução verde e correr o pipeline sobre dados históricos reais. O endpoint OKX documenta histórico de funding até três meses; intervalos maiores são recusados. Nenhum resultado de rentabilidade foi produzido ou validado nesta etapa.
 

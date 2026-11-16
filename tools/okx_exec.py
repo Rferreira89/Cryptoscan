@@ -21,6 +21,7 @@ import sys as _sys
 _sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 from engine import suspensao as SUSP  # noqa: E402  (10/11: estrategia suspensa -> cancela so entradas pendentes)
 from engine import protecao as PROT  # noqa: E402  (10/11: stop cobre a posicao toda, do lado certo)
+from engine import quick_opportunities_derivatives as DERIV  # noqa: E402
 
 H4 = 14400
 CFG_PADRAO = {"real": False, "so_mercado": True, "risco_pct": 1.0, "risco_max_pct": 2.0, "alavancagem": 10, "max_posicoes": 40, "travao_queda_pct": 25,
@@ -87,7 +88,9 @@ def xperps():
     out = {}
     for i in A.get("/api/v5/public/instruments?instType=FUTURES"):
         iid = i.get("instId", "")
-        if "XPERP" not in iid or iid not in conta or i.get("state") != "live":
+        if ("_UM_XPERP-" not in iid or iid not in conta or i.get("state") != "live"
+                or i.get("ctType") != "linear"
+                or not str(i.get("instFamily") or "").endswith("_UM")):
             continue
         base = iid.split("-")[0]
         out[base] = {"inst": iid, "ctVal": float(i.get("ctVal") or 0), "minSz": float(i.get("minSz") or 0),
@@ -591,6 +594,11 @@ def correr(st, novos, now, msgs):
     guardar_pico(R, pico)
     if eq < pico * (1 - c["travao_queda_pct"] / 100):
         msgs.append(f"🛑 OKX real: a conta está {c['travao_queda_pct']}% abaixo do máximo; travão ligado, sem ordens novas.")
+        return
+    settlement = privado("GET", "/api/v5/account/config")
+    settle_ok, settle_reason = DERIV.validate_okx_account_config(settlement)
+    if not settle_ok:
+        msgs.append(f"🔒 OKX real: {settle_reason}; nenhuma ordem nova. As posições abertas continuam a ser geridas.")
         return
     xp = xperps()
     tent = R.setdefault("colocados", [])          # so os sinais com ordem posta (uma recusa por tamanho volta a tentar)
