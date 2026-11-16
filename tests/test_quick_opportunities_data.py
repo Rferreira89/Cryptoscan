@@ -1,6 +1,6 @@
 import unittest
 
-from engine.quick_opportunities_data import fetch_binance_history
+from engine import quick_opportunities_data as D
 
 
 def kline(ts, close="101"):
@@ -12,25 +12,31 @@ class QuickOpportunitiesDataTests(unittest.TestCase):
     def test_paginates_and_deduplicates_in_timestamp_order(self):
         step = 30 * 60 * 1000
         calls = []
+        original_limit = D.PAGE_LIMIT
+        D.PAGE_LIMIT = 2
         def fake_request(url, params):
             calls.append(params["startTime"])
             if len(calls) == 1:
                 return [kline(0), kline(step)]
             return [kline(step), kline(2 * step)]
-        rows = fetch_binance_history("BTCUSDT", 0, 3 * step,
-                                     request=fake_request, pause_seconds=0)
+        try:
+            rows = D.fetch_binance_history(
+                "BTCUSDT", 0, 3 * step, request=fake_request,
+                pause_seconds=0)
+        finally:
+            D.PAGE_LIMIT = original_limit
         self.assertEqual([r["t"] for r in rows], [0, 1800, 3600])
-        self.assertEqual(calls, [0])
+        self.assertEqual(calls, [0, 2 * step])
 
     def test_rejects_unaligned_range(self):
         with self.assertRaises(ValueError):
-            fetch_binance_history("BTCUSDT", 1, 1800000,
-                                  request=lambda *_: [])
+            D.fetch_binance_history("BTCUSDT", 1, 1800000,
+                                    request=lambda *_: [])
 
     def test_rejects_non_usdt_symbol(self):
         with self.assertRaises(ValueError):
-            fetch_binance_history("BTCUSDC", 0, 1800000,
-                                  request=lambda *_: [])
+            D.fetch_binance_history("BTCUSDC", 0, 1800000,
+                                    request=lambda *_: [])
 
 
 if __name__ == "__main__":
