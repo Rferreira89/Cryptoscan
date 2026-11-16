@@ -1,25 +1,14 @@
 # Investigação agressivo — 2026-11-16
 
-## Motor central de oportunidades (papel)
+## Piloto experimental TURTLE LONG
 
-- `engine/opportunity_engine.py`: classifica setups por regime, R/R, distância de stop e histórico.
-- `paper_ring.py`: só abre se score >= 25. Regista o score na posição e no Telegram.
-- `regime_select.py`: prioriza lado adequado ao regime.
+- `engine/piloto_turtle_long.py`: guarda do piloto (0,5% risco, 1 pos/exchange, kill −3R).
+- Candidata: TURTLE (rompimento máximo 20 dias).
+- Exchanges autorizadas: Bybit EU e OKX.
+- Não activado em real: falta confirmação de que a ordem mínima cabe em 0,5% do capital de cada conta.
 
-## Ações e metais (papel)
+## Motor e macro
 
-- `engine/macro_oportunidades.py`: gera sinais LONG e SHORT a partir de velas diárias de contratos não-cripto da OKX.
-- Usa o mesmo `opportunity_engine` e `regime_select`.
-- Distingue elegíveis (X-Perp vivo) de apenas informativos.
-- Não envia ordens reais. Produção intacta.
-
-## Capacidade LONG/SHORT
-
-- Cripto: longs sem veto BTC; SHORT_SOBRECOMPRA em papel.
-- Ações/metais: LONG e SHORT em papel via macro_oportunidades.
-
-## Regra de activação real
-
-Quando uma estratégia demonstrar vantagem líquida consistente em papel (≥ 25 op., R > 0, kill não activado), pode ser candidata a real individual com limites já autorizados. Proposta explícita antes de qualquer activação.
+(Ver entradas anteriores.)
 
 Produção intacta.
