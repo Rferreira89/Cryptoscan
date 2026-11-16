@@ -30,7 +30,7 @@ def select_liquid_xperps(instruments, tickers, limit=DEFAULT_MAX_ASSETS):
     for base, info in (instruments or {}).items():
         inst_id = str(info.get("inst_id") or "")
         family = str(info.get("inst_family") or "")
-        if (not inst_id or "_UM_XPERP-" not in inst_id
+        if (not inst_id or not inst_id.endswith("_UM_XPERP")
                 or not family.endswith("_UM")
                 or info.get("contract_type") != "linear"):
             continue
