@@ -1,6 +1,7 @@
 import unittest
 
 from engine import quick_opportunities as Q
+from engine import sources as S
 
 
 def candles(n=80, price=100.0, step=0.0, volume=100.0):
@@ -13,6 +14,12 @@ def candles(n=80, price=100.0, step=0.0, volume=100.0):
 
 
 class QuickOpportunitiesTests(unittest.TestCase):
+    def test_all_public_adapters_expose_30m(self):
+        self.assertEqual(S.TF_SECONDS["30m"], 1800)
+        self.assertEqual(S.Bybit._tf["30m"], "30")
+        self.assertEqual(S.OKX._tf["30m"], "30m")
+        self.assertEqual(S.KuCoin._tf["30m"], "30min")
+
     def test_regime_requires_enough_history(self):
         self.assertEqual(Q.classify_regime(candles(20)), "insufficient_data")
 
@@ -29,7 +36,7 @@ class QuickOpportunitiesTests(unittest.TestCase):
                                  item["risk_per_unit"] * 2.01)
 
     def test_simulation_enters_only_next_bar_and_charges_costs(self):
-        data = candles(5)
+        data = candles(10)
         data[1].update({"o": 100, "h": 100.5, "l": 99.5, "c": 100})
         candidate = {"side": "LONG", "family": "test", "stop": 98,
                      "target": 104}
@@ -49,6 +56,12 @@ class QuickOpportunitiesTests(unittest.TestCase):
                                       slippage_pct=0)
         self.assertEqual(result["exit_reason"], "STOP")
         self.assertEqual(result["exit"], 98)
+
+    def test_incomplete_horizon_is_not_counted_as_closed_trade(self):
+        data = candles(4)
+        result = Q.simulate_candidate(data, 0,
+                                      {"side": "LONG", "stop": 90, "target": 120})
+        self.assertEqual(result["status"], "OPEN_AT_END")
 
     def test_invalid_side_is_rejected(self):
         result = Q.simulate_candidate(candles(3), 0,
