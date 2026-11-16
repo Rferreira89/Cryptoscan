@@ -15,7 +15,7 @@ from .sources import _get, SourceError
 OKX = "https://www.okx.com"
 BAR_MS = 30 * 60 * 1000
 CANDLE_COUNT = 100
-DEFAULT_MAX_ASSETS = 60
+DEFAULT_MAX_ASSETS = 100
 DEFAULT_WORKERS = 6
 
 
