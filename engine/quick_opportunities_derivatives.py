@@ -166,9 +166,15 @@ def fetch_bybit_linear_candles(symbol, start_ms, end_ms, request=_get,
 
 def fetch_okx_funding_history(inst_id, start_ms, end_ms, request=_get,
                               pause_seconds=0.12):
-    """Return realized OKX funding events as (timestamp_seconds, rate)."""
+    """Return realized OKX funding events as (timestamp_seconds, rate).
+
+    OKX documents only three months of funding-rate history. Refuse longer
+    requests rather than silently running a backtest with missing carry costs.
+    """
     if end_ms <= start_ms:
         raise ValueError("intervalo temporal invalido")
+    if end_ms - start_ms > 90 * 24 * 60 * 60 * 1000:
+        raise ValueError("OKX funding history is limited to 3 months; shorten the interval")
     rows, cursor = [], end_ms
     while cursor > start_ms:
         response = request(OKX + "/api/v5/public/funding-rate-history", {
