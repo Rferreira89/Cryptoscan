@@ -13,6 +13,7 @@ from engine.sources import _get, _candle, SourceError
 from engine.quick_opportunities import (
     backtest_series, evaluate_by_family, prepare_30m_candles,
 )
+from engine import quick_opportunities_derivatives as DERIV
 
 INTERVAL_MS = {"30m": 30 * 60 * 1000}
 BINANCE_KLINES = "https://data-api.binance.vision/api/v3/klines"
