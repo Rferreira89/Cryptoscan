@@ -29,7 +29,8 @@ def _sent():
         _SENT = {}
         if DEDUP_FILE and os.path.exists(DEDUP_FILE):
             try:
-                _SENT = json.load(open(DEDUP_FILE))
+                with open(DEDUP_FILE, encoding="utf-8") as f:
+                    _SENT = json.load(f)
             except (OSError, ValueError):
                 _SENT = {}
     return _SENT
