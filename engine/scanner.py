@@ -401,7 +401,7 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
         try:
             seen = state.setdefault("quick_opportunities_seen", {})
             result["quick_opportunities"] = quick_okx.scan_okx_xperps(
-                now, seen_ids=seen, max_assets=60, max_workers=6)
+                now, seen_ids=seen, max_assets=100, max_workers=6)
         except Exception as e:
             result["quick_opportunities"] = {
                 "status": "ERROR", "error": f"{type(e).__name__}: {str(e)[:160]}"}
