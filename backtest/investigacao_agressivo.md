@@ -2,22 +2,27 @@
 
 Branch isolada. Produção intacta.
 
-## Alterações feitas
+## Prioridade operacional
 
-- `engine/paper_ring.py`: MAX_POS 6 → 12 (papel).
-- `engine/paper_bounce.py`: MAX_POS 4 → 8 (papel).
+Estratégia com R positivo medido: **SHORT_SOBRECOMPRA_X70V25** (R +0,044, p99).
+Já registada em papel via `tools/sig_short_sobrecompra.py` + `engine/paper_ring.py`.
 
-## Limites ainda presentes (não alterados — real)
+Objectivo: maximizar operações desta estratégia em papel (kill se R < 0 com ≥ 20 op.) antes de qualquer real.
 
-- `promo.py`: MAX_PER_BAR = 4, MAX_PER_FAMILY = 4, RISCO_AGREGADO_MAX = 5.0, REAL_MIN_R = 0.15.
-- Estes afectam dinheiro real. Não alterados sem autorização.
+## Alterações feitas (papel)
 
-## Estado long 1H
+- `engine/paper_ring.py`: MAX_POS 6 → 12.
+- `engine/paper_bounce.py`: MAX_POS 4 → 8.
 
-Nenhuma com R > 0. Arquivadas.
+## Limites de real (não alterados)
 
-## Próximo na branch
+- MAX_PER_BAR = 4, MAX_PER_FAMILY = 4, RISCO_AGREGADO_MAX = 5.0.
 
-- Continuar auditoria de cooldowns e filtros.
-- Nova lógica long (ex.: 4H puro ou liquidity sweep) se justificada.
-- Só papel após research com R > 0.
+## Longs 1H
+
+Arquivados (R ≤ 0). Não desenvolvidos mais nesta linha.
+
+## Próximo operacional
+
+- Monitorizar SHORT_SOBRECOMPRA em papel até ≥ 25 op. e R > 0.
+- Só depois pedir autorização para real com teto.
