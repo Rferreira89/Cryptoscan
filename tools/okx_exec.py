@@ -142,7 +142,7 @@ def plano(sig, info, eq, c):
 def abrir(base, sig, info, eq, c, now, msgs):
     p = plano(sig, info, eq, c)
     if not p:
-        msgs.append(f"⏭️ OKX real — {base}: a ordem mínima do contrato obrigava a arriscar mais de {c.get('risco_max_pct', 2.0)}% da conta; não entrei.")
+        msgs.append(f"â­ï¸ OKX real â {base}: a ordem mÃ­nima do contrato obrigava a arriscar mais de {c.get('risco_max_pct', 2.0)}% da conta; nÃ£o entrei.")
         return None
     privado("POST", "/api/v5/account/set-leverage", {"instId": info["inst"], "lever": str(p["alav"]), "mgnMode": "isolated"})
     cl = f"cs{base[:8]}{int(sig['t_sig']) % 100000000}".replace("-", "")[:32]
@@ -160,13 +160,13 @@ def abrir(base, sig, info, eq, c, now, msgs):
             d = {"ordId": qd["ordId"], "sCode": "0"}
             r = {"code": "0"}
     if r.get("code") != "0" or d.get("sCode") not in ("0", None):
-        msgs.append(f"⚠️ OKX real — {base}: a OKX recusou a ordem ({d.get('sCode') or r.get('code')}: {(d.get('sMsg') or r.get('msg') or '')[:90]}).")
+        msgs.append(f"â ï¸ OKX real â {base}: a OKX recusou a ordem ({d.get('sCode') or r.get('code')}: {(d.get('sMsg') or r.get('msg') or '')[:90]}).")
         return None
     esp = sig.get("tipo") == "espelho"
-    msgs.append(f"📌 OKX real — {base}: ordem limite de {'venda a descoberto' if short else 'compra'} a {p['px_s']} "
+    msgs.append(f"ð OKX real â {base}: ordem limite de {'venda a descoberto' if short else 'compra'} a {p['px_s']} "
                 f"({p['sz_s']} contratos, ~{p['nominal']} USD, "
                 f"{p['alav']}x isolada). Stop {p['stop_s']} e objetivo {p['alvo_s']} anexados; risco ~{p['risco_usd']} USD "
-                f"({100 * p['risco_usd'] / eq:.1f}% da conta). Válida {'até ao fim da vela de 4H' if esp else '8 h'}.")
+                f"({100 * p['risco_usd'] / eq:.1f}% da conta). VÃ¡lida {'atÃ© ao fim da vela de 4H' if esp else '8 h'}.")
     # repositorio publico: o estado guarda so precos e ids, nunca tamanhos nem valores da conta
     op = {"inst": info["inst"], "ordId": d.get("ordId"), "clOrdId": cl, "estado": "pendente", "t_sig": sig["t_sig"],
           "valido_ate": sig["t_sig"] + (H4 if esp else 3 * H4), "criado": int(now),
@@ -208,7 +208,7 @@ def _ambiguo(base, op, now, msgs, porque):
     op["ambiguo_desde"] = op.get("ambiguo_desde") or int(now)
     if op["ambiguo"] >= AMBIGUO_ALERTA and now - float(op.get("ambiguo_aviso") or 0) >= AMBIGUO_REPETIR:
         op["ambiguo_aviso"] = int(now)
-        msgs.append(f"🚨 OKX real — {base}: {porque}, há {op['ambiguo']} voltas seguidas. A ordem fica como PENDENTE "
+        msgs.append(f"ð¨ OKX real â {base}: {porque}, hÃ¡ {op['ambiguo']} voltas seguidas. A ordem fica como PENDENTE "
                     f"(nada assumido: pode ter executado). Confirma na app da OKX.")
 
 
@@ -236,8 +236,8 @@ def _sem_ordem_na_okx(base, op, now, msgs):
         t = min(int(x.get("ts") or now * 1000) for x in fills) / 1000
         op.update(estado="aberta", entrada=px, t_fill=int(t), parcial=True, sair_em=int(t) + 18 * H4)
         _confirmado(op)
-        msgs.append(f"✅ OKX real — {base}: a ordem já não aparece na OKX mas as execuções mostram compra a {px:.6g}; "
-                    f"fica aberta e gerida (stop, objetivo, saída por tempo).")
+        msgs.append(f"â OKX real â {base}: a ordem jÃ¡ nÃ£o aparece na OKX mas as execuÃ§Ãµes mostram compra a {px:.6g}; "
+                    f"fica aberta e gerida (stop, objetivo, saÃ­da por tempo).")
         return False
     pos = privado("GET", f"/api/v5/account/positions?instId={op['inst']}")
     if pos.get("code") != "0":
@@ -249,7 +249,7 @@ def _sem_ordem_na_okx(base, op, now, msgs):
     motivo = op.pop("motivo_cancelar", None) or "cancelada sem executar"
     op.update(estado="cancelada", motivo=motivo + " (ordem ja nao existe na OKX; 0 execucoes)", fechado=int(now))
     _confirmado(op)
-    msgs.append(f"⌛ OKX real — {base}: a ordem já não existe na OKX e não tem execuções. Nada comprado.")
+    msgs.append(f"â OKX real â {base}: a ordem jÃ¡ nÃ£o existe na OKX e nÃ£o tem execuÃ§Ãµes. Nada comprado.")
     return True
 
 
@@ -267,27 +267,27 @@ def acompanhar_estado(base, op, d, now, msgs):
         sz_exec = d.get("accFillSz") or "?"
         op["sair_em"] = op["t_fill"] + int(op.get("hold_s") or 18 * H4)
         verbo = "venda a descoberto executada" if op.get("lado") == "SHORT" else "compra executada"
-        msgs.append(f"✅ OKX real — {base}: {verbo} a {op['entrada']:.6g} ({sz_exec} contratos). "
-                    f"Stop e objetivo na OKX; saída por tempo dentro de {int(op.get('hold_s') or 18 * H4) // 3600} h.")
+        msgs.append(f"â OKX real â {base}: {verbo} a {op['entrada']:.6g} ({sz_exec} contratos). "
+                    f"Stop e objetivo na OKX; saÃ­da por tempo dentro de {int(op.get('hold_s') or 18 * H4) // 3600} h.")
     elif st in ("canceled", "mmp_canceled") and executado > 0:
         # (10/11) cancelada DEPOIS de executar em parte: a parte executada e uma posicao e continua a ser gerida
         op.update(estado="aberta", entrada=float(d.get("avgPx") or op["lim"]),
                   t_fill=int(int(d.get("fillTime") or now * 1000) / 1000), parcial=True)
         op["sair_em"] = op["t_fill"] + int(op.get("hold_s") or 18 * H4)
-        msgs.append(f"✅ OKX real — {base}: ordem cancelada com execução parcial ({d.get('accFillSz')} contratos a "
+        msgs.append(f"â OKX real â {base}: ordem cancelada com execuÃ§Ã£o parcial ({d.get('accFillSz')} contratos a "
                     f"{op['entrada']:.6g}); essa parte fica aberta e protegida pelo stop.")
     elif st in ("canceled", "mmp_canceled") and d.get("accFillSz") not in (None, ""):
         # (11/11, P2) so com 0 executado CONFIRMADO pela OKX se diz que nada foi comprado
         motivo = op.pop("motivo_cancelar", None) or "cancelada sem executar"
         if motivo.startswith("caducou"):
-            msgs.append(f"⌛ OKX real — {base}: a ordem limite caducou (8 h); a OKX confirma 0 executado. Nada comprado.")
+            msgs.append(f"â OKX real â {base}: a ordem limite caducou (8 h); a OKX confirma 0 executado. Nada comprado.")
         else:
-            msgs.append(f"⌛ OKX real — {base}: a ordem foi cancelada sem executar (0 executado, confirmado na OKX).")
+            msgs.append(f"â OKX real â {base}: a ordem foi cancelada sem executar (0 executado, confirmado na OKX).")
         op.update(estado="cancelada", motivo=motivo, fechado=int(now))
         _confirmado(op)
         return True
     elif st in ("canceled", "mmp_canceled"):
-        _ambiguo(base, op, now, msgs, "a OKX diz cancelada mas não indica quanto executou")
+        _ambiguo(base, op, now, msgs, "a OKX diz cancelada mas nÃ£o indica quanto executou")
         return False
     _confirmado(op)                 # leitura conclusiva (executada, parcial, ou ainda viva dentro da validade)
     return False
@@ -302,7 +302,7 @@ def acompanhar(base, op, now, msgs):
         if str(r.get("code")) == NAO_EXISTE or str(d.get("sCode")) == NAO_EXISTE:
             return _sem_ordem_na_okx(base, op, now, msgs)
         if r.get("code") != "0" or not st:
-            _ambiguo(base, op, now, msgs, "não consegui ler o estado da ordem na OKX")
+            _ambiguo(base, op, now, msgs, "nÃ£o consegui ler o estado da ordem na OKX")
             return False
         if st == "live" and now >= op["valido_ate"]:
             # (11/11, auditoria P2) a caducidade NAO prova que nada executou: entre a consulta e o cancelamento a ordem
@@ -317,7 +317,7 @@ def acompanhar(base, op, now, msgs):
                 return _sem_ordem_na_okx(base, op, now, msgs)
             if r2.get("code") == "0" and d2.get("state") and d2.get("state") != "live":
                 return acompanhar_estado(base, op, d2, now, msgs)
-            _ambiguo(base, op, now, msgs, "o cancelamento por caducidade foi pedido mas a OKX ainda não confirma o estado final")
+            _ambiguo(base, op, now, msgs, "o cancelamento por caducidade foi pedido mas a OKX ainda nÃ£o confirma o estado final")
             return False
         return acompanhar_estado(base, op, d, now, msgs)
     if op["estado"] == "aberta":
@@ -334,7 +334,7 @@ def acompanhar(base, op, now, msgs):
             hd = (h.get("data") or [{}])[0]
             pnl = hd.get("realizedPnl") or hd.get("pnl")
             px = hd.get("closeAvgPx")
-            msgs.append(f"🏁 OKX real — {base} fechou ({motivo})" + (f" a {float(px):.6g}" if px else "") +
+            msgs.append(f"ð OKX real â {base} fechou ({motivo})" + (f" a {float(px):.6g}" if px else "") +
                         (f": resultado {float(pnl):+.3f} USD." if pnl not in (None, "") else "."))
             saida = float(px) if px else None
             op.update(estado="fechada", motivo=motivo, saida=saida, fechado=int(now),
@@ -391,15 +391,15 @@ def estado_pico(R, c, eq):
             R["pico_reiniciado"] = pedido
             return "ok", eq
     if not _chave_ativa():
-        return "fechado", "sem a chave DATA_KEY o máximo da conta não pode ser lido"
+        return "fechado", "sem a chave DATA_KEY o mÃ¡ximo da conta nÃ£o pode ser lido"
     if "pico" in R:
-        return "fechado", "o máximo antigo ainda não foi cifrado"
+        return "fechado", "o mÃ¡ximo antigo ainda nÃ£o foi cifrado"
     if R.get("pico_cifrado"):
         v = ler_pico(R)
-        return ("ok", v) if v else ("fechado", "o máximo cifrado não abre (chave diferente ou ficheiro alterado)")
+        return ("ok", v) if v else ("fechado", "o mÃ¡ximo cifrado nÃ£o abre (chave diferente ou ficheiro alterado)")
     if R.get("hist") or R.get("ops"):
-        return "fechado", "o máximo da conta desapareceu do estado"
-    return "fechado", "máximo da conta por inicializar (precisa de inicialização autorizada: travao_reiniciar_pico)"
+        return "fechado", "o mÃ¡ximo da conta desapareceu do estado"
+    return "fechado", "mÃ¡ximo da conta por inicializar (precisa de inicializaÃ§Ã£o autorizada: travao_reiniciar_pico)"
 
 
 def guardar_pico(R, v):
@@ -421,8 +421,8 @@ def aplicar_suspensao(base, op, c, now, msgs):
     d = (cx.get("data") or [{}])[0]
     if cx.get("code") == "0" and d.get("sCode") in ("0", None):
         op["cancelar_pedido"] = int(now)
-        msgs.append(f"🛑 OKX real — {base}: estratégia suspensa; pedi o cancelamento da ordem de entrada pendente "
-                    f"(posições abertas não são tocadas).")
+        msgs.append(f"ð OKX real â {base}: estratÃ©gia suspensa; pedi o cancelamento da ordem de entrada pendente "
+                    f"(posiÃ§Ãµes abertas nÃ£o sÃ£o tocadas).")
         return True
     if d.get("sCode") in ("51400", "51401", "51402"):      # ja executada, ja cancelada ou caducada: o acompanhar decide
         op["cancelar_pedido"] = int(now)
@@ -430,8 +430,8 @@ def aplicar_suspensao(base, op, c, now, msgs):
     chave = f"s:{base}:{op.get('ordId')}"
     if chave not in R_AVISOS:
         R_AVISOS.add(chave)
-        msgs.append(f"⚠️ OKX real — {base}: estratégia suspensa mas não consegui cancelar a ordem pendente "
-                    f"({d.get('sCode') or cx.get('code')}); tento na próxima volta. Nada assumido.")
+        msgs.append(f"â ï¸ OKX real â {base}: estratÃ©gia suspensa mas nÃ£o consegui cancelar a ordem pendente "
+                    f"({d.get('sCode') or cx.get('code')}); tento na prÃ³xima volta. Nada assumido.")
     return False
 
 
@@ -568,8 +568,8 @@ def correr(st, novos, now, msgs):
             sc = (cx.get("data") or [{}])[0].get("sCode")
             if (cx.get("code") == "0" and sc in ("0", None)) or sc in ("51400", "51401", "51402"):
                 op.update(cancelar_pedido=int(now), motivo_cancelar="H40 isolado")
-                msgs.append(f"🛑 OKX real — {base}: pedi o cancelamento da ordem limite (pânico isolado; pelo H40 só operamos "
-                            f"o pânico do mercado todo). Confirmo na OKX se alguma parte já tinha executado.")
+                msgs.append(f"ð OKX real â {base}: pedi o cancelamento da ordem limite (pÃ¢nico isolado; pelo H40 sÃ³ operamos "
+                            f"o pÃ¢nico do mercado todo). Confirmo na OKX se alguma parte jÃ¡ tinha executado.")
         if aplicar_suspensao(base, R["ops"][base], c, now, msgs):
             pass                                          # pedido feito/registado; o acompanhar abaixo confirma o estado
         if acompanhar(base, R["ops"][base], now, msgs):
@@ -580,16 +580,16 @@ def correr(st, novos, now, msgs):
         return
     eq = equity()
     if not eq:
-        msgs.append("⚠️ OKX real: não consegui ler o saldo da conta; nenhuma ordem nova.")
+        msgs.append("â ï¸ OKX real: nÃ£o consegui ler o saldo da conta; nenhuma ordem nova.")
         return
     est, v = estado_pico(R, c, eq)
     if est != "ok":
-        msgs.append(f"🔒 OKX real: travão em modo seguro ({v}); nenhuma ordem nova. As posições abertas continuam a ser geridas.")
+        msgs.append(f"ð OKX real: travÃ£o em modo seguro ({v}); nenhuma ordem nova. As posiÃ§Ãµes abertas continuam a ser geridas.")
         return
     pico = max(v, eq)
     guardar_pico(R, pico)
     if eq < pico * (1 - c["travao_queda_pct"] / 100):
-        msgs.append(f"🛑 OKX real: a conta está {c['travao_queda_pct']}% abaixo do máximo; travão ligado, sem ordens novas.")
+        msgs.append(f"ð OKX real: a conta estÃ¡ {c['travao_queda_pct']}% abaixo do mÃ¡ximo; travÃ£o ligado, sem ordens novas.")
         return
     xp = xperps()
     tent = R.setdefault("colocados", [])          # so os sinais com ordem posta (uma recusa por tamanho volta a tentar)
@@ -611,7 +611,7 @@ def correr(st, novos, now, msgs):
             chave_p = f"p:{base}:{sig['t_sig']}"
             if chave_p not in R.setdefault("avisados", []):
                 R["avisados"].append(chave_p)
-                msgs.append(f"📝 OKX — {base}: sinal de pânico (H40) só em papel; a H40 está suspensa do dinheiro real.")
+                msgs.append(f"ð OKX â {base}: sinal de pÃ¢nico (H40) sÃ³ em papel; a H40 estÃ¡ suspensa do dinheiro real.")
             continue
         if sig.get("tipo") in ("isolado", None) and h40:
             # (13/11, ordem do Rui) panico ISOLADO reprovado para dinheiro real (22 em papel, -0,60R/op, PF 0,28,
@@ -622,14 +622,14 @@ def correr(st, novos, now, msgs):
             chave_i = f"i:{base}:{sig['t_sig']}"
             if chave_i not in R.setdefault("avisados", []):
                 R["avisados"].append(chave_i)
-                msgs.append(f"⏭️ OKX real — {base}: pânico isolado (o BTC não caiu): fica só em papel (H40).")
+                msgs.append(f"â­ï¸ OKX real â {base}: pÃ¢nico isolado (o BTC nÃ£o caiu): fica sÃ³ em papel (H40).")
             continue
         info = xp.get(base)
         if not info:
             chave_x = f"x:{base}:{sig['t_sig']}"
             if chave_x not in R.setdefault("avisados", []):
                 R["avisados"].append(chave_x)
-                msgs.append(f"⏭️ OKX real — {base}: não há X-Perp negociável na tua conta; fica só em papel.")
+                msgs.append(f"â­ï¸ OKX real â {base}: nÃ£o hÃ¡ X-Perp negociÃ¡vel na tua conta; fica sÃ³ em papel.")
             continue
         avisados = R.setdefault("avisados", [])
         n0 = len(msgs)
@@ -639,8 +639,8 @@ def correr(st, novos, now, msgs):
                 chave_e = f"e:{base}:{sig_t(base, novos)}"
                 if chave_e not in avisados:
                     avisados.append(chave_e)
-                    msgs.append(f"⏭️ OKX real — {base}: o preço na OKX já está fora do plano do campeão "
-                                "(passou o stop ou o objetivo); não entrei.")
+                    msgs.append(f"â­ï¸ OKX real â {base}: o preÃ§o na OKX jÃ¡ estÃ¡ fora do plano do campeÃ£o "
+                                "(passou o stop ou o objetivo); nÃ£o entrei.")
                 continue
             short_e = sig.get("lado") == "SHORT"
             n_esp = sum(1 for o in R["ops"].values() if o.get("estrategia") == "espelho")
@@ -648,8 +648,8 @@ def correr(st, novos, now, msgs):
                 chave_m = f"me:{base}:{sig['t_sig']}"
                 if chave_m not in avisados:
                     avisados.append(chave_m)
-                    msgs.append(f"⏭️ OKX real — {base}: já há {n_esp} posições dos campeões da arena na OKX "
-                                f"(máximo {c.get('espelho_max_posicoes', 2)}); não entrei.")
+                    msgs.append(f"â­ï¸ OKX real â {base}: jÃ¡ hÃ¡ {n_esp} posiÃ§Ãµes dos campeÃµes da arena na OKX "
+                                f"(mÃ¡ximo {c.get('espelho_max_posicoes', 2)}); nÃ£o entrei.")
                 continue
         # (04/11, OK do Rui) H46 recuo na subida com dinheiro real antes das 30 em papel, mas com metade do risco (1%)
         cc = {**c, "risco_pct": float(c.get("recuo_risco_pct") or 1.0),
@@ -667,7 +667,7 @@ def correr(st, novos, now, msgs):
                 chave_m = f"m:{base}:{sig['t_sig']}"
                 if chave_m not in avisados:
                     avisados.append(chave_m)
-                    msgs.append(f"⏭️ OKX real — {base}: já há {n_h40} posições da H40 (máximo {c.get('panico_max_posicoes', 3)}); fica só em papel.")
+                    msgs.append(f"â­ï¸ OKX real â {base}: jÃ¡ hÃ¡ {n_h40} posiÃ§Ãµes da H40 (mÃ¡ximo {c.get('panico_max_posicoes', 3)}); fica sÃ³ em papel.")
                 continue
         # (08/11) teto de risco aberto somando todas as estrategias (percentagens, nunca valores, no estado publico)
         p = plano(sig, info, eq, cc)
@@ -677,9 +677,9 @@ def correr(st, novos, now, msgs):
             chave_r = f"r:{base}:{sig['t_sig']}"
             if chave_r not in avisados:
                 avisados.append(chave_r)
-                msgs.append(f"⏭️ OKX real — {base}: o risco aberto passaria {c.get('risco_total_max_pct', 3.0)}% da conta; fica só em papel.")
+                msgs.append(f"â­ï¸ OKX real â {base}: o risco aberto passaria {c.get('risco_total_max_pct', 3.0)}% da conta; fica sÃ³ em papel.")
             continue
-                # (16/11) piloto TURTLE LONG na OKX: so abre se a guarda autorizar (0,5%, 1 pos, kill -3R)
+        # (16/11) piloto TURTLE LONG na OKX: so abre se a guarda autorizar (0,5%, 1 pos, kill -3R)
         if (sig.get("estrategia") == "TURTLE" or sig.get("strategy") == "TURTLE") and sig.get("lado") != "SHORT":
             try:
                 import sys
@@ -694,10 +694,10 @@ def correr(st, novos, now, msgs):
                     chave_t = f"t:{base}:{sig.get('t_sig')}"
                     if chave_t not in avisados:
                         avisados.append(chave_t)
-                        msgs.append(f"⏭️ OKX real — {base}: piloto TURTLE LONG recusou ({motivo}).")
+                        msgs.append(f"â­ï¸ OKX real â {base}: piloto TURTLE LONG recusou ({motivo}).")
                     continue
             except Exception as e:
-                msgs.append(f"⏭️ OKX real — {base}: piloto TURTLE LONG erro na guarda ({type(e).__name__}).")
+                msgs.append(f"â­ï¸ OKX real â {base}: piloto TURTLE LONG erro na guarda ({type(e).__name__}).")
                 continue
         op = abrir(base, sig, info, eq, cc, now, msgs)
         if op and p:
@@ -709,10 +709,10 @@ def correr(st, novos, now, msgs):
             op["estrategia"] = "panico"
         if op and esp:
             op["estrategia"] = "espelho"
-            msgs[-1] = msgs[-1].replace("OKX real — ", f"OKX real (campeão da arena {sig.get('estrategia')}) — ", 1)
+            msgs[-1] = msgs[-1].replace("OKX real â ", f"OKX real (campeÃ£o da arena {sig.get('estrategia')}) â ", 1)
         if op and recuo:
             op["estrategia"] = "recuo"
-            msgs[-1] = msgs[-1].replace("OKX real — ", "OKX real (recuo na subida, H46) — ", 1)
+            msgs[-1] = msgs[-1].replace("OKX real â ", "OKX real (recuo na subida, H46) â ", 1)
         if op:
             R["ops"][base] = op
             tent.append(chave)
@@ -768,7 +768,7 @@ def confirmar_stops(R, now, msgs):
                 op.pop("stop_insuficiente", None)
             elif now - float(op.get("stop_insuficiente") or 0) >= 6 * 3600:
                 op["stop_insuficiente"] = int(now)
-                msgs.append(f"🚨 OKX real — {base}: o stop na OKX NÃO protege a posição toda ({'; '.join(porque)}). "
+                msgs.append(f"ð¨ OKX real â {base}: o stop na OKX NÃO protege a posiÃ§Ã£o toda ({'; '.join(porque)}). "
                             f"Nada foi alterado; confirma na app da OKX.")
             continue
         pos = privado("GET", f"/api/v5/account/positions?instId={op['inst']}")
@@ -783,7 +783,7 @@ def confirmar_stops(R, now, msgs):
             # ja repus uma vez e a OKX continua a nao mostrar o stop: nunca empilha ordens; so avisa (6 em 6 h)
             if now - float(op.get("stop_aviso") or 0) >= 6 * 3600:
                 op["stop_aviso"] = int(now)
-                msgs.append(f"🚨 OKX real — {base}: a OKX não mostra stop ativo nesta posição (já o repus uma vez). Confirma já na app da OKX.")
+                msgs.append(f"ð¨ OKX real â {base}: a OKX nÃ£o mostra stop ativo nesta posiÃ§Ã£o (jÃ¡ o repus uma vez). Confirma jÃ¡ na app da OKX.")
             continue
         if op.get("stop"):
             corpo = {"instId": op["inst"], "tdMode": "isolated", "side": "buy" if op.get("lado") == "SHORT" else "sell",
@@ -796,10 +796,10 @@ def confirmar_stops(R, now, msgs):
         if ok:
             op["stop_ok"] = int(now)
             op["stop_reposto"] = int(now)
-            msgs.append(f"🛡️ OKX real — {base}: o stop não estava ativo na OKX; repus o stop {op['stop']:.6g}"
+            msgs.append(f"ð¡ï¸ OKX real â {base}: o stop nÃ£o estava ativo na OKX; repus o stop {op['stop']:.6g}"
                         + (f" e o objetivo {op['alvo']:.6g}." if op.get("alvo") else "."))
         else:
-            msgs.append(f"🚨 OKX real — {base}: posição aberta SEM stop ativo na OKX e não o consegui repor. Põe o stop já na app da OKX.")
+            msgs.append(f"ð¨ OKX real â {base}: posiÃ§Ã£o aberta SEM stop ativo na OKX e nÃ£o o consegui repor. PÃµe o stop jÃ¡ na app da OKX.")
 
 
 def reconciliar(R, now, msgs):
@@ -841,8 +841,8 @@ def reconciliar(R, now, msgs):
             tem_stop = r.get("code") == "0"
         if tem_stop:
             op["stop_ok"] = int(now)
-        msgs.append(f"🔁 OKX real — {base}: posição aberta a {op['entrada']:.6g} encontrada e adotada (sai no stop, no objetivo ou ao fim de 72 h). "
-                    + ("Stop confirmado ✅" if tem_stop else "⚠️ NÃO consegui confirmar o stop: verifica na app da OKX."))
+        msgs.append(f"ð OKX real â {base}: posiÃ§Ã£o aberta a {op['entrada']:.6g} encontrada e adotada (sai no stop, no objetivo ou ao fim de 72 h). "
+                    + ("Stop confirmado â" if tem_stop else "â ï¸ NÃO consegui confirmar o stop: verifica na app da OKX."))
 
 
 def cofre(caminho):
