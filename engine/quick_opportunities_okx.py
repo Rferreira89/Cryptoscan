@@ -91,7 +91,7 @@ def _fetch_one(info, start_ms, end_ms, now, request):
             "venue": "OKX",
             "market_type": "USD_UM_XPERP",
             "instrument_id": info["inst_id"],
-            "settlement_currency_required": "USDC",
+            "settlement_currency_target": "USDC",\n            "settlement_currency_options": ["USD", "USDC", "USDG"],
             "asset_class": info.get("asset_class", "unclassified"),
             "source_timeframe": "30m",
         })
