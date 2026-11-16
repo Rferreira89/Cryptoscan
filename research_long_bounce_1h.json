@@ -1,0 +1,57 @@
+{
+ "moedas": 54,
+ "ultima_vela_btc_1h": 1794470400,
+ "janela": {
+  "d0": 20041,
+  "ds": 20587,
+  "d1": 20771
+ },
+ "pre_registo": "backtest/pre_registo_long_bounce_1h.md",
+ "nota": "LONG_BOUNCE_1H \u2014 bounce em contexto 4H de alta",
+ "LONG_BOUNCE_1H": {
+  "{\"H\": 6, \"k\": 1.5}": {
+   "operacoes_fora_amostra": 36,
+   "operacoes_desenho": 22,
+   "operacoes_reserva": 14,
+   "r_medio_fora_amostra": -0.081,
+   "r_medio_reserva": 0.004,
+   "percentil_acaso": 89.5,
+   "desenho_return_pct": -3.3,
+   "reserva_return_pct": -0.4,
+   "veredicto": "RECRUTAR"
+  },
+  "{\"H\": 12, \"k\": 1.5}": {
+   "operacoes_fora_amostra": 35,
+   "operacoes_desenho": 21,
+   "operacoes_reserva": 14,
+   "r_medio_fora_amostra": -0.148,
+   "r_medio_reserva": -0.114,
+   "percentil_acaso": 75.2,
+   "desenho_return_pct": -3.6,
+   "reserva_return_pct": -1.3,
+   "veredicto": "AMOSTRA INSUFICIENTE"
+  },
+  "{\"H\": 6, \"k\": 2.0}": {
+   "operacoes_fora_amostra": 36,
+   "operacoes_desenho": 22,
+   "operacoes_reserva": 14,
+   "r_medio_fora_amostra": -0.034,
+   "r_medio_reserva": 0.042,
+   "percentil_acaso": 96.0,
+   "desenho_return_pct": -2.6,
+   "reserva_return_pct": -0.1,
+   "veredicto": "RECRUTAR"
+  },
+  "{\"H\": 12, \"k\": 2.0}": {
+   "operacoes_fora_amostra": 35,
+   "operacoes_desenho": 21,
+   "operacoes_reserva": 14,
+   "r_medio_fora_amostra": -0.118,
+   "r_medio_reserva": -0.059,
+   "percentil_acaso": 81.0,
+   "desenho_return_pct": -3.6,
+   "reserva_return_pct": -0.8,
+   "veredicto": "RECRUTAR"
+  }
+ }
+}
