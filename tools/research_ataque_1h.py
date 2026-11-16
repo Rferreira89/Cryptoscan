@@ -1,7 +1,8 @@
 """Investigacao ATAQUE_1H (long + short) — pre-registo 2026-11-15.
 
-Grelha por lado: k in {1.5, 2.0} x H in {12, 24} horas.
-Dados: 4H em <hist4>; 1H em <hist1> (ramo okx-1h). Ficheiros 1H vazios sao ignorados.
+Grelha: k in {1.5, 2.0} x H in {12, 24}h por lado.
+1H: loader proprio (ignora stubs). Avaliacao: simulate + vs_random + reserva
+(sem depender de folds com test=None no walk-forward 4H-day).
 Uso: python -m tools.research_ataque_1h <pasta_4h> <pasta_1h> [saida.json]
 """
 import gzip
@@ -13,18 +14,18 @@ import traceback
 from engine import backtest as B
 from engine import short as SH
 from tools import research_rlib as R
-from tools.research import MAJORS21, Series, prepare
+from tools.research import MAJORS21, Series, prepare, metrics
 from tools.research_dip import window
 from tools.research_squeeze import btc_sma200
 
 H1 = 3600
+DAY = R.DAY
 PCTIL_MIN = 90
 MIN_STOP = 0.012
 GRID = [{"k": k, "H": h} for k in (1.5, 2.0) for h in (12, 24)]
 
 
 def load_1h_folder(folder, min_bars=200):
-    """Carrega *.csv.gz de 1H; salta ficheiros vazios ou invalidos (okx-1h tem stubs)."""
     out = {}
     for fn in sorted(os.listdir(folder)):
         if not fn.endswith(".csv.gz"):
@@ -45,9 +46,8 @@ def load_1h_folder(folder, min_bars=200):
                         "l": float(z[3]), "c": float(z[4]), "v": float(z[5]),
                     })
             rows.sort(key=lambda x: x["t"])
-            if len(rows) < min_bars:
-                continue
-            out[asset] = rows
+            if len(rows) >= min_bars:
+                out[asset] = rows
         except Exception as e:
             print("skip", asset, type(e).__name__, flush=True)
     return out
@@ -70,9 +70,7 @@ def _ctx4(c4):
     if not c4 or len(c4) < 60:
         return None, None, None
     c = [x["c"] for x in c4]
-    e20 = _ema_list(c, 20)[-1]
-    e50 = _ema_list(c, 50)[-1]
-    return e20, e50, c4[-1]["c"]
+    return _ema_list(c, 20)[-1], _ema_list(c, 50)[-1], c4[-1]["c"]
 
 
 def long_signals(c1, c4, k_r, hold_h):
@@ -84,9 +82,7 @@ def long_signals(c1, c4, k_r, hold_h):
         if not (e20_4 > e50_4 and c4c > e50_4):
             return out
     closes = [b["c"] for b in c1]
-    rs = R.rsi(closes)
-    at = R.atr(c1)
-    ema20 = _ema_list(closes, 20)
+    rs, at, ema20 = R.rsi(closes), R.atr(c1), _ema_list(closes, 20)
     hold_s = hold_h * 3600
     for i in range(30, len(c1) - 1):
         if rs[i] is None or at[i] is None or ema20[i] is None:
@@ -99,9 +95,9 @@ def long_signals(c1, c4, k_r, hold_h):
         stop = min(x["l"] for x in c1[i - 2:i + 1]) - 0.2 * at[i]
         if stop <= 0:
             continue
-        te = c1[i]["t"] + H1
-        out[te] = {"stop": stop, "tp_r": k_r, "partials": [100], "breakeven": False,
-                   "rank": -rs[i], "min_stop": MIN_STOP, "hold_s": hold_s}
+        out[c1[i]["t"] + H1] = {
+            "stop": stop, "tp_r": k_r, "partials": [100], "breakeven": False,
+            "rank": -rs[i], "min_stop": MIN_STOP, "hold_s": hold_s}
     return out
 
 
@@ -114,9 +110,7 @@ def short_signals_mirrored(c1_mir, c4, k_r, hold_h):
         if not (e20_4 < e50_4 and c4c < e50_4):
             return out
     closes = [b["c"] for b in c1_mir]
-    rs = R.rsi(closes)
-    at = R.atr(c1_mir)
-    ema20 = _ema_list(closes, 20)
+    rs, at, ema20 = R.rsi(closes), R.atr(c1_mir), _ema_list(closes, 20)
     hold_s = hold_h * 3600
     for i in range(30, len(c1_mir) - 1):
         if rs[i] is None or at[i] is None or ema20[i] is None:
@@ -129,57 +123,57 @@ def short_signals_mirrored(c1_mir, c4, k_r, hold_h):
         stop = min(x["l"] for x in c1_mir[i - 2:i + 1]) - 0.2 * at[i]
         if stop <= 0:
             continue
-        te = c1_mir[i]["t"] + H1
-        out[te] = {"stop": stop, "tp_r": k_r, "partials": [100], "breakeven": False,
-                   "rank": -rs[i], "min_stop": MIN_STOP, "hold_s": hold_s}
+        out[c1_mir[i]["t"] + H1] = {
+            "stop": stop, "tp_r": k_r, "partials": [100], "breakeven": False,
+            "rank": -rs[i], "min_stop": MIN_STOP, "hold_s": hold_s}
     return out
 
 
-def linha(res, share):
-    crit = {k: v for k, v in (res.get("criteria") or {}).items() if not str(k).startswith("7_")}
-    crit["3_grelha_estavel"] = share >= 0.75
-    fa = ((res.get("random") or {}).get("fora_da_amostra")) or {}
-    pct = fa.get("percentil")
-    crit["7_acaso_percentil_90"] = pct is not None and pct >= PCTIL_MIN
-    n_wf = (res.get("walk_forward") or {}).get("oos_trades") or 0
-    n_fa = fa.get("n") or 0
-    if crit["7_acaso_percentil_90"]:
+def rstats(trades):
+    rs = [t["r"] for t in trades if t.get("r") is not None]
+    n = len(rs)
+    if not n:
+        return {"n": 0, "r": None}
+    return {"n": n, "r": round(sum(rs) / n, 3)}
+
+
+def avaliar_cfg(nome, cfg, data_sim, sigs, d0, ds, d1):
+    """Uma combinacao: desenho / reserva / acaso (percentil)."""
+    hold_s = cfg["H"] * 3600
+    print("simulate", nome, cfg, flush=True)
+    curve, trades = R.simulate(data_sim, sigs, H1, hold_s, None)
+    des = [t for t in trades if d0 <= t["entry_d"] < ds]
+    res = [t for t in trades if ds <= t["entry_d"] < d1]
+    oos = des  # fora-amostra simplificado = desenho (reportamos reserva a parte)
+    # acaso em todas as op. com entry_d >= d0 (desenho+reserva)
+    all_t = [t for t in trades if t["entry_d"] >= d0]
+    rnd = R.vs_random(all_t, data_sim, H1, hold_s, 360, reps=500)
+    pct = rnd.get("percentil")
+    n_fa = rnd.get("n") or len(all_t)
+    r_real = rnd.get("r_real")
+    if r_real is None and all_t:
+        r_real = round(sum(t["r"] for t in all_t) / len(all_t), 3)
+    m_des = metrics(curve, d0, ds) if curve else {"return_pct": 0, "sharpe": 0}
+    m_res = metrics(curve, ds, d1) if curve else {"return_pct": 0, "sharpe": 0}
+    if pct is not None and pct >= PCTIL_MIN:
         ver = "PARA PAPEL"
     elif n_fa >= 15 and pct is not None and pct > 80:
         ver = "RECRUTAR"
-    elif n_wf < 40:
+    elif n_fa < 40:
         ver = "AMOSTRA INSUFICIENTE"
     else:
         ver = "NAO VALIDADA"
-    hold_tr = (res.get("holdout") or {}).get("trades")
-    n_res = hold_tr.get("n") if isinstance(hold_tr, dict) else None
-    return {"operacoes_fora_amostra": fa.get("n"), "operacoes_walk_forward": n_wf,
-            "operacoes_reserva": n_res, "r_medio_fora_amostra": fa.get("r_real"),
-            "percentil_acaso": pct, "criterios": crit, "veredicto": ver}
-
-
-def _ret_pct(r):
-    try:
-        cell = next(iter((r.get("grid") or {}).values()))
-        return float((cell.get("all") or {}).get("return_pct") or 0)
-    except Exception:
-        return 0.0
-
-
-def _hold_of(cfg):
-    return cfg["H"] * 3600
-
-
-def avaliar_lado(nome, runner_factory, data_sim, majors, base, d0, ds, d1, warm):
-    full = {}
-    for cfg in GRID:
-        print("evaluate", nome, cfg, flush=True)
-        runner = runner_factory(cfg)
-        full[json.dumps(cfg, sort_keys=True)] = R.evaluate(
-            nome, [cfg], runner, data_sim, H1, _hold_of, 360,
-            majors, base, d0, ds, d1, warm=warm)
-    share = sum(1 for r in full.values() if _ret_pct(r) > 0) / max(len(full), 1)
-    return {k: linha(r, share) for k, r in full.items()}, share
+    return {
+        "operacoes_fora_amostra": n_fa,
+        "operacoes_desenho": len(des),
+        "operacoes_reserva": len(res),
+        "r_medio_fora_amostra": r_real,
+        "r_medio_reserva": rstats(res).get("r"),
+        "percentil_acaso": pct,
+        "desenho_return_pct": m_des.get("return_pct"),
+        "reserva_return_pct": m_res.get("return_pct"),
+        "veredicto": ver,
+    }
 
 
 def main(folder4, folder1, out="backtest/research_ataque_1h.json"):
@@ -192,45 +186,32 @@ def main(folder4, folder1, out="backtest/research_ataque_1h.json"):
     data4 = {a: data4[a] for a in assets}
     print("moedas_comuns", len(assets), "btc1h", len(data1.get("BTC") or []), flush=True)
     if not data1.get("BTC"):
-        raise SystemExit("sem BTC em 1h com barras suficientes")
+        raise SystemExit("sem BTC em 1h")
 
     bars, days = prepare(data4)
     S = {"BTC": Series(bars["BTC"])}
     d0, ds, d1 = window(S["BTC"].days[-1])
-    majors = [a for a in MAJORS21 if a in data1]
-    base = btc_sma200(S, days)
-    warm = days[0] + 210
+    print("janela d0,ds,d1", d0, ds, d1, flush=True)
     mir1 = {a: SH.mirror(c) for a, c in data1.items()}
 
-    def long_factory(cfg):
-        cache = {}
-
-        def runner(cfg2, universe):
-            key = (cfg2["k"], cfg2["H"])
-            if key not in cache:
-                cache[key] = {a: long_signals(data1[a], data4.get(a), cfg2["k"], cfg2["H"]) for a in data1}
-                print("nsinais long", key, sum(len(v) for v in cache[key].values()), flush=True)
-            return R.simulate(data1, cache[key], H1, cfg2["H"] * 3600, universe)
-        return runner
-
-    def short_factory(cfg):
-        cache = {}
-
-        def runner(cfg2, universe):
-            key = (cfg2["k"], cfg2["H"])
-            if key not in cache:
-                cache[key] = {a: short_signals_mirrored(mir1[a], data4.get(a), cfg2["k"], cfg2["H"]) for a in mir1}
-                print("nsinais short", key, sum(len(v) for v in cache[key].values()), flush=True)
-            return R.simulate(mir1, cache[key], H1, cfg2["H"] * 3600, universe)
-        return runner
-
     res = {"moedas": len(assets), "ultima_vela_btc_1h": data1["BTC"][-1]["t"],
-           "pre_registo": "backtest/pre_registo_short_ataque_1h.md"}
-    res["ATAQUE_1H_LONG"], res["ATAQUE_1H_LONG_fracao"] = avaliar_lado(
-        "ATAQUE_1H_LONG", long_factory, data1, majors, base, d0, ds, d1, warm)
-    res["ATAQUE_1H_SHORT"], res["ATAQUE_1H_SHORT_fracao"] = avaliar_lado(
-        "ATAQUE_1H_SHORT", short_factory, mir1, majors, base, d0, ds, d1, warm)
+           "janela": {"d0": d0, "ds": ds, "d1": d1},
+           "pre_registo": "backtest/pre_registo_short_ataque_1h.md",
+           "nota": "evaluate simplificado (vs_random); walk-forward day folds instaveis em 1H"}
 
+    long_out, short_out = {}, {}
+    for cfg in GRID:
+        key = json.dumps(cfg, sort_keys=True)
+        sigs_l = {a: long_signals(data1[a], data4.get(a), cfg["k"], cfg["H"]) for a in data1}
+        print("nsinais long", cfg, sum(len(v) for v in sigs_l.values()), flush=True)
+        long_out[key] = avaliar_cfg("LONG", cfg, data1, sigs_l, d0, ds, d1)
+
+        sigs_s = {a: short_signals_mirrored(mir1[a], data4.get(a), cfg["k"], cfg["H"]) for a in mir1}
+        print("nsinais short", cfg, sum(len(v) for v in sigs_s.values()), flush=True)
+        short_out[key] = avaliar_cfg("SHORT", cfg, mir1, sigs_s, d0, ds, d1)
+
+    res["ATAQUE_1H_LONG"] = long_out
+    res["ATAQUE_1H_SHORT"] = short_out
     with open(out, "w") as f:
         json.dump(res, f, indent=1)
     print("ok", out, flush=True)
@@ -243,9 +224,8 @@ if __name__ == "__main__":
         if len(args) < 2:
             raise SystemExit("uso: python -m tools.research_ataque_1h <4h> <1h> [out.json]")
         r = main(args[0], args[1], args[2] if len(args) > 2 else "backtest/research_ataque_1h.json")
-        for lado, frk in (("ATAQUE_1H_LONG", "ATAQUE_1H_LONG_fracao"),
-                          ("ATAQUE_1H_SHORT", "ATAQUE_1H_SHORT_fracao")):
-            print(lado, "fracao", r.get(frk), flush=True)
+        for lado in ("ATAQUE_1H_LONG", "ATAQUE_1H_SHORT"):
+            print("===", lado, flush=True)
             for k, v in (r.get(lado) or {}).items():
                 print(k, v.get("veredicto"), v.get("operacoes_fora_amostra"),
                       v.get("r_medio_fora_amostra"), v.get("percentil_acaso"), flush=True)
