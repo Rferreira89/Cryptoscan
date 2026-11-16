@@ -1,0 +1,29 @@
+name: Quick Opportunities - testes isolados
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "engine/quick_opportunities.py"
+      - "engine/quick_opportunities_data.py"
+      - "tests/test_quick_opportunities*.py"
+      - ".github/workflows/quick-opportunities-tests.yml"
+  push:
+    branches: [investigacao-quick-opportunities]
+    paths:
+      - "engine/quick_opportunities.py"
+      - "engine/quick_opportunities_data.py"
+      - "tests/test_quick_opportunities*.py"
+      - ".github/workflows/quick-opportunities-tests.yml"
+permissions:
+  contents: read
+jobs:
+  isolated-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Testes unitarios do motor Quick Opportunities
+        run: python -m unittest -v tests.test_quick_opportunities tests.test_quick_opportunities_data
