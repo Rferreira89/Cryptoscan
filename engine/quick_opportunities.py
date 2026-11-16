@@ -125,7 +125,7 @@ def detect_opportunities(candles, asset="UNKNOWN"):
 
 def simulate_candidate(candles, signal_index, candidate, fee_pct=0.1,
                        slippage_pct=0.05, funding_pct=0.0,
-                       max_hold_bars=MAX_HOLD_BARS):
+                       max_hold_bars=MAX_HOLD_BARS, funding_events=None):
     """Simula entrada na vela seguinte; stop prevalece se stop e alvo tocarem
     na mesma vela. Custos percentuais sao cobrados sobre o nocional.
     """
@@ -168,7 +168,14 @@ def simulate_candidate(candles, signal_index, candidate, fee_pct=0.1,
         exit_price, reason = float(candles[last_index]["c"]), "TIME_EXIT"
     exit_fill = exit_price * (1 - slippage_pct / 100 * direction)
     gross = direction * (exit_fill - entry) / risk
-    cost_pct = (2 * fee_pct) + max(0.0, funding_pct)  # slippage ja refletido nos fills
+    # Funding historico: taxa positiva e paga por LONG e recebida por SHORT.
+    # Eventos sao aplicados apenas quando ocorrem durante a posicao.
+    entry_t = int(candles[signal_index + 1]["t"])
+    exit_t = int(candles[exit_index]["t"]) + BAR_SECONDS
+    funding_rate_sum = sum(float(rate) for ts, rate in (funding_events or [])
+                           if entry_t < int(ts) <= exit_t)
+    funding_cost_pct = direction * funding_rate_sum * 100.0
+    cost_pct = (2 * fee_pct) + max(0.0, funding_pct) + funding_cost_pct
     costs_r = (entry * cost_pct / 100) / risk
     return {
         "status": "CLOSED", "side": side, "family": candidate.get("family"),
@@ -176,9 +183,10 @@ def simulate_candidate(candles, signal_index, candidate, fee_pct=0.1,
         "entry_index": signal_index + 1, "exit_index": exit_index,
         "entry": entry, "exit": exit_fill, "exit_reason": reason,
         "gross_r": gross, "costs_r": costs_r, "net_r": gross - costs_r,
+        "funding_rate_sum": funding_rate_sum,
+        "funding_cost_pct": funding_cost_pct,
         "bars_held": exit_index - signal_index,
-        "entry_t": int(candles[signal_index + 1]["t"]),
-        "exit_t": int(candles[exit_index]["t"]) + BAR_SECONDS,
+        "entry_t": entry_t, "exit_t": exit_t,
     }
 
 
@@ -232,7 +240,8 @@ def evaluate_trades(results, min_trades=100, bootstrap_samples=2000, seed=7):
 
 
 def backtest_series(candles, asset="UNKNOWN", fee_pct=0.1,
-                    slippage_pct=0.05, funding_pct=0.0):
+                    slippage_pct=0.05, funding_pct=0.0,
+                    funding_events=None):
     """Backtest exploratorio por familia/direcao numa serie OHLCV.
 
     Cada familia+direcao e avaliada separadamente e nao abre nova operacao
@@ -252,7 +261,8 @@ def backtest_series(candles, asset="UNKNOWN", fee_pct=0.1,
                 continue
             result = simulate_candidate(
                 candles, i, candidate, fee_pct=fee_pct,
-                slippage_pct=slippage_pct, funding_pct=funding_pct)
+                slippage_pct=slippage_pct, funding_pct=funding_pct,
+                funding_events=funding_events)
             if result.get("status") != "CLOSED":
                 continue
             next_available[key] = result["exit_index"] + 1
