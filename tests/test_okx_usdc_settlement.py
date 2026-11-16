@@ -1,6 +1,6 @@
 import unittest
 
-from tools.okx_exec import validar_liquidacao_usdc
+from engine.quick_opportunities_derivatives import validate_okx_account_config as validar_liquidacao_usdc
 
 
 class OKXUSDCSettlementTests(unittest.TestCase):
