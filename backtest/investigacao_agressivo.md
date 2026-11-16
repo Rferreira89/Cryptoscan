@@ -1,19 +1,15 @@
 # Investigação agressivo — 2026-11-16
 
-## Auditoria dos commits
+## Motor de decisão (papel)
 
-- `2a1ed74` (paper_ring): veto market_ok removido para longs. Anti-duplicação intacta (last[t_sig], closed, tg_key). Stops via trade.step. MAX_POS=12 respeitado.
-- `6e603d2` (paper_trend): veto market_ok removido; MAX_POS=8. Continua a exigir breakout + acima SMA200 + não late. Limitado a MAJORS21. Stops e trail intactos.
-- `cce61f5` (paper_bounce): MAX_POS=8. Lógica de sinal inalterada.
+- `engine/regime_select.py`: prioriza LONG em subida, SHORT em descida, ambos em lateral/desconhecido.
+- `paper_ring.py` usa `regime_select.prefer` antes de abrir posição.
 
-Sem regressões visíveis no código. Sem duplicação de posições por construção.
+## Capacidade LONG/SHORT em papel
 
-## Impacto operacional
+- paper_ring: longs sem veto BTC; MAX_POS=12; regime-aware.
+- paper_trend: MAX_POS=8; market_ok não veto.
+- paper_bounce: MAX_POS=8.
+- SHORT_SOBRECOMPRA_X70V25 continua em papel.
 
-Ainda não mensurável em dados vivos de papel (alterações recentes). Não há comparação quantitativa de sinais/operações/R antes vs depois.
-
-## Protecções
-
-- Kill se R < 0 com ≥ 20 op. (paper_ring).
-- Stops e trail intactos.
-- Não se forçam entradas em queda sistémica (regras de sinal de cada estratégia mantidas).
+Produção intacta.
