@@ -97,6 +97,10 @@ class Execucao(unittest.TestCase):
         # tests/test_okx_seguranca.py)
         q = mock.patch.object(okx_exec, "estado_pico", lambda R, c, eq: ("ok", eq))
         q.start(); self.addCleanup(q.stop)
+        # Testes de execução simulam uma conta cujo USD-M settlement já foi confirmado em USDC.
+        u = mock.patch.object(okx_exec.DERIV, "validate_okx_account_config",
+                              return_value=(True, "USDC confirmado"))
+        u.start(); self.addCleanup(u.stop)
 
     def info(self, **kw):
         i = {"inst": "HUMA-USD_UM_XPERP-310101", "ctVal": 10.0, "minSz": 1.0, "lotSz": 1.0, "tick": 0.00001, "ctType": "linear", "lever": 20}
