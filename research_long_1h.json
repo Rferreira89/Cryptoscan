@@ -1,0 +1,101 @@
+{
+ "moedas": 54,
+ "ultima_vela_btc_1h": 1794470400,
+ "janela": {
+  "d0": 20041,
+  "ds": 20587,
+  "d1": 20771
+ },
+ "pre_registo": "backtest/pre_registo_long_1h.md",
+ "nota": "LONG_TENDENCIA_1H v3 \u2014 so gatilho 1H",
+ "LONG_TENDENCIA_1H": {
+  "{\"H\": 8, \"V\": 1.2, \"k\": 1.5}": {
+   "operacoes_fora_amostra": 3925,
+   "operacoes_desenho": 1894,
+   "operacoes_reserva": 2031,
+   "r_medio_fora_amostra": -0.229,
+   "r_medio_reserva": -0.232,
+   "percentil_acaso": 5.2,
+   "desenho_return_pct": -97.7,
+   "reserva_return_pct": -98.4,
+   "veredicto": "NAO VALIDADA"
+  },
+  "{\"H\": 8, \"V\": 1.5, \"k\": 1.5}": {
+   "operacoes_fora_amostra": 3578,
+   "operacoes_desenho": 1697,
+   "operacoes_reserva": 1881,
+   "r_medio_fora_amostra": -0.218,
+   "r_medio_reserva": -0.237,
+   "percentil_acaso": 27.2,
+   "desenho_return_pct": -94.2,
+   "reserva_return_pct": -98.2,
+   "veredicto": "NAO VALIDADA"
+  },
+  "{\"H\": 16, \"V\": 1.2, \"k\": 1.5}": {
+   "operacoes_fora_amostra": 2738,
+   "operacoes_desenho": 1345,
+   "operacoes_reserva": 1393,
+   "r_medio_fora_amostra": -0.245,
+   "r_medio_reserva": -0.237,
+   "percentil_acaso": 1.8,
+   "desenho_return_pct": -95.0,
+   "reserva_return_pct": -94.4,
+   "veredicto": "NAO VALIDADA"
+  },
+  "{\"H\": 16, \"V\": 1.5, \"k\": 1.5}": {
+   "operacoes_fora_amostra": 2569,
+   "operacoes_desenho": 1255,
+   "operacoes_reserva": 1314,
+   "r_medio_fora_amostra": -0.228,
+   "r_medio_reserva": -0.235,
+   "percentil_acaso": 15.0,
+   "desenho_return_pct": -90.7,
+   "reserva_return_pct": -93.0,
+   "veredicto": "NAO VALIDADA"
+  },
+  "{\"H\": 8, \"V\": 1.2, \"k\": 2.0}": {
+   "operacoes_fora_amostra": 3778,
+   "operacoes_desenho": 1821,
+   "operacoes_reserva": 1957,
+   "r_medio_fora_amostra": -0.228,
+   "r_medio_reserva": -0.227,
+   "percentil_acaso": 13.8,
+   "desenho_return_pct": -97.4,
+   "reserva_return_pct": -98.0,
+   "veredicto": "NAO VALIDADA"
+  },
+  "{\"H\": 8, \"V\": 1.5, \"k\": 2.0}": {
+   "operacoes_fora_amostra": 3447,
+   "operacoes_desenho": 1639,
+   "operacoes_reserva": 1808,
+   "r_medio_fora_amostra": -0.218,
+   "r_medio_reserva": -0.237,
+   "percentil_acaso": 36.2,
+   "desenho_return_pct": -94.0,
+   "reserva_return_pct": -97.9,
+   "veredicto": "NAO VALIDADA"
+  },
+  "{\"H\": 16, \"V\": 1.2, \"k\": 2.0}": {
+   "operacoes_fora_amostra": 2574,
+   "operacoes_desenho": 1267,
+   "operacoes_reserva": 1307,
+   "r_medio_fora_amostra": -0.238,
+   "r_medio_reserva": -0.226,
+   "percentil_acaso": 6.5,
+   "desenho_return_pct": -93.9,
+   "reserva_return_pct": -92.2,
+   "veredicto": "NAO VALIDADA"
+  },
+  "{\"H\": 16, \"V\": 1.5, \"k\": 2.0}": {
+   "operacoes_fora_amostra": 2423,
+   "operacoes_desenho": 1176,
+   "operacoes_reserva": 1247,
+   "r_medio_fora_amostra": -0.207,
+   "r_medio_reserva": -0.208,
+   "percentil_acaso": 63.5,
+   "desenho_return_pct": -87.9,
+   "reserva_return_pct": -90.1,
+   "veredicto": "NAO VALIDADA"
+  }
+ }
+}
