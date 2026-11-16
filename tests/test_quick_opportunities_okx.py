@@ -57,6 +57,7 @@ class OkxQuickOpportunityTests(unittest.TestCase):
                 "instId": "BTC-USD_UM_XPERP",
                 "instFamily": "BTC-USD_UM",
                 "state": "live",
+                "instCategory": "1",
                 "ctType": "linear",
                 "ctVal": "0.01",
                 "ctValCcy": "BTC",
