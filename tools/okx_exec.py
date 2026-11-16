@@ -96,6 +96,19 @@ def xperps():
     return out
 
 
+def validar_liquidacao_usdc(config):
+    """Falha fechada: não abrir novas posições se a conta USD-M não liquidar em USDC."""
+    if not isinstance(config, dict) or config.get("code") != "0":
+        return False, "não foi possível confirmar a moeda de liquidação da conta"
+    rows = config.get("data") or []
+    if not rows:
+        return False, "a OKX não devolveu a moeda de liquidação da conta"
+    settle = str(rows[0].get("settleCcy") or "").upper()
+    if settle != "USDC":
+        return False, f"a conta está configurada para {settle or 'moeda desconhecida'}, não USDC"
+    return True, "USDC confirmado"
+
+
 def equity():
     d = privado("GET", "/api/v5/account/balance")
     if d.get("code") != "0":
@@ -578,6 +591,11 @@ def correr(st, novos, now, msgs):
     confirmar_stops(R, now, msgs)
     del R["hist"][:-500]
     if not c["real"] or not novos:
+        return
+    settlement = privado("GET", "/api/v5/account/config")
+    settle_ok, settle_reason = validar_liquidacao_usdc(settlement)
+    if not settle_ok:
+        msgs.append(f"🔒 OKX real: {settle_reason}; nenhuma ordem nova. As posições abertas continuam a ser geridas.")
         return
     eq = equity()
     if not eq:
