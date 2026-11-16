@@ -34,9 +34,16 @@ def format_candidate(candidate: dict) -> str:
     target = float(candidate["target"])
     signal_t = int(candidate["signal_t"])
     if candidate.get("venue") == "OKX" and candidate.get("market_type") == "USD_UM_XPERP":
+        class_labels = {
+            "crypto": "Cripto",
+            "equity": "Ações/ETF",
+            "precious_metal": "Metais preciosos",
+        }
+        asset_class = class_labels.get(candidate.get("asset_class"), "Classe por confirmar")
         market_line = (
-            f"Mercado: OKX USD_UM X-Perp | Contrato: {candidate.get('instrument_id', '-')}"
-            "\nLiquidação exigida: USDC (configuração da conta ainda não confirmada)"
+            f"Mercado: OKX USD_UM X-Perp | Classe: {asset_class}"
+            f" | Contrato: {candidate.get('instrument_id', '-')}"
+            "\nLiquidação do contrato/conta: confirmar separadamente (USD/USDC/USDG)"
         )
         safety_line = (
             "\nSem ordem enviada. Dados dos próprios futuros OKX; edge estatístico "
