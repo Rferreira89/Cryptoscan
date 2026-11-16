@@ -1,7 +1,7 @@
 name: Testes
 on:
   push:
-    branches: [main]
+    branches: [main, investigacao/correcao-promo-syntax-20261116]
     paths: ["engine/**", "tests/**"]
 jobs:
   tests:
