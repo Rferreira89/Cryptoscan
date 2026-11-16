@@ -5,8 +5,10 @@ from engine import quick_opportunities as Q
 
 
 def xperp(inst="BTC-USD_UM_XPERP", state="live", family="BTC-USD_UM",
-          ct_type="linear", expiry="1930000000000", rule_type="xperp"):
+          ct_type="linear", expiry="1930000000000", rule_type="xperp",
+          inst_category="1"):
     return {"instId": inst, "instFamily": family, "state": state, "ruleType": rule_type,
+            "instCategory": inst_category,
             "ctType": ct_type, "ctVal": "0.0001", "ctValCcy": "BTC",
             "ctMult": "1", "minSz": "1", "lotSz": "1", "tickSz": "0.1",
             "expTime": expiry, "settleCcy": "USDⓈ"}
@@ -27,9 +29,15 @@ class USDCAccountAdapterTests(unittest.TestCase):
                 xperp("SOL-USD_UM_XPERP", state="suspend", family="SOL-USD_UM"),
                 xperp("DOGE-USD_UM_XPERP", family="DOGE-USD_UM", ct_type="inverse"),
                 xperp("PRE-USD_UM_XPERP", family="PRE-USD_UM", rule_type="pre_market"),
+                xperp("AAPL-USD_UM_XPERP", family="AAPL-USD_UM", inst_category="3"),
+                xperp("XAU-USD_UM_XPERP", family="XAU-USD_UM", inst_category="4"),
+                xperp("UNKNOWN-USD_UM_XPERP", family="UNKNOWN-USD_UM", inst_category="9"),
             ]}
         result = D.okx_usdc_xperps(request)
-        self.assertEqual(set(result), {"BTC", "ETH"})
+        self.assertEqual(set(result), {"BTC", "ETH", "AAPL", "XAU"})
+        self.assertEqual(result["AAPL"]["asset_class"], "equity")
+        self.assertEqual(result["XAU"]["asset_class"], "precious_metal")
+        self.assertEqual(result["BTC"]["asset_class"], "crypto")
         self.assertEqual(result["BTC"]["inst_id"], "BTC-USD_UM_XPERP")
         self.assertEqual(result["BTC"]["market_type"], "usd_margined_xperp")
         self.assertEqual(result["BTC"]["settlement_currency_required"], "USDC")
