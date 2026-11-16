@@ -12,11 +12,13 @@ avisos Telegram em abertura, fecho e retirada do papel.
 (16/11): dedup ficheiro + bloqueio de re-ABRE; ignora asset AAA (teste).
 (16/11 investigacao): MAX_POS 6 -> 12 para permitir mais operacoes simultaneas em papel.
 (16/11 investigacao): longs em papel nao sao bloqueados por market_ok (BTC como contexto, nao veto).
+(16/11 investigacao): regime_select prioriza lado adequado ao regime.
 Venue deste motor: Bybit (o OKX tem caminhos proprios).
 """
 import os
 
 from . import promo, trade
+from . import regime_select
 
 TF = 14400
 MAX_POS = 12  # investigacao: era 6; permite mais posicoes simultaneas em papel
@@ -124,8 +126,6 @@ def update(state, rows, bars, now, market_ok=True):
                 if k in active:
                     active = [x for x in active if x != k]
                 continue
-        # investigacao: BTC market_ok nao e veto universal para longs em papel
-        # (contexto influencia risco/seleccao, nao bloqueia o ativo individual)
         if k not in active or k in killed:
             continue
         promo.set_context(rows, bars)
@@ -151,6 +151,8 @@ def update(state, rows, bars, now, market_ok=True):
                 continue
             b["last"][a] = sig["t_sig"]
             lado = "SHORT" if sig.get("side") == "SHORT" else "LONG"
+            if not regime_select.prefer(fase, lado):
+                continue
             ok = (sig["tp"][0] < r["price"] < sig["stop"]) if lado == "SHORT" else (
                 sig["stop"] < r["price"] < sig["tp"][0])
             if not ok:
