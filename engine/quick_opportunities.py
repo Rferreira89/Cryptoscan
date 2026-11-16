@@ -32,6 +32,12 @@ def _atr(candles, period=14):
     return sum(tr) / len(tr)
 
 
+def prepare_30m_candles(raw, now):
+    """Valida e remove velas 30m ainda abertas; devolve (rows, report)."""
+    from . import validate
+    return validate.validate_candles(raw, BAR_SECONDS, now, min_history=MIN_BARS)
+
+
 def classify_regime(candles):
     """Classifica contexto local usando apenas a janela recebida."""
     if len(candles) < 50:
@@ -193,7 +199,7 @@ def evaluate_trades(results, min_trades=100, bootstrap_samples=2000, seed=7):
     wins = sum(x > 0 for x in values)
     gross_win = sum(x for x in values if x > 0)
     gross_loss = abs(sum(x for x in values if x < 0))
-    pf = (gross_win / gross_loss) if gross_loss else (float("inf") if gross_win else None)
+    pf = (gross_win / gross_loss) if gross_loss else ("INF" if gross_win else None)
     equity = peak = drawdown = 0.0
     for value in values:
         equity += value
@@ -217,5 +223,5 @@ def evaluate_trades(results, min_trades=100, bootstrap_samples=2000, seed=7):
         "win_rate": wins / n,
         "max_drawdown_r": drawdown,
         "positive_mean_ci": bool(ci and ci[0] > 0),
-        "warning": "descritivo; nao substitui walk-forward nem correcao de hipoteses multiplas",
+        "warning": "bootstrap i.i.d. descritivo; trades sobrepostos/correlacionados exigem bootstrap por blocos; nao substitui walk-forward nem correcao de hipoteses multiplas",
     }
