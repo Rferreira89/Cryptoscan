@@ -1,7 +1,8 @@
-"""Data Layer: adaptadores de dados publicos (sem chaves de API).
+"""Data Layer: adaptadores publicos para o universo USDC do scanner.
 
-Cada fonte devolve dados normalizados. Uma fonte que falha e reportada
-como erro - nunca se inventam nem se preenchem valores.
+Todos os tickers, candles e livros usados pelo scanner sao filtrados/consultados
+com cotacao USDC. Uma fonte que falha e reportada como erro; nunca se inventam
+nem se preenchem valores.
 """
 import json
 import time
@@ -10,7 +11,7 @@ import urllib.parse
 
 TIMEOUT = 15
 UA = {"User-Agent": "cryptoscan-engine/1.0"}
-QUOTE = "USDT"
+QUOTE = "USDC"
 TF_SECONDS = {"30m": 1800, "4h": 14400, "1d": 86400}
 
 
