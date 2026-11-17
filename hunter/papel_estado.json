@@ -27,7 +27,19 @@
 "cortado_pelo_teto_nocional": true,
 "cortado_pelo_limite_autorizado": false
 },
-"aberta_em": 1794906076
+"aberta_em": 1794906076,
+"entrada": 0.5169414,
+"t_entrada": 1794906000,
+"stop_inicial": 0.5483842571428571,
+"objetivo": null,
+"historico": [
+{
+"t": 1794909675,
+"estado": "entrada simulada",
+"preco": 0.5169414
+}
+],
+"r_atual": 3.1841
 }
 ],
 "fechadas": [],
@@ -35,13 +47,17 @@
 "instrumentos_descobertos": 262,
 "com_dados_validos": 260,
 "falhas_tecnicas": 0,
-"excluidos_por_dados": 36,
+"excluidos_por_dados": 48,
 "candidatos": 1,
 "aprovados": 1,
 "abertas_novas": 1,
-"fechadas_agora": 0
+"fechadas_agora": 0,
+"sinais_brutos": 0,
+"elegiveis_apos_concentracao": 0,
+"acontecimentos_novos": 0,
+"moedas_com_sinal": 0
 },
-"voltas": 3,
+"voltas": 4,
 "bloqueadas": {},
 "resumo": {},
 "funil_ultima": {
@@ -49,13 +65,21 @@
 "com_dados_validos": 260,
 "falhas_tecnicas": 0,
 "excluidos_por_dados": 12,
-"candidatos": 0,
+"dados_fiaveis": true,
+"sinais_brutos": 0,
 "rejeitados": {},
-"aprovados": 0,
+"elegiveis_apos_concentracao": 0,
 "abertas_novas": 0,
 "fechadas_agora": 0,
-"t": 1794907875
+"acontecimentos_novos": 0,
+"moedas_com_sinal": 0,
+"t": 1794909675,
+"versao_codigo": "78e6d7e"
 },
-"t": 1794907875,
-"aviso": "PAPEL: simulado, nunca somado aos resultados reais; sem ordens"
+"t": 1794909675,
+"aviso": "PAPEL: simulado, nunca somado aos resultados reais; sem ordens",
+"vistos": [
+"bbc2557ab78e|BTW|1794902400"
+],
+"carteiras_sombra": {}
 }
