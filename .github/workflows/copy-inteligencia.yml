@@ -1,8 +1,11 @@
-name: CopyTrading - inteligencia e decisoes (sem chaves, sem ordens)
-# (17/11, ordem do Rui) COPY_INTELLIGENCE + SMART_COPY: ranking de traders (OKX publico, Hyperliquid) de hora a hora,
-# posicoes dos traders seguidos de ~2 em 2 min, decisoes automaticas; os sinais COPY vao para copy/sinais.json (ramo
-# autonomo) e o piloto OKX e lancado logo que houver copias novas (a execucao real e so la, com os limites do piloto).
-# ~5 h 40 min por execucao; no fim relanca-se a si proprio. Codigo no ramo copytrading.
+name: CopyTrading - observador e ranking (sem chaves, sem ordens)
+# (17/11, ordens do Rui) Dois trabalhos em paralelo, independentes:
+#   observador: posicoes dos traders seguidos de ~2 em 2 min (hora de cada consulta em copy/estado.json -> consultas),
+#               entradas/reducoes/fechos, decisoes SMART_COPY; com copias novas lanca logo o piloto OKX (a execucao real e
+#               so la, com os limites do piloto); nunca espera pelo ranking.
+#   ranking:    refaz o ranking de traders (OKX publico, Hyperliquid) de hora a hora.
+# ~5 h 40 min por execucao; no fim relanca-se (intervalo de 1-2 min: os fechos sao recuperados, as entradas so se frescas).
+# Codigo no ramo copytrading.
 on:
   workflow_dispatch:
 permissions:
@@ -12,35 +15,59 @@ concurrency:
   group: copy-inteligencia
   cancel-in-progress: false
 jobs:
-  copy:
+  observador:
     runs-on: ubuntu-latest
-    timeout-minutes: 355
+    timeout-minutes: 350
     steps:
       - uses: actions/checkout@v4
         with:
           ref: copytrading
-      - name: Voltas
+      - name: Observar
         env:
           PUSH_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
         run: |
           FIM=$(( $(date +%s) + 338*60 ))
           while [ "$(date +%s)" -lt "$FIM" ]; do
+            T0=$(date +%s)
             rm -rf /tmp/au
-            git clone -q --depth 1 -b autonomo "$PUSH_URL" /tmp/au 2>/dev/null || { sleep 60; continue; }
-            RC=0; timeout 900 python3 -m tools.copy.correr /tmp/au || RC=$?
-            if [ "$RC" = 0 ] || [ "$RC" = 3 ]; then
-              bash tools/copy/publicar.sh /tmp/au || echo "publicacao falhou"
-              if [ "$RC" = 0 ]; then
-                gh workflow run piloto-okx.yml --repo "${{ github.repository }}" --ref main -f modo=ciclo || echo "nao consegui lancar o piloto"
+            if git clone -q --depth 1 -b autonomo "$PUSH_URL" /tmp/au 2>/dev/null; then
+              RC=0; timeout 600 python3 -m tools.copy.correr /tmp/au || RC=$?
+              if [ "$RC" = 0 ] || [ "$RC" = 3 ]; then
+                bash tools/copy/publicar.sh /tmp/au estado.json sinais.json decisoes.jsonl || echo "publicacao falhou"
+                [ "$RC" = 0 ] && { gh workflow run piloto-okx.yml --repo "${{ github.repository }}" --ref main -f modo=ciclo || echo "nao consegui lancar o piloto"; }
+              else
+                echo "volta do observador falhou ($RC): a seguinte tenta de novo"
               fi
-            else
-              echo "volta do copy falhou ($RC): a seguinte tenta de novo"
             fi
-            sleep 100
+            DT=$(( $(date +%s) - T0 )); [ $DT -lt 120 ] && sleep $(( 120 - DT ))
           done
-      - name: Relancar
-        if: always()
+  ranking:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: copytrading
+      - name: Ranking
         env:
+          PUSH_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
+        run: |
+          FIM=$(( $(date +%s) + 335*60 ))
+          while [ "$(date +%s)" -lt "$FIM" ]; do
+            rm -rf /tmp/rk
+            if git clone -q --depth 1 -b autonomo "$PUSH_URL" /tmp/rk 2>/dev/null; then
+              if timeout 1800 python3 -m tools.copy.correr /tmp/rk ranking | grep -q '"ranking_refeito": true'; then
+                bash tools/copy/publicar.sh /tmp/rk traders.json || echo "publicacao do ranking falhou"
+              fi
+            fi
+            sleep 300
+          done
+  relancar:
+    needs: [observador, ranking]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - env:
           GH_TOKEN: ${{ github.token }}
         run: gh workflow run copy-inteligencia.yml --repo "${{ github.repository }}" --ref main

@@ -341,6 +341,7 @@ def _cl(id_op):
 
 # ------------------------------------------------------------------ ciclo -----------------------------------------
 COPY_MAX_IDADE_S = 900
+COPY_ENTRADA_MAX_S = 300
 
 
 def juntar_copy(registo, papel, copy, now):
@@ -353,7 +354,7 @@ def juntar_copy(registo, papel, copy, now):
            "fechadas": list((papel or {}).get("fechadas") or [])}
     if copy:
         reg["estrategias"].update(copy.get("estrategias") or {})
-        if now - int(copy.get("t") or 0) <= COPY_MAX_IDADE_S:
+        if now - int(copy.get("t") or 0) <= COPY_ENTRADA_MAX_S:     # a posicao do trader foi vista aberta ha <= 5 min
             pap["abertas"] += copy.get("abertas") or []
         pap["fechadas"] += copy.get("fechadas") or []
         pap["t_copy"] = copy.get("t")
@@ -397,6 +398,7 @@ def ciclo(api, pasta, now=None, simular=False, registo=None, papel=None, isolado
     st["portas"] = portas(api, st, c, now, registo, papel, isolado, cifra_ok, aprovadas, api.falhas)
     fechadas = [k for k, v in st["portas"].items() if not v["ok"]]
     if st["aberta"] is None and len([o for o in st["ops"] if o.get("estado") in ("pendente", "aberta")]) < c["posicoes_max"]:
+        registar_sinais(st, papel, registo, aprovadas, recusadas, now)
         cand = procurar(api, st, c, now, papel, aprovadas)
         st["ultimo_sinal"] = {k: v for k, v in (cand or {}).items() if k != "inst_spec"} if cand else None
         if cand and cand.get("plano"):
@@ -407,6 +409,11 @@ def ciclo(api, pasta, now=None, simular=False, registo=None, papel=None, isolado
                             f"portas fechadas: {', '.join(fechadas)}.")
             else:
                 entrar(api, st, c, cand, now, msgs, simular)
+    if st["aberta"] is not None:
+        registar_sinais(st, papel, registo, aprovadas, recusadas, now)
+        for sid, r in st["oportunidades"].items():
+            if r["decisao"] is None and r.get("origem") in aprovadas:
+                decidir_oportunidade(st, sid, "REJEITADA", "posicao aberta: 1 posicao de cada vez", now)
     st["perdas"] = pp
     st["recusadas_pelo_executor"] = recusadas
     relatorio_diario(st, now, msgs, aprovadas)
@@ -429,9 +436,92 @@ def _okx_exec_isolado():
         return False
 
 
+# (17/11, ordem do Rui) Registo central de oportunidades: TODOS os sinais vistos (papel e copy, de qualquer estrategia),
+# com a decisao, o motivo e a categoria. Classe B = corretamente rejeitada (qualidade/risco/limites); C = valida mas o
+# sistema falhou (API, ordem rejeitada, sincronizacao). As voltas sem nenhum sinal novo contam como A. O resultado
+# hipotetico e o do PAPEL (liquido de custos do papel), nunca misturado com o real.
+CATEGORIAS = (("nao elegivel", "sem_vantagem", "B"), ("rejeitada definitivamente", "sem_vantagem", "B"),
+              ("copia tardia", "expirado", "B"), ("depois do fecho da vela", "expirado", "B"),
+              ("fugiu", "preco_afastado", "B"), ("fora do plano", "preco_afastado", "B"), ("spread", "liquidez", "B"),
+              ("tamanho minimo", "tamanho_minimo", "B"), ("precisaria de", "falta_capital", "B"),
+              ("so permite", "instrumento_indisponivel", "B"), ("nao negociavel", "instrumento_indisponivel", "B"),
+              ("outra oportunidade melhor", "limite_posicoes", "B"), ("posicao aberta", "limite_posicoes", "B"),
+              ("regime", "sem_vantagem", "B"), ("lado nao autorizado", "sem_vantagem", "B"),
+              ("outro executor", "limite_posicoes", "B"), ("ja existente", "duplicado", "B"),
+              ("sem resposta", "erro_api", "C"), ("api_fiavel", "erro_api", "C"), ("dados_frescos", "falha_scanner", "C"),
+              ("contas_confirmadas", "falha_sincronizacao", "C"), ("portas fechadas", "bloqueio_risco", "B"),
+              ("recusou", "ordem_rejeitada", "C"), ("recusada", "ordem_rejeitada", "C"), ("sem ATR", "falha_scanner", "C"),
+              ("nao executada no prazo", "preco_afastado", "B"))
+
+
+def classificar(motivo, visto_tarde=False):
+    m = (motivo or "").lower()
+    if visto_tarde and ("tardia" in m or "fecho da vela" in m):
+        return "falha_sincronizacao", "C"                  # expirou porque o piloto so o viu tarde
+    for chave, cat, cls in CATEGORIAS:
+        if chave.lower() in m:
+            if cat == "bloqueio_risco" and any(x in m for x in ("api_fiavel", "dados_frescos", "contas_confirmadas")):
+                break
+            return cat, cls
+    for chave, cat, cls in CATEGORIAS:
+        if cat in ("erro_api", "falha_scanner", "falha_sincronizacao") and chave in m:
+            return cat, cls
+    return "outra", "B"
+
+
+def registar_sinais(st, papel, registo, aprovadas, recusadas, now):
+    """Abre uma entrada para cada sinal novo; os de estrategias nao elegiveis ficam ja decididos (com o motivo)."""
+    R = st.setdefault("oportunidades", {})
+    novos = 0
+    for o in papel.get("abertas") or []:
+        sid = o.get("id_op")
+        if not sid or sid in R:
+            continue
+        novos += 1
+        e = ((registo or {}).get("estrategias") or {}).get(o.get("estrategia")) or {}
+        visto = now - int(o.get("aberta_em") or now)
+        R[sid] = {"t": int(o.get("aberta_em") or now), "visto": int(now), "visto_atraso_s": visto, "corretora": "OKX",
+                  "instrumento": o.get("inst"), "base": o.get("b"), "origem": o.get("estrategia"),
+                  "tipo": "copy" if o.get("origem") == "copy" else "estrategia_propria", "lado": o.get("lado"), "tf": o.get("tf"),
+                  "preco_detecao": (o.get("decisao") or {}).get("fecho"), "posicao_aberta": bool(st.get("aberta")),
+                  "margem_livre": st.get("_saldo_usdc"), "decisao": None, "motivo": None, "categoria": None, "classe": None}
+        if o.get("estrategia") not in aprovadas:
+            mot = "; ".join(recusadas.get(o.get("estrategia")) or []) or \
+                f"estado {e.get('estado') or 'desconhecido'}: {(e.get('motivo') or '')[:120]}"
+            decidir_oportunidade(st, sid, "REJEITADA", "estrategia nao elegivel para real: " + mot, now)
+    dia = time.strftime("%Y-%m-%d", time.gmtime(now))
+    rs = st.setdefault("resumo_oportunidades", {}).setdefault(dia, {"voltas": 0, "voltas_sem_sinais": 0})
+    rs["voltas"] += 1
+    rs["voltas_sem_sinais"] += 0 if novos else 1                # classe A: nao havia oportunidades
+    st["resumo_oportunidades"] = dict(sorted(st["resumo_oportunidades"].items())[-14:])
+    # resultado hipotetico (o do papel) quando o papel fecha a operacao correspondente
+    fech = {x.get("id_op"): x for x in papel.get("fechadas") or []}
+    for sid, r in R.items():
+        if r.get("resultado_hipotetico_r") is None and sid in fech and fech[sid].get("r") is not None:
+            r["resultado_hipotetico_r"] = fech[sid]["r"]
+            r["resultado_hipotetico_fonte"] = "papel (liquido dos custos do papel; NAO e resultado real)"
+    if len(R) > 3000:
+        st["oportunidades"] = dict(sorted(R.items(), key=lambda kv: kv[1]["t"])[-3000:])
+
+
+def decidir_oportunidade(st, sid, decisao, motivo, now):
+    r = (st.get("oportunidades") or {}).get(sid)
+    if r is None:
+        return
+    cat, cls = classificar(motivo, visto_tarde=(r.get("visto_atraso_s") or 0) > 900)
+    if decisao in ("ORDEM_ENVIADA", "EXECUTADA_REAL"):
+        cat, cls = "executada", "X"
+    r.update(decisao=decisao, motivo=motivo, categoria=cat, classe=cls, t_decisao=int(now))
+    dia = time.strftime("%Y-%m-%d", time.gmtime(now))
+    rs = st.setdefault("resumo_oportunidades", {}).setdefault(dia, {"voltas": 0, "voltas_sem_sinais": 0})
+    rs[cls] = rs.get(cls, 0) + 1
+    rs.setdefault("por_categoria", {})[cat] = rs.get("por_categoria", {}).get(cat, 0) + 1
+
+
 def perdido(st, now, sid, motivo):
     st["sinais_perdidos"].append({"t": int(now), "sinal": sid, "motivo": motivo})
     st["sinais_perdidos"] = st["sinais_perdidos"][-300:]
+    decidir_oportunidade(st, sid, "REJEITADA", motivo, now)
 
 
 def procurar(api, st, c, now, papel, aprovadas):
@@ -542,6 +632,7 @@ def entrar(api, st, c, cand, now, msgs, simular):
     lv = api.priv("POST", "/api/v5/account/set-leverage", {"instId": cand["inst"], "lever": str(d["alav"]), "mgnMode": "isolated"})
     if (lv or {}).get("code") != "0":
         evento(st, now, "alavancagem recusada: sem ordem", resposta=str(lv)[:200])
+        decidir_oportunidade(st, cand["id"], "REJEITADA", f"a OKX recusou a alavancagem {d['alav']}x", now)
         msgs.append(f"⚠️ Piloto OKX: a OKX recusou {d['alav']}x em {cand['base']}; nenhuma ordem enviada.")
         return
     algo = {"attachAlgoClOrdId": cl[:28] + "slt", "slTriggerPx": px(pl["stop"]), "slOrdPx": "-1"}
@@ -553,9 +644,11 @@ def entrar(api, st, c, cand, now, msgs, simular):
     dd = ((r or {}).get("data") or [{}])[0]
     if (r or {}).get("code") != "0" or dd.get("sCode") not in (None, "0"):
         evento(st, now, "ordem recusada pela OKX", resposta=str(r)[:300])
+        decidir_oportunidade(st, cand["id"], "REJEITADA", f"ordem recusada pela OKX ({dd.get('sMsg') or (r or {}).get('msg')})", now)
         msgs.append(f"⚠️ Piloto OKX: ordem em {cand['base']} recusada pela OKX ({dd.get('sMsg') or (r or {}).get('msg')}).")
         return
     op["ordId"] = dd.get("ordId")
+    decidir_oportunidade(st, cand["id"], "ORDEM_ENVIADA", "enviada a OKX (ainda nao executada)", now)
     st["aberta"] = op
     st["ops"].append(op)
     evento(st, now, "ordem ENVIADA (ainda nao executada)", op=op["id"], ordId=op["ordId"])
@@ -596,6 +689,7 @@ def reconciliar(api, st, now, msgs, simular=False):
             op["sair_em"] = op["t_execucao"] + int(op.get("hold_s") or 6 * 14400)
             parcial = od.get("state") == "partially_filled" or acc < op["contratos"]
             evento(st, now, "EXECUTADA" + (" parcialmente" if parcial else ""), op=op["id"], contratos=acc)
+            decidir_oportunidade(st, op["id"], "EXECUTADA_REAL", "execucao confirmada pela OKX" + (" (parcial)" if parcial else ""), now)
             msgs.append(f"✅ Piloto OKX: {op['lado']} executado em {op['base']} a {op['preco_efetivo']:.6g} "
                         f"({acc:g}/{op['contratos']:g} contratos).")
             if parcial:
@@ -614,6 +708,7 @@ def reconciliar(api, st, now, msgs, simular=False):
                     evento(st, now, "cancelamento por confirmar: tento na volta seguinte", op=op["id"])
                     return {"upl": upl}
             op["estado"] = "nao executada (cancelada)"
+            decidir_oportunidade(st, op["id"], "NAO_EXECUTADA", "ordem limite nao executada no prazo: cancelada", now)
             st["aberta"] = None
             evento(st, now, "entrada nao executada no prazo: cancelada", op=op["id"])
             msgs.append(f"⏹️ Piloto OKX: entrada em {op['base']} não executada no prazo; cancelada.")
@@ -805,6 +900,10 @@ def publico(st, c, aprovadas, now):
             "motivo": (st["bloqueio"] or st["suspenso"] or {}).get("motivo"),
             "ops": [{k: o.get(k) for k in campos} for o in st["ops"][-200:]],
             "sinais_perdidos": st["sinais_perdidos"][-50:],
+            "oportunidades": [dict({k: v for k, v in r.items() if k != "margem_livre"}, id=sid,
+                                   margem_disponivel=None if r.get("margem_livre") is None else r["margem_livre"] >= c["nocional_max"] / c["alav_max"])
+                              for sid, r in sorted((st.get("oportunidades") or {}).items(), key=lambda kv: kv[1]["t"])[-300:]],
+            "resumo_oportunidades": st.get("resumo_oportunidades"),
             "eventos": [{k: v for k, v in e.items() if k in ("t", "txt", "op", "motivo", "r", "portas", "sinal", "inst", "motivos")}
                         for e in st["eventos"][-50:]]}
 

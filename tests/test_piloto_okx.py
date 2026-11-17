@@ -503,7 +503,7 @@ class CopyTrading(Base):
 
     def test_copy_velho_nao_traz_sinais_e_trader_degradado_suspenso_sozinho(self):
         api = FakeOKX()
-        st, _ = self.corre_copy(api, copy_doc([copia()], t=NOW0 - 1000))
+        st, _ = self.corre_copy(api, copy_doc([copia()], t=NOW0 - 400))              # posicao do trader vista ha > 5 min
         self.assertEqual(api.posts(), [])
         st0 = P.estado_inicial()
         st0["ops"] = [{"estrategia": "copy:okx:T1", "r": -1.0, "estado": "fechada"}] * 4
@@ -512,6 +512,47 @@ class CopyTrading(Base):
         st, _ = self.corre(api, reg=registo(experimental()), pap=papel(sinal("exp111")), copy=copy_doc([copia()]))
         self.assertIn("copy:okx:T1", st["recusadas_pelo_executor"])
         self.assertEqual(st["aberta"]["estrategia"], "exp111")
+
+
+class RegistoOportunidades(Base):
+    def test_todas_as_oportunidades_ficam_registadas_e_classificadas(self):
+        api = FakeOKX()
+        reg = registo(experimental("bom"), {"id": "mau", "estado": "PAPER_TRADING", "motivo": "bloqueada pelo papel", "lado": "LONG"})
+        pap = papel(sinal("bom"), sinal("mau", base="XYZ"), sinal("bom", base="OLD", t_fecho=NOW0 - 5000, aberta_em=NOW0 - 60))
+        st, _ = self.corre(api, reg=reg, pap=pap)
+        R = st["oportunidades"]
+        self.assertEqual(len(R), 3)
+        por = {r["origem"] + ":" + r["base"]: r for r in R.values()}
+        self.assertEqual(por["bom:ABC"]["decisao"], "ORDEM_ENVIADA")
+        self.assertEqual((por["mau:XYZ"]["categoria"], por["mau:XYZ"]["classe"]), ("sem_vantagem", "B"))
+        self.assertEqual(por["bom:OLD"]["categoria"], "expirado")          # o papel ja o deu tarde: rejeicao correta (B)
+        tarde = P.estado_inicial()
+        self.assertEqual(P.classificar("chegou 40 min depois do fecho da vela", visto_tarde=True)[1], "C")
+        st, _ = self.corre(api, reg=reg, pap=pap, now=NOW0 + 900)
+        self.assertEqual(st["oportunidades"][sinal("bom")["id_op"]]["decisao"], "EXECUTADA_REAL")
+        pub = json.load(open(os.path.join(self.d, "piloto_publico.json")))
+        self.assertTrue(all("margem_livre" not in r for r in pub["oportunidades"]))
+        dia = P._dia(NOW0)
+        self.assertEqual(pub["resumo_oportunidades"][dia]["B"], 2)
+
+    def test_voltas_sem_sinais_contam_como_a_e_hipotetico_do_papel(self):
+        api = FakeOKX()
+        reg = registo({"id": "mau", "estado": "PAPER_TRADING", "motivo": "x", "lado": "LONG"})
+        s = sinal("mau")
+        self.corre(api, reg=reg, pap=papel(s))
+        st, _ = self.corre(api, reg=reg, pap=papel(fechadas=[dict(s, r=-1.2)]), now=NOW0 + 60)
+        r = st["oportunidades"][s["id_op"]]
+        self.assertEqual(r["resultado_hipotetico_r"], -1.2)
+        self.assertIn("NAO e resultado real", r["resultado_hipotetico_fonte"])
+        self.assertEqual(st["resumo_oportunidades"][P._dia(NOW0)]["voltas_sem_sinais"], 1)
+
+    def test_falha_tecnica_e_classe_c(self):
+        self.assertEqual(P.classificar("ordem recusada pela OKX (x)"), ("ordem_rejeitada", "C"))
+        self.assertEqual(P.classificar("OKX sem resposta sobre o instrumento"), ("erro_api", "C"))
+        self.assertEqual(P.classificar("portas fechadas: api_fiavel")[1], "C")
+        self.assertEqual(P.classificar("portas fechadas: perda_do_dia"), ("bloqueio_risco", "B"))
+        self.assertEqual(P.classificar("copia tardia: 12 min", visto_tarde=True), ("falha_sincronizacao", "C"))
+        self.assertEqual(P.classificar("spread 0.5% acima de 0.3% (liquidez)"), ("liquidez", "B"))
 
 
 class Experimental(Base):
