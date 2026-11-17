@@ -13,6 +13,7 @@ from tools.copy import ranking as RK
 from tools.copy import smart as SM
 
 RANKING_S = 3600
+RANKING_VERSAO = 2            # mudar quando os criterios mudam: obriga a refazer o ranking na volta seguinte
 SEGUIR_OKX, SEGUIR_HL = 25, 15
 CUSTO_SOMBRA = 0.001          # ida e volta, para o resultado-sombra das decisoes
 
@@ -47,7 +48,7 @@ def atualizar_ranking(trs, now, log=print):
     if not out:
         return trs                                            # fontes em baixo: mantem o ranking anterior
     log(f"ranking: {len(out)} traders, {sum(1 for v in out.values() if v['estado'] == 'APROVADO')} aprovados")
-    return {"t": now, "traders": out}
+    return {"t": now, "versao": RANKING_VERSAO, "traders": out}
 
 
 def seguidos(trs):
@@ -62,7 +63,7 @@ def volta(pasta, now=None, fontes=F, log=print):
     p = lambda n: os.path.join(pasta, "copy", n)
     os.makedirs(os.path.join(pasta, "copy"), exist_ok=True)
     trs = _ler(p("traders.json"), {"t": 0, "traders": {}})
-    if now - int(trs.get("t") or 0) >= RANKING_S:
+    if now - int(trs.get("t") or 0) >= RANKING_S or trs.get("versao") != RANKING_VERSAO:
         trs = atualizar_ranking(trs, now, log)
         _gravar(p("traders.json"), trs)
     st = _ler(p("estado.json"), {"posicoes": {}, "oportunidades": {}, "vistos": []})
