@@ -485,7 +485,10 @@ def registar_sinais(st, papel, registo, aprovadas, recusadas, now):
                   "tipo": "copy" if o.get("origem") == "copy" else "estrategia_propria", "lado": o.get("lado"), "tf": o.get("tf"),
                   "preco_detecao": (o.get("decisao") or {}).get("fecho"), "posicao_aberta": bool(st.get("aberta")),
                   "margem_livre": st.get("_saldo_usdc"), "decisao": None, "motivo": None, "categoria": None, "classe": None}
-        if o.get("estrategia") not in aprovadas:
+        if sid in st["vistos"]:                              # ja tratado antes de existir o registo central
+            ant = next((x["motivo"] for x in reversed(st["sinais_perdidos"]) if x.get("sinal") == sid), None)
+            decidir_oportunidade(st, sid, "REJEITADA", ant or "tratado numa volta anterior ao registo central (sem motivo guardado)", now)
+        elif o.get("estrategia") not in aprovadas:
             mot = "; ".join(recusadas.get(o.get("estrategia")) or []) or \
                 f"estado {e.get('estado') or 'desconhecido'}: {(e.get('motivo') or '')[:120]}"
             decidir_oportunidade(st, sid, "REJEITADA", "estrategia nao elegivel para real: " + mot, now)
@@ -497,6 +500,8 @@ def registar_sinais(st, papel, registo, aprovadas, recusadas, now):
     # resultado hipotetico (o do papel) quando o papel fecha a operacao correspondente
     fech = {x.get("id_op"): x for x in papel.get("fechadas") or []}
     for sid, r in R.items():
+        if r.get("decisao") is None and sid in st["vistos"] and r.get("visto", now) < now:
+            decidir_oportunidade(st, sid, "REJEITADA", "tratado numa volta anterior ao registo central (sem motivo guardado)", now)
         if r.get("resultado_hipotetico_r") is None and sid in fech and fech[sid].get("r") is not None:
             r["resultado_hipotetico_r"] = fech[sid]["r"]
             r["resultado_hipotetico_fonte"] = "papel (liquido dos custos do papel; NAO e resultado real)"

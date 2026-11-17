@@ -546,6 +546,15 @@ class RegistoOportunidades(Base):
         self.assertIn("NAO e resultado real", r["resultado_hipotetico_fonte"])
         self.assertEqual(st["resumo_oportunidades"][P._dia(NOW0)]["voltas_sem_sinais"], 1)
 
+    def test_sinal_tratado_antes_do_registo_fica_decidido(self):
+        st0 = P.estado_inicial()
+        s = sinal("exp111")
+        st0["vistos"] = [s["id_op"]]
+        st0["sinais_perdidos"] = [{"t": 1, "sinal": s["id_op"], "motivo": "spread 0.5% acima de 0.3% (liquidez)"}]
+        json.dump(st0, open(os.path.join(self.d, "piloto_estado.json"), "w"))
+        st, _ = self.corre(FakeOKX(), reg=registo(experimental()), pap=papel(s))
+        self.assertEqual(st["oportunidades"][s["id_op"]]["categoria"], "liquidez")
+
     def test_falha_tecnica_e_classe_c(self):
         self.assertEqual(P.classificar("ordem recusada pela OKX (x)"), ("ordem_rejeitada", "C"))
         self.assertEqual(P.classificar("OKX sem resposta sobre o instrumento"), ("erro_api", "C"))
