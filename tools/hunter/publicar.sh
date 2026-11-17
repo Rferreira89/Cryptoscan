@@ -4,12 +4,18 @@
 # uso: publicar.sh <pasta> <mensagem> <ficheiro|padrao>...
 set -u
 SRC=$1; MSG=$2; shift 2
+# (17/11) a volta de papel publica tambem o registo por ciclo, o resumo diario e o arquivo de derivados
+# (o lancador na main so passa papel_estado.json: a lista completa vive aqui, no ramo de investigacao)
+if [ "$MSG" = papel ]; then set -- "$@" papel_ciclos.jsonl papel_diario.jsonl "derivados/*"; fi
 for tent in 1 2 3; do
   W=$(mktemp -d)
   git clone -q --depth 1 -b autonomo "$PUSH_URL" "$W" 2>/dev/null || { git -C "$W" init -q -b autonomo; }
   mkdir -p "$W/hunter"
   for padrao in "$@"; do
-    for f in "$SRC"/hunter/$padrao; do [ -f "$f" ] && cp "$f" "$W/hunter/"; done
+    for f in "$SRC"/hunter/$padrao; do
+      [ -f "$f" ] || continue
+      rel=${f#"$SRC"/hunter/}; mkdir -p "$W/hunter/$(dirname "$rel")"; cp "$f" "$W/hunter/$rel"
+    done
   done
   cd "$W" && git config user.name cryptoscan-bot && git config user.email bot@users.noreply.github.com
   git add -A hunter
