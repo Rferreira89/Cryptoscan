@@ -3,6 +3,10 @@ name: Hunter - pesquisa (investigacao isolada, so dados publicos)
 # etapas, evolucao com orcamento, validacao emparelhada com bootstrap por dias, Holm cumulativo, teste final intocado.
 # Sem chaves, sem executores, sem ordens. Corre o codigo do ramo investigacao/expansao-oportunidades. Resultados no ramo "autonomo" (pasta hunter/).
 on:
+  # (17/11, ordem do Rui: investigacao continua) uma ronda por dia; os testes finais pedidos pelo motor de
+  # qualificacao correm no inicio de cada ronda (uma vez por regra)
+  schedule:
+    - cron: "23 2 * * *"
   workflow_dispatch:
     inputs:
       dias:
@@ -40,7 +44,7 @@ jobs:
           git clone -q --depth 1 -b autonomo "$PUSH_URL" /tmp/au 2>/dev/null || { mkdir -p /tmp/au && git -C /tmp/au init -q -b autonomo; }
           mkdir -p /tmp/au/hunter
       - name: Pesquisa
-        run: python -m tools.hunter.correr /tmp/au "${{ inputs.dias }}" "${{ inputs.n_max }}" "${{ inputs.orcamento }}"
+        run: python -m tools.hunter.correr /tmp/au "${{ inputs.dias || '240' }}" "${{ inputs.n_max }}" "${{ inputs.orcamento || '400' }}"
       - name: Publicar
         if: always()
         env:
