@@ -25,14 +25,20 @@ import urllib.request
 from tools.hunter import estat as ES
 from tools.hunter import motor as MO
 
-ESTADOS = ("EXPLORATORY", "VALIDATION", "PAPER_TRADING", "APPROVED_REAL", "ACTIVE_REAL", "SUSPENDED", "REJECTED")
+ESTADOS = ("EXPLORATORY", "VALIDATION", "PAPER_TRADING", "EXPERIMENTAL_REAL", "APPROVED_REAL", "ACTIVE_REAL", "SUSPENDED",
+           "REJECTED")
+# (17/11, 2.a ordem do Rui) EXPERIMENTAL_REAL: estrategia em papel que passa a auditoria TECNICA (sem exigencias
+# estatisticas) pode experimentar em real dentro dos limites do piloto; o papel continua; a aprovacao estatistica
+# (APPROVED_REAL) segue em paralelo em "estado_estatistico". Suspensa individualmente se degradar (papel ou real).
 C = {"oos_n_min": 100, "oos_acontecimentos_min": 30, "oos_dias_min": 30, "pf_min": 1.20, "alfa": 0.05,
      "quota_moeda_max": 0.40, "quota_acontecimento_max": 0.25, "quota_dia_max": 0.25,
      "papel_fechadas_min": 30, "papel_acontecimentos_min": 30, "papel_dias_min": 14,
      "custo_extra": 0.25, "melhores_frac": 0.05, "top_moedas": 3,
      "degradacao_janela": 30, "regime_n_min": 100}
 REJEITADAS_POR_ORDEM = {"e495d11739f6": "v2 (Rompimento com reteste 4H LONG cripto): rejeitada para real pela ordem do Rui "
-                                        "de 17/11 depois do teste fora da amostra (-0,30R, IC95 [-0,44; -0,16], PF 0,35)"}
+                                        "de 17/11 depois do teste fora da amostra (-0,30R, IC95 [-0,44; -0,16], PF 0,35)",
+                        "f8f018b82179": "rejeitada definitivamente (ordem do Rui de 17/11): falha a correcao de testes multiplos"}
+TF_OK = ("30m", "1H", "4H")
 PILOTO_URL = "https://raw.githubusercontent.com/Rferreira89/Cryptoscan/piloto-okx/piloto_publico.json"
 ROBUSTEZ = ("custos_mais_25pct", "deslize_acima_da_media", "sem_melhores_operacoes", "sem_moedas_de_maior_contributo",
             "primeira_metade", "segunda_metade")
@@ -226,8 +232,12 @@ def atualizar(pasta, now=None, piloto=None):
                      "deslize_medio_pct": _media([o["slippage_pct"] for o in rr if o.get("slippage_pct") is not None]),
                      "papel_vs_real_r": _media([o["r"] - o["r_papel"] for o in rr if o.get("r") is not None and o.get("r_papel") is not None])}
         novo, porque = decidir(e, rid in em_papel, rid in testes, piloto_ok, rr, fech.get(rid, []))
+        e["estado_estatistico"] = novo
         if novo == "VALIDATION" and rid not in testes:
             pedidos.append(rid)
+        e["auditoria_tecnica"] = auditoria_tecnica(e, rid in em_papel, bloq.get(rid))
+        novo, porque = experimental(e, novo, porque, rr, fech.get(rid, []))
+
         if novo != e.get("estado"):
             e["historico"].append({"t": now, "de": e.get("estado"), "para": novo, "motivo": porque})
             e["historico"] = e["historico"][-100:]
@@ -239,6 +249,49 @@ def atualizar(pasta, now=None, piloto=None):
     with open(p("estrategias_registo.json"), "w", encoding="utf-8") as f:
         json.dump(reg, f, ensure_ascii=False, indent=1, default=str)
     return reg
+
+
+def auditoria_tecnica(e, em_papel, bloqueada=None):
+    """Criterio de entrada experimental (ordem de 17/11, secao 3), sem estatistica: sinal so com velas fechadas (motor
+    do papel: o mesmo do backtest, velas validadas, entrada na abertura seguinte), entrada/stop/saida definidos, risco
+    calculavel, sem falhas criticas conhecidas. Liquidez, tamanho minimo, stop valido e limites confere o piloto em
+    cada sinal (tools/piloto_okx.py)."""
+    d = e.get("definicao") or {}
+    sd = d.get("saida") or {}
+    f = []
+    if not em_papel:
+        f.append("fora do paper trading (sem sinais vivos)")
+    if d.get("tf") not in TF_OK:
+        f.append(f"timeframe {d.get('tf')}")
+    if d.get("lado") not in ("LONG", "SHORT"):
+        f.append("lado indefinido")
+    if not (isinstance(sd.get("k"), (int, float)) and sd["k"] > 0):
+        f.append("stop (k x ATR) indefinido")
+    if sd.get("tipo") not in ("fixa", "trailing") or not sd.get("hold"):
+        f.append("saida indefinida (tipo/duracao maxima)")
+    if bloqueada:
+        f.append("bloqueada pelo motor de sobrevivencia do papel")
+    return {"ok": not f, "falhas": f, "sinal": "velas fechadas; entrada na abertura da vela seguinte",
+            "saida_real": "stop inicial na OKX" + (" + objetivo na OKX" if sd.get("tp") else "") +
+                          " + fecho quando o papel fecha (trailing/inversao) + saida por tempo"}
+
+
+def experimental(e, estado, porque, reais, fechadas):
+    if estado in ("REJECTED", "APPROVED_REAL", "ACTIVE_REAL", "EXPLORATORY"):
+        return estado, porque
+    if estado == "SUSPENDED":
+        return estado, porque
+    rr = [o["r"] for o in reais if o.get("r") is not None]
+    if len(rr) >= 5 and statistics.mean(rr) < -0.5:
+        return "SUSPENDED", f"experimental real degradada: {len(rr)} operacoes, media {statistics.mean(rr):+.2f}R"
+    if rr and sum(rr) <= -4:
+        return "SUSPENDED", f"experimental real degradada: {sum(rr):+.1f}R acumulados"
+    deg = degradada(fechadas, reais)
+    if deg:
+        return "SUSPENDED", "degradacao: " + deg
+    if (e.get("auditoria_tecnica") or {}).get("ok"):
+        return "EXPERIMENTAL_REAL", f"auditoria tecnica cumprida; experimenta em real com os limites do piloto ({porque})"
+    return estado, porque + " | experimental recusada: " + ", ".join(e["auditoria_tecnica"]["falhas"])
 
 
 def decidir(e, em_papel, testada, piloto_ok, reais, fechadas):

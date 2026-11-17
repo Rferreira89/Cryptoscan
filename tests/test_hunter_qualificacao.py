@@ -96,3 +96,28 @@ class Qualificacao(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+@unittest.skipIf(Q is None, "sem numpy")
+class Experimental(unittest.TestCase):
+    D = {"tf": "1H", "lado": "LONG", "saida": {"tipo": "fixa", "k": 2.0, "tp": 2.0, "hold": 4}}
+
+    def test_auditoria_tecnica(self):
+        self.assertTrue(Q.auditoria_tecnica({"definicao": self.D}, True)["ok"])
+        self.assertFalse(Q.auditoria_tecnica({"definicao": self.D}, False)["ok"])
+        self.assertFalse(Q.auditoria_tecnica({"definicao": dict(self.D, saida={"tipo": "fixa", "k": 0, "hold": 4})}, True)["ok"])
+        self.assertFalse(Q.auditoria_tecnica({"definicao": self.D}, True, bloqueada=["x"])["ok"])
+
+    def test_sem_estatistica_mas_individual(self):
+        e = {"id": "x", "auditoria_tecnica": {"ok": True, "falhas": []}}
+        self.assertEqual(Q.experimental(e, "PAPER_TRADING", "p", [], [])[0], "EXPERIMENTAL_REAL")
+        self.assertEqual(Q.experimental(e, "VALIDATION", "p", [], [])[0], "EXPERIMENTAL_REAL")
+        for est in ("REJECTED", "SUSPENDED", "APPROVED_REAL", "EXPLORATORY"):
+            self.assertEqual(Q.experimental(e, est, "p", [], [])[0], est)
+        self.assertEqual(Q.experimental(e, "PAPER_TRADING", "p", [{"r": -1.0}] * 5, [])[0], "SUSPENDED")
+        self.assertEqual(Q.experimental(e, "PAPER_TRADING", "p", [{"r": -1.0}] * 4, [])[0], "SUSPENDED")
+        self.assertEqual(Q.experimental(e, "PAPER_TRADING", "p", [{"r": -1.0}] * 3, [])[0], "EXPERIMENTAL_REAL")
+
+    def test_rejeitadas_por_ordem_nunca_voltam(self):
+        for rid in ("e495d11739f6", "f8f018b82179"):
+            self.assertEqual(Q.decidir({"id": rid, "estado": None}, True, False, True, [], [])[0], "REJECTED")
