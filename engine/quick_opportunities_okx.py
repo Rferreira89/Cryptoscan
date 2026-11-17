@@ -148,7 +148,7 @@ def scan_okx_xperps(now, seen_ids=None, sender=None,
         if event_id not in seen:
             fresh.append(candidate)
 
-    sent = telegram.notify_candidates(fresh, sender=sender)
+    sent = telegram.notify_digest(fresh, sender=sender)
     for item in sent:
         seen[item["id"]] = now
 

@@ -78,3 +78,29 @@ class QuickOpportunitiesTelegramTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Resumo(unittest.TestCase):
+    """(17/11) uma mensagem por ciclo, nao uma por candidato."""
+
+    def cand(self, asset, score, side="LONG"):
+        return {"asset": asset, "family": "momentum", "side": side, "signal_t": 1799998200, "signal_close": 10.0,
+                "stop": 9.0, "target": 12.0, "score": score, "venue": "OKX", "market_type": "USD_UM_XPERP",
+                "instrument_id": f"{asset}-USD_UM_XPERP-310404", "asset_class": "crypto"}
+
+    def test_uma_mensagem_com_todos_marcados_como_vistos(self):
+        from engine import quick_opportunities_telegram as T
+        enviadas = []
+        cands = [self.cand(f"A{i}", i % 3) for i in range(14)] + [dict(self.cand("X", 9), side="FLAT")]
+        sent = T.notify_digest(cands, sender=lambda m: enviadas.append(m) or 77, max_items=10)
+        self.assertEqual(len(enviadas), 1)
+        self.assertEqual(len(sent), 14)
+        self.assertIn("14 candidato(s)", enviadas[0])
+        self.assertIn("e mais 4", enviadas[0])
+        self.assertIn("Sem ordem enviada", enviadas[0])
+        self.assertLess(enviadas[0].index("A2 "), enviadas[0].index("A0 "))      # maior score primeiro
+
+    def test_falha_no_envio_nao_marca_nada(self):
+        from engine import quick_opportunities_telegram as T
+        self.assertEqual(T.notify_digest([self.cand("A", 1)], sender=lambda m: None), [])
+        self.assertEqual(T.notify_digest([], sender=lambda m: 1), [])

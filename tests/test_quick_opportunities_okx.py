@@ -155,7 +155,7 @@ class OkxQuickOpportunityTests(unittest.TestCase):
         with mock.patch.object(Q, "_public_universe", return_value=([info], 1)), \
                 mock.patch.object(Q, "_fetch_one",
                                   return_value=(info, [candidate], {"status": "VALID"})), \
-                mock.patch.object(T, "notify_candidates",
+                mock.patch.object(T, "notify_digest",
                                   side_effect=lambda rows, sender=None: [
                                       {"id": T._signal_id(row), "message_id": 1}
                                       for row in rows]):

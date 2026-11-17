@@ -87,6 +87,38 @@ def notify_candidates(candidates, sender=None):
     return sent
 
 
+DIGEST_MAX = 10
+
+
+def _linha(candidate: dict) -> str:
+    classe = {"crypto": "cripto", "equity": "ações/ETF", "precious_metal": "metal"}.get(
+        candidate.get("asset_class"), "")
+    return (f"• {candidate.get('asset')} {candidate.get('side')} {candidate.get('family')}"
+            f"{' (' + classe + ')' if classe else ''} | fecho {float(candidate['signal_close']):.6g}"
+            f" | stop {float(candidate['stop']):.6g} | alvo {float(candidate['target']):.6g}"
+            f" | {candidate.get('instrument_id', '')}")
+
+
+def notify_digest(candidates, sender=None, max_items=DIGEST_MAX):
+    """(17/11) Uma mensagem por ciclo com os candidatos novos (antes: uma por candidato). Com os 262 X-Perps
+    reais a funcionar, a primeira sonda deu 14 candidatos numa vela de 30 min: ~600 mensagens por dia de
+    candidatos NAO validados. Ordena por score; os que ficam de fora da lista contam como vistos (mesma vela)."""
+    send = sender or alerts.send
+    validos = [c for c in candidates if c.get("side") in VALID_SIDES]
+    if not validos:
+        return []
+    validos.sort(key=lambda c: (-float(c.get("score") or 0), str(c.get("asset"))))
+    corpo = "\n".join(_linha(c) for c in validos[:max_items])
+    resto = len(validos) - max_items
+    message = (f"{ALERT_PREFIX}\n{len(validos)} candidato(s) na última vela de 30 min (OKX X-Perps):\n{corpo}"
+               + (f"\n… e mais {resto}" if resto > 0 else "")
+               + "\nHorizonte máximo 4 h. Sem ordem enviada; edge estatístico ainda não aprovado e execução desativada.")
+    result = send(message)
+    if not result:
+        return []
+    return [{"id": _signal_id(c), "message_id": result} for c in validos]
+
+
 def scan_candles(candles_by_asset, sender=None):
     """Detect candidates from validated, closed 30m candles and notify Telegram.
 
