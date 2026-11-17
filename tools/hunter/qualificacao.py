@@ -33,7 +33,7 @@ C = {"oos_n_min": 100, "oos_acontecimentos_min": 30, "oos_dias_min": 30, "pf_min
      "degradacao_janela": 30, "regime_n_min": 100}
 REJEITADAS_POR_ORDEM = {"e495d11739f6": "v2 (Rompimento com reteste 4H LONG cripto): rejeitada para real pela ordem do Rui "
                                         "de 17/11 depois do teste fora da amostra (-0,30R, IC95 [-0,44; -0,16], PF 0,35)"}
-PILOTO_URL = "https://raw.githubusercontent.com/Rferreira89/Cryptoscan/piloto/piloto_publico.json"
+PILOTO_URL = "https://raw.githubusercontent.com/Rferreira89/Cryptoscan/piloto-okx/piloto_publico.json"
 ROBUSTEZ = ("custos_mais_25pct", "deslize_acima_da_media", "sem_melhores_operacoes", "sem_moedas_de_maior_contributo",
             "primeira_metade", "segunda_metade")
 
