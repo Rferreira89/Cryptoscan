@@ -249,7 +249,7 @@ def correr(st, now):
                     "r_medio": round(sum(x["r"] for x in st["fechadas"]) / len(st["fechadas"]), 3) if st["fechadas"] else None,
                     "conta_sim_pct": round(100 * (st["conta_sim"] / CONTA0 - 1), 2)}
     try:
-        st["desempenho"] = {k: metricas([x["r"] for x in st["fechadas"] if f(x)])
+        st["desempenho"] = {k: metricas_sinais([x for x in st["fechadas"] if f(x)])
                             for k, f in (("mercado", lambda x: x.get("tipo") == "mercado"),
                                          ("isolado", lambda x: x.get("tipo") != "mercado"), ("todos", lambda x: True))}
         m = alerta_vantagem(st)
@@ -279,6 +279,42 @@ def metricas(rs):
             "ic95": [round(m - 1.96 * se, 3), round(m + 1.96 * se, 3)] if se is not None else None}
 
 
+def ic95_por_sinal(fechadas):
+    """(17/11) As operacoes do mesmo sinal (mesma vela de 4H, ex.: 15 moedas no mesmo panico) nao sao independentes:
+    sobem e caem juntas. Intervalo de 95% da media com erro-padrao agrupado por vela de sinal (t_sig), para nao
+    dar confianca a mais. Devolve (numero de velas de sinal, intervalo ou None com menos de 3 velas)."""
+    rs = [x["r"] for x in fechadas]
+    n = len(rs)
+    grupos = {}
+    for x in fechadas:
+        grupos.setdefault(x.get("t_sig"), []).append(x["r"])
+    g = len(grupos)
+    if g < 3:
+        return g, None
+    m = sum(rs) / n
+    v = sum((sum(v) - len(v) * m) ** 2 for v in grupos.values())
+    se = (v * g / (g - 1)) ** 0.5 / n
+    return g, [round(m - 1.96 * se, 3), round(m + 1.96 * se, 3)]
+
+
+def metricas_sinais(fechadas):
+    """metricas() mais o numero de velas de sinal e o intervalo de 95% agrupado por sinal (so informacao)."""
+    d = metricas([x["r"] for x in fechadas])
+    if d["n"]:
+        d["sinais"], d["ic95_sinais"] = ic95_por_sinal(fechadas)
+    return d
+
+
+def _txt_sinais(d):
+    ic = d.get("ic95_sinais")
+    if not d.get("sinais"):
+        return ""
+    if not ic:
+        return f" Só {d['sinais']} velas de sinal: as operações não são independentes."
+    return (f" Vêm de {d['sinais']} velas de sinal; contando-as como grupos, o intervalo de 95% é "
+            f"{ic[0]:+.2f} a {ic[1]:+.2f}R.")
+
+
 def alerta_vantagem(st):
     """Com 20+ operacoes em papel do panico do mercado: avisa (uma vez por patamar de 10) se o intervalo de 95%
     ja exclui o que o teste prometeu (vantagem em duvida) ou se confirma media positiva."""
@@ -291,11 +327,11 @@ def alerta_vantagem(st):
     if ic[1] < 0:
         return (f"🚨 Calibração OKX: {n} operações em papel do pânico do mercado com média {d['r_medio']:+.2f}R "
                 f"(95%: {ic[0]:+.2f} a {ic[1]:+.2f}R). A vantagem do teste ({lo:+.2f} a {hi:+.2f}R) não se está a confirmar: "
-                "proponho suspender o dinheiro real até ver a causa.")
+                "proponho suspender o dinheiro real até ver a causa." + _txt_sinais(d))
     if ic[0] > 0:
-        return f"✅ Calibração OKX: {n} operações em papel, média {d['r_medio']:+.2f}R, 95% acima de zero. A vantagem confirma-se ao vivo."
+        return f"✅ Calibração OKX: {n} operações em papel, média {d['r_medio']:+.2f}R, 95% acima de zero. A vantagem confirma-se ao vivo." + _txt_sinais(d)
     return (f"📏 Calibração OKX: {n} operações em papel, média {d['r_medio']:+.2f}R (95%: {ic[0]:+.2f} a {ic[1]:+.2f}R; "
-            f"teste {lo:+.2f} a {hi:+.2f}R). Ainda sem conclusão.")
+            f"teste {lo:+.2f} a {hi:+.2f}R). Ainda sem conclusão." + _txt_sinais(d))
 
 
 RADAR_QUEDA = -0.05      # so pede o financiamento a quem ja caiu 5% em 3 dias (metade do caminho para o sinal)
