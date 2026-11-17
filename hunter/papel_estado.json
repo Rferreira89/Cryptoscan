@@ -1219,6 +1219,66 @@
 "stop_inicial": 0.044459854285714286,
 "objetivo": 0.05026699714285714,
 "r_atual": -0.2901
+},
+{
+"id_op": "bbc2557ab78e|TSM|1794952800",
+"estrategia": "bbc2557ab78e",
+"versao_estrategia": "bbc2557ab78e",
+"versao_codigo": "214613c",
+"familia": "extremo",
+"veredicto_origem": "EXPLORATORIA",
+"b": "TSM",
+"inst": "TSM-USD_UM_XPERP-310926",
+"mercado": "OKX X-Perp (PAPEL)",
+"classe": "equity",
+"tier": "C",
+"lado": "SHORT",
+"tf": "1H",
+"t_sinal": 1794952800,
+"atr_ref": 6.962142857142867,
+"saida": {
+"tipo": "trailing",
+"k": 1.0,
+"tp": null,
+"hold": 4
+},
+"stop_ref": "1H",
+"regime": "btc_acima_media50",
+"acontecimento": "1H@1794952800",
+"carteiras": [
+"max1",
+"max3",
+"max5",
+"sem_limite"
+],
+"custos_previstos": {
+"comissao_lado_pct": 0.05,
+"deslize_lado_pct": 0.2,
+"spread_pct": 0.1511
+},
+"decisao": {
+"fecho": 380.03,
+"atr_tf": 6.962142857142867,
+"atr_ref": 6.962142857142867,
+"btc_ret_vela": 0.00567,
+"velas_disponiveis": 299,
+"ultima_vela_fechada": 1794952800
+},
+"tamanho": {
+"nocional_pct": 4.0,
+"margem_pct": 0.8,
+"perda_max_pct": 0.0933,
+"risco_pct": 0.0933,
+"cortado_pelo_teto_nocional": true,
+"cortado_pelo_limite_autorizado": false
+},
+"aberta_em": 1794956475,
+"historico": [
+{
+"t": 1794956475,
+"estado": "sinal aceite: entrada na abertura da vela seguinte"
+}
+]
 }
 ],
 "fechadas": [
@@ -2363,15 +2423,15 @@
 "instrumentos_descobertos": 262,
 "com_dados_validos": 260,
 "falhas_tecnicas": 8,
-"excluidos_por_dados": 348,
+"excluidos_por_dados": 360,
 "candidatos": 1,
 "aprovados": 1,
-"abertas_novas": 31,
+"abertas_novas": 32,
 "fechadas_agora": 13,
-"sinais_brutos": 42,
-"elegiveis_apos_concentracao": 9,
-"acontecimentos_novos": 5,
-"moedas_com_sinal": 39,
+"sinais_brutos": 43,
+"elegiveis_apos_concentracao": 10,
+"acontecimentos_novos": 6,
+"moedas_com_sinal": 40,
 "rejeitados": {
 "concentracao: acontecimento ja com 3 posicoes (segue so nas carteiras-sombra max5/sem_limite)": 21,
 "ja ha exposicao a esta moeda neste acontecimento (outra estrategia)": 3,
@@ -2379,7 +2439,7 @@
 "estrategia bloqueada pelo motor de sobrevivencia": 5
 }
 },
-"voltas": 29,
+"voltas": 30,
 "bloqueadas": {
 "057f68c36111": [
 "drawdown 10.35R >= 8.0R",
@@ -2433,17 +2493,17 @@
 "falhas_tecnicas": 0,
 "excluidos_por_dados": 12,
 "dados_fiaveis": true,
-"sinais_brutos": 0,
+"sinais_brutos": 1,
 "rejeitados": {},
-"elegiveis_apos_concentracao": 0,
-"abertas_novas": 0,
+"elegiveis_apos_concentracao": 1,
+"abertas_novas": 1,
 "fechadas_agora": 0,
-"acontecimentos_novos": 0,
-"moedas_com_sinal": 0,
-"t": 1794954676,
+"acontecimentos_novos": 1,
+"moedas_com_sinal": 1,
+"t": 1794956475,
 "versao_codigo": "214613c"
 },
-"t": 1794954676,
+"t": 1794956475,
 "aviso": "PAPEL: simulado, nunca somado aos resultados reais; sem ordens",
 "vistos": [
 "057f68c36111|APR|1794902400",
@@ -2476,7 +2536,8 @@
 "bbc2557ab78e|ALLO|1794916800",
 "bbc2557ab78e|BTW|1794902400",
 "bbc2557ab78e|GRVT|1794924000",
-"bbc2557ab78e|PROS|1794934800"
+"bbc2557ab78e|PROS|1794934800",
+"bbc2557ab78e|TSM|1794952800"
 ],
 "carteiras_sombra": {
 "max1": {
