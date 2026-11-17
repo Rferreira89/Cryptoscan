@@ -1,6 +1,5 @@
 {
- "t": 1794902018,
- "origem": "pesquisa_2026-11-17.json",
+ "t": 1794908062,
  "estrategias": [
   {
    "id": "987b19a113db",
@@ -18,7 +17,8 @@
     "tp": null,
     "hold": 4
    },
-   "veredicto": "EXPLORATORIA"
+   "veredicto": "EXPLORATORIA",
+   "estado": "EXPLORATORIA"
   },
   {
    "id": "bbc2557ab78e",
@@ -37,7 +37,8 @@
     "tp": null,
     "hold": 4
    },
-   "veredicto": "EXPLORATORIA"
+   "veredicto": "EXPLORATORIA",
+   "estado": "EXPLORATORIA"
   },
   {
    "id": "29933c49ce9e",
@@ -55,7 +56,8 @@
     "tp": 2.0,
     "hold": 6
    },
-   "veredicto": "EXPLORATORIA"
+   "veredicto": "EXPLORATORIA",
+   "estado": "PAPEL"
   },
   {
    "id": "057f68c36111",
@@ -73,7 +75,8 @@
     "tp": 3.0,
     "hold": 6
    },
-   "veredicto": "EXPLORATORIA"
+   "veredicto": "EXPLORATORIA",
+   "estado": "PAPEL"
   },
   {
    "id": "1a40f1f6422a",
@@ -92,7 +95,8 @@
     "tp": null,
     "hold": 6
    },
-   "veredicto": "EXPLORATORIA"
+   "veredicto": "EXPLORATORIA",
+   "estado": "PAPEL"
   },
   {
    "id": "f482badea9f5",
@@ -112,7 +116,8 @@
     "hold": 6,
     "inversao": true
    },
-   "veredicto": "EXPLORATORIA"
+   "veredicto": "EXPLORATORIA",
+   "estado": "PAPEL"
   },
   {
    "id": "a576dd368963",
@@ -130,7 +135,8 @@
     "tp": 1.5,
     "hold": 6
    },
-   "veredicto": "EXPLORATORIA"
+   "veredicto": "EXPLORATORIA",
+   "estado": "PAPEL"
   },
   {
    "id": "e495d11739f6",
@@ -148,7 +154,86 @@
     "tp": 1.5,
     "hold": 6
    },
-   "veredicto": "EXPLORATORIA"
+   "veredicto": "EXPLORATORIA",
+   "estado": "PAPEL"
+  },
+  {
+   "id": "f8f018b82179",
+   "familia": "lideranca_btc",
+   "parametros": {
+    "x": 0.02
+   },
+   "tf": "1H",
+   "lado": "LONG",
+   "filtro": null,
+   "stop_ref": "4H",
+   "saida": {
+    "tipo": "trailing",
+    "k": 3.0,
+    "tp": null,
+    "hold": 4
+   },
+   "veredicto": "EXPLORATORIA",
+   "estado": "EXPLORATORIA"
+  },
+  {
+   "id": "6a39621b6d34",
+   "familia": "rompimento_reteste",
+   "parametros": {
+    "n": 24
+   },
+   "tf": "4H",
+   "lado": "LONG",
+   "filtro": null,
+   "stop_ref": "4H",
+   "saida": {
+    "tipo": "fixa",
+    "k": 2.0,
+    "tp": 1.5,
+    "hold": 6
+   },
+   "veredicto": "EXPLORATORIA",
+   "estado": "PAPEL"
+  },
+  {
+   "id": "60d39ac83132",
+   "familia": "momentum_regime",
+   "parametros": {
+    "k": 12,
+    "x": 0.05
+   },
+   "tf": "4H",
+   "lado": "LONG",
+   "filtro": null,
+   "stop_ref": "4H",
+   "saida": {
+    "tipo": "fixa",
+    "k": 3.0,
+    "tp": 3.0,
+    "hold": 6,
+    "inversao": true
+   },
+   "veredicto": "EXPLORATORIA",
+   "estado": "PAPEL"
+  },
+  {
+   "id": "6b55332fc362",
+   "familia": "rompimento_reteste",
+   "parametros": {
+    "n": 48
+   },
+   "tf": "4H",
+   "lado": "LONG",
+   "filtro": "cripto",
+   "stop_ref": "4H",
+   "saida": {
+    "tipo": "fixa",
+    "k": 2.5,
+    "tp": 2.0,
+    "hold": 6
+   },
+   "veredicto": "EXPLORATORIA",
+   "estado": "PAPEL"
   }
  ]
 }
