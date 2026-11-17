@@ -1,0 +1,404 @@
+{
+ "instrumentos_vistos": 262,
+ "moedas": 80,
+ "erros": {},
+ "classes": {
+  "crypto": 59,
+  "equity": 17,
+  "precious_metal": 4
+ },
+ "inicio": 1774922400,
+ "corte": 1786906080,
+ "fim": 1794895200,
+ "velas": 542240,
+ "custos": {
+  "comissao_lado_pct": 0.06,
+  "deslizamento_lado_pct": 0.05,
+  "funding": "nao incluido"
+ },
+ "hipoteses": {
+  "momentum|LONG": {
+   "n_desenho": 1328,
+   "r_desenho": -0.1921,
+   "n_teste": 3457,
+   "r_teste": -0.2639,
+   "acerto_teste": 0.389,
+   "percentil_acaso": 96.5,
+   "meses_teste": {
+    "2026-08": [
+     570,
+     -0.23
+    ],
+    "2026-09": [
+     1196,
+     -0.082
+    ],
+    "2026-10": [
+     1014,
+     -0.533
+    ],
+    "2026-11": [
+     677,
+     -0.212
+    ]
+   },
+   "fracao_meses_positivos": 0.0,
+   "por_regime_teste": {
+    "bearish": [
+     177,
+     0.081
+    ],
+    "bullish": [
+     1726,
+     -0.372
+    ],
+    "high_volatility": [
+     192,
+     -0.237
+    ],
+    "range": [
+     1362,
+     -0.176
+    ]
+   },
+   "moedas_teste": 76,
+   "p_holm": 0.14,
+   "veredicto": "SEM VANTAGEM DEMONSTRADA"
+  },
+  "momentum|SHORT": {
+   "n_desenho": 1239,
+   "r_desenho": -0.3072,
+   "n_teste": 3370,
+   "r_teste": -0.1776,
+   "acerto_teste": 0.371,
+   "percentil_acaso": 100.0,
+   "meses_teste": {
+    "2026-08": [
+     460,
+     -0.136
+    ],
+    "2026-09": [
+     1016,
+     -0.318
+    ],
+    "2026-10": [
+     1068,
+     -0.129
+    ],
+    "2026-11": [
+     826,
+     -0.091
+    ]
+   },
+   "fracao_meses_positivos": 0.0,
+   "por_regime_teste": {
+    "bearish": [
+     1652,
+     -0.236
+    ],
+    "bullish": [
+     248,
+     -0.138
+    ],
+    "high_volatility": [
+     257,
+     -0.017
+    ],
+    "range": [
+     1213,
+     -0.14
+    ]
+   },
+   "moedas_teste": 78,
+   "p_holm": 0.0299,
+   "veredicto": "SEM VANTAGEM DEMONSTRADA"
+  },
+  "range_reversal|LONG": {
+   "n_desenho": 6669,
+   "r_desenho": -0.4961,
+   "n_teste": 10712,
+   "r_teste": -0.4892,
+   "acerto_teste": 0.337,
+   "percentil_acaso": 57.0,
+   "meses_teste": {
+    "2026-08": [
+     1500,
+     -0.583
+    ],
+    "2026-09": [
+     3137,
+     -0.475
+    ],
+    "2026-10": [
+     3989,
+     -0.482
+    ],
+    "2026-11": [
+     2086,
+     -0.457
+    ]
+   },
+   "fracao_meses_positivos": 0.0,
+   "por_regime_teste": {
+    "bearish": [
+     4807,
+     -0.374
+    ],
+    "bullish": [
+     811,
+     -0.573
+    ],
+    "high_volatility": [
+     8,
+     -0.065
+    ],
+    "range": [
+     5086,
+     -0.585
+    ]
+   },
+   "moedas_teste": 79,
+   "p_holm": 1.0,
+   "veredicto": "SEM VANTAGEM DEMONSTRADA"
+  },
+  "range_reversal|SHORT": {
+   "n_desenho": 6334,
+   "r_desenho": -0.7248,
+   "n_teste": 10306,
+   "r_teste": -0.486,
+   "acerto_teste": 0.348,
+   "percentil_acaso": 33.5,
+   "meses_teste": {
+    "2026-08": [
+     1699,
+     -0.607
+    ],
+    "2026-09": [
+     3324,
+     -0.552
+    ],
+    "2026-10": [
+     3644,
+     -0.435
+    ],
+    "2026-11": [
+     1639,
+     -0.342
+    ]
+   },
+   "fracao_meses_positivos": 0.0,
+   "por_regime_teste": {
+    "bearish": [
+     928,
+     -0.44
+    ],
+    "bullish": [
+     4058,
+     -0.385
+    ],
+    "high_volatility": [
+     4,
+     -0.386
+    ],
+    "range": [
+     5316,
+     -0.571
+    ]
+   },
+   "moedas_teste": 79,
+   "p_holm": 1.0,
+   "veredicto": "SEM VANTAGEM DEMONSTRADA"
+  },
+  "volume_breakdown|SHORT": {
+   "n_desenho": 3718,
+   "r_desenho": -0.5628,
+   "n_teste": 6713,
+   "r_teste": -0.3738,
+   "acerto_teste": 0.348,
+   "percentil_acaso": 99.0,
+   "meses_teste": {
+    "2026-08": [
+     816,
+     -0.613
+    ],
+    "2026-09": [
+     1853,
+     -0.582
+    ],
+    "2026-10": [
+     2590,
+     -0.271
+    ],
+    "2026-11": [
+     1454,
+     -0.159
+    ]
+   },
+   "fracao_meses_positivos": 0.0,
+   "por_regime_teste": {
+    "bearish": [
+     3593,
+     -0.306
+    ],
+    "high_volatility": [
+     74,
+     0.01
+    ],
+    "range": [
+     3046,
+     -0.464
+    ]
+   },
+   "moedas_teste": 79,
+   "p_holm": 0.05,
+   "veredicto": "SEM VANTAGEM DEMONSTRADA"
+  },
+  "volume_breakout|LONG": {
+   "n_desenho": 3574,
+   "r_desenho": -0.8538,
+   "n_teste": 6284,
+   "r_teste": -0.5435,
+   "acerto_teste": 0.327,
+   "percentil_acaso": 29.5,
+   "meses_teste": {
+    "2026-08": [
+     1063,
+     -0.624
+    ],
+    "2026-09": [
+     2320,
+     -0.598
+    ],
+    "2026-10": [
+     1968,
+     -0.465
+    ],
+    "2026-11": [
+     933,
+     -0.48
+    ]
+   },
+   "fracao_meses_positivos": 0.0,
+   "por_regime_teste": {
+    "bearish": [
+     2,
+     -2.028
+    ],
+    "bullish": [
+     3033,
+     -0.38
+    ],
+    "high_volatility": [
+     54,
+     -0.101
+    ],
+    "range": [
+     3195,
+     -0.706
+    ]
+   },
+   "moedas_teste": 79,
+   "p_holm": 1.0,
+   "veredicto": "SEM VANTAGEM DEMONSTRADA"
+  }
+ },
+ "por_classe": {
+  "crypto": {
+   "momentum|LONG": {
+    "n_teste": 2936,
+    "r_teste": -0.2708,
+    "percentil_acaso": 53.5
+   },
+   "momentum|SHORT": {
+    "n_teste": 2830,
+    "r_teste": -0.2011,
+    "percentil_acaso": 86.5
+   },
+   "range_reversal|LONG": {
+    "n_teste": 7174,
+    "r_teste": -0.2933,
+    "percentil_acaso": 49.5
+   },
+   "range_reversal|SHORT": {
+    "n_teste": 6845,
+    "r_teste": -0.3178,
+    "percentil_acaso": 5.0
+   },
+   "volume_breakdown|SHORT": {
+    "n_teste": 4636,
+    "r_teste": -0.2681,
+    "percentil_acaso": 31.5
+   },
+   "volume_breakout|LONG": {
+    "n_teste": 4282,
+    "r_teste": -0.323,
+    "percentil_acaso": 19.0
+   }
+  },
+  "equity": {
+   "momentum|LONG": {
+    "n_teste": 509,
+    "r_teste": -0.2158,
+    "percentil_acaso": 100.0
+   },
+   "momentum|SHORT": {
+    "n_teste": 522,
+    "r_teste": -0.0394,
+    "percentil_acaso": 100.0
+   },
+   "range_reversal|LONG": {
+    "n_teste": 2482,
+    "r_teste": -0.9286,
+    "percentil_acaso": 59.5
+   },
+   "range_reversal|SHORT": {
+    "n_teste": 2424,
+    "r_teste": -0.8795,
+    "percentil_acaso": 67.0
+   },
+   "volume_breakdown|SHORT": {
+    "n_teste": 1697,
+    "r_teste": -0.6279,
+    "percentil_acaso": 100.0
+   },
+   "volume_breakout|LONG": {
+    "n_teste": 1630,
+    "r_teste": -1.0631,
+    "percentil_acaso": 34.5
+   }
+  },
+  "precious_metal": {
+   "momentum|LONG": {
+    "n_teste": 12,
+    "r_teste": -0.6043,
+    "percentil_acaso": 52.0
+   },
+   "momentum|SHORT": {
+    "n_teste": 18,
+    "r_teste": -0.485,
+    "percentil_acaso": 57.0
+   },
+   "range_reversal|LONG": {
+    "n_teste": 1056,
+    "r_teste": -0.7874,
+    "percentil_acaso": 3.5
+   },
+   "range_reversal|SHORT": {
+    "n_teste": 1037,
+    "r_teste": -0.6761,
+    "percentil_acaso": 38.5
+   },
+   "volume_breakdown|SHORT": {
+    "n_teste": 380,
+    "r_teste": -0.5287,
+    "percentil_acaso": 99.5
+   },
+   "volume_breakout|LONG": {
+    "n_teste": 372,
+    "r_teste": -0.8043,
+    "percentil_acaso": 1.0
+   }
+  }
+ },
+ "segundos": 607
+}
