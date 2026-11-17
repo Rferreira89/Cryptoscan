@@ -1,0 +1,2430 @@
+{
+"posicoes": {
+"okx:85E99C6A6DBF99AA": {
+"4083633312392355840": {
+"inst": "ARB-USDT-SWAP",
+"base": "ARB",
+"lado": "SHORT",
+"t_abre": 1794204156,
+"px_abre": 0.179,
+"alav": 1.0,
+"tamanho": -205.6,
+"margem": 368.024,
+"id": "4083633312392355840"
+},
+"4078368885782945792": {
+"inst": "ARB-USDT-SWAP",
+"base": "ARB",
+"lado": "SHORT",
+"t_abre": 1794047264,
+"px_abre": 0.172,
+"alav": 1.0,
+"tamanho": -195.7,
+"margem": 336.604,
+"id": "4078368885782945792"
+},
+"4074811172675198976": {
+"inst": "OP-USDT-SWAP",
+"base": "OP",
+"lado": "SHORT",
+"t_abre": 1793941236,
+"px_abre": 0.105,
+"alav": 1.0,
+"tamanho": -3322.0,
+"margem": 348.81,
+"id": "4074811172675198976"
+},
+"4074808570126344192": {
+"inst": "ARB-USDT-SWAP",
+"base": "ARB",
+"lado": "SHORT",
+"t_abre": 1793941158,
+"px_abre": 0.169,
+"alav": 1.0,
+"tamanho": -210.9,
+"margem": 356.421,
+"id": "4074808570126344192"
+},
+"4074808179384983552": {
+"inst": "ARB-USDT-SWAP",
+"base": "ARB",
+"lado": "SHORT",
+"t_abre": 1793941147,
+"px_abre": 0.173,
+"alav": 1.0,
+"tamanho": -208.2,
+"margem": 360.186,
+"id": "4074808179384983552"
+},
+"4053936600723824640": {
+"inst": "HYPE-USDT-SWAP",
+"base": "HYPE",
+"lado": "SHORT",
+"t_abre": 1793319125,
+"px_abre": 90.1,
+"alav": 1.0,
+"tamanho": -37.0,
+"margem": 333.37,
+"id": "4053936600723824640"
+},
+"4052362123326070784": {
+"inst": "HYPE-USDT-SWAP",
+"base": "HYPE",
+"lado": "SHORT",
+"t_abre": 1793272202,
+"px_abre": 86.9,
+"alav": 1.0,
+"tamanho": -21.0,
+"margem": 182.49,
+"id": "4052362123326070784"
+},
+"4052361762683035648": {
+"inst": "HYPE-USDT-SWAP",
+"base": "HYPE",
+"lado": "SHORT",
+"t_abre": 1793272191,
+"px_abre": 86.36,
+"alav": 1.0,
+"tamanho": -22.0,
+"margem": 189.992,
+"id": "4052361762683035648"
+},
+"4042912282795646976": {
+"inst": "ZK-USDT-SWAP",
+"base": "ZK",
+"lado": "SHORT",
+"t_abre": 1792990575,
+"px_abre": 0.0126,
+"alav": 1.0,
+"tamanho": -1530.0,
+"margem": 192.78,
+"id": "4042912282795646976"
+},
+"4041097626229743616": {
+"inst": "ZK-USDT-SWAP",
+"base": "ZK",
+"lado": "SHORT",
+"t_abre": 1792936494,
+"px_abre": 0.0127,
+"alav": 1.0,
+"tamanho": -1542.0,
+"margem": 195.834,
+"id": "4041097626229743616"
+},
+"4040205500822396928": {
+"inst": "SUI-USDT-SWAP",
+"base": "SUI",
+"lado": "SHORT",
+"t_abre": 1792909906,
+"px_abre": 0.94,
+"alav": 1.0,
+"tamanho": -625.0,
+"margem": 587.5,
+"id": "4040205500822396928"
+},
+"4036550608274661376": {
+"inst": "OP-USDT-SWAP",
+"base": "OP",
+"lado": "SHORT",
+"t_abre": 1792800982,
+"px_abre": 0.121,
+"alav": 1.0,
+"tamanho": -1252.0,
+"margem": 151.492,
+"id": "4036550608274661376"
+},
+"4034960100918108160": {
+"inst": "ARB-USDT-SWAP",
+"base": "ARB",
+"lado": "SHORT",
+"t_abre": 1792753581,
+"px_abre": 0.186,
+"alav": 1.0,
+"tamanho": -59.6,
+"margem": 110.856,
+"id": "4034960100918108160"
+},
+"3992159393127407616": {
+"inst": "STRK-USDT-SWAP",
+"base": "STRK",
+"lado": "SHORT",
+"t_abre": 1791478021,
+"px_abre": 0.059,
+"alav": 1.0,
+"tamanho": -673.0,
+"margem": 39.707,
+"id": "3992159393127407616"
+},
+"3992152356628799488": {
+"inst": "STRK-USDT-SWAP",
+"base": "STRK",
+"lado": "SHORT",
+"t_abre": 1791477811,
+"px_abre": 0.05908,
+"alav": 1.0,
+"tamanho": -685.0,
+"margem": 40.4698,
+"id": "3992152356628799488"
+},
+"3992151960787165184": {
+"inst": "STRK-USDT-SWAP",
+"base": "STRK",
+"lado": "SHORT",
+"t_abre": 1791477799,
+"px_abre": 0.063,
+"alav": 1.0,
+"tamanho": -1612.0,
+"margem": 101.556,
+"id": "3992151960787165184"
+},
+"3992151177526059008": {
+"inst": "STRK-USDT-SWAP",
+"base": "STRK",
+"lado": "SHORT",
+"t_abre": 1791477776,
+"px_abre": 0.062,
+"alav": 1.0,
+"tamanho": -2159.0,
+"margem": 133.858,
+"id": "3992151177526059008"
+},
+"3992151058340716544": {
+"inst": "STRK-USDT-SWAP",
+"base": "STRK",
+"lado": "SHORT",
+"t_abre": 1791477772,
+"px_abre": 0.061,
+"alav": 1.0,
+"tamanho": -2338.0,
+"margem": 142.618,
+"id": "3992151058340716544"
+},
+"3992150889998131200": {
+"inst": "STRK-USDT-SWAP",
+"base": "STRK",
+"lado": "SHORT",
+"t_abre": 1791477767,
+"px_abre": 0.06,
+"alav": 1.0,
+"tamanho": -1289.0,
+"margem": 77.34,
+"id": "3992150889998131200"
+},
+"3989470629447933952": {
+"inst": "ZK-USDT-SWAP",
+"base": "ZK",
+"lado": "SHORT",
+"t_abre": 1791397889,
+"px_abre": 0.012,
+"alav": 1.0,
+"tamanho": -343.0,
+"margem": 41.16,
+"id": "3989470629447933952"
+},
+"3989444122151297024": {
+"inst": "OP-USDT-SWAP",
+"base": "OP",
+"lado": "SHORT",
+"t_abre": 1791397099,
+"px_abre": 0.125,
+"alav": 1.0,
+"tamanho": -340.0,
+"margem": 42.5,
+"id": "3989444122151297024"
+},
+"3989443867372494848": {
+"inst": "OP-USDT-SWAP",
+"base": "OP",
+"lado": "SHORT",
+"t_abre": 1791397092,
+"px_abre": 0.121,
+"alav": 1.0,
+"tamanho": -354.0,
+"margem": 42.834,
+"id": "3989443867372494848"
+},
+"3989442795073511424": {
+"inst": "STRK-USDT-SWAP",
+"base": "STRK",
+"lado": "SHORT",
+"t_abre": 1791397060,
+"px_abre": 0.053,
+"alav": 1.0,
+"tamanho": -813.0,
+"margem": 43.089,
+"id": "3989442795073511424"
+},
+"3989442304608378880": {
+"inst": "ZK-USDT-SWAP",
+"base": "ZK",
+"lado": "SHORT",
+"t_abre": 1791397045,
+"px_abre": 0.0121,
+"alav": 1.0,
+"tamanho": -362.0,
+"margem": 43.802,
+"id": "3989442304608378880"
+},
+"3989251582525513728": {
+"inst": "STRK-USDT-SWAP",
+"base": "STRK",
+"lado": "SHORT",
+"t_abre": 1791391361,
+"px_abre": 0.051,
+"alav": 1.0,
+"tamanho": -736.0,
+"margem": 37.536,
+"id": "3989251582525513728"
+},
+"3989250864896876544": {
+"inst": "ZK-USDT-SWAP",
+"base": "ZK",
+"lado": "SHORT",
+"t_abre": 1791391340,
+"px_abre": 0.0123,
+"alav": 1.0,
+"tamanho": -316.0,
+"margem": 38.868,
+"id": "3989250864896876544"
+},
+"3989132124117082112": {
+"inst": "ZK-USDT-SWAP",
+"base": "ZK",
+"lado": "SHORT",
+"t_abre": 1791387801,
+"px_abre": 0.0126,
+"alav": 1.0,
+"tamanho": -304.0,
+"margem": 38.304,
+"id": "3989132124117082112"
+},
+"3988935547121377280": {
+"inst": "ZK-USDT-SWAP",
+"base": "ZK",
+"lado": "SHORT",
+"t_abre": 1791381943,
+"px_abre": 0.0125,
+"alav": 1.0,
+"tamanho": -248.0,
+"margem": 31.0,
+"id": "3988935547121377280"
+},
+"3988890730580484096": {
+"inst": "ZK-USDT-SWAP",
+"base": "ZK",
+"lado": "SHORT",
+"t_abre": 1791380607,
+"px_abre": 0.012,
+"alav": 1.0,
+"tamanho": -875.0,
+"margem": 105.0,
+"id": "3988890730580484096"
+},
+"3988889784848818176": {
+"inst": "STRK-USDT-SWAP",
+"base": "STRK",
+"lado": "SHORT",
+"t_abre": 1791380579,
+"px_abre": 0.0496,
+"alav": 1.0,
+"tamanho": -2134.0,
+"margem": 105.8464,
+"id": "3988889784848818176"
+},
+"3988888357812379648": {
+"inst": "STRK-USDT-SWAP",
+"base": "STRK",
+"lado": "SHORT",
+"t_abre": 1791380536,
+"px_abre": 0.0497,
+"alav": 1.0,
+"tamanho": -3636.0,
+"margem": 180.7092,
+"id": "3988888357812379648"
+},
+"3988887832953954304": {
+"inst": "ZK-USDT-SWAP",
+"base": "ZK",
+"lado": "SHORT",
+"t_abre": 1791380521,
+"px_abre": 0.01191,
+"alav": 1.0,
+"tamanho": -621.0,
+"margem": 73.9611,
+"id": "3988887832953954304"
+},
+"3975097284766015488": {
+"inst": "ZK-USDT-SWAP",
+"base": "ZK",
+"lado": "SHORT",
+"t_abre": 1790969530,
+"px_abre": 0.01251,
+"alav": 1.0,
+"tamanho": -3228.0,
+"margem": 403.8228,
+"id": "3975097284766015488"
+},
+"3975096184381972480": {
+"inst": "OP-USDT-SWAP",
+"base": "OP",
+"lado": "SHORT",
+"t_abre": 1790969498,
+"px_abre": 0.1259,
+"alav": 1.0,
+"tamanho": -2830.0,
+"margem": 356.297,
+"id": "3975096184381972480"
+},
+"3975093790172585984": {
+"inst": "ZK-USDT-SWAP",
+"base": "ZK",
+"lado": "SHORT",
+"t_abre": 1790969426,
+"px_abre": 0.0126,
+"alav": 1.0,
+"tamanho": -2204.0,
+"margem": 277.704,
+"id": "3975093790172585984"
+},
+"3975093582336434176": {
+"inst": "ZK-USDT-SWAP",
+"base": "ZK",
+"lado": "SHORT",
+"t_abre": 1790969420,
+"px_abre": 0.0131,
+"alav": 1.0,
+"tamanho": -2814.0,
+"margem": 184.317,
+"id": "3975093582336434176"
+},
+"3975091684296433664": {
+"inst": "HYPE-USDT-SWAP",
+"base": "HYPE",
+"lado": "SHORT",
+"t_abre": 1790969363,
+"px_abre": 86.53,
+"alav": 1.0,
+"tamanho": -17.0,
+"margem": 147.101,
+"id": "3975091684296433664"
+},
+"3950810393610887168": {
+"inst": "ARB-USDT-SWAP",
+"base": "ARB",
+"lado": "SHORT",
+"t_abre": 1790245725,
+"px_abre": 0.2122,
+"alav": 1.0,
+"tamanho": -44.3,
+"margem": 94.0046,
+"id": "3950810393610887168"
+},
+"3950662234385489920": {
+"inst": "HYPE-USDT-SWAP",
+"base": "HYPE",
+"lado": "SHORT",
+"t_abre": 1790241309,
+"px_abre": 91.434,
+"alav": 1.0,
+"tamanho": -5.0,
+"margem": 45.717,
+"id": "3950662234385489920"
+},
+"3950606158654939136": {
+"inst": "ZK-USDT-SWAP",
+"base": "ZK",
+"lado": "SHORT",
+"t_abre": 1790239638,
+"px_abre": 0.0114,
+"alav": 1.0,
+"tamanho": -775.0,
+"margem": 88.35,
+"id": "3950606158654939136"
+},
+"3950604575087075328": {
+"inst": "ARB-USDT-SWAP",
+"base": "ARB",
+"lado": "SHORT",
+"t_abre": 1790239591,
+"px_abre": 0.2146,
+"alav": 1.0,
+"tamanho": -40.7,
+"margem": 87.3422,
+"id": "3950604575087075328"
+},
+"3949967559899029504": {
+"inst": "OP-USDT-SWAP",
+"base": "OP",
+"lado": "SHORT",
+"t_abre": 1790220606,
+"px_abre": 0.1248,
+"alav": 1.0,
+"tamanho": -607.0,
+"margem": 75.7536,
+"id": "3949967559899029504"
+},
+"3949966823110811648": {
+"inst": "ZK-USDT-SWAP",
+"base": "ZK",
+"lado": "SHORT",
+"t_abre": 1790220584,
+"px_abre": 0.0115,
+"alav": 1.0,
+"tamanho": -669.0,
+"margem": 76.935,
+"id": "3949966823110811648"
+},
+"3949782181191688192": {
+"inst": "ARB-USDT-SWAP",
+"base": "ARB",
+"lado": "SHORT",
+"t_abre": 1790215081,
+"px_abre": 0.2178,
+"alav": 1.0,
+"tamanho": -43.2,
+"margem": 94.0896,
+"id": "3949782181191688192"
+},
+"3949669497691512832": {
+"inst": "OP-USDT-SWAP",
+"base": "OP",
+"lado": "SHORT",
+"t_abre": 1790211723,
+"px_abre": 0.1242,
+"alav": 1.0,
+"tamanho": -969.0,
+"margem": 120.3498,
+"id": "3949669497691512832"
+},
+"3949668498943844352": {
+"inst": "ARB-USDT-SWAP",
+"base": "ARB",
+"lado": "SHORT",
+"t_abre": 1790211693,
+"px_abre": 0.2175,
+"alav": 1.0,
+"tamanho": -54.8,
+"margem": 119.19,
+"id": "3949668498943844352"
+},
+"3949648474296360960": {
+"inst": "ZK-USDT-SWAP",
+"base": "ZK",
+"lado": "SHORT",
+"t_abre": 1790211097,
+"px_abre": 0.0113,
+"alav": 1.0,
+"tamanho": -2243.0,
+"margem": 253.459,
+"id": "3949648474296360960"
+},
+"3949647703215513600": {
+"inst": "ARB-USDT-SWAP",
+"base": "ARB",
+"lado": "SHORT",
+"t_abre": 1790211074,
+"px_abre": 0.2172,
+"alav": 1.0,
+"tamanho": -58.5,
+"margem": 127.062,
+"id": "3949647703215513600"
+},
+"3949545046853361664": {
+"inst": "HYPE-USDT-SWAP",
+"base": "HYPE",
+"lado": "SHORT",
+"t_abre": 1790208014,
+"px_abre": 93.999,
+"alav": 1.0,
+"tamanho": -27.0,
+"margem": 281.997,
+"id": "3949545046853361664"
+},
+"3949524478053654528": {
+"inst": "ARB-USDT-SWAP",
+"base": "ARB",
+"lado": "SHORT",
+"t_abre": 1790207401,
+"px_abre": 0.2161,
+"alav": 1.0,
+"tamanho": -63.9,
+"margem": 138.0879,
+"id": "3949524478053654528"
+},
+"3949510881596481536": {
+"inst": "ARB-USDT-SWAP",
+"base": "ARB",
+"lado": "SHORT",
+"t_abre": 1790206996,
+"px_abre": 0.2156,
+"alav": 1.0,
+"tamanho": -66.3,
+"margem": 142.9428,
+"id": "3949510881596481536"
+},
+"3949506324569071616": {
+"inst": "ARB-USDT-SWAP",
+"base": "ARB",
+"lado": "SHORT",
+"t_abre": 1790206860,
+"px_abre": 0.2159,
+"alav": 1.0,
+"tamanho": -132.4,
+"margem": 285.8516,
+"id": "3949506324569071616"
+},
+"3949268831500312576": {
+"inst": "ZK-USDT-SWAP",
+"base": "ZK",
+"lado": "SHORT",
+"t_abre": 1790199782,
+"px_abre": 0.0119,
+"alav": 1.0,
+"tamanho": -2037.0,
+"margem": 242.403,
+"id": "3949268831500312576"
+},
+"3949125768186503168": {
+"inst": "ZK-USDT-SWAP",
+"base": "ZK",
+"lado": "SHORT",
+"t_abre": 1790195519,
+"px_abre": 0.0118,
+"alav": 1.0,
+"tamanho": -4152.0,
+"margem": 489.936,
+"id": "3949125768186503168"
+},
+"3948642006222839808": {
+"inst": "ZK-USDT-SWAP",
+"base": "ZK",
+"lado": "SHORT",
+"t_abre": 1790181102,
+"px_abre": 0.01143,
+"alav": 1.0,
+"tamanho": -871.0,
+"margem": 99.5553,
+"id": "3948642006222839808"
+},
+"3948641681818591232": {
+"inst": "ZK-USDT-SWAP",
+"base": "ZK",
+"lado": "SHORT",
+"t_abre": 1790181092,
+"px_abre": 0.011368,
+"alav": 1.0,
+"tamanho": -890.0,
+"margem": 101.1752,
+"id": "3948641681818591232"
+},
+"3948640991872360448": {
+"inst": "OP-USDT-SWAP",
+"base": "OP",
+"lado": "SHORT",
+"t_abre": 1790181071,
+"px_abre": 0.1253,
+"alav": 1.0,
+"tamanho": -790.0,
+"margem": 98.987,
+"id": "3948640991872360448"
+},
+"3948640615391633408": {
+"inst": "OP-USDT-SWAP",
+"base": "OP",
+"lado": "SHORT",
+"t_abre": 1790181060,
+"px_abre": 0.131,
+"alav": 1.0,
+"tamanho": -1537.0,
+"margem": 201.347,
+"id": "3948640615391633408"
+},
+"3948639163491360768": {
+"inst": "ARB-USDT-SWAP",
+"base": "ARB",
+"lado": "SHORT",
+"t_abre": 1790181017,
+"px_abre": 0.22229,
+"alav": 1.0,
+"tamanho": -46.4,
+"margem": 103.14256,
+"id": "3948639163491360768"
+},
+"3948638769595883520": {
+"inst": "ARB-USDT-SWAP",
+"base": "ARB",
+"lado": "SHORT",
+"t_abre": 1790181005,
+"px_abre": 0.2223,
+"alav": 1.0,
+"tamanho": -96.1,
+"margem": 213.6303,
+"id": "3948638769595883520"
+},
+"3939855702571950080": {
+"inst": "STRK-USDT-SWAP",
+"base": "STRK",
+"lado": "SHORT",
+"t_abre": 1789919249,
+"px_abre": 0.0468,
+"alav": 1.0,
+"tamanho": -23000.0,
+"margem": 1076.4,
+"id": "3939855702571950080"
+},
+"3937842564427227136": {
+"inst": "ZK-USDT-SWAP",
+"base": "ZK",
+"lado": "SHORT",
+"t_abre": 1789859253,
+"px_abre": 0.01126,
+"alav": 1.0,
+"tamanho": -8000.0,
+"margem": 900.8,
+"id": "3937842564427227136"
+},
+"3937605425122844672": {
+"inst": "OP-USDT-SWAP",
+"base": "OP",
+"lado": "SHORT",
+"t_abre": 1789852186,
+"px_abre": 0.123,
+"alav": 1.0,
+"tamanho": -8000.0,
+"margem": 984.0,
+"id": "3937605425122844672"
+},
+"3937493965084368896": {
+"inst": "ARB-USDT-SWAP",
+"base": "ARB",
+"lado": "SHORT",
+"t_abre": 1789848864,
+"px_abre": 0.20805,
+"alav": 1.0,
+"tamanho": -500.0,
+"margem": 1040.25,
+"id": "3937493965084368896"
+},
+"3937493153067114496": {
+"inst": "OP-USDT-SWAP",
+"base": "OP",
+"lado": "SHORT",
+"t_abre": 1789848840,
+"px_abre": 0.12352,
+"alav": 1.0,
+"tamanho": -8000.0,
+"margem": 988.16,
+"id": "3937493153067114496"
+},
+"3937282401504927744": {
+"inst": "STRK-USDT-SWAP",
+"base": "STRK",
+"lado": "SHORT",
+"t_abre": 1789842559,
+"px_abre": 0.045,
+"alav": 1.0,
+"tamanho": -23000.0,
+"margem": 1035.0,
+"id": "3937282401504927744"
+},
+"3937235935931473920": {
+"inst": "OP-USDT-SWAP",
+"base": "OP",
+"lado": "SHORT",
+"t_abre": 1789841174,
+"px_abre": 0.1215,
+"alav": 1.0,
+"tamanho": -8000.0,
+"margem": 972.0,
+"id": "3937235935931473920"
+},
+"3937235619647397888": {
+"inst": "OP-USDT-SWAP",
+"base": "OP",
+"lado": "SHORT",
+"t_abre": 1789841165,
+"px_abre": 0.12136,
+"alav": 1.0,
+"tamanho": -8000.0,
+"margem": 970.88,
+"id": "3937235619647397888"
+},
+"3937233981889126400": {
+"inst": "ZK-USDT-SWAP",
+"base": "ZK",
+"lado": "SHORT",
+"t_abre": 1789841116,
+"px_abre": 0.011107,
+"alav": 1.0,
+"tamanho": -9000.0,
+"margem": 999.63,
+"id": "3937233981889126400"
+},
+"3937227840153001984": {
+"inst": "ZK-USDT-SWAP",
+"base": "ZK",
+"lado": "SHORT",
+"t_abre": 1789840933,
+"px_abre": 0.011107,
+"alav": 1.0,
+"tamanho": -9000.0,
+"margem": 999.63,
+"id": "3937227840153001984"
+},
+"3937225262870634496": {
+"inst": "OP-USDT-SWAP",
+"base": "OP",
+"lado": "SHORT",
+"t_abre": 1789840856,
+"px_abre": 0.12146,
+"alav": 1.0,
+"tamanho": -8000.0,
+"margem": 971.68,
+"id": "3937225262870634496"
+},
+"3937224680365694976": {
+"inst": "OP-USDT-SWAP",
+"base": "OP",
+"lado": "SHORT",
+"t_abre": 1789840839,
+"px_abre": 0.12144,
+"alav": 1.0,
+"tamanho": -8000.0,
+"margem": 971.52,
+"id": "3937224680365694976"
+},
+"3937224239460458496": {
+"inst": "STRK-USDT-SWAP",
+"base": "STRK",
+"lado": "SHORT",
+"t_abre": 1789840826,
+"px_abre": 0.04421,
+"alav": 1.0,
+"tamanho": -23000.0,
+"margem": 1016.83,
+"id": "3937224239460458496"
+},
+"3937222506407600128": {
+"inst": "STRK-USDT-SWAP",
+"base": "STRK",
+"lado": "SHORT",
+"t_abre": 1789840774,
+"px_abre": 0.04418,
+"alav": 1.0,
+"tamanho": -23000.0,
+"margem": 1016.14,
+"id": "3937222506407600128"
+},
+"3937221802133626880": {
+"inst": "ARB-USDT-SWAP",
+"base": "ARB",
+"lado": "SHORT",
+"t_abre": 1789840753,
+"px_abre": 0.20726,
+"alav": 1.0,
+"tamanho": -500.0,
+"margem": 1036.3,
+"id": "3937221802133626880"
+},
+"3937221617080934400": {
+"inst": "ARB-USDT-SWAP",
+"base": "ARB",
+"lado": "SHORT",
+"t_abre": 1789840747,
+"px_abre": 0.207093358,
+"alav": 1.0,
+"tamanho": -500.0,
+"margem": 1035.46679,
+"id": "3937221617080934400"
+},
+"3937221076485480448": {
+"inst": "ZK-USDT-SWAP",
+"base": "ZK",
+"lado": "SHORT",
+"t_abre": 1789840731,
+"px_abre": 0.011083,
+"alav": 1.0,
+"tamanho": -9000.0,
+"margem": 997.47,
+"id": "3937221076485480448"
+},
+"3937219686526689280": {
+"inst": "STRK-USDT-SWAP",
+"base": "STRK",
+"lado": "SHORT",
+"t_abre": 1789840690,
+"px_abre": 0.0443,
+"alav": 1.0,
+"tamanho": -23000.0,
+"margem": 1018.9,
+"id": "3937219686526689280"
+},
+"3937217879284981760": {
+"inst": "STRK-USDT-SWAP",
+"base": "STRK",
+"lado": "SHORT",
+"t_abre": 1789840636,
+"px_abre": 0.04442,
+"alav": 1.0,
+"tamanho": -23000.0,
+"margem": 1021.66,
+"id": "3937217879284981760"
+},
+"3937216348666011648": {
+"inst": "STRK-USDT-SWAP",
+"base": "STRK",
+"lado": "SHORT",
+"t_abre": 1789840590,
+"px_abre": 0.04438,
+"alav": 1.0,
+"tamanho": -23000.0,
+"margem": 1020.74,
+"id": "3937216348666011648"
+},
+"3937214365968179200": {
+"inst": "STRK-USDT-SWAP",
+"base": "STRK",
+"lado": "SHORT",
+"t_abre": 1789840531,
+"px_abre": 0.04431,
+"alav": 1.0,
+"tamanho": -23000.0,
+"margem": 1019.13,
+"id": "3937214365968179200"
+},
+"3937213758968504320": {
+"inst": "OP-USDT-SWAP",
+"base": "OP",
+"lado": "SHORT",
+"t_abre": 1789840513,
+"px_abre": 0.12151,
+"alav": 1.0,
+"tamanho": -8000.0,
+"margem": 972.08,
+"id": "3937213758968504320"
+},
+"3937213216661774336": {
+"inst": "OP-USDT-SWAP",
+"base": "OP",
+"lado": "SHORT",
+"t_abre": 1789840497,
+"px_abre": 0.12146,
+"alav": 1.0,
+"tamanho": -8000.0,
+"margem": 971.68,
+"id": "3937213216661774336"
+},
+"3937212370553217024": {
+"inst": "STRK-USDT-SWAP",
+"base": "STRK",
+"lado": "SHORT",
+"t_abre": 1789840472,
+"px_abre": 0.04444,
+"alav": 1.0,
+"tamanho": -23000.0,
+"margem": 1022.12,
+"id": "3937212370553217024"
+},
+"3937199537291599872": {
+"inst": "STRK-USDT-SWAP",
+"base": "STRK",
+"lado": "SHORT",
+"t_abre": 1789840089,
+"px_abre": 0.04456,
+"alav": 1.0,
+"tamanho": -23000.0,
+"margem": 1024.88,
+"id": "3937199537291599872"
+},
+"3937199020184248320": {
+"inst": "ARB-USDT-SWAP",
+"base": "ARB",
+"lado": "SHORT",
+"t_abre": 1789840074,
+"px_abre": 0.20736,
+"alav": 1.0,
+"tamanho": -500.0,
+"margem": 1036.8,
+"id": "3937199020184248320"
+},
+"3937198139380408320": {
+"inst": "ARB-USDT-SWAP",
+"base": "ARB",
+"lado": "SHORT",
+"t_abre": 1789840048,
+"px_abre": 0.20721,
+"alav": 1.0,
+"tamanho": -500.0,
+"margem": 1036.05,
+"id": "3937198139380408320"
+},
+"3937197323202404352": {
+"inst": "STRK-USDT-SWAP",
+"base": "STRK",
+"lado": "SHORT",
+"t_abre": 1789840023,
+"px_abre": 0.04455,
+"alav": 1.0,
+"tamanho": -23000.0,
+"margem": 1024.65,
+"id": "3937197323202404352"
+},
+"3937196022095749120": {
+"inst": "STRK-USDT-SWAP",
+"base": "STRK",
+"lado": "SHORT",
+"t_abre": 1789839985,
+"px_abre": 0.04473,
+"alav": 1.0,
+"tamanho": -23000.0,
+"margem": 1028.79,
+"id": "3937196022095749120"
+},
+"3937195468279848960": {
+"inst": "ZK-USDT-SWAP",
+"base": "ZK",
+"lado": "SHORT",
+"t_abre": 1789839968,
+"px_abre": 0.011055,
+"alav": 1.0,
+"tamanho": -9000.0,
+"margem": 994.95,
+"id": "3937195468279848960"
+},
+"3937194946776866816": {
+"inst": "STRK-USDT-SWAP",
+"base": "STRK",
+"lado": "SHORT",
+"t_abre": 1789839953,
+"px_abre": 0.04474,
+"alav": 1.0,
+"tamanho": -23000.0,
+"margem": 1029.02,
+"id": "3937194946776866816"
+},
+"3937192981460230144": {
+"inst": "ZK-USDT-SWAP",
+"base": "ZK",
+"lado": "SHORT",
+"t_abre": 1789839894,
+"px_abre": 0.011049,
+"alav": 1.0,
+"tamanho": -9000.0,
+"margem": 994.41,
+"id": "3937192981460230144"
+},
+"3937176230517350400": {
+"inst": "ZK-USDT-SWAP",
+"base": "ZK",
+"lado": "SHORT",
+"t_abre": 1789839395,
+"px_abre": 0.011027,
+"alav": 1.0,
+"tamanho": -9000.0,
+"margem": 992.43,
+"id": "3937176230517350400"
+},
+"3937176104621121536": {
+"inst": "ZK-USDT-SWAP",
+"base": "ZK",
+"lado": "SHORT",
+"t_abre": 1789839391,
+"px_abre": 0.011025,
+"alav": 1.0,
+"tamanho": -9000.0,
+"margem": 992.25,
+"id": "3937176104621121536"
+},
+"3937175451987419136": {
+"inst": "ARB-USDT-SWAP",
+"base": "ARB",
+"lado": "SHORT",
+"t_abre": 1789839372,
+"px_abre": 0.20769,
+"alav": 1.0,
+"tamanho": -500.0,
+"margem": 1038.45,
+"id": "3937175451987419136"
+},
+"3937174664800444416": {
+"inst": "ARB-USDT-SWAP",
+"base": "ARB",
+"lado": "SHORT",
+"t_abre": 1789839348,
+"px_abre": 0.20802,
+"alav": 1.0,
+"tamanho": -500.0,
+"margem": 1040.1,
+"id": "3937174664800444416"
+},
+"3937173989953708032": {
+"inst": "ZK-USDT-SWAP",
+"base": "ZK",
+"lado": "SHORT",
+"t_abre": 1789839328,
+"px_abre": 0.011038,
+"alav": 1.0,
+"tamanho": -9000.0,
+"margem": 993.42,
+"id": "3937173989953708032"
+},
+"3937165960411684864": {
+"inst": "ZK-USDT-SWAP",
+"base": "ZK",
+"lado": "SHORT",
+"t_abre": 1789839089,
+"px_abre": 0.011082,
+"alav": 1.0,
+"tamanho": -9000.0,
+"margem": 997.38,
+"id": "3937165960411684864"
+},
+"3937165588125261824": {
+"inst": "STRK-USDT-SWAP",
+"base": "STRK",
+"lado": "SHORT",
+"t_abre": 1789839078,
+"px_abre": 0.04442,
+"alav": 1.0,
+"tamanho": -23000.0,
+"margem": 1021.66,
+"id": "3937165588125261824"
+},
+"3937165107894231040": {
+"inst": "STRK-USDT-SWAP",
+"base": "STRK",
+"lado": "SHORT",
+"t_abre": 1789839063,
+"px_abre": 0.04437,
+"alav": 1.0,
+"tamanho": -23000.0,
+"margem": 1020.51,
+"id": "3937165107894231040"
+}
+},
+"okx:31F3288F9B90B496": {
+"4093206008214130688": {
+"inst": "EWY-USDT-SWAP",
+"base": "EWY",
+"lado": "LONG",
+"t_abre": 1794489445,
+"px_abre": 143.31,
+"alav": 10.0,
+"tamanho": 69.77,
+"margem": 999.87387,
+"id": "4093206008214130688"
+},
+"4073187998804021248": {
+"inst": "SOXL-USDT-SWAP",
+"base": "SOXL",
+"lado": "LONG",
+"t_abre": 1793892861,
+"px_abre": 49.48,
+"alav": 5.0,
+"tamanho": 201.77,
+"margem": 1996.71592,
+"id": "4073187998804021248"
+},
+"4072930964405817344": {
+"inst": "EWY-USDT-SWAP",
+"base": "EWY",
+"lado": "LONG",
+"t_abre": 1793885201,
+"px_abre": 145.99,
+"alav": 10.0,
+"tamanho": 68.49,
+"margem": 999.88551,
+"id": "4072930964405817344"
+},
+"4071477489255911424": {
+"inst": "SOXL-USDT-SWAP",
+"base": "SOXL",
+"lado": "LONG",
+"t_abre": 1793841884,
+"px_abre": 62.35,
+"alav": 5.0,
+"tamanho": 160.38,
+"margem": 1999.9386,
+"id": "4071477489255911424"
+},
+"4071474834899013632": {
+"inst": "EWY-USDT-SWAP",
+"base": "EWY",
+"lado": "LONG",
+"t_abre": 1793841805,
+"px_abre": 147.56,
+"alav": 10.0,
+"tamanho": 67.79,
+"margem": 1000.30924,
+"id": "4071474834899013632"
+},
+"4067010145594970112": {
+"inst": "EWY-USDT-SWAP",
+"base": "EWY",
+"lado": "LONG",
+"t_abre": 1793708747,
+"px_abre": 147.7,
+"alav": 10.0,
+"tamanho": 182.8,
+"margem": 2699.956,
+"id": "4067010145594970112"
+},
+"4064350958503137280": {
+"inst": "SOXL-USDT-SWAP",
+"base": "SOXL",
+"lado": "LONG",
+"t_abre": 1793629497,
+"px_abre": 80.58975814253466,
+"alav": 5.0,
+"tamanho": 62.02,
+"margem": 999.63536,
+"id": "4064350958503137280"
+},
+"4053446620989689856": {
+"inst": "SOXL-USDT-SWAP",
+"base": "SOXL",
+"lado": "LONG",
+"t_abre": 1793304522,
+"px_abre": 91.06,
+"alav": 5.0,
+"tamanho": 109.68,
+"margem": 1997.49216,
+"id": "4053446620989689856"
+},
+"4053342122891874304": {
+"inst": "SOXL-USDT-SWAP",
+"base": "SOXL",
+"lado": "LONG",
+"t_abre": 1793301408,
+"px_abre": 99.69,
+"alav": 5.0,
+"tamanho": 100.31,
+"margem": 1999.98078,
+"id": "4053342122891874304"
+},
+"4053285143674687488": {
+"inst": "SOXL-USDT-SWAP",
+"base": "SOXL",
+"lado": "LONG",
+"t_abre": 1793299710,
+"px_abre": 99.67,
+"alav": 5.0,
+"tamanho": 100.28,
+"margem": 1998.98152,
+"id": "4053285143674687488"
+},
+"4053263758361432064": {
+"inst": "SOXL-USDT-SWAP",
+"base": "SOXL",
+"lado": "LONG",
+"t_abre": 1793299073,
+"px_abre": 99.78,
+"alav": 5.0,
+"tamanho": 170.34,
+"margem": 3399.30504,
+"id": "4053263758361432064"
+},
+"4052089214795845632": {
+"inst": "SOXL-USDT-SWAP",
+"base": "SOXL",
+"lado": "LONG",
+"t_abre": 1793264069,
+"px_abre": 97.92,
+"alav": 5.0,
+"tamanho": 173.59,
+"margem": 3399.58656,
+"id": "4052089214795845632"
+},
+"4004384168373456896": {
+"inst": "ETH-USDT-SWAP",
+"base": "ETH",
+"lado": "LONG",
+"t_abre": 1791842347,
+"px_abre": 2488.87,
+"alav": 10.0,
+"tamanho": 40.16,
+"margem": 999.530192,
+"id": "4004384168373456896"
+},
+"4004380102247387136": {
+"inst": "OKB-USDT-SWAP",
+"base": "OKB",
+"lado": "LONG",
+"t_abre": 1791842226,
+"px_abre": 124.13,
+"alav": 10.0,
+"tamanho": 8056.0,
+"margem": 999.99128,
+"id": "4004380102247387136"
+},
+"3991202439483691008": {
+"inst": "OKB-USDT-SWAP",
+"base": "OKB",
+"lado": "LONG",
+"t_abre": 1791449501,
+"px_abre": 127.35,
+"alav": 10.0,
+"tamanho": 7852.0,
+"margem": 999.9522,
+"id": "3991202439483691008"
+},
+"3991114734473121792": {
+"inst": "OKB-USDT-SWAP",
+"base": "OKB",
+"lado": "LONG",
+"t_abre": 1791446888,
+"px_abre": 128.16,
+"alav": 10.0,
+"tamanho": 15605.0,
+"margem": 1999.9368,
+"id": "3991114734473121792"
+},
+"3988971955525586944": {
+"inst": "OKB-USDT-SWAP",
+"base": "OKB",
+"lado": "LONG",
+"t_abre": 1791383028,
+"px_abre": 129.86,
+"alav": 10.0,
+"tamanho": 53895.0,
+"margem": 6998.8047,
+"id": "3988971955525586944"
+},
+"3987565099225780224": {
+"inst": "ETH-USDT-SWAP",
+"base": "ETH",
+"lado": "LONG",
+"t_abre": 1791341100,
+"px_abre": 2613.25,
+"alav": 10.0,
+"tamanho": 38.26,
+"margem": 999.82945,
+"id": "3987565099225780224"
+},
+"3987493585939927040": {
+"inst": "UNI-USDT-SWAP",
+"base": "UNI",
+"lado": "LONG",
+"t_abre": 1791338969,
+"px_abre": 8.175,
+"alav": 10.0,
+"tamanho": 1222.0,
+"margem": 998.985,
+"id": "3987493585939927040"
+},
+"3987472222437052416": {
+"inst": "ETH-USDT-SWAP",
+"base": "ETH",
+"lado": "LONG",
+"t_abre": 1791338332,
+"px_abre": 2664.43,
+"alav": 10.0,
+"tamanho": 37.53,
+"margem": 999.960579,
+"id": "3987472222437052416"
+},
+"3985480291397996544": {
+"inst": "ETH-USDT-SWAP",
+"base": "ETH",
+"lado": "LONG",
+"t_abre": 1791278968,
+"px_abre": 2695.31,
+"alav": 10.0,
+"tamanho": 37.09,
+"margem": 999.690479,
+"id": "3985480291397996544"
+},
+"3984777159013634048": {
+"inst": "UNI-USDT-SWAP",
+"base": "UNI",
+"lado": "LONG",
+"t_abre": 1791258013,
+"px_abre": 8.905,
+"alav": 10.0,
+"tamanho": 1122.0,
+"margem": 999.141,
+"id": "3984777159013634048"
+},
+"3984775756773920768": {
+"inst": "ETH-USDT-SWAP",
+"base": "ETH",
+"lado": "LONG",
+"t_abre": 1791257971,
+"px_abre": 2693.23,
+"alav": 10.0,
+"tamanho": 74.26,
+"margem": 1999.992598,
+"id": "3984775756773920768"
+},
+"3984775474782474240": {
+"inst": "ETH-USDT-SWAP",
+"base": "ETH",
+"lado": "LONG",
+"t_abre": 1791257963,
+"px_abre": 2693.01,
+"alav": 10.0,
+"tamanho": 74.26,
+"margem": 1999.829226,
+"id": "3984775474782474240"
+},
+"3984729607216107520": {
+"inst": "UNI-USDT-SWAP",
+"base": "UNI",
+"lado": "LONG",
+"t_abre": 1791256596,
+"px_abre": 8.933,
+"alav": 10.0,
+"tamanho": 5597.0,
+"margem": 4999.8001,
+"id": "3984729607216107520"
+},
+"3983351215812055040": {
+"inst": "ETH-USDT-SWAP",
+"base": "ETH",
+"lado": "LONG",
+"t_abre": 1791215517,
+"px_abre": 2696.27,
+"alav": 10.0,
+"tamanho": 74.18,
+"margem": 2000.093086,
+"id": "3983351215812055040"
+},
+"3983321761731645440": {
+"inst": "ETH-USDT-SWAP",
+"base": "ETH",
+"lado": "LONG",
+"t_abre": 1791214639,
+"px_abre": 2697.0,
+"alav": 10.0,
+"tamanho": 185.39,
+"margem": 4999.9683,
+"id": "3983321761731645440"
+},
+"3983318191170981888": {
+"inst": "ETH-USDT-SWAP",
+"base": "ETH",
+"lado": "LONG",
+"t_abre": 1791214532,
+"px_abre": 2696.5,
+"alav": 10.0,
+"tamanho": 111.25,
+"margem": 2999.85625,
+"id": "3983318191170981888"
+},
+"3983213141438304256": {
+"inst": "OKB-USDT-SWAP",
+"base": "OKB",
+"lado": "LONG",
+"t_abre": 1791211402,
+"px_abre": 122.7,
+"alav": 10.0,
+"tamanho": 57049.0,
+"margem": 6999.9123,
+"id": "3983213141438304256"
+},
+"3983211567802552320": {
+"inst": "ETH-USDT-SWAP",
+"base": "ETH",
+"lado": "LONG",
+"t_abre": 1791211355,
+"px_abre": 2697.0,
+"alav": 10.0,
+"tamanho": 185.39,
+"margem": 4999.9683,
+"id": "3983211567802552320"
+},
+"3982086652953169920": {
+"inst": "UNI-USDT-SWAP",
+"base": "UNI",
+"lado": "LONG",
+"t_abre": 1791177830,
+"px_abre": 9.032,
+"alav": 10.0,
+"tamanho": 2214.0,
+"margem": 1999.6848,
+"id": "3982086652953169920"
+},
+"3982086255266041856": {
+"inst": "UNI-USDT-SWAP",
+"base": "UNI",
+"lado": "LONG",
+"t_abre": 1791177818,
+"px_abre": 9.031,
+"alav": 10.0,
+"tamanho": 2214.0,
+"margem": 1999.4634,
+"id": "3982086255266041856"
+},
+"3961540912757673984": {
+"inst": "UNI-USDT-SWAP",
+"base": "UNI",
+"lado": "LONG",
+"t_abre": 1790565519,
+"px_abre": 9.379,
+"alav": 10.0,
+"tamanho": 7777.0,
+"margem": 7294.0483,
+"id": "3961540912757673984"
+},
+"3960038861158551552": {
+"inst": "ETH-USDT-SWAP",
+"base": "ETH",
+"lado": "LONG",
+"t_abre": 1790520754,
+"px_abre": 2687.69,
+"alav": 10.0,
+"tamanho": 50.35,
+"margem": 5375.38,
+"id": "3960038861158551552"
+},
+"3933854697325662208": {
+"inst": "ETH-USDT-SWAP",
+"base": "ETH",
+"lado": "LONG",
+"t_abre": 1789740405,
+"px_abre": 2467.0,
+"alav": 10.0,
+"tamanho": 200.0,
+"margem": 4934.0,
+"id": "3933854697325662208"
+}
+},
+"okx:74137CD460649334": {
+"4103152990403760128": {
+"inst": "BTC-USDT-SWAP",
+"base": "BTC",
+"lado": "SHORT",
+"t_abre": 1794785888,
+"px_abre": 65276.8,
+"alav": 10.0,
+"tamanho": -200.0,
+"margem": 13055.36,
+"id": "4103152990403760128"
+},
+"3846999709304033280": {
+"inst": "BTC-USDT-SWAP",
+"base": "BTC",
+"lado": "SHORT",
+"t_abre": 1787151925,
+"px_abre": 66238.7,
+"alav": 10.0,
+"tamanho": -100.0,
+"margem": 6623.87,
+"id": "3846999709304033280"
+},
+"3846975994843435008": {
+"inst": "BTC-USDT-SWAP",
+"base": "BTC",
+"lado": "SHORT",
+"t_abre": 1787151218,
+"px_abre": 65566.5,
+"alav": 10.0,
+"tamanho": -100.0,
+"margem": 6556.65,
+"id": "3846975994843435008"
+},
+"3844694788428861440": {
+"inst": "BTC-USDT-SWAP",
+"base": "BTC",
+"lado": "SHORT",
+"t_abre": 1787083233,
+"px_abre": 64632.0,
+"alav": 10.0,
+"tamanho": -100.0,
+"margem": 6463.2,
+"id": "3844694788428861440"
+},
+"3741424293500227584": {
+"inst": "BTC-USDT-SWAP",
+"base": "BTC",
+"lado": "SHORT",
+"t_abre": 1784005532,
+"px_abre": 62716.1,
+"alav": 10.0,
+"tamanho": -100.0,
+"margem": 6271.61,
+"id": "3741424293500227584"
+}
+},
+"okx:B31CCBB35ADBF9C0": {
+"4098442532769832960": {
+"inst": "SUI-USDT-SWAP",
+"base": "SUI",
+"lado": "LONG",
+"t_abre": 1794645505,
+"px_abre": 0.7663,
+"alav": 1.0,
+"tamanho": 10000.0,
+"margem": 7663.0,
+"id": "4098442532769832960"
+},
+"4098268592466370560": {
+"inst": "SOL-USDT-SWAP",
+"base": "SOL",
+"lado": "LONG",
+"t_abre": 1794640321,
+"px_abre": 75.45,
+"alav": 1.0,
+"tamanho": 100.0,
+"margem": 7545.0,
+"id": "4098268592466370560"
+},
+"4095440294459809792": {
+"inst": "LDO-USDT-SWAP",
+"base": "LDO",
+"lado": "LONG",
+"t_abre": 1794556031,
+"px_abre": 0.3046,
+"alav": 1.0,
+"tamanho": 30000.0,
+"margem": 9138.0,
+"id": "4095440294459809792"
+},
+"4089193925684305920": {
+"inst": "SOL-USDT-SWAP",
+"base": "SOL",
+"lado": "LONG",
+"t_abre": 1794369875,
+"px_abre": 83.4,
+"alav": 1.0,
+"tamanho": 100.0,
+"margem": 8340.0,
+"id": "4089193925684305920"
+},
+"4074327157979553792": {
+"inst": "XRP-USDT-SWAP",
+"base": "XRP",
+"lado": "LONG",
+"t_abre": 1793926811,
+"px_abre": 1.2177,
+"alav": 1.0,
+"tamanho": 100.0,
+"margem": 12177.0,
+"id": "4074327157979553792"
+},
+"4073159422138458112": {
+"inst": "LDO-USDT-SWAP",
+"base": "LDO",
+"lado": "LONG",
+"t_abre": 1793892010,
+"px_abre": 0.3272,
+"alav": 1.0,
+"tamanho": 15000.0,
+"margem": 4908.0,
+"id": "4073159422138458112"
+},
+"4056851661935157248": {
+"inst": "DOT-USDT-SWAP",
+"base": "DOT",
+"lado": "LONG",
+"t_abre": 1793406001,
+"px_abre": 0.9773,
+"alav": 1.0,
+"tamanho": 5000.0,
+"margem": 4886.5,
+"id": "4056851661935157248"
+},
+"4054476079654051840": {
+"inst": "SOL-USDT-SWAP",
+"base": "SOL",
+"lado": "LONG",
+"t_abre": 1793335203,
+"px_abre": 95.3,
+"alav": 1.0,
+"tamanho": 100.0,
+"margem": 9530.0,
+"id": "4054476079654051840"
+},
+"4047098695430774784": {
+"inst": "DOT-USDT-SWAP",
+"base": "DOT",
+"lado": "LONG",
+"t_abre": 1793115340,
+"px_abre": 0.9893,
+"alav": 1.0,
+"tamanho": 6000.0,
+"margem": 5935.8,
+"id": "4047098695430774784"
+},
+"4031968420543668224": {
+"inst": "LDO-USDT-SWAP",
+"base": "LDO",
+"lado": "LONG",
+"t_abre": 1792664422,
+"px_abre": 0.38,
+"alav": 1.0,
+"tamanho": 15000.0,
+"margem": 5700.0,
+"id": "4031968420543668224"
+},
+"4009263563647033344": {
+"inst": "SUI-USDT-SWAP",
+"base": "SUI",
+"lado": "LONG",
+"t_abre": 1791987765,
+"px_abre": 0.93,
+"alav": 1.0,
+"tamanho": 10000.0,
+"margem": 9300.0,
+"id": "4009263563647033344"
+},
+"3996077877012013056": {
+"inst": "ETH-USDT-SWAP",
+"base": "ETH",
+"lado": "LONG",
+"t_abre": 1791594801,
+"px_abre": 2490.81,
+"alav": 1.0,
+"tamanho": 20.0,
+"margem": 4981.62,
+"id": "3996077877012013056"
+},
+"3990026854120103936": {
+"inst": "SUI-USDT-SWAP",
+"base": "SUI",
+"lado": "LONG",
+"t_abre": 1791414466,
+"px_abre": 1.1203,
+"alav": 1.0,
+"tamanho": 3000.0,
+"margem": 3360.9,
+"id": "3990026854120103936"
+},
+"3985973348677525504": {
+"inst": "SOL-USDT-SWAP",
+"base": "SOL",
+"lado": "LONG",
+"t_abre": 1791293662,
+"px_abre": 120.57,
+"alav": 1.0,
+"tamanho": 100.0,
+"margem": 12057.0,
+"id": "3985973348677525504"
+},
+"3983105367421296640": {
+"inst": "SUI-USDT-SWAP",
+"base": "SUI",
+"lado": "LONG",
+"t_abre": 1791208190,
+"px_abre": 1.2196,
+"alav": 1.0,
+"tamanho": 5000.0,
+"margem": 6098.0,
+"id": "3983105367421296640"
+},
+"3959178683496341504": {
+"inst": "SUI-USDT-SWAP",
+"base": "SUI",
+"lado": "LONG",
+"t_abre": 1790495119,
+"px_abre": 1.2737,
+"alav": 1.0,
+"tamanho": 5000.0,
+"margem": 6368.5,
+"id": "3959178683496341504"
+},
+"3954899599324946432": {
+"inst": "XRP-USDT-SWAP",
+"base": "XRP",
+"lado": "LONG",
+"t_abre": 1790367592,
+"px_abre": 1.5689,
+"alav": 1.0,
+"tamanho": 30.0,
+"margem": 4706.7,
+"id": "3954899599324946432"
+},
+"3267061244872957952": {
+"inst": "XRP-USDT-SWAP",
+"base": "XRP",
+"lado": "LONG",
+"t_abre": 1769868412,
+"px_abre": 1.6797507375,
+"alav": 1.0,
+"tamanho": 80.0,
+"margem": 13438.0059,
+"id": "3267061244872957952"
+},
+"3266816555318059008": {
+"inst": "ETH-USDT-SWAP",
+"base": "ETH",
+"lado": "LONG",
+"t_abre": 1769861120,
+"px_abre": 2639.47,
+"alav": 1.0,
+"tamanho": 20.0,
+"margem": 5278.94,
+"id": "3266816555318059008"
+},
+"3251890264601075712": {
+"inst": "XRP-USDT-SWAP",
+"base": "XRP",
+"lado": "LONG",
+"t_abre": 1769416282,
+"px_abre": 1.894,
+"alav": 1.0,
+"tamanho": 50.0,
+"margem": 9470.0,
+"id": "3251890264601075712"
+},
+"3238129416715968512": {
+"inst": "ETH-USDT-SWAP",
+"base": "ETH",
+"lado": "LONG",
+"t_abre": 1769006176,
+"px_abre": 2976.71,
+"alav": 1.0,
+"tamanho": 30.0,
+"margem": 8930.13,
+"id": "3238129416715968512"
+},
+"3236294119107665920": {
+"inst": "ETH-USDT-SWAP",
+"base": "ETH",
+"lado": "LONG",
+"t_abre": 1768951480,
+"px_abre": 2939.19,
+"alav": 1.0,
+"tamanho": 20.0,
+"margem": 5878.38,
+"id": "3236294119107665920"
+},
+"3236292742402875392": {
+"inst": "XRP-USDT-SWAP",
+"base": "XRP",
+"lado": "LONG",
+"t_abre": 1768951439,
+"px_abre": 1.8905,
+"alav": 1.0,
+"tamanho": 30.0,
+"margem": 5671.5,
+"id": "3236292742402875392"
+},
+"3228584313408266240": {
+"inst": "XRP-USDT-SWAP",
+"base": "XRP",
+"lado": "LONG",
+"t_abre": 1768721710,
+"px_abre": 2.0523,
+"alav": 1.0,
+"tamanho": 30.0,
+"margem": 6156.9,
+"id": "3228584313408266240"
+},
+"3038123321135276032": {
+"inst": "ETH-USDT-SWAP",
+"base": "ETH",
+"lado": "LONG",
+"t_abre": 1763045530,
+"px_abre": 3450.27,
+"alav": 1.0,
+"tamanho": 20.0,
+"margem": 6900.54,
+"id": "3038123321135276032"
+},
+"3011055835739136000": {
+"inst": "ETH-USDT-SWAP",
+"base": "ETH",
+"lado": "LONG",
+"t_abre": 1762238856,
+"px_abre": 3500.0,
+"alav": 1.0,
+"tamanho": 20.0,
+"margem": 7000.0,
+"id": "3011055835739136000"
+},
+"3009264831960784896": {
+"inst": "ETH-USDT-SWAP",
+"base": "ETH",
+"lado": "LONG",
+"t_abre": 1762185480,
+"px_abre": 3593.32,
+"alav": 1.0,
+"tamanho": 20.0,
+"margem": 7186.64,
+"id": "3009264831960784896"
+},
+"3007807206161195008": {
+"inst": "ETH-USDT-SWAP",
+"base": "ETH",
+"lado": "LONG",
+"t_abre": 1762142040,
+"px_abre": 3729.01,
+"alav": 1.0,
+"tamanho": 20.0,
+"margem": 7458.02,
+"id": "3007807206161195008"
+},
+"2997282459769970688": {
+"inst": "ETH-USDT-SWAP",
+"base": "ETH",
+"lado": "LONG",
+"t_abre": 1761828378,
+"px_abre": 3817.88,
+"alav": 1.0,
+"tamanho": 20.0,
+"margem": 7635.76,
+"id": "2997282459769970688"
+},
+"2994590169452584960": {
+"inst": "ETH-USDT-SWAP",
+"base": "ETH",
+"lado": "LONG",
+"t_abre": 1761748141,
+"px_abre": 3973.67,
+"alav": 1.0,
+"tamanho": 20.0,
+"margem": 7947.34,
+"id": "2994590169452584960"
+},
+"2994065166575411200": {
+"inst": "ETH-USDT-SWAP",
+"base": "ETH",
+"lado": "LONG",
+"t_abre": 1761732495,
+"px_abre": 3997.69,
+"alav": 1.0,
+"tamanho": 20.0,
+"margem": 7995.38,
+"id": "2994065166575411200"
+}
+},
+"okx:1761D578C7A15813": {
+"4100422352101781504": {
+"inst": "BTC-USDT-SWAP",
+"base": "BTC",
+"lado": "SHORT",
+"t_abre": 1794704508,
+"px_abre": 63318.1,
+"alav": 10.0,
+"tamanho": 20.0,
+"margem": 633.181,
+"id": "4100422352101781504"
+},
+"4100082491641638912": {
+"inst": "BTC-USDT-SWAP",
+"base": "BTC",
+"lado": "SHORT",
+"t_abre": 1794694380,
+"px_abre": 63349.7,
+"alav": 10.0,
+"tamanho": 100.0,
+"margem": 3167.485,
+"id": "4100082491641638912"
+},
+"4099260933385826304": {
+"inst": "BTC-USDT-SWAP",
+"base": "BTC",
+"lado": "SHORT",
+"t_abre": 1794669895,
+"px_abre": 65255.2,
+"alav": 10.0,
+"tamanho": 25.45,
+"margem": 830.37242,
+"id": "4099260933385826304"
+},
+"4099240735933018112": {
+"inst": "BTC-USDT-SWAP",
+"base": "BTC",
+"lado": "SHORT",
+"t_abre": 1794669293,
+"px_abre": 65555.0,
+"alav": 10.0,
+"tamanho": 88.82,
+"margem": 2911.29755,
+"id": "4099240735933018112"
+},
+"4097698228560539648": {
+"inst": "BTC-USDT-SWAP",
+"base": "BTC",
+"lado": "SHORT",
+"t_abre": 1794623323,
+"px_abre": 67086.7,
+"alav": 10.0,
+"tamanho": 25.0,
+"margem": 838.58375,
+"id": "4097698228560539648"
+},
+"4097692090985164800": {
+"inst": "BTC-USDT-SWAP",
+"base": "BTC",
+"lado": "SHORT",
+"t_abre": 1794623140,
+"px_abre": 67100.0,
+"alav": 10.0,
+"tamanho": 25.0,
+"margem": 838.75,
+"id": "4097692090985164800"
+},
+"4094958162335576064": {
+"inst": "BTC-USDT-SWAP",
+"base": "BTC",
+"lado": "SHORT",
+"t_abre": 1794541663,
+"px_abre": 65555.0,
+"alav": 10.0,
+"tamanho": 19.92,
+"margem": 4398.412725,
+"id": "4094958162335576064"
+}
+},
+"okx:2E01D379E7579CF5": {},
+"okx:F61990B585217C24": {
+"4100050264320966656": {
+"inst": "HYPE-USDT-SWAP",
+"base": "HYPE",
+"lado": "LONG",
+"t_abre": 1794693419,
+"px_abre": 62.637506329113926,
+"alav": 10.0,
+"tamanho": 79.0,
+"margem": 49.48363,
+"id": "4100050264320966656"
+},
+"4100048717797195776": {
+"inst": "ETH-USDT-SWAP",
+"base": "ETH",
+"lado": "LONG",
+"t_abre": 1794693373,
+"px_abre": 1771.2,
+"alav": 10.0,
+"tamanho": 2.82,
+"margem": 49.94784,
+"id": "4100048717797195776"
+},
+"4099176149288550400": {
+"inst": "HYPE-USDT-SWAP",
+"base": "HYPE",
+"lado": "LONG",
+"t_abre": 1794667369,
+"px_abre": 67.0214054054054,
+"alav": 10.0,
+"tamanho": 74.0,
+"margem": 49.59584,
+"id": "4099176149288550400"
+},
+"4099173980598501376": {
+"inst": "ETH-USDT-SWAP",
+"base": "ETH",
+"lado": "LONG",
+"t_abre": 1794667304,
+"px_abre": 1852.19,
+"alav": 10.0,
+"tamanho": 2.7,
+"margem": 50.00913,
+"id": "4099173980598501376"
+},
+"4097842727802699776": {
+"inst": "HYPE-USDT-SWAP",
+"base": "HYPE",
+"lado": "LONG",
+"t_abre": 1794627630,
+"px_abre": 67.911,
+"alav": 10.0,
+"tamanho": 73.0,
+"margem": 49.57503,
+"id": "4097842727802699776"
+},
+"4097770405922144256": {
+"inst": "HYPE-USDT-SWAP",
+"base": "HYPE",
+"lado": "LONG",
+"t_abre": 1794625474,
+"px_abre": 70.498,
+"alav": 10.0,
+"tamanho": 70.0,
+"margem": 49.3486,
+"id": "4097770405922144256"
+},
+"4097769552330948608": {
+"inst": "ETH-USDT-SWAP",
+"base": "ETH",
+"lado": "LONG",
+"t_abre": 1794625449,
+"px_abre": 1908.85,
+"alav": 10.0,
+"tamanho": 2.61,
+"margem": 49.820985,
+"id": "4097769552330948608"
+},
+"4095047401421209600": {
+"inst": "ETH-USDT-SWAP",
+"base": "ETH",
+"lado": "LONG",
+"t_abre": 1794544322,
+"px_abre": 1930.68,
+"alav": 10.0,
+"tamanho": 2.58,
+"margem": 49.811544,
+"id": "4095047401421209600"
+},
+"4093211205091000320": {
+"inst": "ETH-USDT-SWAP",
+"base": "ETH",
+"lado": "LONG",
+"t_abre": 1794489599,
+"px_abre": 2009.81,
+"alav": 10.0,
+"tamanho": 2.48,
+"margem": 49.843288,
+"id": "4093211205091000320"
+},
+"4093120003876388864": {
+"inst": "HYPE-USDT-SWAP",
+"base": "HYPE",
+"lado": "LONG",
+"t_abre": 1794486881,
+"px_abre": 70.277,
+"alav": 10.0,
+"tamanho": 71.0,
+"margem": 49.89667,
+"id": "4093120003876388864"
+},
+"4091860186218168320": {
+"inst": "HYPE-USDT-SWAP",
+"base": "HYPE",
+"lado": "LONG",
+"t_abre": 1794449336,
+"px_abre": 72.097,
+"alav": 10.0,
+"tamanho": 69.0,
+"margem": 49.74693,
+"id": "4091860186218168320"
+},
+"4087509095074562048": {
+"inst": "HYPE-USDT-SWAP",
+"base": "HYPE",
+"lado": "LONG",
+"t_abre": 1794319663,
+"px_abre": 73.449,
+"alav": 10.0,
+"tamanho": 68.0,
+"margem": 49.94532,
+"id": "4087509095074562048"
+},
+"4087508796909879296": {
+"inst": "ETH-USDT-SWAP",
+"base": "ETH",
+"lado": "LONG",
+"t_abre": 1794319654,
+"px_abre": 2070.06,
+"alav": 10.0,
+"tamanho": 2.41,
+"margem": 49.888446,
+"id": "4087508796909879296"
+},
+"4082692671403524096": {
+"inst": "HYPE-USDT-SWAP",
+"base": "HYPE",
+"lado": "LONG",
+"t_abre": 1794176123,
+"px_abre": 74.918,
+"alav": 10.0,
+"tamanho": 133.0,
+"margem": 99.64094,
+"id": "4082692671403524096"
+},
+"4082691908476403712": {
+"inst": "ETH-USDT-SWAP",
+"base": "ETH",
+"lado": "LONG",
+"t_abre": 1794176100,
+"px_abre": 2125.6,
+"alav": 10.0,
+"tamanho": 2.35,
+"margem": 49.9516,
+"id": "4082691908476403712"
+},
+"4073982421859106816": {
+"inst": "HYPE-USDT-SWAP",
+"base": "HYPE",
+"lado": "LONG",
+"t_abre": 1793916537,
+"px_abre": 77.159,
+"alav": 10.0,
+"tamanho": 129.0,
+"margem": 99.53511,
+"id": "4073982421859106816"
+},
+"4073770984645656576": {
+"inst": "ETH-USDT-SWAP",
+"base": "ETH",
+"lado": "LONG",
+"t_abre": 1793910236,
+"px_abre": 2247.43,
+"alav": 10.0,
+"tamanho": 2.22,
+"margem": 49.892946,
+"id": "4073770984645656576"
+},
+"4073148515236773888": {
+"inst": "HYPE-USDT-SWAP",
+"base": "HYPE",
+"lado": "LONG",
+"t_abre": 1793891685,
+"px_abre": 78.62,
+"alav": 10.0,
+"tamanho": 127.0,
+"margem": 99.8474,
+"id": "4073148515236773888"
+},
+"4073102056273543168": {
+"inst": "HYPE-USDT-SWAP",
+"base": "HYPE",
+"lado": "LONG",
+"t_abre": 1793890300,
+"px_abre": 80.65334677419355,
+"alav": 10.0,
+"tamanho": 124.0,
+"margem": 100.01015,
+"id": "4073102056273543168"
+},
+"4072957921533165568": {
+"inst": "HYPE-USDT-SWAP",
+"base": "HYPE",
+"lado": "LONG",
+"t_abre": 1793886005,
+"px_abre": 81.48026229508197,
+"alav": 10.0,
+"tamanho": 61.0,
+"margem": 49.70296,
+"id": "4072957921533165568"
+},
+"4072626317308788736": {
+"inst": "HYPE-USDT-SWAP",
+"base": "HYPE",
+"lado": "LONG",
+"t_abre": 1793876122,
+"px_abre": 82.48903333333334,
+"alav": 10.0,
+"tamanho": 60.0,
+"margem": 49.49342,
+"id": "4072626317308788736"
+},
+"4071245397175631872": {
+"inst": "HYPE-USDT-SWAP",
+"base": "HYPE",
+"lado": "LONG",
+"t_abre": 1793834967,
+"px_abre": 83.824,
+"alav": 10.0,
+"tamanho": 59.0,
+"margem": 49.45616,
+"id": "4071245397175631872"
+},
+"4070402666979196928": {
+"inst": "HYPE-USDT-SWAP",
+"base": "HYPE",
+"lado": "LONG",
+"t_abre": 1793809852,
+"px_abre": 85.537,
+"alav": 10.0,
+"tamanho": 58.0,
+"margem": 49.61146,
+"id": "4070402666979196928"
+}
+},
+"okx:8C756A028EDC2FE7": {},
+"hyperliquid:0xbbd7095503c74e8908b854fbdadeafba169ea897": {},
+"hyperliquid:0x11eee2e0a613af4f636e23ff295e2dac6a191d1d": {
+"BTC|L": {
+"inst": "BTC",
+"base": "BTC",
+"lado": "LONG",
+"px_abre": 63137.2,
+"alav": 20.0,
+"tamanho": 2.0,
+"id": "BTC|L",
+"t_abre": null
+},
+"ETH|L": {
+"inst": "ETH",
+"base": "ETH",
+"lado": "LONG",
+"px_abre": 1815.73,
+"alav": 15.0,
+"tamanho": 2325.0,
+"id": "ETH|L",
+"t_abre": null
+},
+"RUNE|S": {
+"inst": "RUNE",
+"base": "RUNE",
+"lado": "SHORT",
+"px_abre": 0.55147,
+"alav": 5.0,
+"tamanho": 20000.0,
+"id": "RUNE|S",
+"t_abre": null
+},
+"HYPE|L": {
+"inst": "HYPE",
+"base": "HYPE",
+"lado": "LONG",
+"px_abre": 64.4356,
+"alav": 5.0,
+"tamanho": 3000.0,
+"id": "HYPE|L",
+"t_abre": null
+}
+},
+"hyperliquid:0x58e1b0e63c905d5982324fcd9108582623b8132e": {},
+"hyperliquid:0xfb9c70230c93856c2429384f875d9a896d33d388": {},
+"hyperliquid:0x83ffcfb1f2ad843c474b2e28df86c721cb869d3a": {},
+"hyperliquid:0x26b107c9cef11d21a7996a5e84cb29ae3f7e0ea3": {
+"BTC|S": {
+"inst": "BTC",
+"base": "BTC",
+"lado": "SHORT",
+"px_abre": 82530.6,
+"alav": 40.0,
+"tamanho": 10.0,
+"id": "BTC|S",
+"t_abre": null
+}
+},
+"hyperliquid:0xf996983c08c770dcd9bd311c43dfcb7f2e107ccd": {
+"HYPE|S": {
+"inst": "HYPE",
+"base": "HYPE",
+"lado": "SHORT",
+"px_abre": 85.3735,
+"alav": 10.0,
+"tamanho": 1200.0,
+"id": "HYPE|S",
+"t_abre": null
+}
+},
+"hyperliquid:0x54c5b295195ffa2613ab4f3893b29afdb8a49558": {
+"BTC|S": {
+"inst": "BTC",
+"base": "BTC",
+"lado": "SHORT",
+"px_abre": 64700.7,
+"alav": 40.0,
+"tamanho": 293.43302,
+"id": "BTC|S",
+"t_abre": null
+}
+},
+"hyperliquid:0xf215c807672f168f6894bb2f5154000de11b4d85": {
+"BTC|S": {
+"inst": "BTC",
+"base": "BTC",
+"lado": "SHORT",
+"px_abre": 64650.8,
+"alav": 40.0,
+"tamanho": 36.49601,
+"id": "BTC|S",
+"t_abre": null
+}
+}
+},
+"oportunidades": {},
+"vistos": [],
+"t": 1794928010,
+"falhas": [
+{
+"onde": "/api/v5/copytrading/public-subpositions-history",
+"erro": "59269",
+"t": 1794928036
+},
+{
+"onde": "/api/v5/copytrading/public-subpositions-history",
+"erro": "59269",
+"t": 1794928036
+},
+{
+"onde": "/api/v5/copytrading/public-subpositions-history",
+"erro": "59269",
+"t": 1794928044
+},
+{
+"onde": "/api/v5/copytrading/public-subpositions-history",
+"erro": "59269",
+"t": 1794928045
+},
+{
+"onde": "/api/v5/copytrading/public-subpositions-history",
+"erro": "59269",
+"t": 1794928052
+},
+{
+"onde": "/api/v5/copytrading/public-subpositions-history",
+"erro": "59269",
+"t": 1794928053
+},
+{
+"onde": "/api/v5/copytrading/public-subpositions-history",
+"erro": "59269",
+"t": 1794928053
+},
+{
+"onde": "/api/v5/copytrading/public-subpositions-history",
+"erro": "59269",
+"t": 1794928057
+},
+{
+"onde": "/api/v5/copytrading/public-subpositions-history",
+"erro": "59269",
+"t": 1794928060
+},
+{
+"onde": "/api/v5/copytrading/public-subpositions-history",
+"erro": "59269",
+"t": 1794928063
+},
+{
+"onde": "/api/v5/copytrading/public-subpositions-history",
+"erro": "59269",
+"t": 1794928066
+},
+{
+"onde": "/api/v5/copytrading/public-subpositions-history",
+"erro": "59269",
+"t": 1794928069
+},
+{
+"onde": "/api/v5/copytrading/public-subpositions-history",
+"erro": "59269",
+"t": 1794928072
+},
+{
+"onde": "/api/v5/copytrading/public-subpositions-history",
+"erro": "59269",
+"t": 1794928073
+},
+{
+"onde": "/api/v5/copytrading/public-subpositions-history",
+"erro": "59269",
+"t": 1794928073
+},
+{
+"onde": "/api/v5/copytrading/public-subpositions-history",
+"erro": "59269",
+"t": 1794928079
+},
+{
+"onde": "/api/v5/copytrading/public-subpositions-history",
+"erro": "59269",
+"t": 1794928085
+},
+{
+"onde": "https://api.hyperliquid.xyz/info",
+"erro": "HTTPError: HTTP Error 429: Too Many Requests",
+"t": 1794928131
+},
+{
+"onde": "https://api.hyperliquid.xyz/info",
+"erro": "HTTPError: HTTP Error 429: Too Many Requests",
+"t": 1794928138
+},
+{
+"onde": "https://api.bybit.eu/v5/market/instruments-info",
+"erro": "HTTPError: HTTP Error 403: Forbidden",
+"t": 1794928164
+}
+],
+"traders_falhados": [],
+"seguidos": 17
+}
