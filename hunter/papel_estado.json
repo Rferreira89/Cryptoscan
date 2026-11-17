@@ -1,17 +1,47 @@
 {
-"abertas": [],
+"abertas": [
+{
+"id_op": "bbc2557ab78e|BTW|1794902400",
+"estrategia": "bbc2557ab78e",
+"familia": "extremo",
+"veredicto_origem": "EXPLORATORIA",
+"b": "BTW",
+"exchange": "OKX X-Perp (papel)",
+"inst": "BTW-USD_UM_XPERP-311024",
+"lado": "SHORT",
+"tf": "1H",
+"t_sinal": 1794902400,
+"atr_ref": 0.03144285714285714,
+"saida": {
+"tipo": "trailing",
+"k": 1.0,
+"tp": null,
+"hold": 4
+},
+"stop_ref": "1H",
+"tamanho": {
+"nocional_pct": 4.0,
+"margem_pct": 0.8,
+"perda_max_pct": 0.2503,
+"risco_pct": 0.2503,
+"cortado_pelo_teto_nocional": true,
+"cortado_pelo_limite_autorizado": false
+},
+"aberta_em": 1794906076
+}
+],
 "fechadas": [],
 "funil_total": {
 "instrumentos_descobertos": 262,
 "com_dados_validos": 260,
 "falhas_tecnicas": 0,
-"excluidos_por_dados": 12,
-"candidatos": 0,
-"aprovados": 0,
-"abertas_novas": 0,
+"excluidos_por_dados": 24,
+"candidatos": 1,
+"aprovados": 1,
+"abertas_novas": 1,
 "fechadas_agora": 0
 },
-"voltas": 1,
+"voltas": 2,
 "bloqueadas": {},
 "resumo": {},
 "funil_ultima": {
@@ -19,13 +49,13 @@
 "com_dados_validos": 260,
 "falhas_tecnicas": 0,
 "excluidos_por_dados": 12,
-"candidatos": 0,
+"candidatos": 1,
 "rejeitados": {},
-"aprovados": 0,
-"abertas_novas": 0,
+"aprovados": 1,
+"abertas_novas": 1,
 "fechadas_agora": 0,
-"t": 1794904276
+"t": 1794906076
 },
-"t": 1794904276,
+"t": 1794906076,
 "aviso": "PAPEL: simulado, nunca somado aos resultados reais; sem ordens"
 }
