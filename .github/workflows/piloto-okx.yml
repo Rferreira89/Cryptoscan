@@ -77,6 +77,19 @@ jobs:
             exit 0
           fi
           python3 tools/piloto_okx.py /tmp/piloto
+          # (17/11) lista publica oficial de pares spot da Bybit EU, lida daqui (servidor europeu; o GitHub recebe 403),
+          # guardada com a hora da leitura para o CopyTrading (so inteligencia; nenhuma ordem na Bybit)
+          python3 - <<'PY' || echo "lista spot Bybit EU nao atualizada nesta volta"
+          import json, time, urllib.request
+          r = json.loads(urllib.request.urlopen(urllib.request.Request(
+              "https://api.bybit.eu/v5/market/instruments-info?category=spot&limit=1000", headers={"User-Agent": "cryptoscan"}), timeout=20).read())
+          lst = (r.get("result") or {}).get("list") or []
+          assert r.get("retCode") == 0 and lst, r.get("retMsg")
+          bases = sorted({x["baseCoin"] for x in lst if x.get("status") == "Trading" and x.get("quoteCoin") in ("USDT", "USDC")})
+          json.dump({"t": int(time.time()), "fonte": "api.bybit.eu/v5/market/instruments-info (publico, lido no runner europeu)",
+                     "n": len(bases), "bases": bases}, open("/tmp/piloto/bybit_eu_spot.json", "w"))
+          print("lista spot Bybit EU:", len(bases), "bases")
+          PY
           if [ -n "$DATA_KEY" ] && python3 -m engine.cifra fechar /tmp/piloto/piloto_estado.json && grep -q '"cifra"' /tmp/piloto/piloto_estado.json; then
             echo "estado cifrado"
           else
@@ -92,4 +105,5 @@ jobs:
           if [ ! -s /tmp/piloto/piloto_publico.json ]; then echo "sem estado para publicar"; exit 0; fi
           export ESTADO_SHA_BASE=$(cat /tmp/piloto/.sha_base 2>/dev/null)
           F="piloto_publico.json"; [ -s /tmp/piloto/piloto_estado.json ] && F="piloto_estado.json $F"
+          [ -s /tmp/piloto/bybit_eu_spot.json ] && F="$F bybit_eu_spot.json"
           python3 tools/publicar_estado.py publicar /tmp/piloto piloto-okx $F
