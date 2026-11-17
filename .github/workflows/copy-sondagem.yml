@@ -1,0 +1,26 @@
+name: CopyTrading - sondagem das APIs (so leitura)
+# (17/11) Confirma o que as APIs permitem (OKX copy trading publico e da conta, Bybit EU, Hyperliquid).
+# Nenhuma ordem, nenhuma alteracao; saida sem valores monetarios.
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  publico:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 tools/copy_sondagem.py publico
+  eu:
+    runs-on: [self-hosted, eu]
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - env:
+          OKX_API_KEY: ${{ secrets.OKX_API_KEY }}
+          OKX_API_SECRET: ${{ secrets.OKX_API_SECRET }}
+          OKX_PASSPHRASE: ${{ secrets.OKX_PASSPHRASE }}
+          BYBIT_API_KEY: ${{ secrets.BYBIT_API_KEY }}
+          BYBIT_API_SECRET: ${{ secrets.BYBIT_API_SECRET }}
+        run: python3 tools/copy_sondagem.py eu
