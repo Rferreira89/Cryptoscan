@@ -545,76 +545,6 @@
 "r_atual": -0.2047
 },
 {
-"id_op": "bbc2557ab78e|GRVT|1794924000",
-"estrategia": "bbc2557ab78e",
-"versao_estrategia": "bbc2557ab78e",
-"versao_codigo": "214613c",
-"familia": "extremo",
-"veredicto_origem": "EXPLORATORIA",
-"b": "GRVT",
-"inst": "GRVT-USD_UM_XPERP-310801",
-"mercado": "OKX X-Perp (PAPEL)",
-"classe": "crypto",
-"tier": "C",
-"lado": "SHORT",
-"tf": "1H",
-"t_sinal": 1794924000,
-"atr_ref": 0.002752142857142858,
-"saida": {
-"tipo": "trailing",
-"k": 1.0,
-"tp": null,
-"hold": 4
-},
-"stop_ref": "1H",
-"regime": "btc_acima_media50",
-"acontecimento": "1H@1794924000",
-"carteiras": [
-"max1",
-"max3",
-"max5",
-"sem_limite"
-],
-"custos_previstos": {
-"comissao_lado_pct": 0.05,
-"deslize_lado_pct": 0.409,
-"spread_pct": 0.818
-},
-"decisao": {
-"fecho": 0.16982,
-"atr_tf": 0.002752142857142858,
-"atr_ref": 0.002752142857142858,
-"btc_ret_vela": -0.00202,
-"velas_disponiveis": 299,
-"ultima_vela_fechada": 1794924000
-},
-"tamanho": {
-"nocional_pct": 4.0,
-"margem_pct": 0.8,
-"perda_max_pct": 0.1015,
-"risco_pct": 0.1015,
-"cortado_pelo_teto_nocional": true,
-"cortado_pelo_limite_autorizado": false
-},
-"aberta_em": 1794927675,
-"historico": [
-{
-"t": 1794927675,
-"estado": "sinal aceite: entrada na abertura da vela seguinte"
-},
-{
-"t": 1794931275,
-"estado": "entrada simulada",
-"preco": 0.1698225732
-}
-],
-"entrada": 0.1698225732,
-"t_entrada": 1794927600,
-"stop_inicial": 0.17257471605714286,
-"objetivo": null,
-"r_atual": 1.2843
-},
-{
 "id_op": "057f68c36111|AR|1794916800",
 "estrategia": "057f68c36111",
 "versao_estrategia": "057f68c36111",
@@ -2080,17 +2010,109 @@
 "permanencia_min": 240,
 "resultado_pct_preco": -3.6499,
 "resultado_liquido_pct_capital": -0.1719
+},
+{
+"id_op": "bbc2557ab78e|GRVT|1794924000",
+"estrategia": "bbc2557ab78e",
+"versao_estrategia": "bbc2557ab78e",
+"versao_codigo": "214613c",
+"familia": "extremo",
+"veredicto_origem": "EXPLORATORIA",
+"b": "GRVT",
+"inst": "GRVT-USD_UM_XPERP-310801",
+"mercado": "OKX X-Perp (PAPEL)",
+"classe": "crypto",
+"tier": "C",
+"lado": "SHORT",
+"tf": "1H",
+"t_sinal": 1794924000,
+"atr_ref": 0.002752142857142858,
+"saida": {
+"tipo": "trailing",
+"k": 1.0,
+"tp": null,
+"hold": 4
+},
+"stop_ref": "1H",
+"regime": "btc_acima_media50",
+"acontecimento": "1H@1794924000",
+"carteiras": [
+"max1",
+"max3",
+"max5",
+"sem_limite"
+],
+"custos_previstos": {
+"comissao_lado_pct": 0.05,
+"deslize_lado_pct": 0.409,
+"spread_pct": 0.818
+},
+"decisao": {
+"fecho": 0.16982,
+"atr_tf": 0.002752142857142858,
+"atr_ref": 0.002752142857142858,
+"btc_ret_vela": -0.00202,
+"velas_disponiveis": 299,
+"ultima_vela_fechada": 1794924000
+},
+"tamanho": {
+"nocional_pct": 4.0,
+"margem_pct": 0.8,
+"perda_max_pct": 0.1015,
+"risco_pct": 0.1015,
+"cortado_pelo_teto_nocional": true,
+"cortado_pelo_limite_autorizado": false
+},
+"aberta_em": 1794927675,
+"historico": [
+{
+"t": 1794927675,
+"estado": "sinal aceite: entrada na abertura da vela seguinte"
+},
+{
+"t": 1794931275,
+"estado": "entrada simulada",
+"preco": 0.1698225732
+},
+{
+"t": 1794934876,
+"estado": "fechada: stop",
+"r": 0.7217
+}
+],
+"entrada": 0.1698225732,
+"t_entrada": 1794927600,
+"stop_inicial": 0.17257471605714286,
+"objetivo": null,
+"r_atual": 1.2843,
+"fechada_em": 1794934876,
+"r": 0.7217,
+"bruto_r": 0.7803,
+"custos": {
+"comissoes_e_deslize_r": 0.0617,
+"funding_pct": -0.005,
+"funding_fonte": "real",
+"total_r": 0.0586
+},
+"custos_r": 0.0586,
+"funding_pct": -0.005,
+"motivo": "stop",
+"preco_saida_equivalente": 0.1676751407,
+"velas": 2,
+"permanencia_min": 120,
+"resultado_pct_preco": 1.2645,
+"resultado_liquido_pct_capital": 0.0732
 }
 ],
 "funil_total": {
 "instrumentos_descobertos": 262,
 "com_dados_validos": 260,
-"falhas_tecnicas": 4,
-"excluidos_por_dados": 204,
+"falhas_tecnicas": 6,
+"excluidos_por_dados": 216,
 "candidatos": 1,
 "aprovados": 1,
 "abertas_novas": 30,
-"fechadas_agora": 9,
+"fechadas_agora": 10,
 "sinais_brutos": 36,
 "elegiveis_apos_concentracao": 8,
 "acontecimentos_novos": 4,
@@ -2101,7 +2123,7 @@
 "ja ha posicao desta estrategia nesta moeda": 4
 }
 },
-"voltas": 17,
+"voltas": 18,
 "bloqueadas": {
 "057f68c36111": [
 "drawdown 9.32R >= 8.0R",
@@ -2110,13 +2132,13 @@
 },
 "resumo": {
 "bbc2557ab78e": {
-"n": 2,
-"moedas": 2,
+"n": 3,
+"moedas": 3,
 "dias": 1,
-"acontecimentos": 2,
-"r_medio": 0.8558,
-"r_total": 1.712,
-"acerto": 0.5,
+"acontecimentos": 3,
+"r_medio": 0.8111,
+"r_total": 2.433,
+"acerto": 0.667,
 "drawdown_r": 1.138,
 "novas_entradas": true,
 "motivos": []
@@ -2140,20 +2162,20 @@
 "funil_ultima": {
 "instrumentos_descobertos": 262,
 "com_dados_validos": 260,
-"falhas_tecnicas": 1,
+"falhas_tecnicas": 2,
 "excluidos_por_dados": 12,
 "dados_fiaveis": true,
 "sinais_brutos": 0,
 "rejeitados": {},
 "elegiveis_apos_concentracao": 0,
 "abertas_novas": 0,
-"fechadas_agora": 0,
+"fechadas_agora": 1,
 "acontecimentos_novos": 0,
 "moedas_com_sinal": 0,
-"t": 1794933076,
+"t": 1794934876,
 "versao_codigo": "214613c"
 },
-"t": 1794933076,
+"t": 1794934876,
 "aviso": "PAPEL: simulado, nunca somado aos resultados reais; sem ordens",
 "vistos": [
 "057f68c36111|APR|1794902400",
@@ -2189,28 +2211,28 @@
 ],
 "carteiras_sombra": {
 "max1": {
-"n": 1,
-"acontecimentos": 1,
-"r_total": -1.138,
-"r_medio": -1.1378
-},
-"max3": {
-"n": 1,
-"acontecimentos": 1,
-"r_total": -1.138,
-"r_medio": -1.1378
-},
-"max5": {
 "n": 2,
 "acontecimentos": 2,
-"r_total": -2.218,
-"r_medio": -1.1088
+"r_total": -0.416,
+"r_medio": -0.208
+},
+"max3": {
+"n": 2,
+"acontecimentos": 2,
+"r_total": -0.416,
+"r_medio": -0.208
+},
+"max5": {
+"n": 3,
+"acontecimentos": 3,
+"r_total": -1.496,
+"r_medio": -0.4986
 },
 "sem_limite": {
-"n": 9,
-"acontecimentos": 3,
-"r_total": -7.611,
-"r_medio": -0.8456
+"n": 10,
+"acontecimentos": 4,
+"r_total": -6.889,
+"r_medio": -0.6889
 }
 }
 }
