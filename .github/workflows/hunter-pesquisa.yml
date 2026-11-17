@@ -1,0 +1,48 @@
+name: Hunter - pesquisa (investigacao isolada, so dados publicos)
+# (17/11) Global Opportunity Hunter: universo completo dos X-Perps, 18 familias (6 grupos), 30m/1H/4H, geometria por
+# etapas, evolucao com orcamento, validacao emparelhada com bootstrap por dias, Holm cumulativo, teste final intocado.
+# Sem chaves, sem executores, sem ordens. Corre o codigo do ramo investigacao/expansao-oportunidades. Resultados no ramo "autonomo" (pasta hunter/).
+on:
+  workflow_dispatch:
+    inputs:
+      dias:
+        description: "dias de historico de 30 min"
+        default: "240"
+      n_max:
+        description: "maximo de X-Perps (vazio = todos)"
+        default: ""
+      orcamento:
+        description: "genomas avaliados pela evolucao"
+        default: "400"
+permissions:
+  contents: write
+concurrency:
+  group: hunter-pesquisa
+  cancel-in-progress: false
+jobs:
+  pesquisa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      # (17/11) o codigo da investigacao vive SO no ramo de investigacao (a main nao tem tools/hunter): este ficheiro
+      # e apenas o lancador (o GitHub so deixa lancar workflows que existam no ramo principal)
+      - uses: actions/checkout@v4
+        with:
+          ref: investigacao/expansao-oportunidades
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -q numpy==2.1.3
+      - name: Copia do ramo autonomo (registo e historico do universo)
+        env:
+          PUSH_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
+        run: |
+          git clone -q --depth 1 -b autonomo "$PUSH_URL" /tmp/au 2>/dev/null || { mkdir -p /tmp/au && git -C /tmp/au init -q -b autonomo; }
+          mkdir -p /tmp/au/hunter
+      - name: Pesquisa
+        run: python -m tools.hunter.correr /tmp/au "${{ inputs.dias }}" "${{ inputs.n_max }}" "${{ inputs.orcamento }}"
+      - name: Publicar
+        if: always()
+        env:
+          PUSH_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
+        run: bash tools/hunter/publicar.sh /tmp/au "pesquisa" registo.json universo_historico.json papel_estrategias.json funil_dados.json "pesquisa_*.json"

@@ -1,0 +1,50 @@
+name: Hunter - papel continuo (so simulacao)
+# (17/11) Paper trading 24/7 das estrategias de hunter/papel_estrategias.json: uma volta depois de cada fecho de
+# 30 min durante ~5 h 40 min; no fim (mesmo se falhar ou expirar) relanca-se a si proprio no mesmo ramo.
+# Sem chaves, sem executores, sem ordens; resultados so no ramo "autonomo" (hunter/papel_estado.json).
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: hunter-papel
+  cancel-in-progress: false
+jobs:
+  papel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      # (17/11) o codigo da investigacao vive SO no ramo de investigacao (a main nao tem tools/hunter): este ficheiro
+      # e apenas o lancador (o GitHub so deixa lancar workflows que existam no ramo principal)
+      - uses: actions/checkout@v4
+        with:
+          ref: investigacao/expansao-oportunidades
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -q numpy==2.1.3
+      - name: Voltas de papel
+        env:
+          PUSH_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
+        run: |
+          FIM=$(( $(date +%s) + 340*60 ))
+          while [ "$(date +%s)" -lt "$FIM" ]; do
+            AGORA=$(date +%s)
+            ESPERA=$(( 1800 - AGORA % 1800 + 75 ))           # 75 s depois de cada fecho de 30 min
+            [ $(( AGORA + ESPERA )) -ge "$FIM" ] && break
+            sleep "$ESPERA"
+            rm -rf /tmp/au
+            git clone -q --depth 1 -b autonomo "$PUSH_URL" /tmp/au 2>/dev/null || { mkdir -p /tmp/au && git -C /tmp/au init -q -b autonomo; }
+            mkdir -p /tmp/au/hunter
+            if timeout 1500 python -m tools.hunter.papel /tmp/au; then
+              bash tools/hunter/publicar.sh /tmp/au "papel" papel_estado.json || echo "publicacao do papel falhou"
+            else
+              echo "volta de papel falhou (a seguinte tenta de novo)"
+            fi
+          done
+      - name: Relancar
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run hunter-papel.yml --repo "${{ github.repository }}" --ref main
