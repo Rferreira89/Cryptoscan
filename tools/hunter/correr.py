@@ -135,8 +135,10 @@ def painel_e_estados(p, dados, SS, MM, cortes, res, reg, now):
     est_papel = _ler(p("papel_estado.json"), {}).get("resumo") or {}
     estados = _ler(p("estados.json"), {"estrategias": {}})
     lista = {e["id"]: e for e in antes}
+    chave = lambda e: (e["familia"], e["tf"], e["lado"], e.get("filtro"))
     for e in res["papel"]:
-        if e["id"] not in lista and len(lista) < MAX_PAPEL:
+        # (17/11) sem clones: uma variante nova da mesma familia/tf/lado/filtro nao entra (a ja em papel continua)
+        if e["id"] not in lista and chave(e) not in {chave(x) for x in lista.values()} and len(lista) < MAX_PAPEL:
             lista[e["id"]] = e
     painel, final = {}, []
     for k, e in lista.items():
