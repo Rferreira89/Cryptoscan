@@ -1,0 +1,685 @@
+{
+ "variantes": 40,
+ "corte": 1786906080,
+ "moedas": 80,
+ "segundos": 26,
+ "candidatas": [],
+ "resultados": {
+  "rompimento L=10 V=1.5 LONG": {
+   "familia": "rompimento",
+   "lado": "LONG",
+   "parametros": {
+    "L": 10,
+    "V": 1.5
+   },
+   "n_desenho": 4768,
+   "r_desenho": -0.9394,
+   "n_teste": 8180,
+   "r_teste": -0.4905,
+   "r_acaso_teste": -0.4871,
+   "p_contra_acaso": 0.53212,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 1.0,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "rompimento L=10 V=1.5 SHORT": {
+   "familia": "rompimento",
+   "lado": "SHORT",
+   "parametros": {
+    "L": 10,
+    "V": 1.5
+   },
+   "n_desenho": 4993,
+   "r_desenho": -0.6461,
+   "n_teste": 8868,
+   "r_teste": -0.4249,
+   "r_acaso_teste": -0.5676,
+   "p_contra_acaso": 0.0204,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 0.346845,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "rompimento L=10 V=2.5 LONG": {
+   "familia": "rompimento",
+   "lado": "LONG",
+   "parametros": {
+    "L": 10,
+    "V": 2.5
+   },
+   "n_desenho": 3957,
+   "r_desenho": -0.8663,
+   "n_teste": 6676,
+   "r_teste": -0.5139,
+   "r_acaso_teste": -2.0376,
+   "p_contra_acaso": 0.14489,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 1.0,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "rompimento L=10 V=2.5 SHORT": {
+   "familia": "rompimento",
+   "lado": "SHORT",
+   "parametros": {
+    "L": 10,
+    "V": 2.5
+   },
+   "n_desenho": 4178,
+   "r_desenho": -0.7113,
+   "n_teste": 7409,
+   "r_teste": -0.4521,
+   "r_acaso_teste": -0.4339,
+   "p_contra_acaso": 0.686362,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 1.0,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "rompimento L=20 V=1.5 LONG": {
+   "familia": "rompimento",
+   "lado": "LONG",
+   "parametros": {
+    "L": 20,
+    "V": 1.5
+   },
+   "n_desenho": 3459,
+   "r_desenho": -0.8679,
+   "n_teste": 6085,
+   "r_teste": -0.5054,
+   "r_acaso_teste": -0.5434,
+   "p_contra_acaso": 0.28101,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 1.0,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "rompimento L=20 V=1.5 SHORT": {
+   "familia": "rompimento",
+   "lado": "SHORT",
+   "parametros": {
+    "L": 20,
+    "V": 1.5
+   },
+   "n_desenho": 3573,
+   "r_desenho": -0.565,
+   "n_teste": 6534,
+   "r_teste": -0.381,
+   "r_acaso_teste": -0.5011,
+   "p_contra_acaso": 0.019148,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 0.346845,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "rompimento L=20 V=2.5 LONG": {
+   "familia": "rompimento",
+   "lado": "LONG",
+   "parametros": {
+    "L": 20,
+    "V": 2.5
+   },
+   "n_desenho": 2952,
+   "r_desenho": -0.7143,
+   "n_teste": 5141,
+   "r_teste": -0.5346,
+   "r_acaso_teste": -0.5408,
+   "p_contra_acaso": 0.457655,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 1.0,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "rompimento L=20 V=2.5 SHORT": {
+   "familia": "rompimento",
+   "lado": "SHORT",
+   "parametros": {
+    "L": 20,
+    "V": 2.5
+   },
+   "n_desenho": 3063,
+   "r_desenho": -0.6018,
+   "n_teste": 5634,
+   "r_teste": -0.4051,
+   "r_acaso_teste": -0.536,
+   "p_contra_acaso": 0.031303,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 0.469545,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "rompimento L=40 V=1.5 LONG": {
+   "familia": "rompimento",
+   "lado": "LONG",
+   "parametros": {
+    "L": 40,
+    "V": 1.5
+   },
+   "n_desenho": 2337,
+   "r_desenho": -0.9323,
+   "n_teste": 4249,
+   "r_teste": -0.4604,
+   "r_acaso_teste": -0.637,
+   "p_contra_acaso": 0.095601,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 1.0,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "rompimento L=40 V=1.5 SHORT": {
+   "familia": "rompimento",
+   "lado": "SHORT",
+   "parametros": {
+    "L": 40,
+    "V": 1.5
+   },
+   "n_desenho": 2495,
+   "r_desenho": -0.4614,
+   "n_teste": 4665,
+   "r_teste": -0.3478,
+   "r_acaso_teste": -0.5305,
+   "p_contra_acaso": 0.006935,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 0.145635,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "rompimento L=40 V=2.5 LONG": {
+   "familia": "rompimento",
+   "lado": "LONG",
+   "parametros": {
+    "L": 40,
+    "V": 2.5
+   },
+   "n_desenho": 2027,
+   "r_desenho": -0.7055,
+   "n_teste": 3684,
+   "r_teste": -0.4769,
+   "r_acaso_teste": -0.6382,
+   "p_contra_acaso": 0.145971,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 1.0,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "rompimento L=40 V=2.5 SHORT": {
+   "familia": "rompimento",
+   "lado": "SHORT",
+   "parametros": {
+    "L": 40,
+    "V": 2.5
+   },
+   "n_desenho": 2176,
+   "r_desenho": -0.4914,
+   "n_teste": 4115,
+   "r_teste": -0.3573,
+   "r_acaso_teste": -0.4943,
+   "p_contra_acaso": 0.000308,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 0.008316,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "momentum k=2 x=0.015 LONG": {
+   "familia": "momentum",
+   "lado": "LONG",
+   "parametros": {
+    "k": 2,
+    "x": 0.015
+   },
+   "n_desenho": 3286,
+   "r_desenho": -0.3132,
+   "n_teste": 7774,
+   "r_teste": -0.1994,
+   "r_acaso_teste": -1.1502,
+   "p_contra_acaso": 0.076243,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 0.914916,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "momentum k=2 x=0.015 SHORT": {
+   "familia": "momentum",
+   "lado": "SHORT",
+   "parametros": {
+    "k": 2,
+    "x": 0.015
+   },
+   "n_desenho": 3260,
+   "r_desenho": -0.3261,
+   "n_teste": 7862,
+   "r_teste": -0.2318,
+   "r_acaso_teste": -0.4181,
+   "p_contra_acaso": 0.020556,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 0.346845,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "momentum k=2 x=0.025 LONG": {
+   "familia": "momentum",
+   "lado": "LONG",
+   "parametros": {
+    "k": 2,
+    "x": 0.025
+   },
+   "n_desenho": 1335,
+   "r_desenho": -0.2498,
+   "n_teste": 3393,
+   "r_teste": -0.149,
+   "r_acaso_teste": -0.3617,
+   "p_contra_acaso": 0.0,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 0.0,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "momentum k=2 x=0.025 SHORT": {
+   "familia": "momentum",
+   "lado": "SHORT",
+   "parametros": {
+    "k": 2,
+    "x": 0.025
+   },
+   "n_desenho": 1204,
+   "r_desenho": -0.2587,
+   "n_teste": 3255,
+   "r_teste": -0.1854,
+   "r_acaso_teste": -0.3054,
+   "p_contra_acaso": 0.000358,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 0.009308,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "momentum k=2 x=0.04 LONG": {
+   "familia": "momentum",
+   "lado": "LONG",
+   "parametros": {
+    "k": 2,
+    "x": 0.04
+   },
+   "n_desenho": 423,
+   "r_desenho": -0.2039,
+   "n_teste": 1266,
+   "r_teste": -0.1731,
+   "r_acaso_teste": -0.4998,
+   "p_contra_acaso": 0.003029,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 0.072696,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "momentum k=2 x=0.04 SHORT": {
+   "familia": "momentum",
+   "lado": "SHORT",
+   "parametros": {
+    "k": 2,
+    "x": 0.04
+   },
+   "n_desenho": 394,
+   "r_desenho": -0.2178,
+   "n_teste": 1105,
+   "r_teste": -0.1966,
+   "r_acaso_teste": -0.3502,
+   "p_contra_acaso": 0.005394,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 0.124062,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "momentum k=4 x=0.015 LONG": {
+   "familia": "momentum",
+   "lado": "LONG",
+   "parametros": {
+    "k": 4,
+    "x": 0.015
+   },
+   "n_desenho": 4124,
+   "r_desenho": -0.5204,
+   "n_teste": 9312,
+   "r_teste": -0.2025,
+   "r_acaso_teste": -0.5184,
+   "p_contra_acaso": 0.000392,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 0.0098,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "momentum k=4 x=0.015 SHORT": {
+   "familia": "momentum",
+   "lado": "SHORT",
+   "parametros": {
+    "k": 4,
+    "x": 0.015
+   },
+   "n_desenho": 4258,
+   "r_desenho": -0.3506,
+   "n_teste": 9915,
+   "r_teste": -0.2147,
+   "r_acaso_teste": -0.3744,
+   "p_contra_acaso": 0.006389,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 0.140558,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "momentum k=4 x=0.025 LONG": {
+   "familia": "momentum",
+   "lado": "LONG",
+   "parametros": {
+    "k": 4,
+    "x": 0.025
+   },
+   "n_desenho": 1890,
+   "r_desenho": -0.2753,
+   "n_teste": 4750,
+   "r_teste": -0.2407,
+   "r_acaso_teste": -0.4697,
+   "p_contra_acaso": 0.046396,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 0.649544,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "momentum k=4 x=0.025 SHORT": {
+   "familia": "momentum",
+   "lado": "SHORT",
+   "parametros": {
+    "k": 4,
+    "x": 0.025
+   },
+   "n_desenho": 1865,
+   "r_desenho": -0.3304,
+   "n_teste": 4781,
+   "r_teste": -0.1692,
+   "r_acaso_teste": -0.3213,
+   "p_contra_acaso": 0.0,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 0.0,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "momentum k=4 x=0.04 LONG": {
+   "familia": "momentum",
+   "lado": "LONG",
+   "parametros": {
+    "k": 4,
+    "x": 0.04
+   },
+   "n_desenho": 708,
+   "r_desenho": -0.2238,
+   "n_teste": 2036,
+   "r_teste": -0.1389,
+   "r_acaso_teste": -0.586,
+   "p_contra_acaso": 0.018255,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 0.346845,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "momentum k=4 x=0.04 SHORT": {
+   "familia": "momentum",
+   "lado": "SHORT",
+   "parametros": {
+    "k": 4,
+    "x": 0.04
+   },
+   "n_desenho": 647,
+   "r_desenho": -0.2342,
+   "n_teste": 1759,
+   "r_teste": -0.1738,
+   "r_acaso_teste": -0.3202,
+   "p_contra_acaso": 0.000191,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 0.005539,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "exaustao k=2 x=0.015 LONG": {
+   "familia": "exaustao",
+   "lado": "LONG",
+   "parametros": {
+    "k": 2,
+    "x": 0.015
+   },
+   "n_desenho": 3260,
+   "r_desenho": -0.2022,
+   "n_teste": 7861,
+   "r_teste": -0.1822,
+   "r_acaso_teste": -0.336,
+   "p_contra_acaso": 0.0,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 0.0,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "exaustao k=2 x=0.015 SHORT": {
+   "familia": "exaustao",
+   "lado": "SHORT",
+   "parametros": {
+    "k": 2,
+    "x": 0.015
+   },
+   "n_desenho": 3286,
+   "r_desenho": -0.1651,
+   "n_teste": 7773,
+   "r_teste": -0.1878,
+   "r_acaso_teste": -0.7691,
+   "p_contra_acaso": 0.068452,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 0.889876,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "exaustao k=2 x=0.025 LONG": {
+   "familia": "exaustao",
+   "lado": "LONG",
+   "parametros": {
+    "k": 2,
+    "x": 0.025
+   },
+   "n_desenho": 1204,
+   "r_desenho": -0.0938,
+   "n_teste": 3255,
+   "r_teste": -0.1671,
+   "r_acaso_teste": -0.3826,
+   "p_contra_acaso": 1e-06,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 3.2e-05,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "exaustao k=2 x=0.025 SHORT": {
+   "familia": "exaustao",
+   "lado": "SHORT",
+   "parametros": {
+    "k": 2,
+    "x": 0.025
+   },
+   "n_desenho": 1335,
+   "r_desenho": -0.1329,
+   "n_teste": 3390,
+   "r_teste": -0.1399,
+   "r_acaso_teste": -0.332,
+   "p_contra_acaso": 4e-06,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 0.00012,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "exaustao k=2 x=0.04 LONG": {
+   "familia": "exaustao",
+   "lado": "LONG",
+   "parametros": {
+    "k": 2,
+    "x": 0.04
+   },
+   "n_desenho": 394,
+   "r_desenho": -0.0294,
+   "n_teste": 1105,
+   "r_teste": -0.2295,
+   "r_acaso_teste": -0.521,
+   "p_contra_acaso": 0.010156,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 0.20312,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "exaustao k=2 x=0.04 SHORT": {
+   "familia": "exaustao",
+   "lado": "SHORT",
+   "parametros": {
+    "k": 2,
+    "x": 0.04
+   },
+   "n_desenho": 423,
+   "r_desenho": -0.0481,
+   "n_teste": 1266,
+   "r_teste": -0.0814,
+   "r_acaso_teste": -0.3292,
+   "p_contra_acaso": 0.0,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 0.0,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "exaustao k=4 x=0.015 LONG": {
+   "familia": "exaustao",
+   "lado": "LONG",
+   "parametros": {
+    "k": 4,
+    "x": 0.015
+   },
+   "n_desenho": 4258,
+   "r_desenho": -0.2485,
+   "n_teste": 9915,
+   "r_teste": -0.1842,
+   "r_acaso_teste": -0.3564,
+   "p_contra_acaso": 0.0,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 0.0,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "exaustao k=4 x=0.015 SHORT": {
+   "familia": "exaustao",
+   "lado": "SHORT",
+   "parametros": {
+    "k": 4,
+    "x": 0.015
+   },
+   "n_desenho": 4124,
+   "r_desenho": -0.211,
+   "n_teste": 9304,
+   "r_teste": -0.2059,
+   "r_acaso_teste": -0.3113,
+   "p_contra_acaso": 1e-06,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 3.2e-05,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "exaustao k=4 x=0.025 LONG": {
+   "familia": "exaustao",
+   "lado": "LONG",
+   "parametros": {
+    "k": 4,
+    "x": 0.025
+   },
+   "n_desenho": 1865,
+   "r_desenho": -0.106,
+   "n_teste": 4780,
+   "r_teste": -0.1404,
+   "r_acaso_teste": -0.5113,
+   "p_contra_acaso": 0.000192,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 0.005539,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "exaustao k=4 x=0.025 SHORT": {
+   "familia": "exaustao",
+   "lado": "SHORT",
+   "parametros": {
+    "k": 4,
+    "x": 0.025
+   },
+   "n_desenho": 1890,
+   "r_desenho": -0.1272,
+   "n_teste": 4745,
+   "r_teste": -0.14,
+   "r_acaso_teste": -0.3152,
+   "p_contra_acaso": 0.0,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 0.0,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "exaustao k=4 x=0.04 LONG": {
+   "familia": "exaustao",
+   "lado": "LONG",
+   "parametros": {
+    "k": 4,
+    "x": 0.04
+   },
+   "n_desenho": 647,
+   "r_desenho": -0.0264,
+   "n_teste": 1759,
+   "r_teste": -0.0732,
+   "r_acaso_teste": -0.4012,
+   "p_contra_acaso": 0.0,
+   "fracao_meses_positivos": 0.25,
+   "p_holm": 0.0,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "exaustao k=4 x=0.04 SHORT": {
+   "familia": "exaustao",
+   "lado": "SHORT",
+   "parametros": {
+    "k": 4,
+    "x": 0.04
+   },
+   "n_desenho": 708,
+   "r_desenho": -0.0718,
+   "n_teste": 2032,
+   "r_teste": -0.0688,
+   "r_acaso_teste": -0.3383,
+   "p_contra_acaso": 0.0,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 0.0,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "compressao c=0.5 LONG": {
+   "familia": "compressao",
+   "lado": "LONG",
+   "parametros": {
+    "c": 0.5
+   },
+   "n_desenho": 1341,
+   "r_desenho": -2.0678,
+   "n_teste": 1765,
+   "r_teste": -1.9685,
+   "r_acaso_teste": -0.8139,
+   "p_contra_acaso": 1.0,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 1.0,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "compressao c=0.5 SHORT": {
+   "familia": "compressao",
+   "lado": "SHORT",
+   "parametros": {
+    "c": 0.5
+   },
+   "n_desenho": 1176,
+   "r_desenho": -3.36,
+   "n_teste": 1765,
+   "r_teste": -2.6278,
+   "r_acaso_teste": -0.7766,
+   "p_contra_acaso": 0.978882,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 1.0,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "compressao c=0.7 LONG": {
+   "familia": "compressao",
+   "lado": "LONG",
+   "parametros": {
+    "c": 0.7
+   },
+   "n_desenho": 2640,
+   "r_desenho": -1.5456,
+   "n_teste": 3909,
+   "r_teste": -1.0812,
+   "r_acaso_teste": -0.6392,
+   "p_contra_acaso": 1.0,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 1.0,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  },
+  "compressao c=0.7 SHORT": {
+   "familia": "compressao",
+   "lado": "SHORT",
+   "parametros": {
+    "c": 0.7
+   },
+   "n_desenho": 2424,
+   "r_desenho": -2.025,
+   "n_teste": 3942,
+   "r_teste": -1.4234,
+   "r_acaso_teste": -0.5985,
+   "p_contra_acaso": 0.977247,
+   "fracao_meses_positivos": 0.0,
+   "p_holm": 1.0,
+   "veredicto": "REJEITADA (sem vantagem demonstrada)"
+  }
+ }
+}

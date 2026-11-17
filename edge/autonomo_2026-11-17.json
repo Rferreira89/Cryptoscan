@@ -1,0 +1,488 @@
+{
+ "modo": "SIMULACAO (sem ordens, sem dinheiro)",
+ "limites_autorizados_lidos": {
+  "risco_max_pct": 5.0
+ },
+ "estrategias": {
+  "TESTE_FORA_DA_AMOSTRA|QO range_reversal|LONG": {
+   "n": 10616,
+   "media_r": -0.492,
+   "kelly_r_inteiro_pct": 0.0,
+   "kelly_prudente": {
+    "risco_pct": 0.0,
+    "motivo": "limite inferior da media -0.540R <= 0",
+    "n": 10616,
+    "media_r": -0.492
+   },
+   "fracoes": {
+    "0.1": 0.0,
+    "0.25": 0.0,
+    "0.5": 0.0
+   },
+   "dimensao_exemplo_stop5_alav5": null,
+   "tesouraria": {
+    "media_r": -0.492,
+    "ops_mes": 8,
+    "risco_pct": 0.5,
+    "retorno_mes_esperado_pct": -1.9681,
+    "estado": "NAO SUSTENTAVEL: retorno esperado <= 0",
+    "capital_minimo_em_custos_mensais": null
+   },
+   "sobrevivencia": {
+    "novas_entradas": false,
+    "motivos": [
+     "drawdown 5248.80R >= 8.0R"
+    ],
+    "drawdown_r": 5248.805,
+    "perdas_seguidas": 1,
+    "posicoes_abertas": "geridas normalmente (nunca abandonadas)"
+   },
+   "stress_risco_0_5pct": {
+    "base": {
+     "capital_final_p05": 68.07,
+     "capital_final_mediana": 80.56,
+     "capital_final_p95": 89.17,
+     "drawdown_mediano_pct": 19.7,
+     "drawdown_p95_pct": 31.92,
+     "risco_ruina_pct": 3.05
+    },
+    "custos_a_dobrar": {
+     "capital_final_p05": 66.45,
+     "capital_final_mediana": 78.65,
+     "capital_final_p95": 87.05,
+     "drawdown_mediano_pct": 21.57,
+     "drawdown_p95_pct": 33.54,
+     "risco_ruina_pct": 3.05
+    },
+    "tres_meses_sem_operacoes": {
+     "capital_final_p05": 74.29,
+     "capital_final_mediana": 85.01,
+     "capital_final_p95": 92.65,
+     "drawdown_mediano_pct": 15.24,
+     "drawdown_p95_pct": 25.72,
+     "risco_ruina_pct": 2.25
+    },
+    "inicio_com_10_perdas": {
+     "capital_final_p05": 67.73,
+     "capital_final_mediana": 80.51,
+     "capital_final_p95": 89.28,
+     "drawdown_mediano_pct": 19.73,
+     "drawdown_p95_pct": 32.3,
+     "risco_ruina_pct": 3.2
+    }
+   }
+  },
+  "TESTE_FORA_DA_AMOSTRA|QO range_reversal|SHORT": {
+   "n": 10216,
+   "media_r": -0.4885,
+   "kelly_r_inteiro_pct": 0.0,
+   "kelly_prudente": {
+    "risco_pct": 0.0,
+    "motivo": "limite inferior da media -0.537R <= 0",
+    "n": 10216,
+    "media_r": -0.4885
+   },
+   "fracoes": {
+    "0.1": 0.0,
+    "0.25": 0.0,
+    "0.5": 0.0
+   },
+   "dimensao_exemplo_stop5_alav5": null,
+   "tesouraria": {
+    "media_r": -0.4885,
+    "ops_mes": 8,
+    "risco_pct": 0.5,
+    "retorno_mes_esperado_pct": -1.9541,
+    "estado": "NAO SUSTENTAVEL: retorno esperado <= 0",
+    "capital_minimo_em_custos_mensais": null
+   },
+   "sobrevivencia": {
+    "novas_entradas": false,
+    "motivos": [
+     "drawdown 5004.36R >= 8.0R",
+     "7 perdas seguidas",
+     "media das ultimas 30 = -0.467R (expectativa degradada)"
+    ],
+    "drawdown_r": 5004.357,
+    "perdas_seguidas": 7,
+    "posicoes_abertas": "geridas normalmente (nunca abandonadas)"
+   },
+   "stress_risco_0_5pct": {
+    "base": {
+     "capital_final_p05": 67.54,
+     "capital_final_mediana": 80.55,
+     "capital_final_p95": 89.99,
+     "drawdown_mediano_pct": 19.69,
+     "drawdown_p95_pct": 32.45,
+     "risco_ruina_pct": 2.0
+    },
+    "custos_a_dobrar": {
+     "capital_final_p05": 65.94,
+     "capital_final_mediana": 78.64,
+     "capital_final_p95": 87.85,
+     "drawdown_mediano_pct": 21.56,
+     "drawdown_p95_pct": 34.06,
+     "risco_ruina_pct": 2.2
+    },
+    "tres_meses_sem_operacoes": {
+     "capital_final_p05": 73.98,
+     "capital_final_mediana": 85.04,
+     "capital_final_p95": 93.13,
+     "drawdown_mediano_pct": 15.26,
+     "drawdown_p95_pct": 26.01,
+     "risco_ruina_pct": 1.2
+    },
+    "inicio_com_10_perdas": {
+     "capital_final_p05": 67.32,
+     "capital_final_mediana": 80.64,
+     "capital_final_p95": 89.42,
+     "drawdown_mediano_pct": 19.63,
+     "drawdown_p95_pct": 32.68,
+     "risco_ruina_pct": 2.7
+    }
+   }
+  },
+  "TESTE_FORA_DA_AMOSTRA|QO volume_breakdown|SHORT": {
+   "n": 6665,
+   "media_r": -0.3725,
+   "kelly_r_inteiro_pct": 0.0,
+   "kelly_prudente": {
+    "risco_pct": 0.0,
+    "motivo": "limite inferior da media -0.404R <= 0",
+    "n": 6665,
+    "media_r": -0.3725
+   },
+   "fracoes": {
+    "0.1": 0.0,
+    "0.25": 0.0,
+    "0.5": 0.0
+   },
+   "dimensao_exemplo_stop5_alav5": null,
+   "tesouraria": {
+    "media_r": -0.3725,
+    "ops_mes": 8,
+    "risco_pct": 0.5,
+    "retorno_mes_esperado_pct": -1.4899,
+    "estado": "NAO SUSTENTAVEL: retorno esperado <= 0",
+    "capital_minimo_em_custos_mensais": null
+   },
+   "sobrevivencia": {
+    "novas_entradas": false,
+    "motivos": [
+     "drawdown 2488.14R >= 8.0R",
+     "7 perdas seguidas",
+     "media das ultimas 30 = -0.535R (expectativa degradada)"
+    ],
+    "drawdown_r": 2488.141,
+    "perdas_seguidas": 7,
+    "posicoes_abertas": "geridas normalmente (nunca abandonadas)"
+   },
+   "stress_risco_0_5pct": {
+    "base": {
+     "capital_final_p05": 73.21,
+     "capital_final_mediana": 83.64,
+     "capital_final_p95": 94.05,
+     "drawdown_mediano_pct": 16.85,
+     "drawdown_p95_pct": 27.07,
+     "risco_ruina_pct": 0.0
+    },
+    "custos_a_dobrar": {
+     "capital_final_p05": 71.47,
+     "capital_final_mediana": 81.65,
+     "capital_final_p95": 91.81,
+     "drawdown_mediano_pct": 18.69,
+     "drawdown_p95_pct": 28.65,
+     "risco_ruina_pct": 0.0
+    },
+    "tres_meses_sem_operacoes": {
+     "capital_final_p05": 78.19,
+     "capital_final_mediana": 87.76,
+     "capital_final_p95": 96.14,
+     "drawdown_mediano_pct": 12.89,
+     "drawdown_p95_pct": 22.03,
+     "risco_ruina_pct": 0.0
+    },
+    "inicio_com_10_perdas": {
+     "capital_final_p05": 73.68,
+     "capital_final_mediana": 83.6,
+     "capital_final_p95": 93.76,
+     "drawdown_mediano_pct": 17.03,
+     "drawdown_p95_pct": 26.52,
+     "risco_ruina_pct": 0.0
+    }
+   }
+  },
+  "TESTE_FORA_DA_AMOSTRA|QO volume_breakout|LONG": {
+   "n": 6214,
+   "media_r": -0.5466,
+   "kelly_r_inteiro_pct": 0.0,
+   "kelly_prudente": {
+    "risco_pct": 0.0,
+    "motivo": "limite inferior da media -0.641R <= 0",
+    "n": 6214,
+    "media_r": -0.5466
+   },
+   "fracoes": {
+    "0.1": 0.0,
+    "0.25": 0.0,
+    "0.5": 0.0
+   },
+   "dimensao_exemplo_stop5_alav5": null,
+   "tesouraria": {
+    "media_r": -0.5466,
+    "ops_mes": 8,
+    "risco_pct": 0.5,
+    "retorno_mes_esperado_pct": -2.1863,
+    "estado": "NAO SUSTENTAVEL: retorno esperado <= 0",
+    "capital_minimo_em_custos_mensais": null
+   },
+   "sobrevivencia": {
+    "novas_entradas": false,
+    "motivos": [
+     "drawdown 3396.40R >= 8.0R",
+     "6 perdas seguidas",
+     "media das ultimas 30 = -0.601R (expectativa degradada)"
+    ],
+    "drawdown_r": 3396.398,
+    "perdas_seguidas": 6,
+    "posicoes_abertas": "geridas normalmente (nunca abandonadas)"
+   },
+   "stress_risco_0_5pct": {
+    "base": {
+     "capital_final_p05": 27.73,
+     "capital_final_mediana": 80.39,
+     "capital_final_p95": 90.53,
+     "drawdown_mediano_pct": 19.98,
+     "drawdown_p95_pct": 72.45,
+     "risco_ruina_pct": 7.4
+    },
+    "custos_a_dobrar": {
+     "capital_final_p05": 27.06,
+     "capital_final_mediana": 78.48,
+     "capital_final_p95": 88.38,
+     "drawdown_mediano_pct": 21.83,
+     "drawdown_p95_pct": 73.05,
+     "risco_ruina_pct": 7.45
+    },
+    "tres_meses_sem_operacoes": {
+     "capital_final_p05": 46.86,
+     "capital_final_mediana": 84.67,
+     "capital_final_p95": 94.14,
+     "drawdown_mediano_pct": 15.67,
+     "drawdown_p95_pct": 53.24,
+     "risco_ruina_pct": 5.75
+    },
+    "inicio_com_10_perdas": {
+     "capital_final_p05": 43.39,
+     "capital_final_mediana": 80.76,
+     "capital_final_p95": 90.91,
+     "drawdown_mediano_pct": 19.66,
+     "drawdown_p95_pct": 56.61,
+     "risco_ruina_pct": 5.7
+    }
+   }
+  },
+  "TESTE_FORA_DA_AMOSTRA|QO momentum|LONG": {
+   "n": 3436,
+   "media_r": -0.2617,
+   "kelly_r_inteiro_pct": 0.0,
+   "kelly_prudente": {
+    "risco_pct": 0.0,
+    "motivo": "limite inferior da media -0.454R <= 0",
+    "n": 3436,
+    "media_r": -0.2617
+   },
+   "fracoes": {
+    "0.1": 0.0,
+    "0.25": 0.0,
+    "0.5": 0.0
+   },
+   "dimensao_exemplo_stop5_alav5": null,
+   "tesouraria": {
+    "media_r": -0.2617,
+    "ops_mes": 8,
+    "risco_pct": 0.5,
+    "retorno_mes_esperado_pct": -1.0469,
+    "estado": "NAO SUSTENTAVEL: retorno esperado <= 0",
+    "capital_minimo_em_custos_mensais": null
+   },
+   "sobrevivencia": {
+    "novas_entradas": false,
+    "motivos": [
+     "drawdown 920.81R >= 8.0R"
+    ],
+    "drawdown_r": 920.807,
+    "perdas_seguidas": 0,
+    "posicoes_abertas": "geridas normalmente (nunca abandonadas)"
+   },
+   "stress_risco_0_5pct": {
+    "base": {
+     "capital_final_p05": 79.42,
+     "capital_final_mediana": 93.19,
+     "capital_final_p95": 103.5,
+     "drawdown_mediano_pct": 8.77,
+     "drawdown_p95_pct": 21.51,
+     "risco_ruina_pct": 2.6
+    },
+    "custos_a_dobrar": {
+     "capital_final_p05": 77.53,
+     "capital_final_mediana": 90.98,
+     "capital_final_p95": 101.05,
+     "drawdown_mediano_pct": 10.44,
+     "drawdown_p95_pct": 23.28,
+     "risco_ruina_pct": 2.6
+    },
+    "tres_meses_sem_operacoes": {
+     "capital_final_p05": 83.16,
+     "capital_final_mediana": 95.04,
+     "capital_final_p95": 103.65,
+     "drawdown_mediano_pct": 6.8,
+     "drawdown_p95_pct": 17.78,
+     "risco_ruina_pct": 1.8
+    },
+    "inicio_com_10_perdas": {
+     "capital_final_p05": 78.2,
+     "capital_final_mediana": 92.9,
+     "capital_final_p95": 103.58,
+     "drawdown_mediano_pct": 8.88,
+     "drawdown_p95_pct": 23.24,
+     "risco_ruina_pct": 3.1
+    }
+   }
+  },
+  "TESTE_FORA_DA_AMOSTRA|QO momentum|SHORT": {
+   "n": 3375,
+   "media_r": -0.1803,
+   "kelly_r_inteiro_pct": 0.0,
+   "kelly_prudente": {
+    "risco_pct": 0.0,
+    "motivo": "limite inferior da media -0.216R <= 0",
+    "n": 3375,
+    "media_r": -0.1803
+   },
+   "fracoes": {
+    "0.1": 0.0,
+    "0.25": 0.0,
+    "0.5": 0.0
+   },
+   "dimensao_exemplo_stop5_alav5": null,
+   "tesouraria": {
+    "media_r": -0.1803,
+    "ops_mes": 8,
+    "risco_pct": 0.5,
+    "retorno_mes_esperado_pct": -0.7214,
+    "estado": "NAO SUSTENTAVEL: retorno esperado <= 0",
+    "capital_minimo_em_custos_mensais": null
+   },
+   "sobrevivencia": {
+    "novas_entradas": false,
+    "motivos": [
+     "drawdown 610.01R >= 8.0R",
+     "media das ultimas 30 = -0.461R (expectativa degradada)"
+    ],
+    "drawdown_r": 610.006,
+    "perdas_seguidas": 1,
+    "posicoes_abertas": "geridas normalmente (nunca abandonadas)"
+   },
+   "stress_risco_0_5pct": {
+    "base": {
+     "capital_final_p05": 83.67,
+     "capital_final_mediana": 91.38,
+     "capital_final_p95": 101.53,
+     "drawdown_mediano_pct": 9.9,
+     "drawdown_p95_pct": 16.65,
+     "risco_ruina_pct": 0.0
+    },
+    "custos_a_dobrar": {
+     "capital_final_p05": 81.68,
+     "capital_final_mediana": 89.21,
+     "capital_final_p95": 99.13,
+     "drawdown_mediano_pct": 11.76,
+     "drawdown_p95_pct": 18.55,
+     "risco_ruina_pct": 0.0
+    },
+    "tres_meses_sem_operacoes": {
+     "capital_final_p05": 86.53,
+     "capital_final_mediana": 93.35,
+     "capital_final_p95": 102.55,
+     "drawdown_mediano_pct": 7.74,
+     "drawdown_p95_pct": 13.88,
+     "risco_ruina_pct": 0.0
+    },
+    "inicio_com_10_perdas": {
+     "capital_final_p05": 82.94,
+     "capital_final_mediana": 91.03,
+     "capital_final_p95": 101.64,
+     "drawdown_mediano_pct": 10.23,
+     "drawdown_p95_pct": 17.56,
+     "risco_ruina_pct": 0.0
+    }
+   }
+  },
+  "REAL|TODAS": {
+   "n": 15,
+   "media_r": -0.3115,
+   "kelly_r_inteiro_pct": 0.0,
+   "kelly_prudente": {
+    "risco_pct": 0.0,
+    "motivo": "amostra 15 < 30",
+    "n": 15
+   },
+   "fracoes": {
+    "0.1": 0.0,
+    "0.25": 0.0,
+    "0.5": 0.0
+   },
+   "dimensao_exemplo_stop5_alav5": null,
+   "tesouraria": {
+    "media_r": -0.3115,
+    "ops_mes": 8,
+    "risco_pct": 0.5,
+    "retorno_mes_esperado_pct": -1.2461,
+    "estado": "NAO SUSTENTAVEL: retorno esperado <= 0",
+    "capital_minimo_em_custos_mensais": null
+   },
+   "sobrevivencia": {
+    "novas_entradas": true,
+    "motivos": [],
+    "drawdown_r": 7.1,
+    "perdas_seguidas": 0,
+    "posicoes_abertas": "geridas normalmente (nunca abandonadas)"
+   },
+   "stress_risco_0_5pct": {
+    "base": {
+     "capital_final_p05": 80.45,
+     "capital_final_mediana": 86.01,
+     "capital_final_p95": 92.42,
+     "drawdown_mediano_pct": 14.15,
+     "drawdown_p95_pct": 19.57,
+     "risco_ruina_pct": 0.0
+    },
+    "custos_a_dobrar": {
+     "capital_final_p05": 78.53,
+     "capital_final_mediana": 83.97,
+     "capital_final_p95": 90.23,
+     "drawdown_mediano_pct": 16.15,
+     "drawdown_p95_pct": 21.48,
+     "risco_ruina_pct": 0.0
+    },
+    "tres_meses_sem_operacoes": {
+     "capital_final_p05": 84.39,
+     "capital_final_mediana": 89.34,
+     "capital_final_p95": 94.92,
+     "drawdown_mediano_pct": 10.86,
+     "drawdown_p95_pct": 15.69,
+     "risco_ruina_pct": 0.0
+    },
+    "inicio_com_10_perdas": {
+     "capital_final_p05": 71.16,
+     "capital_final_mediana": 75.17,
+     "capital_final_p95": 79.87,
+     "drawdown_mediano_pct": 24.83,
+     "drawdown_p95_pct": 28.84,
+     "risco_ruina_pct": 0.0
+    }
+   }
+  }
+ }
+}
