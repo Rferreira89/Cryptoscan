@@ -911,7 +911,7 @@
 "instrumentos_descobertos": 262,
 "com_dados_validos": 260,
 "falhas_tecnicas": 0,
-"excluidos_por_dados": 96,
+"excluidos_por_dados": 108,
 "candidatos": 1,
 "aprovados": 1,
 "abertas_novas": 16,
@@ -925,7 +925,7 @@
 "ja ha exposicao a esta moeda neste acontecimento (outra estrategia)": 3
 }
 },
-"voltas": 8,
+"voltas": 9,
 "bloqueadas": {},
 "resumo": {},
 "funil_ultima": {
@@ -934,20 +934,17 @@
 "falhas_tecnicas": 0,
 "excluidos_por_dados": 12,
 "dados_fiaveis": true,
-"sinais_brutos": 18,
-"rejeitados": {
-"concentracao: acontecimento ja com 3 posicoes (segue so nas carteiras-sombra max5/sem_limite)": 12,
-"ja ha exposicao a esta moeda neste acontecimento (outra estrategia)": 3
-},
-"elegiveis_apos_concentracao": 3,
-"abertas_novas": 15,
+"sinais_brutos": 0,
+"rejeitados": {},
+"elegiveis_apos_concentracao": 0,
+"abertas_novas": 0,
 "fechadas_agora": 0,
-"acontecimentos_novos": 1,
-"moedas_com_sinal": 15,
-"t": 1794916876,
+"acontecimentos_novos": 0,
+"moedas_com_sinal": 0,
+"t": 1794918676,
 "versao_codigo": "78e6d7e"
 },
-"t": 1794916876,
+"t": 1794918676,
 "aviso": "PAPEL: simulado, nunca somado aos resultados reais; sem ordens",
 "vistos": [
 "057f68c36111|APR|1794902400",
