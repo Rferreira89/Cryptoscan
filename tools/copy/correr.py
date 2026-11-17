@@ -33,18 +33,20 @@ def _gravar(p, d):
 
 def atualizar_ranking(trs, now, log=print):
     out = {}
+    def um(chave, t, hist, pos):                       # um trader com dados maus nunca para a volta
+        try:
+            h = hist(t["id"])
+            if h is not None:
+                out[chave] = {**RK.avaliar(t, h, pos(t["id"])), **{k: t[k] for k in ("dias", "copiadores") if k in t}}
+        except Exception as e:
+            F.FALHAS.add(f"avaliar {chave}", f"{type(e).__name__}: {e}")
+
     for t in F.okx_lideres(5):
-        h = F.okx_historico(t["id"])
-        time.sleep(0.35)
-        if h is not None:
-            pos = F.okx_posicoes(t["id"])               # perdas por fechar (o historico so tem posicoes fechadas)
-            time.sleep(0.35)
-            out[f"okx:{t['id']}"] = {**RK.avaliar(t, h, pos), "dias_lider": t["dias"], "copiadores": t["copiadores"]}
+        um(f"okx:{t['id']}", t, F.okx_historico, F.okx_posicoes)   # posicoes: perdas por fechar (o historico so tem as fechadas)
+        time.sleep(0.6)
     for t in F.hl_ranking() or []:
-        h = F.hl_historico(t["id"])
-        time.sleep(0.2)
-        if h is not None:
-            out[f"hyperliquid:{t['id']}"] = RK.avaliar(t, h, F.hl_posicoes(t["id"]))
+        um(f"hyperliquid:{t['id']}", t, F.hl_historico, F.hl_posicoes)
+        time.sleep(0.3)
     if not out:
         return trs                                            # fontes em baixo: mantem o ranking anterior
     log(f"ranking: {len(out)} traders, {sum(1 for v in out.values() if v['estado'] == 'APROVADO')} aprovados")
@@ -83,7 +85,11 @@ def volta(pasta, now=None, fontes=F, log=print):
     atuais, falhou = {}, []
     for k in seguidos(trs):
         fonte, tid = k.split(":", 1)
-        pos = fontes.okx_posicoes(tid) if fonte == "okx" else fontes.hl_posicoes(tid)
+        try:
+            pos = fontes.okx_posicoes(tid) if fonte == "okx" else fontes.hl_posicoes(tid)
+        except Exception as e:
+            F.FALHAS.add(f"posicoes {k}", f"{type(e).__name__}: {e}")
+            pos = None
         time.sleep(0.3)
         if pos is None:
             falhou.append(k)

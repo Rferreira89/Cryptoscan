@@ -62,6 +62,19 @@ class Ranking(unittest.TestCase):
         self.assertNotEqual(RK.avaliar({}, h)["estado"], "APROVADO")
 
 
+class Fontes(unittest.TestCase):
+    def test_campos_vazios_nao_partem(self):
+        from unittest import mock
+        from tools.copy import fontes as F
+        lixo = [{"instId": "BTC-USDT-SWAP", "openTime": "", "openAvgPx": "1", "subPosId": "1", "posSide": "long", "lever": ""},
+                {"instId": "BTC-USDT-SWAP", "openTime": "1", "openAvgPx": "", "subPosId": "2"}]
+        with mock.patch.object(F, "okx", return_value=lixo):
+            p = F.okx_posicoes("x")
+            self.assertEqual(len(p), 1)
+            self.assertIsNone(p[0]["t_abre"])
+            self.assertEqual(F.okx_historico("x"), [])
+
+
 class Smart(unittest.TestCase):
     TR = {"estado": "APROVADO", "validacao": {"r_medio": 0.001, "profit_factor": 1.2}}
     TOPO = {"estado": "APROVADO", "validacao": {"r_medio": 0.005, "profit_factor": 2.0}}
@@ -122,7 +135,7 @@ class Volta(unittest.TestCase):
     def setUp(self):
         self.d = tempfile.mkdtemp()
         os.makedirs(os.path.join(self.d, "copy"))
-        tr = {"t": NOW, "traders": {"okx:T1": {"estado": "APROVADO", "score": 1.0, "validacao": {"r_medio": 0.005, "profit_factor": 2.0},
+        tr = {"t": NOW, "versao": CR.RANKING_VERSAO, "traders": {"okx:T1": {"estado": "APROVADO", "score": 1.0, "validacao": {"r_medio": 0.005, "profit_factor": 2.0},
                                                "motivos": [], "perigos": []}}}
         json.dump(tr, open(os.path.join(self.d, "copy", "traders.json"), "w"))
         self.f = FontesFalsas()

@@ -40,6 +40,20 @@ def _http(url, corpo=None, timeout=25, tent=3):
     return None
 
 
+def _i(x, padrao=None):
+    try:
+        return int(x)
+    except (TypeError, ValueError):
+        return padrao
+
+
+def _f(x, padrao=0.0):
+    try:
+        return float(x)
+    except (TypeError, ValueError):
+        return padrao
+
+
 def okx(base, path, params=None):
     d = _http(base + path + ("?" + urllib.parse.urlencode(params) if params else ""))
     if isinstance(d, dict) and d.get("code") == "0":
@@ -72,9 +86,10 @@ def okx_lideres(paginas=5):
 def okx_historico(uc):
     d = okx(OKX_GLOBAL, "/api/v5/copytrading/public-subpositions-history", {"instType": "SWAP", "uniqueCode": uc, "limit": 100})
     return [{"inst": x["instId"], "base": x["instId"].split("-")[0], "lado": "LONG" if x.get("posSide") == "long" else "SHORT",
-             "t_abre": int(x["openTime"]) // 1000, "t_fecha": int(x["closeTime"]) // 1000, "px_abre": float(x["openAvgPx"]),
-             "px_fecha": float(x["closeAvgPx"]), "alav": float(x.get("lever") or 1), "margem": float(x.get("margin") or 0),
-             "pnl_ratio": float(x.get("pnlRatio") or 0), "id": x.get("subPosId")} for x in d or [] if x.get("closeTime")] \
+             "t_abre": _i(x.get("openTime"), 0) // 1000, "t_fecha": _i(x.get("closeTime"), 0) // 1000, "px_abre": _f(x.get("openAvgPx")),
+             "px_fecha": _f(x.get("closeAvgPx")), "alav": _f(x.get("lever"), 1.0) or 1.0, "margem": _f(x.get("margin")),
+             "pnl_ratio": _f(x.get("pnlRatio")), "id": x.get("subPosId")} for x in d or []
+            if x.get("instId") and _i(x.get("closeTime")) and _i(x.get("openTime")) and _f(x.get("openAvgPx"))] \
         if d is not None else None
 
 
@@ -83,9 +98,10 @@ def okx_posicoes(uc):
     if d is None:
         return None
     return [{"inst": x["instId"], "base": x["instId"].split("-")[0], "lado": "LONG" if x.get("posSide") == "long" else "SHORT",
-             "t_abre": int(x["openTime"]) // 1000, "px_abre": float(x["openAvgPx"]), "alav": float(x.get("lever") or 1),
-             "tamanho": float(x.get("subPos") or 0), "margem": float(x.get("margin") or 0), "id": x["subPosId"],
-             "upl_nocional": float(x.get("uplRatio") or 0) / max(1.0, float(x.get("lever") or 1))} for x in d]
+             "t_abre": (_i(x.get("openTime")) or 0) // 1000 or None, "px_abre": _f(x.get("openAvgPx")), "alav": _f(x.get("lever"), 1.0) or 1.0,
+             "tamanho": _f(x.get("subPos")), "margem": _f(x.get("margin")), "id": x.get("subPosId"),
+             "upl_nocional": _f(x.get("uplRatio")) / max(1.0, _f(x.get("lever"), 1.0))} for x in d
+            if x.get("instId") and x.get("subPosId") and _f(x.get("openAvgPx"))]
 
 
 # ------------------------------------------------------------------ Hyperliquid -----------------------------------
