@@ -90,6 +90,14 @@ class Registo:
         self.d["rondas"].append({"t": int(time.time()), "hipoteses": int(n_hipoteses), "nota": nota})
         return self.d["hipoteses_avaliadas"]
 
+    def recentes(self, now, dias=14):
+        """Regras ja validadas nos ultimos `dias`: nao se reavaliam (repetir a mesma regra no mesmo periodo de
+        validacao so aumentaria as hipoteses sem informacao nova)."""
+        return {k for k, t in (self.d.get("avaliadas") or {}).items() if now - t < dias * 86400}
+
+    def marcar_avaliada(self, rid, now):
+        self.d.setdefault("avaliadas", {})[rid] = int(now)
+
     def pode_testar(self, rid):
         return rid not in self.d["acessos_teste"]
 

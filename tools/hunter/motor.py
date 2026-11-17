@@ -110,6 +110,20 @@ def sinais(SS, MM, tf, fam, p, lado):
     return out
 
 
+def deslize_tier(tier):
+    """(17/11) custo de execucao por escalao de liquidez (por lado, % do preco): um sinal num contrato pouco
+    liquido nao vale o mesmo que num liquido. A=0,03 B=0,08 C=0,20 (o papel usa tambem o spread observado)."""
+    return {"A": 0.03, "B": 0.08, "C": 0.20}.get(tier, GE.DESLIZE)
+
+
+def regime3(MM, tf, b, i):
+    """Regime do BTC em 3 estados pelo retorno das ultimas 24 velas do tf: subida (> +3%), queda (< -3%), lateral."""
+    r = MM[tf][b].get("btc_ret_24")
+    if r is None or r[i] != r[i]:
+        return "?"
+    return "subida" if r[i] > 0.03 else "queda" if r[i] < -0.03 else "lateral"
+
+
 def _regime(MM, tf, b, i):
     up = MM[tf][b].get("btc_acima")
     if up is None or up[i] != up[i]:
@@ -172,12 +186,15 @@ def operacoes(SS, MM, dados, tf, sig, lado, geo, ref, per, cortes, ctrl=False, r
         a = atr_ref(SS, b, tf, i, ref)
         fund = dados[b].get("funding") or []
         cen = cenario if cenario is not None else (float(np.median([x[1] for x in fund])) if fund else 0.0001)
-        r = GE.simular(S["v_list"], i, lado, a, geo, fund, cen, inverso=(inverso or {}).get(b))
+        desl = deslize_tier((dados[b].get("info") or {}).get("tier"))
+        r = GE.simular(S["v_list"], i, lado, a, geo, fund, cen, inverso=(inverso or {}).get(b), deslize=desl)
         if not r:
             continue
         livre[b] = i + r["velas"] + 1
         o = {"b": b, "t": int(S["t"][i]), "r": r["r"], "regime": _regime(MM, tf, b, i), "saida": r["saida"],
-             "velas": r["velas"], "funding_fonte": r["funding_fonte"], "custos_r": r["custos_r"]}
+             "velas": r["velas"], "funding_fonte": r["funding_fonte"], "custos_r": r["custos_r"], "bruto_r": r["bruto_r"],
+             "tier": (dados[b].get("info") or {}).get("tier"), "regime3": regime3(MM, tf, b, i),
+             "minutos": r["velas"] * DD.BAR[tf] // 60, "stop_pct": 100 * geo["k"] * a / S["c"][i]}
         if ctrl:
             lo, hi = _limites(S["t"], per, cortes)
             xs = []
@@ -187,7 +204,7 @@ def operacoes(SS, MM, dados, tf, sig, lado, geo, ref, per, cortes, ctrl=False, r
                 j = rng.randrange(max(120, lo), max(121, hi))
                 if j >= len(S["c"]) - 1:
                     continue
-                rr = GE.simular(S["v_list"], j, lado, atr_ref(SS, b, tf, j, ref), geo, fund, cen)
+                rr = GE.simular(S["v_list"], j, lado, atr_ref(SS, b, tf, j, ref), geo, fund, cen, deslize=desl)
                 if rr:
                     xs.append(rr["r"])
             if not xs:
@@ -411,10 +428,19 @@ def correr(dados, registo, log=print, orcamento_evolucao=120, max_validacao=60):
         hip.append({**h, "grupo": FA.GRUPO[h["familia"]], "origem": "evolucao"})
     out["evolucao"] = {"genomas_avaliados": gastos, "melhores_no_treino": top}
     # 3. validacao com Holm cumulativo
-    m_total = registo.nova_ronda(len(hip), f"hunter {time.strftime('%Y-%m-%d')}")
-    res = {}
+    agora = int(time.time())
+    ja = registo.recentes(agora)
+    novos = []
     for h in hip:
         rid = ES.regra_id({k: h[k] for k in ("familia", "parametros", "tf", "lado", "filtro", "stop_ref", "saida")})
+        if rid in ja or rid in {x[0] for x in novos}:
+            continue
+        novos.append((rid, h))
+    out["ja_avaliadas_nao_repetidas"] = len(hip) - len(novos)
+    m_total = registo.nova_ronda(len(novos), f"hunter {time.strftime('%Y-%m-%d')}")
+    res = {}
+    for rid, h in novos:
+        registo.marcar_avaliada(rid, agora)
         ops, rv = avaliar_validacao(SS, MM, dados, h, cortes, rng)
         res[rid] = {**h, "id": rid, "validacao": rv, "_ops": ops}
     ps = {k: v["validacao"].get("p_vantagem", 1.0) if v["validacao"].get("n", 0) >= 30 else 1.0 for k, v in res.items()}
@@ -461,4 +487,5 @@ def correr(dados, registo, log=print, orcamento_evolucao=120, max_validacao=60):
     out["papel"] = [{k: v[k] for k in ("id", "familia", "parametros", "tf", "lado", "filtro", "stop_ref", "saida", "veredicto")}
                     for v in res.values() if v["veredicto"] in ("CANDIDATA", "PROMISSORA", "EXPLORATORIA")]
     out["segundos"] = round(time.time() - t0)
+    out["_ctx"] = (SS, MM, cortes)
     return out

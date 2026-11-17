@@ -11,7 +11,10 @@ import sys
 import time
 
 from tools import autonomo as AU
-from tools.hunter import dados as DD, estat as ES, motor as MO
+from tools.hunter import dados as DD, estat as ES, familias as FA, motor as MO, painel as PN
+
+MAX_PAPEL = 16
+OPS_PAINEL = {}
 
 
 def comparar_risco(ops, max_simultaneas=3, meses=12, n=1000, seed=7):
@@ -63,7 +66,138 @@ def comparar_risco(ops, max_simultaneas=3, meses=12, n=1000, seed=7):
     return out
 
 
-def main(pasta, dias=240, n_max=None, orcamento=400):
+def carteira(ops_por_est, max_por_acontecimento, custo_extra_r=0.0):
+    """Carteira de todas as estrategias: uma posicao por moeda e por acontecimento (vela de sinal) e no maximo
+    max_por_acontecimento posicoes em cada acontecimento (None = sem limite). Devolve [(t, r)]."""
+    todas = sorted(((o["t"], o["b"], k, o["r"] - custo_extra_r) for k, ops in ops_por_est.items() for o in ops))
+    vistos, por_ac, out = set(), {}, []
+    for t, b, k, r in todas:
+        if (b, t) in vistos:
+            continue
+        if max_por_acontecimento and por_ac.get(t, 0) >= max_por_acontecimento:
+            continue
+        vistos.add((b, t))
+        por_ac[t] = por_ac.get(t, 0) + 1
+        out.append((t, r))
+    return out
+
+
+def pior_sequencia(rs):
+    n = m = 0
+    for x in rs:
+        n = n + 1 if x < 0 else 0
+        m = max(m, n)
+    return m
+
+
+def risco_simulado(ops_por_est):
+    """SO SIMULACAO (nada disto muda o risco real). Por estrategia e em carteira: limites de concentracao,
+    risco variavel (Kelly 0,1/0,25/0,5) e fixo (0,25/0,5/1/2%), custos adversos (+0,1R por operacao),
+    pior sequencia de perdas e cenario extremo (as 10% piores dias repetidos)."""
+    out = {"aviso": "simulacao sobre treino+validacao (historico); nao e rentabilidade comprovada; "
+                    "1% por operacao nao e recomendado quando o drawdown simulado e de 60-97%",
+           "por_estrategia": {}, "carteira": {}}
+    for k, ops in ops_por_est.items():
+        par = [(o["t"], o["r"]) for o in ops]
+        if par:
+            out["por_estrategia"][k] = {"niveis": comparar_risco(par), "pior_sequencia_de_perdas": pior_sequencia([r for _, r in sorted(par)])}
+    for lim in (1, 3, 5, None):
+        c = carteira(ops_por_est, lim)
+        if not c:
+            continue
+        nome = f"max{lim}_por_acontecimento" if lim else "sem_limite"
+        adv = carteira(ops_por_est, lim, custo_extra_r=0.1)
+        dias = {}
+        for t, r in c:
+            dias.setdefault(t // 86400, []).append(r)
+        piores = sorted(dias.values(), key=lambda v: sum(v))[:max(1, len(dias) // 10)]
+        extremo = [(d * 86400, x) for d, v in enumerate(piores * 3) for x in v]
+        out["carteira"][nome] = {"operacoes": len(c), "acontecimentos": len({t for t, _ in c}),
+                                 "r_medio": round(sum(r for _, r in c) / len(c), 4),
+                                 "pior_sequencia_de_perdas": pior_sequencia([r for _, r in sorted(c)]),
+                                 "niveis": comparar_risco(c, max_simultaneas=lim or 10),
+                                 "custos_adversos_mais_0_1R": comparar_risco(adv, max_simultaneas=lim or 10),
+                                 "cenario_extremo_piores_dias": comparar_risco(extremo, max_simultaneas=lim or 10, meses=3)}
+    return out
+
+
+def _ler(caminho, padrao):
+    if os.path.exists(caminho):
+        with open(caminho, encoding="utf-8") as f:
+            return json.load(f)
+    return padrao
+
+
+def painel_e_estados(p, dados, SS, MM, cortes, res, reg, now):
+    """Mantem as estrategias ja em papel (as 8 de 17/11), junta as novas desta ronda (ate MAX_PAPEL), calcula o
+    painel de cada uma em treino+validacao e aplica a maquina de estados. Escreve papel_estrategias.json."""
+    antes = _ler(p("papel_estrategias.json"), {"estrategias": []})["estrategias"]
+    est_papel = _ler(p("papel_estado.json"), {}).get("resumo") or {}
+    estados = _ler(p("estados.json"), {"estrategias": {}})
+    lista = {e["id"]: e for e in antes}
+    for e in res["papel"]:
+        if e["id"] not in lista and len(lista) < MAX_PAPEL:
+            lista[e["id"]] = e
+    painel, final = {}, []
+    for k, e in lista.items():
+        sig = MO.sinais(SS, MM, e["tf"], e["familia"], e["parametros"], e["lado"])
+        inv = MO.inverso_de(SS, MM, e)
+        ops = []
+        for per in ("treino", "validacao"):
+            ops += MO.operacoes(SS, MM, dados, e["tf"], sig, e["lado"], e["saida"], e["stop_ref"], per, cortes,
+                                filtro=MO.FILTROS.get(e.get("filtro")), inverso=inv)
+        m = PN.metricas(ops)
+        hv = res["hipoteses"].get(k) or {}
+        p_holm = hv.get("p_holm_validacao", (estados["estrategias"].get(k) or {}).get("p_holm"))
+        teste = (reg.d["acessos_teste"].get(k) or {}).get("resultado")
+        pa = est_papel.get(k)
+        crit = PN.criterios(m, p_holm, teste, pa)
+        rej = PN.rejeicao_papel(pa)
+        estado, porque = PN.estado(m, crit, em_papel=True, rejeitar_papel=rej)
+        anterior = (estados["estrategias"].get(k) or {}).get("estado")
+        hist = (estados["estrategias"].get(k) or {}).get("historico") or []
+        if estado != anterior:
+            hist.append({"t": now, "de": anterior, "para": estado, "porque": porque})
+        estados["estrategias"][k] = {"estado": estado, "porque": porque, "p_holm": p_holm, "historico": hist,
+                                    "nome": f"{e['familia']} {e['tf']} {e['lado']}" + (f" ({e['filtro']})" if e.get("filtro") else "")}
+        OPS_PAINEL[k] = ops
+        painel[k] = {"estrategia": {q: e.get(q) for q in ("familia", "parametros", "tf", "lado", "filtro", "stop_ref", "saida")},
+                     "hipotese_economica": FA.HIPOTESES.get(e["familia"]), "estado": estado, "porque": porque,
+                     "backtest_treino_validacao": m, "papel": pa, "teste_final": teste or "nao usado",
+                     "criterios_por_cumprir": [c for c, ok, _ in crit if not ok],
+                     "criterios": [{"criterio": c, "ok": ok, "valor": v} for c, ok, v in crit]}
+        if estado != "REJEITADA":
+            final.append(dict(e, estado=estado))
+    estados["t"] = now
+    with open(p("papel_estrategias.json"), "w", encoding="utf-8") as f:
+        json.dump({"t": now, "estrategias": final}, f, ensure_ascii=False, indent=1)
+    return painel, estados
+
+
+def registo_familias(res):
+    """Por familia: hipotese economica, regime esperado, custos, riscos, resultado do diagnostico (treino) e da
+    validacao, e a decisao fundamentada (para nao repetir a mesma investigacao com outro nome)."""
+    out = {}
+    for fam, (hip, regime, custos, riscos) in FA.HIPOTESES.items():
+        dg = {k: v for k, v in res["diagnostico"].items() if k.split()[0] == fam and v.get("n_treino")}
+        vs = [v for v in res["hipoteses"].values() if v["familia"] == fam]
+        melhor = max((v["deriva_liquida_max_atr"] for v in dg.values()), default=None)
+        onde = {}
+        for v in dg.values():
+            onde[v.get("onde_falha")] = onde.get(v.get("onde_falha"), 0) + 1
+        estados = sorted({v["veredicto"] for v in vs})
+        decisao = ("EM PAPEL / VALIDACAO" if any(x in ("CANDIDATA", "PROMISSORA", "EXPLORATORIA") for x in estados) else
+                   "REJEITADA nesta ronda: " + (max(onde, key=onde.get) if onde else "sem sinais"))
+        out[fam] = {"grupo": FA.GRUPO[fam], "hipotese": hip, "regime_esperado": regime, "custos_esperados": custos,
+                    "riscos": riscos, "variantes_diagnostico": len(dg), "onde_falha": onde,
+                    "melhor_deriva_liquida_atr_treino": melhor, "validacao": [
+                        {"tf": v["tf"], "lado": v["lado"], "n": v["validacao"].get("n"), "r": v["validacao"].get("r_medio"),
+                         "p_holm": v.get("p_holm_validacao"), "veredicto": v["veredicto"]} for v in vs],
+                    "decisao": decisao}
+    return out
+
+
+def main(pasta, dias=240, n_max=None, orcamento=150):
     os.makedirs(os.path.join(pasta, "hunter"), exist_ok=True)
     p = lambda n: os.path.join(pasta, "hunter", n)
     t0 = time.time()
@@ -76,28 +210,24 @@ def main(pasta, dias=240, n_max=None, orcamento=400):
                              "os vivos); a partir de agora ficam no historico do universo")
     print("dados:", json.dumps({k: v for k, v in funil.items() if k not in ("excluidos", "falhas_api")}), flush=True)
     reg = ES.Registo(p("registo.json"))
-    res = MO.correr(dados, reg, log=lambda m: print(m, flush=True), orcamento_evolucao=int(orcamento))
+    res = MO.correr(dados, reg, log=lambda m: print(m, flush=True), orcamento_evolucao=min(int(orcamento), 150))
+    SS, MM, cortes = res.pop("_ctx")
+    painel, estados = painel_e_estados(p, dados, SS, MM, cortes, res, reg, now)
     reg.guardar()
-    # risco e tesouraria (simulacao) sobre as operacoes da validacao das melhores
-    risco = {}
-    for k, v in res["hipoteses"].items():
-        if v["veredicto"] in ("CANDIDATA", "PROMISSORA", "EXPLORATORIA"):
-            ops = v.get("_ops_validacao") or []
-            if ops:
-                rs = [r for _, r in ops]
-                cr = comparar_risco(ops)
-                risco[k] = {"niveis": cr, "tesouraria_risco_0_5pct": AU.tesouraria(
-                    rs, 0.5, max(1, int(cr.get("dias_com_operacoes_por_mes", 1) * 3))),
-                            "sobrevivencia": AU.sobrevivencia(rs),
-                            "aviso": "simulacao sobre a VALIDACAO (dados historicos); nao e rentabilidade comprovada"}
-    res["risco_simulado"] = risco
+    res["painel"] = painel
+    res["risco_simulado"] = risco_simulado(OPS_PAINEL)
     res["funil_dados"] = funil
     res["segundos_total"] = round(time.time() - t0)
     data = time.strftime("%Y-%m-%d", time.gmtime(now))
     with open(p(f"pesquisa_{data}.json"), "w", encoding="utf-8") as f:
         json.dump(res, f, ensure_ascii=False, indent=1, default=str)
-    with open(p("papel_estrategias.json"), "w", encoding="utf-8") as f:
-        json.dump({"t": now, "origem": f"pesquisa_{data}.json", "estrategias": res["papel"]}, f, ensure_ascii=False, indent=1)
+    with open(p("painel.json"), "w", encoding="utf-8") as f:
+        json.dump({"t": now, "aviso": "treino + validacao (teste final intocado) e papel prospetivo; nada disto e real",
+                   "estrategias": painel}, f, ensure_ascii=False, indent=1, default=str)
+    with open(p("estados.json"), "w", encoding="utf-8") as f:
+        json.dump(estados, f, ensure_ascii=False, indent=1)
+    with open(p("familias_registo.json"), "w", encoding="utf-8") as f:
+        json.dump(registo_familias(res), f, ensure_ascii=False, indent=1)
     with open(p("funil_dados.json"), "w", encoding="utf-8") as f:
         json.dump(funil, f, ensure_ascii=False, indent=1)
     return res
