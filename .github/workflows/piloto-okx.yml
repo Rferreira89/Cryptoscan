@@ -2,7 +2,7 @@ name: Piloto OKX (real isolado; so estrategias aprovadas e conferidas)
 # (17/11, ordem do Rui) Executor real isolado (tools/piloto_okx.py): limites proprios (piloto_okx_config.json), so
 # estrategias APPROVED_REAL/ACTIVE_REAL do registo central (ramo autonomo) e conferidas de novo pelo executor; sinais do
 # paper trading. Volta de 15 em 15 min no runner europeu (o mesmo dos outros executores: as voltas correm em fila; os
-# stops e objetivos ficam sempre na OKX, entre voltas). Estado cifrado (DATA_KEY) no ramo "piloto".
+# stops e objetivos ficam sempre na OKX, entre voltas). Estado cifrado (DATA_KEY) no ramo "piloto-okx" (o nome "piloto" colide com ramos piloto/...).
 # modo verificar = so leitura da conta (nenhuma ordem); simular = volta completa sem ordens e sem guardar estado.
 on:
   schedule:
@@ -57,15 +57,15 @@ jobs:
             exit 0
           fi
           python3 -m pip install -q --user cryptography==43.0.3 2>/dev/null || true
-          RC=0; git ls-remote --exit-code -q origin refs/heads/piloto >/dev/null 2>&1 || RC=$?
+          RC=0; git ls-remote --exit-code -q origin refs/heads/piloto-okx >/dev/null 2>&1 || RC=$?
           if [ "$RC" = 0 ]; then
-            git fetch -q origin piloto && git show FETCH_HEAD:piloto_estado.json > /tmp/piloto/piloto_estado.json \
+            git fetch -q origin piloto-okx && git show FETCH_HEAD:piloto_estado.json > /tmp/piloto/piloto_estado.json \
               || { echo "nao consegui ler o estado do piloto: volta cancelada (nada enviado)"; rm -rf /tmp/piloto; exit 1; }
             git rev-parse FETCH_HEAD > /tmp/piloto/.sha_base
             python3 -m engine.cifra abrir /tmp/piloto/piloto_estado.json \
               || { echo "nao consegui decifrar o estado: volta cancelada (nada enviado)"; rm -rf /tmp/piloto; exit 1; }
           elif [ "$RC" != 2 ]; then
-            echo "nao consegui consultar o ramo piloto (codigo $RC): volta cancelada"; rm -rf /tmp/piloto; exit 1
+            echo "nao consegui consultar o ramo piloto-okx (codigo $RC): volta cancelada"; rm -rf /tmp/piloto; exit 1
           fi
           git fetch -q origin autonomo 2>/dev/null && {
             git show FETCH_HEAD:hunter/estrategias_registo.json > /tmp/piloto/estrategias_registo.json 2>/dev/null || rm -f /tmp/piloto/estrategias_registo.json
@@ -91,4 +91,4 @@ jobs:
           if [ ! -s /tmp/piloto/piloto_publico.json ]; then echo "sem estado para publicar"; exit 0; fi
           export ESTADO_SHA_BASE=$(cat /tmp/piloto/.sha_base 2>/dev/null)
           F="piloto_publico.json"; [ -s /tmp/piloto/piloto_estado.json ] && F="piloto_estado.json $F"
-          python3 tools/publicar_estado.py publicar /tmp/piloto piloto $F
+          python3 tools/publicar_estado.py publicar /tmp/piloto piloto-okx $F
