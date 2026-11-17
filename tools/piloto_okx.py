@@ -146,7 +146,7 @@ def estrategias_aprovadas(registo, c, ops_reais=()):
             ok, falhas = criterios_experimentais(e, ops_reais)
         else:
             continue
-        if ok and e.get("lado") in c["lados"]:
+        if ok and (e.get("lado") in c["lados"] or e.get("origem") == "copy"):
             out[e["id"]] = e
         else:
             recusadas[e["id"]] = falhas or [f"lado {e.get('lado')} nao autorizado"]
@@ -278,9 +278,11 @@ def portas(api, st, c, now, registo, papel, isolado, cifra_ok, aprovadas, falhas
     dia = _dia(now)
     out["perda_do_dia"] = (not st["bloqueio_dia"].get(dia), st["bloqueio_dia"].get(dia) or "dentro do limite diario")
     out["api_fiavel"] = (not falhas_api, "sem falhas da API nesta volta" if not falhas_api else f"{len(falhas_api)} pedidos falharam: {falhas_api[:3]}")
-    t_reg, t_pap = (registo or {}).get("t") or 0, (papel or {}).get("t") or 0
-    out["dados_frescos"] = (now - t_reg <= REGISTO_MAX_IDADE_S and now - t_pap <= PAPEL_MAX_IDADE_S,
-                            f"registo ha {(now - t_reg) // 60} min, papel ha {(now - t_pap) // 60} min")
+    t_reg, t_pap, t_cp = (registo or {}).get("t") or 0, (papel or {}).get("t") or 0, (papel or {}).get("t_copy") or 0
+    fontes = [n for n, ok in (("papel", now - t_reg <= REGISTO_MAX_IDADE_S and now - t_pap <= PAPEL_MAX_IDADE_S),
+                              ("copy", now - t_cp <= COPY_MAX_IDADE_S)) if ok]
+    out["dados_frescos"] = (bool(fontes), f"fontes de sinais frescas: {', '.join(fontes) or 'nenhuma'} (registo ha {(now - t_reg) // 60} min, "
+                                          f"papel ha {(now - t_pap) // 60} min, copy ha {(now - t_cp) // 60 if t_cp else '-'} min)")
     out["contas_confirmadas"] = (not any(o.get("pnl_por_confirmar") for o in st["ops"]), "resultado de todas as posicoes fechadas confirmado na OKX")
     nexp = sum(1 for e in aprovadas.values() if e.get("estado") == "EXPERIMENTAL_REAL")
     out["estrategias_elegiveis"] = (bool(aprovadas), f"{len(aprovadas) - nexp} aprovadas e {nexp} experimentais" if aprovadas else
@@ -338,7 +340,28 @@ def _cl(id_op):
 
 
 # ------------------------------------------------------------------ ciclo -----------------------------------------
-def ciclo(api, pasta, now=None, simular=False, registo=None, papel=None, isolado=None, cifra_ok=None, enviar=lambda m: None):
+COPY_MAX_IDADE_S = 900
+
+
+def juntar_copy(registo, papel, copy, now):
+    """(17/11, CopyTrading) Os sinais do CopyTrading (ramo autonomo, copy/sinais.json) entram como mais uma fonte:
+    estrategias "copy:<fonte>:<trader>" (EXPERIMENTAL_REAL, uma por trader, suspensa sozinha se degradar) e sinais
+    abertos/fechados. Partilham TODOS os limites do piloto (mesmo orcamento, 1 posicao). Uma fonte velha deixa de
+    contribuir sinais novos sem fechar as portas da outra."""
+    reg = {"t": (registo or {}).get("t"), "estrategias": dict((registo or {}).get("estrategias") or {})}
+    pap = {"t": (papel or {}).get("t"), "abertas": list((papel or {}).get("abertas") or []) if now - int((papel or {}).get("t") or 0) <= PAPEL_MAX_IDADE_S else [],
+           "fechadas": list((papel or {}).get("fechadas") or [])}
+    if copy:
+        reg["estrategias"].update(copy.get("estrategias") or {})
+        if now - int(copy.get("t") or 0) <= COPY_MAX_IDADE_S:
+            pap["abertas"] += copy.get("abertas") or []
+        pap["fechadas"] += copy.get("fechadas") or []
+        pap["t_copy"] = copy.get("t")
+    return reg, pap
+
+
+def ciclo(api, pasta, now=None, simular=False, registo=None, papel=None, isolado=None, cifra_ok=None, enviar=lambda m: None,
+          copy=None):
     now = int(now or time.time())
     c = cfg()
     p = os.path.join(pasta, "piloto_estado.json")
@@ -359,6 +382,7 @@ def ciclo(api, pasta, now=None, simular=False, registo=None, papel=None, isolado
     api = Contador(api)
     msgs = []
     papel = papel or {}
+    registo, papel = juntar_copy(registo, papel, copy, now)
     aprovadas, recusadas = estrategias_aprovadas(registo, c, st["ops"])
     # 1. reconciliar com a OKX (so o que e do piloto)
     rec = reconciliar(api, st, now, msgs, simular)
@@ -426,14 +450,17 @@ def procurar(api, st, c, now, papel, aprovadas):
         sid, e = o["id_op"], aprovadas[o["estrategia"]]
         st["vistos"].append(sid)
         tf_s = TF_S.get(o.get("tf"), 3600)
-        atraso = now - (int(o["t_sinal"]) + tf_s)
-        if atraso > c["atraso_max_s"].get(o.get("tf"), 900):
-            perdido(st, now, sid, f"chegou {atraso // 60} min depois do fecho da vela (maximo {c['atraso_max_s'].get(o.get('tf'), 900) // 60})")
+        copia = o.get("origem") == "copy"
+        atraso = now - (int(o["t_ref"]) if copia else int(o["t_sinal"]) + tf_s)
+        amax = c["atraso_max_s"].get("copy" if copia else o.get("tf"), 600 if copia else 900)
+        if atraso > amax:
+            perdido(st, now, sid, (f"copia tardia: {atraso // 60} min depois da entrada do trader" if copia else
+                                   f"chegou {atraso // 60} min depois do fecho da vela") + f" (maximo {amax // 60})")
             continue
         if e.get("regimes") and o.get("regime") not in e["regimes"]:
             perdido(st, now, sid, f"regime {o.get('regime')} fora dos aprovados {e['regimes']}")
             continue
-        if o.get("lado") not in c["lados"] or o.get("lado") != e.get("lado"):
+        if o.get("lado") not in c["lados"] or (o.get("lado") != e.get("lado") and e.get("origem") != "copy"):
             perdido(st, now, sid, "lado nao autorizado ou diferente da estrategia aprovada")
             continue
         inst = xp.get(o["inst"])
@@ -871,7 +898,8 @@ if __name__ == "__main__":
     except Exception:
         enviar = lambda m: None
     st, msgs = ciclo(ApiReal(), pasta, simular=simular, registo=_ler(os.path.join(pasta, "estrategias_registo.json")),
-                     papel=_ler(os.path.join(pasta, "papel_estado.json")), enviar=enviar)
+                     papel=_ler(os.path.join(pasta, "papel_estado.json")), enviar=enviar,
+                     copy=_ler(os.path.join(pasta, "copy_sinais.json")))
     print(json.dumps({"portas": {k: v["ok"] for k, v in st["portas"].items()}, "aberta": bool(st["aberta"]),
                       "bloqueado": bool(st["bloqueio"]), "suspenso": bool(st["suspenso"]), "ops": len(st["ops"]),
                       "simulacao": st["simulacao"], "sinais_perdidos_volta": sum(1 for s in st["sinais_perdidos"] if s["t"] == st["t"])},

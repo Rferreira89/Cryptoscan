@@ -69,7 +69,8 @@ jobs:
           fi
           git fetch -q origin autonomo 2>/dev/null && {
             git show FETCH_HEAD:hunter/estrategias_registo.json > /tmp/piloto/estrategias_registo.json 2>/dev/null || rm -f /tmp/piloto/estrategias_registo.json
-            git show FETCH_HEAD:hunter/papel_estado.json > /tmp/piloto/papel_estado.json 2>/dev/null || rm -f /tmp/piloto/papel_estado.json; } || true
+            git show FETCH_HEAD:hunter/papel_estado.json > /tmp/piloto/papel_estado.json 2>/dev/null || rm -f /tmp/piloto/papel_estado.json
+            git show FETCH_HEAD:copy/sinais.json > /tmp/piloto/copy_sinais.json 2>/dev/null || rm -f /tmp/piloto/copy_sinais.json; } || true
           if [ "$MODO" = simular ]; then
             python3 tools/piloto_okx.py /tmp/piloto --simular
             rm -rf /tmp/piloto                                  # a simulacao nao toca no estado real

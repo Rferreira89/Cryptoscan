@@ -449,6 +449,71 @@ def experimental(eid="exp111", lado="LONG", **kw):
     return e
 
 
+def copy_doc(abertas=(), fechadas=(), t=NOW0):
+    e = {"id": "copy:okx:T1", "versao": "copy:okx:T1", "estado": "EXPERIMENTAL_REAL", "lado": "AMBOS", "tf": "1H", "origem": "copy",
+         "definicao": {"tf": "1H", "saida": {"tipo": "fixa", "k": 1.5, "tp": 2.0, "hold": 4}},
+         "auditoria_tecnica": {"ok": True, "falhas": []}, "backtest": {"r_medio": 0.002}}
+    return {"t": t, "estrategias": {e["id"]: e}, "abertas": list(abertas), "fechadas": list(fechadas)}
+
+
+def copia(lado="LONG", t_ref=NOW0 - 120, pid="p1"):
+    return {"id_op": f"copy|okx:T1|{pid}", "origem": "copy", "estrategia": "copy:okx:T1", "b": "ABC", "inst": INST, "lado": lado,
+            "tf": "1H", "t_sinal": NOW0 - 60, "t_ref": t_ref, "atr_ref": 0.01, "saida": {"tipo": "fixa", "k": 1.5, "tp": 2.0, "hold": 4},
+            "regime": None, "decisao": {"fecho": 1.0}, "aberta_em": NOW0 - 60}
+
+
+class CopyTrading(Base):
+    def corre_copy(self, api, cp, now=NOW0, pap=None, **kw):
+        return self.corre(api, reg=registo(), pap=pap if pap is not None else papel(), now=now, copy=cp, **kw)
+
+    def test_copia_long_e_short_com_limites_do_piloto(self):
+        for lado, lado_ordem in (("LONG", "buy"), ("SHORT", "sell")):
+            shutil.rmtree(self.d)
+            os.makedirs(self.d)
+            api = FakeOKX()
+            st, _ = self.corre_copy(api, copy_doc([copia(lado)]))
+            o = api.posts("/trade/order")
+            self.assertEqual(len(o), 1, lado)
+            self.assertEqual(o[0][2]["side"], lado_ordem)
+            self.assertEqual(st["aberta"]["estrategia"], "copy:okx:T1")
+            self.assertLessEqual(st["aberta"]["risco_planeado"], 0.25)
+            self.assertLessEqual(st["aberta"]["nocional"], 20)
+
+    def test_copia_tardia_nao_entra(self):
+        api = FakeOKX()
+        st, _ = self.corre_copy(api, copy_doc([copia(t_ref=NOW0 - 700)]))
+        self.assertEqual(api.posts(), [])
+        self.assertIn("copia tardia", json.dumps(st["sinais_perdidos"], ensure_ascii=False))
+
+    def test_trader_fecha_e_a_copia_fecha(self):
+        api = FakeOKX()
+        c = copia()
+        self.corre_copy(api, copy_doc([c]))
+        self.corre_copy(api, copy_doc([c]), now=NOW0 + 300)
+        st, _ = self.corre_copy(api, copy_doc([], [{"id_op": c["id_op"], "motivo": "trader fechou"}]), now=NOW0 + 600)
+        self.assertTrue(api.posts("close-position"))
+        self.assertIn("espelho", st["ops"][-1]["motivo_saida"])
+
+    def test_copy_funciona_com_papel_velho_e_partilha_a_unica_posicao(self):
+        api = FakeOKX()
+        st, _ = self.corre_copy(api, copy_doc([copia()]), pap=dict(papel(sinal()), t=NOW0 - 7200))
+        self.assertTrue(st["portas"]["dados_frescos"]["ok"])
+        self.assertEqual(len(api.posts("/trade/order")), 1)
+        self.assertEqual(st["aberta"]["estrategia"], "copy:okx:T1")
+
+    def test_copy_velho_nao_traz_sinais_e_trader_degradado_suspenso_sozinho(self):
+        api = FakeOKX()
+        st, _ = self.corre_copy(api, copy_doc([copia()], t=NOW0 - 1000))
+        self.assertEqual(api.posts(), [])
+        st0 = P.estado_inicial()
+        st0["ops"] = [{"estrategia": "copy:okx:T1", "r": -1.0, "estado": "fechada"}] * 4
+        json.dump(st0, open(os.path.join(self.d, "piloto_estado.json"), "w"))
+        api = FakeOKX()
+        st, _ = self.corre(api, reg=registo(experimental()), pap=papel(sinal("exp111")), copy=copy_doc([copia()]))
+        self.assertIn("copy:okx:T1", st["recusadas_pelo_executor"])
+        self.assertEqual(st["aberta"]["estrategia"], "exp111")
+
+
 class Experimental(Base):
     def test_experimental_sem_estatistica_opera_dentro_dos_limites(self):
         api = FakeOKX()
