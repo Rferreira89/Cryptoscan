@@ -1,0 +1,40 @@
+name: Investigacao Quick Opportunities (edge, so leitura publica)
+# (17/11) Edge Detection do Quick Opportunities sobre o historico de 30 min dos X-Perps da OKX (tools/qo_edge.py).
+# Isolado da producao: so endpoints publicos, sem chaves, sem executor, sem ordens. Publica no ramo "autonomo".
+on:
+  workflow_dispatch:
+    inputs:
+      moedas:
+        description: "numero de X-Perps (por volume)"
+        default: "80"
+      dias:
+        description: "dias de historico"
+        default: "240"
+permissions:
+  contents: write
+concurrency:
+  group: research-qo-edge
+  cancel-in-progress: false
+jobs:
+  edge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Avaliar
+        run: |
+          mkdir -p out
+          python -m tools.qo_edge out/qo_edge.json "${{ inputs.moedas }}" "${{ inputs.dias }}"
+      - name: Publicar no ramo autonomo
+        if: always()
+        env:
+          PUSH_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
+        run: |
+          [ -s out/qo_edge.json ] || { echo "sem resultado"; exit 1; }
+          rm -rf /tmp/au && git clone -q --depth 1 -b autonomo "$PUSH_URL" /tmp/au 2>/dev/null || { mkdir -p /tmp/au && git -C /tmp/au init -q -b autonomo; }
+          mkdir -p /tmp/au/edge && cp out/qo_edge.json "/tmp/au/edge/qo_edge_$(date -u +%F).json"
+          cd /tmp/au && git config user.name cryptoscan-bot && git config user.email bot@users.noreply.github.com \
+            && git add -A && git commit -q -m "qo_edge $(date -u +%FT%TZ)" && git push -q "$PUSH_URL" autonomo:autonomo
