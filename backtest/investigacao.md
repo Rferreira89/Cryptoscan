@@ -2871,3 +2871,18 @@ Sinais da arena conferidos contra os da investigação em DOGE, AVAX, ETH e LINK
 vivo: mínimo 30 operações fechadas acima do acaso antes de qualquer conversa sobre dinheiro real.
 
 Testes: 1456, todos a passar.
+
+## 2026-11-17 (dados novos, caçador noturno) — sem hipótese nova; acompanhamento H52, H53, H57–H60
+
+- **Registo (dia ímpar, LONG)**: nenhum. As ideias LONG com os campos novos já estão registadas e sem
+  operações — H53 (recuo com contratos a cair), H57 (squeeze de shorts), H58 (capitulação com
+  desalavancagem), H60 (subida sem alavancagem nova). Outra combinação de preço, OI e financiamento seria
+  variante delas; a diferença de preço X-Perp/global não é negociável do lado da OKX EEA (o perpétuo global
+  não está disponível). Sem ideia séria não se regista nada (também a decisão de 2026-11-14: não gerar
+  hipóteses artificialmente).
+- **Acompanhamento** (ramo `dados-novos`, velas de 05/11 a 16/11, lidas só por `dados_para_avaliar`):
+  H52 — a acumular: 0 de 30 (10 dias depois do registo); H53 — a acumular: 0 de 30, controlo 0 de 10
+  (9 dias); H57, H58, H59 — a acumular: 0 de 30 (6 dias); H60 — a acumular: 0 de 30, controlo 0 de 10
+  (5 dias). O regime precisa de 10 dias de retorno: primeiros sinais possíveis na vela de 17/11 (H52),
+  18/11 (H53), 21/11 (H57–H59) e 22/11 (H60).
+- Nenhum resultado em dados antigos foi usado como validação.
