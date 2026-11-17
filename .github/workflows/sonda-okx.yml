@@ -1,0 +1,22 @@
+name: Sonda OKX (diagnostico, so leitura publica)
+# (17/11) diagnostico: o Quick Opportunities no scanner (runner do GitHub) ve 0 X-Perps. Mede, a partir de um runner
+# do GitHub, o que respondem os endpoints PUBLICOS da OKX global e da OKX Europa. Sem chaves, sem ordens.
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  sonda:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Endpoints publicos
+        run: |
+          for h in www.okx.com eea.okx.com my.okx.com; do
+            for p in "/api/v5/public/instruments?instType=FUTURES" "/api/v5/market/tickers?instType=FUTURES"; do
+              r=$(curl -sS -m 20 -w " HTTP=%{http_code}" "https://$h$p" 2>&1 || true)
+              n=$(echo "$r" | grep -o '_UM_XPERP-[0-9]*' | wc -l)
+              echo "$h$p -> xperp=$n $(echo "$r" | grep -o 'HTTP=[0-9]*') $(echo "$r" | head -c 160)"
+            done
+          done
+          curl -sS -m 20 "https://eea.okx.com/api/v5/market/candles?instId=BTC-USD_UM_XPERP-251226&bar=30m&limit=3" | head -c 300 || true
