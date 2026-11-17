@@ -169,3 +169,28 @@ class OkxQuickOpportunityTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class InstIdReais(unittest.TestCase):
+    """(17/11) regressao: os X-Perps reais tem sufixo no instId (resposta publica da OKX vista a 17/11)."""
+    REAL = {"instCategory": "1", "category": "1", "ctMult": "1", "ctType": "linear", "ctVal": "0.0001",
+            "ctValCcy": "BTC", "expTime": "1933056000000", "instFamily": "BTC-USD_UM_XPERP",
+            "instId": "BTC-USD_UM_XPERP-310404", "instType": "FUTURES", "lever": "50", "lotSz": "1", "minSz": "1",
+            "ruleType": "xperp", "settleCcy": "USD", "state": "live", "tickSz": "0.1"}
+
+    def test_descobre_ids_com_sufixo(self):
+        from engine import quick_opportunities_derivatives as D
+        pre = dict(self.REAL, instId="NEW-USD_UM_XPERP-310404", instFamily="NEW-USD_UM_XPERP", ruleType="pre_market")
+        out = D.okx_usdc_xperps(request=lambda url, params=None: {"code": "0", "data": [self.REAL, pre]})
+        self.assertEqual(list(out), ["BTC"])
+        self.assertEqual(out["BTC"]["inst_id"], "BTC-USD_UM_XPERP-310404")
+        self.assertTrue(D.is_um_xperp("BTC-USD_UM_XPERP"))
+        self.assertFalse(D.is_um_xperp("BTC-USD-SWAP"))
+        self.assertFalse(D.is_um_xperp("BTC-USD_UM_XPERP-ABC"))
+
+    def test_seleciona_por_volume_com_ids_reais(self):
+        from engine import quick_opportunities_derivatives as D, quick_opportunities_okx as Q
+        inst = D.okx_usdc_xperps(request=lambda url, params=None: {"code": "0", "data": [self.REAL]})
+        rows = Q.select_liquid_xperps(inst, [{"instId": "BTC-USD_UM_XPERP-310404", "vol24h": "1000", "last": "90000"}])
+        self.assertEqual([r["base"] for r in rows], ["BTC"])
+        self.assertAlmostEqual(rows[0]["volume_24h_contract_quote"], 1000 * 0.0001 * 90000)

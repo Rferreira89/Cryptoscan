@@ -10,6 +10,25 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Quick Opportunities a seco (sem Telegram, sem ordens)
+        run: |
+          python3 - <<'PY'
+          import json, time
+          from engine import quick_opportunities_okx as Q
+          t = time.time()
+          r = Q.scan_okx_xperps(t, seen_ids={}, sender=lambda *a, **k: None, max_assets=100, max_workers=6)
+          resumo = {k: v for k, v in r.items() if k not in ("candidates", "data_errors", "telegram_sent")}
+          print("QO", json.dumps(resumo), "candidatos", len(r.get("candidates") or []), "erros", len(r.get("data_errors") or {}),
+                "segundos", round(time.time() - t, 1))
+          for c in (r.get("candidates") or [])[:10]:
+              print("CAND", json.dumps({k: c.get(k) for k in ("asset", "side", "setup", "entry", "stop", "target", "asset_class", "instrument_id")}))
+          import collections
+          print("ERROS", collections.Counter((v or {}).get("status") for v in (r.get("data_errors") or {}).values()))
+          PY
       - name: Endpoints publicos
         run: |
           for h in www.okx.com eea.okx.com my.okx.com; do

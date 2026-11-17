@@ -88,9 +88,10 @@ def xperps():
     out = {}
     for i in A.get("/api/v5/public/instruments?instType=FUTURES"):
         iid = i.get("instId", "")
+        # (17/11) instFamily real e "BTC-USD_UM_XPERP": o teste de 16/11 (fim em "_UM") deixava esta lista vazia
         if ("_UM_XPERP-" not in iid or iid not in conta or i.get("state") != "live"
                 or i.get("ctType") != "linear"
-                or not str(i.get("instFamily") or "").endswith("_UM")):
+                or not DERIV.is_um_family(i.get("instFamily"))):
             continue
         base = iid.split("-")[0]
         out[base] = {"inst": iid, "ctVal": float(i.get("ctVal") or 0), "minSz": float(i.get("minSz") or 0),

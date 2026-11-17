@@ -36,6 +36,23 @@ def validate_okx_account_config(config):
     return True, "USDC confirmado"
 
 
+def is_um_xperp(inst_id):
+    """(17/11) instId real dos X-Perps: "BTC-USD_UM_XPERP-310404" (com sufixo). O teste antigo exigia o fim em
+    "_UM_XPERP" e rejeitava os 265 contratos reais: o Quick Opportunities via sempre 0 mercados (NO_MARKETS)."""
+    s = str(inst_id or "")
+    if s.endswith("_UM_XPERP"):
+        return True
+    head, _, tail = s.rpartition("-")
+    return head.endswith("_UM_XPERP") and tail.isdigit()
+
+
+def is_um_family(family):
+    """(17/11) instFamily real: "BTC-USD_UM_XPERP" (vista na resposta publica da OKX a 17/11). O teste antigo
+    exigia o fim em "_UM" e rejeitava todos os contratos reais (tambem no executor real, desde 16/11 20:44)."""
+    f = str(family or "")
+    return f.endswith("_UM") or f.endswith("_UM_XPERP")
+
+
 def _asset_class(inst_category):
     """Map OKX's documented instrument categories to supported research universes."""
     return {
@@ -60,8 +77,8 @@ def okx_usdc_xperps(request=_get):
         family = item.get("instFamily", "")
         rule_type = str(item.get("ruleType") or "").lower()
         asset_class = _asset_class(item.get("instCategory"))
-        if (item.get("state") != "live" or not inst_id.endswith("_UM_XPERP")
-                or not family.endswith("_UM") or item.get("ctType") != "linear"
+        if (item.get("state") != "live" or not is_um_xperp(inst_id)
+                or not is_um_family(family) or item.get("ctType") != "linear"
                 or rule_type == "pre_market" or asset_class is None):
             continue
         base = inst_id.split("-")[0]
