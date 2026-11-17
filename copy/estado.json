@@ -2228,9 +2228,9 @@
 "hyperliquid:0xbbd7095503c74e8908b854fbdadeafba169ea897": {},
 "hyperliquid:0x11eee2e0a613af4f636e23ff295e2dac6a191d1d": {
 "BTC|L": {
-"upl_nocional": 0.013186748315906284,
+"upl_nocional": 0.011146632586258202,
 "fator_px": 1.0,
-"margem": 127962.0,
+"margem": 127698.0,
 "inst": "BTC",
 "base": "BTC",
 "lado": "LONG",
@@ -2241,9 +2241,9 @@
 "t_abre": null
 },
 "ETH|L": {
-"upl_nocional": -0.01819086908057974,
+"upl_nocional": -0.020537194711891776,
 "fator_px": 1.0,
-"margem": 4146172.5,
+"margem": 4136640.0,
 "inst": "ETH",
 "base": "ETH",
 "lado": "LONG",
@@ -2254,9 +2254,9 @@
 "t_abre": null
 },
 "RUNE|S": {
-"upl_nocional": -0.006351770884776151,
+"upl_nocional": -0.004737832234345361,
 "fator_px": 1.0,
-"margem": 10105.2735,
+"margem": 10088.88657,
 "inst": "RUNE",
 "base": "RUNE",
 "lado": "SHORT",
@@ -2267,9 +2267,9 @@
 "t_abre": null
 },
 "HYPE|L": {
-"upl_nocional": 0.055142955897835945,
+"upl_nocional": 0.05323822049986041,
 "fator_px": 1.0,
-"margem": 204588.6,
+"margem": 204177.0,
 "inst": "HYPE",
 "base": "HYPE",
 "lado": "LONG",
@@ -2285,9 +2285,9 @@
 "hyperliquid:0x83ffcfb1f2ad843c474b2e28df86c721cb869d3a": {},
 "hyperliquid:0x26b107c9cef11d21a7996a5e84cb29ae3f7e0ea3": {
 "BTC|S": {
-"upl_nocional": 0.28976294534998204,
+"upl_nocional": 0.2927327011998371,
 "fator_px": 1.0,
-"margem": 639890.0,
+"margem": 638420.0,
 "inst": "BTC",
 "base": "BTC",
 "lado": "SHORT",
@@ -2300,9 +2300,9 @@
 },
 "hyperliquid:0xf996983c08c770dcd9bd311c43dfcb7f2e107ccd": {
 "HYPE|S": {
-"upl_nocional": 0.25136175506355246,
+"upl_nocional": 0.2546443590855206,
 "fator_px": 1.0,
-"margem": 81869.4,
+"margem": 81655.2,
 "inst": "HYPE",
 "base": "HYPE",
 "lado": "SHORT",
@@ -2315,9 +2315,9 @@
 },
 "hyperliquid:0x54c5b295195ffa2613ab4f3893b29afdb8a49558": {
 "BTC|S": {
-"upl_nocional": 0.011123056588750601,
+"upl_nocional": 0.013451227531367472,
 "fator_px": 1.0,
-"margem": 18776485.51678,
+"margem": 18733350.86284,
 "inst": "BTC",
 "base": "BTC",
 "lado": "SHORT",
@@ -2330,9 +2330,9 @@
 },
 "hyperliquid:0xf215c807672f168f6894bb2f5154000de11b4d85": {
 "BTC|S": {
-"upl_nocional": 0.010343093548146259,
+"upl_nocional": 0.012669468579498308,
 "fator_px": 1.0,
-"margem": 2335343.18389,
+"margem": 2329978.27042,
 "inst": "BTC",
 "base": "BTC",
 "lado": "SHORT",
@@ -2346,12 +2346,12 @@
 },
 "oportunidades": {},
 "vistos": [],
-"t": 1794932909,
+"t": 1794933028,
 "falhas": [
 {
 "onde": "https://api.bybit.eu/v5/market/instruments-info",
 "erro": "HTTPError: HTTP Error 403: Forbidden",
-"t": 1794932915
+"t": 1794933035
 }
 ],
 "traders_falhados": [],
@@ -2475,20 +2475,27 @@
 "seguidos": 11,
 "falhados": 0,
 "oportunidades": 0
+},
+{
+"t": 1794933028,
+"intervalo_s": 119,
+"seguidos": 11,
+"falhados": 0,
+"oportunidades": 0
 }
 ],
 "ultima_consulta": {
-"okx:2E01D379E7579CF5": 1794932909,
-"okx:8C756A028EDC2FE7": 1794932909,
-"hyperliquid:0xbbd7095503c74e8908b854fbdadeafba169ea897": 1794932909,
-"hyperliquid:0x11eee2e0a613af4f636e23ff295e2dac6a191d1d": 1794932909,
-"hyperliquid:0x58e1b0e63c905d5982324fcd9108582623b8132e": 1794932909,
-"hyperliquid:0xfb9c70230c93856c2429384f875d9a896d33d388": 1794932909,
-"hyperliquid:0x83ffcfb1f2ad843c474b2e28df86c721cb869d3a": 1794932909,
-"hyperliquid:0x26b107c9cef11d21a7996a5e84cb29ae3f7e0ea3": 1794932909,
-"hyperliquid:0xf996983c08c770dcd9bd311c43dfcb7f2e107ccd": 1794932909,
-"hyperliquid:0x54c5b295195ffa2613ab4f3893b29afdb8a49558": 1794932909,
-"hyperliquid:0xf215c807672f168f6894bb2f5154000de11b4d85": 1794932909
+"okx:2E01D379E7579CF5": 1794933028,
+"okx:8C756A028EDC2FE7": 1794933028,
+"hyperliquid:0xbbd7095503c74e8908b854fbdadeafba169ea897": 1794933028,
+"hyperliquid:0x11eee2e0a613af4f636e23ff295e2dac6a191d1d": 1794933028,
+"hyperliquid:0x58e1b0e63c905d5982324fcd9108582623b8132e": 1794933028,
+"hyperliquid:0xfb9c70230c93856c2429384f875d9a896d33d388": 1794933028,
+"hyperliquid:0x83ffcfb1f2ad843c474b2e28df86c721cb869d3a": 1794933028,
+"hyperliquid:0x26b107c9cef11d21a7996a5e84cb29ae3f7e0ea3": 1794933028,
+"hyperliquid:0xf996983c08c770dcd9bd311c43dfcb7f2e107ccd": 1794933028,
+"hyperliquid:0x54c5b295195ffa2613ab4f3893b29afdb8a49558": 1794933028,
+"hyperliquid:0xf215c807672f168f6894bb2f5154000de11b4d85": 1794933028
 },
 "recuperacao": false
 }
