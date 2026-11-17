@@ -7,7 +7,7 @@ SRC=$1; MSG=$2; shift 2
 # (17/11) a volta de papel publica tambem o registo por ciclo, o resumo diario e o arquivo de derivados
 # (o lancador na main so passa papel_estado.json: a lista completa vive aqui, no ramo de investigacao)
 if [ "$MSG" = papel ]; then set -- "$@" papel_ciclos.jsonl papel_diario.jsonl "derivados/*"; fi
-if [ "$MSG" = pesquisa ]; then set -- "$@" painel.json estados.json familias_registo.json; fi
+if [ "$MSG" = pesquisa ]; then set -- "$@" painel.json estados.json familias_registo.json "teste_final_*.json"; fi
 for tent in 1 2 3; do
   W=$(mktemp -d)
   git clone -q --depth 1 -b autonomo "$PUSH_URL" "$W" 2>/dev/null || { git -C "$W" init -q -b autonomo; }

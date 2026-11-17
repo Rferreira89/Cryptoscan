@@ -202,7 +202,46 @@ def registo_familias(res, em_papel=()):
     return out
 
 
+def teste_final(pasta, rid, dias=240):
+    """(17/11, ordem do piloto real) Avalia UMA regra no teste final intocado, uma unica vez (registo). E a decisao
+    de passar a real que justifica gastar o teste: o resultado fica escrito e nao se repete."""
+    p = lambda n: os.path.join(pasta, "hunter", n)
+    reg = ES.Registo(p("registo.json"))
+    if not reg.pode_testar(rid):
+        return {"rid": rid, "erro": "teste final ja usado por esta regra", "anterior": reg.d["acessos_teste"][rid]}
+    e = next((x for x in _ler(p("papel_estrategias.json"), {"estrategias": []})["estrategias"] if x["id"] == rid), None)
+    if not e:
+        return {"rid": rid, "erro": "regra nao esta em papel_estrategias.json"}
+    regra = {k: e[k] for k in ("familia", "parametros", "tf", "lado", "filtro", "stop_ref", "saida")}
+    if ES.regra_id(regra) != rid:
+        return {"rid": rid, "erro": "a regra guardada nao corresponde ao identificador (versao diferente)"}
+    now = int(time.time())
+    dados, uni, funil = DD.recolher(int(dias), None, now=now)
+    SS = MO.series(dados)
+    MM = {tf: MO.contexto(SS, dados, tf) for tf in DD.BAR}
+    ts = sorted(int(t) for S in SS["30m"].values() for t in (S["t"][0], S["t"][-1]))
+    cortes = ES.cortes(ts[0], ts[-1])
+    import random as _r
+    sig = MO.sinais(SS, MM, e["tf"], e["familia"], e["parametros"], e["lado"])
+    ops = MO.operacoes(SS, MM, dados, e["tf"], sig, e["lado"], e["saida"], e["stop_ref"], "teste", cortes, ctrl=True,
+                       rng=_r.Random(23), filtro=MO.FILTROS.get(e.get("filtro")), inverso=MO.inverso_de(SS, MM, e))
+    rt = ES.resumo(ops, "teste")
+    m = PN.metricas(ops)
+    reg.marcar_teste(rid, {q: rt.get(q) for q in ("n", "r_medio", "p_vantagem", "p_r_positivo", "ic95_r", "dias_com_operacoes")})
+    reg.guardar()
+    out = {"rid": rid, "regra": regra, "cortes": {"teste_de": cortes[1], "teste_ate": ts[-1]}, "teste": rt, "painel_teste": m,
+           "nota": "teste final consumido para esta regra: nao volta a ser avaliado neste periodo"}
+    with open(p(f"teste_final_{rid}.json"), "w", encoding="utf-8") as f:
+        json.dump(out, f, ensure_ascii=False, indent=1, default=str)
+    return out
+
+
 def main(pasta, dias=240, n_max=None, orcamento=150):
+    if str(n_max or "").startswith("teste:"):           # lancador da main so passa 3 argumentos: modo teste final
+        r = teste_final(pasta, str(n_max).split(":", 1)[1], dias)
+        print(json.dumps({k: v for k, v in r.items() if k != "painel_teste"}, ensure_ascii=False, default=str)[:2000])
+        print("painel:", json.dumps(r.get("painel_teste"), ensure_ascii=False, default=str)[:1500])
+        return {"hipoteses": {}, "teste_final": r}
     os.makedirs(os.path.join(pasta, "hunter"), exist_ok=True)
     p = lambda n: os.path.join(pasta, "hunter", n)
     t0 = time.time()
