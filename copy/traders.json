@@ -1,5 +1,6 @@
 {
-"t": 1794928010,
+"t": 1794929663,
+"versao": 2,
 "traders": {
 "okx:CB312175A85C9B68": {
 "fonte": "okx",
@@ -10,7 +11,9 @@
 "duracao media 206.3 h fora de 15 min - 48 h"
 ],
 "perigos": [
-"alavancagem excessiva (ate 50x)"
+"alavancagem excessiva (ate 50x)",
+"drawdown escondido em posicoes abertas (-11.2% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
 "score": 16.9658,
 "metricas": {
@@ -83,7 +86,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 102,
+"dias": 102,
 "copiadores": 300
 },
 "okx:811846999954962957": {
@@ -168,8 +171,8 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 204,
-"copiadores": 20
+"dias": 204,
+"copiadores": 21
 },
 "okx:744584888019747661": {
 "fonte": "okx",
@@ -183,7 +186,9 @@
 "duracao media 304.7 h fora de 15 min - 48 h"
 ],
 "perigos": [
-"resultado depende de 3 operacoes (100%)"
+"resultado depende de 3 operacoes (100%)",
+"drawdown escondido em posicoes abertas (-90.5% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
 "score": 1.106,
 "metricas": {
@@ -256,8 +261,8 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 152,
-"copiadores": 12
+"dias": 152,
+"copiadores": 13
 },
 "okx:37D18BE54F98F099": {
 "fonte": "okx",
@@ -345,7 +350,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 205,
+"dias": 205,
 "copiadores": 7
 },
 "okx:D89A246530D24C6E": {
@@ -357,7 +362,8 @@
 "duracao media 92.8 h fora de 15 min - 48 h"
 ],
 "perigos": [
-"alavancagem excessiva (ate 50x)"
+"alavancagem excessiva (ate 50x)",
+"drawdown escondido em posicoes abertas (-12.2% do nocional por fechar)"
 ],
 "score": 6.9702,
 "metricas": {
@@ -430,8 +436,8 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 751,
-"copiadores": 46
+"dias": 751,
+"copiadores": 47
 },
 "okx:B74FC756C8EE894B": {
 "fonte": "okx",
@@ -515,7 +521,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 363,
+"dias": 363,
 "copiadores": 6
 },
 "okx:CEB867A1A00B6682": {
@@ -606,8 +612,8 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 33,
-"copiadores": 9
+"dias": 33,
+"copiadores": 8
 },
 "okx:C7120EF60EA09523": {
 "fonte": "okx",
@@ -616,7 +622,9 @@
 "estado": "REJEITADO",
 "motivos": [],
 "perigos": [
-"alavancagem excessiva (ate 100x)"
+"alavancagem excessiva (ate 100x)",
+"drawdown escondido em posicoes abertas (-15.8% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
 "score": 5.9306,
 "metricas": {
@@ -689,18 +697,20 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 13,
+"dias": 13,
 "copiadores": 1
 },
 "okx:74137CD460649334": {
 "fonte": "okx",
 "id": "74137CD460649334",
 "nome": "Useful-xq",
-"estado": "OBSERVAR",
+"estado": "REJEITADO",
 "motivos": [
 "duracao media 170.3 h fora de 15 min - 48 h"
 ],
-"perigos": [],
+"perigos": [
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
+],
 "score": 6.2496,
 "metricas": {
 "n": 45,
@@ -772,7 +782,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 651,
+"dias": 651,
 "copiadores": 0
 },
 "okx:8C756A028EDC2FE7": {
@@ -856,21 +866,23 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 44,
+"dias": 44,
 "copiadores": 49
 },
 "okx:85E99C6A6DBF99AA": {
 "fonte": "okx",
 "id": "85E99C6A6DBF99AA",
 "nome": "Sky株式会社（人在日本）",
-"estado": "OBSERVAR",
+"estado": "REJEITADO",
 "motivos": [
 "historico insuficiente (26 operacoes, 57.8 dias)",
 "periodo de selecao sem expectativa/PF suficientes",
 "validacao fora da amostra (ultimo terco) sem expectativa positiva/PF",
 "duracao media 517.6 h fora de 15 min - 48 h"
 ],
-"perigos": [],
+"perigos": [
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
+],
 "score": 11.898,
 "metricas": {
 "n": 26,
@@ -942,7 +954,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 316,
+"dias": 316,
 "copiadores": 4
 },
 "okx:9F09D843E575FA68": {
@@ -957,7 +969,9 @@
 "perigos": [
 "alavancagem excessiva (ate 50x)",
 "resultado depende de 3 operacoes (217%)",
-"drawdown maior que o resultado total"
+"drawdown maior que o resultado total",
+"drawdown escondido em posicoes abertas (-55.6% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
 "score": -4.0159,
 "metricas": {
@@ -1030,8 +1044,8 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 48,
-"copiadores": 208
+"dias": 48,
+"copiadores": 209
 },
 "okx:025D6231931319C0": {
 "fonte": "okx",
@@ -1117,7 +1131,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 65,
+"dias": 65,
 "copiadores": 9
 },
 "okx:807517291536749293": {
@@ -1203,7 +1217,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 103,
+"dias": 103,
 "copiadores": 69
 },
 "okx:0B2697CAD307277A": {
@@ -1289,8 +1303,8 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 618,
-"copiadores": 10
+"dias": 618,
+"copiadores": 9
 },
 "okx:757CC8A7D7FAC010": {
 "fonte": "okx",
@@ -1303,7 +1317,9 @@
 ],
 "perigos": [
 "alavancagem excessiva (ate 30x)",
-"concentracao extrema num ativo (100%)"
+"concentracao extrema num ativo (100%)",
+"drawdown escondido em posicoes abertas (-706.9% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
 "score": 5.4152,
 "metricas": {
@@ -1376,7 +1392,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 240,
+"dias": 240,
 "copiadores": 3
 },
 "okx:58D7D205FB591484": {
@@ -1389,7 +1405,9 @@
 "duracao media 93.6 h fora de 15 min - 48 h"
 ],
 "perigos": [
-"concentracao extrema num ativo (100%)"
+"concentracao extrema num ativo (100%)",
+"drawdown escondido em posicoes abertas (-45.8% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
 "score": 2.2068,
 "metricas": {
@@ -1462,7 +1480,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 390,
+"dias": 390,
 "copiadores": 3
 },
 "okx:818313090499674879": {
@@ -1474,7 +1492,9 @@
 "duracao media 334.0 h fora de 15 min - 48 h"
 ],
 "perigos": [
-"alavancagem excessiva (ate 75x)"
+"alavancagem excessiva (ate 75x)",
+"drawdown escondido em posicoes abertas (-814.1% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
 "score": 6.9972,
 "metricas": {
@@ -1547,7 +1567,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 209,
+"dias": 209,
 "copiadores": 54
 },
 "okx:38649778D6442398": {
@@ -1636,7 +1656,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 134,
+"dias": 134,
 "copiadores": 1
 },
 "okx:C2B269D649346A25": {
@@ -1652,7 +1672,8 @@
 ],
 "perigos": [
 "resultado depende de 3 operacoes (100%)",
-"concentracao extrema num ativo (100%)"
+"concentracao extrema num ativo (100%)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
 "score": 6.055,
 "metricas": {
@@ -1725,7 +1746,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 1175,
+"dias": 1175,
 "copiadores": 11
 },
 "okx:94FC2CF4A047C10E": {
@@ -1814,20 +1835,23 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 1392,
-"copiadores": 527
+"dias": 1392,
+"copiadores": 528
 },
 "okx:F61990B585217C24": {
 "fonte": "okx",
 "id": "F61990B585217C24",
 "nome": "TraderLin98",
-"estado": "OBSERVAR",
+"estado": "REJEITADO",
 "motivos": [
 "validacao fora da amostra (ultimo terco) sem expectativa positiva/PF",
 "degradacao recente (ultimas 10 operacoes negativas em media)",
 "duracao media 188.5 h fora de 15 min - 48 h"
 ],
-"perigos": [],
+"perigos": [
+"drawdown escondido em posicoes abertas (-205.6% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
+],
 "score": -0.2747,
 "metricas": {
 "n": 100,
@@ -1899,7 +1923,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 295,
+"dias": 295,
 "copiadores": 1
 },
 "okx:882337170764375802": {
@@ -1987,18 +2011,21 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 55,
+"dias": 55,
 "copiadores": 1
 },
 "okx:B31CCBB35ADBF9C0": {
 "fonte": "okx",
 "id": "B31CCBB35ADBF9C0",
 "nome": "稳稳赚钱",
-"estado": "OBSERVAR",
+"estado": "REJEITADO",
 "motivos": [
 "duracao media 68.6 h fora de 15 min - 48 h"
 ],
-"perigos": [],
+"perigos": [
+"drawdown escondido em posicoes abertas (-1080.2% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
+],
 "score": 4.2268,
 "metricas": {
 "n": 56,
@@ -2070,7 +2097,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 925,
+"dias": 925,
 "copiadores": 7
 },
 "okx:35E22983F436F55B": {
@@ -2160,16 +2187,19 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 664,
+"dias": 664,
 "copiadores": 64
 },
 "okx:31F3288F9B90B496": {
 "fonte": "okx",
 "id": "31F3288F9B90B496",
 "nome": "Ail.Wang",
-"estado": "APROVADO",
+"estado": "REJEITADO",
 "motivos": [],
-"perigos": [],
+"perigos": [
+"drawdown escondido em posicoes abertas (-1149.9% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
+],
 "score": 6.4684,
 "metricas": {
 "n": 100,
@@ -2241,7 +2271,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 1037,
+"dias": 1037,
 "copiadores": 17
 },
 "okx:D387B5B1F098B82C": {
@@ -2256,7 +2286,9 @@
 "duracao media 155.3 h fora de 15 min - 48 h"
 ],
 "perigos": [
-"resultado depende de 3 operacoes (55%)"
+"resultado depende de 3 operacoes (55%)",
+"drawdown escondido em posicoes abertas (-317.0% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
 "score": 6.9868,
 "metricas": {
@@ -2329,7 +2361,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 723,
+"dias": 723,
 "copiadores": 52
 },
 "okx:E1E1885A7FC500D3": {
@@ -2346,7 +2378,8 @@
 "perigos": [
 "alavancagem excessiva (ate 30x)",
 "resultado depende de 3 operacoes (130%)",
-"concentracao extrema num ativo (100%)"
+"concentracao extrema num ativo (100%)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
 "score": 0.2467,
 "metricas": {
@@ -2419,7 +2452,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 986,
+"dias": 986,
 "copiadores": 64
 },
 "okx:E3654BF20F6C758D": {
@@ -2432,7 +2465,9 @@
 "duracao media 139.5 h fora de 15 min - 48 h"
 ],
 "perigos": [
-"drawdown maior que o resultado total"
+"drawdown maior que o resultado total",
+"drawdown escondido em posicoes abertas (-3163.5% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
 "score": -3.409,
 "metricas": {
@@ -2505,7 +2540,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 1071,
+"dias": 1071,
 "copiadores": 4
 },
 "okx:0E59266AC1409761": {
@@ -2593,7 +2628,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 68,
+"dias": 68,
 "copiadores": 13
 },
 "okx:819848249304757406": {
@@ -2679,8 +2714,8 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 237,
-"copiadores": 64
+"dias": 237,
+"copiadores": 63
 },
 "okx:7E27C9B14BB5D378": {
 "fonte": "okx",
@@ -2765,7 +2800,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 1111,
+"dias": 1111,
 "copiadores": 23
 },
 "okx:777901231196176970": {
@@ -2782,7 +2817,8 @@
 "perigos": [
 "alavancagem excessiva (ate 30x)",
 "resultado depende de 3 operacoes (133%)",
-"concentracao extrema num ativo (100%)"
+"concentracao extrema num ativo (100%)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
 "score": 0.2227,
 "metricas": {
@@ -2855,7 +2891,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 315,
+"dias": 315,
 "copiadores": 1
 },
 "okx:601D07DAAB0F0C95": {
@@ -2870,7 +2906,9 @@
 "duracao media 80.3 h fora de 15 min - 48 h"
 ],
 "perigos": [
-"resultado depende de 3 operacoes (73%)"
+"resultado depende de 3 operacoes (73%)",
+"drawdown escondido em posicoes abertas (-191.6% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
 "score": 0.9858,
 "metricas": {
@@ -2943,7 +2981,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 55,
+"dias": 55,
 "copiadores": 2
 },
 "okx:6A30B93C28DD247F": {
@@ -2955,7 +2993,9 @@
 "validacao fora da amostra (ultimo terco) sem expectativa positiva/PF"
 ],
 "perigos": [
-"alavancagem excessiva (ate 30x)"
+"alavancagem excessiva (ate 30x)",
+"drawdown escondido em posicoes abertas (-564.0% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
 "score": 2.7352,
 "metricas": {
@@ -3028,7 +3068,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 824,
+"dias": 824,
 "copiadores": 5
 },
 "okx:4B048A62B1198464": {
@@ -3117,7 +3157,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 1159,
+"dias": 1159,
 "copiadores": 300
 },
 "okx:86432F983B99BA1C": {
@@ -3202,7 +3242,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 289,
+"dias": 289,
 "copiadores": 0
 },
 "okx:A6D274A2EDD8FA5E": {
@@ -3290,7 +3330,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 1194,
+"dias": 1194,
 "copiadores": 1
 },
 "okx:082EDAFDB8CB171F": {
@@ -3305,7 +3345,9 @@
 "duracao media 119.3 h fora de 15 min - 48 h"
 ],
 "perigos": [
-"concentracao extrema num ativo (93%)"
+"concentracao extrema num ativo (93%)",
+"drawdown escondido em posicoes abertas (-44.2% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
 "score": 6.51,
 "metricas": {
@@ -3378,7 +3420,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 693,
+"dias": 693,
 "copiadores": 0
 },
 "okx:0B839006AFCA7A52": {
@@ -3393,7 +3435,9 @@
 ],
 "perigos": [
 "resultado depende de 3 operacoes (160%)",
-"drawdown maior que o resultado total"
+"drawdown maior que o resultado total",
+"drawdown escondido em posicoes abertas (-54.8% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
 "score": -6.7972,
 "metricas": {
@@ -3466,7 +3510,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 737,
+"dias": 737,
 "copiadores": 0
 },
 "okx:F10D7F7A4A164AFB": {
@@ -3556,7 +3600,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 1329,
+"dias": 1329,
 "copiadores": 0
 },
 "okx:760386676346038930": {
@@ -3639,7 +3683,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 86,
+"dias": 86,
 "copiadores": 22
 },
 "okx:7D34F0975D241797": {
@@ -3653,78 +3697,78 @@
 "perigos": [
 "drawdown maior que o resultado total"
 ],
-"score": 0.8876,
+"score": 0.9686,
 "metricas": {
 "n": 100,
-"dias": 85.9,
-"r_medio": -0.00093,
-"pnl_total": -0.0927,
-"profit_factor": 0.921,
+"dias": 72.0,
+"r_medio": -0.00142,
+"pnl_total": -0.1425,
+"profit_factor": 0.878,
 "acerto": 0.55,
-"ganho_perda": 0.753,
+"ganho_perda": 0.718,
 "drawdown": 0.4272,
-"freq_dia": 1.16,
-"duracao_media_h": 22.41,
-"alav_media": 3.9,
+"freq_dia": 1.39,
+"duracao_media_h": 18.41,
+"alav_media": 3.8,
 "alav_max": 5.0,
-"quota_ativo": 0.24,
-"ativos": 9,
+"quota_ativo": 0.27,
+"ativos": 8,
 "quota_top3": null,
 "martingale": 0.11,
-"recente_r": 0.00177,
+"recente_r": 0.00531,
 "por_lado": {
-"LONG": 0.0504,
-"SHORT": -0.1431
+"LONG": -0.0066,
+"SHORT": -0.1359
 }
 },
 "selecao": {
 "n": 66,
-"dias": 80.5,
-"r_medio": -0.00368,
-"pnl_total": -0.2431,
-"profit_factor": 0.766,
+"dias": 68.3,
+"r_medio": -0.00486,
+"pnl_total": -0.3205,
+"profit_factor": 0.691,
 "acerto": 0.515,
-"ganho_perda": 0.721,
+"ganho_perda": 0.651,
 "drawdown": 0.4272,
-"freq_dia": 0.82,
-"duracao_media_h": 33.16,
-"alav_media": 4.3,
+"freq_dia": 0.97,
+"duracao_media_h": 27.11,
+"alav_media": 4.2,
 "alav_max": 5.0,
 "quota_ativo": 0.318,
 "ativos": 7,
 "quota_top3": null,
 "martingale": 0.136,
-"recente_r": 0.00293,
+"recente_r": 0.00103,
 "por_lado": {
-"LONG": 0.0395,
-"SHORT": -0.2826
+"LONG": -0.0175,
+"SHORT": -0.303
 }
 },
 "validacao": {
 "n": 34,
-"dias": 3.8,
-"r_medio": 0.00442,
-"pnl_total": 0.1504,
-"profit_factor": 2.159,
+"dias": 3.7,
+"r_medio": 0.00523,
+"pnl_total": 0.178,
+"profit_factor": 2.371,
 "acerto": 0.618,
-"ganho_perda": 1.336,
+"ganho_perda": 1.468,
 "drawdown": 0.0774,
-"freq_dia": 8.88,
-"duracao_media_h": 1.53,
+"freq_dia": 9.16,
+"duracao_media_h": 1.51,
 "alav_media": 3.0,
 "alav_max": 3.0,
 "quota_ativo": 0.706,
 "ativos": 2,
-"quota_top3": 0.861,
+"quota_top3": 0.762,
 "martingale": 0.059,
-"recente_r": 0.00177,
+"recente_r": 0.00531,
 "por_lado": {
 "LONG": 0.0109,
-"SHORT": 0.1395
+"SHORT": 0.1671
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 382,
+"dias": 382,
 "copiadores": 0
 },
 "okx:D2A8F38CFFF5F992": {
@@ -3741,7 +3785,9 @@
 "perigos": [
 "alavancagem excessiva (ate 50x)",
 "resultado depende de 3 operacoes (80%)",
-"concentracao extrema num ativo (100%)"
+"concentracao extrema num ativo (100%)",
+"drawdown escondido em posicoes abertas (-113.3% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
 "score": 1.44,
 "metricas": {
@@ -3814,7 +3860,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 983,
+"dias": 983,
 "copiadores": 0
 },
 "okx:8F7BA1923CFC66C6": {
@@ -3828,7 +3874,9 @@
 ],
 "perigos": [
 "concentracao extrema num ativo (100%)",
-"drawdown maior que o resultado total"
+"drawdown maior que o resultado total",
+"drawdown escondido em posicoes abertas (-8.3% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
 "score": -0.9508,
 "metricas": {
@@ -3901,7 +3949,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 942,
+"dias": 942,
 "copiadores": 0
 },
 "okx:C9B1558F671ED132": {
@@ -3917,7 +3965,9 @@
 ],
 "perigos": [
 "resultado depende de 3 operacoes (63%)",
-"concentracao extrema num ativo (100%)"
+"concentracao extrema num ativo (100%)",
+"drawdown escondido em posicoes abertas (-4535.9% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
 "score": 3.923,
 "metricas": {
@@ -3990,16 +4040,19 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 985,
+"dias": 985,
 "copiadores": 91
 },
 "okx:1761D578C7A15813": {
 "fonte": "okx",
 "id": "1761D578C7A15813",
 "nome": "Smart-Pizza-Dinosaur",
-"estado": "APROVADO",
+"estado": "REJEITADO",
 "motivos": [],
-"perigos": [],
+"perigos": [
+"drawdown escondido em posicoes abertas (-9.9% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
+],
 "score": 2.286,
 "metricas": {
 "n": 99,
@@ -4071,7 +4124,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 266,
+"dias": 266,
 "copiadores": 0
 },
 "okx:1DDDCD5C603258D4": {
@@ -4156,7 +4209,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 559,
+"dias": 559,
 "copiadores": 1
 },
 "okx:6DC8B73158E4ED70": {
@@ -4173,7 +4226,8 @@
 "perigos": [
 "martingale/reforco de perdedoras em 29% das operacoes",
 "resultado depende de 3 operacoes (93%)",
-"concentracao extrema num ativo (86%)"
+"concentracao extrema num ativo (86%)",
+"drawdown escondido em posicoes abertas (-16.7% do nocional por fechar)"
 ],
 "score": 1.476,
 "metricas": {
@@ -4246,7 +4300,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 756,
+"dias": 756,
 "copiadores": 0
 },
 "okx:D503A7FA37549816": {
@@ -4262,7 +4316,9 @@
 ],
 "perigos": [
 "alavancagem excessiva (ate 30x)",
-"concentracao extrema num ativo (67%)"
+"concentracao extrema num ativo (67%)",
+"drawdown escondido em posicoes abertas (-90.7% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
 "score": 2.5828,
 "metricas": {
@@ -4335,7 +4391,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 199,
+"dias": 199,
 "copiadores": 1
 },
 "okx:D286B322B8A241B7": {
@@ -4348,7 +4404,9 @@
 ],
 "perigos": [
 "resultado depende de 3 operacoes (55%)",
-"concentracao extrema num ativo (73%)"
+"concentracao extrema num ativo (73%)",
+"drawdown escondido em posicoes abertas (-929.0% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
 "score": 2.3479,
 "metricas": {
@@ -4421,7 +4479,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 609,
+"dias": 609,
 "copiadores": 0
 },
 "okx:40A3DB1208A52D7D": {
@@ -4438,7 +4496,9 @@
 ],
 "perigos": [
 "concentracao extrema num ativo (100%)",
-"drawdown maior que o resultado total"
+"drawdown maior que o resultado total",
+"drawdown escondido em posicoes abertas (-127.1% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
 "score": -0.1276,
 "metricas": {
@@ -4491,7 +4551,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 198,
+"dias": 198,
 "copiadores": 0
 },
 "okx:EB211FE8ECD1FFA5": {
@@ -4502,83 +4562,83 @@
 "motivos": [
 "periodo de selecao sem expectativa/PF suficientes",
 "degradacao recente (ultimas 10 operacoes negativas em media)",
-"duracao media 67.7 h fora de 15 min - 48 h"
+"duracao media 66.3 h fora de 15 min - 48 h"
 ],
 "perigos": [
 "drawdown maior que o resultado total"
 ],
-"score": 0.3587,
+"score": 0.2072,
 "metricas": {
-"n": 43,
+"n": 44,
 "dias": 39.9,
-"r_medio": -0.00941,
-"pnl_total": -0.4045,
-"profit_factor": 0.484,
-"acerto": 0.442,
-"ganho_perda": 0.612,
+"r_medio": -0.00964,
+"pnl_total": -0.4243,
+"profit_factor": 0.472,
+"acerto": 0.432,
+"ganho_perda": 0.621,
 "drawdown": 0.4834,
-"freq_dia": 1.08,
-"duracao_media_h": 67.7,
+"freq_dia": 1.1,
+"duracao_media_h": 66.3,
 "alav_media": 3.8,
 "alav_max": 5.0,
-"quota_ativo": 0.349,
+"quota_ativo": 0.341,
 "ativos": 6,
 "quota_top3": null,
-"martingale": 0.14,
-"recente_r": -0.00115,
+"martingale": 0.136,
+"recente_r": -0.00616,
 "por_lado": {
 "LONG": -0.4045,
-"SHORT": 0
+"SHORT": -0.0198
 }
 },
 "selecao": {
-"n": 28,
-"dias": 31.9,
-"r_medio": -0.01695,
-"pnl_total": -0.4745,
-"profit_factor": 0.249,
-"acerto": 0.393,
-"ganho_perda": 0.384,
-"drawdown": 0.476,
-"freq_dia": 0.88,
-"duracao_media_h": 89.68,
-"alav_media": 4.3,
+"n": 29,
+"dias": 33.4,
+"r_medio": -0.01656,
+"pnl_total": -0.4804,
+"profit_factor": 0.246,
+"acerto": 0.379,
+"ganho_perda": 0.403,
+"drawdown": 0.4814,
+"freq_dia": 0.87,
+"duracao_media_h": 86.98,
+"alav_media": 4.2,
 "alav_max": 5.0,
-"quota_ativo": 0.357,
+"quota_ativo": 0.345,
 "ativos": 6,
 "quota_top3": null,
-"martingale": 0.107,
-"recente_r": -0.02519,
+"martingale": 0.138,
+"recente_r": -0.02038,
 "por_lado": {
-"LONG": -0.4745,
+"LONG": -0.4804,
 "SHORT": 0
 }
 },
 "validacao": {
 "n": 15,
-"dias": 7.0,
-"r_medio": 0.00467,
-"pnl_total": 0.07,
-"profit_factor": 1.459,
+"dias": 8.0,
+"r_medio": 0.00374,
+"pnl_total": 0.056,
+"profit_factor": 1.336,
 "acerto": 0.533,
-"ganho_perda": 1.277,
-"drawdown": 0.1436,
-"freq_dia": 2.14,
-"duracao_media_h": 26.67,
+"ganho_perda": 1.169,
+"drawdown": 0.1634,
+"freq_dia": 1.87,
+"duracao_media_h": 26.3,
 "alav_media": 3.0,
 "alav_max": 3.0,
-"quota_ativo": 0.8,
-"ativos": 3,
-"quota_top3": 1.523,
-"martingale": 0.133,
-"recente_r": -0.00115,
+"quota_ativo": 0.733,
+"ativos": 4,
+"quota_top3": 1.903,
+"martingale": 0.067,
+"recente_r": -0.00616,
 "por_lado": {
-"LONG": 0.07,
-"SHORT": 0
+"LONG": 0.0759,
+"SHORT": -0.0198
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 479,
+"dias": 479,
 "copiadores": 0
 },
 "okx:26E8167F37D30564": {
@@ -4593,7 +4653,9 @@
 "duracao media 124.7 h fora de 15 min - 48 h"
 ],
 "perigos": [
-"drawdown maior que o resultado total"
+"drawdown maior que o resultado total",
+"drawdown escondido em posicoes abertas (-1429.7% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
 "score": -21.724,
 "metricas": {
@@ -4666,7 +4728,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 667,
+"dias": 667,
 "copiadores": 0
 },
 "okx:6F262ADB3B44266C": {
@@ -4678,7 +4740,9 @@
 "periodo de selecao sem expectativa/PF suficientes"
 ],
 "perigos": [
-"drawdown maior que o resultado total"
+"drawdown maior que o resultado total",
+"drawdown escondido em posicoes abertas (-218.7% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
 "score": 0.4337,
 "metricas": {
@@ -4751,7 +4815,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 932,
+"dias": 932,
 "copiadores": 0
 },
 "okx:952071415C9BAD06": {
@@ -4765,7 +4829,9 @@
 ],
 "perigos": [
 "alavancagem excessiva (ate 100x)",
-"concentracao extrema num ativo (91%)"
+"concentracao extrema num ativo (91%)",
+"drawdown escondido em posicoes abertas (-68.9% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
 "score": 1.3261,
 "metricas": {
@@ -4838,7 +4904,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 492,
+"dias": 492,
 "copiadores": 2
 },
 "okx:769075957323167141": {
@@ -4853,80 +4919,82 @@
 ],
 "perigos": [
 "concentracao extrema num ativo (61%)",
-"drawdown maior que o resultado total"
+"drawdown maior que o resultado total",
+"drawdown escondido em posicoes abertas (-68.5% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
-"score": -0.8514,
+"score": -0.7694,
 "metricas": {
 "n": 99,
 "dias": 5.1,
-"r_medio": -0.00095,
-"pnl_total": -0.0939,
-"profit_factor": 0.905,
+"r_medio": -0.00096,
+"pnl_total": -0.0952,
+"profit_factor": 0.904,
 "acerto": 0.333,
-"ganho_perda": 1.81,
+"ganho_perda": 1.808,
 "drawdown": 0.6397,
-"freq_dia": 19.57,
-"duracao_media_h": 5.88,
+"freq_dia": 19.37,
+"duracao_media_h": 5.83,
 "alav_media": 10.0,
 "alav_max": 10.0,
 "quota_ativo": 0.606,
-"ativos": 6,
+"ativos": 7,
 "quota_top3": null,
 "martingale": 0.222,
-"recente_r": 0.00443,
+"recente_r": 0.002,
 "por_lado": {
-"LONG": -0.1097,
+"LONG": -0.111,
 "SHORT": 0.0158
 }
 },
 "selecao": {
 "n": 66,
 "dias": 2.1,
-"r_medio": -0.00015,
-"pnl_total": -0.0098,
-"profit_factor": 0.984,
+"r_medio": -0.00047,
+"pnl_total": -0.0309,
+"profit_factor": 0.952,
 "acerto": 0.288,
-"ganho_perda": 2.435,
+"ganho_perda": 2.355,
 "drawdown": 0.365,
 "freq_dia": 30.92,
-"duracao_media_h": 3.84,
+"duracao_media_h": 4.13,
 "alav_media": 10.0,
 "alav_max": 10.0,
-"quota_ativo": 0.591,
+"quota_ativo": 0.606,
 "ativos": 6,
 "quota_top3": null,
 "martingale": 0.212,
-"recente_r": 0.00526,
+"recente_r": 0.00306,
 "por_lado": {
-"LONG": -0.0098,
+"LONG": -0.0309,
 "SHORT": 0
 }
 },
 "validacao": {
 "n": 33,
-"dias": 3.9,
-"r_medio": -0.00255,
-"pnl_total": -0.0841,
-"profit_factor": 0.772,
+"dias": 4.0,
+"r_medio": -0.00195,
+"pnl_total": -0.0643,
+"profit_factor": 0.816,
 "acerto": 0.424,
-"ganho_perda": 1.048,
-"drawdown": 0.3417,
-"freq_dia": 8.41,
-"duracao_media_h": 9.95,
+"ganho_perda": 1.107,
+"drawdown": 0.3059,
+"freq_dia": 8.29,
+"duracao_media_h": 9.24,
 "alav_media": 10.0,
 "alav_max": 10.0,
-"quota_ativo": 0.636,
-"ativos": 4,
+"quota_ativo": 0.606,
+"ativos": 5,
 "quota_top3": null,
-"martingale": 0.242,
-"recente_r": 0.00443,
+"martingale": 0.212,
+"recente_r": 0.002,
 "por_lado": {
-"LONG": -0.0999,
+"LONG": -0.0801,
 "SHORT": 0.0158
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 344,
+"dias": 344,
 "copiadores": 40
 },
 "okx:0EAF7292CE2FAAC2": {
@@ -4941,7 +5009,9 @@
 ],
 "perigos": [
 "resultado depende de 3 operacoes (64%)",
-"drawdown maior que o resultado total"
+"drawdown maior que o resultado total",
+"drawdown escondido em posicoes abertas (-274.1% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
 "score": -2.0734,
 "metricas": {
@@ -5014,7 +5084,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 223,
+"dias": 223,
 "copiadores": 7
 },
 "okx:A0EDF7F0D96A7E8C": {
@@ -5029,7 +5099,9 @@
 ],
 "perigos": [
 "alavancagem excessiva (ate 40x)",
-"drawdown maior que o resultado total"
+"drawdown maior que o resultado total",
+"drawdown escondido em posicoes abertas (-169.7% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
 "score": -6.8999,
 "metricas": {
@@ -5102,7 +5174,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 432,
+"dias": 432,
 "copiadores": 10
 },
 "okx:874450338244505160": {
@@ -5189,7 +5261,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 34,
+"dias": 34,
 "copiadores": 1
 },
 "okx:814D765D5AE97D0D": {
@@ -5204,7 +5276,9 @@
 ],
 "perigos": [
 "concentracao extrema num ativo (95%)",
-"drawdown maior que o resultado total"
+"drawdown maior que o resultado total",
+"drawdown escondido em posicoes abertas (-40.9% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
 "score": -8.5163,
 "metricas": {
@@ -5277,7 +5351,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 1245,
+"dias": 1245,
 "copiadores": 0
 },
 "okx:EDC2CA66E137873B": {
@@ -5365,7 +5439,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 56,
+"dias": 56,
 "copiadores": 0
 },
 "okx:711D77D665CC6F49": {
@@ -5380,7 +5454,9 @@
 "duracao media 92.3 h fora de 15 min - 48 h"
 ],
 "perigos": [
-"concentracao extrema num ativo (100%)"
+"concentracao extrema num ativo (100%)",
+"drawdown escondido em posicoes abertas (-469.6% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
 "score": 4.95,
 "metricas": {
@@ -5453,7 +5529,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 297,
+"dias": 297,
 "copiadores": 0
 },
 "okx:FE701D3CB0AC0E8F": {
@@ -5466,7 +5542,9 @@
 "degradacao recente (ultimas 10 operacoes negativas em media)"
 ],
 "perigos": [
-"alavancagem excessiva (ate 100x)"
+"alavancagem excessiva (ate 100x)",
+"drawdown escondido em posicoes abertas (-37.1% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
 "score": -1.8444,
 "metricas": {
@@ -5539,7 +5617,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 405,
+"dias": 405,
 "copiadores": 44
 },
 "okx:F2BCA22ABBB69F57": {
@@ -5554,7 +5632,9 @@
 ],
 "perigos": [
 "resultado depende de 3 operacoes (71%)",
-"drawdown maior que o resultado total"
+"drawdown maior que o resultado total",
+"drawdown escondido em posicoes abertas (-111.1% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
 "score": -3.789,
 "metricas": {
@@ -5627,7 +5707,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 399,
+"dias": 399,
 "copiadores": 194
 },
 "okx:F76CC883269E6FFB": {
@@ -5710,7 +5790,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 139,
+"dias": 139,
 "copiadores": 16
 },
 "okx:3EB985F124C18792": {
@@ -5796,7 +5876,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 699,
+"dias": 699,
 "copiadores": 19
 },
 "okx:9C65CB446B25F5CC": {
@@ -5812,7 +5892,9 @@
 ],
 "perigos": [
 "alavancagem excessiva (ate 100x)",
-"drawdown maior que o resultado total"
+"drawdown maior que o resultado total",
+"drawdown escondido em posicoes abertas (-455.0% do nocional por fechar)",
+"varias posicoes abertas no mesmo ativo e lado (reforcos/averaging)"
 ],
 "score": -14.0677,
 "metricas": {
@@ -5885,7 +5967,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 336,
+"dias": 336,
 "copiadores": 0
 },
 "okx:1D7BB961DBFDECFC": {
@@ -5973,7 +6055,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 138,
+"dias": 138,
 "copiadores": 21
 },
 "okx:9C2CB3B2306B28EA": {
@@ -6060,7 +6142,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 1173,
+"dias": 1173,
 "copiadores": 689
 },
 "okx:2E01D379E7579CF5": {
@@ -6085,7 +6167,7 @@
 "n": 0
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 695,
+"dias": 695,
 "copiadores": 6
 },
 "okx:DBF871A68D69BACE": {
@@ -6174,7 +6256,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 610,
+"dias": 610,
 "copiadores": 0
 },
 "okx:7E21239BFA805866": {
@@ -6189,7 +6271,8 @@
 ],
 "perigos": [
 "resultado depende de 3 operacoes (100%)",
-"concentracao extrema num ativo (100%)"
+"concentracao extrema num ativo (100%)",
+"drawdown escondido em posicoes abertas (-27.9% do nocional por fechar)"
 ],
 "score": 1.139,
 "metricas": {
@@ -6262,7 +6345,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 1370,
+"dias": 1370,
 "copiadores": 0
 },
 "okx:24D8CE79A97FD35D": {
@@ -6347,7 +6430,7 @@
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem",
-"dias_lider": 1253,
+"dias": 1253,
 "copiadores": 236
 },
 "hyperliquid:0x88222ce80472e60d1fa44843b9e1da88ec73d685": {
@@ -7035,17 +7118,18 @@
 ],
 "perigos": [
 "martingale/reforco de perdedoras em 54% das operacoes",
-"drawdown maior que o resultado total"
+"drawdown maior que o resultado total",
+"drawdown escondido em posicoes abertas (-0.1% do nocional por fechar)"
 ],
 "score": -0.1308,
 "metricas": {
 "n": 35,
 "dias": 1.6,
 "r_medio": -0.005,
-"pnl_total": -0.1751,
+"pnl_total": -0.1749,
 "profit_factor": 0.434,
 "acerto": 0.429,
-"ganho_perda": 0.578,
+"ganho_perda": 0.579,
 "drawdown": 0.1764,
 "freq_dia": 21.59,
 "duracao_media_h": 1.48,
@@ -7057,18 +7141,18 @@
 "martingale": 0.543,
 "recente_r": -0.00727,
 "por_lado": {
-"LONG": -0.1751,
+"LONG": -0.1749,
 "SHORT": 0
 }
 },
 "selecao": {
 "n": 23,
 "dias": 1.0,
-"r_medio": -0.00563,
-"pnl_total": -0.1294,
-"profit_factor": 0.34,
+"r_medio": -0.00562,
+"pnl_total": -0.1292,
+"profit_factor": 0.342,
 "acerto": 0.478,
-"ganho_perda": 0.371,
+"ganho_perda": 0.373,
 "drawdown": 0.1338,
 "freq_dia": 22.49,
 "duracao_media_h": 1.66,
@@ -7080,7 +7164,7 @@
 "martingale": 0.478,
 "recente_r": -0.00837,
 "por_lado": {
-"LONG": -0.1294,
+"LONG": -0.1292,
 "SHORT": 0
 }
 },
@@ -7204,77 +7288,77 @@
 "degradacao recente (ultimas 10 operacoes negativas em media)"
 ],
 "perigos": [
-"martingale/reforco de perdedoras em 46% das operacoes",
+"martingale/reforco de perdedoras em 43% das operacoes",
 "drawdown maior que o resultado total"
 ],
-"score": 1.0352,
+"score": 0.7935,
 "metricas": {
-"n": 74,
-"dias": 221.9,
-"r_medio": -0.00265,
-"pnl_total": -0.1958,
-"profit_factor": 0.616,
-"acerto": 0.324,
-"ganho_perda": 1.283,
-"drawdown": 0.3054,
-"freq_dia": 0.33,
-"duracao_media_h": 16.47,
+"n": 72,
+"dias": 221.8,
+"r_medio": -0.00318,
+"pnl_total": -0.2287,
+"profit_factor": 0.585,
+"acerto": 0.347,
+"ganho_perda": 1.099,
+"drawdown": 0.3465,
+"freq_dia": 0.32,
+"duracao_media_h": 16.82,
 "alav_media": null,
 "alav_max": null,
-"quota_ativo": 0.459,
+"quota_ativo": 0.486,
 "ativos": 8,
 "quota_top3": null,
-"martingale": 0.459,
-"recente_r": -0.00087,
+"martingale": 0.431,
+"recente_r": -6e-05,
 "por_lado": {
-"LONG": -0.0463,
-"SHORT": -0.1495
+"LONG": -0.1068,
+"SHORT": -0.1219
 }
 },
 "selecao": {
-"n": 49,
-"dias": 131.9,
+"n": 48,
+"dias": 214.9,
 "r_medio": -0.00616,
-"pnl_total": -0.3019,
-"profit_factor": 0.311,
-"acerto": 0.245,
-"ganho_perda": 0.958,
-"drawdown": 0.3019,
-"freq_dia": 0.37,
-"duracao_media_h": 20.16,
+"pnl_total": -0.2955,
+"profit_factor": 0.388,
+"acerto": 0.271,
+"ganho_perda": 1.044,
+"drawdown": 0.3465,
+"freq_dia": 0.22,
+"duracao_media_h": 21.98,
 "alav_media": null,
 "alav_max": null,
-"quota_ativo": 0.306,
+"quota_ativo": 0.312,
 "ativos": 7,
 "quota_top3": null,
-"martingale": 0.429,
-"recente_r": -0.00442,
+"martingale": 0.396,
+"recente_r": 0.0011,
 "por_lado": {
-"LONG": -0.0427,
-"SHORT": -0.2593
+"LONG": -0.1066,
+"SHORT": -0.1889
 }
 },
 "validacao": {
-"n": 25,
-"dias": 10.0,
-"r_medio": 0.00424,
-"pnl_total": 0.1061,
-"profit_factor": 2.485,
-"acerto": 0.48,
-"ganho_perda": 2.692,
+"n": 24,
+"dias": 6.8,
+"r_medio": 0.00279,
+"pnl_total": 0.0668,
+"profit_factor": 1.983,
+"acerto": 0.5,
+"ganho_perda": 1.983,
 "drawdown": 0.0226,
-"freq_dia": 2.51,
-"duracao_media_h": 9.25,
+"freq_dia": 3.5,
+"duracao_media_h": 6.51,
 "alav_media": null,
 "alav_max": null,
-"quota_ativo": 0.76,
-"ativos": 4,
-"quota_top3": 1.231,
-"martingale": 0.52,
-"recente_r": -0.00087,
+"quota_ativo": 0.833,
+"ativos": 3,
+"quota_top3": 1.561,
+"martingale": 0.5,
+"recente_r": -6e-05,
 "por_lado": {
-"LONG": -0.0037,
-"SHORT": 0.1098
+"LONG": -0.0002,
+"SHORT": 0.0671
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem"
@@ -7722,7 +7806,7 @@
 "ganho_perda": 0.609,
 "drawdown": 0.1596,
 "freq_dia": 0.12,
-"duracao_media_h": 51.9,
+"duracao_media_h": 51.89,
 "alav_media": null,
 "alav_max": null,
 "quota_ativo": 0.714,
@@ -7745,7 +7829,7 @@
 "ganho_perda": 0.821,
 "drawdown": 0.1452,
 "freq_dia": 0.08,
-"duracao_media_h": 78.9,
+"duracao_media_h": 78.89,
 "alav_media": null,
 "alav_max": null,
 "quota_ativo": 0.778,
@@ -7755,7 +7839,7 @@
 "recente_r": -0.01613,
 "por_lado": {
 "LONG": -0.1161,
-"SHORT": -0.029
+"SHORT": -0.0291
 }
 },
 "validacao": {
@@ -7884,7 +7968,8 @@
 ],
 "perigos": [
 "martingale/reforco de perdedoras em 44% das operacoes",
-"drawdown maior que o resultado total"
+"drawdown maior que o resultado total",
+"drawdown escondido em posicoes abertas (-2.9% do nocional por fechar)"
 ],
 "score": -2.6814,
 "metricas": {
@@ -8342,7 +8427,8 @@
 "perigos": [
 "martingale/reforco de perdedoras em 40% das operacoes",
 "concentracao extrema num ativo (80%)",
-"drawdown maior que o resultado total"
+"drawdown maior que o resultado total",
+"drawdown escondido em posicoes abertas (-1.5% do nocional por fechar)"
 ],
 "score": 1.611,
 "metricas": {
@@ -8845,178 +8931,6 @@
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem"
 },
-"hyperliquid:0x300bd559cd7c8653ebd7fb3aa82e309a227b060f": {
-"fonte": "hyperliquid",
-"id": "0x300bd559cd7c8653ebd7fb3aa82e309a227b060f",
-"nome": "0x300bd559",
-"estado": "REJEITADO",
-"motivos": [
-"validacao fora da amostra (ultimo terco) sem expectativa positiva/PF",
-"duracao media 77.7 h fora de 15 min - 48 h"
-],
-"perigos": [
-"martingale/reforco de perdedoras em 26% das operacoes",
-"resultado depende de 3 operacoes (102%)"
-],
-"score": 0.387,
-"metricas": {
-"n": 74,
-"dias": 218.4,
-"r_medio": 0.00387,
-"pnl_total": 0.2867,
-"profit_factor": 1.563,
-"acerto": 0.703,
-"ganho_perda": 0.661,
-"drawdown": 0.2365,
-"freq_dia": 0.34,
-"duracao_media_h": 77.69,
-"alav_media": null,
-"alav_max": null,
-"quota_ativo": 0.351,
-"ativos": 5,
-"quota_top3": 1.021,
-"martingale": 0.257,
-"recente_r": 0.00517,
-"por_lado": {
-"LONG": -0.0911,
-"SHORT": 0.3778
-}
-},
-"selecao": {
-"n": 49,
-"dias": 68.3,
-"r_medio": 0.00536,
-"pnl_total": 0.2625,
-"profit_factor": 2.228,
-"acerto": 0.816,
-"ganho_perda": 0.501,
-"drawdown": 0.1308,
-"freq_dia": 0.72,
-"duracao_media_h": 43.8,
-"alav_media": null,
-"alav_max": null,
-"quota_ativo": 0.49,
-"ativos": 4,
-"quota_top3": 0.539,
-"martingale": 0.184,
-"recente_r": 0.00047,
-"por_lado": {
-"LONG": 0.0926,
-"SHORT": 0.17
-}
-},
-"validacao": {
-"n": 25,
-"dias": 144.4,
-"r_medio": 0.00097,
-"pnl_total": 0.0242,
-"profit_factor": 1.082,
-"acerto": 0.48,
-"ganho_perda": 1.172,
-"drawdown": 0.2263,
-"freq_dia": 0.17,
-"duracao_media_h": 144.13,
-"alav_media": null,
-"alav_max": null,
-"quota_ativo": 0.44,
-"ativos": 4,
-"quota_top3": 10.914,
-"martingale": 0.4,
-"recente_r": 0.00517,
-"por_lado": {
-"LONG": -0.1837,
-"SHORT": 0.2078
-}
-},
-"aviso": "validacao temporal simples; amostras pequenas nao provam vantagem"
-},
-"hyperliquid:0x52aff2aafa35e9a7bb17755d2099d76753519eec": {
-"fonte": "hyperliquid",
-"id": "0x52aff2aafa35e9a7bb17755d2099d76753519eec",
-"nome": "0x52aff2aa",
-"estado": "REJEITADO",
-"motivos": [
-"periodo de selecao sem expectativa/PF suficientes",
-"validacao fora da amostra (ultimo terco) sem expectativa positiva/PF",
-"degradacao recente (ultimas 10 operacoes negativas em media)",
-"duracao media 179.9 h fora de 15 min - 48 h"
-],
-"perigos": [
-"martingale/reforco de perdedoras em 45% das operacoes",
-"drawdown maior que o resultado total"
-],
-"score": -5.179,
-"metricas": {
-"n": 53,
-"dias": 169.8,
-"r_medio": -0.02412,
-"pnl_total": -1.2786,
-"profit_factor": 0.514,
-"acerto": 0.453,
-"ganho_perda": 0.621,
-"drawdown": 2.2035,
-"freq_dia": 0.31,
-"duracao_media_h": 179.95,
-"alav_media": null,
-"alav_max": null,
-"quota_ativo": 0.113,
-"ativos": 27,
-"quota_top3": null,
-"martingale": 0.453,
-"recente_r": -0.03114,
-"por_lado": {
-"LONG": 0.2802,
-"SHORT": -1.5588
-}
-},
-"selecao": {
-"n": 35,
-"dias": 39.4,
-"r_medio": -0.03006,
-"pnl_total": -1.0522,
-"profit_factor": 0.468,
-"acerto": 0.486,
-"ganho_perda": 0.495,
-"drawdown": 1.7974,
-"freq_dia": 0.89,
-"duracao_media_h": 153.23,
-"alav_media": null,
-"alav_max": null,
-"quota_ativo": 0.114,
-"ativos": 19,
-"quota_top3": null,
-"martingale": 0.4,
-"recente_r": 0.00092,
-"por_lado": {
-"LONG": 0.3024,
-"SHORT": -1.3546
-}
-},
-"validacao": {
-"n": 18,
-"dias": 129.5,
-"r_medio": -0.01258,
-"pnl_total": -0.2264,
-"profit_factor": 0.654,
-"acerto": 0.389,
-"ganho_perda": 1.027,
-"drawdown": 0.5044,
-"freq_dia": 0.14,
-"duracao_media_h": 231.91,
-"alav_media": null,
-"alav_max": null,
-"quota_ativo": 0.167,
-"ativos": 14,
-"quota_top3": null,
-"martingale": 0.556,
-"recente_r": -0.03114,
-"por_lado": {
-"LONG": -0.0222,
-"SHORT": -0.2042
-}
-},
-"aviso": "validacao temporal simples; amostras pequenas nao provam vantagem"
-},
 "hyperliquid:0x67578998bc635295c665d80901beb03c2ba2d40a": {
 "fonte": "hyperliquid",
 "id": "0x67578998bc635295c665d80901beb03c2ba2d40a",
@@ -9099,6 +9013,159 @@
 "por_lado": {
 "LONG": 0.1057,
 "SHORT": -0.0274
+}
+},
+"aviso": "validacao temporal simples; amostras pequenas nao provam vantagem"
+},
+"hyperliquid:0x441c8cbe1aa06beea4c84cfff5e12753f37822fb": {
+"fonte": "hyperliquid",
+"id": "0x441c8cbe1aa06beea4c84cfff5e12753f37822fb",
+"nome": "0x441c8cbe",
+"estado": "REJEITADO",
+"motivos": [
+"historico insuficiente (1 operacoes, 1.0 dias)",
+"periodo de selecao sem expectativa/PF suficientes",
+"validacao fora da amostra (ultimo terco) sem expectativa positiva/PF",
+"degradacao recente (ultimas 10 operacoes negativas em media)"
+],
+"perigos": [
+"martingale/reforco de perdedoras em 100% das operacoes",
+"concentracao extrema num ativo (100%)",
+"drawdown maior que o resultado total"
+],
+"score": -1.0904,
+"metricas": {
+"n": 1,
+"dias": 1.0,
+"r_medio": -0.01268,
+"pnl_total": -0.0127,
+"profit_factor": 0.0,
+"acerto": 0.0,
+"ganho_perda": null,
+"drawdown": 0.0127,
+"freq_dia": 1.0,
+"duracao_media_h": 1.92,
+"alav_media": null,
+"alav_max": null,
+"quota_ativo": 1.0,
+"ativos": 1,
+"quota_top3": null,
+"martingale": 1.0,
+"recente_r": -0.01268,
+"por_lado": {
+"LONG": -0.0127,
+"SHORT": 0
+}
+},
+"selecao": {
+"n": 0
+},
+"validacao": {
+"n": 1,
+"dias": 1.0,
+"r_medio": -0.01268,
+"pnl_total": -0.0127,
+"profit_factor": 0.0,
+"acerto": 0.0,
+"ganho_perda": null,
+"drawdown": 0.0127,
+"freq_dia": 1.0,
+"duracao_media_h": 1.92,
+"alav_media": null,
+"alav_max": null,
+"quota_ativo": 1.0,
+"ativos": 1,
+"quota_top3": null,
+"martingale": 1.0,
+"recente_r": -0.01268,
+"por_lado": {
+"LONG": -0.0127,
+"SHORT": 0
+}
+},
+"aviso": "validacao temporal simples; amostras pequenas nao provam vantagem"
+},
+"hyperliquid:0xccf135ab352d561a15eb7be2a243cc4fcb7f0ab1": {
+"fonte": "hyperliquid",
+"id": "0xccf135ab352d561a15eb7be2a243cc4fcb7f0ab1",
+"nome": "0xccf135ab",
+"estado": "REJEITADO",
+"motivos": [
+"historico insuficiente (2 operacoes, 1.0 dias)",
+"periodo de selecao sem expectativa/PF suficientes",
+"validacao fora da amostra (ultimo terco) sem expectativa positiva/PF"
+],
+"perigos": [
+"resultado depende de 3 operacoes (100%)"
+],
+"score": 0.332,
+"metricas": {
+"n": 2,
+"dias": 1.0,
+"r_medio": 0.01854,
+"pnl_total": 0.0371,
+"profit_factor": null,
+"acerto": 1.0,
+"ganho_perda": null,
+"drawdown": 0.0,
+"freq_dia": 2.0,
+"duracao_media_h": 16.7,
+"alav_media": null,
+"alav_max": null,
+"quota_ativo": 0.5,
+"ativos": 2,
+"quota_top3": 1.0,
+"martingale": 0.0,
+"recente_r": 0.01854,
+"por_lado": {
+"LONG": 0.0371,
+"SHORT": 0
+}
+},
+"selecao": {
+"n": 1,
+"dias": 1.0,
+"r_medio": 0.03382,
+"pnl_total": 0.0338,
+"profit_factor": null,
+"acerto": 1.0,
+"ganho_perda": null,
+"drawdown": 0.0,
+"freq_dia": 1.0,
+"duracao_media_h": 15.56,
+"alav_media": null,
+"alav_max": null,
+"quota_ativo": 1.0,
+"ativos": 1,
+"quota_top3": 1.0,
+"martingale": 0.0,
+"recente_r": 0.03382,
+"por_lado": {
+"LONG": 0.0338,
+"SHORT": 0
+}
+},
+"validacao": {
+"n": 1,
+"dias": 1.0,
+"r_medio": 0.00326,
+"pnl_total": 0.0033,
+"profit_factor": null,
+"acerto": 1.0,
+"ganho_perda": null,
+"drawdown": 0.0,
+"freq_dia": 1.0,
+"duracao_media_h": 17.83,
+"alav_media": null,
+"alav_max": null,
+"quota_ativo": 1.0,
+"ativos": 1,
+"quota_top3": 1.0,
+"martingale": 0.0,
+"recente_r": 0.00326,
+"por_lado": {
+"LONG": 0.0033,
+"SHORT": 0
 }
 },
 "aviso": "validacao temporal simples; amostras pequenas nao provam vantagem"
@@ -9279,7 +9346,8 @@
 "validacao fora da amostra (ultimo terco) sem expectativa positiva/PF"
 ],
 "perigos": [
-"resultado depende de 3 operacoes (96%)"
+"resultado depende de 3 operacoes (96%)",
+"drawdown escondido em posicoes abertas (-7.5% do nocional por fechar)"
 ],
 "score": 2.5644,
 "metricas": {
@@ -9645,73 +9713,73 @@
 "estado": "APROVADO",
 "motivos": [],
 "perigos": [],
-"score": 1.4768,
+"score": 1.4708,
 "metricas": {
-"n": 61,
-"dias": 46.8,
-"r_medio": 0.00419,
-"pnl_total": 0.2559,
-"profit_factor": 6.354,
-"acerto": 0.803,
-"ganho_perda": 1.556,
+"n": 59,
+"dias": 33.8,
+"r_medio": 0.0041,
+"pnl_total": 0.2416,
+"profit_factor": 6.12,
+"acerto": 0.814,
+"ganho_perda": 1.402,
 "drawdown": 0.0361,
-"freq_dia": 1.3,
-"duracao_media_h": 26.6,
+"freq_dia": 1.74,
+"duracao_media_h": 22.45,
 "alav_media": null,
 "alav_max": null,
-"quota_ativo": 0.393,
+"quota_ativo": 0.39,
 "ativos": 6,
-"quota_top3": 0.308,
-"martingale": 0.18,
+"quota_top3": 0.326,
+"martingale": 0.169,
 "recente_r": 0.00696,
 "por_lado": {
 "LONG": 0.1565,
-"SHORT": 0.0994
+"SHORT": 0.0852
 }
 },
 "selecao": {
-"n": 40,
-"dias": 35.9,
-"r_medio": 0.00448,
-"pnl_total": 0.179,
-"profit_factor": 17.401,
-"acerto": 0.825,
-"ganho_perda": 3.691,
+"n": 39,
+"dias": 23.0,
+"r_medio": 0.00432,
+"pnl_total": 0.1684,
+"profit_factor": 17.316,
+"acerto": 0.846,
+"ganho_perda": 3.148,
 "drawdown": 0.0054,
-"freq_dia": 1.12,
-"duracao_media_h": 29.59,
+"freq_dia": 1.69,
+"duracao_media_h": 22.7,
 "alav_media": null,
 "alav_max": null,
-"quota_ativo": 0.425,
+"quota_ativo": 0.41,
 "ativos": 5,
-"quota_top3": 0.293,
-"martingale": 0.15,
-"recente_r": 0.00392,
+"quota_top3": 0.303,
+"martingale": 0.128,
+"recente_r": 0.0043,
 "por_lado": {
-"LONG": 0.106,
-"SHORT": 0.073
+"LONG": 0.1096,
+"SHORT": 0.0588
 }
 },
 "validacao": {
-"n": 21,
-"dias": 10.8,
+"n": 20,
+"dias": 10.7,
 "r_medio": 0.00366,
-"pnl_total": 0.0769,
-"profit_factor": 3.084,
-"acerto": 0.762,
-"ganho_perda": 0.964,
+"pnl_total": 0.0732,
+"profit_factor": 2.986,
+"acerto": 0.75,
+"ganho_perda": 0.995,
 "drawdown": 0.0361,
-"freq_dia": 1.94,
-"duracao_media_h": 20.92,
+"freq_dia": 1.88,
+"duracao_media_h": 21.96,
 "alav_media": null,
 "alav_max": null,
-"quota_ativo": 0.476,
+"quota_ativo": 0.45,
 "ativos": 4,
-"quota_top3": 0.875,
-"martingale": 0.238,
+"quota_top3": 0.919,
+"martingale": 0.25,
 "recente_r": 0.00696,
 "por_lado": {
-"LONG": 0.0505,
+"LONG": 0.0469,
 "SHORT": 0.0264
 }
 },
@@ -10739,51 +10807,51 @@
 "perigos": [
 "concentracao extrema num ativo (100%)"
 ],
-"score": 1.484,
+"score": 1.281,
 "metricas": {
-"n": 39,
+"n": 38,
 "dias": 19.9,
-"r_medio": 0.00224,
-"pnl_total": 0.0873,
-"profit_factor": 8.182,
-"acerto": 0.897,
-"ganho_perda": 0.935,
+"r_medio": 0.00221,
+"pnl_total": 0.0841,
+"profit_factor": 7.904,
+"acerto": 0.868,
+"ganho_perda": 1.198,
 "drawdown": 0.0115,
-"freq_dia": 1.96,
-"duracao_media_h": 4.0,
+"freq_dia": 1.91,
+"duracao_media_h": 4.09,
 "alav_media": null,
 "alav_max": null,
 "quota_ativo": 1.0,
 "ativos": 1,
-"quota_top3": 0.266,
-"martingale": 0.103,
+"quota_top3": 0.276,
+"martingale": 0.132,
 "recente_r": 0.00236,
 "por_lado": {
 "LONG": 0.0537,
-"SHORT": 0.0336
+"SHORT": 0.0304
 }
 },
 "selecao": {
-"n": 26,
-"dias": 12.1,
-"r_medio": 0.00241,
-"pnl_total": 0.0627,
-"profit_factor": 6.339,
-"acerto": 0.923,
-"ganho_perda": 0.528,
+"n": 25,
+"dias": 12.0,
+"r_medio": 0.00238,
+"pnl_total": 0.0594,
+"profit_factor": 6.055,
+"acerto": 0.88,
+"ganho_perda": 0.826,
 "drawdown": 0.0115,
-"freq_dia": 2.15,
-"duracao_media_h": 3.46,
+"freq_dia": 2.08,
+"duracao_media_h": 3.57,
 "alav_media": null,
 "alav_max": null,
 "quota_ativo": 1.0,
 "ativos": 1,
-"quota_top3": 0.357,
-"martingale": 0.077,
+"quota_top3": 0.376,
+"martingale": 0.12,
 "recente_r": 0.00257,
 "por_lado": {
 "LONG": 0.0364,
-"SHORT": 0.0262
+"SHORT": 0.023
 }
 },
 "validacao": {
