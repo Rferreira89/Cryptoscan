@@ -15,7 +15,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 355
     steps:
+      # (17/11) o codigo da investigacao vive SO no ramo de investigacao (a main nao tem tools/hunter): este ficheiro
+      # e apenas o lancador (o GitHub so deixa lancar workflows que existam no ramo principal)
       - uses: actions/checkout@v4
+        with:
+          ref: investigacao/expansao-oportunidades
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -43,4 +47,4 @@ jobs:
         if: always()
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run hunter-papel.yml --repo "${{ github.repository }}" --ref "${{ github.ref_name }}"
+        run: gh workflow run hunter-papel.yml --repo "${{ github.repository }}" --ref main

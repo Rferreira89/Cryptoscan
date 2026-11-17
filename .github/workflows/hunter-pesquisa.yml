@@ -1,7 +1,7 @@
 name: Hunter - pesquisa (investigacao isolada, so dados publicos)
 # (17/11) Global Opportunity Hunter: universo completo dos X-Perps, 18 familias (6 grupos), 30m/1H/4H, geometria por
 # etapas, evolucao com orcamento, validacao emparelhada com bootstrap por dias, Holm cumulativo, teste final intocado.
-# Sem chaves, sem executores, sem ordens. Resultados no ramo "autonomo" (pasta hunter/).
+# Sem chaves, sem executores, sem ordens. Corre o codigo do ramo investigacao/expansao-oportunidades. Resultados no ramo "autonomo" (pasta hunter/).
 on:
   workflow_dispatch:
     inputs:
@@ -24,7 +24,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 340
     steps:
+      # (17/11) o codigo da investigacao vive SO no ramo de investigacao (a main nao tem tools/hunter): este ficheiro
+      # e apenas o lancador (o GitHub so deixa lancar workflows que existam no ramo principal)
       - uses: actions/checkout@v4
+        with:
+          ref: investigacao/expansao-oportunidades
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
