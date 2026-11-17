@@ -14,7 +14,7 @@ from tools.copy import smart as SM
 
 RANKING_S = 3600
 RANKING_VERSAO = 2            # mudar quando os criterios mudam: obriga a refazer o ranking na volta seguinte
-SEGUIR_OKX, SEGUIR_HL = 25, 15
+SEGUIR_OKX, SEGUIR_HL = 30, 30
 CUSTO_SOMBRA = 0.001          # ida e volta, para o resultado-sombra das decisoes
 
 
@@ -41,10 +41,10 @@ def atualizar_ranking(trs, now, log=print):
         except Exception as e:
             F.FALHAS.add(f"avaliar {chave}", f"{type(e).__name__}: {e}")
 
-    for t in F.okx_lideres(5):
+    for t in F.okx_lideres(10):
         um(f"okx:{t['id']}", t, F.okx_historico, F.okx_posicoes)   # posicoes: perdas por fechar (o historico so tem as fechadas)
         time.sleep(0.6)
-    for t in F.hl_ranking() or []:
+    for t in F.hl_ranking(120) or []:
         um(f"hyperliquid:{t['id']}", t, F.hl_historico, F.hl_posicoes)
         time.sleep(0.3)
     if not out:
@@ -60,7 +60,8 @@ def seguidos(trs):
             [x for x in ok if x[0].startswith("hyperliquid:")][:SEGUIR_HL]]
 
 
-def volta(pasta, now=None, fontes=F, log=print):
+def ranking(pasta, now=None, log=print):
+    """Trabalho proprio (paralelo ao observador): refaz o ranking quando passou 1 h ou os criterios mudaram."""
     now = int(now or time.time())
     p = lambda n: os.path.join(pasta, "copy", n)
     os.makedirs(os.path.join(pasta, "copy"), exist_ok=True)
@@ -68,7 +69,18 @@ def volta(pasta, now=None, fontes=F, log=print):
     if now - int(trs.get("t") or 0) >= RANKING_S or trs.get("versao") != RANKING_VERSAO:
         trs = atualizar_ranking(trs, now, log)
         _gravar(p("traders.json"), trs)
+        return True
+    return False
+
+
+def volta(pasta, now=None, fontes=F, log=print):
+    """Observador: posicoes dos traders seguidos -> entradas/reducoes/fechos -> decisoes. Nunca espera pelo ranking."""
+    now = int(now or time.time())
+    p = lambda n: os.path.join(pasta, "copy", n)
+    os.makedirs(os.path.join(pasta, "copy"), exist_ok=True)
+    trs = _ler(p("traders.json"), {"t": 0, "traders": {}})
     st = _ler(p("estado.json"), {"posicoes": {}, "oportunidades": {}, "vistos": []})
+    intervalo = now - int(st.get("t") or now)
     sin = _ler(p("sinais.json"), {"abertas": [], "fechadas": []})
     xp = fontes.xperps_eea()
     spot_b = fontes.bybit_eu_spot() if hasattr(fontes, "bybit_eu_spot") else None
@@ -127,6 +139,8 @@ def volta(pasta, now=None, fontes=F, log=print):
             dec, mot, plano = SM.decidir(x, tr, ctx)
             dec_b, mot_b = SM.decidir_bybit(x, spot_b)
             idop = f"copy|{k}|{pid}"
+            if idop in st["oportunidades"]:
+                continue                                      # evento ja tratado (reinicio ou repeticao)
             reg = {"t": now, "id": idop, "trader": k, "fonte": k.split(":")[0], "base": x["base"], "lado": x["lado"],
                    "px_trader": x["px_abre"], "px_ref": px, "okx": {"decisao": dec, "motivo": mot}, "bybit_eu": {"decisao": dec_b, "motivo": mot_b}}
             decisoes.append(reg)
@@ -158,7 +172,10 @@ def volta(pasta, now=None, fontes=F, log=print):
     for k, pos in atuais.items():
         st["posicoes"][k] = pos
     st["oportunidades"] = dict(sorted(st["oportunidades"].items(), key=lambda kv: kv[1]["t"])[-3000:])
-    st.update(t=now, falhas=F.FALHAS[-20:], traders_falhados=falhou, seguidos=len(atuais))
+    st["consultas"] = (st.get("consultas") or [])[-500:] + [{"t": now, "intervalo_s": intervalo, "seguidos": len(atuais),
+                                                             "falhados": len(falhou), "oportunidades": len(decisoes)}]
+    st.update(t=now, falhas=F.FALHAS[-20:], traders_falhados=falhou, seguidos=len(atuais),
+              ultima_consulta={k: now for k in atuais}, recuperacao=(intervalo > 600))
     sin["fechadas"] = sin["fechadas"][-500:]
     aprovados = {k: v for k, v in trs.get("traders", {}).items() if v["estado"] == "APROVADO"}
     sin.update(t=now, aviso="CopyTrading: sinais para o piloto OKX (execucao real so la, com os limites do piloto)",
@@ -184,6 +201,9 @@ def volta(pasta, now=None, fontes=F, log=print):
 
 
 if __name__ == "__main__":
+    if len(sys.argv) > 2 and sys.argv[2] == "ranking":
+        print(json.dumps({"ranking_refeito": ranking(sys.argv[1])}))
+        sys.exit(0)
     r = volta(sys.argv[1])
     print(json.dumps(r, ensure_ascii=False))
     sys.exit(0 if r.get("copias_para_okx") else 3)            # 3 = sem copias novas (o lancador so chama o piloto com 0)

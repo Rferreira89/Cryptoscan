@@ -154,11 +154,18 @@ def hl_historico(addr):
             a["sz"] = max(0.0, a["sz"] - sz)
             if a["sz"] <= 1e-12:
                 nocional = a["custo"] or 1e-9
-                ops.append({"inst": coin, "base": coin, "lado": lado, "t_abre": a["t"], "t_fecha": t,
+                ops.append({"inst": coin, "base": _base_hl(coin)[0], "lado": lado, "t_abre": a["t"], "t_fecha": t,
                             "px_abre": a["custo"] / max(a["max_sz"], 1e-12), "px_fecha": px,
                             "retorno_nocional": (a["pnl"] - a["fee"]) / nocional, "entradas": a["entradas"], "alav": None})
                 abertas[k] = {"sz": 0.0, "custo": 0.0, "t": t, "pnl": 0.0, "fee": 0.0, "entradas": 0, "max_sz": 0.0}
     return ops
+
+
+def _base_hl(coin):
+    """Hyperliquid cota alguns ativos em lotes de 1000 (kPEPE, kBONK...): base PEPE e preco por unidade = preco/1000."""
+    if len(coin) > 1 and coin[0] == "k" and coin[1:].isupper():
+        return coin[1:], 0.001
+    return coin, 1.0
 
 
 def hl_posicoes(addr):
@@ -173,8 +180,9 @@ def hl_posicoes(addr):
             continue
         lev = (q.get("leverage") or {}).get("value")
         pv = float(q.get("positionValue") or 0)
-        out.append({"upl_nocional": float(q.get("unrealizedPnl") or 0) / pv if pv else 0.0,
-                    "inst": q["coin"], "base": q["coin"], "lado": "LONG" if szi > 0 else "SHORT", "px_abre": float(q.get("entryPx") or 0),
+        base, fator = _base_hl(q["coin"])
+        out.append({"upl_nocional": float(q.get("unrealizedPnl") or 0) / pv if pv else 0.0, "fator_px": fator, "margem": pv,
+                    "inst": q["coin"], "base": base, "lado": "LONG" if szi > 0 else "SHORT", "px_abre": float(q.get("entryPx") or 0),
                     "alav": float(lev or 1), "tamanho": abs(szi), "id": f"{q['coin']}|{'L' if szi > 0 else 'S'}", "t_abre": None})
     return out
 

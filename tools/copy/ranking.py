@@ -47,7 +47,8 @@ def metricas(ops):
             "quota_ativo": round(max(por_ativo.values()) / len(ops), 3), "ativos": len(por_ativo),
             "quota_top3": round(top3 / sum(rs), 3) if sum(rs) > 0 else None,
             "martingale": round((maior_apos_perda + reforcos) / len(ops), 3),
-            "recente_r": round(statistics.mean(rs[-10:]), 5), "por_lado": {l: round(sum(_ret(o) for o in ops if o["lado"] == l), 4)
+            "recente_r": round(statistics.mean(rs[-10:]), 5),
+            "independentes": len({(o["base"], o["t_abre"] // 3600) for o in ops}), "por_lado": {l: round(sum(_ret(o) for o in ops if o["lado"] == l), 4)
                                                                          for l in ("LONG", "SHORT")}}
 
 
@@ -71,9 +72,12 @@ def avaliar(trader, ops, posicoes=None):
     if m.get("drawdown") is not None and m.get("pnl_total") and m["drawdown"] > max(0.0, m["pnl_total"]):
         perigos.append("drawdown maior que o resultado total")
     if posicoes:
-        aberto = sum(min(0.0, float(p.get("upl_nocional") or 0)) for p in posicoes)
-        if aberto < -0.05 or (m.get("pnl_total") and aberto < -0.5 * max(0.0, m["pnl_total"])):
-            perigos.append(f"drawdown escondido em posicoes abertas ({aberto:+.1%} do nocional por fechar)")
+        # (17/11, falsos positivos) media ponderada pela margem, nao soma: 10 posicoes a -1% nao sao -10%
+        pesos = [max(1e-9, float(p.get("margem") or 0)) for p in posicoes]
+        media = sum(w * float(p.get("upl_nocional") or 0) for w, p in zip(pesos, posicoes)) / sum(pesos)
+        pior = min(float(p.get("upl_nocional") or 0) for p in posicoes)
+        if media < -0.03 or pior < -0.10:
+            perigos.append(f"drawdown escondido em posicoes abertas (media {media:+.1%}, pior {pior:+.1%} do nocional)")
         rep = {}
         for p in posicoes:
             rep[(p["base"], p["lado"])] = rep.get((p["base"], p["lado"]), 0) + 1

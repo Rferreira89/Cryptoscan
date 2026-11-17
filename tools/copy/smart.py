@@ -7,7 +7,8 @@ Bybit EU: avaliada a parte (so spot e sem orcamento independente autorizado -> n
 Aumentos de posicao do trader NAO sao copiados (sem piramidagem/reforcos); reducao >= 50% ou fecho -> fecho da copia."""
 
 C = {"idade_max_s": 600, "desvio_max_pct": 0.30, "desvio_max_atr": 0.25, "topo_r_validacao": 0.003, "topo_pf": 1.5,
-     "k_stop_atr": 1.5, "tp_r": 2.0, "hold_h": 4, "reducao_fecho": 0.5}
+     "k_stop_atr": 1.5, "tp_r": 2.0, "hold_h": 4, "reducao_fecho": 0.5,
+     "custo_ida_volta": 0.0012}           # comissoes ida e volta + meio spread tipico na OKX EEA (fracao do nocional)
 
 
 def atr14(v):
@@ -53,13 +54,16 @@ def decidir(op, trader, ctx):
     if not px or not a:
         return "IGNORE", "sem preco/ATR fiaveis na OKX EEA", None
     d = 1 if op["lado"] == "LONG" else -1
-    contra = d * (px - op["px_abre"]) / op["px_abre"] * 100          # quanto o preco ja andou a favor do trader
-    if contra > C["desvio_max_pct"] or abs(px - op["px_abre"]) > C["desvio_max_atr"] * C["k_stop_atr"] * a:
+    ref = op["px_abre"] * float(op.get("fator_px") or 1.0)          # Hyperliquid kPEPE e o preco de 1000 PEPE
+    contra = d * (px - ref) / ref * 100          # quanto o preco ja andou a favor do trader
+    if contra > C["desvio_max_pct"] or abs(px - ref) > C["desvio_max_atr"] * C["k_stop_atr"] * a:
         return "IGNORE", f"preco ja nao e viavel ({contra:+.2f}% desde a entrada do trader)", None
     v_ = trader.get("validacao") or {}
+    if (v_.get("r_medio") or 0) - C["custo_ida_volta"] <= 0:
+        return "SIGNAL_ONLY", f"expectativa do trader ({(v_.get('r_medio') or 0):.3%}) nao cobre os custos ({C['custo_ida_volta']:.2%})", None
     topo = (v_.get("r_medio") or 0) >= C["topo_r_validacao"] and (v_.get("profit_factor") or 0) >= C["topo_pf"]
     conf = ctx.get("consenso", 0) >= 1 or tendencia(v) == d
-    plano = {"inst": inst, "ref": op["px_abre"], "atr": a, "stop": px - d * C["k_stop_atr"] * a,
+    plano = {"inst": inst, "ref": ref, "atr": a, "stop": px - d * C["k_stop_atr"] * a,
              "alvo": px + d * C["tp_r"] * C["k_stop_atr"] * a}
     if topo:
         return "COPY_DIRECT", "trader aprovado de topo, sinal fresco e preco viavel", plano

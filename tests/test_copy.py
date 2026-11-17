@@ -76,7 +76,7 @@ class Fontes(unittest.TestCase):
 
 
 class Smart(unittest.TestCase):
-    TR = {"estado": "APROVADO", "validacao": {"r_medio": 0.001, "profit_factor": 1.2}}
+    TR = {"estado": "APROVADO", "validacao": {"r_medio": 0.002, "profit_factor": 1.2}}
     TOPO = {"estado": "APROVADO", "validacao": {"r_medio": 0.005, "profit_factor": 2.0}}
 
     def ctx(self, **kw):
@@ -105,6 +105,17 @@ class Smart(unittest.TestCase):
         d, _, pl = SM.decidir(self.op(lado="SHORT"), self.TOPO, self.ctx())
         self.assertEqual(d, "COPY_DIRECT")
         self.assertGreater(pl["stop"], 1.0)
+
+    def test_custos_e_mapeamento_kpepe(self):
+        fraco = {"estado": "APROVADO", "validacao": {"r_medio": 0.001, "profit_factor": 1.3}}
+        d, m, _ = SM.decidir(self.op(), fraco, self.ctx())
+        self.assertEqual(d, "SIGNAL_ONLY")
+        self.assertIn("custos", m)
+        from tools.copy import fontes as F
+        self.assertEqual(F._base_hl("kPEPE"), ("PEPE", 0.001))
+        self.assertEqual(F._base_hl("BTC"), ("BTC", 1.0))
+        d, _, pl = SM.decidir(self.op(px_abre=1000.0, fator_px=0.001), self.TOPO, self.ctx())
+        self.assertEqual(d, "COPY_DIRECT")                     # 1000 por lote de 1000 = 1,0 por unidade: preco viavel
 
     def test_bybit_eu_nunca_copia(self):
         self.assertEqual(SM.decidir_bybit({"lado": "SHORT", "base": "BTC"}, {"BTC"})[0], "IGNORE")
@@ -162,6 +173,69 @@ class Volta(unittest.TestCase):
         s = json.load(open(os.path.join(self.d, "copy", "sinais.json")))
         self.assertEqual(s["abertas"], [])
         self.assertTrue(all(f["motivo"] == "trader fechou" for f in s["fechadas"]))
+
+
+class Observador(Volta):
+    def test_sem_duplicados_apos_reinicio_e_registo_de_consultas(self):
+        self.f.pos["T1"] = []
+        CR.volta(self.d, NOW, fontes=self.f, log=lambda m: None)
+        self.f.pos["T1"] = [{"base": "BTC", "lado": "LONG", "px_abre": 1.0, "t_abre": NOW + 60, "id": "p1", "tamanho": 1}]
+        r1 = CR.volta(self.d, NOW + 120, fontes=self.f, log=lambda m: None)
+        st = json.load(open(os.path.join(self.d, "copy", "estado.json")))
+        del st["posicoes"]["okx:T1"]["p1"]                        # reinicio a meio: o snapshot perdeu a posicao
+        json.dump(st, open(os.path.join(self.d, "copy", "estado.json"), "w"))
+        r2 = CR.volta(self.d, NOW + 240, fontes=self.f, log=lambda m: None)
+        self.assertEqual((r1["oportunidades"], r2["oportunidades"]), (1, 0))   # o mesmo evento nao e tratado duas vezes
+        st = json.load(open(os.path.join(self.d, "copy", "estado.json")))
+        self.assertEqual([c["t"] for c in st["consultas"]], [NOW, NOW + 120, NOW + 240])
+        self.assertEqual(st["consultas"][-1]["intervalo_s"], 120)
+
+    def test_interrupcao_nao_copia_tarde_mas_fecha(self):
+        self.f.pos["T1"] = [{"base": "BTC", "lado": "LONG", "px_abre": 1.0, "t_abre": NOW + 60, "id": "p1", "tamanho": 1}]
+        CR.volta(self.d, NOW, fontes=self.f, log=lambda m: None)
+        CR.volta(self.d, NOW + 120, fontes=self.f, log=lambda m: None)
+        self.f.pos["T1"].append({"base": "BTC", "lado": "LONG", "px_abre": 1.0, "t_abre": NOW + 200, "id": "p2", "tamanho": 1})
+        r = CR.volta(self.d, NOW + 3000, fontes=self.f, log=lambda m: None)     # 48 min sem consultas
+        self.assertEqual(r["copias_para_okx"], 0)
+        st = json.load(open(os.path.join(self.d, "copy", "estado.json")))
+        self.assertTrue(st["recuperacao"])
+
+
+class PercursoCompleto(unittest.TestCase):
+    """Trader -> deteccao -> SMART_COPY -> sinais.json -> piloto -> ordem (OKX falsa) -> execucao -> trader fecha -> fecho."""
+    def test_long_e_short(self):
+        import sys
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "tools"))
+        import piloto_okx as P
+        from tests import test_piloto_okx as TP
+        for lado, side in (("LONG", "buy"), ("SHORT", "sell")):
+            d = tempfile.mkdtemp()
+            os.makedirs(os.path.join(d, "copy"))
+            json.dump({"t": NOW, "versao": CR.RANKING_VERSAO, "traders": {"okx:T1": {"estado": "APROVADO", "score": 1, "motivos": [],
+                       "perigos": [], "validacao": {"r_medio": 0.005, "profit_factor": 2}}}}, open(os.path.join(d, "copy", "traders.json"), "w"))
+            f = FontesFalsas()
+            f.xperps_eea = lambda: {"ABC": TP.INST}
+            f.pos["T1"] = []
+            CR.volta(d, TP.NOW0 - 240, fontes=f, log=lambda m: None)
+            f.pos["T1"] = [{"base": "ABC", "lado": lado, "px_abre": 1.0, "t_abre": TP.NOW0 - 100, "id": "p1", "tamanho": 1}]
+            r = CR.volta(d, TP.NOW0 - 60, fontes=f, log=lambda m: None)
+            self.assertEqual(r["copias_para_okx"], 1, lado)
+            sin = json.load(open(os.path.join(d, "copy", "sinais.json")))
+            api = TP.FakeOKX()
+            kw = dict(registo={"t": TP.NOW0, "estrategias": {}}, papel={"t": TP.NOW0, "abertas": [], "fechadas": []}, isolado=True, cifra_ok=True)
+            st, _ = P.ciclo(api, d, now=TP.NOW0, copy=sin, **kw)
+            self.assertEqual(api.posts("/trade/order")[0][2]["side"], side)
+            st, _ = P.ciclo(api, d, now=TP.NOW0 + 120, copy=sin, **kw)
+            self.assertEqual(st["aberta"]["estado"], "aberta")
+            self.assertTrue(st["aberta"]["stop_confirmado"])
+            f.pos["T1"] = []
+            CR.volta(d, TP.NOW0 + 200, fontes=f, log=lambda m: None)
+            sin = json.load(open(os.path.join(d, "copy", "sinais.json")))
+            st, _ = P.ciclo(api, d, now=TP.NOW0 + 240, copy=sin, **kw)
+            self.assertTrue(api.posts("close-position"), lado)
+            st, _ = P.ciclo(api, d, now=TP.NOW0 + 360, copy=sin, **kw)
+            self.assertEqual(st["ops"][-1]["estado"], "fechada")
+            shutil.rmtree(d, ignore_errors=True)
 
 
 if __name__ == "__main__":
