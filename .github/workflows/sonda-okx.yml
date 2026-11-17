@@ -19,4 +19,12 @@ jobs:
               echo "$h$p -> xperp=$n $(echo "$r" | grep -o 'HTTP=[0-9]*') $(echo "$r" | head -c 160)"
             done
           done
-          curl -sS -m 20 "https://eea.okx.com/api/v5/market/candles?instId=BTC-USD_UM_XPERP-251226&bar=30m&limit=3" | head -c 300 || true
+          curl -sS -m 20 "https://www.okx.com/api/v5/public/instruments?instType=FUTURES" > /tmp/i.json || true
+          python3 - <<'PY'
+          import json, collections
+          d = json.load(open("/tmp/i.json")).get("data") or []
+          x = [i for i in d if "_UM_XPERP" in i.get("instId", "")]
+          print("exemplo:", json.dumps(next((i for i in x if i["instId"].startswith("BTC-")), x[0] if x else {}))[:1500])
+          for k in ("instCategory", "category", "state", "ctType", "ruleType", "settleCcy", "instFamily"):
+              print(k, collections.Counter(str(i.get(k)) for i in x).most_common(8))
+          PY
