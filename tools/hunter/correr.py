@@ -176,7 +176,7 @@ def painel_e_estados(p, dados, SS, MM, cortes, res, reg, now):
     return painel, estados
 
 
-def registo_familias(res):
+def registo_familias(res, em_papel=()):
     """Por familia: hipotese economica, regime esperado, custos, riscos, resultado do diagnostico (treino) e da
     validacao, e a decisao fundamentada (para nao repetir a mesma investigacao com outro nome)."""
     out = {}
@@ -188,7 +188,10 @@ def registo_familias(res):
         for v in dg.values():
             onde[v.get("onde_falha")] = onde.get(v.get("onde_falha"), 0) + 1
         estados = sorted({v["veredicto"] for v in vs})
-        decisao = ("EM PAPEL / VALIDACAO" if any(x in ("CANDIDATA", "PROMISSORA", "EXPLORATORIA") for x in estados) else
+        papel = [e for e in em_papel if e["familia"] == fam]
+        decisao = (f"EM PAPEL ({len(papel)} estrategia(s): " + ", ".join(sorted({e.get('estado', '?') for e in papel})) + ")"
+                   if papel else
+                   "EM PAPEL / VALIDACAO" if any(x in ("CANDIDATA", "PROMISSORA", "EXPLORATORIA") for x in estados) else
                    "REJEITADA nesta ronda: " + (max(onde, key=onde.get) if onde else "sem sinais"))
         out[fam] = {"grupo": FA.GRUPO[fam], "hipotese": hip, "regime_esperado": regime, "custos_esperados": custos,
                     "riscos": riscos, "variantes_diagnostico": len(dg), "onde_falha": onde,
@@ -229,7 +232,8 @@ def main(pasta, dias=240, n_max=None, orcamento=150):
     with open(p("estados.json"), "w", encoding="utf-8") as f:
         json.dump(estados, f, ensure_ascii=False, indent=1)
     with open(p("familias_registo.json"), "w", encoding="utf-8") as f:
-        json.dump(registo_familias(res), f, ensure_ascii=False, indent=1)
+        json.dump(registo_familias(res, _ler(p("papel_estrategias.json"), {"estrategias": []})["estrategias"]), f,
+                  ensure_ascii=False, indent=1)
     with open(p("funil_dados.json"), "w", encoding="utf-8") as f:
         json.dump(funil, f, ensure_ascii=False, indent=1)
     return res
