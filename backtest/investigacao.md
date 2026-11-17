@@ -2726,3 +2726,45 @@ operação fora da amostra, com custos.
   `real_autorizados` null. CAP_MERCADO_V2 opera em papel com o BTC abaixo da SMA200 (PAPEL_SEM_FILTRO_BTC).
   Prova da conta só com ≥ 25 operações em papel, todas as fases. Sinais ao vivo conferidos contra os da
   investigação em SOL, DOGE e AVAX (mesmas contagens).
+
+## 2026-11-17 — Falha do scanner de 16/11, Quick Opportunities e motor autónomo (simulação)
+
+**Falha de 16/11 (03:15–12:20 UTC, 9 h sem scanner).** Causa: commits diretos na main (03:15 `config.json` com a
+chave `piloto_turtle_long` sem suporte em `engine/config.py`; depois `engine/config.py` e `engine/promo.py` com texto
+cortado/UTF-8 partido) → suite vermelha → o ciclo não corre o scan; o acompanhamento de minuto a minuto rebentava em
+`config.load()`; a arena falhou 9 vezes. Antes, às 03:10, o GitHub rejeitou pushes (`fatal error in commit_refs`,
+lado do GitHub). Corrigido na origem (commit `6ea9543`): cada commit novo da main é testado uma vez; reprovado →
+produção continua no último código bom (`codigo_bom.txt` no ramo data), aviso no Telegram uma vez por commit;
+executor, agente OKX, Europa e arena correm o commit validado.
+
+**Quick Opportunities via 0 mercados** (`NO_MARKETS` em todos os ciclos desde a integração): exigia `instId` a acabar
+em `_UM_XPERP` e `instFamily` em `_UM`; os reais são `BTC-USD_UM_XPERP-310404` / `BTC-USD_UM_XPERP`. O mesmo teste de
+família estava no executor real da OKX desde 16/11 20:44 (lista de contratos negociáveis vazia). Corrigido (`36ca89b`).
+Depois da correção: 262 X-Perps vistos, 100 pedidos, 59 com dados válidos, 14 candidatos numa vela. Alertas passam a um
+resumo por ciclo (`64e9b88`).
+
+**Edge do Quick Opportunities** (`tools/qo_edge.py`, ramo `autonomo`). 80 X-Perps (58 cripto, 18 ações/ETF, 4 metais),
+30 min de 2026-03-31 a 2026-11-17; desenho até 2026-08-16, teste depois. Custos 0,06% + 0,05% por lado; sem funding.
+
+| Hipótese | Op. teste | R médio teste | Percentil acaso | Veredicto |
+|---|---|---|---|---|
+| momentum LONG | 3457 | −0,264 | 96,5 | SEM VANTAGEM |
+| momentum SHORT | 3370 | −0,178 | 100 | SEM VANTAGEM |
+| range_reversal LONG | 10712 | −0,489 | 57,0 | SEM VANTAGEM |
+| range_reversal SHORT | 10306 | −0,486 | 33,5 | SEM VANTAGEM |
+| volume_breakdown SHORT | 6713 | −0,374 | 99,0 | SEM VANTAGEM |
+| volume_breakout LONG | 6284 | −0,544 | 29,5 | SEM VANTAGEM |
+
+Todas negativas no desenho e no teste, em todas as classes (pior em ações/ETF e metais). Os alertas do Quick
+Opportunities no Telegram são, com estas regras, de expectativa negativa medida.
+
+**Descoberta autónoma** (`tools/qo_descoberta.py`, 40 variantes fixas, Holm sobre todas): 0 candidatas; 40
+rejeitadas. A melhor (exaustão k=4, 4%, SHORT) dá −0,069R no teste contra −0,338R do acaso: bate o acaso mas fica
+negativa depois de custos. O acaso com a mesma geometria dá −0,3R a −0,6R: com stop de 1,5 ATR de 30 min, os custos
+comem a maior parte do risco. Hipótese a pré-registar numa próxima corrida: a mesma grelha com geometria mais larga
+(stop em ATR de 1H/4H), não testada aqui.
+
+**Kelly / tesouraria / sobrevivência** (`tools/autonomo.py`, simulação): Kelly prudente = 0% em todas as séries
+(média ≤ 0 ou limite inferior ≤ 0). Real executado (15 op.): −0,31R/op → não sustentável. Capital para
+autossustentabilidade: indeterminado (retorno esperado ≤ 0). Sobrevivência: bloqueia novas entradas experimentais em
+todas as séries QO (drawdown e expectativa degradada).
