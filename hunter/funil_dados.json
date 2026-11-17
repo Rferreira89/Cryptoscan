@@ -1,0 +1,31 @@
+{
+ "instrumentos_descobertos": 262,
+ "pedidos": 262,
+ "com_dados_validos": 260,
+ "excluidos": {
+  "JCT": [
+   "historico curto (39 velas)"
+  ],
+  "TTWO": [
+   "historico curto (46 velas)"
+  ]
+ },
+ "por_classe": {
+  "crypto": 167,
+  "equity": 89,
+  "precious_metal": 4
+ },
+ "por_tier": {
+  "A": 9,
+  "B": 39,
+  "C": 212
+ },
+ "falhas_api": {
+  "total": 0,
+  "por_endpoint": {},
+  "ultimas": []
+ },
+ "universo_novos": 262,
+ "universo_desaparecidos": [],
+ "survivorship": "os X-Perps deslistados antes da primeira corrida nao estao nos dados (a OKX so lista os vivos); a partir de agora ficam no historico do universo"
+}

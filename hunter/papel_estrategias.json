@@ -1,0 +1,135 @@
+{
+ "t": 1794901235,
+ "origem": "pesquisa_2026-11-17.json",
+ "estrategias": [
+  {
+   "id": "f8f018b82179",
+   "familia": "lideranca_btc",
+   "parametros": {
+    "x": 0.02
+   },
+   "tf": "1H",
+   "lado": "LONG",
+   "filtro": null,
+   "stop_ref": "4H",
+   "saida": {
+    "tipo": "trailing",
+    "k": 3.0,
+    "tp": null,
+    "hold": 4
+   },
+   "veredicto": "CANDIDATA"
+  },
+  {
+   "id": "20898c19e84d",
+   "familia": "rompimento_reteste",
+   "parametros": {
+    "n": 48
+   },
+   "tf": "4H",
+   "lado": "LONG",
+   "filtro": null,
+   "stop_ref": "4H",
+   "saida": {
+    "tipo": "fixa",
+    "k": 2.0,
+    "tp": 2.0,
+    "hold": 6
+   },
+   "veredicto": "EXPLORATORIA"
+  },
+  {
+   "id": "29933c49ce9e",
+   "familia": "rompimento_reteste",
+   "parametros": {
+    "n": 24
+   },
+   "tf": "4H",
+   "lado": "LONG",
+   "filtro": null,
+   "stop_ref": "4H",
+   "saida": {
+    "tipo": "fixa",
+    "k": 2.0,
+    "tp": 2.0,
+    "hold": 6
+   },
+   "veredicto": "EXPLORATORIA"
+  },
+  {
+   "id": "057f68c36111",
+   "familia": "divergencia_volume",
+   "parametros": {
+    "n": 48
+   },
+   "tf": "4H",
+   "lado": "LONG",
+   "filtro": null,
+   "stop_ref": "4H",
+   "saida": {
+    "tipo": "fixa",
+    "k": 2.5,
+    "tp": 3.0,
+    "hold": 6
+   },
+   "veredicto": "EXPLORATORIA"
+  },
+  {
+   "id": "1a40f1f6422a",
+   "familia": "momentum_regime",
+   "parametros": {
+    "k": 3,
+    "x": 0.05
+   },
+   "tf": "4H",
+   "lado": "LONG",
+   "filtro": null,
+   "stop_ref": "4H",
+   "saida": {
+    "tipo": "trailing",
+    "k": 2.0,
+    "tp": null,
+    "hold": 6
+   },
+   "veredicto": "EXPLORATORIA"
+  },
+  {
+   "id": "f482badea9f5",
+   "familia": "momentum_regime",
+   "parametros": {
+    "k": 12,
+    "x": 0.05
+   },
+   "tf": "4H",
+   "lado": "LONG",
+   "filtro": null,
+   "stop_ref": "4H",
+   "saida": {
+    "tipo": "fixa",
+    "k": 2.5,
+    "tp": 3.0,
+    "hold": 6,
+    "inversao": true
+   },
+   "veredicto": "EXPLORATORIA"
+  },
+  {
+   "id": "58be3b33ab94",
+   "familia": "divergencia_volume",
+   "parametros": {
+    "n": 48
+   },
+   "tf": "4H",
+   "lado": "LONG",
+   "filtro": "cripto",
+   "stop_ref": "4H",
+   "saida": {
+    "tipo": "fixa",
+    "k": 2.5,
+    "tp": 3.0,
+    "hold": 6
+   },
+   "veredicto": "EXPLORATORIA"
+  }
+ ]
+}
