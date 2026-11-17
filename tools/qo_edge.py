@@ -19,7 +19,7 @@ Metodo (fixado antes de correr, igual para todas as hipoteses):
   do acaso >= 95 no teste e p de Holm < 0,05 (p = 1 - percentil/100, corrigido para o numero de hipoteses).
   Passar = CANDIDATA A PAPEL (nunca real: a passagem a producao exige autorizacao explicita).
 
-Uso: python -m tools.qo_edge <saida.json> [n_moedas] [dias]
+Uso: python -m tools.qo_edge <saida.json> [n_moedas] [dias] [series.json.gz]
 """
 import json
 import random
@@ -133,6 +133,7 @@ def avaliar(series, corte_t, seed=7):
                                        if meses else None),
             "por_regime_teste": {k: [len(v), round(sum(v) / len(v), 3)] for k, v in sorted(regimes.items())},
             "moedas_teste": len({o["a"] for o in t}),
+            "rs_teste": [round(o["r"], 3) for o in sorted(t, key=lambda o: o["t"])],
         }
     holm(res)
     return res
@@ -174,10 +175,14 @@ def recolher(n_moedas=80, dias=240, now=None):
     return series, erros, classes, vistos
 
 
-def main(dest, n_moedas=80, dias=240):
+def main(dest, n_moedas=80, dias=240, series_out=None):
     t0 = time.time()
     series, erros, classes, vistos = recolher(int(n_moedas), int(dias))
     ts = sorted(b["t"] for cs in series.values() for b in cs)
+    if series_out and ts:                      # para a descoberta (tools/qo_descoberta) nao voltar a descarregar
+        import gzip
+        with gzip.open(series_out, "wt") as f:
+            json.dump({"series": series, "classes": classes, "corte": ts[0] + int(0.6 * (ts[-1] - ts[0]))}, f)
     if not ts:
         out = {"erro": "sem dados", "erros": erros}
     else:
@@ -200,7 +205,7 @@ def main(dest, n_moedas=80, dias=240):
 
 
 if __name__ == "__main__":
-    r = main(*sys.argv[1:4])
+    r = main(*sys.argv[1:5])
     for k, v in (r.get("hipoteses") or {}).items():
         print(k, {q: v[q] for q in ("n_desenho", "r_desenho", "n_teste", "r_teste", "percentil_acaso", "p_holm",
                                     "fracao_meses_positivos", "veredicto")})

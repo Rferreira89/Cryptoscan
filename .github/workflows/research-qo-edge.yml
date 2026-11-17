@@ -27,7 +27,14 @@ jobs:
       - name: Avaliar
         run: |
           mkdir -p out
-          python -m tools.qo_edge out/qo_edge.json "${{ inputs.moedas }}" "${{ inputs.dias }}"
+          python -m tools.qo_edge out/qo_edge.json "${{ inputs.moedas }}" "${{ inputs.dias }}" out/series.json.gz
+      - name: Descoberta autonoma (grelha fixa, Holm sobre todas)
+        run: python -m tools.qo_descoberta out/series.json.gz out/qo_descoberta.json
+      - name: Kelly, tesouraria e sobrevivencia (simulacao, so R e %)
+        run: |
+          git fetch -q origin data && git show FETCH_HEAD:state.json > out/state_publico.json
+          python -m tools.autonomo out/state_publico.json out/autonomo.json out/qo_edge.json
+          rm -f out/state_publico.json
       - name: Publicar no ramo autonomo
         if: always()
         env:
@@ -35,6 +42,9 @@ jobs:
         run: |
           [ -s out/qo_edge.json ] || { echo "sem resultado"; exit 1; }
           rm -rf /tmp/au && git clone -q --depth 1 -b autonomo "$PUSH_URL" /tmp/au 2>/dev/null || { mkdir -p /tmp/au && git -C /tmp/au init -q -b autonomo; }
-          mkdir -p /tmp/au/edge && cp out/qo_edge.json "/tmp/au/edge/qo_edge_$(date -u +%F).json"
+          D=$(date -u +%F); mkdir -p /tmp/au/edge
+          cp out/qo_edge.json "/tmp/au/edge/qo_edge_$D.json"
+          [ -s out/qo_descoberta.json ] && cp out/qo_descoberta.json "/tmp/au/edge/qo_descoberta_$D.json"
+          [ -s out/autonomo.json ] && cp out/autonomo.json "/tmp/au/edge/autonomo_$D.json"
           cd /tmp/au && git config user.name cryptoscan-bot && git config user.email bot@users.noreply.github.com \
             && git add -A && git commit -q -m "qo_edge $(date -u +%FT%TZ)" && git push -q "$PUSH_URL" autonomo:autonomo
