@@ -1,0 +1,132 @@
+{
+ "rid": "e495d11739f6",
+ "regra": {
+  "familia": "rompimento_reteste",
+  "parametros": {
+   "n": 24
+  },
+  "tf": "4H",
+  "lado": "LONG",
+  "filtro": "cripto",
+  "stop_ref": "4H",
+  "saida": {
+   "tipo": "fixa",
+   "k": 3.0,
+   "tp": 1.5,
+   "hold": 6
+  }
+ },
+ "cortes": {
+  "teste_de": 1789911450,
+  "teste_ate": 1794907800
+ },
+ "teste": {
+  "periodo": "teste",
+  "n": 382,
+  "dias_com_operacoes": 54,
+  "r_medio": -0.3034,
+  "ic95_r": [
+   -0.4399,
+   -0.1635
+  ],
+  "p_r_positivo": 1.0,
+  "controlo_medio": -0.1617,
+  "vantagem_sobre_acaso": -0.1417,
+  "ic95_vantagem": [
+   -0.2858,
+   0.0028
+  ],
+  "p_vantagem": 0.97401,
+  "acerto": 0.27,
+  "drawdown_r": 124.09,
+  "por_regime": {
+   "btc_abaixo_media50": [
+    146,
+    -0.357
+   ],
+   "btc_acima_media50": [
+    236,
+    -0.27
+   ]
+  }
+ },
+ "painel_teste": {
+  "n": 382,
+  "dias": 54,
+  "acontecimentos": 175,
+  "moedas": 131,
+  "r_medio": -0.3034,
+  "r_mediana": -0.3591,
+  "ic95_blocos_dia": [
+   -0.4399,
+   -0.1635
+  ],
+  "ic95_blocos_acontecimento": [
+   -0.3983,
+   -0.1996
+  ],
+  "p_blocos_dia": 1.0,
+  "drawdown_r": 124.09,
+  "profit_factor": 0.346,
+  "por_regime": {
+   "subida": [
+    129,
+    -0.335
+   ],
+   "lateral": [
+    227,
+    -0.266
+   ],
+   "queda": [
+    26,
+    -0.473
+   ]
+  },
+  "por_tier": {
+   "A": [
+    23,
+    -0.458
+   ],
+   "B": [
+    93,
+    -0.278
+   ],
+   "C": [
+    266,
+    -0.299
+   ]
+  },
+  "custo_medio_r": 0.0161,
+  "bruto_medio_r": -0.2873,
+  "peso_custos": 0.056,
+  "rentavel_antes_mas_nao_depois_dos_custos": false,
+  "operacoes_por_semana": 47.47,
+  "meses": {
+   "2026-09": [
+    145,
+    -9.35
+   ],
+   "2026-10": [
+    178,
+    -83.03
+   ],
+   "2026-11": [
+    59,
+    -23.52
+   ]
+  },
+  "fracao_meses_positivos": 0.0,
+  "top3_moedas": [
+   "RESOLV",
+   "ACT",
+   "SLX"
+  ],
+  "quota_top3": null,
+  "r_sem_top3_moedas": -0.3259,
+  "stop_medio_pct": 9.887,
+  "stops_com_gap_pct": 1.0,
+  "duracao_media_min": 1272,
+  "horizonte": "HORIZONTE SUPERIOR (> 4 h): nao e oportunidade rapida"
+ },
+ "nota": "teste final consumido para esta regra: nao volta a ser avaliado neste periodo"
+}
