@@ -1,0 +1,1281 @@
+{
+ "ultima_vela_btc": 1794657600,
+ "moedas": 66,
+ "periodos": {
+  "combate_90d": [
+   1786896000,
+   1794672000
+  ],
+  "desenho_18m": [
+   1731600000,
+   1778947200
+  ],
+  "reserva_6m": [
+   1778947200,
+   1786896000
+  ]
+ },
+ "BOUNCE_LARGO_X30V20": {
+  "combate_90d": {
+   "n": 36,
+   "r_medio": -0.083,
+   "acerto_pct": 50.0,
+   "saidas": {
+    "STOP": 17,
+    "BREAKEVEN": 13,
+    "TIME": 2,
+    "TP2": 4
+   },
+   "tp1_tocado_pct": 50.0,
+   "stops_com_mfe_ge_05R_pct": 29.4,
+   "stops_antes_24h_pct": 29.4,
+   "stop_pct_mediano": 5.13,
+   "tp1_r_mediano": 0.76,
+   "dias_distintos": 15,
+   "por_btc_7d": {
+    "btc7d -5..0%": {
+     "n": 23,
+     "r": 0.172
+    },
+    "btc7d<-5%": {
+     "n": 12,
+     "r": -0.494
+    },
+    "btc7d>=0": {
+     "n": 1,
+     "r": -1.011
+    }
+   },
+   "por_regime": {
+    "BEAR": {
+     "n": 4,
+     "r": -0.724
+    },
+    "BULL": {
+     "n": 20,
+     "r": 0.233
+    },
+    "NEUTRAL": {
+     "n": 6,
+     "r": -0.208
+    },
+    "RANGE": {
+     "n": 6,
+     "r": -0.585
+    }
+   },
+   "max_ops_mesmo_dia": 10,
+   "operacoes": [
+    {
+     "asset": "AVAX",
+     "t": 1789142400,
+     "r": -1.02,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.2,
+     "horas": 60.0,
+     "stop_pct": 4.21,
+     "tp1_r": 0.6
+    },
+    {
+     "asset": "BCH",
+     "t": 1789142400,
+     "r": -1.015,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.18,
+     "horas": 96.0,
+     "stop_pct": 5.55,
+     "tp1_r": 1.0
+    },
+    {
+     "asset": "BONK",
+     "t": 1789142400,
+     "r": -1.016,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.8,
+     "horas": 100.0,
+     "stop_pct": 5.47,
+     "tp1_r": 0.8
+    },
+    {
+     "asset": "GALA",
+     "t": 1789142400,
+     "r": -1.018,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.68,
+     "horas": 100.0,
+     "stop_pct": 4.64,
+     "tp1_r": 0.97
+    },
+    {
+     "asset": "HBAR",
+     "t": 1789142400,
+     "r": 0.159,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 1.01,
+     "horas": 56.0,
+     "stop_pct": 2.87,
+     "tp1_r": 0.8
+    },
+    {
+     "asset": "HOME",
+     "t": 1789142400,
+     "r": -1.017,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.25,
+     "horas": 88.0,
+     "stop_pct": 5.13,
+     "tp1_r": 0.54
+    },
+    {
+     "asset": "IMX",
+     "t": 1789142400,
+     "r": 0.191,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 0.9,
+     "horas": 36.0,
+     "stop_pct": 4.71,
+     "tp1_r": 0.69
+    },
+    {
+     "asset": "LINK",
+     "t": 1789142400,
+     "r": -1.02,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.25,
+     "horas": 48.0,
+     "stop_pct": 4.16,
+     "tp1_r": 0.51
+    },
+    {
+     "asset": "OP",
+     "t": 1789142400,
+     "r": 0.163,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 1.63,
+     "horas": 100.0,
+     "stop_pct": 5.19,
+     "tp1_r": 0.6
+    },
+    {
+     "asset": "SKY",
+     "t": 1789156800,
+     "r": 0.094,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 1.17,
+     "horas": 92.0,
+     "stop_pct": 6.02,
+     "tp1_r": 0.41
+    },
+    {
+     "asset": "DOT",
+     "t": 1789574400,
+     "r": 0.07,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 0.86,
+     "horas": 4.0,
+     "stop_pct": 4.17,
+     "tp1_r": 0.45
+    },
+    {
+     "asset": "APE",
+     "t": 1789588800,
+     "r": 2.432,
+     "saida": "TIME",
+     "tp1_tocado": true,
+     "mfe_r": 5.72,
+     "horas": 120.0,
+     "stop_pct": 3.21,
+     "tp1_r": 1.05
+    },
+    {
+     "asset": "APT",
+     "t": 1789588800,
+     "r": 3.319,
+     "saida": "TP2",
+     "tp1_tocado": true,
+     "mfe_r": 8.11,
+     "horas": 32.0,
+     "stop_pct": 3.94,
+     "tp1_r": 1.55
+    },
+    {
+     "asset": "BONK",
+     "t": 1789588800,
+     "r": 0.221,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 0.85,
+     "horas": 4.0,
+     "stop_pct": 4.56,
+     "tp1_r": 0.76
+    },
+    {
+     "asset": "DOGE",
+     "t": 1789588800,
+     "r": 1.79,
+     "saida": "TP2",
+     "tp1_tocado": true,
+     "mfe_r": 4.17,
+     "horas": 68.0,
+     "stop_pct": 2.82,
+     "tp1_r": 0.81
+    },
+    {
+     "asset": "JUP",
+     "t": 1789588800,
+     "r": 2.573,
+     "saida": "TP2",
+     "tp1_tocado": true,
+     "mfe_r": 5.06,
+     "horas": 36.0,
+     "stop_pct": 4.22,
+     "tp1_r": 1.49
+    },
+    {
+     "asset": "SKY",
+     "t": 1789646400,
+     "r": 1.56,
+     "saida": "TP2",
+     "tp1_tocado": true,
+     "mfe_r": 3.88,
+     "horas": 24.0,
+     "stop_pct": 4.47,
+     "tp1_r": 0.97
+    },
+    {
+     "asset": "HBAR",
+     "t": 1791460800,
+     "r": -1.023,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.15,
+     "horas": 4.0,
+     "stop_pct": 3.55,
+     "tp1_r": 1.11
+    },
+    {
+     "asset": "DOT",
+     "t": 1791504000,
+     "r": 0.237,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 0.87,
+     "horas": 4.0,
+     "stop_pct": 7.78,
+     "tp1_r": 0.67
+    },
+    {
+     "asset": "AVNT",
+     "t": 1792080000,
+     "r": -1.011,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.17,
+     "horas": 56.0,
+     "stop_pct": 8.13,
+     "tp1_r": 0.79
+    },
+    {
+     "asset": "ETH",
+     "t": 1792080000,
+     "r": 0.011,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 0.42,
+     "horas": 24.0,
+     "stop_pct": 5.22,
+     "tp1_r": 0.26
+    },
+    {
+     "asset": "JUP",
+     "t": 1792080000,
+     "r": -1.011,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.13,
+     "horas": 56.0,
+     "stop_pct": 8.05,
+     "tp1_r": 0.48
+    },
+    {
+     "asset": "HOME",
+     "t": 1792368000,
+     "r": 0.093,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 0.43,
+     "horas": 40.0,
+     "stop_pct": 6.65,
+     "tp1_r": 0.38
+    },
+    {
+     "asset": "SHIB",
+     "t": 1792368000,
+     "r": -0.038,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 0.24,
+     "horas": 8.0,
+     "stop_pct": 4.19,
+     "tp1_r": 0.2
+    },
+    {
+     "asset": "AAVE",
+     "t": 1793030400,
+     "r": -1.028,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.04,
+     "horas": 12.0,
+     "stop_pct": 2.91,
+     "tp1_r": 0.62
+    },
+    {
+     "asset": "HUMA",
+     "t": 1793030400,
+     "r": 0.032,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 0.32,
+     "horas": 4.0,
+     "stop_pct": 27.32,
+     "tp1_r": 0.11
+    },
+    {
+     "asset": "SKY",
+     "t": 1793116800,
+     "r": -1.028,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.65,
+     "horas": 36.0,
+     "stop_pct": 2.85,
+     "tp1_r": 1.28
+    },
+    {
+     "asset": "AVNT",
+     "t": 1793304000,
+     "r": -1.011,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.03,
+     "horas": 4.0,
+     "stop_pct": 7.69,
+     "tp1_r": 0.41
+    },
+    {
+     "asset": "S",
+     "t": 1793347200,
+     "r": -1.007,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.05,
+     "horas": 84.0,
+     "stop_pct": 11.33,
+     "tp1_r": 0.54
+    },
+    {
+     "asset": "CRV",
+     "t": 1793361600,
+     "r": -1.01,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.22,
+     "horas": 80.0,
+     "stop_pct": 8.42,
+     "tp1_r": 1.6
+    },
+    {
+     "asset": "PENDLE",
+     "t": 1793376000,
+     "r": 0.532,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 1.38,
+     "horas": 84.0,
+     "stop_pct": 7.34,
+     "tp1_r": 1.31
+    },
+    {
+     "asset": "TRX",
+     "t": 1793505600,
+     "r": 0.707,
+     "saida": "TIME",
+     "tp1_tocado": false,
+     "mfe_r": 1.64,
+     "horas": 120.0,
+     "stop_pct": 3.08,
+     "tp1_r": 1.99
+    },
+    {
+     "asset": "HUMA",
+     "t": 1793721600,
+     "r": -1.006,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.6,
+     "horas": 20.0,
+     "stop_pct": 13.6,
+     "tp1_r": 1.57
+    },
+    {
+     "asset": "JUP",
+     "t": 1793721600,
+     "r": -1.02,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.31,
+     "horas": 12.0,
+     "stop_pct": 4.08,
+     "tp1_r": 0.39
+    },
+    {
+     "asset": "ZK",
+     "t": 1794225600,
+     "r": 0.137,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 0.74,
+     "horas": 4.0,
+     "stop_pct": 6.18,
+     "tp1_r": 0.49
+    },
+    {
+     "asset": "HUMA",
+     "t": 1794484800,
+     "r": -1.008,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.72,
+     "horas": 52.0,
+     "stop_pct": 10.24,
+     "tp1_r": 1.24
+    }
+   ]
+  },
+  "desenho_18m": {
+   "n": 126,
+   "r_medio": -0.064,
+   "acerto_pct": 46.0,
+   "saidas": {
+    "TIME": 70,
+    "BREAKEVEN": 27,
+    "STOP": 25,
+    "TP2": 4
+   },
+   "tp1_tocado_pct": 39.7,
+   "stops_com_mfe_ge_05R_pct": 44.0,
+   "stops_antes_24h_pct": 20.0,
+   "stop_pct_mediano": 8.68,
+   "tp1_r_mediano": 0.77,
+   "dias_distintos": 24,
+   "por_btc_7d": {
+    "btc7d -5..0%": {
+     "n": 57,
+     "r": -0.291
+    },
+    "btc7d<-5%": {
+     "n": 67,
+     "r": 0.079
+    },
+    "btc7d>=0": {
+     "n": 2,
+     "r": 1.642
+    }
+   },
+   "por_regime": {
+    "BULL": {
+     "n": 44,
+     "r": -0.115
+    },
+    "NEUTRAL": {
+     "n": 27,
+     "r": 0.006
+    },
+    "RANGE": {
+     "n": 54,
+     "r": -0.083
+    },
+    "STRONG BULL": {
+     "n": 1,
+     "r": 1.356
+    }
+   },
+   "max_ops_mesmo_dia": 41
+  },
+  "reserva_6m": {
+   "n": 0
+  }
+ },
+ "BOUNCE_LARGO_X35V20": {
+  "combate_90d": {
+   "n": 59,
+   "r_medio": -0.313,
+   "acerto_pct": 42.4,
+   "saidas": {
+    "STOP": 33,
+    "BREAKEVEN": 20,
+    "TIME": 2,
+    "TP2": 4
+   },
+   "tp1_tocado_pct": 42.4,
+   "stops_com_mfe_ge_05R_pct": 15.2,
+   "stops_antes_24h_pct": 36.4,
+   "stop_pct_mediano": 5.13,
+   "tp1_r_mediano": 0.62,
+   "dias_distintos": 19,
+   "por_btc_7d": {
+    "btc7d -5..0%": {
+     "n": 31,
+     "r": -0.061
+    },
+    "btc7d<-5%": {
+     "n": 26,
+     "r": -0.559
+    },
+    "btc7d>=0": {
+     "n": 2,
+     "r": -1.01
+    }
+   },
+   "por_regime": {
+    "BEAR": {
+     "n": 12,
+     "r": -0.555
+    },
+    "BULL": {
+     "n": 29,
+     "r": -0.112
+    },
+    "NEUTRAL": {
+     "n": 11,
+     "r": -0.482
+    },
+    "RANGE": {
+     "n": 7,
+     "r": -0.465
+    }
+   },
+   "max_ops_mesmo_dia": 18,
+   "operacoes": [
+    {
+     "asset": "HUMA",
+     "t": 1788033600,
+     "r": -1.008,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.14,
+     "horas": 28.0,
+     "stop_pct": 11.23,
+     "tp1_r": 0.71
+    },
+    {
+     "asset": "AIXBT",
+     "t": 1789142400,
+     "r": -1.015,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.26,
+     "horas": 88.0,
+     "stop_pct": 5.68,
+     "tp1_r": 0.49
+    },
+    {
+     "asset": "AVAX",
+     "t": 1789142400,
+     "r": -1.02,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.2,
+     "horas": 60.0,
+     "stop_pct": 4.21,
+     "tp1_r": 0.6
+    },
+    {
+     "asset": "BCH",
+     "t": 1789142400,
+     "r": -1.015,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.18,
+     "horas": 96.0,
+     "stop_pct": 5.55,
+     "tp1_r": 1.0
+    },
+    {
+     "asset": "BONK",
+     "t": 1789142400,
+     "r": -1.016,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.8,
+     "horas": 100.0,
+     "stop_pct": 5.47,
+     "tp1_r": 0.8
+    },
+    {
+     "asset": "DOGE",
+     "t": 1789142400,
+     "r": -1.024,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.34,
+     "horas": 56.0,
+     "stop_pct": 3.39,
+     "tp1_r": 0.64
+    },
+    {
+     "asset": "ENA",
+     "t": 1789142400,
+     "r": -1.013,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.21,
+     "horas": 8.0,
+     "stop_pct": 6.46,
+     "tp1_r": 0.44
+    },
+    {
+     "asset": "GALA",
+     "t": 1789142400,
+     "r": -1.018,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.68,
+     "horas": 100.0,
+     "stop_pct": 4.64,
+     "tp1_r": 0.97
+    },
+    {
+     "asset": "HBAR",
+     "t": 1789142400,
+     "r": 0.159,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 1.01,
+     "horas": 56.0,
+     "stop_pct": 2.87,
+     "tp1_r": 0.8
+    },
+    {
+     "asset": "HOME",
+     "t": 1789142400,
+     "r": -1.017,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.25,
+     "horas": 88.0,
+     "stop_pct": 5.13,
+     "tp1_r": 0.54
+    },
+    {
+     "asset": "IMX",
+     "t": 1789142400,
+     "r": 0.191,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 0.9,
+     "horas": 36.0,
+     "stop_pct": 4.71,
+     "tp1_r": 0.69
+    },
+    {
+     "asset": "LINK",
+     "t": 1789142400,
+     "r": -1.02,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.25,
+     "horas": 48.0,
+     "stop_pct": 4.16,
+     "tp1_r": 0.51
+    },
+    {
+     "asset": "OP",
+     "t": 1789142400,
+     "r": 0.163,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 1.63,
+     "horas": 100.0,
+     "stop_pct": 5.19,
+     "tp1_r": 0.6
+    },
+    {
+     "asset": "PEPE",
+     "t": 1789142400,
+     "r": 0.215,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 0.76,
+     "horas": 44.0,
+     "stop_pct": 5.12,
+     "tp1_r": 0.72
+    },
+    {
+     "asset": "PNUT",
+     "t": 1789142400,
+     "r": -1.017,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.3,
+     "horas": 56.0,
+     "stop_pct": 4.98,
+     "tp1_r": 0.49
+    },
+    {
+     "asset": "RENDER",
+     "t": 1789142400,
+     "r": -1.016,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.2,
+     "horas": 96.0,
+     "stop_pct": 5.36,
+     "tp1_r": 0.61
+    },
+    {
+     "asset": "S",
+     "t": 1789142400,
+     "r": -1.015,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.29,
+     "horas": 56.0,
+     "stop_pct": 5.55,
+     "tp1_r": 0.44
+    },
+    {
+     "asset": "WIF",
+     "t": 1789142400,
+     "r": -1.02,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.31,
+     "horas": 44.0,
+     "stop_pct": 4.23,
+     "tp1_r": 1.09
+    },
+    {
+     "asset": "SKY",
+     "t": 1789156800,
+     "r": 0.094,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 1.17,
+     "horas": 92.0,
+     "stop_pct": 6.02,
+     "tp1_r": 0.41
+    },
+    {
+     "asset": "DOT",
+     "t": 1789574400,
+     "r": 0.07,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 0.86,
+     "horas": 4.0,
+     "stop_pct": 4.17,
+     "tp1_r": 0.45
+    },
+    {
+     "asset": "APE",
+     "t": 1789588800,
+     "r": 2.432,
+     "saida": "TIME",
+     "tp1_tocado": true,
+     "mfe_r": 5.72,
+     "horas": 120.0,
+     "stop_pct": 3.21,
+     "tp1_r": 1.05
+    },
+    {
+     "asset": "APT",
+     "t": 1789588800,
+     "r": 3.319,
+     "saida": "TP2",
+     "tp1_tocado": true,
+     "mfe_r": 8.11,
+     "horas": 32.0,
+     "stop_pct": 3.94,
+     "tp1_r": 1.55
+    },
+    {
+     "asset": "BONK",
+     "t": 1789588800,
+     "r": 0.221,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 0.85,
+     "horas": 4.0,
+     "stop_pct": 4.56,
+     "tp1_r": 0.76
+    },
+    {
+     "asset": "DOGE",
+     "t": 1789588800,
+     "r": 1.79,
+     "saida": "TP2",
+     "tp1_tocado": true,
+     "mfe_r": 4.17,
+     "horas": 68.0,
+     "stop_pct": 2.82,
+     "tp1_r": 0.81
+    },
+    {
+     "asset": "JUP",
+     "t": 1789588800,
+     "r": 2.573,
+     "saida": "TP2",
+     "tp1_tocado": true,
+     "mfe_r": 5.06,
+     "horas": 36.0,
+     "stop_pct": 4.22,
+     "tp1_r": 1.49
+    },
+    {
+     "asset": "SKY",
+     "t": 1789646400,
+     "r": 1.56,
+     "saida": "TP2",
+     "tp1_tocado": true,
+     "mfe_r": 3.88,
+     "horas": 24.0,
+     "stop_pct": 4.47,
+     "tp1_r": 0.97
+    },
+    {
+     "asset": "TIA",
+     "t": 1790683200,
+     "r": -1.009,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.09,
+     "horas": 56.0,
+     "stop_pct": 9.37,
+     "tp1_r": 0.3
+    },
+    {
+     "asset": "HBAR",
+     "t": 1791460800,
+     "r": -1.023,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.15,
+     "horas": 4.0,
+     "stop_pct": 3.55,
+     "tp1_r": 1.11
+    },
+    {
+     "asset": "DOT",
+     "t": 1791504000,
+     "r": 0.237,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 0.87,
+     "horas": 4.0,
+     "stop_pct": 7.78,
+     "tp1_r": 0.67
+    },
+    {
+     "asset": "AVNT",
+     "t": 1792080000,
+     "r": -1.011,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.17,
+     "horas": 56.0,
+     "stop_pct": 8.13,
+     "tp1_r": 0.79
+    },
+    {
+     "asset": "DOGE",
+     "t": 1792080000,
+     "r": -1.017,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.37,
+     "horas": 56.0,
+     "stop_pct": 4.84,
+     "tp1_r": 0.49
+    },
+    {
+     "asset": "ETH",
+     "t": 1792080000,
+     "r": 0.011,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 0.42,
+     "horas": 24.0,
+     "stop_pct": 5.22,
+     "tp1_r": 0.26
+    },
+    {
+     "asset": "JUP",
+     "t": 1792080000,
+     "r": -1.011,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.13,
+     "horas": 56.0,
+     "stop_pct": 8.05,
+     "tp1_r": 0.48
+    },
+    {
+     "asset": "LINK",
+     "t": 1792080000,
+     "r": 0.008,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 0.28,
+     "horas": 20.0,
+     "stop_pct": 6.13,
+     "tp1_r": 0.21
+    },
+    {
+     "asset": "HOME",
+     "t": 1792368000,
+     "r": 0.093,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 0.43,
+     "horas": 40.0,
+     "stop_pct": 6.65,
+     "tp1_r": 0.38
+    },
+    {
+     "asset": "SHIB",
+     "t": 1792368000,
+     "r": -0.038,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 0.24,
+     "horas": 8.0,
+     "stop_pct": 4.19,
+     "tp1_r": 0.2
+    },
+    {
+     "asset": "APE",
+     "t": 1792742400,
+     "r": -1.025,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.22,
+     "horas": 12.0,
+     "stop_pct": 3.33,
+     "tp1_r": 1.12
+    },
+    {
+     "asset": "TIA",
+     "t": 1792814400,
+     "r": -1.016,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.3,
+     "horas": 12.0,
+     "stop_pct": 5.32,
+     "tp1_r": 1.09
+    },
+    {
+     "asset": "AAVE",
+     "t": 1793030400,
+     "r": -1.028,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.04,
+     "horas": 12.0,
+     "stop_pct": 2.91,
+     "tp1_r": 0.62
+    },
+    {
+     "asset": "HUMA",
+     "t": 1793030400,
+     "r": 0.032,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 0.32,
+     "horas": 4.0,
+     "stop_pct": 27.32,
+     "tp1_r": 0.11
+    },
+    {
+     "asset": "SKY",
+     "t": 1793116800,
+     "r": -1.028,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.65,
+     "horas": 36.0,
+     "stop_pct": 2.85,
+     "tp1_r": 1.28
+    },
+    {
+     "asset": "AVNT",
+     "t": 1793304000,
+     "r": -1.011,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.03,
+     "horas": 4.0,
+     "stop_pct": 7.69,
+     "tp1_r": 0.41
+    },
+    {
+     "asset": "NEAR",
+     "t": 1793347200,
+     "r": 0.255,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 0.85,
+     "horas": 60.0,
+     "stop_pct": 8.64,
+     "tp1_r": 0.68
+    },
+    {
+     "asset": "S",
+     "t": 1793347200,
+     "r": -1.007,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.05,
+     "horas": 84.0,
+     "stop_pct": 11.33,
+     "tp1_r": 0.54
+    },
+    {
+     "asset": "CRV",
+     "t": 1793361600,
+     "r": -1.01,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.22,
+     "horas": 80.0,
+     "stop_pct": 8.42,
+     "tp1_r": 1.6
+    },
+    {
+     "asset": "PENDLE",
+     "t": 1793376000,
+     "r": 0.532,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 1.38,
+     "horas": 84.0,
+     "stop_pct": 7.34,
+     "tp1_r": 1.31
+    },
+    {
+     "asset": "TRX",
+     "t": 1793505600,
+     "r": 0.707,
+     "saida": "TIME",
+     "tp1_tocado": false,
+     "mfe_r": 1.64,
+     "horas": 120.0,
+     "stop_pct": 3.08,
+     "tp1_r": 1.99
+    },
+    {
+     "asset": "HUMA",
+     "t": 1793721600,
+     "r": -1.006,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.6,
+     "horas": 20.0,
+     "stop_pct": 13.6,
+     "tp1_r": 1.57
+    },
+    {
+     "asset": "JUP",
+     "t": 1793721600,
+     "r": -1.02,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.31,
+     "horas": 12.0,
+     "stop_pct": 4.08,
+     "tp1_r": 0.39
+    },
+    {
+     "asset": "ONDO",
+     "t": 1793721600,
+     "r": -1.028,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.48,
+     "horas": 12.0,
+     "stop_pct": 2.86,
+     "tp1_r": 0.9
+    },
+    {
+     "asset": "XLM",
+     "t": 1793721600,
+     "r": -1.029,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.02,
+     "horas": 12.0,
+     "stop_pct": 2.78,
+     "tp1_r": 0.49
+    },
+    {
+     "asset": "GALA",
+     "t": 1794225600,
+     "r": 0.073,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 0.64,
+     "horas": 4.0,
+     "stop_pct": 5.71,
+     "tp1_r": 0.37
+    },
+    {
+     "asset": "KAIA",
+     "t": 1794225600,
+     "r": 0.146,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 0.57,
+     "horas": 4.0,
+     "stop_pct": 5.09,
+     "tp1_r": 0.56
+    },
+    {
+     "asset": "STRK",
+     "t": 1794225600,
+     "r": 0.045,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 0.26,
+     "horas": 4.0,
+     "stop_pct": 8.2,
+     "tp1_r": 0.24
+    },
+    {
+     "asset": "ZK",
+     "t": 1794225600,
+     "r": 0.137,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 0.74,
+     "horas": 4.0,
+     "stop_pct": 6.18,
+     "tp1_r": 0.49
+    },
+    {
+     "asset": "HUMA",
+     "t": 1794484800,
+     "r": -1.008,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.72,
+     "horas": 52.0,
+     "stop_pct": 10.24,
+     "tp1_r": 1.24
+    },
+    {
+     "asset": "TIA",
+     "t": 1794499200,
+     "r": 0.077,
+     "saida": "BREAKEVEN",
+     "tp1_tocado": true,
+     "mfe_r": 0.54,
+     "horas": 4.0,
+     "stop_pct": 5.31,
+     "tp1_r": 0.4
+    },
+    {
+     "asset": "MASK",
+     "t": 1794513600,
+     "r": -1.026,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.28,
+     "horas": 8.0,
+     "stop_pct": 3.09,
+     "tp1_r": 0.75
+    },
+    {
+     "asset": "VIRTUAL",
+     "t": 1794513600,
+     "r": -1.017,
+     "saida": "STOP",
+     "tp1_tocado": false,
+     "mfe_r": 0.13,
+     "horas": 8.0,
+     "stop_pct": 4.97,
+     "tp1_r": 0.25
+    }
+   ]
+  },
+  "desenho_18m": {
+   "n": 182,
+   "r_medio": -0.136,
+   "acerto_pct": 45.6,
+   "saidas": {
+    "STOP": 42,
+    "TIME": 82,
+    "BREAKEVEN": 53,
+    "TP2": 5
+   },
+   "tp1_tocado_pct": 44.0,
+   "stops_com_mfe_ge_05R_pct": 26.2,
+   "stops_antes_24h_pct": 45.2,
+   "stop_pct_mediano": 8.3,
+   "tp1_r_mediano": 0.66,
+   "dias_distintos": 42,
+   "por_btc_7d": {
+    "btc7d -5..0%": {
+     "n": 80,
+     "r": -0.272
+    },
+    "btc7d<-5%": {
+     "n": 79,
+     "r": 0.061
+    },
+    "btc7d>=0": {
+     "n": 23,
+     "r": -0.335
+    }
+   },
+   "por_regime": {
+    "BULL": {
+     "n": 71,
+     "r": -0.209
+    },
+    "HIGH VOLATILITY": {
+     "n": 1,
+     "r": -0.007
+    },
+    "NEUTRAL": {
+     "n": 42,
+     "r": -0.121
+    },
+    "RANGE": {
+     "n": 63,
+     "r": -0.087
+    },
+    "STRONG BULL": {
+     "n": 5,
+     "r": 0.143
+    }
+   },
+   "max_ops_mesmo_dia": 47
+  },
+  "reserva_6m": {
+   "n": 0
+  }
+ }
+}

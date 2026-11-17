@@ -2768,3 +2768,60 @@ comem a maior parte do risco. Hipótese a pré-registar numa próxima corrida: a
 (média ≤ 0 ou limite inferior ≤ 0). Real executado (15 op.): −0,31R/op → não sustentável. Capital para
 autossustentabilidade: indeterminado (retorno esperado ≤ 0). Sobrevivência: bloqueia novas entradas experimentais em
 todas as séries QO (drawdown e expectativa degradada).
+
+## 2026-11-17 — Pré-registo (escrito antes de qualquer teste desta corrida)
+
+- **Histórico** (ramo `history`): último commit 2026-11-14 14:39 UTC, última vela de 4H 2026-11-14 12:00 UTC
+  (3 dias de atraso, dentro do limite de 7; não foi preciso lançar o workflow).
+- **Arena** (scan.json do ramo `data`, 2026-11-17 11:50 UTC): **9 lutadores a competir** (mínimo 5), `recrutar`
+  falso. Fila do Rui vazia. Mortos novos sem sucessor desde 2026-11-14:
+  - BOUNCE_LARGO_X35V20 (2026-11-14 16:55 UTC, forma recente; 44 op., −0,255R) e BOUNCE_LARGO_X30V20
+    (2026-11-17 11:40 UTC, forma recente; 20 op., −0,204R): a mesma função `sig_bounce_largo`, uma só autópsia.
+  - CAP_MERCADO_V2_N3K15, _N3K2 e _N5K15 (2026-11-15 04:45 UTC): clones de CAP_MERCADO_V2_N5K2 (correlação
+    0,99–1,00), que está **viva**. É o corte dos clones a funcionar como decidido a 2026-11-14 (representante
+    vivo). Sem autópsia de desempenho e sem sucessor.
+- Frequência: a decisão de 2026-11-14 pôs esta corrida a semanal enquanto não houver dados novos; há dois mortos
+  novos (a ordem operacional manda autópsia de quem morrer), por isso esta corrida faz a autópsia e, se houver
+  causa clara, o sucessor (uma vaga).
+
+### Autópsia de BOUNCE_LARGO (X30V20 e X35V20)
+
+Código: `tools/autopsia_bounce_largo.py` (reproduz `generic_trades` da arena com o histórico, 66 moedas; os
+números diferem um pouco da arena, que combate em 45 moedas da Bybit UE). Ficheiro:
+`backtest/autopsia_2026-11-17.json`.
+
+| | Combate 90 d (X30 / X35) | Desenho 18 m (X30 / X35) |
+|---|---|---|
+| Operações | 36 / 59 | 126 / 182 |
+| R médio | −0,083 / −0,313 | −0,064 / −0,136 |
+| Acerto | 50% / 42% | 46% / 46% |
+| 1.º objetivo (SMA20) em R, mediana | **0,76 / 0,62** | **0,77 / 0,66** |
+| Operações com 1.º objetivo < 1R | 25 (−0,26R) / 45 (−0,42R) | 91 (−0,11R) / 140 (−0,16R) |
+| Operações com 1.º objetivo ≥ 1R | 11 (+0,32R) / 14 (+0,03R) | 35 (+0,05R) / 42 (−0,07R) |
+| Máximo de operações no mesmo dia | 10 / 18 | 41 / 47 |
+
+- **Causa principal (clara e igual nos dois períodos): a geometria é assimétrica.** O 1.º objetivo é a SMA20 de
+  4H, que em 7 de cada 10 operações fica a menos de 1R da entrada (mediana 0,6R–0,8R); vende 50% aí e passa o
+  stop para a entrada, por isso uma ganhadora típica rende ~0,35R–0,4R e uma perdedora −1R. Com 45%–50% de
+  acerto isto perde por construção. As operações em que a média está a ≥ 1R são as únicas perto de zero ou
+  positivas, nos dois períodos e nas duas variantes.
+- Secundário (sem padrão estável, não é a correção): no combate as perdas concentram-se quando o BTC caiu mais de
+  5% na semana anterior (X30 −0,49R), no desenho é ao contrário (+0,08R); muitos sinais no mesmo dia (um só
+  acontecimento). A reserva de 6 meses antes do combate não tem operações (BTC abaixo da SMA200).
+- **Aviso de contaminação:** esta autópsia olhou para o combate de 90 dias, que fica DENTRO da reserva da
+  investigação (2026-05-14 → 2026-11-13), e para o desenho. A reserva já não é limpa para este sucessor: o
+  resultado nela só conta como informação; a prova é o papel ao vivo.
+
+### Sucessor: BOUNCE_ALVO (BOUNCE_LARGO só quando a média está a pelo menos M R)
+
+- Correção única: o gatilho, o stop, as saídas, os 5 dias e o filtro do BTC são exatamente os de BOUNCE_LARGO
+  (`tools/research_fase_agressiva.bl_signals`); só entra se o 1.º objetivo (SMA20 de 4H no fecho da vela do
+  sinal) estiver a pelo menos **M** vezes o risco (fecho − stop) acima do fecho. Decisão no fecho, entrada na
+  abertura seguinte.
+- Grelha (4): X ∈ {30, 35} × M ∈ {1,0; 1,25}; V = 2,0 (as duas variantes que estavam vivas).
+- Método: o de 2026-11-14 (`tools/research_rlib.evaluate`: carteira 4 × 25%, uma por moeda, primeiro o RSI mais
+  baixo; 0,25% + 0,1% por lado; 24 meses, 18 de desenho e 6 de reserva; walk-forward 183/91; acaso ±90 velas com
+  a mesma geometria). Cada combinação avaliada sozinha. Critérios: os seis de sempre + acaso (reporta p95 e o p90
+  da regra de 2026-11-14). PARA PAPEL só com percentil ≥ 90 **e** R médio fora da amostra positivo (lição da
+  afinação e de 2026-11-14: o percentil sozinho, com R negativo, não chega). Menos de 40 operações no
+  walk-forward = AMOSTRA INSUFICIENTE. Código: `tools/research_bounce_alvo.py`.
