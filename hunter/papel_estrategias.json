@@ -1,9 +1,9 @@
 {
- "t": 1794901235,
+ "t": 1794902018,
  "origem": "pesquisa_2026-11-17.json",
  "estrategias": [
   {
-   "id": "f8f018b82179",
+   "id": "987b19a113db",
    "familia": "lideranca_btc",
    "parametros": {
     "x": 0.02
@@ -11,30 +11,31 @@
    "tf": "1H",
    "lado": "LONG",
    "filtro": null,
-   "stop_ref": "4H",
+   "stop_ref": "30m",
    "saida": {
     "tipo": "trailing",
-    "k": 3.0,
+    "k": 2.0,
     "tp": null,
     "hold": 4
    },
-   "veredicto": "CANDIDATA"
+   "veredicto": "EXPLORATORIA"
   },
   {
-   "id": "20898c19e84d",
-   "familia": "rompimento_reteste",
+   "id": "bbc2557ab78e",
+   "familia": "extremo",
    "parametros": {
-    "n": 48
+    "k": 4,
+    "z": 4.0
    },
-   "tf": "4H",
-   "lado": "LONG",
+   "tf": "1H",
+   "lado": "SHORT",
    "filtro": null,
-   "stop_ref": "4H",
+   "stop_ref": "1H",
    "saida": {
-    "tipo": "fixa",
-    "k": 2.0,
-    "tp": 2.0,
-    "hold": 6
+    "tipo": "trailing",
+    "k": 1.0,
+    "tp": null,
+    "hold": 4
    },
    "veredicto": "EXPLORATORIA"
   },
@@ -114,8 +115,8 @@
    "veredicto": "EXPLORATORIA"
   },
   {
-   "id": "58be3b33ab94",
-   "familia": "divergencia_volume",
+   "id": "a576dd368963",
+   "familia": "rompimento_reteste",
    "parametros": {
     "n": 48
    },
@@ -125,8 +126,26 @@
    "stop_ref": "4H",
    "saida": {
     "tipo": "fixa",
-    "k": 2.5,
-    "tp": 3.0,
+    "k": 3.0,
+    "tp": 1.5,
+    "hold": 6
+   },
+   "veredicto": "EXPLORATORIA"
+  },
+  {
+   "id": "e495d11739f6",
+   "familia": "rompimento_reteste",
+   "parametros": {
+    "n": 24
+   },
+   "tf": "4H",
+   "lado": "LONG",
+   "filtro": "cripto",
+   "stop_ref": "4H",
+   "saida": {
+    "tipo": "fixa",
+    "k": 3.0,
+    "tp": 1.5,
     "hold": 6
    },
    "veredicto": "EXPLORATORIA"
