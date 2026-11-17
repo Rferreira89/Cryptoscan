@@ -994,7 +994,7 @@
 "instrumentos_descobertos": 262,
 "com_dados_validos": 260,
 "falhas_tecnicas": 0,
-"excluidos_por_dados": 120,
+"excluidos_por_dados": 132,
 "candidatos": 1,
 "aprovados": 1,
 "abertas_novas": 17,
@@ -1008,7 +1008,7 @@
 "ja ha exposicao a esta moeda neste acontecimento (outra estrategia)": 3
 }
 },
-"voltas": 10,
+"voltas": 11,
 "bloqueadas": {},
 "resumo": {
 "bbc2557ab78e": {
@@ -1030,17 +1030,17 @@
 "falhas_tecnicas": 0,
 "excluidos_por_dados": 12,
 "dados_fiaveis": true,
-"sinais_brutos": 1,
+"sinais_brutos": 0,
 "rejeitados": {},
-"elegiveis_apos_concentracao": 1,
-"abertas_novas": 1,
-"fechadas_agora": 1,
-"acontecimentos_novos": 1,
-"moedas_com_sinal": 1,
-"t": 1794920476,
+"elegiveis_apos_concentracao": 0,
+"abertas_novas": 0,
+"fechadas_agora": 0,
+"acontecimentos_novos": 0,
+"moedas_com_sinal": 0,
+"t": 1794922275,
 "versao_codigo": "78e6d7e"
 },
-"t": 1794920476,
+"t": 1794922275,
 "aviso": "PAPEL: simulado, nunca somado aos resultados reais; sem ordens",
 "vistos": [
 "057f68c36111|APR|1794902400",
