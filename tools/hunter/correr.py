@@ -202,7 +202,7 @@ def registo_familias(res, em_papel=()):
     return out
 
 
-def teste_final(pasta, rid, dias=240):
+def teste_final(pasta, rid, dias=240, ctx=None):
     """(17/11, ordem do piloto real) Avalia UMA regra no teste final intocado, uma unica vez (registo). E a decisao
     de passar a real que justifica gastar o teste: o resultado fica escrito e nao se repete."""
     p = lambda n: os.path.join(pasta, "hunter", n)
@@ -216,9 +216,12 @@ def teste_final(pasta, rid, dias=240):
     if ES.regra_id(regra) != rid:
         return {"rid": rid, "erro": "a regra guardada nao corresponde ao identificador (versao diferente)"}
     now = int(time.time())
-    dados, uni, funil = DD.recolher(int(dias), None, now=now)
-    SS = MO.series(dados)
-    MM = {tf: MO.contexto(SS, dados, tf) for tf in DD.BAR}
+    if ctx:
+        dados, SS, MM = ctx
+    else:
+        dados, uni, funil = DD.recolher(int(dias), None, now=now)
+        SS = MO.series(dados)
+        MM = {tf: MO.contexto(SS, dados, tf) for tf in DD.BAR}
     ts = sorted(int(t) for S in SS["30m"].values() for t in (S["t"][0], S["t"][-1]))
     cortes = ES.cortes(ts[0], ts[-1])
     import random as _r
@@ -227,9 +230,13 @@ def teste_final(pasta, rid, dias=240):
                        rng=_r.Random(23), filtro=MO.FILTROS.get(e.get("filtro")), inverso=MO.inverso_de(SS, MM, e))
     rt = ES.resumo(ops, "teste")
     m = PN.metricas(ops)
-    reg.marcar_teste(rid, {q: rt.get(q) for q in ("n", "r_medio", "p_vantagem", "p_r_positivo", "ic95_r", "dias_com_operacoes")})
+    from tools.hunter import qualificacao as QU            # (17/11) criterios A/B da ordem de promocao automatica
+    qo = QU.avaliar_oos(ops, m_total=len(reg.d.get("acessos_teste") or {}) + 1)
+    reg.marcar_teste(rid, {**{q: rt.get(q) for q in ("n", "r_medio", "p_vantagem", "p_r_positivo", "ic95_r", "dias_com_operacoes")},
+                           "qualificacao_ok": qo["ok"]})
     reg.guardar()
     out = {"rid": rid, "regra": regra, "cortes": {"teste_de": cortes[1], "teste_ate": ts[-1]}, "teste": rt, "painel_teste": m,
+           "qualificacao_oos": qo,
            "nota": "teste final consumido para esta regra: nao volta a ser avaliado neste periodo"}
     with open(p(f"teste_final_{rid}.json"), "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=1, default=str)
@@ -256,6 +263,16 @@ def main(pasta, dias=240, n_max=None, orcamento=150):
     reg = ES.Registo(p("registo.json"))
     res = MO.correr(dados, reg, log=lambda m: print(m, flush=True), orcamento_evolucao=min(int(orcamento), 150))
     SS, MM, cortes = res.pop("_ctx")
+    # (17/11) testes finais pedidos pelo motor de qualificacao (estrategias em VALIDATION): uma vez por regra
+    pedidos = (_ler(p("estrategias_registo.json"), {}) or {}).get("pedidos_teste_final") or []
+    res["testes_finais"] = {}
+    reg.guardar()                                    # as avaliacoes desta ronda ficam gravadas antes dos testes finais
+    for rid in pedidos[:3]:
+        r = teste_final(pasta, rid, dias, ctx=(dados, SS, MM))
+        res["testes_finais"][rid] = {k: r.get(k) for k in ("erro",)} or {}
+        res["testes_finais"][rid]["ok"] = (r.get("qualificacao_oos") or {}).get("ok")
+        print("teste final", rid, json.dumps(res["testes_finais"][rid]), flush=True)
+    reg = ES.Registo(p("registo.json"))
     painel, estados = painel_e_estados(p, dados, SS, MM, cortes, res, reg, now)
     reg.guardar()
     res["painel"] = painel

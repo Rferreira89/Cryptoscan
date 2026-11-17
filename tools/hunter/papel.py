@@ -129,6 +129,10 @@ def volta(pasta, now=None, uni=None, velas=None, funding_fn=None, falhas=None, s
     p = lambda n: os.path.join(pasta, "hunter", n)
     os.makedirs(os.path.join(pasta, "hunter"), exist_ok=True)
     est = _carregar(p("papel_estrategias.json"), {"estrategias": []})["estrategias"]
+    # (17/11) estrategias REJECTED no registo central nao abrem novas posicoes de papel (as abertas fecham normalmente)
+    rejeitadas = {k for k, v in (_carregar(p("estrategias_registo.json"), {}).get("estrategias") or {}).items()
+                  if v.get("estado") == "REJECTED"}
+    est = [e for e in est if e["id"] not in rejeitadas]
     st = _carregar(p("papel_estado.json"), {"abertas": [], "fechadas": [], "funil_total": {}, "voltas": 0,
                                              "bloqueadas": {}})
     st.setdefault("vistos", [])
@@ -392,6 +396,12 @@ if __name__ == "__main__":
             print("derivados:", DV.arquivar(sys.argv[1], linhas, disp, agora), json.dumps(disp))
         except Exception as e:
             print("derivados falhou:", type(e).__name__, str(e)[:160])
+        try:                                   # (17/11) registo central de estrategias: falhar aqui nunca impede o papel
+            from tools.hunter import qualificacao as QU
+            rg = QU.atualizar(sys.argv[1], agora)
+            print("registo:", json.dumps({k: v["estado"] for k, v in rg["estrategias"].items()}))
+        except Exception as e:
+            print("qualificacao falhou:", type(e).__name__, str(e)[:160])
         pd = os.path.join(sys.argv[1], "hunter", "papel_diario.jsonl")      # resumo diario (uma linha por dia UTC)
         dia = time.strftime("%Y-%m-%d", time.gmtime(agora - 86400))
         ja = os.path.exists(pd) and any(json.loads(x).get("dia") == dia for x in open(pd, encoding="utf-8") if x.strip())
