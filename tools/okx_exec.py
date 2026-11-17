@@ -22,6 +22,11 @@ _sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..
 from engine import suspensao as SUSP  # noqa: E402  (10/11: estrategia suspensa -> cancela so entradas pendentes)
 from engine import protecao as PROT  # noqa: E402  (10/11: stop cobre a posicao toda, do lado certo)
 from engine import quick_opportunities_derivatives as DERIV  # noqa: E402
+import piloto_id as PID  # noqa: E402  (17/11, autorizado pelo Rui: posicoes/ordens do piloto "pil" nao sao deste executor)
+
+# (17/11) o piloto OKX (tools/piloto_okx.py) so abre ordens com esta declaracao: este executor nao adota, nao gere e
+# nao abre por cima de posicoes do piloto (reconciliar e abrir; identificacao em tools/piloto_id.py)
+PILOTO_ISOLADO = True
 
 H4 = 14400
 CFG_PADRAO = {"real": False, "so_mercado": True, "risco_pct": 1.0, "risco_max_pct": 2.0, "alavancagem": 10, "max_posicoes": 40, "travao_queda_pct": 25,
@@ -145,6 +150,10 @@ def plano(sig, info, eq, c):
 
 
 def abrir(base, sig, info, eq, c, now, msgs):
+    # (17/11, isolamento autorizado) em modo net uma ordem aqui juntava-se a posicao do piloto: nao abre por cima
+    if PID.instrumento_do_piloto(privado, info["inst"]) is not False:
+        msgs.append(f"⏭️ OKX real — {base}: o instrumento tem posição/ordens do piloto OKX (ou não consegui confirmar); não entrei.")
+        return None
     p = plano(sig, info, eq, c)
     if not p:
         msgs.append(f"⏭️ OKX real — {base}: a ordem mínima do contrato obrigava a arriscar mais de {c.get('risco_max_pct', 2.0)}% da conta; não entrei.")
@@ -821,6 +830,13 @@ def reconciliar(R, now, msgs):
     seguidas = {o["inst"] for o in R["ops"].values()}
     for x in pos.get("data") or []:
         if not float(x.get("pos") or 0) or x.get("instId") in seguidas:
+            continue
+        # (17/11, isolamento autorizado) posicao do piloto OKX ("pil"): nao e deste executor, nao adota. Sem resposta
+        # da OKX nao se sabe de quem e: tambem nao adota nesta volta (tenta na seguinte)
+        dono = PID.do_piloto(privado, x["instId"], int(x.get("cTime") or 0) - 1000 if x.get("cTime") else None)
+        if dono is not False:
+            if dono is None:
+                msgs.append(f"⏳ OKX real — {x['instId'].split('-')[0]}: posição não seguida; a OKX não confirmou a origem, não adoto nesta volta.")
             continue
         inst, base = x["instId"], x["instId"].split("-")[0]
         ant = next((h for h in reversed(R["hist"]) if h.get("inst") == inst), {})
