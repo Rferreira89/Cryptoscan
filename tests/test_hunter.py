@@ -222,18 +222,21 @@ class Papel(unittest.TestCase):
         uni = {"AAA": {"inst": "AAA-USD_UM_XPERP-1", "classe": "crypto"}}
         now = v[-1]["t"] + H
         corte = len(v) - 12
-        st = PA.volta(d, now=v[corte]["t"] + H, uni=uni, velas={"30m": {"AAA": v[:corte + 1]}}, funding_fn=lambda i: [])
+        st = PA.volta(d, now=v[corte]["t"] + H, uni=uni, velas={"30m": {"AAA": v[:corte + 1]}}, funding_fn=lambda i: [],
+                      spread_fn=lambda: {})
         self.assertEqual(st["funil_ultima"]["instrumentos_descobertos"], 1)
-        self.assertGreaterEqual(st["funil_ultima"]["candidatos"], st["funil_ultima"]["aprovados"])
+        self.assertGreaterEqual(st["funil_ultima"]["sinais_brutos"], st["funil_ultima"]["abertas_novas"])
         abertas = len(st["abertas"])
-        st = PA.volta(d, now=now, uni=uni, velas={"30m": {"AAA": v}}, funding_fn=lambda i: [])
+        st = PA.volta(d, now=now, uni=uni, velas={"30m": {"AAA": v}}, funding_fn=lambda i: [], spread_fn=lambda: {})
         self.assertEqual(st["voltas"], 2)
         if abertas:
             fech = [o for o in st["fechadas"] if o.get("r") is not None]
             self.assertTrue(fech or st["abertas"])
             for o in fech:
-                for campo in ("b", "exchange", "lado", "tf", "estrategia", "t_sinal", "entrada", "saida", "tamanho",
-                              "custos_r", "funding_pct", "r", "permanencia_min", "motivo"):
+                for campo in ("id_op", "b", "mercado", "lado", "tf", "estrategia", "versao_estrategia", "versao_codigo",
+                              "t_sinal", "t_entrada", "entrada", "stop_inicial", "saida", "tamanho", "custos", "funding_pct",
+                              "r", "resultado_pct_preco", "permanencia_min", "motivo", "regime", "acontecimento",
+                              "decisao", "historico", "preco_saida_equivalente"):
                     self.assertIn(campo, o)
         self.assertIn("PAPEL", st["aviso"])
 
@@ -245,7 +248,8 @@ class Papel(unittest.TestCase):
                 with open(os.path.join(raiz, n), encoding="utf-8") as f:
                     src = f.read()
                 for proibido in ("okx_exec", "engine.executor", "import executor", "privado(", "BYBIT_TRADE",
-                                 "OKX_API_KEY", "trade/order"):
+                                 "OKX_API_KEY", "trade/order", "SECRET", "PASSPHRASE", "TELEGRAM", "engine import alerts",
+                                 "/api/v5/account", "/api/v5/trade", "x-access-token"):
                     self.assertNotIn(proibido, src, f"{n}: {proibido}")
 
 
@@ -269,3 +273,140 @@ class Revisao(unittest.TestCase):
     def test_veredicto_exige_dias_distintos(self):
         self.assertGreaterEqual(MO.DIAS_MIN_VALIDACAO, 20)
         self.assertGreaterEqual(MO.DIAS_MIN_TESTE, 10)
+
+
+@SEM_NUMPY
+class PapelIndependencia(unittest.TestCase):
+    def setUp(self):
+        import json, os, tempfile
+        self.d = tempfile.mkdtemp()
+        os.makedirs(os.path.join(self.d, "hunter"))
+        estr = [{"id": f"s{k}", "familia": "momentum_regime", "parametros": {"k": 1, "x": -1.0}, "tf": "30m",
+                 "lado": "LONG", "filtro": None, "stop_ref": "30m",
+                 "saida": {"tipo": "fixa", "k": 1.5, "tp": 2.0, "hold": 8}, "veredicto": "EXPLORATORIA"} for k in (1, 2)]
+        with open(os.path.join(self.d, "hunter", "papel_estrategias.json"), "w") as f:
+            json.dump({"estrategias": estr}, f)
+        self.v = {b: velas(300, seed=k) for k, b in enumerate(["A1", "A2", "A3", "A4", "A5", "A6"])}
+        self.uni = {b: {"inst": f"{b}-USD_UM_XPERP-1", "classe": "crypto", "vol24h_usd": 1e7} for b in self.v}
+        self.now = self.v["A1"][-1]["t"] + H
+
+    def corre(self, falhas=None, now=None):
+        from tools.hunter import papel as PA
+        return PA.volta(self.d, now=now or self.now, uni=self.uni, velas={"30m": self.v}, funding_fn=lambda i: [],
+                        spread_fn=lambda: {}, falhas=falhas)
+
+    def test_uma_posicao_por_moeda_e_acontecimento_e_carteiras_sombra(self):
+        st = self.corre()
+        f = st["funil_ultima"]
+        self.assertEqual(f["sinais_brutos"], 12)                 # 2 estrategias x 6 moedas, todas na mesma vela
+        self.assertEqual(f["abertas_novas"], 6)                  # 1 por moeda neste acontecimento
+        self.assertEqual(f["acontecimentos_novos"], 1)
+        self.assertEqual(f["elegiveis_apos_concentracao"], 3)   # carteira principal: max. 3 por acontecimento
+        self.assertEqual(f["rejeitados"]["ja ha exposicao a esta moeda neste acontecimento (outra estrategia)"], 6)
+        conta = {}
+        for o in st["abertas"]:
+            for k in o["carteiras"]:
+                conta[k] = conta.get(k, 0) + 1
+        self.assertEqual(conta, {"max1": 1, "max3": 3, "max5": 5, "sem_limite": 6})
+
+    def test_sem_duplicados_apos_reinicio(self):
+        self.corre()
+        st = self.corre()                                        # mesma vela outra vez (reinicio)
+        self.assertEqual(st["funil_ultima"]["abertas_novas"], 0)
+        self.assertGreater(st["funil_ultima"]["rejeitados"].get(
+            "sinal ja tratado (protecao contra duplicados apos reinicio)", 0), 0)
+
+    def test_dados_pouco_fiaveis_bloqueiam_entradas_e_ciclo_fica_registado(self):
+        import os
+        st = self.corre(falhas=[f"x{k}" for k in 50 * [0]])
+        self.assertFalse(st["funil_ultima"]["dados_fiaveis"])
+        self.assertEqual(st["funil_ultima"]["abertas_novas"], 0)
+        with open(os.path.join(self.d, "hunter", "papel_ciclos.jsonl")) as f:
+            self.assertIn("falha tecnica", f.read())
+        from tools.hunter import papel as PA
+        self.assertIn("PAPEL", PA.resumo_diario(self.d, now=self.now + 86400))
+
+
+@SEM_NUMPY
+class Derivados(unittest.TestCase):
+    def test_fotografia_arquivo_e_lacunas(self):
+        import gzip, json, os, tempfile
+        from tools.hunter import derivados as DV
+        uni = {"BTC": {"inst": "BTC-USD_UM_XPERP-1", "ctVal": 0.0001, "ctValCcy": "BTC", "tier": "A"},
+               "ZZZ": {"inst": "ZZZ-USD_UM_XPERP-1", "ctVal": 1, "ctValCcy": "ZZZ", "tier": "C"}}
+
+        def req(path, params=None):
+            if "tickers" in path:
+                return [{"instId": "BTC-USD_UM_XPERP-1", "last": "90000", "vol24h": "10", "bidPx": "89990", "askPx": "90010"}]
+            if "open-interest" in path:
+                return [{"instId": "BTC-USD_UM_XPERP-1", "oi": "500", "oiUsd": "4500000"}]
+            if "funding-rate" in path:
+                return [{"fundingRate": "0.0001", "fundingTime": "1800000000000"}] if "BTC" in params["instId"] else None
+            if "taker" in path:
+                return None                                  # indisponivel: fica registado, nao inventado
+            if "books" in path:
+                return [{"bids": [["89990", "10"], ["80000", "99"]], "asks": [["90010", "5"]]}]
+        linhas, disp = DV.fotografia(uni, 1_800_000_000, request=req)
+        self.assertEqual(disp["funding_rate"], 1)
+        self.assertEqual(disp["taker_volume"], 0)
+        b = linhas["BTC-USD_UM_XPERP-1"]
+        self.assertAlmostEqual(b["prof_bid_05pct_usd"], 10 * 0.0001 * 90000, places=2)    # o nivel de 80000 fica fora
+        self.assertIsNone(linhas["ZZZ-USD_UM_XPERP-1"]["oi_contratos"])                   # sem leitura = vazio
+        d = tempfile.mkdtemp()
+        DV.arquivar(d, linhas, disp, 1_800_000_000)
+        DV.arquivar(d, linhas, disp, 1_800_000_000 + 3 * 3600)                            # buraco de 3 h
+        with gzip.open(os.path.join(d, "hunter", "derivados", "2027-01-15.csv.gz"), "rt") as f:
+            rows = f.read().strip().split("\n")
+        self.assertEqual(len(rows), 1 + 4)
+        with open(os.path.join(d, "hunter", "derivados", "lacunas.json")) as f:
+            lac = json.load(f)
+        self.assertEqual(lac["lacunas"][0]["minutos"], 180)
+
+
+@SEM_NUMPY
+class Pesquisa(unittest.TestCase):
+    def test_corrida_completa_sem_rede_painel_estados_e_risco(self):
+        import json, os, tempfile
+        from unittest import mock
+        from tools.hunter import correr as CO
+        dados = {}
+        for k, b in enumerate(["BTC", "AAA", "BBB", "CCC", "DDD"]):
+            v = velas(2600, seed=k + 20)
+            dados[b] = {"info": {"classe": "crypto", "tier": "ABC"[k % 3]}, "30m": v, "funding": []}
+        uni = {b: {"inst": f"{b}-USD_UM_XPERP-1", "classe": "crypto"} for b in dados}
+        d = tempfile.mkdtemp()
+        os.makedirs(os.path.join(d, "hunter"))
+        antiga = {"id": "velha1", "familia": "momentum_regime", "parametros": {"k": 1, "x": -1.0}, "tf": "1H",
+                  "lado": "LONG", "filtro": None, "stop_ref": "1H", "saida": {"tipo": "trailing", "k": 1.0, "tp": None, "hold": 4}}
+        with open(os.path.join(d, "hunter", "papel_estrategias.json"), "w") as f:
+            json.dump({"estrategias": [antiga]}, f)
+        with mock.patch.object(CO.DD, "recolher", return_value=(dados, uni, {"instrumentos_descobertos": 5})):
+            res = CO.main(d, 60, None, 10)
+        with open(os.path.join(d, "hunter", "papel_estrategias.json")) as f:
+            ids = [e["id"] for e in json.load(f)["estrategias"]]
+        with open(os.path.join(d, "hunter", "estados.json")) as f:
+            est = json.load(f)
+        self.assertIn("velha1", est["estrategias"])                  # as estrategias ja em papel continuam avaliadas
+        self.assertIn(est["estrategias"]["velha1"]["estado"],
+                      ("EXPLORATORIA", "EM_VALIDACAO", "PAPEL", "REJEITADA"))     # nunca elegivel sem papel/teste
+        p = res["painel"]["velha1"]
+        self.assertIn("papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0", p["criterios_por_cumprir"])
+        self.assertEqual(p["teste_final"], "nao usado")
+        for campo in ("n", "dias", "acontecimentos", "r_mediana", "ic95_blocos_acontecimento", "profit_factor",
+                      "por_regime", "por_tier", "peso_custos", "operacoes_por_semana", "fracao_meses_positivos",
+                      "quota_top3", "stops_com_gap_pct", "horizonte"):
+            self.assertIn(campo, p["backtest_treino_validacao"])
+        self.assertTrue(os.path.exists(os.path.join(d, "hunter", "familias_registo.json")))
+        rc = res["risco_simulado"]["carteira"]
+        if rc:
+            self.assertLessEqual(rc.get("max1_por_acontecimento", {}).get("operacoes", 0),
+                                 rc.get("sem_limite", {}).get("operacoes", 0))
+        self.assertLessEqual(len(ids), CO.MAX_PAPEL)
+
+    def test_carteira_uma_por_moeda_e_acontecimento(self):
+        from tools.hunter import correr as CO
+        ops = {"a": [{"t": 100, "b": "X", "r": 1.0}, {"t": 100, "b": "Y", "r": 1.0}, {"t": 100, "b": "Z", "r": 1.0}],
+               "b": [{"t": 100, "b": "X", "r": -1.0}, {"t": 200, "b": "X", "r": 0.5}]}
+        self.assertEqual(len(CO.carteira(ops, None)), 4)
+        self.assertEqual(len(CO.carteira(ops, 1)), 2)
+        self.assertEqual(CO.pior_sequencia([1, -1, -1, 2, -1]), 2)
