@@ -43,8 +43,8 @@
    "nome": "rompimento_reteste 4H LONG"
   },
   "057f68c36111": {
-   "estado": "PAPEL",
-   "porque": "em validacao prospetiva",
+   "estado": "REJEITADA",
+   "porque": "degradada no papel (motor de sobrevivencia): drawdown 10.35R >= 8.0R; 8 perdas seguidas",
    "p_holm": null,
    "historico": [
     {
@@ -52,6 +52,12 @@
      "de": null,
      "para": "PAPEL",
      "porque": "em validacao prospetiva"
+    },
+    {
+     "t": 1794956417,
+     "de": "PAPEL",
+     "para": "REJEITADA",
+     "porque": "degradada no papel (motor de sobrevivencia): drawdown 10.35R >= 8.0R; 8 perdas seguidas"
     }
    ],
    "nome": "divergencia_volume 4H LONG"
@@ -113,5 +119,5 @@
    "nome": "rompimento_reteste 4H LONG (cripto)"
   }
  },
- "t": 1794909885
+ "t": 1794956417
 }

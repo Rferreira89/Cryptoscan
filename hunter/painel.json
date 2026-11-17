@@ -1,5 +1,5 @@
 {
- "t": 1794909885,
+ "t": 1794956417,
  "aviso": "treino + validacao (teste final intocado) e papel prospetivo; nada disto e real",
  "estrategias": {
   "987b19a113db": {
@@ -32,68 +32,68 @@
     "dias": 10,
     "acontecimentos": 10,
     "moedas": 161,
-    "r_medio": 0.0319,
-    "r_mediana": -0.2369,
+    "r_medio": 0.0535,
+    "r_mediana": -0.203,
     "ic95_blocos_dia": [
-     -0.1099,
-     0.2008
+     -0.0914,
+     0.2275
     ],
     "ic95_blocos_acontecimento": [
-     -0.1099,
-     0.2008
+     -0.0914,
+     0.2275
     ],
-    "p_blocos_dia": 0.3348,
-    "drawdown_r": 53.47,
-    "profit_factor": 1.06,
+    "p_blocos_dia": 0.2494,
+    "drawdown_r": 49.37,
+    "profit_factor": 1.104,
     "por_regime": {
      "lateral": [
       62,
-      0.03
+      0.055
      ],
      "queda": [
       5,
-      -0.261
+      -0.284
      ],
      "subida": [
       394,
-      0.036
+      0.058
      ]
     },
     "por_tier": {
      "A": [
-      26,
-      0.078
+      22,
+      0.064
      ],
      "B": [
-      100,
-      -0.047
+      131,
+      -0.082
      ],
      "C": [
-      335,
-      0.052
+      308,
+      0.11
      ]
     },
     "custo_medio_r": 0.1117,
-    "bruto_medio_r": 0.1436,
-    "peso_custos": 0.778,
+    "bruto_medio_r": 0.1652,
+    "peso_custos": 0.676,
     "rentavel_antes_mas_nao_depois_dos_custos": false,
     "operacoes_por_semana": 30.82,
     "meses": {
      "2026-06": [
       35,
-      11.09
+      11.58
      ],
      "2026-07": [
       32,
-      -10.52
+      -9.6
      ],
      "2026-08": [
       204,
-      -16.78
+      -12.36
      ],
      "2026-09": [
       190,
-      30.92
+      35.06
      ]
     },
     "fracao_meses_positivos": 0.5,
@@ -102,11 +102,11 @@
      "AVNT",
      "IRYS"
     ],
-    "quota_top3": 4.524,
-    "r_sem_top3_moedas": -0.1158,
+    "quota_top3": 2.698,
+    "r_sem_top3_moedas": -0.0935,
     "stop_medio_pct": 1.733,
-    "stops_com_gap_pct": 21.3,
-    "duracao_media_min": 186,
+    "stops_com_gap_pct": 19.0,
+    "duracao_media_min": 187,
     "horizonte": "rapido (30 min - 4 h)"
    },
    "papel": null,
@@ -141,14 +141,14 @@
     {
      "criterio": "expectativa liquida > 0",
      "ok": true,
-     "valor": 0.0319
+     "valor": 0.0535
     },
     {
      "criterio": "IC 95% (blocos) acima de 0",
      "ok": false,
      "valor": [
-      -0.1099,
-      0.2008
+      -0.0914,
+      0.2275
      ]
     },
     {
@@ -172,32 +172,32 @@
      "valor": {
       "lateral": [
        62,
-       0.03
+       0.055
       ],
       "queda": [
        5,
-       -0.261
+       -0.284
       ],
       "subida": [
        394,
-       0.036
+       0.058
       ]
      }
     },
     {
      "criterio": "custos realistas: positiva depois de custos por escalao",
      "ok": true,
-     "valor": 0.778
+     "valor": 0.676
     },
     {
      "criterio": "nao depende de 3 moedas (quota < 50% e R sem elas > 0)",
      "ok": false,
-     "valor": 4.524
+     "valor": 2.698
     },
     {
      "criterio": "drawdown <= 20R",
      "ok": false,
-     "valor": 53.47
+     "valor": 49.37
     },
     {
      "criterio": "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0",
@@ -237,56 +237,56 @@
    "estado": "EXPLORATORIA",
    "porque": "amostra ou expectativa insuficientes",
    "backtest_treino_validacao": {
-    "n": 871,
+    "n": 879,
     "dias": 109,
-    "acontecimentos": 480,
-    "moedas": 151,
-    "r_medio": -0.1207,
-    "r_mediana": -0.6408,
+    "acontecimentos": 485,
+    "moedas": 152,
+    "r_medio": -0.111,
+    "r_mediana": -0.6359,
     "ic95_blocos_dia": [
-     -0.2943,
-     0.1131
+     -0.2764,
+     0.1103
     ],
     "ic95_blocos_acontecimento": [
-     -0.2777,
-     0.0577
+     -0.2675,
+     0.053
     ],
-    "p_blocos_dia": 0.8656,
-    "drawdown_r": 145.99,
-    "profit_factor": 0.819,
+    "p_blocos_dia": 0.8496,
+    "drawdown_r": 138.22,
+    "profit_factor": 0.832,
     "por_regime": {
      "subida": [
       294,
       0.019
      ],
      "lateral": [
-      568,
-      -0.198
+      576,
+      -0.182
      ],
      "queda": [
       9,
-      0.208
+      0.221
      ]
     },
     "por_tier": {
      "A": [
       89,
-      -0.178
+      -0.167
      ],
      "B": [
-      277,
-      0.103
+      309,
+      0.086
      ],
      "C": [
-      505,
-      -0.233
+      481,
+      -0.227
      ]
     },
-    "custo_medio_r": 0.0997,
-    "bruto_medio_r": -0.021,
-    "peso_custos": 4.752,
+    "custo_medio_r": 0.0992,
+    "bruto_medio_r": -0.0117,
+    "peso_custos": 8.46,
     "rentavel_antes_mas_nao_depois_dos_custos": false,
-    "operacoes_por_semana": 38.16,
+    "operacoes_por_semana": 38.43,
     "meses": {
      "2026-04": [
       36,
@@ -294,23 +294,23 @@
      ],
      "2026-05": [
       27,
-      -1.35
+      -2.14
      ],
      "2026-06": [
       25,
-      4.67
+      5.07
      ],
      "2026-07": [
       124,
-      -35.6
+      -35.54
      ],
      "2026-08": [
       368,
-      -32.85
+      -30.25
      ],
      "2026-09": [
-      291,
-      -57.9
+      299,
+      -52.57
      ]
     },
     "fracao_meses_positivos": 0.33,
@@ -320,13 +320,24 @@
      "PROS"
     ],
     "quota_top3": null,
-    "r_sem_top3_moedas": -0.1851,
-    "stop_medio_pct": 1.538,
-    "stops_com_gap_pct": 21.9,
+    "r_sem_top3_moedas": -0.1744,
+    "stop_medio_pct": 1.545,
+    "stops_com_gap_pct": 20.8,
     "duracao_media_min": 138,
     "horizonte": "rapido (30 min - 4 h)"
    },
-   "papel": null,
+   "papel": {
+    "n": 4,
+    "moedas": 4,
+    "dias": 1,
+    "acontecimentos": 4,
+    "r_medio": 0.3231,
+    "r_total": 1.293,
+    "acerto": 0.5,
+    "drawdown_r": 1.557,
+    "novas_entradas": true,
+    "motivos": []
+   },
    "teste_final": "nao usado",
    "criterios_por_cumprir": [
     "expectativa liquida > 0",
@@ -344,7 +355,7 @@
     {
      "criterio": "amostra >= 100 operacoes",
      "ok": true,
-     "valor": 871
+     "valor": 879
     },
     {
      "criterio": "dias distintos >= 30",
@@ -354,19 +365,19 @@
     {
      "criterio": "acontecimentos independentes >= 30",
      "ok": true,
-     "valor": 480
+     "valor": 485
     },
     {
      "criterio": "expectativa liquida > 0",
      "ok": false,
-     "valor": -0.1207
+     "valor": -0.111
     },
     {
      "criterio": "IC 95% (blocos) acima de 0",
      "ok": false,
      "valor": [
-      -0.2777,
-      0.0577
+      -0.2675,
+      0.053
      ]
     },
     {
@@ -393,19 +404,19 @@
        0.019
       ],
       "lateral": [
-       568,
-       -0.198
+       576,
+       -0.182
       ],
       "queda": [
        9,
-       0.208
+       0.221
       ]
      }
     },
     {
      "criterio": "custos realistas: positiva depois de custos por escalao",
      "ok": false,
-     "valor": 4.752
+     "valor": 8.46
     },
     {
      "criterio": "nao depende de 3 moedas (quota < 50% e R sem elas > 0)",
@@ -415,15 +426,15 @@
     {
      "criterio": "drawdown <= 20R",
      "ok": false,
-     "valor": 145.99
+     "valor": 138.22
     },
     {
      "criterio": "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0",
      "ok": false,
      "valor": {
-      "n": null,
-      "dias": null,
-      "r_medio": null
+      "n": 4,
+      "dias": 1,
+      "r_medio": 0.3231
      }
     }
    ]
@@ -454,56 +465,56 @@
    "estado": "PAPEL",
    "porque": "em validacao prospetiva",
    "backtest_treino_validacao": {
-    "n": 738,
+    "n": 741,
     "dias": 108,
-    "acontecimentos": 326,
+    "acontecimentos": 327,
     "moedas": 139,
-    "r_medio": 0.0516,
-    "r_mediana": -0.1378,
+    "r_medio": 0.0615,
+    "r_mediana": -0.1183,
     "ic95_blocos_dia": [
-     -0.1179,
-     0.1997
+     -0.113,
+     0.2117
     ],
     "ic95_blocos_acontecimento": [
-     -0.0529,
-     0.1597
+     -0.045,
+     0.1673
     ],
-    "p_blocos_dia": 0.2774,
-    "drawdown_r": 58.35,
-    "profit_factor": 1.129,
+    "p_blocos_dia": 0.2399,
+    "drawdown_r": 56.84,
+    "profit_factor": 1.156,
     "por_regime": {
      "lateral": [
-      432,
-      0.026
+      430,
+      0.04
      ],
      "subida": [
-      285,
-      0.112
+      289,
+      0.12
      ],
      "queda": [
-      21,
-      -0.245
+      22,
+      -0.283
      ]
     },
     "por_tier": {
      "A": [
-      96,
-      0.137
+      94,
+      0.088
      ],
      "B": [
-      263,
-      0.153
+      301,
+      0.146
      ],
      "C": [
-      379,
-      -0.041
+      346,
+      -0.019
      ]
     },
-    "custo_medio_r": 0.0359,
-    "bruto_medio_r": 0.0874,
-    "peso_custos": 0.41,
+    "custo_medio_r": 0.0358,
+    "bruto_medio_r": 0.0973,
+    "peso_custos": 0.368,
     "rentavel_antes_mas_nao_depois_dos_custos": false,
-    "operacoes_por_semana": 34.75,
+    "operacoes_por_semana": 34.77,
     "meses": {
      "2026-04": [
       3,
@@ -515,19 +526,19 @@
      ],
      "2026-06": [
       29,
-      2.64
+      3.58
      ],
      "2026-07": [
-      146,
-      -2.73
+      145,
+      -1.0
      ],
      "2026-08": [
       262,
-      30.13
+      30.92
      ],
      "2026-09": [
-      280,
-      10.09
+      284,
+      14.12
      ]
     },
     "fracao_meses_positivos": 0.67,
@@ -536,20 +547,30 @@
      "BZ",
      "SOL"
     ],
-    "quota_top3": 0.573,
-    "r_sem_top3_moedas": 0.0231,
-    "stop_medio_pct": 5.038,
-    "stops_com_gap_pct": 11.4,
-    "duracao_media_min": 1194,
+    "quota_top3": 0.478,
+    "r_sem_top3_moedas": 0.0336,
+    "stop_medio_pct": 5.042,
+    "stops_com_gap_pct": 9.9,
+    "duracao_media_min": 1195,
     "horizonte": "HORIZONTE SUPERIOR (> 4 h): nao e oportunidade rapida"
    },
-   "papel": null,
+   "papel": {
+    "n": 1,
+    "moedas": 1,
+    "dias": 1,
+    "acontecimentos": 1,
+    "r_medio": -1.0721,
+    "r_total": -1.072,
+    "acerto": 0.0,
+    "drawdown_r": 1.072,
+    "novas_entradas": true,
+    "motivos": []
+   },
    "teste_final": "nao usado",
    "criterios_por_cumprir": [
     "IC 95% (blocos) acima de 0",
     "sobrevive a Holm cumulativo",
     "resultado fora da amostra (teste final)",
-    "nao depende de 3 moedas (quota < 50% e R sem elas > 0)",
     "drawdown <= 20R",
     "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0"
    ],
@@ -557,7 +578,7 @@
     {
      "criterio": "amostra >= 100 operacoes",
      "ok": true,
-     "valor": 738
+     "valor": 741
     },
     {
      "criterio": "dias distintos >= 30",
@@ -567,19 +588,19 @@
     {
      "criterio": "acontecimentos independentes >= 30",
      "ok": true,
-     "valor": 326
+     "valor": 327
     },
     {
      "criterio": "expectativa liquida > 0",
      "ok": true,
-     "valor": 0.0516
+     "valor": 0.0615
     },
     {
      "criterio": "IC 95% (blocos) acima de 0",
      "ok": false,
      "valor": [
-      -0.0529,
-      0.1597
+      -0.045,
+      0.1673
      ]
     },
     {
@@ -602,41 +623,41 @@
      "ok": true,
      "valor": {
       "lateral": [
-       432,
-       0.026
+       430,
+       0.04
       ],
       "subida": [
-       285,
-       0.112
+       289,
+       0.12
       ],
       "queda": [
-       21,
-       -0.245
+       22,
+       -0.283
       ]
      }
     },
     {
      "criterio": "custos realistas: positiva depois de custos por escalao",
      "ok": true,
-     "valor": 0.41
+     "valor": 0.368
     },
     {
      "criterio": "nao depende de 3 moedas (quota < 50% e R sem elas > 0)",
-     "ok": false,
-     "valor": 0.573
+     "ok": true,
+     "valor": 0.478
     },
     {
      "criterio": "drawdown <= 20R",
      "ok": false,
-     "valor": 58.35
+     "valor": 56.84
     },
     {
      "criterio": "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0",
      "ok": false,
      "valor": {
-      "n": null,
-      "dias": null,
-      "r_medio": null
+      "n": 1,
+      "dias": 1,
+      "r_medio": -1.0721
      }
     }
    ]
@@ -664,59 +685,59 @@
     "baixo",
     "volume das X-Perps nao representa o mercado todo"
    ],
-   "estado": "PAPEL",
-   "porque": "em validacao prospetiva",
+   "estado": "REJEITADA",
+   "porque": "degradada no papel (motor de sobrevivencia): drawdown 10.35R >= 8.0R; 8 perdas seguidas",
    "backtest_treino_validacao": {
-    "n": 355,
+    "n": 356,
     "dias": 91,
-    "acontecimentos": 193,
-    "moedas": 122,
-    "r_medio": 0.0382,
-    "r_mediana": -0.0388,
+    "acontecimentos": 194,
+    "moedas": 123,
+    "r_medio": 0.0432,
+    "r_mediana": -0.0387,
     "ic95_blocos_dia": [
-     -0.1274,
-     0.217
+     -0.118,
+     0.2201
     ],
     "ic95_blocos_acontecimento": [
-     -0.0831,
-     0.1633
+     -0.0742,
+     0.1645
     ],
-    "p_blocos_dia": 0.3883,
-    "drawdown_r": 32.64,
-    "profit_factor": 1.125,
+    "p_blocos_dia": 0.3478,
+    "drawdown_r": 32.2,
+    "profit_factor": 1.143,
     "por_regime": {
      "lateral": [
       293,
-      0.085
+      0.088
      ],
      "queda": [
       52,
-      -0.14
+      -0.136
      ],
      "subida": [
-      10,
-      -0.395
+      11,
+      -0.307
      ]
     },
     "por_tier": {
      "A": [
-      16,
-      0.003
+      14,
+      -0.105
      ],
      "B": [
-      96,
-      0.085
+      112,
+      0.063
      ],
      "C": [
-      243,
-      0.022
+      230,
+      0.043
      ]
     },
-    "custo_medio_r": 0.0299,
-    "bruto_medio_r": 0.0681,
-    "peso_custos": 0.439,
+    "custo_medio_r": 0.0298,
+    "bruto_medio_r": 0.073,
+    "peso_custos": 0.408,
     "rentavel_antes_mas_nao_depois_dos_custos": false,
-    "operacoes_por_semana": 16.85,
+    "operacoes_por_semana": 16.82,
     "meses": {
      "2026-04": [
       2,
@@ -724,23 +745,23 @@
      ],
      "2026-05": [
       16,
-      3.2
+      3.17
      ],
      "2026-06": [
       30,
-      0.09
+      0.05
      ],
      "2026-07": [
       69,
-      -3.04
+      -2.54
      ],
      "2026-08": [
       95,
-      -12.48
+      -12.21
      ],
      "2026-09": [
-      143,
-      25.02
+      144,
+      26.14
      ]
     },
     "fracao_meses_positivos": 0.67,
@@ -749,14 +770,28 @@
      "ARX",
      "GALA"
     ],
-    "quota_top3": 0.943,
-    "r_sem_top3_moedas": 0.0023,
-    "stop_medio_pct": 6.072,
+    "quota_top3": 0.831,
+    "r_sem_top3_moedas": 0.0077,
+    "stop_medio_pct": 6.085,
     "stops_com_gap_pct": 8.1,
-    "duracao_media_min": 1316,
+    "duracao_media_min": 1317,
     "horizonte": "HORIZONTE SUPERIOR (> 4 h): nao e oportunidade rapida"
    },
-   "papel": null,
+   "papel": {
+    "n": 8,
+    "moedas": 8,
+    "dias": 1,
+    "acontecimentos": 1,
+    "r_medio": -1.294,
+    "r_total": -10.352,
+    "acerto": 0.0,
+    "drawdown_r": 10.352,
+    "novas_entradas": false,
+    "motivos": [
+     "drawdown 10.35R >= 8.0R",
+     "8 perdas seguidas"
+    ]
+   },
    "teste_final": "nao usado",
    "criterios_por_cumprir": [
     "IC 95% (blocos) acima de 0",
@@ -771,7 +806,7 @@
     {
      "criterio": "amostra >= 100 operacoes",
      "ok": true,
-     "valor": 355
+     "valor": 356
     },
     {
      "criterio": "dias distintos >= 30",
@@ -781,19 +816,19 @@
     {
      "criterio": "acontecimentos independentes >= 30",
      "ok": true,
-     "valor": 193
+     "valor": 194
     },
     {
      "criterio": "expectativa liquida > 0",
      "ok": true,
-     "valor": 0.0382
+     "valor": 0.0432
     },
     {
      "criterio": "IC 95% (blocos) acima de 0",
      "ok": false,
      "valor": [
-      -0.0831,
-      0.1633
+      -0.0742,
+      0.1645
      ]
     },
     {
@@ -817,40 +852,40 @@
      "valor": {
       "lateral": [
        293,
-       0.085
+       0.088
       ],
       "queda": [
        52,
-       -0.14
+       -0.136
       ],
       "subida": [
-       10,
-       -0.395
+       11,
+       -0.307
       ]
      }
     },
     {
      "criterio": "custos realistas: positiva depois de custos por escalao",
      "ok": true,
-     "valor": 0.439
+     "valor": 0.408
     },
     {
      "criterio": "nao depende de 3 moedas (quota < 50% e R sem elas > 0)",
      "ok": false,
-     "valor": 0.943
+     "valor": 0.831
     },
     {
      "criterio": "drawdown <= 20R",
      "ok": false,
-     "valor": 32.64
+     "valor": 32.2
     },
     {
      "criterio": "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0",
      "ok": false,
      "valor": {
-      "n": null,
-      "dias": null,
-      "r_medio": null
+      "n": 8,
+      "dias": 1,
+      "r_medio": -1.294
      }
     }
    ]
@@ -882,52 +917,52 @@
    "estado": "PAPEL",
    "porque": "em validacao prospetiva",
    "backtest_treino_validacao": {
-    "n": 759,
+    "n": 779,
     "dias": 70,
-    "acontecimentos": 206,
-    "moedas": 129,
-    "r_medio": 0.0781,
-    "r_mediana": -0.1617,
+    "acontecimentos": 208,
+    "moedas": 130,
+    "r_medio": 0.0923,
+    "r_mediana": -0.1465,
     "ic95_blocos_dia": [
-     -0.1416,
-     0.2653
+     -0.1111,
+     0.2718
     ],
     "ic95_blocos_acontecimento": [
-     -0.0623,
-     0.2105
+     -0.0419,
+     0.2173
     ],
-    "p_blocos_dia": 0.2549,
-    "drawdown_r": 69.61,
-    "profit_factor": 1.234,
+    "p_blocos_dia": 0.2009,
+    "drawdown_r": 69.16,
+    "profit_factor": 1.281,
     "por_regime": {
      "subida": [
-      384,
-      0.111
+      404,
+      0.134
      ],
      "lateral": [
       375,
-      0.045
+      0.047
      ]
     },
     "por_tier": {
      "A": [
-      60,
-      0.385
+      79,
+      0.367
      ],
      "B": [
-      247,
-      0.113
+      263,
+      0.099
      ],
      "C": [
-      452,
-      0.018
+      437,
+      0.039
      ]
     },
-    "custo_medio_r": 0.0195,
-    "bruto_medio_r": 0.0976,
-    "peso_custos": 0.2,
+    "custo_medio_r": 0.0196,
+    "bruto_medio_r": 0.1119,
+    "peso_custos": 0.175,
     "rentavel_antes_mas_nao_depois_dos_custos": false,
-    "operacoes_por_semana": 35.11,
+    "operacoes_por_semana": 35.95,
     "meses": {
      "2026-04": [
       3,
@@ -943,28 +978,28 @@
      ],
      "2026-07": [
       131,
-      8.37
+      8.58
      ],
      "2026-08": [
       335,
-      37.76
+      38.75
      ],
      "2026-09": [
-      263,
-      16.42
+      283,
+      27.86
      ]
     },
     "fracao_meses_positivos": 0.67,
     "top3_moedas": [
-     "ZAMA",
      "INJ",
+     "ZAMA",
      "ZIL"
     ],
-    "quota_top3": 0.374,
-    "r_sem_top3_moedas": 0.0502,
-    "stop_medio_pct": 7.183,
+    "quota_top3": 0.31,
+    "r_sem_top3_moedas": 0.0654,
+    "stop_medio_pct": 7.169,
     "stops_com_gap_pct": 0.0,
-    "duracao_media_min": 1105,
+    "duracao_media_min": 1107,
     "horizonte": "HORIZONTE SUPERIOR (> 4 h): nao e oportunidade rapida"
    },
    "papel": null,
@@ -980,7 +1015,7 @@
     {
      "criterio": "amostra >= 100 operacoes",
      "ok": true,
-     "valor": 759
+     "valor": 779
     },
     {
      "criterio": "dias distintos >= 30",
@@ -990,19 +1025,19 @@
     {
      "criterio": "acontecimentos independentes >= 30",
      "ok": true,
-     "valor": 206
+     "valor": 208
     },
     {
      "criterio": "expectativa liquida > 0",
      "ok": true,
-     "valor": 0.0781
+     "valor": 0.0923
     },
     {
      "criterio": "IC 95% (blocos) acima de 0",
      "ok": false,
      "valor": [
-      -0.0623,
-      0.2105
+      -0.0419,
+      0.2173
      ]
     },
     {
@@ -1025,29 +1060,29 @@
      "ok": true,
      "valor": {
       "subida": [
-       384,
-       0.111
+       404,
+       0.134
       ],
       "lateral": [
        375,
-       0.045
+       0.047
       ]
      }
     },
     {
      "criterio": "custos realistas: positiva depois de custos por escalao",
      "ok": true,
-     "valor": 0.2
+     "valor": 0.175
     },
     {
      "criterio": "nao depende de 3 moedas (quota < 50% e R sem elas > 0)",
      "ok": true,
-     "valor": 0.374
+     "valor": 0.31
     },
     {
      "criterio": "drawdown <= 20R",
      "ok": false,
-     "valor": 69.61
+     "valor": 69.16
     },
     {
      "criterio": "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0",
@@ -1088,52 +1123,52 @@
    "estado": "PAPEL",
    "porque": "em validacao prospetiva",
    "backtest_treino_validacao": {
-    "n": 1336,
+    "n": 1346,
     "dias": 76,
-    "acontecimentos": 265,
+    "acontecimentos": 267,
     "moedas": 149,
-    "r_medio": 0.0837,
-    "r_mediana": -0.0657,
+    "r_medio": 0.0904,
+    "r_mediana": -0.0626,
     "ic95_blocos_dia": [
-     -0.0941,
-     0.2496
+     -0.0859,
+     0.2523
     ],
     "ic95_blocos_acontecimento": [
-     -0.0398,
-     0.2067
+     -0.0281,
+     0.2214
     ],
-    "p_blocos_dia": 0.2059,
-    "drawdown_r": 94.95,
-    "profit_factor": 1.278,
+    "p_blocos_dia": 0.1764,
+    "drawdown_r": 94.54,
+    "profit_factor": 1.303,
     "por_regime": {
      "lateral": [
       669,
-      0.049
+      0.051
      ],
      "subida": [
-      667,
-      0.118
+      677,
+      0.129
      ]
     },
     "por_tier": {
      "A": [
-      136,
-      0.117
+      164,
+      0.106
      ],
      "B": [
-      453,
-      0.143
+      480,
+      0.123
      ],
      "C": [
-      747,
-      0.042
+      702,
+      0.064
      ]
     },
     "custo_medio_r": 0.0191,
-    "bruto_medio_r": 0.1028,
-    "peso_custos": 0.186,
+    "bruto_medio_r": 0.1095,
+    "peso_custos": 0.175,
     "rentavel_antes_mas_nao_depois_dos_custos": false,
-    "operacoes_por_semana": 61.73,
+    "operacoes_por_semana": 62.05,
     "meses": {
      "2026-04": [
       5,
@@ -1149,15 +1184,15 @@
      ],
      "2026-07": [
       246,
-      -6.92
+      -6.76
      ],
      "2026-08": [
       483,
-      65.89
+      66.98
      ],
      "2026-09": [
-      547,
-      60.48
+      557,
+      69.0
      ]
     },
     "fracao_meses_positivos": 0.5,
@@ -1166,11 +1201,11 @@
      "ZIL",
      "SUI"
     ],
-    "quota_top3": 0.243,
-    "r_sem_top3_moedas": 0.0657,
-    "stop_medio_pct": 7.793,
+    "quota_top3": 0.224,
+    "r_sem_top3_moedas": 0.0727,
+    "stop_medio_pct": 7.806,
     "stops_com_gap_pct": 1.4,
-    "duracao_media_min": 1325,
+    "duracao_media_min": 1326,
     "horizonte": "HORIZONTE SUPERIOR (> 4 h): nao e oportunidade rapida"
    },
    "papel": null,
@@ -1187,7 +1222,7 @@
     {
      "criterio": "amostra >= 100 operacoes",
      "ok": true,
-     "valor": 1336
+     "valor": 1346
     },
     {
      "criterio": "dias distintos >= 30",
@@ -1197,19 +1232,19 @@
     {
      "criterio": "acontecimentos independentes >= 30",
      "ok": true,
-     "valor": 265
+     "valor": 267
     },
     {
      "criterio": "expectativa liquida > 0",
      "ok": true,
-     "valor": 0.0837
+     "valor": 0.0904
     },
     {
      "criterio": "IC 95% (blocos) acima de 0",
      "ok": false,
      "valor": [
-      -0.0398,
-      0.2067
+      -0.0281,
+      0.2214
      ]
     },
     {
@@ -1233,28 +1268,28 @@
      "valor": {
       "lateral": [
        669,
-       0.049
+       0.051
       ],
       "subida": [
-       667,
-       0.118
+       677,
+       0.129
       ]
      }
     },
     {
      "criterio": "custos realistas: positiva depois de custos por escalao",
      "ok": true,
-     "valor": 0.186
+     "valor": 0.175
     },
     {
      "criterio": "nao depende de 3 moedas (quota < 50% e R sem elas > 0)",
      "ok": true,
-     "valor": 0.243
+     "valor": 0.224
     },
     {
      "criterio": "drawdown <= 20R",
      "ok": false,
-     "valor": 94.95
+     "valor": 94.54
     },
     {
      "criterio": "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0",
@@ -1293,31 +1328,31 @@
    "estado": "PAPEL",
    "porque": "em validacao prospetiva",
    "backtest_treino_validacao": {
-    "n": 338,
+    "n": 341,
     "dias": 79,
-    "acontecimentos": 192,
-    "moedas": 84,
-    "r_medio": 0.0916,
-    "r_mediana": -0.0206,
+    "acontecimentos": 194,
+    "moedas": 86,
+    "r_medio": 0.0903,
+    "r_mediana": -0.0222,
     "ic95_blocos_dia": [
-     -0.0548,
-     0.2512
+     -0.0615,
+     0.2486
     ],
     "ic95_blocos_acontecimento": [
-     -0.0206,
-     0.196
+     -0.0198,
+     0.1921
     ],
-    "p_blocos_dia": 0.1244,
-    "drawdown_r": 16.81,
-    "profit_factor": 1.349,
+    "p_blocos_dia": 0.1369,
+    "drawdown_r": 16.76,
+    "profit_factor": 1.345,
     "por_regime": {
      "subida": [
-      188,
-      0.134
+      191,
+      0.132
      ],
      "lateral": [
       142,
-      0.041
+      0.04
      ],
      "queda": [
       8,
@@ -1326,23 +1361,23 @@
     },
     "por_tier": {
      "A": [
-      49,
-      0.051
+      54,
+      0.054
      ],
      "B": [
-      139,
-      0.162
+      133,
+      0.181
      ],
      "C": [
-      150,
-      0.04
+      154,
+      0.025
      ]
     },
-    "custo_medio_r": 0.0177,
-    "bruto_medio_r": 0.1093,
-    "peso_custos": 0.162,
+    "custo_medio_r": 0.0179,
+    "bruto_medio_r": 0.1081,
+    "peso_custos": 0.165,
     "rentavel_antes_mas_nao_depois_dos_custos": false,
-    "operacoes_por_semana": 17.0,
+    "operacoes_por_semana": 17.09,
     "meses": {
      "2026-05": [
       12,
@@ -1350,19 +1385,19 @@
      ],
      "2026-06": [
       19,
-      5.11
+      5.01
      ],
      "2026-07": [
       62,
-      1.97
+      1.91
      ],
      "2026-08": [
       126,
-      21.81
+      21.63
      ],
      "2026-09": [
-      119,
-      0.16
+      122,
+      0.33
      ]
     },
     "fracao_meses_positivos": 1.0,
@@ -1371,9 +1406,9 @@
      "PEPE",
      "ADA"
     ],
-    "quota_top3": 0.449,
-    "r_sem_top3_moedas": 0.0539,
-    "stop_medio_pct": 9.535,
+    "quota_top3": 0.452,
+    "r_sem_top3_moedas": 0.0529,
+    "stop_medio_pct": 9.528,
     "stops_com_gap_pct": 0.0,
     "duracao_media_min": 1302,
     "horizonte": "HORIZONTE SUPERIOR (> 4 h): nao e oportunidade rapida"
@@ -1390,7 +1425,7 @@
     {
      "criterio": "amostra >= 100 operacoes",
      "ok": true,
-     "valor": 338
+     "valor": 341
     },
     {
      "criterio": "dias distintos >= 30",
@@ -1400,19 +1435,19 @@
     {
      "criterio": "acontecimentos independentes >= 30",
      "ok": true,
-     "valor": 192
+     "valor": 194
     },
     {
      "criterio": "expectativa liquida > 0",
      "ok": true,
-     "valor": 0.0916
+     "valor": 0.0903
     },
     {
      "criterio": "IC 95% (blocos) acima de 0",
      "ok": false,
      "valor": [
-      -0.0206,
-      0.196
+      -0.0198,
+      0.1921
      ]
     },
     {
@@ -1435,12 +1470,12 @@
      "ok": true,
      "valor": {
       "subida": [
-       188,
-       0.134
+       191,
+       0.132
       ],
       "lateral": [
        142,
-       0.041
+       0.04
       ],
       "queda": [
        8,
@@ -1451,17 +1486,17 @@
     {
      "criterio": "custos realistas: positiva depois de custos por escalao",
      "ok": true,
-     "valor": 0.162
+     "valor": 0.165
     },
     {
      "criterio": "nao depende de 3 moedas (quota < 50% e R sem elas > 0)",
      "ok": true,
-     "valor": 0.449
+     "valor": 0.452
     },
     {
      "criterio": "drawdown <= 20R",
      "ok": true,
-     "valor": 16.81
+     "valor": 16.76
     },
     {
      "criterio": "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0",
@@ -1500,56 +1535,56 @@
    "estado": "PAPEL",
    "porque": "em validacao prospetiva",
    "backtest_treino_validacao": {
-    "n": 492,
+    "n": 494,
     "dias": 101,
-    "acontecimentos": 246,
+    "acontecimentos": 248,
     "moedas": 97,
-    "r_medio": 0.1024,
+    "r_medio": 0.102,
     "r_mediana": -0.0175,
     "ic95_blocos_dia": [
-     -0.0473,
-     0.2407
+     -0.0419,
+     0.2365
     ],
     "ic95_blocos_acontecimento": [
-     0.0047,
-     0.2011
+     0.0041,
+     0.1962
     ],
-    "p_blocos_dia": 0.0925,
-    "drawdown_r": 30.66,
+    "p_blocos_dia": 0.092,
+    "drawdown_r": 30.46,
     "profit_factor": 1.412,
     "por_regime": {
      "lateral": [
-      259,
-      0.077
+      258,
+      0.08
      ],
      "subida": [
-      220,
-      0.148
+      222,
+      0.146
      ],
      "queda": [
-      13,
-      -0.152
+      14,
+      -0.197
      ]
     },
     "por_tier": {
      "A": [
-      76,
-      0.117
+      83,
+      0.098
      ],
      "B": [
-      186,
-      0.151
+      180,
+      0.162
      ],
      "C": [
-      230,
-      0.059
+      231,
+      0.057
      ]
     },
-    "custo_medio_r": 0.0189,
-    "bruto_medio_r": 0.1212,
+    "custo_medio_r": 0.0188,
+    "bruto_medio_r": 0.1209,
     "peso_custos": 0.156,
     "rentavel_antes_mas_nao_depois_dos_custos": false,
-    "operacoes_por_semana": 23.17,
+    "operacoes_por_semana": 23.18,
     "meses": {
      "2026-04": [
       3,
@@ -1561,19 +1596,19 @@
      ],
      "2026-06": [
       24,
-      2.25
+      2.15
      ],
      "2026-07": [
       95,
-      4.01
+      4.09
      ],
      "2026-08": [
       160,
-      34.93
+      34.79
      ],
      "2026-09": [
-      193,
-      12.31
+      195,
+      12.51
      ]
     },
     "fracao_meses_positivos": 0.67,
@@ -1583,14 +1618,24 @@
      "ADA"
     ],
     "quota_top3": 0.285,
-    "r_sem_top3_moedas": 0.0781,
-    "stop_medio_pct": 8.896,
+    "r_sem_top3_moedas": 0.0778,
+    "stop_medio_pct": 8.914,
     "stops_com_gap_pct": 2.2,
-    "duracao_media_min": 1307,
+    "duracao_media_min": 1309,
     "horizonte": "HORIZONTE SUPERIOR (> 4 h): nao e oportunidade rapida"
    },
    "papel": null,
-   "teste_final": "nao usado",
+   "teste_final": {
+    "n": 382,
+    "r_medio": -0.3034,
+    "p_vantagem": 0.97401,
+    "p_r_positivo": 1.0,
+    "ic95_r": [
+     -0.4399,
+     -0.1635
+    ],
+    "dias_com_operacoes": 54
+   },
    "criterios_por_cumprir": [
     "IC 95% (blocos) acima de 0",
     "sobrevive a Holm cumulativo",
@@ -1602,7 +1647,7 @@
     {
      "criterio": "amostra >= 100 operacoes",
      "ok": true,
-     "valor": 492
+     "valor": 494
     },
     {
      "criterio": "dias distintos >= 30",
@@ -1612,19 +1657,19 @@
     {
      "criterio": "acontecimentos independentes >= 30",
      "ok": true,
-     "valor": 246
+     "valor": 248
     },
     {
      "criterio": "expectativa liquida > 0",
      "ok": true,
-     "valor": 0.1024
+     "valor": 0.102
     },
     {
      "criterio": "IC 95% (blocos) acima de 0",
      "ok": false,
      "valor": [
-      0.0047,
-      0.2011
+      0.0041,
+      0.1962
      ]
     },
     {
@@ -1635,7 +1680,7 @@
     {
      "criterio": "resultado fora da amostra (teste final)",
      "ok": false,
-     "valor": null
+     "valor": -0.3034
     },
     {
      "criterio": "estabilidade mensal >= 60% meses positivos",
@@ -1647,16 +1692,16 @@
      "ok": true,
      "valor": {
       "lateral": [
-       259,
-       0.077
+       258,
+       0.08
       ],
       "subida": [
-       220,
-       0.148
+       222,
+       0.146
       ],
       "queda": [
-       13,
-       -0.152
+       14,
+       -0.197
       ]
      }
     },
@@ -1673,7 +1718,7 @@
     {
      "criterio": "drawdown <= 20R",
      "ok": false,
-     "valor": 30.66
+     "valor": 30.46
     },
     {
      "criterio": "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0",

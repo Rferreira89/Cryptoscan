@@ -1,5 +1,5 @@
 {
- "t": 1794909885,
+ "t": 1794956417,
  "estrategias": [
   {
    "id": "987b19a113db",
@@ -54,25 +54,6 @@
     "tipo": "fixa",
     "k": 2.0,
     "tp": 2.0,
-    "hold": 6
-   },
-   "veredicto": "EXPLORATORIA",
-   "estado": "PAPEL"
-  },
-  {
-   "id": "057f68c36111",
-   "familia": "divergencia_volume",
-   "parametros": {
-    "n": 48
-   },
-   "tf": "4H",
-   "lado": "LONG",
-   "filtro": null,
-   "stop_ref": "4H",
-   "saida": {
-    "tipo": "fixa",
-    "k": 2.5,
-    "tp": 3.0,
     "hold": 6
    },
    "veredicto": "EXPLORATORIA",
