@@ -39,6 +39,10 @@ jobs:
             mkdir -p /tmp/au/hunter
             if timeout 1500 python -m tools.hunter.papel /tmp/au; then
               bash tools/hunter/publicar.sh /tmp/au "papel" papel_estado.json || echo "publicacao do papel falhou"
+              # (17/11, ordem do Rui: menos atraso sinal -> execucao) o piloto real avalia logo os sinais desta volta
+              # (o agendamento de 15 min do piloto fica como reserva; o piloto so entra com sinais frescos e portas abertas)
+              GH_TOKEN="${{ github.token }}" gh workflow run piloto-okx.yml --repo "${{ github.repository }}" --ref main -f modo=ciclo \
+                || echo "nao consegui lancar o piloto (fica o agendamento)"
             else
               echo "volta de papel falhou (a seguinte tenta de novo)"
             fi
