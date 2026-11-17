@@ -1,0 +1,1690 @@
+{
+ "t": 1794908840,
+ "aviso": "treino + validacao (teste final intocado) e papel prospetivo; nada disto e real",
+ "estrategias": {
+  "987b19a113db": {
+   "estrategia": {
+    "familia": "lideranca_btc",
+    "parametros": {
+     "x": 0.02
+    },
+    "tf": "1H",
+    "lado": "LONG",
+    "filtro": null,
+    "stop_ref": "30m",
+    "saida": {
+     "tipo": "trailing",
+     "k": 2.0,
+     "tp": null,
+     "hold": 4
+    }
+   },
+   "hipotese_economica": [
+    "as altcoins seguem o BTC com atraso (descoberta de preco centrada no BTC)",
+    "movimentos do BTC",
+    "medio",
+    "um so acontecimento do BTC vira dezenas de operacoes correlacionadas"
+   ],
+   "estado": "EXPLORATORIA",
+   "porque": "amostra ou expectativa insuficientes",
+   "backtest_treino_validacao": {
+    "n": 461,
+    "dias": 10,
+    "acontecimentos": 10,
+    "moedas": 161,
+    "r_medio": 0.0319,
+    "r_mediana": -0.2369,
+    "ic95_blocos_dia": [
+     -0.1099,
+     0.2008
+    ],
+    "ic95_blocos_acontecimento": [
+     -0.1099,
+     0.2008
+    ],
+    "p_blocos_dia": 0.3348,
+    "drawdown_r": 52.27,
+    "profit_factor": 1.06,
+    "por_regime": {
+     "lateral": [
+      62,
+      0.03
+     ],
+     "queda": [
+      5,
+      -0.261
+     ],
+     "subida": [
+      394,
+      0.036
+     ]
+    },
+    "por_tier": {
+     "A": [
+      26,
+      0.078
+     ],
+     "B": [
+      100,
+      -0.047
+     ],
+     "C": [
+      335,
+      0.052
+     ]
+    },
+    "custo_medio_r": 0.1117,
+    "bruto_medio_r": 0.1436,
+    "peso_custos": 0.778,
+    "rentavel_antes_mas_nao_depois_dos_custos": false,
+    "operacoes_por_semana": 30.82,
+    "meses": {
+     "2026-06": [
+      35,
+      11.09
+     ],
+     "2026-07": [
+      32,
+      -10.52
+     ],
+     "2026-08": [
+      204,
+      -16.78
+     ],
+     "2026-09": [
+      190,
+      30.92
+     ]
+    },
+    "fracao_meses_positivos": 0.5,
+    "top3_moedas": [
+     "TRB",
+     "AVNT",
+     "IRYS"
+    ],
+    "quota_top3": 4.524,
+    "r_sem_top3_moedas": -0.1158,
+    "stop_medio_pct": 1.733,
+    "stops_com_gap_pct": 21.3,
+    "duracao_media_min": 186,
+    "horizonte": "rapido (30 min - 4 h)"
+   },
+   "papel": null,
+   "teste_final": "nao usado",
+   "criterios_por_cumprir": [
+    "dias distintos >= 30",
+    "acontecimentos independentes >= 30",
+    "IC 95% (blocos) acima de 0",
+    "sobrevive a Holm cumulativo",
+    "resultado fora da amostra (teste final)",
+    "estabilidade mensal >= 60% meses positivos",
+    "nao depende de 3 moedas (quota < 50% e R sem elas > 0)",
+    "drawdown <= 20R",
+    "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0"
+   ],
+   "criterios": [
+    {
+     "criterio": "amostra >= 100 operacoes",
+     "ok": true,
+     "valor": 461
+    },
+    {
+     "criterio": "dias distintos >= 30",
+     "ok": false,
+     "valor": 10
+    },
+    {
+     "criterio": "acontecimentos independentes >= 30",
+     "ok": false,
+     "valor": 10
+    },
+    {
+     "criterio": "expectativa liquida > 0",
+     "ok": true,
+     "valor": 0.0319
+    },
+    {
+     "criterio": "IC 95% (blocos) acima de 0",
+     "ok": false,
+     "valor": [
+      -0.1099,
+      0.2008
+     ]
+    },
+    {
+     "criterio": "sobrevive a Holm cumulativo",
+     "ok": false,
+     "valor": null
+    },
+    {
+     "criterio": "resultado fora da amostra (teste final)",
+     "ok": false,
+     "valor": null
+    },
+    {
+     "criterio": "estabilidade mensal >= 60% meses positivos",
+     "ok": false,
+     "valor": 0.5
+    },
+    {
+     "criterio": "positiva em >= 2 regimes (n >= 20)",
+     "ok": true,
+     "valor": {
+      "lateral": [
+       62,
+       0.03
+      ],
+      "queda": [
+       5,
+       -0.261
+      ],
+      "subida": [
+       394,
+       0.036
+      ]
+     }
+    },
+    {
+     "criterio": "custos realistas: positiva depois de custos por escalao",
+     "ok": true,
+     "valor": 0.778
+    },
+    {
+     "criterio": "nao depende de 3 moedas (quota < 50% e R sem elas > 0)",
+     "ok": false,
+     "valor": 4.524
+    },
+    {
+     "criterio": "drawdown <= 20R",
+     "ok": false,
+     "valor": 52.27
+    },
+    {
+     "criterio": "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0",
+     "ok": false,
+     "valor": {
+      "n": null,
+      "dias": null,
+      "r_medio": null
+     }
+    }
+   ]
+  },
+  "bbc2557ab78e": {
+   "estrategia": {
+    "familia": "extremo",
+    "parametros": {
+     "k": 4,
+     "z": 4.0
+    },
+    "tf": "1H",
+    "lado": "SHORT",
+    "filtro": null,
+    "stop_ref": "1H",
+    "saida": {
+     "tipo": "trailing",
+     "k": 1.0,
+     "tp": null,
+     "hold": 4
+    }
+   },
+   "hipotese_economica": [
+    "movimentos de varios desvios-padrao sao em parte excesso (reversao)",
+    "qualquer",
+    "alto em 30m",
+    "tendencias fortes continuam"
+   ],
+   "estado": "EXPLORATORIA",
+   "porque": "amostra ou expectativa insuficientes",
+   "backtest_treino_validacao": {
+    "n": 871,
+    "dias": 109,
+    "acontecimentos": 480,
+    "moedas": 151,
+    "r_medio": -0.1207,
+    "r_mediana": -0.6408,
+    "ic95_blocos_dia": [
+     -0.2943,
+     0.1128
+    ],
+    "ic95_blocos_acontecimento": [
+     -0.2746,
+     0.0533
+    ],
+    "p_blocos_dia": 0.8606,
+    "drawdown_r": 145.99,
+    "profit_factor": 0.819,
+    "por_regime": {
+     "subida": [
+      294,
+      0.019
+     ],
+     "lateral": [
+      568,
+      -0.198
+     ],
+     "queda": [
+      9,
+      0.208
+     ]
+    },
+    "por_tier": {
+     "A": [
+      89,
+      -0.178
+     ],
+     "B": [
+      277,
+      0.103
+     ],
+     "C": [
+      505,
+      -0.233
+     ]
+    },
+    "custo_medio_r": 0.0997,
+    "bruto_medio_r": -0.021,
+    "peso_custos": 4.752,
+    "rentavel_antes_mas_nao_depois_dos_custos": false,
+    "operacoes_por_semana": 38.16,
+    "meses": {
+     "2026-04": [
+      36,
+      17.89
+     ],
+     "2026-05": [
+      27,
+      -1.35
+     ],
+     "2026-06": [
+      25,
+      4.67
+     ],
+     "2026-07": [
+      124,
+      -35.6
+     ],
+     "2026-08": [
+      368,
+      -32.85
+     ],
+     "2026-09": [
+      291,
+      -57.9
+     ]
+    },
+    "fracao_meses_positivos": 0.33,
+    "top3_moedas": [
+     "PUMP",
+     "ORDI",
+     "PROS"
+    ],
+    "quota_top3": null,
+    "r_sem_top3_moedas": -0.1851,
+    "stop_medio_pct": 1.538,
+    "stops_com_gap_pct": 21.9,
+    "duracao_media_min": 138,
+    "horizonte": "rapido (30 min - 4 h)"
+   },
+   "papel": null,
+   "teste_final": "nao usado",
+   "criterios_por_cumprir": [
+    "expectativa liquida > 0",
+    "IC 95% (blocos) acima de 0",
+    "sobrevive a Holm cumulativo",
+    "resultado fora da amostra (teste final)",
+    "estabilidade mensal >= 60% meses positivos",
+    "positiva em >= 2 regimes (n >= 20)",
+    "custos realistas: positiva depois de custos por escalao",
+    "nao depende de 3 moedas (quota < 50% e R sem elas > 0)",
+    "drawdown <= 20R",
+    "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0"
+   ],
+   "criterios": [
+    {
+     "criterio": "amostra >= 100 operacoes",
+     "ok": true,
+     "valor": 871
+    },
+    {
+     "criterio": "dias distintos >= 30",
+     "ok": true,
+     "valor": 109
+    },
+    {
+     "criterio": "acontecimentos independentes >= 30",
+     "ok": true,
+     "valor": 480
+    },
+    {
+     "criterio": "expectativa liquida > 0",
+     "ok": false,
+     "valor": -0.1207
+    },
+    {
+     "criterio": "IC 95% (blocos) acima de 0",
+     "ok": false,
+     "valor": [
+      -0.2746,
+      0.0533
+     ]
+    },
+    {
+     "criterio": "sobrevive a Holm cumulativo",
+     "ok": false,
+     "valor": null
+    },
+    {
+     "criterio": "resultado fora da amostra (teste final)",
+     "ok": false,
+     "valor": null
+    },
+    {
+     "criterio": "estabilidade mensal >= 60% meses positivos",
+     "ok": false,
+     "valor": 0.33
+    },
+    {
+     "criterio": "positiva em >= 2 regimes (n >= 20)",
+     "ok": false,
+     "valor": {
+      "subida": [
+       294,
+       0.019
+      ],
+      "lateral": [
+       568,
+       -0.198
+      ],
+      "queda": [
+       9,
+       0.208
+      ]
+     }
+    },
+    {
+     "criterio": "custos realistas: positiva depois de custos por escalao",
+     "ok": false,
+     "valor": 4.752
+    },
+    {
+     "criterio": "nao depende de 3 moedas (quota < 50% e R sem elas > 0)",
+     "ok": false,
+     "valor": null
+    },
+    {
+     "criterio": "drawdown <= 20R",
+     "ok": false,
+     "valor": 145.99
+    },
+    {
+     "criterio": "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0",
+     "ok": false,
+     "valor": {
+      "n": null,
+      "dias": null,
+      "r_medio": null
+     }
+    }
+   ]
+  },
+  "29933c49ce9e": {
+   "estrategia": {
+    "familia": "rompimento_reteste",
+    "parametros": {
+     "n": 24
+    },
+    "tf": "4H",
+    "lado": "LONG",
+    "filtro": null,
+    "stop_ref": "4H",
+    "saida": {
+     "tipo": "fixa",
+     "k": 2.0,
+     "tp": 2.0,
+     "hold": 6
+    }
+   },
+   "hipotese_economica": [
+    "o nivel rompido passa de resistencia a suporte; o reteste confirma",
+    "subida",
+    "baixo com stop de 4H",
+    "reteste falha e volta para dentro do intervalo"
+   ],
+   "estado": "PAPEL",
+   "porque": "em validacao prospetiva",
+   "backtest_treino_validacao": {
+    "n": 738,
+    "dias": 108,
+    "acontecimentos": 326,
+    "moedas": 139,
+    "r_medio": 0.0516,
+    "r_mediana": -0.1378,
+    "ic95_blocos_dia": [
+     -0.1213,
+     0.201
+    ],
+    "ic95_blocos_acontecimento": [
+     -0.0562,
+     0.1561
+    ],
+    "p_blocos_dia": 0.2729,
+    "drawdown_r": 58.35,
+    "profit_factor": 1.129,
+    "por_regime": {
+     "lateral": [
+      432,
+      0.026
+     ],
+     "subida": [
+      285,
+      0.112
+     ],
+     "queda": [
+      21,
+      -0.245
+     ]
+    },
+    "por_tier": {
+     "A": [
+      96,
+      0.137
+     ],
+     "B": [
+      263,
+      0.153
+     ],
+     "C": [
+      379,
+      -0.041
+     ]
+    },
+    "custo_medio_r": 0.0359,
+    "bruto_medio_r": 0.0874,
+    "peso_custos": 0.41,
+    "rentavel_antes_mas_nao_depois_dos_custos": false,
+    "operacoes_por_semana": 34.75,
+    "meses": {
+     "2026-04": [
+      3,
+      -2.93
+     ],
+     "2026-05": [
+      18,
+      0.87
+     ],
+     "2026-06": [
+      29,
+      2.64
+     ],
+     "2026-07": [
+      146,
+      -2.73
+     ],
+     "2026-08": [
+      262,
+      30.13
+     ],
+     "2026-09": [
+      280,
+      10.09
+     ]
+    },
+    "fracao_meses_positivos": 0.67,
+    "top3_moedas": [
+     "BICO",
+     "BZ",
+     "SOL"
+    ],
+    "quota_top3": 0.573,
+    "r_sem_top3_moedas": 0.0231,
+    "stop_medio_pct": 5.038,
+    "stops_com_gap_pct": 11.4,
+    "duracao_media_min": 1194,
+    "horizonte": "HORIZONTE SUPERIOR (> 4 h): nao e oportunidade rapida"
+   },
+   "papel": null,
+   "teste_final": "nao usado",
+   "criterios_por_cumprir": [
+    "IC 95% (blocos) acima de 0",
+    "sobrevive a Holm cumulativo",
+    "resultado fora da amostra (teste final)",
+    "nao depende de 3 moedas (quota < 50% e R sem elas > 0)",
+    "drawdown <= 20R",
+    "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0"
+   ],
+   "criterios": [
+    {
+     "criterio": "amostra >= 100 operacoes",
+     "ok": true,
+     "valor": 738
+    },
+    {
+     "criterio": "dias distintos >= 30",
+     "ok": true,
+     "valor": 108
+    },
+    {
+     "criterio": "acontecimentos independentes >= 30",
+     "ok": true,
+     "valor": 326
+    },
+    {
+     "criterio": "expectativa liquida > 0",
+     "ok": true,
+     "valor": 0.0516
+    },
+    {
+     "criterio": "IC 95% (blocos) acima de 0",
+     "ok": false,
+     "valor": [
+      -0.0562,
+      0.1561
+     ]
+    },
+    {
+     "criterio": "sobrevive a Holm cumulativo",
+     "ok": false,
+     "valor": null
+    },
+    {
+     "criterio": "resultado fora da amostra (teste final)",
+     "ok": false,
+     "valor": null
+    },
+    {
+     "criterio": "estabilidade mensal >= 60% meses positivos",
+     "ok": true,
+     "valor": 0.67
+    },
+    {
+     "criterio": "positiva em >= 2 regimes (n >= 20)",
+     "ok": true,
+     "valor": {
+      "lateral": [
+       432,
+       0.026
+      ],
+      "subida": [
+       285,
+       0.112
+      ],
+      "queda": [
+       21,
+       -0.245
+      ]
+     }
+    },
+    {
+     "criterio": "custos realistas: positiva depois de custos por escalao",
+     "ok": true,
+     "valor": 0.41
+    },
+    {
+     "criterio": "nao depende de 3 moedas (quota < 50% e R sem elas > 0)",
+     "ok": false,
+     "valor": 0.573
+    },
+    {
+     "criterio": "drawdown <= 20R",
+     "ok": false,
+     "valor": 58.35
+    },
+    {
+     "criterio": "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0",
+     "ok": false,
+     "valor": {
+      "n": null,
+      "dias": null,
+      "r_medio": null
+     }
+    }
+   ]
+  },
+  "057f68c36111": {
+   "estrategia": {
+    "familia": "divergencia_volume",
+    "parametros": {
+     "n": 48
+    },
+    "tf": "4H",
+    "lado": "LONG",
+    "filtro": null,
+    "stop_ref": "4H",
+    "saida": {
+     "tipo": "fixa",
+     "k": 2.5,
+     "tp": 3.0,
+     "hold": 6
+    }
+   },
+   "hipotese_economica": [
+    "extremo sem participacao (volume baixo) e fragil",
+    "qualquer",
+    "baixo",
+    "volume das X-Perps nao representa o mercado todo"
+   ],
+   "estado": "PAPEL",
+   "porque": "em validacao prospetiva",
+   "backtest_treino_validacao": {
+    "n": 355,
+    "dias": 91,
+    "acontecimentos": 193,
+    "moedas": 122,
+    "r_medio": 0.0382,
+    "r_mediana": -0.0388,
+    "ic95_blocos_dia": [
+     -0.1255,
+     0.2201
+    ],
+    "ic95_blocos_acontecimento": [
+     -0.0897,
+     0.1656
+    ],
+    "p_blocos_dia": 0.3898,
+    "drawdown_r": 32.64,
+    "profit_factor": 1.125,
+    "por_regime": {
+     "lateral": [
+      293,
+      0.085
+     ],
+     "queda": [
+      52,
+      -0.14
+     ],
+     "subida": [
+      10,
+      -0.395
+     ]
+    },
+    "por_tier": {
+     "A": [
+      16,
+      0.003
+     ],
+     "B": [
+      96,
+      0.085
+     ],
+     "C": [
+      243,
+      0.022
+     ]
+    },
+    "custo_medio_r": 0.0299,
+    "bruto_medio_r": 0.0681,
+    "peso_custos": 0.439,
+    "rentavel_antes_mas_nao_depois_dos_custos": false,
+    "operacoes_por_semana": 16.85,
+    "meses": {
+     "2026-04": [
+      2,
+      0.77
+     ],
+     "2026-05": [
+      16,
+      3.2
+     ],
+     "2026-06": [
+      30,
+      0.09
+     ],
+     "2026-07": [
+      69,
+      -3.04
+     ],
+     "2026-08": [
+      95,
+      -12.48
+     ],
+     "2026-09": [
+      143,
+      25.02
+     ]
+    },
+    "fracao_meses_positivos": 0.67,
+    "top3_moedas": [
+     "O",
+     "ARX",
+     "GALA"
+    ],
+    "quota_top3": 0.943,
+    "r_sem_top3_moedas": 0.0023,
+    "stop_medio_pct": 6.072,
+    "stops_com_gap_pct": 8.1,
+    "duracao_media_min": 1316,
+    "horizonte": "HORIZONTE SUPERIOR (> 4 h): nao e oportunidade rapida"
+   },
+   "papel": null,
+   "teste_final": "nao usado",
+   "criterios_por_cumprir": [
+    "IC 95% (blocos) acima de 0",
+    "sobrevive a Holm cumulativo",
+    "resultado fora da amostra (teste final)",
+    "positiva em >= 2 regimes (n >= 20)",
+    "nao depende de 3 moedas (quota < 50% e R sem elas > 0)",
+    "drawdown <= 20R",
+    "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0"
+   ],
+   "criterios": [
+    {
+     "criterio": "amostra >= 100 operacoes",
+     "ok": true,
+     "valor": 355
+    },
+    {
+     "criterio": "dias distintos >= 30",
+     "ok": true,
+     "valor": 91
+    },
+    {
+     "criterio": "acontecimentos independentes >= 30",
+     "ok": true,
+     "valor": 193
+    },
+    {
+     "criterio": "expectativa liquida > 0",
+     "ok": true,
+     "valor": 0.0382
+    },
+    {
+     "criterio": "IC 95% (blocos) acima de 0",
+     "ok": false,
+     "valor": [
+      -0.0897,
+      0.1656
+     ]
+    },
+    {
+     "criterio": "sobrevive a Holm cumulativo",
+     "ok": false,
+     "valor": null
+    },
+    {
+     "criterio": "resultado fora da amostra (teste final)",
+     "ok": false,
+     "valor": null
+    },
+    {
+     "criterio": "estabilidade mensal >= 60% meses positivos",
+     "ok": true,
+     "valor": 0.67
+    },
+    {
+     "criterio": "positiva em >= 2 regimes (n >= 20)",
+     "ok": false,
+     "valor": {
+      "lateral": [
+       293,
+       0.085
+      ],
+      "queda": [
+       52,
+       -0.14
+      ],
+      "subida": [
+       10,
+       -0.395
+      ]
+     }
+    },
+    {
+     "criterio": "custos realistas: positiva depois de custos por escalao",
+     "ok": true,
+     "valor": 0.439
+    },
+    {
+     "criterio": "nao depende de 3 moedas (quota < 50% e R sem elas > 0)",
+     "ok": false,
+     "valor": 0.943
+    },
+    {
+     "criterio": "drawdown <= 20R",
+     "ok": false,
+     "valor": 32.64
+    },
+    {
+     "criterio": "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0",
+     "ok": false,
+     "valor": {
+      "n": null,
+      "dias": null,
+      "r_medio": null
+     }
+    }
+   ]
+  },
+  "1a40f1f6422a": {
+   "estrategia": {
+    "familia": "momentum_regime",
+    "parametros": {
+     "k": 3,
+     "x": 0.05
+    },
+    "tf": "4H",
+    "lado": "LONG",
+    "filtro": null,
+    "stop_ref": "4H",
+    "saida": {
+     "tipo": "trailing",
+     "k": 2.0,
+     "tp": null,
+     "hold": 6
+    }
+   },
+   "hipotese_economica": [
+    "momentum funciona a favor do regime do BTC (fluxo do mercado inteiro)",
+    "subida/queda",
+    "medio",
+    "inversoes do BTC"
+   ],
+   "estado": "PAPEL",
+   "porque": "em validacao prospetiva",
+   "backtest_treino_validacao": {
+    "n": 759,
+    "dias": 70,
+    "acontecimentos": 206,
+    "moedas": 129,
+    "r_medio": 0.0781,
+    "r_mediana": -0.1617,
+    "ic95_blocos_dia": [
+     -0.1416,
+     0.2653
+    ],
+    "ic95_blocos_acontecimento": [
+     -0.0604,
+     0.2082
+    ],
+    "p_blocos_dia": 0.2549,
+    "drawdown_r": 69.61,
+    "profit_factor": 1.234,
+    "por_regime": {
+     "subida": [
+      384,
+      0.111
+     ],
+     "lateral": [
+      375,
+      0.045
+     ]
+    },
+    "por_tier": {
+     "A": [
+      60,
+      0.385
+     ],
+     "B": [
+      247,
+      0.113
+     ],
+     "C": [
+      452,
+      0.018
+     ]
+    },
+    "custo_medio_r": 0.0195,
+    "bruto_medio_r": 0.0976,
+    "peso_custos": 0.2,
+    "rentavel_antes_mas_nao_depois_dos_custos": false,
+    "operacoes_por_semana": 35.11,
+    "meses": {
+     "2026-04": [
+      3,
+      -2.57
+     ],
+     "2026-05": [
+      11,
+      -2.35
+     ],
+     "2026-06": [
+      16,
+      1.66
+     ],
+     "2026-07": [
+      131,
+      8.37
+     ],
+     "2026-08": [
+      335,
+      37.76
+     ],
+     "2026-09": [
+      263,
+      16.42
+     ]
+    },
+    "fracao_meses_positivos": 0.67,
+    "top3_moedas": [
+     "ZAMA",
+     "INJ",
+     "ZIL"
+    ],
+    "quota_top3": 0.374,
+    "r_sem_top3_moedas": 0.0502,
+    "stop_medio_pct": 7.183,
+    "stops_com_gap_pct": 0.0,
+    "duracao_media_min": 1105,
+    "horizonte": "HORIZONTE SUPERIOR (> 4 h): nao e oportunidade rapida"
+   },
+   "papel": null,
+   "teste_final": "nao usado",
+   "criterios_por_cumprir": [
+    "IC 95% (blocos) acima de 0",
+    "sobrevive a Holm cumulativo",
+    "resultado fora da amostra (teste final)",
+    "drawdown <= 20R",
+    "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0"
+   ],
+   "criterios": [
+    {
+     "criterio": "amostra >= 100 operacoes",
+     "ok": true,
+     "valor": 759
+    },
+    {
+     "criterio": "dias distintos >= 30",
+     "ok": true,
+     "valor": 70
+    },
+    {
+     "criterio": "acontecimentos independentes >= 30",
+     "ok": true,
+     "valor": 206
+    },
+    {
+     "criterio": "expectativa liquida > 0",
+     "ok": true,
+     "valor": 0.0781
+    },
+    {
+     "criterio": "IC 95% (blocos) acima de 0",
+     "ok": false,
+     "valor": [
+      -0.0604,
+      0.2082
+     ]
+    },
+    {
+     "criterio": "sobrevive a Holm cumulativo",
+     "ok": false,
+     "valor": null
+    },
+    {
+     "criterio": "resultado fora da amostra (teste final)",
+     "ok": false,
+     "valor": null
+    },
+    {
+     "criterio": "estabilidade mensal >= 60% meses positivos",
+     "ok": true,
+     "valor": 0.67
+    },
+    {
+     "criterio": "positiva em >= 2 regimes (n >= 20)",
+     "ok": true,
+     "valor": {
+      "subida": [
+       384,
+       0.111
+      ],
+      "lateral": [
+       375,
+       0.045
+      ]
+     }
+    },
+    {
+     "criterio": "custos realistas: positiva depois de custos por escalao",
+     "ok": true,
+     "valor": 0.2
+    },
+    {
+     "criterio": "nao depende de 3 moedas (quota < 50% e R sem elas > 0)",
+     "ok": true,
+     "valor": 0.374
+    },
+    {
+     "criterio": "drawdown <= 20R",
+     "ok": false,
+     "valor": 69.61
+    },
+    {
+     "criterio": "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0",
+     "ok": false,
+     "valor": {
+      "n": null,
+      "dias": null,
+      "r_medio": null
+     }
+    }
+   ]
+  },
+  "f482badea9f5": {
+   "estrategia": {
+    "familia": "momentum_regime",
+    "parametros": {
+     "k": 12,
+     "x": 0.05
+    },
+    "tf": "4H",
+    "lado": "LONG",
+    "filtro": null,
+    "stop_ref": "4H",
+    "saida": {
+     "tipo": "fixa",
+     "k": 2.5,
+     "tp": 3.0,
+     "hold": 6,
+     "inversao": true
+    }
+   },
+   "hipotese_economica": [
+    "momentum funciona a favor do regime do BTC (fluxo do mercado inteiro)",
+    "subida/queda",
+    "medio",
+    "inversoes do BTC"
+   ],
+   "estado": "PAPEL",
+   "porque": "em validacao prospetiva",
+   "backtest_treino_validacao": {
+    "n": 1336,
+    "dias": 76,
+    "acontecimentos": 265,
+    "moedas": 149,
+    "r_medio": 0.0837,
+    "r_mediana": -0.0657,
+    "ic95_blocos_dia": [
+     -0.0941,
+     0.2496
+    ],
+    "ic95_blocos_acontecimento": [
+     -0.0399,
+     0.2097
+    ],
+    "p_blocos_dia": 0.2059,
+    "drawdown_r": 94.95,
+    "profit_factor": 1.278,
+    "por_regime": {
+     "lateral": [
+      669,
+      0.049
+     ],
+     "subida": [
+      667,
+      0.118
+     ]
+    },
+    "por_tier": {
+     "A": [
+      136,
+      0.117
+     ],
+     "B": [
+      453,
+      0.143
+     ],
+     "C": [
+      747,
+      0.042
+     ]
+    },
+    "custo_medio_r": 0.0191,
+    "bruto_medio_r": 0.1028,
+    "peso_custos": 0.186,
+    "rentavel_antes_mas_nao_depois_dos_custos": false,
+    "operacoes_por_semana": 61.73,
+    "meses": {
+     "2026-04": [
+      5,
+      -5.23
+     ],
+     "2026-05": [
+      22,
+      -2.53
+     ],
+     "2026-06": [
+      33,
+      0.16
+     ],
+     "2026-07": [
+      246,
+      -6.92
+     ],
+     "2026-08": [
+      483,
+      65.89
+     ],
+     "2026-09": [
+      547,
+      60.48
+     ]
+    },
+    "fracao_meses_positivos": 0.5,
+    "top3_moedas": [
+     "ENA",
+     "ZIL",
+     "SUI"
+    ],
+    "quota_top3": 0.243,
+    "r_sem_top3_moedas": 0.0657,
+    "stop_medio_pct": 7.793,
+    "stops_com_gap_pct": 1.4,
+    "duracao_media_min": 1325,
+    "horizonte": "HORIZONTE SUPERIOR (> 4 h): nao e oportunidade rapida"
+   },
+   "papel": null,
+   "teste_final": "nao usado",
+   "criterios_por_cumprir": [
+    "IC 95% (blocos) acima de 0",
+    "sobrevive a Holm cumulativo",
+    "resultado fora da amostra (teste final)",
+    "estabilidade mensal >= 60% meses positivos",
+    "drawdown <= 20R",
+    "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0"
+   ],
+   "criterios": [
+    {
+     "criterio": "amostra >= 100 operacoes",
+     "ok": true,
+     "valor": 1336
+    },
+    {
+     "criterio": "dias distintos >= 30",
+     "ok": true,
+     "valor": 76
+    },
+    {
+     "criterio": "acontecimentos independentes >= 30",
+     "ok": true,
+     "valor": 265
+    },
+    {
+     "criterio": "expectativa liquida > 0",
+     "ok": true,
+     "valor": 0.0837
+    },
+    {
+     "criterio": "IC 95% (blocos) acima de 0",
+     "ok": false,
+     "valor": [
+      -0.0399,
+      0.2097
+     ]
+    },
+    {
+     "criterio": "sobrevive a Holm cumulativo",
+     "ok": false,
+     "valor": null
+    },
+    {
+     "criterio": "resultado fora da amostra (teste final)",
+     "ok": false,
+     "valor": null
+    },
+    {
+     "criterio": "estabilidade mensal >= 60% meses positivos",
+     "ok": false,
+     "valor": 0.5
+    },
+    {
+     "criterio": "positiva em >= 2 regimes (n >= 20)",
+     "ok": true,
+     "valor": {
+      "lateral": [
+       669,
+       0.049
+      ],
+      "subida": [
+       667,
+       0.118
+      ]
+     }
+    },
+    {
+     "criterio": "custos realistas: positiva depois de custos por escalao",
+     "ok": true,
+     "valor": 0.186
+    },
+    {
+     "criterio": "nao depende de 3 moedas (quota < 50% e R sem elas > 0)",
+     "ok": true,
+     "valor": 0.243
+    },
+    {
+     "criterio": "drawdown <= 20R",
+     "ok": false,
+     "valor": 94.95
+    },
+    {
+     "criterio": "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0",
+     "ok": false,
+     "valor": {
+      "n": null,
+      "dias": null,
+      "r_medio": null
+     }
+    }
+   ]
+  },
+  "a576dd368963": {
+   "estrategia": {
+    "familia": "rompimento_reteste",
+    "parametros": {
+     "n": 48
+    },
+    "tf": "4H",
+    "lado": "LONG",
+    "filtro": "cripto",
+    "stop_ref": "4H",
+    "saida": {
+     "tipo": "fixa",
+     "k": 3.0,
+     "tp": 1.5,
+     "hold": 6
+    }
+   },
+   "hipotese_economica": [
+    "o nivel rompido passa de resistencia a suporte; o reteste confirma",
+    "subida",
+    "baixo com stop de 4H",
+    "reteste falha e volta para dentro do intervalo"
+   ],
+   "estado": "PAPEL",
+   "porque": "em validacao prospetiva",
+   "backtest_treino_validacao": {
+    "n": 338,
+    "dias": 79,
+    "acontecimentos": 192,
+    "moedas": 84,
+    "r_medio": 0.0916,
+    "r_mediana": -0.0206,
+    "ic95_blocos_dia": [
+     -0.0548,
+     0.2483
+    ],
+    "ic95_blocos_acontecimento": [
+     -0.0141,
+     0.1944
+    ],
+    "p_blocos_dia": 0.1224,
+    "drawdown_r": 16.81,
+    "profit_factor": 1.349,
+    "por_regime": {
+     "subida": [
+      188,
+      0.134
+     ],
+     "lateral": [
+      142,
+      0.041
+     ],
+     "queda": [
+      8,
+      -0.018
+     ]
+    },
+    "por_tier": {
+     "A": [
+      49,
+      0.051
+     ],
+     "B": [
+      139,
+      0.162
+     ],
+     "C": [
+      150,
+      0.04
+     ]
+    },
+    "custo_medio_r": 0.0177,
+    "bruto_medio_r": 0.1093,
+    "peso_custos": 0.162,
+    "rentavel_antes_mas_nao_depois_dos_custos": false,
+    "operacoes_por_semana": 17.0,
+    "meses": {
+     "2026-05": [
+      12,
+      1.89
+     ],
+     "2026-06": [
+      19,
+      5.11
+     ],
+     "2026-07": [
+      62,
+      1.97
+     ],
+     "2026-08": [
+      126,
+      21.81
+     ],
+     "2026-09": [
+      119,
+      0.16
+     ]
+    },
+    "fracao_meses_positivos": 1.0,
+    "top3_moedas": [
+     "BICO",
+     "PEPE",
+     "ADA"
+    ],
+    "quota_top3": 0.449,
+    "r_sem_top3_moedas": 0.0539,
+    "stop_medio_pct": 9.535,
+    "stops_com_gap_pct": 0.0,
+    "duracao_media_min": 1302,
+    "horizonte": "HORIZONTE SUPERIOR (> 4 h): nao e oportunidade rapida"
+   },
+   "papel": null,
+   "teste_final": "nao usado",
+   "criterios_por_cumprir": [
+    "IC 95% (blocos) acima de 0",
+    "sobrevive a Holm cumulativo",
+    "resultado fora da amostra (teste final)",
+    "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0"
+   ],
+   "criterios": [
+    {
+     "criterio": "amostra >= 100 operacoes",
+     "ok": true,
+     "valor": 338
+    },
+    {
+     "criterio": "dias distintos >= 30",
+     "ok": true,
+     "valor": 79
+    },
+    {
+     "criterio": "acontecimentos independentes >= 30",
+     "ok": true,
+     "valor": 192
+    },
+    {
+     "criterio": "expectativa liquida > 0",
+     "ok": true,
+     "valor": 0.0916
+    },
+    {
+     "criterio": "IC 95% (blocos) acima de 0",
+     "ok": false,
+     "valor": [
+      -0.0141,
+      0.1944
+     ]
+    },
+    {
+     "criterio": "sobrevive a Holm cumulativo",
+     "ok": false,
+     "valor": null
+    },
+    {
+     "criterio": "resultado fora da amostra (teste final)",
+     "ok": false,
+     "valor": null
+    },
+    {
+     "criterio": "estabilidade mensal >= 60% meses positivos",
+     "ok": true,
+     "valor": 1.0
+    },
+    {
+     "criterio": "positiva em >= 2 regimes (n >= 20)",
+     "ok": true,
+     "valor": {
+      "subida": [
+       188,
+       0.134
+      ],
+      "lateral": [
+       142,
+       0.041
+      ],
+      "queda": [
+       8,
+       -0.018
+      ]
+     }
+    },
+    {
+     "criterio": "custos realistas: positiva depois de custos por escalao",
+     "ok": true,
+     "valor": 0.162
+    },
+    {
+     "criterio": "nao depende de 3 moedas (quota < 50% e R sem elas > 0)",
+     "ok": true,
+     "valor": 0.449
+    },
+    {
+     "criterio": "drawdown <= 20R",
+     "ok": true,
+     "valor": 16.81
+    },
+    {
+     "criterio": "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0",
+     "ok": false,
+     "valor": {
+      "n": null,
+      "dias": null,
+      "r_medio": null
+     }
+    }
+   ]
+  },
+  "e495d11739f6": {
+   "estrategia": {
+    "familia": "rompimento_reteste",
+    "parametros": {
+     "n": 24
+    },
+    "tf": "4H",
+    "lado": "LONG",
+    "filtro": "cripto",
+    "stop_ref": "4H",
+    "saida": {
+     "tipo": "fixa",
+     "k": 3.0,
+     "tp": 1.5,
+     "hold": 6
+    }
+   },
+   "hipotese_economica": [
+    "o nivel rompido passa de resistencia a suporte; o reteste confirma",
+    "subida",
+    "baixo com stop de 4H",
+    "reteste falha e volta para dentro do intervalo"
+   ],
+   "estado": "PAPEL",
+   "porque": "em validacao prospetiva",
+   "backtest_treino_validacao": {
+    "n": 492,
+    "dias": 101,
+    "acontecimentos": 246,
+    "moedas": 97,
+    "r_medio": 0.1024,
+    "r_mediana": -0.0175,
+    "ic95_blocos_dia": [
+     -0.0492,
+     0.2384
+    ],
+    "ic95_blocos_acontecimento": [
+     0.0036,
+     0.2004
+    ],
+    "p_blocos_dia": 0.0935,
+    "drawdown_r": 30.66,
+    "profit_factor": 1.412,
+    "por_regime": {
+     "lateral": [
+      259,
+      0.077
+     ],
+     "subida": [
+      220,
+      0.148
+     ],
+     "queda": [
+      13,
+      -0.152
+     ]
+    },
+    "por_tier": {
+     "A": [
+      76,
+      0.117
+     ],
+     "B": [
+      186,
+      0.151
+     ],
+     "C": [
+      230,
+      0.059
+     ]
+    },
+    "custo_medio_r": 0.0189,
+    "bruto_medio_r": 0.1212,
+    "peso_custos": 0.156,
+    "rentavel_antes_mas_nao_depois_dos_custos": false,
+    "operacoes_por_semana": 23.17,
+    "meses": {
+     "2026-04": [
+      3,
+      -2.34
+     ],
+     "2026-05": [
+      17,
+      -0.8
+     ],
+     "2026-06": [
+      24,
+      2.25
+     ],
+     "2026-07": [
+      95,
+      4.01
+     ],
+     "2026-08": [
+      160,
+      34.93
+     ],
+     "2026-09": [
+      193,
+      12.31
+     ]
+    },
+    "fracao_meses_positivos": 0.67,
+    "top3_moedas": [
+     "BICO",
+     "SOL",
+     "ADA"
+    ],
+    "quota_top3": 0.285,
+    "r_sem_top3_moedas": 0.0781,
+    "stop_medio_pct": 8.896,
+    "stops_com_gap_pct": 2.2,
+    "duracao_media_min": 1307,
+    "horizonte": "HORIZONTE SUPERIOR (> 4 h): nao e oportunidade rapida"
+   },
+   "papel": null,
+   "teste_final": "nao usado",
+   "criterios_por_cumprir": [
+    "IC 95% (blocos) acima de 0",
+    "sobrevive a Holm cumulativo",
+    "resultado fora da amostra (teste final)",
+    "drawdown <= 20R",
+    "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0"
+   ],
+   "criterios": [
+    {
+     "criterio": "amostra >= 100 operacoes",
+     "ok": true,
+     "valor": 492
+    },
+    {
+     "criterio": "dias distintos >= 30",
+     "ok": true,
+     "valor": 101
+    },
+    {
+     "criterio": "acontecimentos independentes >= 30",
+     "ok": true,
+     "valor": 246
+    },
+    {
+     "criterio": "expectativa liquida > 0",
+     "ok": true,
+     "valor": 0.1024
+    },
+    {
+     "criterio": "IC 95% (blocos) acima de 0",
+     "ok": false,
+     "valor": [
+      0.0036,
+      0.2004
+     ]
+    },
+    {
+     "criterio": "sobrevive a Holm cumulativo",
+     "ok": false,
+     "valor": null
+    },
+    {
+     "criterio": "resultado fora da amostra (teste final)",
+     "ok": false,
+     "valor": null
+    },
+    {
+     "criterio": "estabilidade mensal >= 60% meses positivos",
+     "ok": true,
+     "valor": 0.67
+    },
+    {
+     "criterio": "positiva em >= 2 regimes (n >= 20)",
+     "ok": true,
+     "valor": {
+      "lateral": [
+       259,
+       0.077
+      ],
+      "subida": [
+       220,
+       0.148
+      ],
+      "queda": [
+       13,
+       -0.152
+      ]
+     }
+    },
+    {
+     "criterio": "custos realistas: positiva depois de custos por escalao",
+     "ok": true,
+     "valor": 0.156
+    },
+    {
+     "criterio": "nao depende de 3 moedas (quota < 50% e R sem elas > 0)",
+     "ok": true,
+     "valor": 0.285
+    },
+    {
+     "criterio": "drawdown <= 20R",
+     "ok": false,
+     "valor": 30.66
+    },
+    {
+     "criterio": "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0",
+     "ok": false,
+     "valor": {
+      "n": null,
+      "dias": null,
+      "r_medio": null
+     }
+    }
+   ]
+  }
+ }
+}

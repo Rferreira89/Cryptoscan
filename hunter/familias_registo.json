@@ -1,0 +1,283 @@
+{
+ "varrimento": {
+  "grupo": "A",
+  "hipotese": "stops acumulados abaixo/acima de minimos/maximos sao varridos e o preco regressa (liquidez absorvida)",
+  "regime_esperado": "lateral",
+  "custos_esperados": "baixo (entrada no fecho)",
+  "riscos": "rutura verdadeira continua o movimento",
+  "variantes_diagnostico": 18,
+  "onde_falha": {
+   "custos (deriva menor que o custo)": 12,
+   "entrada (sem deriva a favor)": 6
+  },
+  "melhor_deriva_liquida_atr_treino": -0.0168,
+  "validacao": [],
+  "decisao": "REJEITADA nesta ronda: custos (deriva menor que o custo)"
+ },
+ "falso_rompimento": {
+  "grupo": "A",
+  "hipotese": "rompimento sem seguimento prende compradores tardios que saem e empurram o preco de volta",
+  "regime_esperado": "lateral",
+  "custos_esperados": "baixo",
+  "riscos": "tendencia forte transforma falsos em verdadeiros",
+  "variantes_diagnostico": 18,
+  "onde_falha": {
+   "custos (deriva menor que o custo)": 10,
+   "entrada (sem deriva a favor)": 7,
+   "nenhum a priori: passa a geometria": 1
+  },
+  "melhor_deriva_liquida_atr_treino": 0.0039,
+  "validacao": [],
+  "decisao": "REJEITADA nesta ronda: custos (deriva menor que o custo)"
+ },
+ "rejeicao": {
+  "grupo": "A",
+  "hipotese": "pavio longo no extremo = oferta/procura agressiva rejeitou o nivel",
+  "regime_esperado": "lateral",
+  "custos_esperados": "baixo",
+  "riscos": "pavio de pouca liquidez (contratos C) nao significa nada",
+  "variantes_diagnostico": 24,
+  "onde_falha": {
+   "custos (deriva menor que o custo)": 15,
+   "entrada (sem deriva a favor)": 7,
+   "nenhum a priori: passa a geometria": 2
+  },
+  "melhor_deriva_liquida_atr_treino": 0.1417,
+  "validacao": [],
+  "decisao": "REJEITADA nesta ronda: custos (deriva menor que o custo)"
+ },
+ "recuperacao": {
+  "grupo": "A",
+  "hipotese": "depois de uma cascata de liquidacoes o preco recupera metade da vela (vendedores forcados acabaram)",
+  "regime_esperado": "queda",
+  "custos_esperados": "medio (volatilidade alta)",
+  "riscos": "cascatas em serie",
+  "variantes_diagnostico": 12,
+  "onde_falha": {
+   "entrada (sem deriva a favor)": 5,
+   "custos (deriva menor que o custo)": 6,
+   "nenhum a priori: passa a geometria": 1
+  },
+  "melhor_deriva_liquida_atr_treino": 1.4338,
+  "validacao": [],
+  "decisao": "REJEITADA nesta ronda: custos (deriva menor que o custo)"
+ },
+ "funding_extremo": {
+  "grupo": "B",
+  "hipotese": "posicionamento esticado (quem paga funding) desfaz-se contra o lado que paga",
+  "regime_esperado": "qualquer",
+  "custos_esperados": "funding entra no resultado",
+  "riscos": "historico de funding curto (3 meses)",
+  "variantes_diagnostico": 0,
+  "onde_falha": {},
+  "melhor_deriva_liquida_atr_treino": null,
+  "validacao": [],
+  "decisao": "REJEITADA nesta ronda: sem sinais"
+ },
+ "compressao": {
+  "grupo": "C",
+  "hipotese": "volatilidade comprimida antecede expansao; o lado do rompimento indica a direcao",
+  "regime_esperado": "lateral -> tendencia",
+  "custos_esperados": "baixo",
+  "riscos": "falsos rompimentos depois da compressao",
+  "variantes_diagnostico": 12,
+  "onde_falha": {
+   "custos (deriva menor que o custo)": 9,
+   "nenhum a priori: passa a geometria": 1,
+   "entrada (sem deriva a favor)": 2
+  },
+  "melhor_deriva_liquida_atr_treino": 0.1254,
+  "validacao": [],
+  "decisao": "REJEITADA nesta ronda: custos (deriva menor que o custo)"
+ },
+ "extremo": {
+  "grupo": "C",
+  "hipotese": "movimentos de varios desvios-padrao sao em parte excesso (reversao)",
+  "regime_esperado": "qualquer",
+  "custos_esperados": "alto em 30m",
+  "riscos": "tendencias fortes continuam",
+  "variantes_diagnostico": 24,
+  "onde_falha": {
+   "custos (deriva menor que o custo)": 8,
+   "nenhum a priori: passa a geometria": 12,
+   "entrada (sem deriva a favor)": 4
+  },
+  "melhor_deriva_liquida_atr_treino": 2.0135,
+  "validacao": [],
+  "decisao": "REJEITADA nesta ronda: nenhum a priori: passa a geometria"
+ },
+ "impulso_correcao": {
+  "grupo": "C",
+  "hipotese": "depois de um impulso, a correcao de 38-62% e reentrada de quem perdeu o movimento",
+  "regime_esperado": "tendencia",
+  "custos_esperados": "medio",
+  "riscos": "correcao vira inversao",
+  "variantes_diagnostico": 12,
+  "onde_falha": {
+   "nenhum a priori: passa a geometria": 7,
+   "custos (deriva menor que o custo)": 2,
+   "entrada (sem deriva a favor)": 3
+  },
+  "melhor_deriva_liquida_atr_treino": 0.8334,
+  "validacao": [],
+  "decisao": "REJEITADA nesta ronda: nenhum a priori: passa a geometria"
+ },
+ "rompimento_reteste": {
+  "grupo": "C",
+  "hipotese": "o nivel rompido passa de resistencia a suporte; o reteste confirma",
+  "regime_esperado": "subida",
+  "custos_esperados": "baixo com stop de 4H",
+  "riscos": "reteste falha e volta para dentro do intervalo",
+  "variantes_diagnostico": 12,
+  "onde_falha": {
+   "custos (deriva menor que o custo)": 8,
+   "entrada (sem deriva a favor)": 1,
+   "nenhum a priori: passa a geometria": 3
+  },
+  "melhor_deriva_liquida_atr_treino": 0.1855,
+  "validacao": [],
+  "decisao": "REJEITADA nesta ronda: custos (deriva menor que o custo)"
+ },
+ "estrutura": {
+  "grupo": "C",
+  "hipotese": "primeiro maximo mais alto depois de uma queda = mudanca de controlo",
+  "regime_esperado": "inversao",
+  "custos_esperados": "medio",
+  "riscos": "sinal precoce numa queda que continua",
+  "variantes_diagnostico": 12,
+  "onde_falha": {
+   "custos (deriva menor que o custo)": 4,
+   "entrada (sem deriva a favor)": 8
+  },
+  "melhor_deriva_liquida_atr_treino": -0.0502,
+  "validacao": [],
+  "decisao": "REJEITADA nesta ronda: entrada (sem deriva a favor)"
+ },
+ "volume_anormal": {
+  "grupo": "D",
+  "hipotese": "volume anormal no sentido da vela = informacao nova a entrar",
+  "regime_esperado": "qualquer",
+  "custos_esperados": "medio",
+  "riscos": "picos de volume em contratos iliquidos",
+  "variantes_diagnostico": 12,
+  "onde_falha": {
+   "custos (deriva menor que o custo)": 8,
+   "entrada (sem deriva a favor)": 4
+  },
+  "melhor_deriva_liquida_atr_treino": -0.109,
+  "validacao": [],
+  "decisao": "REJEITADA nesta ronda: custos (deriva menor que o custo)"
+ },
+ "divergencia_volume": {
+  "grupo": "D",
+  "hipotese": "extremo sem participacao (volume baixo) e fragil",
+  "regime_esperado": "qualquer",
+  "custos_esperados": "baixo",
+  "riscos": "volume das X-Perps nao representa o mercado todo",
+  "variantes_diagnostico": 12,
+  "onde_falha": {
+   "custos (deriva menor que o custo)": 6,
+   "entrada (sem deriva a favor)": 5,
+   "nenhum a priori: passa a geometria": 1
+  },
+  "melhor_deriva_liquida_atr_treino": 0.1715,
+  "validacao": [],
+  "decisao": "REJEITADA nesta ronda: custos (deriva menor que o custo)"
+ },
+ "acumulacao": {
+  "grupo": "D",
+  "hipotese": "OBV a subir com preco lateral = acumulacao antes do movimento",
+  "regime_esperado": "lateral",
+  "custos_esperados": "baixo",
+  "riscos": "OBV com volume de uma so bolsa",
+  "variantes_diagnostico": 12,
+  "onde_falha": {
+   "custos (deriva menor que o custo)": 8,
+   "entrada (sem deriva a favor)": 2,
+   "nenhum a priori: passa a geometria": 2
+  },
+  "melhor_deriva_liquida_atr_treino": 1.463,
+  "validacao": [],
+  "decisao": "REJEITADA nesta ronda: custos (deriva menor que o custo)"
+ },
+ "vwap_desvio": {
+  "grupo": "E",
+  "hipotese": "desvios grandes ao VWAP revertem (custo de inventario dos market makers)",
+  "regime_esperado": "lateral",
+  "custos_esperados": "baixo",
+  "riscos": "tendencias afastam-se do VWAP de proposito",
+  "variantes_diagnostico": 24,
+  "onde_falha": {
+   "custos (deriva menor que o custo)": 17,
+   "entrada (sem deriva a favor)": 4,
+   "nenhum a priori: passa a geometria": 3
+  },
+  "melhor_deriva_liquida_atr_treino": 0.0829,
+  "validacao": [],
+  "decisao": "REJEITADA nesta ronda: custos (deriva menor que o custo)"
+ },
+ "momentum_regime": {
+  "grupo": "E",
+  "hipotese": "momentum funciona a favor do regime do BTC (fluxo do mercado inteiro)",
+  "regime_esperado": "subida/queda",
+  "custos_esperados": "medio",
+  "riscos": "inversoes do BTC",
+  "variantes_diagnostico": 24,
+  "onde_falha": {
+   "entrada (sem deriva a favor)": 12,
+   "custos (deriva menor que o custo)": 8,
+   "nenhum a priori: passa a geometria": 4
+  },
+  "melhor_deriva_liquida_atr_treino": 0.0864,
+  "validacao": [],
+  "decisao": "REJEITADA nesta ronda: entrada (sem deriva a favor)"
+ },
+ "forca_relativa": {
+  "grupo": "E",
+  "hipotese": "forca relativa persiste a curto prazo (rotacao lenta de capital)",
+  "regime_esperado": "qualquer",
+  "custos_esperados": "medio",
+  "riscos": "reversao da forca relativa",
+  "variantes_diagnostico": 24,
+  "onde_falha": {
+   "entrada (sem deriva a favor)": 11,
+   "custos (deriva menor que o custo)": 10,
+   "nenhum a priori: passa a geometria": 3
+  },
+  "melhor_deriva_liquida_atr_treino": 0.24,
+  "validacao": [],
+  "decisao": "REJEITADA nesta ronda: entrada (sem deriva a favor)"
+ },
+ "lideranca_btc": {
+  "grupo": "F",
+  "hipotese": "as altcoins seguem o BTC com atraso (descoberta de preco centrada no BTC)",
+  "regime_esperado": "movimentos do BTC",
+  "custos_esperados": "medio",
+  "riscos": "um so acontecimento do BTC vira dezenas de operacoes correlacionadas",
+  "variantes_diagnostico": 12,
+  "onde_falha": {
+   "custos (deriva menor que o custo)": 4,
+   "nenhum a priori: passa a geometria": 7,
+   "entrada (sem deriva a favor)": 1
+  },
+  "melhor_deriva_liquida_atr_treino": 3.0937,
+  "validacao": [],
+  "decisao": "REJEITADA nesta ronda: nenhum a priori: passa a geometria"
+ },
+ "forte_na_queda": {
+  "grupo": "F",
+  "hipotese": "o que sobe com o mercado a cair tem procura propria",
+  "regime_esperado": "queda",
+  "custos_esperados": "medio",
+  "riscos": "noticias especificas de uma moeda",
+  "variantes_diagnostico": 21,
+  "onde_falha": {
+   "custos (deriva menor que o custo)": 7,
+   "entrada (sem deriva a favor)": 9,
+   "nenhum a priori: passa a geometria": 5
+  },
+  "melhor_deriva_liquida_atr_treino": 2.4185,
+  "validacao": [],
+  "decisao": "REJEITADA nesta ronda: entrada (sem deriva a favor)"
+ }
+}
