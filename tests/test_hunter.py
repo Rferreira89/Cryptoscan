@@ -247,3 +247,25 @@ class Papel(unittest.TestCase):
                 for proibido in ("okx_exec", "engine.executor", "import executor", "privado(", "BYBIT_TRADE",
                                  "OKX_API_KEY", "trade/order"):
                     self.assertNotIn(proibido, src, f"{n}: {proibido}")
+
+
+@SEM_NUMPY
+class Revisao(unittest.TestCase):
+    """(17/11, revisao depois da primeira corrida real)"""
+
+    def test_stop_minusculo_nao_entra(self):
+        v = [{"t": k * H, "o": 100, "h": 100.01, "l": 99.99, "c": 100, "v": 1} for k in range(5)]
+        self.assertIsNone(GE.simular(v, 0, "LONG", 0.01, {"tipo": "fixa", "k": 1, "tp": 2, "hold": 3}))
+
+    def test_risco_agrupado_por_dia(self):
+        from tools.hunter import correr as CO
+        ops = [(86400 * 5 + k, 1.0) for k in range(400)] + [(86400 * d, -0.5) for d in range(10, 40)]
+        r = CO.comparar_risco(ops, max_simultaneas=3)
+        self.assertEqual(r["dias_com_operacoes"], 31)               # 400 operacoes num dia = 1 dia, 3 posicoes
+        for k, v in r.items():
+            if isinstance(v, dict) and "capital_12m_mediana" in v:
+                self.assertLess(v["capital_12m_mediana"], 1e6)       # sem o crescimento absurdo de 17/11
+
+    def test_veredicto_exige_dias_distintos(self):
+        self.assertGreaterEqual(MO.DIAS_MIN_VALIDACAO, 20)
+        self.assertGreaterEqual(MO.DIAS_MIN_TESTE, 10)

@@ -12,6 +12,7 @@ Resultado em R (R = distancia de entrada ao stop inicial).
 """
 COMISSAO = 0.05      # % por lado (X-Perps OKX, taker; cenarios de sensibilidade no motor)
 DESLIZE = 0.05       # % por lado
+RISCO_MIN_PCT = 0.2  # distancia minima ao stop em % do preco
 
 
 def atr_serie(v, p=14):
@@ -48,6 +49,8 @@ def simular(v, i, lado, atr_ref, g, fund=None, cenario_taxa=None, inverso=None, 
     d = 1.0 if lado == "LONG" else -1.0
     e = v[i + 1]["o"] * (1 + d * deslize / 100)
     risco = g["k"] * atr_ref
+    if risco < RISCO_MIN_PCT / 100 * e:       # stop mais perto do que 0,2% do preco: os custos dominam e o R explode
+        return None                            # (17/11: um controlo com ATR quase nulo deu "vantagem" de 1,6e10 R)
     stop = e - d * risco
     alvo = e + d * g["tp"] * risco if g.get("tp") else None
     fim = min(len(v) - 1, i + g["hold"])

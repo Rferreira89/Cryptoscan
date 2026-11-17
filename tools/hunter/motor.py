@@ -27,6 +27,8 @@ from tools.hunter import dados as DD, estat as ES, familias as FA, geometria as 
 HOLD = {"30m": (4, 8), "1H": (2, 4), "4H": (1, 3, 6)}
 REFS = ("30m", "1H", "4H")
 K_CTRL = 4
+DIAS_MIN_VALIDACAO = 20     # dias UTC distintos com operacoes (bloco do bootstrap)
+DIAS_MIN_TESTE = 10
 
 
 def series(dados):
@@ -420,7 +422,9 @@ def correr(dados, registo, log=print, orcamento_evolucao=120, max_validacao=60):
     for k, v in res.items():
         v["p_holm_validacao"] = ph[k]
         rv = v["validacao"]
-        v["passa_validacao"] = bool(rv.get("n", 0) >= 30 and ph[k] < 0.05 and (rv.get("r_medio") or 0) > 0)
+        # (17/11, revisao) dezenas de operacoes no mesmo dia sao UM acontecimento: exige dias distintos
+        v["passa_validacao"] = bool(rv.get("n", 0) >= 30 and rv.get("dias_com_operacoes", 0) >= DIAS_MIN_VALIDACAO
+                                    and ph[k] < 0.05 and (rv.get("r_medio") or 0) > 0)
     # 5. teste final (uma vez por regra)
     for k, v in res.items():
         if not v["passa_validacao"]:
@@ -437,7 +441,8 @@ def correr(dados, registo, log=print, orcamento_evolucao=120, max_validacao=60):
     # veredictos e papel
     for k, v in res.items():
         rt = v.get("teste") or {}
-        if v["passa_validacao"] and rt.get("n", 0) >= 30 and (rt.get("r_medio") or 0) > 0 and rt.get("p_vantagem", 1) < 0.05:
+        if (v["passa_validacao"] and rt.get("n", 0) >= 30 and rt.get("dias_com_operacoes", 0) >= DIAS_MIN_TESTE
+                and (rt.get("r_medio") or 0) > 0 and rt.get("p_r_positivo", 1) < 0.05 and rt.get("p_vantagem", 1) < 0.05):
             v["veredicto"] = "CANDIDATA"
         elif v["passa_validacao"]:
             v["veredicto"] = "PROMISSORA"
@@ -451,7 +456,7 @@ def correr(dados, registo, log=print, orcamento_evolucao=120, max_validacao=60):
     for v in res.values():
         ops = v.pop("_ops", None) or []
         if v["veredicto"] != "REJEITADA":
-            v["_rs_validacao"] = [round(o["r"], 3) for o in sorted(ops, key=lambda o: o["t"])]
+            v["_ops_validacao"] = [[o["t"], round(o["r"], 3)] for o in sorted(ops, key=lambda o: o["t"])]
     out["hipoteses"] = res
     out["papel"] = [{k: v[k] for k in ("id", "familia", "parametros", "tf", "lado", "filtro", "stop_ref", "saida", "veredicto")}
                     for v in res.values() if v["veredicto"] in ("CANDIDATA", "PROMISSORA", "EXPLORATORIA")]
