@@ -2228,9 +2228,9 @@
 "hyperliquid:0xbbd7095503c74e8908b854fbdadeafba169ea897": {},
 "hyperliquid:0x11eee2e0a613af4f636e23ff295e2dac6a191d1d": {
 "BTC|L": {
-"upl_nocional": 0.011426874619326696,
+"upl_nocional": 0.01033908142872146,
 "fator_px": 1.0,
-"margem": 127734.2,
+"margem": 127593.8,
 "inst": "BTC",
 "base": "BTC",
 "lado": "LONG",
@@ -2241,9 +2241,9 @@
 "t_abre": null
 },
 "ETH|L": {
-"upl_nocional": -0.010259710026928087,
+"upl_nocional": -0.01189243024487174,
 "fator_px": 1.0,
-"margem": 4178722.5,
+"margem": 4171980.0,
 "inst": "ETH",
 "base": "ETH",
 "lado": "LONG",
@@ -2254,9 +2254,9 @@
 "t_abre": null
 },
 "RUNE|S": {
-"upl_nocional": -0.007371227461977363,
+"upl_nocional": -0.00464801523517871,
 "fator_px": 1.0,
-"margem": 10115.651889,
+"margem": 10087.976185,
 "inst": "RUNE",
 "base": "RUNE",
 "lado": "SHORT",
@@ -2267,9 +2267,9 @@
 "t_abre": null
 },
 "HYPE|L": {
-"upl_nocional": 0.056205821466758454,
+"upl_nocional": 0.055887766285714284,
 "fator_px": 1.0,
-"margem": 204819.0,
+"margem": 204750.0,
 "inst": "HYPE",
 "base": "HYPE",
 "lado": "LONG",
@@ -2285,9 +2285,9 @@
 "hyperliquid:0x83ffcfb1f2ad843c474b2e28df86c721cb869d3a": {},
 "hyperliquid:0x26b107c9cef11d21a7996a5e84cb29ae3f7e0ea3": {
 "BTC|S": {
-"upl_nocional": 0.29222465259891245,
+"upl_nocional": 0.2935634411686337,
 "fator_px": 1.0,
-"margem": 638671.0,
+"margem": 638010.0,
 "inst": "BTC",
 "base": "BTC",
 "lado": "SHORT",
@@ -2300,9 +2300,9 @@
 },
 "hyperliquid:0xf996983c08c770dcd9bd311c43dfcb7f2e107ccd": {
 "HYPE|S": {
-"upl_nocional": 0.2504728085529174,
+"upl_nocional": 0.2508685544667704,
 "fator_px": 1.0,
-"margem": 81927.6,
+"margem": 81901.68,
 "inst": "HYPE",
 "base": "HYPE",
 "lado": "SHORT",
@@ -2315,9 +2315,9 @@
 },
 "hyperliquid:0x54c5b295195ffa2613ab4f3893b29afdb8a49558": {
 "BTC|S": {
-"upl_nocional": 0.013054523745558147,
+"upl_nocional": 0.014102494758037685,
 "fator_px": 1.0,
-"margem": 18740686.68834,
+"margem": 18721320.10902,
 "inst": "BTC",
 "base": "BTC",
 "lado": "SHORT",
@@ -2330,9 +2330,9 @@
 },
 "hyperliquid:0xf215c807672f168f6894bb2f5154000de11b4d85": {
 "BTC|S": {
-"upl_nocional": 0.012273070804207665,
+"upl_nocional": 0.0131138028183836,
 "fator_px": 1.0,
-"margem": 2330890.67067,
+"margem": 2328956.38214,
 "inst": "BTC",
 "base": "BTC",
 "lado": "SHORT",
@@ -2365,7 +2365,7 @@
 "tamanho": 400.0,
 "margem": 5866.666666666667,
 "id": "4107290513057062912",
-"upl_nocional": 0.0897727272727273
+"upl_nocional": 0.0813636363636364
 },
 "4107288575657713664": {
 "inst": "SOXL-USDT-SWAP",
@@ -2377,7 +2377,7 @@
 "tamanho": 300.0,
 "margem": 4530.0,
 "id": "4107288575657713664",
-"upl_nocional": 0.058498896247240605
+"upl_nocional": 0.0503311258278146
 }
 },
 "okx:0A97BA09396C4DC8": {},
@@ -2386,9 +2386,9 @@
 "okx:FEA1F20A4558468F": {},
 "hyperliquid:0x3bf60f28ce51154bdb0df979e2fc3e5fed22c080": {
 "BTC|S": {
-"upl_nocional": 0.21392858745452564,
+"upl_nocional": 0.21493680219008665,
 "fator_px": 1.0,
-"margem": 205681.75749,
+"margem": 205511.07258,
 "inst": "BTC",
 "base": "BTC",
 "lado": "SHORT",
@@ -2399,9 +2399,9 @@
 "t_abre": null
 },
 "HYPE|S": {
-"upl_nocional": 0.19251901867117713,
+"upl_nocional": 0.1923618117873166,
 "fator_px": 1.0,
-"margem": 33229.25898,
+"margem": 33233.64009,
 "inst": "HYPE",
 "base": "HYPE",
 "lado": "SHORT",
@@ -2416,9 +2416,9 @@
 "hyperliquid:0x1f250df59a777d61cb8bd043c12970f3afe4f925": {},
 "hyperliquid:0x069ad3d4dd1ca686ef78d065fbc6208fdcede58d": {
 "BTC|S": {
-"upl_nocional": 0.15492719559082296,
+"upl_nocional": 0.15588640738394538,
 "fator_px": 1.0,
-"margem": 2812069.11936,
+"margem": 2809735.52512,
 "inst": "BTC",
 "base": "BTC",
 "lado": "SHORT",
@@ -2431,24 +2431,24 @@
 },
 "hyperliquid:0x2f80a52f4f4cc773182b0c2182b6e06451dbf203": {
 "ETH|S": {
-"upl_nocional": 0.10382073494699928,
+"upl_nocional": 0.10523502255093421,
 "fator_px": 1.0,
-"margem": 1468486.04518,
+"margem": 1420281.68392,
 "inst": "ETH",
 "base": "ETH",
 "lado": "SHORT",
 "px_abre": 1984.0,
 "alav": 20.0,
-"tamanho": 817.0057,
+"tamanho": 791.1992,
 "id": "ETH|S",
 "t_abre": null
 }
 },
 "hyperliquid:0x12712c9ba8dc4db380fe23d7561f1787ef860926": {
 "BTC|S": {
-"upl_nocional": 0.2390845505712392,
+"upl_nocional": 0.23997764045272454,
 "fator_px": 1.0,
-"margem": 958005.0,
+"margem": 957315.0,
 "inst": "BTC",
 "base": "BTC",
 "lado": "SHORT",
@@ -2461,9 +2461,9 @@
 },
 "hyperliquid:0x159bfedc86e8b3676183293eee58c723bb717cd4": {
 "BTC|S": {
-"upl_nocional": 0.043533826677366334,
+"upl_nocional": 0.04428597026689265,
 "fator_px": 1.0,
-"margem": 1535897.24679,
+"margem": 1534791.02177,
 "inst": "BTC",
 "base": "BTC",
 "lado": "SHORT",
@@ -2476,9 +2476,9 @@
 },
 "hyperliquid:0x77cde3018132b8ffca948b83b99986cbc8715e7b": {
 "HYPE|S": {
-"upl_nocional": 0.28756068956879643,
+"upl_nocional": 0.28736266743031713,
 "fator_px": 1.0,
-"margem": 233025.989152,
+"margem": 233061.833212,
 "inst": "HYPE",
 "base": "HYPE",
 "lado": "SHORT",
@@ -2491,9 +2491,9 @@
 },
 "hyperliquid:0x7c27f4de1cad1b759fefa780e1158c8c8976c626": {
 "BTC|S": {
-"upl_nocional": 0.2603658364110145,
+"upl_nocional": 0.2612150197670521,
 "fator_px": 1.0,
-"margem": 4126724.99496,
+"margem": 4123946.44719,
 "inst": "BTC",
 "base": "BTC",
 "lado": "SHORT",
@@ -2504,9 +2504,9 @@
 "t_abre": null
 },
 "HYPE|S": {
-"upl_nocional": 0.31311321722137014,
+"upl_nocional": 0.3129131885499348,
 "fator_px": 1.0,
-"margem": 6826.17,
+"margem": 6827.21,
 "inst": "HYPE",
 "base": "HYPE",
 "lado": "SHORT",
@@ -2519,9 +2519,9 @@
 },
 "hyperliquid:0xaded77f57de388cd6df0c7a637401cf6650dd6c5": {
 "BTC|S": {
-"upl_nocional": 0.2953326762234331,
+"upl_nocional": 0.29620541881721274,
 "fator_px": 1.0,
-"margem": 191592.0,
+"margem": 191463.0,
 "inst": "BTC",
 "base": "BTC",
 "lado": "SHORT",
@@ -2534,9 +2534,9 @@
 },
 "hyperliquid:0x233e740c73fb0f5d55d84dd235fd11251e87eee2": {
 "ETH|S": {
-"upl_nocional": 0.4067682978727998,
+"upl_nocional": 0.40841409922407157,
 "fator_px": 1.0,
-"margem": 153331.44736,
+"margem": 153152.272,
 "inst": "ETH",
 "base": "ETH",
 "lado": "SHORT",
@@ -2547,9 +2547,9 @@
 "t_abre": null
 },
 "HYPE|S": {
-"upl_nocional": 0.2601429703216531,
+"upl_nocional": 0.2599713113504356,
 "fator_px": 1.0,
-"margem": 6839.82234,
+"margem": 6840.7542,
 "inst": "HYPE",
 "base": "HYPE",
 "lado": "SHORT",
@@ -2562,9 +2562,9 @@
 },
 "hyperliquid:0x6c3d18303184d7ebae4ee59ce28c4797723a8c90": {
 "BTC|S": {
-"upl_nocional": 0.2985354682117131,
+"upl_nocional": 0.29923940938873866,
 "fator_px": 1.0,
-"margem": 255440.0,
+"margem": 255301.6,
 "inst": "BTC",
 "base": "BTC",
 "lado": "SHORT",
@@ -2577,9 +2577,9 @@
 },
 "hyperliquid:0x68c32dcad6eda12f2af400d23fb5556518a9d5a1": {
 "BTC|S": {
-"upl_nocional": 0.22132384540191496,
+"upl_nocional": 0.22206247141025204,
 "fator_px": 1.0,
-"margem": 194987.64888,
+"margem": 194869.796518,
 "inst": "BTC",
 "base": "BTC",
 "lado": "SHORT",
@@ -2590,9 +2590,9 @@
 "t_abre": null
 },
 "HYPE|S": {
-"upl_nocional": 0.12269153289165052,
+"upl_nocional": 0.12253859780565658,
 "fator_px": 1.0,
-"margem": 19839.580488,
+"margem": 19842.28344,
 "inst": "HYPE",
 "base": "HYPE",
 "lado": "SHORT",
@@ -2605,9 +2605,9 @@
 },
 "hyperliquid:0x5099c7fba238d1cdf2c02693a079c5d2059b6479": {
 "HYPE|S": {
-"upl_nocional": 0.1873205047486365,
+"upl_nocional": 0.18715876578635146,
 "fator_px": 1.0,
-"margem": 68261.7,
+"margem": 68271.0,
 "inst": "HYPE",
 "base": "HYPE",
 "lado": "SHORT",
@@ -2620,9 +2620,9 @@
 },
 "hyperliquid:0x5e9eadc22514f35af45de3ea4c3c9e56d21435ee": {
 "ETH|S": {
-"upl_nocional": 0.018148551639611207,
+"upl_nocional": 0.019282978995198513,
 "fator_px": 1.0,
-"margem": 8266631.4597,
+"margem": 8257430.9795,
 "inst": "ETH",
 "base": "ETH",
 "lado": "SHORT",
@@ -2635,9 +2635,9 @@
 },
 "hyperliquid:0x07c185d95a1aa3c8bc1cbdbe346cf3c49757a96d": {
 "BTC|S": {
-"upl_nocional": 0.3116006701426402,
+"upl_nocional": 0.31269000532798447,
 "fator_px": 1.0,
-"margem": 127734.0,
+"margem": 127628.0,
 "inst": "BTC",
 "base": "BTC",
 "lado": "SHORT",
@@ -2651,9 +2651,9 @@
 "hyperliquid:0x100b45b5771315c993df597318d18c23763ac0ce": {},
 "hyperliquid:0xe4fb898f8914435ca23e80f4f012c8b0b1b6a4af": {
 "HYPE|S": {
-"upl_nocional": 0.15936130135068236,
+"upl_nocional": 0.15920337104202187,
 "fator_px": 1.0,
-"margem": 170912.961843,
+"margem": 170936.24709,
 "inst": "HYPE",
 "base": "HYPE",
 "lado": "SHORT",
@@ -2667,12 +2667,12 @@
 },
 "oportunidades": {},
 "vistos": [],
-"t": 1794940469,
+"t": 1794940590,
 "falhas": [
 {
 "onde": "https://api.bybit.eu/v5/market/instruments-info",
 "erro": "HTTPError: HTTP Error 403: Forbidden",
-"t": 1794940476
+"t": 1794940596
 }
 ],
 "traders_falhados": [],
@@ -3237,54 +3237,61 @@
 "seguidos": 45,
 "falhados": 0,
 "oportunidades": 0
+},
+{
+"t": 1794940590,
+"intervalo_s": 121,
+"seguidos": 45,
+"falhados": 0,
+"oportunidades": 0
 }
 ],
 "ultima_consulta": {
-"okx:2E01D379E7579CF5": 1794940469,
-"okx:C419F165132C0C57": 1794940469,
-"okx:5CE58253DFAAF5CF": 1794940469,
-"okx:E24572C6BF759088": 1794940469,
-"okx:F740246F4C8BDC75": 1794940469,
-"okx:70923A619CCB8F2F": 1794940469,
-"okx:C17D5D8DB8E49A59": 1794940469,
-"okx:4EA706D951ADCBED": 1794940469,
-"okx:2128BA01363B35A5": 1794940469,
-"okx:07AB446028582A4E": 1794940469,
-"okx:A72B4B9C78845C00": 1794940469,
-"okx:E1936A03E66777C6": 1794940469,
-"okx:756090732213244146": 1794940469,
-"okx:0A97BA09396C4DC8": 1794940469,
-"okx:114A1793308A1CEB": 1794940469,
-"okx:BE0DCCC5D9571E5A": 1794940469,
-"okx:FEA1F20A4558468F": 1794940469,
-"okx:8C756A028EDC2FE7": 1794940469,
-"hyperliquid:0xbbd7095503c74e8908b854fbdadeafba169ea897": 1794940469,
-"hyperliquid:0x11eee2e0a613af4f636e23ff295e2dac6a191d1d": 1794940469,
-"hyperliquid:0x58e1b0e63c905d5982324fcd9108582623b8132e": 1794940469,
-"hyperliquid:0xfb9c70230c93856c2429384f875d9a896d33d388": 1794940469,
-"hyperliquid:0x83ffcfb1f2ad843c474b2e28df86c721cb869d3a": 1794940469,
-"hyperliquid:0x26b107c9cef11d21a7996a5e84cb29ae3f7e0ea3": 1794940469,
-"hyperliquid:0xf996983c08c770dcd9bd311c43dfcb7f2e107ccd": 1794940469,
-"hyperliquid:0x54c5b295195ffa2613ab4f3893b29afdb8a49558": 1794940469,
-"hyperliquid:0xf215c807672f168f6894bb2f5154000de11b4d85": 1794940469,
-"hyperliquid:0x3bf60f28ce51154bdb0df979e2fc3e5fed22c080": 1794940469,
-"hyperliquid:0x069ad3d4dd1ca686ef78d065fbc6208fdcede58d": 1794940469,
-"hyperliquid:0x07c185d95a1aa3c8bc1cbdbe346cf3c49757a96d": 1794940469,
-"hyperliquid:0xaa71480283eff46100ed1fe30c20a14e14a205c1": 1794940469,
-"hyperliquid:0x1f250df59a777d61cb8bd043c12970f3afe4f925": 1794940469,
-"hyperliquid:0x2f80a52f4f4cc773182b0c2182b6e06451dbf203": 1794940469,
-"hyperliquid:0x12712c9ba8dc4db380fe23d7561f1787ef860926": 1794940469,
-"hyperliquid:0x100b45b5771315c993df597318d18c23763ac0ce": 1794940469,
-"hyperliquid:0x159bfedc86e8b3676183293eee58c723bb717cd4": 1794940469,
-"hyperliquid:0x77cde3018132b8ffca948b83b99986cbc8715e7b": 1794940469,
-"hyperliquid:0x7c27f4de1cad1b759fefa780e1158c8c8976c626": 1794940469,
-"hyperliquid:0xaded77f57de388cd6df0c7a637401cf6650dd6c5": 1794940469,
-"hyperliquid:0x68c32dcad6eda12f2af400d23fb5556518a9d5a1": 1794940469,
-"hyperliquid:0x5099c7fba238d1cdf2c02693a079c5d2059b6479": 1794940469,
-"hyperliquid:0x233e740c73fb0f5d55d84dd235fd11251e87eee2": 1794940469,
-"hyperliquid:0xe4fb898f8914435ca23e80f4f012c8b0b1b6a4af": 1794940469,
-"hyperliquid:0x6c3d18303184d7ebae4ee59ce28c4797723a8c90": 1794940469,
-"hyperliquid:0x5e9eadc22514f35af45de3ea4c3c9e56d21435ee": 1794940469
+"okx:2E01D379E7579CF5": 1794940590,
+"okx:C419F165132C0C57": 1794940590,
+"okx:5CE58253DFAAF5CF": 1794940590,
+"okx:E24572C6BF759088": 1794940590,
+"okx:F740246F4C8BDC75": 1794940590,
+"okx:70923A619CCB8F2F": 1794940590,
+"okx:C17D5D8DB8E49A59": 1794940590,
+"okx:4EA706D951ADCBED": 1794940590,
+"okx:2128BA01363B35A5": 1794940590,
+"okx:07AB446028582A4E": 1794940590,
+"okx:A72B4B9C78845C00": 1794940590,
+"okx:E1936A03E66777C6": 1794940590,
+"okx:756090732213244146": 1794940590,
+"okx:0A97BA09396C4DC8": 1794940590,
+"okx:114A1793308A1CEB": 1794940590,
+"okx:BE0DCCC5D9571E5A": 1794940590,
+"okx:FEA1F20A4558468F": 1794940590,
+"okx:8C756A028EDC2FE7": 1794940590,
+"hyperliquid:0xbbd7095503c74e8908b854fbdadeafba169ea897": 1794940590,
+"hyperliquid:0x11eee2e0a613af4f636e23ff295e2dac6a191d1d": 1794940590,
+"hyperliquid:0x58e1b0e63c905d5982324fcd9108582623b8132e": 1794940590,
+"hyperliquid:0xfb9c70230c93856c2429384f875d9a896d33d388": 1794940590,
+"hyperliquid:0x83ffcfb1f2ad843c474b2e28df86c721cb869d3a": 1794940590,
+"hyperliquid:0x26b107c9cef11d21a7996a5e84cb29ae3f7e0ea3": 1794940590,
+"hyperliquid:0xf996983c08c770dcd9bd311c43dfcb7f2e107ccd": 1794940590,
+"hyperliquid:0x54c5b295195ffa2613ab4f3893b29afdb8a49558": 1794940590,
+"hyperliquid:0xf215c807672f168f6894bb2f5154000de11b4d85": 1794940590,
+"hyperliquid:0x3bf60f28ce51154bdb0df979e2fc3e5fed22c080": 1794940590,
+"hyperliquid:0x069ad3d4dd1ca686ef78d065fbc6208fdcede58d": 1794940590,
+"hyperliquid:0x07c185d95a1aa3c8bc1cbdbe346cf3c49757a96d": 1794940590,
+"hyperliquid:0xaa71480283eff46100ed1fe30c20a14e14a205c1": 1794940590,
+"hyperliquid:0x1f250df59a777d61cb8bd043c12970f3afe4f925": 1794940590,
+"hyperliquid:0x2f80a52f4f4cc773182b0c2182b6e06451dbf203": 1794940590,
+"hyperliquid:0x12712c9ba8dc4db380fe23d7561f1787ef860926": 1794940590,
+"hyperliquid:0x100b45b5771315c993df597318d18c23763ac0ce": 1794940590,
+"hyperliquid:0x159bfedc86e8b3676183293eee58c723bb717cd4": 1794940590,
+"hyperliquid:0x77cde3018132b8ffca948b83b99986cbc8715e7b": 1794940590,
+"hyperliquid:0x7c27f4de1cad1b759fefa780e1158c8c8976c626": 1794940590,
+"hyperliquid:0xaded77f57de388cd6df0c7a637401cf6650dd6c5": 1794940590,
+"hyperliquid:0x68c32dcad6eda12f2af400d23fb5556518a9d5a1": 1794940590,
+"hyperliquid:0x5099c7fba238d1cdf2c02693a079c5d2059b6479": 1794940590,
+"hyperliquid:0x233e740c73fb0f5d55d84dd235fd11251e87eee2": 1794940590,
+"hyperliquid:0xe4fb898f8914435ca23e80f4f012c8b0b1b6a4af": 1794940590,
+"hyperliquid:0x6c3d18303184d7ebae4ee59ce28c4797723a8c90": 1794940590,
+"hyperliquid:0x5e9eadc22514f35af45de3ea4c3c9e56d21435ee": 1794940590
 },
 "recuperacao": false
 }
