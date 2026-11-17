@@ -38,6 +38,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           END=$(( $(date +%s) + 5*3600 + 20*60 ))
+          # (17/11) codigo bom: so corre producao com codigo que passou os testes (tools/codigo_bom.sh). A copia em /tmp
+          # fica fixa durante este job: um commit novo na main nunca muda a regra a meio.
+          cp tools/codigo_bom.sh /tmp/codigo_bom.sh
+          CODIGO_BOM_INICIAL=$(git fetch -q origin data 2>/dev/null && git show FETCH_HEAD:codigo_bom.txt 2>/dev/null | tr -dc '0-9a-f' | head -c 40 || true)
+          [ ${#CODIGO_BOM_INICIAL} = 40 ] || CODIGO_BOM_INICIAL=""
           publish() {
             ( cd out && git init -q -b data \
               && git config user.name cryptoscan-bot \
@@ -50,6 +55,7 @@ jobs:
               && { [ -f liquidez.json ] && git add liquidez.json || true; } \
               && { [ -f derivados.json ] && git add derivados.json || true; } \
               && { [ -f tg_enviadas.json ] && git add tg_enviadas.json || true; } \
+              && { [ -f codigo_bom.txt ] && git add codigo_bom.txt || true; } \
               && git commit -q -m "$1 $(date -u +%FT%TZ)" \
               && empurrar ) || { echo "publicacao falhou"; return 1; }
           }
@@ -114,10 +120,12 @@ jobs:
               fi
             fi
             echo "::group::$MODE $(date -u +%FT%TZ)"
-            # codigo mais recente em cada ciclo
-            git fetch -q origin main && git reset -q --hard FETCH_HEAD || true
-            # paragem de emergencia: um ficheiro STOP na raiz do repositorio
-            if [ -f STOP ]; then echo "STOP encontrado: scanner parado"; echo "::endgroup::"; break; fi
+            # (17/11) codigo mais recente que passou os testes (cada commit novo da main e testado uma vez)
+            source /tmp/codigo_bom.sh && validar_codigo
+            # paragem de emergencia: um ficheiro STOP na raiz do repositorio (vale logo na main, mesmo por validar)
+            if [ -f STOP ] || { [ -n "${NOVO:-}" ] && git cat-file -e "${NOVO}:STOP" 2>/dev/null; }; then
+              echo "STOP encontrado: scanner parado"; echo "::endgroup::"; break
+            fi
             rm -rf out && mkdir out
             OK=1
             # estado anterior (sinais ativos, registo, ultimo scan)
@@ -130,6 +138,11 @@ jobs:
                 echo "nao foi possivel ler o estado anterior: ciclo ignorado"; OK=0
               fi
             fi
+            [ -n "${BOM:-}" ] && echo "$BOM" > out/codigo_bom.txt
+            if [ "$OK" = 1 ] && [ "$MODE" = scan ] && [ -n "${AVISO_MAU:-}" ]; then
+              echo "$AVISO_MAU" >> out/erros.txt; tail -200 out/erros.txt > /tmp/e.txt && cp /tmp/e.txt out/erros.txt
+              AVISO_MAU=""
+            fi
             if [ "$OK" = 1 ] && [ "$MODE" = monitor ]; then
               if python -m engine.monitor out; then
                 PUB=0
@@ -139,7 +152,7 @@ jobs:
               else
                 echo "monitor falhou"
               fi
-            elif [ "$OK" = 1 ] && python -m unittest discover -q -s tests -t . 2> /tmp/testes.log ; then
+            elif [ "$OK" = 1 ] && { [ "${CODIGO_OK:-0}" = 1 ] || python -m unittest discover -q -s tests -t . 2> /tmp/testes.log ; }; then
               # um scan que falha e repetido uma vez; se voltar a falhar, o
               # motivo fica registado em erros.txt no ramo data
               if python -m engine.run out > /dev/null 2> /tmp/run.log \

@@ -13,7 +13,9 @@ RAIZ = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 def script():
     with open(os.path.join(RAIZ, ".github", "workflows", "executar.yml"), encoding="utf-8") as f:
         linhas = f.read().split("\n")
-    i = next(k for k, l in enumerate(linhas) if l.strip() == "run: |") + 1
+    # (17/11) o primeiro bloco e o passo "Codigo validado": o que interessa e o do passo "Processar pedidos"
+    p0 = next(k for k, l in enumerate(linhas) if l.strip() == "- name: Processar pedidos")
+    i = next(k for k, l in enumerate(linhas) if k > p0 and l.strip() == "run: |") + 1
     ind = len(linhas[i]) - len(linhas[i].lstrip())
     out = []
     for l in linhas[i:]:

@@ -16,6 +16,20 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+      # (17/11) so codigo que passou os testes: o ciclo do scanner publica o ultimo commit validado no ramo data
+      # (codigo_bom.txt; ver tools/codigo_bom.sh). Sem esse ficheiro (ou se o commit nao vier), corre a main como antes.
+      - name: Codigo validado
+        run: |
+          SHA=$(git fetch -q origin data 2>/dev/null && git show FETCH_HEAD:codigo_bom.txt 2>/dev/null | tr -dc '0-9a-f' | head -c 40 || true)
+          if [ ${#SHA} = 40 ] && [ "$SHA" != "$(git rev-parse HEAD)" ]; then
+            if git fetch -q origin "$SHA" 2>/dev/null && git checkout -q "$SHA"; then
+              echo "codigo validado ${SHA:0:7} (a main esta em $(git rev-parse --short FETCH_HEAD 2>/dev/null || echo ?))"
+            else
+              echo "codigo validado ${SHA:0:7} indisponivel: corre a main"
+            fi
+          else
+            echo "codigo da main ($(git rev-parse --short HEAD)) e o validado"
+          fi
       - name: Varrer a OKX
         env:
           OKX_API_KEY: ${{ secrets.OKX_API_KEY }}
