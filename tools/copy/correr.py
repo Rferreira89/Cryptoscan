@@ -13,7 +13,7 @@ from tools.copy import ranking as RK
 from tools.copy import smart as SM
 
 RANKING_S = 3600
-RANKING_VERSAO = 2            # mudar quando os criterios mudam: obriga a refazer o ranking na volta seguinte
+RANKING_VERSAO = 3            # mudar quando os criterios mudam: obriga a refazer o ranking na volta seguinte
 SEGUIR_OKX, SEGUIR_HL = 30, 30
 CUSTO_SOMBRA = 0.001          # ida e volta, para o resultado-sombra das decisoes
 
@@ -54,8 +54,14 @@ def atualizar_ranking(trs, now, log=print):
 
 
 def seguidos(trs):
-    lst = sorted(trs.get("traders", {}).items(), key=lambda kv: -kv[1]["score"])
-    ok = [kv for kv in lst if kv[1]["estado"] in ("APROVADO", "OBSERVAR")]
+    """(17/11) Aprovados primeiro; depois os em observacao que operam com frequencia e em pouco tempo (os que podem dar
+    sinais copiaveis), nao os de maior pontuacao que seguram posicoes semanas."""
+    def prio(kv):
+        v = kv[1]
+        m = v.get("metricas") or {}
+        dur = m.get("duracao_media_h") or 999
+        return (0 if v["estado"] == "APROVADO" else 1, 0 if dur <= 12 else 1, -(m.get("freq_dia") or 0), -v.get("score", 0))
+    ok = sorted([kv for kv in trs.get("traders", {}).items() if kv[1]["estado"] in ("APROVADO", "OBSERVAR")], key=prio)
     return [k for k, _ in [x for x in ok if x[0].startswith("okx:")][:SEGUIR_OKX] +
             [x for x in ok if x[0].startswith("hyperliquid:")][:SEGUIR_HL]]
 
@@ -83,7 +89,8 @@ def volta(pasta, now=None, fontes=F, log=print):
     intervalo = now - int(st.get("t") or now)
     sin = _ler(p("sinais.json"), {"abertas": [], "fechadas": []})
     xp = fontes.xperps_eea()
-    spot_b = fontes.bybit_eu_spot() if hasattr(fontes, "bybit_eu_spot") else None
+    info_b = {}
+    spot_b = fontes.bybit_eu_spot(info_b) if hasattr(fontes, "bybit_eu_spot") else None
     cache_v, cache_p = {}, {}
 
     def mercado(base):
@@ -175,7 +182,8 @@ def volta(pasta, now=None, fontes=F, log=print):
     st["consultas"] = (st.get("consultas") or [])[-500:] + [{"t": now, "intervalo_s": intervalo, "seguidos": len(atuais),
                                                              "falhados": len(falhou), "oportunidades": len(decisoes)}]
     st.update(t=now, falhas=F.FALHAS[-20:], traders_falhados=falhou, seguidos=len(atuais),
-              ultima_consulta={k: now for k in atuais}, recuperacao=(intervalo > 600))
+              ultima_consulta={k: now for k in atuais}, recuperacao=(intervalo > 600),
+              bybit_eu_lista_spot={"bases": len(spot_b) if spot_b else 0, **info_b})
     sin["fechadas"] = sin["fechadas"][-500:]
     aprovados = {k: v for k, v in trs.get("traders", {}).items() if v["estado"] == "APROVADO"}
     sin.update(t=now, aviso="CopyTrading: sinais para o piloto OKX (execucao real so la, com os limites do piloto)",

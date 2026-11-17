@@ -69,15 +69,20 @@ def okx(base, path, params=None):
 
 
 # ------------------------------------------------------------------ OKX -------------------------------------------
-def okx_lideres(paginas=5):
-    out = []
-    for pg in range(1, paginas + 1):
-        d = okx(OKX_GLOBAL, "/api/v5/copytrading/public-lead-traders", {"instType": "SWAP", "sortType": "overview",
-                                                                        "page": pg, "limit": 20})
-        if not d:
-            break
-        out += d[0].get("ranks") or []
-        time.sleep(0.4)
+def okx_lideres(paginas=5, ordens=("overview", "win_ratio", "pnl_ratio")):
+    """(17/11) Varias ordenacoes publicas da OKX para descobrir candidatos diferentes (nao so os de maior PnL)."""
+    out, vistos = [], set()
+    for ordem in ordens:
+        for pg in range(1, paginas + 1):
+            d = okx(OKX_GLOBAL, "/api/v5/copytrading/public-lead-traders", {"instType": "SWAP", "sortType": ordem,
+                                                                            "page": pg, "limit": 20})
+            if not d:
+                break
+            for r in d[0].get("ranks") or []:
+                if r.get("uniqueCode") and r["uniqueCode"] not in vistos:
+                    vistos.add(r["uniqueCode"])
+                    out.append(r)
+            time.sleep(0.4)
     return [{"fonte": "okx", "id": r["uniqueCode"], "nome": r.get("nickName"), "dias": int(r.get("leadDays") or 0),
              "win_ratio": float(r.get("winRatio") or 0), "copiadores": int(r.get("copyTraderNum") or 0)} for r in out
             if r.get("uniqueCode")]
@@ -121,10 +126,15 @@ def hl_ranking(n=60, conta_min=20000, conta_max=20_000_000):
             if conta_min <= conta <= conta_max and float(mes.get("pnl") or 0) > 0 and float(sem.get("pnl") or 0) > 0:
                 out.append({"fonte": "hyperliquid", "id": r["ethAddress"], "nome": r.get("displayName") or r["ethAddress"][:10],
                             "roi_mes": float(mes.get("roi") or 0), "volume_mes": float(mes.get("vlm") or 0)})
+            if conta_min <= conta <= conta_max and out and out[-1]["id"] == r["ethAddress"]:
+                out[-1]["rotacao_mes"] = float(mes.get("vlm") or 0) / conta     # volume / conta: atividade frequente
         except (TypeError, ValueError):
             continue
-    out.sort(key=lambda x: -x["roi_mes"])
-    return out[:n]
+    # metade pelo ROI do mes, metade pela atividade (traders frequentes de curto prazo), sem repetir
+    por_roi = sorted(out, key=lambda x: -x["roi_mes"])[: n // 2]
+    ids = {x["id"] for x in por_roi}
+    por_ativ = [x for x in sorted(out, key=lambda x: -x.get("rotacao_mes", 0)) if x["id"] not in ids][: n - len(por_roi)]
+    return por_roi + por_ativ
 
 
 def hl_historico(addr):
@@ -217,10 +227,25 @@ def preco(inst):
         return None
 
 
-def bybit_eu_spot():
-    """Bases com par spot na Bybit EU (USDT/USDC), da API publica oficial da Bybit EU (api.bybit.eu). None se falhar."""
-    d = _http("https://api.bybit.eu/v5/market/instruments-info?category=spot&limit=1000")
+BYBIT_CACHE = "https://raw.githubusercontent.com/Rferreira89/Cryptoscan/piloto-okx/bybit_eu_spot.json"
+BYBIT_CACHE_MAX_S = 48 * 3600
+
+
+def bybit_eu_spot(info=None):
+    """Bases com par spot na Bybit EU (USDT/USDC). A API publica oficial (api.bybit.eu) recusa os servidores do GitHub
+    (403); a lista e lida pelo runner europeu do piloto e guardada com a hora da leitura (bybit_eu_spot.json no ramo
+    piloto-okx). Usa a direta se responder; senao a guardada, so se tiver menos de 48 h. None se nenhuma servir."""
+    info = info if info is not None else {}
+    d = _http("https://api.bybit.eu/v5/market/instruments-info?category=spot&limit=1000", tent=1)
     lst = (((d or {}).get("result") or {}).get("list")) if isinstance(d, dict) else None
-    if not isinstance(lst, list):
-        return None
-    return {x.get("baseCoin") for x in lst if x.get("status") == "Trading" and x.get("quoteCoin") in ("USDT", "USDC")}
+    if isinstance(lst, list) and lst:
+        info.update(origem="direta", idade_s=0)
+        return {x.get("baseCoin") for x in lst if x.get("status") == "Trading" and x.get("quoteCoin") in ("USDT", "USDC")}
+    if FALHAS and "api.bybit.eu" in FALHAS[-1]["onde"]:
+        FALHAS.pop()                                         # 403 esperado daqui: nao conta como falha
+    c = _http(BYBIT_CACHE, tent=2)
+    if isinstance(c, dict) and c.get("bases") and time.time() - int(c.get("t") or 0) <= BYBIT_CACHE_MAX_S:
+        info.update(origem="guardada (runner europeu)", idade_s=int(time.time() - int(c["t"])))
+        return set(c["bases"])
+    info.update(origem="indisponivel", idade_s=None)
+    return None

@@ -117,6 +117,28 @@ class Smart(unittest.TestCase):
         d, _, pl = SM.decidir(self.op(px_abre=1000.0, fator_px=0.001), self.TOPO, self.ctx())
         self.assertEqual(d, "COPY_DIRECT")                     # 1000 por lote de 1000 = 1,0 por unidade: preco viavel
 
+    def test_seguidos_frequentes_primeiro(self):
+        trs = {"traders": {"okx:lento": {"estado": "OBSERVAR", "score": 9, "metricas": {"duracao_media_h": 300, "freq_dia": 0.1}},
+                           "okx:rapido": {"estado": "OBSERVAR", "score": 1, "metricas": {"duracao_media_h": 2, "freq_dia": 5}},
+                           "okx:apr": {"estado": "APROVADO", "score": 0, "metricas": {}},
+                           "okx:rej": {"estado": "REJEITADO", "score": 99, "metricas": {}}}}
+        self.assertEqual(CR.seguidos(trs), ["okx:apr", "okx:rapido", "okx:lento"])
+
+    def test_bybit_cache_valido_e_identificado(self):
+        from unittest import mock
+        from tools.copy import fontes as F
+        import time as _t
+        resp = {"t": int(_t.time()) - 3600, "bases": ["BTC", "ETH"]}
+        with mock.patch.object(F, "_http", side_effect=lambda url, *a, **k: None if "api.bybit.eu" in url else resp):
+            info = {}
+            self.assertEqual(F.bybit_eu_spot(info), {"BTC", "ETH"})
+            self.assertIn("guardada", info["origem"])
+        velho = {"t": int(_t.time()) - 49 * 3600, "bases": ["BTC"]}
+        with mock.patch.object(F, "_http", side_effect=lambda url, *a, **k: None if "api.bybit.eu" in url else velho):
+            info = {}
+            self.assertIsNone(F.bybit_eu_spot(info))          # lista antiga nunca e usada como atual
+            self.assertEqual(info["origem"], "indisponivel")
+
     def test_bybit_eu_nunca_copia(self):
         self.assertEqual(SM.decidir_bybit({"lado": "SHORT", "base": "BTC"}, {"BTC"})[0], "IGNORE")
         self.assertEqual(SM.decidir_bybit({"lado": "LONG", "base": "BTC"}, {"BTC"})[0], "SIGNAL_ONLY")
