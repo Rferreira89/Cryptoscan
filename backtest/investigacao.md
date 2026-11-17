@@ -1,20 +1,18 @@
 # Diário de investigação
 
-**Hipóteses testadas contra esta reserva: 27** (12 neste diário: compra de
+**Hipóteses testadas contra esta reserva: 30** (15 neste diário: compra de
 quedas, compressão, oversold bounce 4H, day trade 1H, bounce com outras
 saídas, sweep a mercado, funding negativo, quebra com compradores,
 capitulação do mercado, atraso face ao BTC, resiliente, impulso de
-amplitude; mais 15 no diário de afinação, H1 a H13, H15 e H16). Atualizado
-em 2026-11-14 (sem hipótese nova nesta corrida nem nas anteriores desde
-2026-10-20; a afinação testou a H13 em 2026-11-04, a H14 em 2026-11-06,
-uma medição de lutadores existentes que não conta como hipótese nova, a
-H15 em 2026-11-11 e a H16 em 2026-11-13, ambas rejeitadas). O contador global do
+amplitude, CAP_MERCADO_V2 e BOUNCE_LARGO (2026-11-14) e BOUNCE_ALVO
+(2026-11-17); mais 15 no diário de afinação, H1 a H13, H15 e H16, sem
+hipótese nova desde 2026-11-13). Atualizado em 2026-11-17. O contador global do
 programa (`engine/hipoteses.py` mais `backtest/hipoteses_offline.json`,
 contra dados que incluem esta reserva) já vai em 87 (ringue longo,
 2026-11-04), mais os estudos H38–H41 de 03–04/11 em `backtest/estudos/`.
 Quanto maior este número, maior a probabilidade de uma hipótese passar por
-sorte: com 27 testes, a probabilidade de pelo menos um falso positivo a 5%
-já ronda os 75% (e as várias configurações de cada grelha aumentam-na
+sorte: com 30 testes, a probabilidade de pelo menos um falso positivo a 5%
+já ronda os 79% (e as várias configurações de cada grelha aumentam-na
 ainda mais).
 
 Uma hipótese por entrada, com o veredicto. Método: `tools/research.py`
@@ -208,6 +206,8 @@ o Rui), e o morto fica registado. Um por corrida, na segunda vaga.
 | BOUNCE_V1 | 2026-10-30 19:40 UTC (forma recente, morte rápida; 10 op., −0,703R) | a saída, não a entrada: no mesmo combate e nas mesmas moedas o gatilho com a saída G0 tem 24 op., +0,59R (acima do p95 do acaso); a saída V1 (plano do sistema ao vivo: 1.º objetivo mais longe, até 30 dias, stop na entrada só depois do 1.º objetivo) devolve as subidas na lateral (stops depois de +1,0R a +1,5R a favor); 9 das 16 operações locais nasceram no mesmo dia (2026-10-09), um só acontecimento (ver entrada de 2026-10-31) | sem sucessor (a correção é a saída G0, que já existe e está morta como clone; um sucessor seria outro clone) | — |
 | BOUNCE_MACRO_R2 | 2026-11-04 06:40 UTC (forma recente, morte rápida; 10 op., −0,614R) | a mesma função de BOUNCE_MACRO (`sig_macro`), regressada a 2026-10-26: 7 op. em só 4 dias (3 na mesma vela de 26/10), 5 stops; o filtro macro tira as melhores sobrevendas (no combate de 90 dias, X30 sem filtro +0,06R contra −0,12R com filtro) e a família X30 na lateral passou de +0,21R para −0,31R entre as duas metades do ringue longo; o regresso foi decidido com uma prova que já não se aguentava (ver entrada de 2026-11-04) | sem sucessor (a correção é tirar o filtro, que é o BOUNCE_X30, morto como clone; e a família perde na metade recente) | — |
 | VOLUME_ACUMULACAO_R2 | 2026-11-13 03:45 UTC (forma recente, morte rápida; 10 op., −0,506R) | a mesma função de VOLUME_ACUMULACAO (`sig_volume`), regressada a 2026-10-24 pela regra do regresso (regime lateral): desde então 10 op., 2 ganhadoras, 8 stops (−0,63R); no combate de 90 dias 46 op., −0,357R, abaixo da mediana do acaso (−0,26R; últimos 30 dias −0,72R em 17 op.); no ringue longo a lateral dá −0,18R e −0,76R nas duas metades; no desenho continua no percentil 80 do acaso (sem vantagem provada) com a geometria a perder também ao acaso (−0,14R). Sem causa única (ver entrada de 2026-11-13) | sem sucessor (segunda morte da mesma função; trocar a saída só leva ao nível do acaso, que também perde) | — |
+| CAP_MERCADO_V2_N3K15, _N3K2, _N5K15 | 2026-11-15 04:45 UTC (clones de CAP_MERCADO_V2_N5K2, correlação 0,99–1,00) | não é desempenho: o representante (N5K2) está vivo, o corte dos clones funcionou como decidido a 2026-11-14 | sem sucessor (a família continua viva em N5K2) | — |
+| BOUNCE_LARGO_X35V20, BOUNCE_LARGO_X30V20 | 2026-11-14 16:55 e 2026-11-17 11:40 UTC (forma recente; 44 op. −0,255R e 20 op. −0,204R) | a geometria: o 1.º objetivo (SMA20) fica a menos de 1R em ~70% das operações (mediana 0,6R–0,8R), metade sai aí e o resto vai ao stop na entrada, logo ganha ~0,4R e perde 1R; igual no desenho e no combate (ver entrada de 2026-11-17) | BOUNCE_LARGO → BOUNCE_ALVO (só com a média a ≥ 1R) | AMOSTRA INSUFICIENTE — PARA PAPEL (2026-11-17; 22 op. fora da amostra, +0,585R, percentil 100 do acaso; reserva contaminada pela autópsia) |
 
 ## Hipóteses anteriores a este diário (até 2026-10-02, período 2021-2026)
 
@@ -2825,3 +2825,49 @@ números diferem um pouco da arena, que combate em 45 moedas da Bybit UE). Fiche
   da regra de 2026-11-14). PARA PAPEL só com percentil ≥ 90 **e** R médio fora da amostra positivo (lição da
   afinação e de 2026-11-14: o percentil sozinho, com R negativo, não chega). Menos de 40 operações no
   walk-forward = AMOSTRA INSUFICIENTE. Código: `tools/research_bounce_alvo.py`.
+
+## 2026-11-17 — BOUNCE_ALVO: BOUNCE_LARGO só com a média a pelo menos M R (sucessor da arena)
+
+Histórico até 2026-11-14 12:00 UTC (66 moedas). Janela: desenho **2024-11-14 → 2026-05-13**, reserva
+**2026-05-14 → 2026-11-13**; antes disso só aquecimento e a linha informativa. Ficheiro:
+`backtest/research_bounce_alvo.json`; código `tools/research_bounce_alvo.py`; testes `tests/test_bounce_alvo.py`
+(inclui o de look-ahead: o sinal da vela i é o mesmo com a série cortada em i e com o futuro alterado).
+Fora da amostra = walk-forward (3 dobras de 91 dias) + reserva; R por operação com custos (0,25% + 0,1% por lado;
+custo médio 0,10R–0,15R por operação).
+
+| Combinação | Op. desenho (R) | Op. fora (WF + reserva) | R fora | Acaso mediana / p95 | Percentil | Critérios falhados | Veredicto |
+|---|---|---|---|---|---|---|---|
+| X30 M1,0 | 24 (+0,34R) | 22 (12 + 10) | **+0,585** | −0,301 / +0,071 | 100 | nenhum | AMOSTRA INSUFICIENTE — PARA PAPEL |
+| X30 M1,25 | 11 (+0,16R) | 12 (5 + 7) | +0,829 | −0,316 | 100 | nenhum | AMOSTRA INSUFICIENTE — PARA PAPEL |
+| X35 M1,0 | 28 (+0,15R) | 26 (13 + 13) | +0,338 | −0,315 | 99,8 | 6 (reserva −2,7%, Sharpe −0,41) | AMOSTRA INSUFICIENTE — PARA PAPEL |
+| X35 M1,25 | 12 (+0,06R) | 12 (5 + 7) | +0,829 | −0,316 | 100 | nenhum | AMOSTRA INSUFICIENTE — PARA PAPEL |
+
+X30 M1,0 em detalhe (a combinação que entra no ringue: a correção mínima e a com mais operações entre as que
+passam todos os critérios):
+
+- Walk-forward: +16,7%, queda máxima 2,7%, Sharpe 1,89, 12 op., 67% de acerto, +0,70R; referência BTC>SMA200 no
+  mesmo período −4,1% (Sharpe −0,09). Esteve investido só 12% do tempo.
+- Reserva (avaliada uma vez): +1,0%, queda máxima 7,5%, Sharpe 0,23; 10 op., 50% de acerto, +0,45R; referência
+  BTC>SMA200 +2,3% (Sharpe 0,30, queda 17,8%): **ganha em R e em queda, perde em retorno para a referência**.
+  Grandes moedas na reserva −2,7%.
+- Contra o acaso (mesma geometria, ±90 velas, 1000 séries): +0,585R contra mediana −0,301R e p95 +0,071R, percentil 100.
+- Período antigo (2021-07 → 2024-11, informativo): 18 op., 50% de acerto, +0,09R, +1,7% (BTC>SMA200 +114%).
+
+**Veredicto: AMOSTRA INSUFICIENTE — PARA PAPEL.** Passa os sete critérios, mas com 12 operações no walk-forward
+(mínimo 40) não é validação. Leitura honesta:
+1. **Amostra mínima**: 22 operações fora da amostra em ~15 meses, cerca de 1,5 por mês; um par de stops muda tudo.
+2. **Reserva contaminada**: a autópsia olhou para o combate de 90 dias (dentro da reserva) e viu que as operações
+   com a média a ≥ 1R eram as melhores. O resultado da reserva é por isso quase circular; só o walk-forward do
+   desenho (12 op.) é independente, e também esse foi olhado em agregado na autópsia.
+3. **30 hipóteses contra esta reserva**: probabilidade de pelo menos um falso positivo ~79%.
+4. No período antigo fica perto de zero (+0,09R): a vantagem não é estável no tempo.
+5. O percentil alto vem em parte de a geometria perder muito ao acaso (−0,30R); aqui, ao contrário de 2026-11-14,
+   o R fora da amostra também é positivo.
+
+Ligação (ENTRADA NO RINGUE): `tools/arena_ringue.sig_bounce_alvo(30, 2.0, 1.0)` em `SUCESSORES_SIGS` →
+`NEW_SIGS` (combate de hora a hora com a chave **BOUNCE_ALVO**), `SINAIS` (sinal ao vivo), `PAPEL_ESTUDO` (papel,
+todas as fases, prova da conta só com ≥ 25 operações em papel), fora de `promo.REAL_OK`: nunca dinheiro real.
+Sinais da arena conferidos contra os da investigação em DOGE, AVAX, ETH e LINK (iguais). A prova é o papel ao
+vivo: mínimo 30 operações fechadas acima do acaso antes de qualquer conversa sobre dinheiro real.
+
+Testes: 1456, todos a passar.

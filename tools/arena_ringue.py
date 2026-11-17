@@ -1155,13 +1155,37 @@ FASE_AGRESSIVA_SIGS = {
     "CAP_MERCADO_V2_N3K15": sig_cap_mercado_v2(3, 1.5), "CAP_MERCADO_V2_N3K2": sig_cap_mercado_v2(3, 2.0),
     "CAP_MERCADO_V2_N5K15": sig_cap_mercado_v2(5, 1.5), "CAP_MERCADO_V2_N5K2": sig_cap_mercado_v2(5, 2.0),
     "BOUNCE_LARGO_X30V20": sig_bounce_largo(30, 2.0), "BOUNCE_LARGO_X35V20": sig_bounce_largo(35, 2.0)}
+
+
+def sig_bounce_alvo(x, v, m):
+    """(17/11, sucessor de BOUNCE_LARGO) O sinal de sig_bounce_largo(x, v), so quando o 1.o objetivo (SMA20 de 4H)
+    fica pelo menos m x o risco (fecho - stop) acima do fecho da vela do sinal. Autopsia de 2026-11-17: em ~70% das
+    operacoes de BOUNCE_LARGO a media estava a menos de 1R e a geometria perdia por construcao."""
+    base = sig_bounce_largo(x, v)
+
+    def f(c4):
+        s = base(c4)
+        if not s:
+            return None
+        c = c4[-1]["c"]
+        risk = c - s["stop"]
+        if risk <= 0 or s["tp"][0] - c < m * risk:
+            return None
+        return dict(s, gatilho=s["gatilho"] + f"; média a {(s['tp'][0] - c) / risk:.1f}R")
+    return f
+
+
+# (17/11) sucessores da arena com PARA PAPEL (tools/research_bounce_alvo, backtest/investigacao.md 2026-11-17)
+SUCESSORES_SIGS = {"BOUNCE_ALVO": sig_bounce_alvo(30, 2.0, 1.0)}
+FASE_AGRESSIVA_SIGS_MAIS = {**FASE_AGRESSIVA_SIGS, **SUCESSORES_SIGS}
+
 # compras que operam em papel mesmo com o BTC abaixo da SMA200 (engine/paper_ring)
 PAPEL_SEM_FILTRO_BTC = ("CAP_MERCADO_V2_N3K15", "CAP_MERCADO_V2_N3K2", "CAP_MERCADO_V2_N5K15", "CAP_MERCADO_V2_N5K2")
 
-PAPEL_ESTUDO = ("TURTLE_FORTES", "SHORT_FALSO_ROMP", *FASE_AGRESSIVA_SIGS)    # so em papel: fora de promo.REAL_OK
+PAPEL_ESTUDO = ("TURTLE_FORTES", "SHORT_FALSO_ROMP", *FASE_AGRESSIVA_SIGS_MAIS)    # so em papel: fora de promo.REAL_OK
 PAPEL_FASE = {"TURTLE_FORTES": "subida", "SHORT_FALSO_ROMP": "queda",
-              **{k: None for k in FASE_AGRESSIVA_SIGS}}    # (14/11) todas as fases; prova so com >= 25 em papel
-PAPEL_N_MIN = {k: 25 for k in FASE_AGRESSIVA_SIGS}
+              **{k: None for k in FASE_AGRESSIVA_SIGS_MAIS}}    # (14/11) todas as fases; prova so com >= 25 em papel
+PAPEL_N_MIN = {k: 25 for k in FASE_AGRESSIVA_SIGS_MAIS}
 
 MAIORES_SIGS = {"MAIORES_RECUO": sig_maiores_recuo, "MAIORES_TENDENCIA": sig_maiores_tendencia,
                 "MAIORES_FUNDING": sig_maiores_funding}
@@ -1187,7 +1211,7 @@ NEW_SIGS = {"BRK_ESPACO": sig_breakout_espaco, "RETESTE": sig_reteste,
             **MAIORES_SIGS,
             "BOUNCE_AMPLITUDE": sig_amplitude,
             "TURTLE_FORTES": sig_turtle_fortes,
-            **FASE_AGRESSIVA_SIGS}
+            **FASE_AGRESSIVA_SIGS_MAIS}
 
 
 def fetch_funding(base, now, days):
