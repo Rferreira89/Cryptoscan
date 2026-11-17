@@ -2768,3 +2768,25 @@ comem a maior parte do risco. Hipótese a pré-registar numa próxima corrida: a
 (média ≤ 0 ou limite inferior ≤ 0). Real executado (15 op.): −0,31R/op → não sustentável. Capital para
 autossustentabilidade: indeterminado (retorno esperado ≤ 0). Sobrevivência: bloqueia novas entradas experimentais em
 todas as séries QO (drawdown e expectativa degradada).
+
+## 2026-11-17 — Global Opportunity Hunter (ramo investigacao/expansao-oportunidades, PR #8)
+
+Corrigido em relação às corridas de 17/11 de manhã: funding real da OKX (3 meses; cenário com a mediana da própria
+moeda fora disso), controlo emparelhado por operação (antes 5 controlos tratados como independentes), bootstrap por
+blocos de dias, Holm cumulativo entre rondas (registo no ramo autonomo), treino/validação/teste 50/25/25 com teste
+final usado uma única vez por regra, universo completo com histórico (survivorship a partir de hoje), avisos de dados
+não fatais deixam de excluir instrumentos.
+
+Universo: 262 X-Perps descobertos, 260 com dados válidos (167 cripto, 89 ações/ETF, 4 metais; antes 59 no scanner).
+Treino até 2026-07-24, validação até 2026-09-20, teste até 2026-11-17. 300 hipóteses no diagnóstico (18 famílias em
+6 grupos x 30m/1H/4H x LONG/SHORT): onde falha — custos 140, entrada 93, passa a geometria 52. Evolução: 406 genomas.
+
+1.ª corrida: 1 "candidata" (liderança do BTC 1H LONG) com 441 operações em 5 dias na validação e 265 em 3 dias no
+teste (R +0,026, IC [-0,16; 0,17]). Concentrada em poucos acontecimentos: regra de veredicto corrigida (>= 20 dias na
+validação, >= 10 no teste, R líquido > 0 com p < 0,05). O teste final dessa regra fica gasto (registo).
+
+2.ª corrida (regras corrigidas): 0 candidatas, 8 exploratórias (média > 0 na validação sem significância) que vão a
+PAPEL para recolher dados novos: liderança do BTC 1H LONG; rompimento com reteste 4H LONG (3 variantes); momentum
+condicionado ao regime 4H LONG (2); divergência preço-volume 4H LONG; extremo 1H SHORT. Na simulação de risco por
+dias (máx. 3 posições por dia), Kelly = 0 em 7 das 8 e risco fixo de 1% leva a drawdowns de 60-97%: nenhuma
+justifica dinheiro real.
