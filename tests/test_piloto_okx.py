@@ -176,7 +176,7 @@ class Criterios(Base):
         api = FakeOKX()
         st, msgs = self.corre(api, reg=registo(estrategia(oos={"r_medio": -0.2})))
         self.assertEqual(api.posts(), [])
-        self.assertFalse(st["portas"]["estrategias_aprovadas"]["ok"])
+        self.assertFalse(st["portas"]["estrategias_elegiveis"]["ok"])
 
 
 class Dimensionamento(Base):
@@ -311,7 +311,7 @@ class Portas(Base):
     def test_dados_velhos_bloqueiam(self):
         api = FakeOKX()
         reg, pap = registo(estrategia()), papel(sinal())
-        st, _ = P.ciclo(api, self.d, now=NOW0, registo=dict(reg, t=NOW0 - 4 * 3600), papel=pap, isolado=True, cifra_ok=True)
+        st, _ = P.ciclo(api, self.d, now=NOW0, registo=dict(reg, t=NOW0 - 7 * 3600), papel=pap, isolado=True, cifra_ok=True)
         self.assertFalse(st["portas"]["dados_frescos"]["ok"])
         self.assertEqual(api.posts(), [])
 
@@ -439,6 +439,71 @@ class Isolamento(Base):
         txt = open(os.path.join(self.d, "piloto_publico.json"), encoding="utf-8").read()
         for k in ("risco_planeado", "nocional", "pnl_liquido", "_saldo_usdc", "contratos", "custos_estimados", "perda_realizada"):
             self.assertNotIn(f'"{k}"', txt, k)
+
+
+def experimental(eid="exp111", lado="LONG", **kw):
+    e = {"id": eid, "estado": "EXPERIMENTAL_REAL", "estado_estatistico": "PAPER_TRADING", "lado": lado, "tf": "1H",
+         "definicao": {"tf": "1H", "lado": lado, "saida": {"tipo": "fixa", "k": 2.0, "tp": 2.0, "hold": 4}},
+         "auditoria_tecnica": {"ok": True, "falhas": []}, "backtest": {"r_medio": 0.05}}
+    e.update(kw)
+    return e
+
+
+class Experimental(Base):
+    def test_experimental_sem_estatistica_opera_dentro_dos_limites(self):
+        api = FakeOKX()
+        st, _ = self.corre(api, reg=registo(experimental()), pap=papel(sinal("exp111")))
+        o = api.posts("/trade/order")
+        self.assertEqual(len(o), 1)
+        self.assertTrue(st["portas"]["estrategias_elegiveis"]["ok"])
+        self.assertLessEqual(st["aberta"]["risco_planeado"], 0.25)
+        self.assertLessEqual(st["aberta"]["nocional"], 20)
+        self.assertTrue(5 <= st["aberta"]["alav"] <= 10)
+
+    def test_short_experimental(self):
+        api = FakeOKX()
+        self.corre(api, reg=registo(experimental(lado="SHORT")), pap=papel(sinal("exp111", lado="SHORT")))
+        self.assertEqual(api.posts("/trade/order")[0][2]["side"], "sell")
+
+    def test_rejeitadas_nunca_operam(self):
+        for rid in ("e495d11739f6", "f8f018b82179"):
+            shutil.rmtree(self.d)
+            os.makedirs(self.d)
+            api = FakeOKX()
+            self.corre(api, reg=registo(experimental(rid), estrategia(rid, id=rid)), pap=papel(sinal(rid)))
+            self.assertEqual(api.posts(), [], rid)
+
+    def test_auditoria_tecnica_falhada_ou_estado_errado(self):
+        for kw in ({"auditoria_tecnica": {"ok": False, "falhas": ["x"]}}, {"estado": "PAPER_TRADING"},
+                   {"estado": "SUSPENDED"}, {"definicao": {"saida": {"k": 0}}}):
+            shutil.rmtree(self.d)
+            os.makedirs(self.d)
+            api = FakeOKX()
+            self.corre(api, reg=registo(experimental(**kw)), pap=papel(sinal("exp111")))
+            self.assertEqual(api.posts(), [], kw)
+
+    def test_uma_estrategia_degradada_nao_bloqueia_as_outras(self):
+        st = P.estado_inicial()
+        st["ops"] = [{"estrategia": "mau", "r": -1.0, "estado": "fechada"}] * 5
+        json.dump(st, open(os.path.join(self.d, "piloto_estado.json"), "w"))
+        api = FakeOKX()
+        s2, _ = self.corre(api, reg=registo(experimental("mau"), experimental("bom")),
+                           pap=papel(sinal("mau"), sinal("bom", base="ABC")))
+        self.assertEqual(s2["aberta"]["estrategia"], "bom")
+        self.assertIn("mau", s2["recusadas_pelo_executor"])
+
+    def test_aprovada_tem_prioridade_sobre_experimental(self):
+        api = FakeOKX()
+        st, _ = self.corre(api, reg=registo(experimental("exp111", backtest={"r_medio": 0.3}), estrategia("apr222")),
+                           pap=papel(sinal("exp111"), sinal("apr222")))
+        self.assertEqual(st["aberta"]["estrategia"], "apr222")
+
+    def test_contrato_de_acoes_e_aceite(self):
+        api = FakeOKX()
+        orig = api.pub
+        api.pub = lambda path, params=None: [dict(x, instCategory="3") for x in orig(path, params)] if "instruments" in path else orig(path, params)
+        self.corre(api, reg=registo(experimental()), pap=papel(sinal("exp111")))
+        self.assertEqual(len(api.posts("/trade/order")), 1)
 
 
 if __name__ == "__main__":

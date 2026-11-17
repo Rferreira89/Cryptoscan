@@ -41,9 +41,10 @@ COMISSAO = 0.0005               # por lado (taker, conservador)
 PRAZO_ENTRADA_S = 900           # ordem limite de entrada: o que nao executar ate a volta seguinte e cancelado
 TF_S = {"30m": 1800, "1H": 3600, "4H": 14400}
 FUNDING_RESERVA_8H = 0.0001     # sem taxa de funding lida: 0,01% por 8 h contra a posicao
-REGISTO_MAX_IDADE_S = 3 * 3600
+REGISTO_MAX_IDADE_S = 6 * 3600   # estados mudam devagar; os sinais (papel) tem de ser frescos
 PAPEL_MAX_IDADE_S = 3600
 V2_REJEITADA = "e495d11739f6"   # (17/11, ordem do Rui) rejeitada para real, definitivamente
+REJEITADAS = {V2_REJEITADA, "f8f018b82179"}   # (17/11, 2.a ordem) nunca reativadas
 
 # Criterios da ordem de 17/11 (secao 3): o registo diz que cumpre; este executor confere de novo.
 CRITERIOS = {"oos_n_min": 100, "oos_acontecimentos_min": 30, "oos_dias_min": 30, "pf_min": 1.20, "alfa": 0.05,
@@ -67,8 +68,8 @@ def criterios_reais(e):
     """(ok, falhas) para uma entrada do registo. Tudo tem de estar presente e dentro dos limites; o que faltar falha."""
     C = CRITERIOS
     f = []
-    if e.get("id") == V2_REJEITADA:
-        return False, ["v2 rejeitada para real (ordem de 17/11)"]
+    if e.get("id") in REJEITADAS:
+        return False, ["rejeitada definitivamente (ordens de 17/11)"]
     if e.get("estado") not in ("APPROVED_REAL", "ACTIVE_REAL"):
         f.append(f"estado {e.get('estado')}")
     o = e.get("oos") or {}
@@ -103,12 +104,48 @@ def criterios_reais(e):
     return not f, f
 
 
-def estrategias_aprovadas(registo, c):
+def criterios_experimentais(e, ops_reais=()):
+    """(17/11, 2.a ordem do Rui) EXPERIMENTAL_REAL: so a auditoria tecnica (sem estatistica) + degradacao real da
+    PROPRIA estrategia (5+ operacoes com media < -0,5R, ou -4R acumulados): suspensa sozinha, as outras continuam."""
+    f = []
+    if e.get("id") in REJEITADAS:
+        return False, ["rejeitada definitivamente (ordens de 17/11)"]
+    if e.get("estado") != "EXPERIMENTAL_REAL":
+        f.append(f"estado {e.get('estado')}")
+    a = e.get("auditoria_tecnica") or {}
+    if a.get("ok") is not True:
+        f.append("auditoria tecnica: " + ", ".join(a.get("falhas") or ["em falta"]))
+    sd = (e.get("definicao") or {}).get("saida") or {}
+    if not (isinstance(sd.get("k"), (int, float)) and sd["k"] > 0 and sd.get("hold")):
+        f.append("stop/duracao indefinidos")
+    rr = [o["r"] for o in ops_reais if o.get("estrategia") == e.get("id") and o.get("r") is not None]
+    if len(rr) >= 5 and sum(rr) / len(rr) < -0.5:
+        f.append(f"degradada em real ({len(rr)} op., media {sum(rr) / len(rr):+.2f}R): suspensa individualmente")
+    if rr and sum(rr) <= -4:
+        f.append(f"degradada em real ({sum(rr):+.1f}R acumulados): suspensa individualmente")
+    return not f, f
+
+
+def prioridade(e, ops_reais=()):
+    """Prioridade dinamica: aprovadas primeiro; depois expectativa (fora da amostra, ou backtest para as
+    experimentais) ajustada pelo resultado real recente da propria estrategia (3+ operacoes)."""
+    base = float((e.get("oos") or {}).get("r_medio") or 0) + 1.0 if e.get("estado") in ("APPROVED_REAL", "ACTIVE_REAL") \
+        else float((e.get("backtest") or {}).get("r_medio") or 0)
+    rr = [o["r"] for o in ops_reais if o.get("estrategia") == e.get("id") and o.get("r") is not None][-10:]
+    return base + (0.5 * sum(rr) / len(rr) if len(rr) >= 3 else 0.0)
+
+
+def estrategias_aprovadas(registo, c, ops_reais=()):
+    """Elegiveis para real, cada uma pelo seu estado: APPROVED/ACTIVE_REAL (criterios estatisticos conferidos) ou
+    EXPERIMENTAL_REAL (auditoria tecnica). Uma estrategia recusada nunca impede as outras."""
     out, recusadas = {}, {}
     for e in (registo or {}).get("estrategias", {}).values():
-        if e.get("estado") not in ("APPROVED_REAL", "ACTIVE_REAL"):
+        if e.get("estado") in ("APPROVED_REAL", "ACTIVE_REAL"):
+            ok, falhas = criterios_reais(e)
+        elif e.get("estado") == "EXPERIMENTAL_REAL":
+            ok, falhas = criterios_experimentais(e, ops_reais)
+        else:
             continue
-        ok, falhas = criterios_reais(e)
         if ok and e.get("lado") in c["lados"]:
             out[e["id"]] = e
         else:
@@ -245,8 +282,9 @@ def portas(api, st, c, now, registo, papel, isolado, cifra_ok, aprovadas, falhas
     out["dados_frescos"] = (now - t_reg <= REGISTO_MAX_IDADE_S and now - t_pap <= PAPEL_MAX_IDADE_S,
                             f"registo ha {(now - t_reg) // 60} min, papel ha {(now - t_pap) // 60} min")
     out["contas_confirmadas"] = (not any(o.get("pnl_por_confirmar") for o in st["ops"]), "resultado de todas as posicoes fechadas confirmado na OKX")
-    out["estrategias_aprovadas"] = (bool(aprovadas), f"{len(aprovadas)} aprovadas e conferidas" if aprovadas else
-                                    "nenhuma estrategia cumpre os criterios de promocao")
+    nexp = sum(1 for e in aprovadas.values() if e.get("estado") == "EXPERIMENTAL_REAL")
+    out["estrategias_elegiveis"] = (bool(aprovadas), f"{len(aprovadas) - nexp} aprovadas e {nexp} experimentais" if aprovadas else
+                                    "nenhuma estrategia elegivel (aprovada ou experimental)")
     return {k: {"ok": bool(v[0]), "detalhe": v[1]} for k, v in out.items()}
 
 
@@ -274,7 +312,7 @@ def instrumentos(api):
     for i in api.pub("/api/v5/public/instruments", {"instType": "FUTURES"}) or []:
         iid = i.get("instId", "")
         if (DERIV.is_um_xperp(iid) and iid in conta and i.get("state") == "live" and i.get("ctType") == "linear"
-                and str(i.get("instCategory")) == "1" and str(i.get("ruleType")).lower() != "pre_market"):
+                and str(i.get("ruleType")).lower() != "pre_market"):    # (17/11) cripto, acoes e outros X-Perps
             out[iid] = {"inst": iid, "ctVal": i["ctVal"], "ctMult": i.get("ctMult") or 1, "ctValCcy": i.get("ctValCcy"),
                         "lotSz": i["lotSz"], "minSz": i["minSz"], "tickSz": i["tickSz"], "lever": i.get("lever")}
     return out
@@ -321,7 +359,7 @@ def ciclo(api, pasta, now=None, simular=False, registo=None, papel=None, isolado
     api = Contador(api)
     msgs = []
     papel = papel or {}
-    aprovadas, recusadas = estrategias_aprovadas(registo, c)
+    aprovadas, recusadas = estrategias_aprovadas(registo, c, st["ops"])
     # 1. reconciliar com a OKX (so o que e do piloto)
     rec = reconciliar(api, st, now, msgs, simular)
     orfas(api, st, now, msgs, simular)
@@ -435,7 +473,7 @@ def procurar(api, st, c, now, papel, aprovadas):
         if oc is not False:
             perdido(st, now, sid, "instrumento com posicao/ordens de outro executor" if oc else "OKX sem resposta sobre o instrumento")
             continue
-        score = float(e["oos"]["r_medio"]) - max(0.0, dim["custo_r"] - float(e["oos"].get("custo_medio_r") or 0))
+        score = prioridade(e, st["ops"]) - dim["custo_r"]
         cands.append({"id": sid, "estrategia": o["estrategia"], "versao": e.get("versao") or o["estrategia"], "base": o.get("b"),
                       "inst": o["inst"], "lado": lado, "tf": o.get("tf"), "regime": o.get("regime"), "t_sinal": int(o["t_sinal"]),
                       "plano": pl, "dim": dim, "spread_pct": round(spread, 4), "tick": inst["tickSz"], "hold_s": int(horas * 3600),
@@ -691,14 +729,48 @@ def relatorio_diario(st, now, msgs, aprovadas):
                 + (" ; BLOQUEADO" if st["bloqueio"] else " ; SUSPENSO" if st["suspenso"] else "") + ".")
 
 
+def desempenho(st):
+    """Metricas reais por estrategia (sem valores monetarios): sinais vistos, executaveis, operacoes, acerto,
+    expectativa, PF, drawdown em R, deslize, duracao, por moeda/regime/timeframe, recente (ultimas 10)."""
+    out = {}
+    for o in st["ops"]:
+        d = out.setdefault(o.get("estrategia"), {"ops": []})
+        d["ops"].append(o)
+    for sid in st.get("sinais_perdidos") or []:
+        k = str(sid.get("sinal", "")).split("|")[0]
+        out.setdefault(k, {"ops": []}).setdefault("perdidos", 0)
+        out[k]["perdidos"] += 1
+    res = {}
+    for k, d in out.items():
+        fe = [o for o in d["ops"] if o.get("r") is not None]
+        rs = [o["r"] for o in fe]
+        g, p = sum(x for x in rs if x > 0), -sum(x for x in rs if x < 0)
+        eq = pk = dd = 0.0
+        for x in rs:
+            eq += x
+            pk, dd = max(pk, eq), max(dd, pk - eq)
+        grp = lambda c: {v: round(sum(o["r"] for o in fe if o.get(c) == v), 3) for v in {o.get(c) for o in fe}}
+        med = lambda xs: round(sum(xs) / len(xs), 4) if xs else None
+        res[k] = {"sinais_perdidos": d.get("perdidos", 0), "ordens": len([o for o in d["ops"] if o.get("ordId")]),
+                  "fechadas": len(fe), "acerto": med([1.0 if x > 0 else 0.0 for x in rs]), "r_medio": med(rs),
+                  "profit_factor": round(g / p, 3) if p else None, "drawdown_r": round(dd, 3),
+                  "deslize_medio_pct": med([o["slippage_pct"] for o in d["ops"] if o.get("slippage_pct") is not None]),
+                  "duracao_media_h": med([o["duracao_h"] for o in fe if o.get("duracao_h") is not None]),
+                  "por_moeda": grp("base"), "por_regime": grp("regime"), "por_tf": grp("tf"), "recente_r": med(rs[-10:])}
+    return res
+
+
 def publico(st, c, aprovadas, now):
     """Resumo SEM valores monetarios (repositorio publico): estados, precos, R, motivos."""
     campos = ("id", "estrategia", "versao", "base", "inst", "lado", "tf", "regime", "t_sinal", "t_ordem", "t_execucao", "t_fecho",
               "preco_previsto", "preco_efetivo", "slippage_pct", "stop", "alvo", "preco_saida", "alav", "estado", "stop_confirmado",
               "motivo_saida", "r", "r_papel", "duracao_h", "spread_pct")
-    oper = all(v["ok"] for k, v in st["portas"].items() if k != "estrategias_aprovadas")
+    oper = all(v["ok"] for k, v in st["portas"].items() if k != "estrategias_elegiveis")
     return {"t": now, "aviso": "REAL (piloto OKX). Sem valores monetarios neste ficheiro.", "simulacao": st.get("simulacao"),
             "operacional": oper, "ativas": sorted(aprovadas) if oper else [],
+            "estados": {k: v.get("estado") for k, v in aprovadas.items()},
+            "recusadas": st.get("recusadas_pelo_executor"),
+            "desempenho": desempenho(st),
             "limites": {k: c[k] for k in ("alav_min", "alav_max", "posicoes_max", "margem", "lados")},
             "portas": {k: {"ok": v["ok"], "detalhe": v["detalhe"] if k not in ("saldo_usdc",) else ("ok" if v["ok"] else "insuficiente")}
                        for k, v in st["portas"].items()},
