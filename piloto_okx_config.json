@@ -1,1 +1,19 @@
-{"ativo": false, "estrategia": "e495d11739f6", "lado": "LONG", "capital_max": 10.0, "perda_max": 5.0, "suspender_em": 3.0, "perda_diaria_max": 1.0, "risco_max_op": 0.25, "nocional_max": 10.0, "alav_max": 5, "posicoes_max": 1, "margem": "isolated", "reserva_deslize_pct": 0.3}
+{
+ "_nota": "Limites do piloto real OKX (ordem do Rui de 17/11). O programa nunca os altera. Sem estrategias aprovadas e conferidas, ou com qualquer porta fechada, nao ha ordens.",
+ "ativo": true,
+ "lados": ["LONG", "SHORT"],
+ "capital_max": 20.0,
+ "nocional_max": 20.0,
+ "perda_max": 5.0,
+ "suspender_em": 3.0,
+ "perda_diaria_max": 1.0,
+ "risco_max_op": 0.25,
+ "alav_min": 5,
+ "alav_max": 10,
+ "posicoes_max": 1,
+ "margem": "isolated",
+ "reserva_deslize_pct": 0.3,
+ "spread_max_pct": 0.3,
+ "desvio_max_r": 0.25,
+ "atraso_max_s": {"30m": 900, "1H": 1500, "4H": 3600}
+}
