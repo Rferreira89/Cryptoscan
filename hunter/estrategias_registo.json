@@ -2,13 +2,19 @@
  "estrategias": {
   "057f68c36111": {
    "id": "057f68c36111",
-   "estado": "PAPER_TRADING",
+   "estado": "EXPERIMENTAL_REAL",
    "historico": [
     {
      "t": 1794914965,
      "de": null,
      "para": "PAPER_TRADING",
      "motivo": "papel: 0 fechadas, 0 acontecimentos, 0 dias"
+    },
+    {
+     "t": 1794923573,
+     "de": "PAPER_TRADING",
+     "para": "EXPERIMENTAL_REAL",
+     "motivo": "auditoria tecnica cumprida; experimenta em real com os limites do piloto (papel: 0 fechadas, 0 acontecimentos, 0 dias)"
     }
    ],
    "criado": 1794914965,
@@ -58,18 +64,31 @@
     "deslize_medio_pct": null,
     "papel_vs_real_r": null
    },
-   "desde": 1794914965,
-   "motivo": "papel: 0 fechadas, 0 acontecimentos, 0 dias"
+   "desde": 1794923573,
+   "motivo": "auditoria tecnica cumprida; experimenta em real com os limites do piloto (papel: 0 fechadas, 0 acontecimentos, 0 dias)",
+   "estado_estatistico": "PAPER_TRADING",
+   "auditoria_tecnica": {
+    "ok": true,
+    "falhas": [],
+    "sinal": "velas fechadas; entrada na abertura da vela seguinte",
+    "saida_real": "stop inicial na OKX + objetivo na OKX + fecho quando o papel fecha (trailing/inversao) + saida por tempo"
+   }
   },
   "1a40f1f6422a": {
    "id": "1a40f1f6422a",
-   "estado": "PAPER_TRADING",
+   "estado": "EXPERIMENTAL_REAL",
    "historico": [
     {
      "t": 1794914965,
      "de": null,
      "para": "PAPER_TRADING",
      "motivo": "papel: 0 fechadas, 0 acontecimentos, 0 dias"
+    },
+    {
+     "t": 1794923573,
+     "de": "PAPER_TRADING",
+     "para": "EXPERIMENTAL_REAL",
+     "motivo": "auditoria tecnica cumprida; experimenta em real com os limites do piloto (papel: 0 fechadas, 0 acontecimentos, 0 dias)"
     }
    ],
    "criado": 1794914965,
@@ -120,18 +139,31 @@
     "deslize_medio_pct": null,
     "papel_vs_real_r": null
    },
-   "desde": 1794914965,
-   "motivo": "papel: 0 fechadas, 0 acontecimentos, 0 dias"
+   "desde": 1794923573,
+   "motivo": "auditoria tecnica cumprida; experimenta em real com os limites do piloto (papel: 0 fechadas, 0 acontecimentos, 0 dias)",
+   "estado_estatistico": "PAPER_TRADING",
+   "auditoria_tecnica": {
+    "ok": true,
+    "falhas": [],
+    "sinal": "velas fechadas; entrada na abertura da vela seguinte",
+    "saida_real": "stop inicial na OKX + fecho quando o papel fecha (trailing/inversao) + saida por tempo"
+   }
   },
   "29933c49ce9e": {
    "id": "29933c49ce9e",
-   "estado": "PAPER_TRADING",
+   "estado": "EXPERIMENTAL_REAL",
    "historico": [
     {
      "t": 1794914965,
      "de": null,
      "para": "PAPER_TRADING",
      "motivo": "papel: 0 fechadas, 0 acontecimentos, 0 dias"
+    },
+    {
+     "t": 1794923573,
+     "de": "PAPER_TRADING",
+     "para": "EXPERIMENTAL_REAL",
+     "motivo": "auditoria tecnica cumprida; experimenta em real com os limites do piloto (papel: 0 fechadas, 0 acontecimentos, 0 dias)"
     }
    ],
    "criado": 1794914965,
@@ -181,18 +213,31 @@
     "deslize_medio_pct": null,
     "papel_vs_real_r": null
    },
-   "desde": 1794914965,
-   "motivo": "papel: 0 fechadas, 0 acontecimentos, 0 dias"
+   "desde": 1794923573,
+   "motivo": "auditoria tecnica cumprida; experimenta em real com os limites do piloto (papel: 0 fechadas, 0 acontecimentos, 0 dias)",
+   "estado_estatistico": "PAPER_TRADING",
+   "auditoria_tecnica": {
+    "ok": true,
+    "falhas": [],
+    "sinal": "velas fechadas; entrada na abertura da vela seguinte",
+    "saida_real": "stop inicial na OKX + objetivo na OKX + fecho quando o papel fecha (trailing/inversao) + saida por tempo"
+   }
   },
   "987b19a113db": {
    "id": "987b19a113db",
-   "estado": "PAPER_TRADING",
+   "estado": "EXPERIMENTAL_REAL",
    "historico": [
     {
      "t": 1794914965,
      "de": null,
      "para": "PAPER_TRADING",
      "motivo": "papel: 0 fechadas, 0 acontecimentos, 0 dias"
+    },
+    {
+     "t": 1794923573,
+     "de": "PAPER_TRADING",
+     "para": "EXPERIMENTAL_REAL",
+     "motivo": "auditoria tecnica cumprida; experimenta em real com os limites do piloto (papel: 0 fechadas, 0 acontecimentos, 0 dias)"
     }
    ],
    "criado": 1794914965,
@@ -242,18 +287,31 @@
     "deslize_medio_pct": null,
     "papel_vs_real_r": null
    },
-   "desde": 1794914965,
-   "motivo": "papel: 0 fechadas, 0 acontecimentos, 0 dias"
+   "desde": 1794923573,
+   "motivo": "auditoria tecnica cumprida; experimenta em real com os limites do piloto (papel: 0 fechadas, 0 acontecimentos, 0 dias)",
+   "estado_estatistico": "PAPER_TRADING",
+   "auditoria_tecnica": {
+    "ok": true,
+    "falhas": [],
+    "sinal": "velas fechadas; entrada na abertura da vela seguinte",
+    "saida_real": "stop inicial na OKX + fecho quando o papel fecha (trailing/inversao) + saida por tempo"
+   }
   },
   "a576dd368963": {
    "id": "a576dd368963",
-   "estado": "PAPER_TRADING",
+   "estado": "EXPERIMENTAL_REAL",
    "historico": [
     {
      "t": 1794914965,
      "de": null,
      "para": "PAPER_TRADING",
      "motivo": "papel: 0 fechadas, 0 acontecimentos, 0 dias"
+    },
+    {
+     "t": 1794923573,
+     "de": "PAPER_TRADING",
+     "para": "EXPERIMENTAL_REAL",
+     "motivo": "auditoria tecnica cumprida; experimenta em real com os limites do piloto (papel: 0 fechadas, 0 acontecimentos, 0 dias)"
     }
    ],
    "criado": 1794914965,
@@ -303,18 +361,31 @@
     "deslize_medio_pct": null,
     "papel_vs_real_r": null
    },
-   "desde": 1794914965,
-   "motivo": "papel: 0 fechadas, 0 acontecimentos, 0 dias"
+   "desde": 1794923573,
+   "motivo": "auditoria tecnica cumprida; experimenta em real com os limites do piloto (papel: 0 fechadas, 0 acontecimentos, 0 dias)",
+   "estado_estatistico": "PAPER_TRADING",
+   "auditoria_tecnica": {
+    "ok": true,
+    "falhas": [],
+    "sinal": "velas fechadas; entrada na abertura da vela seguinte",
+    "saida_real": "stop inicial na OKX + objetivo na OKX + fecho quando o papel fecha (trailing/inversao) + saida por tempo"
+   }
   },
   "bbc2557ab78e": {
    "id": "bbc2557ab78e",
-   "estado": "PAPER_TRADING",
+   "estado": "EXPERIMENTAL_REAL",
    "historico": [
     {
      "t": 1794914965,
      "de": null,
      "para": "PAPER_TRADING",
      "motivo": "papel: 0 fechadas, 0 acontecimentos, 0 dias"
+    },
+    {
+     "t": 1794923573,
+     "de": "PAPER_TRADING",
+     "para": "EXPERIMENTAL_REAL",
+     "motivo": "auditoria tecnica cumprida; experimenta em real com os limites do piloto (papel: 1 fechadas, 1 acontecimentos, 0.2 dias)"
     }
    ],
    "criado": 1794914965,
@@ -351,22 +422,51 @@
     "operacoes_por_semana": 38.16
    },
    "papel": {
-    "fechadas": 0,
-    "acontecimentos": 0,
-    "dias": 0,
-    "r_medio": null,
+    "fechadas": 1,
+    "acontecimentos": 1,
+    "dias": 0.2,
+    "r_medio": 2.8494,
+    "r_medio_por_acontecimento": 2.8494,
     "falhas_criticas": 0,
+    "desde": 1794906000,
+    "ic95_acontecimento": null,
     "ok": false
    },
-   "metricas_papel": {},
+   "metricas_papel": {
+    "por_moeda": {
+     "BTW": [
+      1,
+      2.8494
+     ]
+    },
+    "por_tf": {
+     "1H": [
+      1,
+      2.8494
+     ]
+    },
+    "por_regime": {
+     "?": [
+      1,
+      2.8494
+     ]
+    }
+   },
    "real": {
     "fechadas": 0,
     "r_medio": null,
     "deslize_medio_pct": null,
     "papel_vs_real_r": null
    },
-   "desde": 1794914965,
-   "motivo": "papel: 0 fechadas, 0 acontecimentos, 0 dias"
+   "desde": 1794923573,
+   "motivo": "auditoria tecnica cumprida; experimenta em real com os limites do piloto (papel: 1 fechadas, 1 acontecimentos, 0.2 dias)",
+   "estado_estatistico": "PAPER_TRADING",
+   "auditoria_tecnica": {
+    "ok": true,
+    "falhas": [],
+    "sinal": "velas fechadas; entrada na abertura da vela seguinte",
+    "saida_real": "stop inicial na OKX + fecho quando o papel fecha (trailing/inversao) + saida por tempo"
+   }
   },
   "e495d11739f6": {
    "id": "e495d11739f6",
@@ -456,17 +556,30 @@
     "papel_vs_real_r": null
    },
    "desde": 1794914965,
-   "motivo": "v2 (Rompimento com reteste 4H LONG cripto): rejeitada para real pela ordem do Rui de 17/11 depois do teste fora da amostra (-0,30R, IC95 [-0,44; -0,16], PF 0,35)"
+   "motivo": "v2 (Rompimento com reteste 4H LONG cripto): rejeitada para real pela ordem do Rui de 17/11 depois do teste fora da amostra (-0,30R, IC95 [-0,44; -0,16], PF 0,35)",
+   "estado_estatistico": "REJECTED",
+   "auditoria_tecnica": {
+    "ok": true,
+    "falhas": [],
+    "sinal": "velas fechadas; entrada na abertura da vela seguinte",
+    "saida_real": "stop inicial na OKX + objetivo na OKX + fecho quando o papel fecha (trailing/inversao) + saida por tempo"
+   }
   },
   "f482badea9f5": {
    "id": "f482badea9f5",
-   "estado": "PAPER_TRADING",
+   "estado": "EXPERIMENTAL_REAL",
    "historico": [
     {
      "t": 1794914965,
      "de": null,
      "para": "PAPER_TRADING",
      "motivo": "papel: 0 fechadas, 0 acontecimentos, 0 dias"
+    },
+    {
+     "t": 1794923573,
+     "de": "PAPER_TRADING",
+     "para": "EXPERIMENTAL_REAL",
+     "motivo": "auditoria tecnica cumprida; experimenta em real com os limites do piloto (papel: 0 fechadas, 0 acontecimentos, 0 dias)"
     }
    ],
    "criado": 1794914965,
@@ -518,8 +631,15 @@
     "deslize_medio_pct": null,
     "papel_vs_real_r": null
    },
-   "desde": 1794914965,
-   "motivo": "papel: 0 fechadas, 0 acontecimentos, 0 dias"
+   "desde": 1794923573,
+   "motivo": "auditoria tecnica cumprida; experimenta em real com os limites do piloto (papel: 0 fechadas, 0 acontecimentos, 0 dias)",
+   "estado_estatistico": "PAPER_TRADING",
+   "auditoria_tecnica": {
+    "ok": true,
+    "falhas": [],
+    "sinal": "velas fechadas; entrada na abertura da vela seguinte",
+    "saida_real": "stop inicial na OKX + objetivo na OKX + fecho quando o papel fecha (trailing/inversao) + saida por tempo"
+   }
   },
   "f8f018b82179": {
    "id": "f8f018b82179",
@@ -576,12 +696,25 @@
     "papel_vs_real_r": null
    },
    "desde": 1794914965,
-   "motivo": "teste final fora da amostra falhou: acontecimentos=None, dias=None, profit_factor=None, ic95_inferior=None, p_holm=0.07096, robustez:custos_mais_25pct=None"
+   "motivo": "rejeitada definitivamente (ordem do Rui de 17/11): falha a correcao de testes multiplos",
+   "estado_estatistico": "REJECTED",
+   "auditoria_tecnica": {
+    "ok": false,
+    "falhas": [
+     "fora do paper trading (sem sinais vivos)",
+     "timeframe None",
+     "lado indefinido",
+     "stop (k x ATR) indefinido",
+     "saida indefinida (tipo/duracao maxima)"
+    ],
+    "sinal": "velas fechadas; entrada na abertura da vela seguinte",
+    "saida_real": "stop inicial na OKX + fecho quando o papel fecha (trailing/inversao) + saida por tempo"
+   }
   }
  },
- "t": 1794915084,
+ "t": 1794923573,
  "pedidos_teste_final": [],
- "piloto_operacional": false,
+ "piloto_operacional": true,
  "criterios": {
   "oos_n_min": 100,
   "oos_acontecimentos_min": 30,
