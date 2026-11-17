@@ -341,6 +341,7 @@ def _cl(id_op):
 
 # ------------------------------------------------------------------ ciclo -----------------------------------------
 COPY_MAX_IDADE_S = 900
+COPY_ENTRADA_MAX_S = 300
 
 
 def juntar_copy(registo, papel, copy, now):
@@ -353,7 +354,7 @@ def juntar_copy(registo, papel, copy, now):
            "fechadas": list((papel or {}).get("fechadas") or [])}
     if copy:
         reg["estrategias"].update(copy.get("estrategias") or {})
-        if now - int(copy.get("t") or 0) <= COPY_MAX_IDADE_S:
+        if now - int(copy.get("t") or 0) <= COPY_ENTRADA_MAX_S:     # a posicao do trader foi vista aberta ha <= 5 min
             pap["abertas"] += copy.get("abertas") or []
         pap["fechadas"] += copy.get("fechadas") or []
         pap["t_copy"] = copy.get("t")

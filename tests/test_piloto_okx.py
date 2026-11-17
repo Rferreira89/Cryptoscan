@@ -503,7 +503,7 @@ class CopyTrading(Base):
 
     def test_copy_velho_nao_traz_sinais_e_trader_degradado_suspenso_sozinho(self):
         api = FakeOKX()
-        st, _ = self.corre_copy(api, copy_doc([copia()], t=NOW0 - 1000))
+        st, _ = self.corre_copy(api, copy_doc([copia()], t=NOW0 - 400))              # posicao do trader vista ha > 5 min
         self.assertEqual(api.posts(), [])
         st0 = P.estado_inicial()
         st0["ops"] = [{"estrategia": "copy:okx:T1", "r": -1.0, "estado": "fechada"}] * 4
