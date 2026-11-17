@@ -84,7 +84,8 @@ def okx_posicoes(uc):
         return None
     return [{"inst": x["instId"], "base": x["instId"].split("-")[0], "lado": "LONG" if x.get("posSide") == "long" else "SHORT",
              "t_abre": int(x["openTime"]) // 1000, "px_abre": float(x["openAvgPx"]), "alav": float(x.get("lever") or 1),
-             "tamanho": float(x.get("subPos") or 0), "margem": float(x.get("margin") or 0), "id": x["subPosId"]} for x in d]
+             "tamanho": float(x.get("subPos") or 0), "margem": float(x.get("margin") or 0), "id": x["subPosId"],
+             "upl_nocional": float(x.get("uplRatio") or 0) / max(1.0, float(x.get("lever") or 1))} for x in d]
 
 
 # ------------------------------------------------------------------ Hyperliquid -----------------------------------
@@ -155,7 +156,9 @@ def hl_posicoes(addr):
         if not szi:
             continue
         lev = (q.get("leverage") or {}).get("value")
-        out.append({"inst": q["coin"], "base": q["coin"], "lado": "LONG" if szi > 0 else "SHORT", "px_abre": float(q.get("entryPx") or 0),
+        pv = float(q.get("positionValue") or 0)
+        out.append({"upl_nocional": float(q.get("unrealizedPnl") or 0) / pv if pv else 0.0,
+                    "inst": q["coin"], "base": q["coin"], "lado": "LONG" if szi > 0 else "SHORT", "px_abre": float(q.get("entryPx") or 0),
                     "alav": float(lev or 1), "tamanho": abs(szi), "id": f"{q['coin']}|{'L' if szi > 0 else 'S'}", "t_abre": None})
     return out
 

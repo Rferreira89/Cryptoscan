@@ -36,12 +36,14 @@ def atualizar_ranking(trs, now, log=print):
         h = F.okx_historico(t["id"])
         time.sleep(0.35)
         if h is not None:
-            out[f"okx:{t['id']}"] = {**RK.avaliar(t, h), "dias_lider": t["dias"], "copiadores": t["copiadores"]}
+            pos = F.okx_posicoes(t["id"])               # perdas por fechar (o historico so tem posicoes fechadas)
+            time.sleep(0.35)
+            out[f"okx:{t['id']}"] = {**RK.avaliar(t, h, pos), "dias_lider": t["dias"], "copiadores": t["copiadores"]}
     for t in F.hl_ranking() or []:
         h = F.hl_historico(t["id"])
         time.sleep(0.2)
         if h is not None:
-            out[f"hyperliquid:{t['id']}"] = RK.avaliar(t, h)
+            out[f"hyperliquid:{t['id']}"] = RK.avaliar(t, h, F.hl_posicoes(t["id"]))
     if not out:
         return trs                                            # fontes em baixo: mantem o ranking anterior
     log(f"ranking: {len(out)} traders, {sum(1 for v in out.values() if v['estado'] == 'APROVADO')} aprovados")

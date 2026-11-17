@@ -48,6 +48,12 @@ class Ranking(unittest.TestCase):
         self.assertIn("REJEITADO", RK.avaliar({}, h)["estado"])
         self.assertEqual(RK.avaliar({}, hist(ativos=1))["estado"], "REJEITADO")           # concentracao
 
+    def test_drawdown_escondido_em_posicoes_abertas(self):
+        pos = [{"base": "A1", "lado": "LONG", "upl_nocional": -0.08}]
+        a = RK.avaliar({}, hist(), pos)
+        self.assertEqual(a["estado"], "REJEITADO")
+        self.assertIn("escondido", " ".join(a["perigos"]))
+
     def test_historico_insuficiente_e_validacao_negativa(self):
         self.assertNotEqual(RK.avaliar({}, hist(n=10))["estado"], "APROVADO")
         h = hist(n=60) [:40] + hist(n=20, media=-0.01, seed=3)

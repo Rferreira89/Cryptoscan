@@ -71,6 +71,9 @@ def avaliar(trader, ops, posicoes=None):
     if m.get("drawdown") is not None and m.get("pnl_total") and m["drawdown"] > max(0.0, m["pnl_total"]):
         perigos.append("drawdown maior que o resultado total")
     if posicoes:
+        aberto = sum(min(0.0, float(p.get("upl_nocional") or 0)) for p in posicoes)
+        if aberto < -0.05 or (m.get("pnl_total") and aberto < -0.5 * max(0.0, m["pnl_total"])):
+            perigos.append(f"drawdown escondido em posicoes abertas ({aberto:+.1%} do nocional por fechar)")
         rep = {}
         for p in posicoes:
             rep[(p["base"], p["lado"])] = rep.get((p["base"], p["lado"]), 0) + 1
