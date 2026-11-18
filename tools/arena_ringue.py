@@ -1195,6 +1195,115 @@ SHORT_SIGS.update({
     "SHORT_FALSO_ROMP": sig_short_falso_rompimento})
 
 
+# ---------- (18/11, afinacao H17) valor relativo: racio moeda/BTC com dispersao alta ----------
+# Reversao do racio moeda/BTC (R4 da H9) so quando as moedas estao a separar-se umas das outras: a
+# amplitude interquartil dos retornos de 5 dias do universo esta na metade de cima dos ultimos 180 dias.
+# So velas fechadas; o percentil compara so com valores anteriores. Ver backtest/afinacao.md, H17.
+DISP_RET, DISP_MOEDAS, DISP_JANELA, DISP_HIST = 30, 20, 1080, 540
+_DISP = {"chave": None, "t": [], "d": []}
+
+
+def _iqr(xs):
+    v = sorted(xs)
+    def q(p):
+        k = p * (len(v) - 1)
+        i = int(k)
+        return v[i] + (v[min(i + 1, len(v) - 1)] - v[i]) * (k - i)
+    return q(.75) - q(.25)
+
+
+def serie_dispersao(bars):
+    """([fechos], [dispersao]) por ordem de tempo (sem o BTC; minimo DISP_MOEDAS moedas por fecho)."""
+    import math
+    por_t = {}
+    for a, c4 in bars.items():
+        if a == "BTC":
+            continue
+        for k in range(DISP_RET, len(c4)):
+            x, y = c4[k], c4[k - DISP_RET]
+            if x["t"] - y["t"] == DISP_RET * H4 and x["c"] > 0 and y["c"] > 0:
+                por_t.setdefault(x["t"] + H4, []).append(math.log(x["c"] / y["c"]))
+    ts = sorted(t for t, v in por_t.items() if len(v) >= DISP_MOEDAS)
+    return ts, [_iqr(por_t[t]) for t in ts]
+
+
+def percentil_dispersao(t):
+    """Percentil (0-100) da dispersao no fecho t face aos DISP_JANELA valores ANTERIORES, ou None."""
+    import bisect
+    bars = CTX.get("bars") or {}
+    chave = (id(bars), len(bars), sum(len(c) for c in bars.values()), max((c[-1]["t"] for c in bars.values() if c), default=0))
+    if _DISP["chave"] != chave:
+        ts, ds = serie_dispersao(bars)
+        _DISP.update(chave=chave, t=ts, d=ds)
+    ts, ds = _DISP["t"], _DISP["d"]
+    k = bisect.bisect_left(ts, t)
+    if k >= len(ts) or ts[k] != t or k < DISP_HIST:
+        return None
+    h = ds[max(0, k - DISP_JANELA):k]
+    return 100 * sum(1 for x in h if x < ds[k]) / len(h)
+
+
+def com_dispersao(fn, pmin=None, pmax=None):
+    """Junta a uma funcao de sinal o filtro de dispersao (pmin <= percentil < pmax)."""
+    def f(c4):
+        s = fn(c4)
+        if not s:
+            return None
+        p = percentil_dispersao(c4[-1]["t"] + H4)
+        if p is None or (pmin is not None and p < pmin) or (pmax is not None and p >= pmax):
+            return None
+        return dict(s, gatilho=s["gatilho"] + f"; dispersão entre moedas no percentil {p:.0f}")
+    return f
+
+
+def _btc_fecho(t):
+    """Fecho do BTC na vela de 4H que abre em t (None se nao houver)."""
+    b = CTX.get("btc") or []
+    cache = CTX.get("_btcc")
+    if not cache or cache[0] is not b or cache[1] != len(b):
+        cache = (b, len(b), {x["t"]: x["c"] for x in b})
+        CTX["_btcc"] = cache
+    return cache[2].get(t)
+
+
+def sig_racio(c4, n=120, z=2.5, k=2.0, dias=3, rsi_min=35):
+    """Racio moeda/BTC z desvios abaixo da media de n velas (ate a vela anterior), a virar, com a moeda a subir
+    e fora da sobrevenda (RSI 4H >= rsi_min). Stop a k ATR; objetivo no preco que devolve o racio a media."""
+    if len(c4) < max(n + 2, 120) or not c4[-1]["c"] > c4[-2]["c"]:
+        return None
+    rs = []
+    for x in c4[-(n + 1):]:
+        b = _btc_fecho(x["t"])
+        if not b:
+            return None
+        rs.append(x["c"] / b)
+    base, r1 = rs[:-1], rs[-1]
+    m = sum(base) / n
+    sd = (sum((v - m) ** 2 for v in base) / n) ** 0.5
+    if sd <= 0:
+        return None
+    z0 = (base[-1] - m) / sd
+    if z0 > -z or not r1 > base[-1]:
+        return None
+    w = c4[-200:]
+    r = PB.rsi([x["c"] for x in w])[-1]
+    at = PB.atr(w[-100:])[-1]
+    if r is None or r < rsi_min or at is None:
+        return None
+    e = c4[-1]["c"]
+    stop = e - k * at
+    if stop <= 0 or not 0.005 <= 1 - stop / e <= 0.20:
+        return None
+    tp = e * m / r1
+    if tp < e * 1.01:
+        return None
+    return {"stop": stop, "tp": [tp], "partials": [100], "breakeven": True, "hold_s": dias * DAY, "atr": at,
+            "gatilho": f"rácio com o BTC {z0:.1f} desvios abaixo da média a virar"}
+
+
+sig_racio_disp = com_dispersao(sig_racio, 50)
+
+
 NEW_SIGS = {"BRK_ESPACO": sig_breakout_espaco, "RETESTE": sig_reteste,
             "TURTLE": sig_turtle, "SQUEEZE_BB": sig_squeeze_bb, "MOMENTUM": sig_momentum,
             "BOUNCE_ABSORCAO": sig_absorcao, "BOUNCE_LSR": sig_lsr,
@@ -1211,6 +1320,7 @@ NEW_SIGS = {"BRK_ESPACO": sig_breakout_espaco, "RETESTE": sig_reteste,
             **MAIORES_SIGS,
             "BOUNCE_AMPLITUDE": sig_amplitude,
             "TURTLE_FORTES": sig_turtle_fortes,
+            "RACIO_DISP": sig_racio_disp,
             **FASE_AGRESSIVA_SIGS_MAIS}
 
 

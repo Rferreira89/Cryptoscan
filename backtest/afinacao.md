@@ -2185,3 +2185,96 @@ Notas para as próximas execuções:
   contador global (`engine/hipoteses.py`: 28 agendadas + 75 offline). Com 28
   tentativas, a probabilidade de pelo menos um falso positivo a 5% ronda os
   76%.
+
+**Resultados** (ramo `history`, 4H até 2026-11-14; 70 moedas além do BTC;
+compras só com o BTC acima da média de 200 dias, shorts sem esse filtro e com
+juros da margem; 0,25% + 0,1% por lado; `backtest/afinacao_h17_dispersao.json`;
+código `tools/afinacao_h17_dispersao.py` e `tools/arena_ringue.py`; testes em
+`tests/test_afinacao_h17.py`). Perc. = posição do R médio face a 1000 carteiras
+de entradas ao acaso com a mesma geometria.
+
+| Config. | B: op. | B: R | B: perc. | B lateral: op., R (p95) | A: op. | A: R | A: perc. | L 365 d: op., R (perc.) | C 90 d: op., R | corr. X30 (B/A) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| **D1 compra, disp. ≥ p50** | 268 | **+0,078** | 100 | 154, +0,015 (−0,017) | 225 | **+0,091** | 100 | 55, +0,424 (100) | 55, +0,424 | 0,22 / 0,10 |
+| D2 compra, disp. ≥ p70 | 190 | +0,060 | 99,7 | 112, −0,123 (+0,005) | 157 | +0,096 | 99,8 | 42, +0,468 (100) | 42, +0,468 | 0,15 / 0,04 |
+| D3 controlo compra, disp. < p50 | 172 | +0,005 | 99,4 | 102, −0,022 (−0,025) | 145 | −0,010 | 100 | 44, +0,236 (100) | 44, +0,236 | 0,09 / 0,16 |
+| Ref. R4 sem filtro | 405 | +0,065 | 100 | 238, −0,013 (−0,060) | 343 | +0,038 | 100 | 86, +0,267 (100) | 86, +0,267 | 0,22 / 0,18 |
+| D4 short lateral, disp. ≥ p50 | 205 | −0,054 | 91,6 | 205, −0,054 (−0,033) | 319 | +0,049 | 100 | 244, +0,079 (100) | 79, +0,129 | 0,23 / 0,23 |
+| D5 short lateral, disp. ≥ p70 | 118 | −0,115 | 63,9 | 118, −0,115 (−0,010) | 244 | +0,068 | 100 | 189, +0,085 (100) | 65, +0,048 | 0,22 / 0,24 |
+| D6 controlo short, disp. < p50 | 185 | −0,097 | 87,9 | 185, −0,097 (−0,070) | 183 | +0,115 | 100 | 84, +0,082 (100) | 16, +0,453 | 0,17 / 0,14 |
+| Ref. Q1 lateral sem filtro | 348 | −0,095 | 91,1 | 348, −0,095 (−0,085) | 465 | +0,084 | 100 | 302, +0,083 (100) | 91, +0,162 | 0,25 / 0,27 |
+
+- **Critérios pré-registados (verificados por código): só a D1 passa todos.**
+  D2 falha a lateral de B (−0,123R) e não bate a referência em B. D4 e D5 têm R
+  negativo em B e ficam abaixo da referência em A; o lado do short não ganha
+  nada com a dispersão (o controlo D6 é melhor em A).
+- D1 por regime: B subida 114 op., +0,162R; B lateral 154 op., +0,015R; A
+  subida 30 op., +0,230R (perc. 87, **abaixo do p95**); A lateral 195 op.,
+  +0,069R (perc. 100, p95 −0,045R); últimos 365 dias lateral 51 op., +0,481R
+  (p95 +0,110R). Por ano: 2021 −0,13R (15), 2023 +0,13R (133), 2024 B +0,05R
+  (120), 2024 A +0,24R (52), **2025 −0,13R (118)**, 2026 +0,42R (55).
+
+**Verificação feita depois dos resultados (não é critério; não muda o
+veredicto, mas muda o peso que lhe dou).** Marquei com a dispersão as operações
+da referência R4 e comparei as de dispersão alta com as de baixa, baralhando os
+rótulos por dia (5000 vezes):
+
+| Janela | Alta: op., R | Baixa: op., R | Diferença | p |
+|---|---|---|---|---|
+| B | 257, +0,077 | 148, +0,045 | +0,033 | 0,44 |
+| A | 209, +0,035 | 134, +0,043 | −0,009 | 0,51 |
+| A sem os últimos 90 d | 164, −0,024 | 93, −0,064 | +0,040 | 0,43 |
+| B + A sem os últimos 90 d | 421, +0,038 | 241, +0,003 | +0,035 | 0,41 |
+| Últimos 90 d | 45, +0,248 | 41, +0,287 | −0,039 | 0,55 |
+
+- **O filtro de dispersão não tem efeito estatístico detetável** (p entre 0,41
+  e 0,55). A vantagem da D1 sobre a referência em A (+0,091R contra +0,038R) vem
+  em boa parte de quais operações ficam livres com o filtro (uma de cada vez por
+  moeda), não de as operações de dispersão alta serem melhores: nas mesmas
+  operações, a alta rende +0,035R e a baixa +0,043R.
+- **A vantagem está concentrada nos últimos 90 dias.** Sem eles, a D1 fica
+  perto de zero em A (cerca de −0,02R, calculado dos totais arredondados), e os
+  últimos 90 dias são uma só fase de mercado, já vista na H9.
+- O que parece sólido é a **regra-base** (rácio moeda/BTC, R4): acima do acaso
+  em todas as janelas, correlação baixa com a sobrevenda, R pequeno mas positivo
+  em B e em A. O filtro é, com esta evidência, indistinguível de ruído.
+
+**Veredicto: D1 PASSA os critérios pré-registados e entra no ringue como
+RACIO_DISP** (`NEW_SIGS`, família valor relativo, só compras). Cumpro a regra
+escrita antes de testar: não a mudo depois de ver os números, nem para rejeitar
+nem para aceitar. Mas é uma aprovação **fraca**: não a leio como descoberta. O
+ringue decide; REAL_OK não se mexe. D2, D4 e D5: **REJEITADAS**.
+
+Conferido: a função do ringue reproduz exatamente a do estudo em todas as moedas
+(B 268 op., +0,078R; A 225 op., +0,091R). Ensaio de `arena_ringue.run` com 25
+moedas e 90 dias: corre sem erros.
+
+**Para decidir com o Rui (não fiz nada disto):**
+
+1. `engine/promo.family` classifica por omissão qualquer nome desconhecido como
+   "sobrevenda", e é o caso de RACIO_DISP. Se um dia operar, conta para o limite
+   da família errada; propõe-se uma família "valor relativo".
+2. **Ao vivo este lutador não dá sinais**: o scanner pede 500 velas de 4H (300
+   numa das fontes) e o filtro precisa de 570 (`DISP_HIST` + 30). Só combate no
+   ringue. Para papel ao vivo é preciso mais histórico no scanner (`engine/`).
+3. Sugestão minha: se o ringue o aprovar, testar também a R4 **sem** o filtro, que
+   é onde a evidência está. REAL_OK fica para uma sessão com o Rui.
+
+Notas para as próximas execuções:
+
+- Regime atual **lateral**, BTC abaixo da média de 200 dias: as compras, incluindo
+  RACIO_DISP, estão bloqueadas enquanto isso durar. Regimes sem campeão vivo que
+  ganhe: **subida, lateral e queda**.
+- Lição: **passar critérios com um filtro não prova o filtro.** Em filtros sobre
+  uma regra já conhecida, pré-registar também o teste nas mesmas operações (alta
+  contra baixa, baralhando por dia); teria mudado este resultado.
+- Lição: a dispersão do universo não ajuda o short do rácio na lateral.
+- Proposta para a próxima execução (H18): **corrigir um lutador morto**. No ringue
+  de 90 dias, SHORT_TURTLE tem +0,63R em 52 op. e TURTLE +0,17R em 121, e morrem
+  porque o acaso com a mesma geometria dá +1,18R e +0,56R. Um acaso tão alto em
+  saídas com stop que segue pode ser defeito do controlo (`arena.control_rs`) ou
+  do espelho, e não falta de qualidade: medir primeiro, partindo da H14, antes de
+  mexer nas saídas.
+- Hipóteses testadas até agora: 17 entradas neste diário (H1 a H17; 16 sinais);
+  28 contra os mesmos dados (diários agendados); 103 no contador global. Com 28
+  tentativas, a probabilidade de pelo menos um falso positivo a 5% ronda os 76%.
