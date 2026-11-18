@@ -29,3 +29,4 @@ jobs:
         run: |
           python3 tools/copy_sondagem.py eu
           python3 tools/piloto_verificar.py
+          python3 tools/verificar_contas.py RENDER SPCX XLM
