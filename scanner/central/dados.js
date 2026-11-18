@@ -24,6 +24,8 @@ export const FONTES = {
   liquidez:  { url: RAW + "data/liquidez.json",        nome: "Liquidez (spread, profundidade)", periodo: 3600, limite: 9000 },
   tfshort:   { url: RAW + "okx-tfshort/okx_tfshort.json", nome: "TF-SHORT (papel)",            periodo: 86400, limite: 2 * 86400 + 7200 },
   tfsombra:  { url: RAW + "okx-tfshort/okx_tfshort_sombra.json", nome: "TF-SHORT (sombra)",    periodo: 86400, limite: 2 * 86400 + 7200 },
+  // (18/11) piloto OKX isolado (tools/piloto_okx.py): as suas posicoes sao do CryptoScan, nao "da corretora so"
+  piloto:    { url: RAW + "piloto-okx/piloto_publico.json", nome: "Piloto OKX (copia publica)", periodo: 1800, limite: 5400 },
 };
 
 // ---------------------------------------------------------------- pedidos com tentativas controladas
@@ -141,9 +143,20 @@ export function estadoBybit(pub, priv, agora = Date.now() / 1000) {
 
 // ---------------------------------------------------------------- posicoes e ordens (normalizadas)
 // lado: o executor OKX so abre LONG (net mode); a posicao privada traz o sinal da quantidade.
-export function okxOperacoes(O, K) {
+export function okxOperacoes(O, K, Pi = null) {
   const ops = ((O || {}).real || {}).ops || {};
   const pos = [], ordens = [];
+  // (18/11) operacoes do piloto OKX: o estado do stop vem da leitura do piloto na OKX (stop_estado), nunca do pedido
+  for (const o of ((Pi || {}).ops || [])) {
+    if (!["aberta", "a fechar", "pendente"].includes(o.estado)) continue;
+    const base = { corretora: "OKX", ativo: o.base, inst: o.inst, estrategia: `Piloto · ${String(o.estrategia || "").slice(0, 12)}`,
+                   lado: o.lado, entrada: o.preco_efetivo || o.preco_previsto || null, stop: o.stop || null, alvo: o.alvo || null,
+                   alav: o.alav || null, stop_confirmado: o.stop_estado === "confirmado" || (o.stop_estado == null && o.stop_confirmado) ? (Pi.t || null) : null,
+                   stop_estado: o.stop_estado || (o.stop_confirmado ? "confirmado" : "por_confirmar"), stop_cobertura: o.stop_cobertura ?? null,
+                   desde: o.t_execucao || o.t_ordem || null, fonte: "estado do piloto" };
+    if (o.estado === "pendente") ordens.push({ ...base, preco: o.preco_previsto });
+    else pos.push(base);
+  }
   for (const [a, o] of Object.entries(ops)) {
     const base = { corretora: "OKX", ativo: a, inst: o.inst, estrategia: o.estrategia === "recuo" ? "H46 recuo" : "H40 pânico",
                    lado: "LONG", entrada: o.entrada || null, stop: o.stop || null, alvo: o.alvo || null, alav: o.alav || null,
@@ -154,14 +167,14 @@ export function okxOperacoes(O, K) {
   }
   if (K) {
     for (const p of K.posicoes || []) {
-      let x = pos.find(q => q.ativo === p.asset);
+      let x = pos.find(q => q.ativo === p.asset || (q.inst && p.inst && q.inst === p.inst));
       if (!x) { x = { corretora: "OKX", ativo: p.asset, inst: p.inst, estrategia: "não seguida pelo agente", lado: p.contratos < 0 ? "SHORT" : "LONG", fonte: "só na corretora" }; pos.push(x); }
       Object.assign(x, { quantidade: Math.abs(p.contratos), entrada_corretora: p.entrada, atual: p.atual, valor_usd: p.valor_usd,
                          margem_usd: p.margem_usd, pnl_usd: p.pnl_usd, pnl_pct: p.pnl_pct, alav: p.alav || x.alav, liquidacao: p.liquidacao,
                          lado: p.contratos < 0 ? "SHORT" : x.lado });
     }
     for (const q of K.ordens || []) {
-      let x = ordens.find(o => o.ativo === q.asset);
+      let x = ordens.find(o => o.ativo === q.asset || (o.inst && q.inst && o.inst === q.inst));
       if (!x) { x = { corretora: "OKX", ativo: q.asset, estrategia: "não seguida pelo agente", fonte: "só na corretora" }; ordens.push(x); }
       Object.assign(x, { preco_corretora: q.preco, quantidade: q.contratos, lado: q.lado === "sell" ? "SHORT" : "LONG" });
     }

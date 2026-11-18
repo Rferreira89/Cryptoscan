@@ -95,6 +95,21 @@ test("reconciliacao: confere, posicao so na corretora, so no estado interno e en
   o = D.okxOperacoes(OKX(), K3); r = D.reconciliar(o.posicoes, o.ordens, K3);
   assert.equal(r.itens.find(i => i.ativo === "PARTI").estado, "so_interno"); assert.equal(r.estado, "discrepancia");
 });
+test("piloto OKX: posicao do piloto conta como seguida, com o estado do stop lido na OKX (18/11, RENDER)", () => {
+  const Pi = { t: T0 - 60, ops: [{ base: "RENDER", inst: "RENDER-USD_UM_XPERP-310711", estrategia: "bbc2557ab78e", lado: "SHORT", estado: "aberta",
+                                   preco_efetivo: 1.485, stop: 1.511, alvo: null, alav: 5, stop_estado: "confirmado", stop_cobertura: 1, t_execucao: T0 - 3000 },
+                                 { base: "OLD", estado: "fechada", lado: "LONG" }] };
+  const K = { t: T0, posicoes: [{ asset: "PARTI", inst: "PARTI-X", contratos: 10, entrada: 0.04128 },
+                                { asset: "RENDER", inst: "RENDER-USD_UM_XPERP-310711", contratos: -6, entrada: 1.485 }], ordens: [{ asset: "ZZZ", preco: 1.0, contratos: 5, lado: "buy" }] };
+  const o = D.okxOperacoes(OKX(), K, Pi), r = D.reconciliar(o.posicoes, o.ordens, K);
+  const p = o.posicoes.find(x => x.ativo === "RENDER");
+  assert.equal(p.fonte, "estado do piloto"); assert.equal(p.stop, 1.511); assert.equal(p.stop_estado, "confirmado"); assert.ok(p.stop_confirmado);
+  assert.equal(p.lado, "SHORT"); assert.equal(r.itens.find(i => i.ativo === "RENDER").estado, "confere");
+  assert.equal(o.posicoes.filter(x => x.ativo === "OLD").length, 0);
+  const sem = D.okxOperacoes(OKX(), K, { t: T0, ops: [{ ...Pi.ops[0], stop_estado: "inexistente" }] }).posicoes.find(x => x.ativo === "RENDER");
+  assert.equal(sem.stop_confirmado, null); assert.equal(sem.stop_estado, "inexistente");
+  assert.equal(D.okxOperacoes(OKX(), K, null).posicoes.find(x => x.ativo === "RENDER").fonte, "só na corretora");   // sem o ficheiro do piloto: aviso mantem-se
+});
 test("Bybit: so conta como posicao real o que o motor executou; sinais nao executados ficam a parte", () => {
   const b = D.bybitOperacoes(SCAN(), null);
   assert.equal(b.posicoes.length, 0); assert.equal(b.sinais_nao_executados.length, 1); assert.equal(b.fechadas[0].R, 1.3);

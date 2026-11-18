@@ -58,7 +58,7 @@ function contexto() {
   const K = A.aberto.cofreOkx, P = A.aberto.cofreScan;
   const fontes = {}; for (const k of Object.keys(Dd.FONTES)) fontes[k] = Dd.estadoFonte(k, A.res[k], { aberto: A.aberto[k], agora: t });
   const okx = Dd.estadoOKX(A.res.okx, { res: A.res.cofreOkx, aberto: K }, t), bybit = Dd.estadoBybit(A.res.scan, { res: A.res.cofreScan, aberto: P }, t);
-  const opOkx = Dd.okxOperacoes(O, K), opBy = Dd.bybitOperacoes(S, P);
+  const opOkx = Dd.okxOperacoes(O, K, d("piloto")), opBy = Dd.bybitOperacoes(S, P);
   const recOkx = Dd.reconciliar(opOkx.posicoes, opOkx.ordens, !!K), recBybit = Dd.reconciliar(opBy.posicoes, [], !!P);
   const posicoes = [...opOkx.posicoes, ...opBy.posicoes], ordens = opOkx.ordens;
   for (const p of posicoes) { const pr = preco(p.ativo, p); p.preco = pr.v; p.preco_de = pr.de; p.R = Dd.rAtual(p, pr.v); }
