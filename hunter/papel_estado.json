@@ -3182,7 +3182,7 @@
 "instrumentos_descobertos": 262,
 "com_dados_validos": 260,
 "falhas_tecnicas": 14,
-"excluidos_por_dados": 552,
+"excluidos_por_dados": 564,
 "candidatos": 1,
 "aprovados": 1,
 "abertas_novas": 40,
@@ -3198,7 +3198,7 @@
 "estrategia bloqueada pelo motor de sobrevivencia": 5
 }
 },
-"voltas": 46,
+"voltas": 47,
 "bloqueadas": {
 "057f68c36111": [
 "drawdown 10.35R >= 8.0R"
@@ -3252,22 +3252,20 @@
 "funil_ultima": {
 "instrumentos_descobertos": 262,
 "com_dados_validos": 260,
-"falhas_tecnicas": 1,
+"falhas_tecnicas": 0,
 "excluidos_por_dados": 12,
 "dados_fiaveis": true,
-"sinais_brutos": 2,
-"rejeitados": {
-"ja ha posicao desta estrategia nesta moeda": 2
-},
+"sinais_brutos": 0,
+"rejeitados": {},
 "elegiveis_apos_concentracao": 0,
 "abertas_novas": 0,
-"fechadas_agora": 3,
+"fechadas_agora": 0,
 "acontecimentos_novos": 0,
-"moedas_com_sinal": 2,
-"t": 1794985275,
+"moedas_com_sinal": 0,
+"t": 1794987076,
 "versao_codigo": "f1c64eb"
 },
-"t": 1794985275,
+"t": 1794987076,
 "aviso": "PAPEL: simulado, nunca somado aos resultados reais; sem ordens",
 "vistos": [
 "057f68c36111|APR|1794902400",
