@@ -577,7 +577,7 @@
    "real": {
     "fechadas": 0,
     "r_medio": null,
-    "deslize_medio_pct": null,
+    "deslize_medio_pct": 0.0,
     "papel_vs_real_r": null
    },
    "desde": 1794923573,
@@ -834,7 +834,7 @@
    }
   }
  },
- "t": 1794960075,
+ "t": 1794961875,
  "pedidos_teste_final": [],
  "piloto_operacional": true,
  "criterios": {
