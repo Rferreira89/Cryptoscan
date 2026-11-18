@@ -1,5 +1,5 @@
 {
- "t": 1794956417,
+ "t": 1794997512,
  "estrategias": [
   {
    "id": "987b19a113db",
@@ -14,26 +14,6 @@
    "saida": {
     "tipo": "trailing",
     "k": 2.0,
-    "tp": null,
-    "hold": 4
-   },
-   "veredicto": "EXPLORATORIA",
-   "estado": "EXPLORATORIA"
-  },
-  {
-   "id": "bbc2557ab78e",
-   "familia": "extremo",
-   "parametros": {
-    "k": 4,
-    "z": 4.0
-   },
-   "tf": "1H",
-   "lado": "SHORT",
-   "filtro": null,
-   "stop_ref": "1H",
-   "saida": {
-    "tipo": "trailing",
-    "k": 1.0,
     "tp": null,
     "hold": 4
    },

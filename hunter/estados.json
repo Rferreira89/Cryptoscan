@@ -15,8 +15,8 @@
    "nome": "lideranca_btc 1H LONG"
   },
   "bbc2557ab78e": {
-   "estado": "EXPLORATORIA",
-   "porque": "amostra ou expectativa insuficientes",
+   "estado": "REJEITADA",
+   "porque": "degradada no papel (motor de sobrevivencia): drawdown 13.70R >= 8.0R",
    "p_holm": null,
    "historico": [
     {
@@ -24,6 +24,12 @@
      "de": null,
      "para": "EXPLORATORIA",
      "porque": "amostra ou expectativa insuficientes"
+    },
+    {
+     "t": 1794997512,
+     "de": "EXPLORATORIA",
+     "para": "REJEITADA",
+     "porque": "degradada no papel (motor de sobrevivencia): drawdown 13.70R >= 8.0R"
     }
    ],
    "nome": "extremo 1H SHORT"
@@ -31,7 +37,7 @@
   "29933c49ce9e": {
    "estado": "PAPEL",
    "porque": "em validacao prospetiva",
-   "p_holm": null,
+   "p_holm": 1.0,
    "historico": [
     {
      "t": 1794908840,
@@ -119,5 +125,5 @@
    "nome": "rompimento_reteste 4H LONG (cripto)"
   }
  },
- "t": 1794956417
+ "t": 1794997512
 }

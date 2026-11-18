@@ -26,7 +26,7 @@
    "entrada (sem deriva a favor)": 7,
    "nenhum a priori: passa a geometria": 1
   },
-  "melhor_deriva_liquida_atr_treino": 0.0039,
+  "melhor_deriva_liquida_atr_treino": 0.0007,
   "validacao": [],
   "decisao": "REJEITADA nesta ronda: custos (deriva menor que o custo)"
  },
@@ -102,9 +102,9 @@
    "nenhum a priori: passa a geometria": 12,
    "entrada (sem deriva a favor)": 4
   },
-  "melhor_deriva_liquida_atr_treino": 1.9934,
+  "melhor_deriva_liquida_atr_treino": 1.9649,
   "validacao": [],
-  "decisao": "EM PAPEL (1 estrategia(s): EXPLORATORIA)"
+  "decisao": "REJEITADA nesta ronda: nenhum a priori: passa a geometria"
  },
  "impulso_correcao": {
   "grupo": "C",
@@ -114,8 +114,8 @@
   "riscos": "correcao vira inversao",
   "variantes_diagnostico": 12,
   "onde_falha": {
-   "nenhum a priori: passa a geometria": 7,
-   "custos (deriva menor que o custo)": 2,
+   "custos (deriva menor que o custo)": 3,
+   "nenhum a priori: passa a geometria": 6,
    "entrada (sem deriva a favor)": 3
   },
   "melhor_deriva_liquida_atr_treino": 0.8334,
@@ -135,7 +135,24 @@
    "nenhum a priori: passa a geometria": 3
   },
   "melhor_deriva_liquida_atr_treino": 0.1737,
-  "validacao": [],
+  "validacao": [
+   {
+    "tf": "4H",
+    "lado": "LONG",
+    "n": 583,
+    "r": 0.0916,
+    "p_holm": 1.0,
+    "veredicto": "EXPLORATORIA"
+   },
+   {
+    "tf": "4H",
+    "lado": "SHORT",
+    "n": 42,
+    "r": -0.1766,
+    "p_holm": 1.0,
+    "veredicto": "REJEITADA"
+   }
+  ],
   "decisao": "EM PAPEL (3 estrategia(s): PAPEL)"
  },
  "estrutura": {
@@ -149,7 +166,7 @@
    "custos (deriva menor que o custo)": 4,
    "entrada (sem deriva a favor)": 8
   },
-  "melhor_deriva_liquida_atr_treino": -0.0471,
+  "melhor_deriva_liquida_atr_treino": -0.0529,
   "validacao": [],
   "decisao": "REJEITADA nesta ronda: entrada (sem deriva a favor)"
  },
@@ -201,8 +218,8 @@
    {
     "tf": "4H",
     "lado": "SHORT",
-    "n": 139,
-    "r": -0.2916,
+    "n": 335,
+    "r": -0.3284,
     "p_holm": 1.0,
     "veredicto": "REJEITADA"
    }
@@ -221,7 +238,7 @@
    "entrada (sem deriva a favor)": 4,
    "nenhum a priori: passa a geometria": 3
   },
-  "melhor_deriva_liquida_atr_treino": 0.0804,
+  "melhor_deriva_liquida_atr_treino": 0.0834,
   "validacao": [],
   "decisao": "REJEITADA nesta ronda: custos (deriva menor que o custo)"
  },
@@ -238,7 +255,16 @@
    "nenhum a priori: passa a geometria": 4
   },
   "melhor_deriva_liquida_atr_treino": 0.0788,
-  "validacao": [],
+  "validacao": [
+   {
+    "tf": "4H",
+    "lado": "SHORT",
+    "n": 1372,
+    "r": -0.059,
+    "p_holm": 1.0,
+    "veredicto": "REJEITADA"
+   }
+  ],
   "decisao": "EM PAPEL (2 estrategia(s): PAPEL)"
  },
  "forca_relativa": {
@@ -250,20 +276,11 @@
   "variantes_diagnostico": 24,
   "onde_falha": {
    "entrada (sem deriva a favor)": 11,
-   "custos (deriva menor que o custo)": 10,
-   "nenhum a priori: passa a geometria": 3
+   "custos (deriva menor que o custo)": 11,
+   "nenhum a priori: passa a geometria": 2
   },
-  "melhor_deriva_liquida_atr_treino": 0.2235,
-  "validacao": [
-   {
-    "tf": "4H",
-    "lado": "SHORT",
-    "n": 499,
-    "r": -0.1696,
-    "p_holm": 1.0,
-    "veredicto": "REJEITADA"
-   }
-  ],
+  "melhor_deriva_liquida_atr_treino": 0.2141,
+  "validacao": [],
   "decisao": "REJEITADA nesta ronda: entrada (sem deriva a favor)"
  },
  "lideranca_btc": {
@@ -295,7 +312,16 @@
    "nenhum a priori: passa a geometria": 5
   },
   "melhor_deriva_liquida_atr_treino": 2.4185,
-  "validacao": [],
+  "validacao": [
+   {
+    "tf": "4H",
+    "lado": "SHORT",
+    "n": 649,
+    "r": -0.2955,
+    "p_holm": 1.0,
+    "veredicto": "REJEITADA"
+   }
+  ],
   "decisao": "REJEITADA nesta ronda: entrada (sem deriva a favor)"
  }
 }
