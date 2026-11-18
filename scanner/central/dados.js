@@ -153,9 +153,18 @@ export function rotuloOKX(o) {
   return `desconhecida (${e || "sem nome"})`;
 }
 
-export function okxOperacoes(O, K, Pi = null) {
+// (18/11) frescura de cada fonte das operacoes: dados indisponiveis nao sao posicoes fechadas, e uma leitura antiga
+// nao aparece como atual. estado: atual | atrasado | desatualizado | sem_hora | indisponivel
+export function frescuraFonte(chave, d, agora = Date.now() / 1000) {
+  if (!d) return { estado: "indisponivel", t: null, idade: null };
+  const t = horaDe(chave, d), fr = frescura(t, (FONTES[chave] || {}).limite, agora);
+  return { estado: fr.estado, t, idade: fr.idade };
+}
+
+export function okxOperacoes(O, K, Pi = null, agora = Date.now() / 1000) {
   const ops = ((O || {}).real || {}).ops || {};
   const pos = [], ordens = [];
+  const fontes = { agente: frescuraFonte("okx", O, agora), piloto: frescuraFonte("piloto", Pi, agora) };
   // (18/11) operacoes do piloto OKX: o estado do stop vem da leitura do piloto na OKX (stop_estado), nunca do pedido
   for (const o of ((Pi || {}).ops || [])) {
     if (!["aberta", "a fechar", "pendente"].includes(o.estado)) continue;
@@ -163,7 +172,8 @@ export function okxOperacoes(O, K, Pi = null) {
                    lado: o.lado, entrada: o.preco_efetivo || o.preco_previsto || null, stop: o.stop || null, alvo: o.alvo || null,
                    alav: o.alav || null, stop_confirmado: o.stop_estado === "confirmado" || (o.stop_estado == null && o.stop_confirmado) ? (Pi.t || null) : null,
                    stop_estado: o.stop_estado || (o.stop_confirmado ? "confirmado" : "por_confirmar"), stop_cobertura: o.stop_cobertura ?? null,
-                   desde: o.t_execucao || o.t_ordem || null, fonte: "estado do piloto" };
+                   desde: o.t_execucao || o.t_ordem || null, fonte: "estado do piloto",
+                   dados_t: fontes.piloto.t, dados_estado: fontes.piloto.estado };
     if (o.estado === "pendente") ordens.push({ ...base, preco: o.preco_previsto });
     else pos.push(base);
   }
@@ -171,7 +181,8 @@ export function okxOperacoes(O, K, Pi = null) {
     const base = { corretora: "OKX", ativo: a, inst: o.inst, estrategia: rotuloOKX(o),
                    lado: o.lado === "SHORT" ? "SHORT" : "LONG", entrada: o.entrada || null, stop: o.stop || null, alvo: o.alvo || null, alav: o.alav || null,
                    risco_pct: o.risco_pct ?? null, stop_confirmado: o.stop_ok || null, desde: o.t_fill || o.criado || null,
-                   sair_em: o.sair_em || null, parcial: !!o.parcial, fonte: "estado do agente" };
+                   sair_em: o.sair_em || null, parcial: !!o.parcial, fonte: "estado do agente",
+                   dados_t: fontes.agente.t, dados_estado: fontes.agente.estado };
     if (o.estado === "aberta") pos.push(base);
     else if (o.estado === "pendente") ordens.push({ ...base, preco: o.lim, valida_ate: o.valido_ate, cancelamento_pedido: o.cancelar_pedido || null });
   }
@@ -189,7 +200,20 @@ export function okxOperacoes(O, K, Pi = null) {
       Object.assign(x, { preco_corretora: q.preco, quantidade: q.contratos, lado: q.lado === "sell" ? "SHORT" : "LONG" });
     }
   }
-  return { posicoes: pos, ordens };
+  // sem posicoes e com uma fonte indisponivel: "sem dados", nunca "sem posicoes" (nao se sabe se estao fechadas)
+  const faltam = Object.entries(fontes).filter(([, f]) => f.estado === "indisponivel").map(([k]) => k);
+  const antigas = Object.entries(fontes).filter(([, f]) => ["desatualizado", "sem_hora"].includes(f.estado)).map(([k]) => k);
+  return { posicoes: pos, ordens, fontes, faltam, antigas };
+}
+
+// texto da frescura de uma posicao/fonte para o ecra (hora local da ultima atualizacao e aviso se ja nao e atual)
+export function textoDados(estado, t, agora = Date.now() / 1000) {
+  if (estado === "indisponivel") return "dados indisponíveis";
+  const h = t ? new Date(t * 1000).toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" }) : null;
+  if (estado === "sem_hora" || !h) return "dados sem hora (podem não ser atuais)";
+  if (estado === "desatualizado") return `dados de ${h} (${texIdade(idade(t, agora))}: DESATUALIZADOS)`;
+  if (estado === "atrasado") return `dados de ${h} (atrasados)`;
+  return `dados de ${h}`;
 }
 
 export function okxFechadas(O, K) {

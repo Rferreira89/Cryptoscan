@@ -123,6 +123,32 @@ test("rotulos do executor OKX antigo: nome real, desconhecida nunca vira H40 (18
   const Pi = { t: T0, ops: [{ base: "SPCX", inst: "SPCX-X", estrategia: "29933c49ce9e", lado: "LONG", estado: "aberta", preco_efetivo: 142.89, stop: 137.92, stop_estado: "confirmado" }] };
   assert.equal(D.okxOperacoes(O, null, Pi).posicoes.find(x => x.ativo === "SPCX").estrategia, "Piloto · 29933c49ce9e");
 });
+test("frescura das operacoes OKX: indisponivel nao e fechada; dados antigos nao passam por atuais (18/11)", () => {
+  const O = OKX(); O.real.ops.XLM = { inst: "XLM-X", estado: "aberta", estrategia: "espelho", estrategia_bybit: "SHORT_TURTLE", lado: "SHORT", entrada: 0.13745, stop: 0.15363 };
+  const tO = D.horaDe("okx", O);
+  // piloto indisponivel (pedido falhou): a fonte fica marcada, a XLM do agente continua com a hora dela
+  let r = D.okxOperacoes(O, null, null, tO + 60);
+  assert.equal(r.fontes.piloto.estado, "indisponivel"); assert.deepEqual(r.faltam, ["piloto"]);
+  const x = r.posicoes.find(p => p.ativo === "XLM");
+  assert.equal(x.dados_estado, "atual"); assert.equal(x.dados_t, tO);
+  assert.match(D.textoDados(x.dados_estado, x.dados_t, tO + 60), /^dados de \d\d:\d\d$/);
+  // piloto lido mas antigo: posicao marcada como desatualizada, nunca como atual
+  const Pi = { t: tO - 4 * 5400, ops: [{ base: "SPCX", inst: "SPCX-X", estrategia: "29933c49ce9e", lado: "LONG", estado: "aberta", preco_efetivo: 142.89, stop: 137.92, stop_estado: "confirmado" }] };
+  r = D.okxOperacoes(O, null, Pi, tO);
+  const s = r.posicoes.find(p => p.ativo === "SPCX");
+  assert.equal(s.dados_estado, "desatualizado"); assert.deepEqual(r.antigas, ["piloto"]);
+  assert.match(D.textoDados(s.dados_estado, s.dados_t, tO), /DESATUALIZADOS/);
+  // piloto sem hora: nunca "atual"
+  r = D.okxOperacoes(O, null, { ops: Pi.ops }, tO);
+  assert.equal(r.posicoes.find(p => p.ativo === "SPCX").dados_estado, "sem_hora");
+  // piloto atual e sem operacoes abertas: nada falta (e "sem posicoes", nao "sem dados")
+  r = D.okxOperacoes(O, null, { t: tO, ops: [{ base: "RENDER", estado: "fechada" }] }, tO);
+  assert.deepEqual(r.faltam, []); assert.deepEqual(r.antigas, []); assert.equal(r.posicoes.filter(p => p.ativo === "RENDER").length, 0);
+  // os dois indisponiveis
+  r = D.okxOperacoes(null, null, null, tO);
+  assert.deepEqual(r.faltam.sort(), ["agente", "piloto"]); assert.equal(r.posicoes.length, 0);
+  assert.equal(D.textoDados("indisponivel", null), "dados indisponíveis");
+});
 test("Bybit: so conta como posicao real o que o motor executou; sinais nao executados ficam a parte", () => {
   const b = D.bybitOperacoes(SCAN(), null);
   assert.equal(b.posicoes.length, 0); assert.equal(b.sinais_nao_executados.length, 1); assert.equal(b.fechadas[0].R, 1.3);
