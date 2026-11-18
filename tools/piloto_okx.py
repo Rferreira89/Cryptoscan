@@ -139,7 +139,11 @@ def estrategias_aprovadas(registo, c, ops_reais=()):
     """Elegiveis para real, cada uma pelo seu estado: APPROVED/ACTIVE_REAL (criterios estatisticos conferidos) ou
     EXPERIMENTAL_REAL (auditoria tecnica). Uma estrategia recusada nunca impede as outras."""
     out, recusadas = {}, {}
+    susp = c.get("estrategias_suspensas") or {}
     for e in (registo or {}).get("estrategias", {}).values():
+        if e.get("id") in susp and e.get("estado") in ("APPROVED_REAL", "ACTIVE_REAL", "EXPERIMENTAL_REAL"):
+            recusadas[e["id"]] = [f"suspensa pelo Rui: {susp[e['id']]}"]
+            continue
         if e.get("estado") in ("APPROVED_REAL", "ACTIVE_REAL"):
             ok, falhas = criterios_reais(e)
         elif e.get("estado") == "EXPERIMENTAL_REAL":
@@ -283,6 +287,10 @@ def portas(api, st, c, now, registo, papel, isolado, cifra_ok, aprovadas, falhas
                               ("copy", now - t_cp <= COPY_MAX_IDADE_S)) if ok]
     out["dados_frescos"] = (bool(fontes), f"fontes de sinais frescas: {', '.join(fontes) or 'nenhuma'} (registo ha {(now - t_reg) // 60} min, "
                                           f"papel ha {(now - t_pap) // 60} min, copy ha {(now - t_cp) // 60 if t_cp else '-'} min)")
+    ab = st.get("aberta") or {}
+    out["posicoes_protegidas"] = (not ab or ab.get("estado") == "pendente" or ab.get("stop_estado", "confirmado" if ab.get("stop_confirmado") else "inexistente") == "confirmado",
+                                  "todas as posicoes do piloto com stop confirmado na OKX" if not ab or ab.get("stop_confirmado") or ab.get("estado") == "pendente"
+                                  else f"posicao {ab.get('base')} com stop {ab.get('stop_estado')}: sem entradas novas")
     out["contas_confirmadas"] = (not any(o.get("pnl_por_confirmar") for o in st["ops"]), "resultado de todas as posicoes fechadas confirmado na OKX")
     nexp = sum(1 for e in aprovadas.values() if e.get("estado") == "EXPERIMENTAL_REAL")
     out["estrategias_elegiveis"] = (bool(aprovadas), f"{len(aprovadas) - nexp} aprovadas e {nexp} experimentais" if aprovadas else
@@ -662,9 +670,30 @@ def entrar(api, st, c, cand, now, msgs, simular):
                 f"Enviada não é executada: confirmo na volta seguinte.")
 
 
+def estado_stop(algos, q, lado, entrada):
+    """(18/11, incidente RENDER) Estado do stop SO a partir do que a OKX devolveu: confirmado, sem_resposta (a OKX nao
+    respondeu: nada se conclui nem se repoe), inexistente, lado_errado, quantidade_insuficiente. Devolve tambem a
+    quantidade ja coberta (para repor so o que falta, sem duplicar)."""
+    if algos is None:
+        return "sem_resposta", ["a OKX nao respondeu as ordens condicionais"], 0.0
+    ok, mot = PROT.stop_cobre(algos, q, lado, entrada)
+    fecho = "sell" if lado == "LONG" else "buy"
+    coberto = 0.0
+    for a in algos:
+        if a.get("slTriggerPx") and a.get("side") == fecho:
+            coberto = q if str(a.get("closeFraction") or "") == "1" else coberto + float(a.get("sz") or 0)
+    if ok:
+        return "confirmado", mot, min(coberto, q)
+    txt = " ".join(mot)
+    est = "quantidade_insuficiente" if "cobre" in txt else "lado_errado" if "lado errado" in txt else "inexistente"
+    return est, mot, min(coberto, q) if est == "quantidade_insuficiente" else 0.0
+
+
 def _algos(api, inst):
     a1 = api.priv("GET", f"/api/v5/trade/orders-algo-pending?instId={inst}&ordType=conditional")
     a2 = api.priv("GET", f"/api/v5/trade/orders-algo-pending?instId={inst}&ordType=oco")
+    if (a1 or {}).get("code") != "0" or (a2 or {}).get("code") != "0":
+        return None
     return [x for x in ((a1 or {}).get("data") or []) + ((a2 or {}).get("data") or []) if x.get("instId", inst) == inst]
 
 
@@ -723,14 +752,20 @@ def reconciliar(api, st, now, msgs, simular=False):
             fechar_contas(api, st, op, now, msgs)
             return {"upl": 0.0}
         op["posId"] = op.get("posId") or pd.get("posId")
-        ok, mot = PROT.stop_cobre(_algos(api, op["inst"]), abs(float(pd["pos"])), op["lado"], op.get("preco_efetivo"))
-        op["stop_confirmado"] = bool(ok)
-        if not ok:
+        q = abs(float(pd["pos"]))
+        est, mot, coberto = estado_stop(_algos(api, op["inst"]), q, op["lado"], op.get("preco_efetivo"))
+        op["stop_estado"], op["stop_detalhe"] = est, mot
+        op["stop_cobertura"] = round(coberto / q, 3) if q else None
+        op["stop_confirmado"] = est == "confirmado"
+        if est == "sem_resposta":
+            evento(st, now, "STOP POR CONFIRMAR: a OKX nao respondeu (nada reposto; sem entradas novas)")
+        elif est != "confirmado":
             evento(st, now, "POSICAO SEM STOP CONFIRMADO", motivos=mot)
+            falta = q - coberto                               # repoe so o que falta: nunca duplica a protecao
             r = api.priv("POST", "/api/v5/trade/order-algo", {
                 "instId": op["inst"], "tdMode": "isolated", "side": "buy" if op["lado"] == "SHORT" else "sell",
-                "ordType": "conditional", "sz": f"{abs(float(pd['pos'])):g}", "reduceOnly": True,
-                "algoClOrdId": op["clOrdId"][:28] + "rep", "slTriggerPx": str(op["stop"]), "slOrdPx": "-1"})
+                "ordType": "conditional", "sz": f"{falta:g}", "reduceOnly": True,
+                "algoClOrdId": (op["clOrdId"][:24] + f"r{int(now) % 1000:03d}"), "slTriggerPx": str(op["stop"]), "slOrdPx": "-1"})
             if (r or {}).get("code") == "0":
                 msgs.append(f"⚠️ Piloto OKX: {op['base']} estava sem stop confirmado; stop reposto (confirmo na volta seguinte).")
             else:
@@ -891,6 +926,7 @@ def publico(st, c, aprovadas, now):
     """Resumo SEM valores monetarios (repositorio publico): estados, precos, R, motivos."""
     campos = ("id", "estrategia", "versao", "base", "inst", "lado", "tf", "regime", "t_sinal", "t_ordem", "t_execucao", "t_fecho",
               "preco_previsto", "preco_efetivo", "slippage_pct", "stop", "alvo", "preco_saida", "alav", "estado", "stop_confirmado",
+              "stop_estado", "stop_cobertura", "stop_detalhe",
               "motivo_saida", "r", "r_papel", "duracao_h", "spread_pct")
     oper = all(v["ok"] for k, v in st["portas"].items() if k != "estrategias_elegiveis")
     return {"t": now, "aviso": "REAL (piloto OKX). Sem valores monetarios neste ficheiro.", "simulacao": st.get("simulacao"),

@@ -564,6 +564,73 @@ class RegistoOportunidades(Base):
         self.assertEqual(P.classificar("spread 0.5% acima de 0.3% (liquidez)"), ("liquidez", "B"))
 
 
+class Protecao(Base):
+    """(18/11, incidente RENDER) estado do stop sempre lido na OKX."""
+    def abrir(self, **kw):
+        api = FakeOKX(**kw)
+        self.corre(api)
+        st, _ = self.corre(api, now=NOW0 + 900)
+        return api, st
+
+    def test_confirmado_e_duplicado_nao_repoe(self):
+        api, st = self.abrir()
+        self.assertEqual((st["aberta"]["stop_estado"], st["aberta"]["stop_cobertura"]), ("confirmado", 1.0))
+        api.algos.append(dict(api.algos[0]))                                   # dois stops: protegido, nada a fazer
+        st, _ = self.corre(api, now=NOW0 + 1800)
+        self.assertEqual(st["aberta"]["stop_estado"], "confirmado")
+        self.assertEqual(api.posts("order-algo"), [])
+
+    def test_cancelado_na_okx_apesar_do_estado_local_repoe(self):
+        api, st = self.abrir()
+        api.algos = []                                                         # divergencia: local diz confirmado
+        st, _ = self.corre(api, now=NOW0 + 1800)
+        self.assertEqual(len(api.posts("order-algo")), 1)
+        o = api.posts("order-algo")[0][2]
+        self.assertEqual((o["side"], o["reduceOnly"], o["tdMode"]), ("sell", True, "isolated"))
+        self.assertFalse(st["portas"]["posicoes_protegidas"]["ok"])           # sem entradas ate confirmar
+
+    def test_parcial_repoe_so_o_que_falta(self):
+        api, st = self.abrir(ctval="0.1")
+        q = float(api.pos["pos"])
+        api.algos[0]["sz"] = str(q / 2)
+        self.corre(api, now=NOW0 + 1800)
+        self.assertAlmostEqual(float(api.posts("order-algo")[0][2]["sz"]), q / 2)
+
+    def test_falha_da_api_nao_repoe_nem_conclui(self):
+        api, st = self.abrir()
+        api.falha.add("orders-algo-pending")
+        st, _ = self.corre(api, now=NOW0 + 1800)
+        self.assertEqual(st["aberta"]["stop_estado"], "sem_resposta")
+        self.assertEqual(api.posts("order-algo"), [])
+        self.assertFalse(st["portas"]["posicoes_protegidas"]["ok"])
+
+    def test_rejeitado_fecha_e_bloqueia(self):
+        api, st = self.abrir()
+        api.algos, api.algo_ok = [], False
+        st, _ = self.corre(api, now=NOW0 + 1800)
+        self.assertTrue(api.posts("close-position"))
+        self.assertTrue(st["bloqueio"])
+
+    def test_reinicio_le_a_okx_de_novo(self):
+        api, st = self.abrir()
+        e = json.load(open(os.path.join(self.d, "piloto_estado.json")))
+        e["aberta"]["stop_confirmado"] = False
+        json.dump(e, open(os.path.join(self.d, "piloto_estado.json"), "w"))
+        st, _ = self.corre(api, now=NOW0 + 1800)
+        self.assertEqual(st["aberta"]["stop_estado"], "confirmado")
+        self.assertEqual(api.posts("order-algo"), [])
+
+    def test_estrategia_suspensa_nao_entra(self):
+        with mock.patch.object(P, "cfg", return_value=dict(CFG, estrategias_suspensas={"exp111": "revisao"})):
+            api = FakeOKX()
+            st, _ = self.corre(api, reg=registo(experimental()), pap=papel(sinal("exp111")))
+        self.assertEqual(api.posts(), [])
+        self.assertIn("suspensa", " ".join(st["recusadas_pelo_executor"]["exp111"]))
+
+    def test_config_suspende_bbc2557ab78e(self):
+        self.assertIn("bbc2557ab78e", CFG["estrategias_suspensas"])
+
+
 class Experimental(Base):
     def test_experimental_sem_estatistica_opera_dentro_dos_limites(self):
         api = FakeOKX()
