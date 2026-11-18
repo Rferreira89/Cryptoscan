@@ -42,7 +42,39 @@ do Rui; não feito).
 ## H18: controlo ao acaso neutro à tendência, com juros
 
 Código: `tools/investigacao_h18_controlo.py`. Resultado: `backtest/investigacao_h18_controlo.json`.
-Ver a secção de resultados mais abaixo.
+Operações reais do ringue (`AR.generic_trades`, último ano; shorts em velas espelhadas e
+com juros descontados). Para cada operação, 30 entradas ao acaso com a mesma geometria:
+C0 = como a arena (±90 velas de 4H à volta da entrada); C1 = C0 com juros nos shorts;
+C2 = só as 90 velas antes da entrada; C3 = qualquer vela do histórico da moeda (neutro ao
+momento), com juros nos shorts.
+
+| Estratégia, janela | Op. | Real | C0 arena | C1 +juros | C2 só antes | C3 neutro |
+|---|---|---|---|---|---|---|
+| TURTLE, 365 d (*) | 212 | +0,23 | +0,57 | +0,54 | +1,18 | **−0,11** |
+| SHORT_TURTLE, 365 d | 694 | +0,22 | +0,62 | +0,56 | +0,96 | **+0,19** |
+| SHORT_TURTLE, 90 d | 108 | +0,01 | +0,53 | +0,51 | +0,54 | **+0,20** |
+
+(*) as 212 operações do TURTLE caem todas nos últimos 90 dias (o filtro do BTC acima da
+média de 200 dias só as deixa aí); a linha de 90 d é igual.
+
+Leitura:
+
+1. **O controlo da arena está enviesado para cima nas estratégias de tendência.** A janela
+   de ±90 velas é escolhida porque houve uma rutura nesse sítio: as velas antes da entrada
+   estão abaixo do preço da rutura e a tendência que a produziu continua. O C2 (só velas
+   anteriores) mostra-o com mais força (+1,18R). Não é uma questão de "olhar para o
+   futuro" nas velas; é o próprio sítio da janela que já sabe que houve rutura.
+2. **Os juros explicam pouco**: C0 → C1 baixa ≈ 0,05R nos shorts. O grosso da diferença é
+   a tendência da janela.
+3. **Contra o controlo neutro (C3)**: o TURTLE fica +0,33R acima (+0,23 contra −0,11); o
+   SHORT_TURTLE fica igual ao acaso no ano (+0,22 contra +0,19) e abaixo nos últimos 90 dias
+   (+0,01 contra +0,20). Ou seja, a geometria do short ganhou pela descida do mercado, não
+   pela entrada.
+4. Limites: o C3 é neutro ao momento, mas mistura regimes diferentes da mesma moeda; 30
+   repetições por operação; uma só semente. Serve para diagnosticar o enviesamento, não
+   para promover ou despromover estratégias.
+5. **Proposta (não feita):** a arena passar a mostrar o C3 ao lado do C0, e o veredicto das
+   estratégias de tendência ser revisto com o C3. Muda critérios, por isso fica para o Rui.
 
 ## H40
 
