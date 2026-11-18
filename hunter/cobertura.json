@@ -1,29 +1,30 @@
 {
 "resumo": {
-"t": 1794969075,
+"t": 1794970876,
 "janela_h": 24,
 "instrumentos_com_1h": 260,
-"movimentos": 392,
-"detetados": 9,
-"nao_detetados_D": 383,
-"D_identificaveis": 216,
+"movimentos": 383,
+"detetados": 10,
+"nao_detetados_D": 373,
+"D_identificaveis": 211,
 "D_por_condicao": {
-"extensao_baixa": 76,
-"nenhuma": 167,
-"rompimento_baixa": 27,
-"fraqueza_relativa": 32,
-"forca_relativa": 52,
-"volume": 82,
+"extensao_alta": 71,
+"extensao_baixa": 70,
+"fraqueza_relativa": 31,
 "rompimento_alta": 45,
-"extensao_alta": 70
+"forca_relativa": 52,
+"nenhuma": 162,
+"rompimento_baixa": 25,
+"volume": 82
 },
 "D_por_lado": {
-"LONG": 192,
-"SHORT": 191
+"LONG": 180,
+"SHORT": 193
 },
 "D_por_classe": {
-"crypto": 206,
-"equity": 177
+"crypto": 198,
+"precious_metal": 1,
+"equity": 174
 },
 "aviso": "teto_hipotetico = excursao maxima menos custos, escolhida depois do movimento: NAO e resultado real nem realizavel"
 },
@@ -506,6 +507,35 @@
 ],
 "identificavel": true,
 "teto_hipotetico": 0.0452
+},
+{
+"base": "CORE",
+"classe": "crypto",
+"lado": "LONG",
+"inicio": 1794888000,
+"movimento": 0.0437,
+"limite": 0.03,
+"detetado": false,
+"condicoes_em_tempo_real": [
+"extensao_baixa"
+],
+"identificavel": true,
+"teto_hipotetico": 0.0425
+},
+{
+"base": "MINIMAX",
+"classe": "equity",
+"lado": "LONG",
+"inicio": 1794888000,
+"movimento": 0.0321,
+"limite": 0.03,
+"detetado": false,
+"condicoes_em_tempo_real": [
+"extensao_baixa",
+"fraqueza_relativa"
+],
+"identificavel": true,
+"teto_hipotetico": 0.0309
 },
 {
 "base": "ALLO",
@@ -5476,6 +5506,20 @@
 "teto_hipotetico": 0.0499
 },
 {
+"base": "ZIL",
+"classe": "crypto",
+"lado": "LONG",
+"inicio": 1794956400,
+"movimento": 0.0813,
+"limite": 0.08,
+"detetado": false,
+"condicoes_em_tempo_real": [
+"fraqueza_relativa"
+],
+"identificavel": true,
+"teto_hipotetico": 0.0801
+},
+{
 "base": "PROS",
 "classe": "crypto",
 "lado": "LONG",
@@ -5495,7 +5539,7 @@
 "classe": "equity",
 "lado": "SHORT",
 "inicio": 1794960000,
-"movimento": 0.0703,
+"movimento": 0.0757,
 "limite": 0.0492,
 "detetado": false,
 "condicoes_em_tempo_real": [
@@ -5504,7 +5548,7 @@
 "forca_relativa"
 ],
 "identificavel": true,
-"teto_hipotetico": 0.0691
+"teto_hipotetico": 0.0745
 },
 {
 "base": "UNITREE",
@@ -5517,6 +5561,34 @@
 "condicoes_em_tempo_real": [],
 "identificavel": false,
 "teto_hipotetico": 0.0376
+},
+{
+"base": "CHIP",
+"classe": "crypto",
+"lado": "SHORT",
+"inicio": 1794960000,
+"movimento": 0.0426,
+"limite": 0.0411,
+"detetado": false,
+"condicoes_em_tempo_real": [
+"rompimento_alta",
+"extensao_alta",
+"forca_relativa"
+],
+"identificavel": true,
+"teto_hipotetico": 0.0414
+},
+{
+"base": "XAG",
+"classe": "precious_metal",
+"lado": "SHORT",
+"inicio": 1794960000,
+"movimento": 0.0322,
+"limite": 0.03,
+"detetado": false,
+"condicoes_em_tempo_real": [],
+"identificavel": false,
+"teto_hipotetico": 0.031
 },
 {
 "base": "CP",
@@ -5534,6 +5606,31 @@
 ],
 "identificavel": true,
 "teto_hipotetico": 0.0387
+},
+{
+"base": "MINIMAX",
+"classe": "equity",
+"lado": "SHORT",
+"inicio": 1794967200,
+"movimento": 0.0495,
+"limite": 0.03,
+"detetado": false,
+"condicoes_em_tempo_real": [
+"volume",
+"extensao_alta",
+"forca_relativa"
+],
+"identificavel": true,
+"teto_hipotetico": 0.0483
+},
+{
+"base": "NES",
+"classe": "crypto",
+"lado": "LONG",
+"inicio": 1794967200,
+"movimento": 0.134,
+"limite": 0.1169,
+"detetado": true
 }
 ]
 }

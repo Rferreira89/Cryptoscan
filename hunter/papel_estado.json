@@ -1152,7 +1152,7 @@
 "t_entrada": 1794960000,
 "stop_inicial": 1447.8155714285713,
 "objetivo": null,
-"r_atual": 1.4817
+"r_atual": 1.6907
 },
 {
 "id_op": "bbc2557ab78e|CXMT|1794956400",
@@ -1290,7 +1290,7 @@
 "t_entrada": 1794960000,
 "stop_inicial": 1.5092109937142857,
 "objetivo": null,
-"r_atual": 1.4057
+"r_atual": 1.5556
 },
 {
 "id_op": "29933c49ce9e|BSP|1794945600",
@@ -2825,7 +2825,7 @@
 "instrumentos_descobertos": 262,
 "com_dados_validos": 260,
 "falhas_tecnicas": 10,
-"excluidos_por_dados": 444,
+"excluidos_por_dados": 456,
 "candidatos": 1,
 "aprovados": 1,
 "abertas_novas": 37,
@@ -2841,7 +2841,7 @@
 "estrategia bloqueada pelo motor de sobrevivencia": 5
 }
 },
-"voltas": 37,
+"voltas": 38,
 "bloqueadas": {
 "057f68c36111": [
 "drawdown 10.35R >= 8.0R"
@@ -2900,10 +2900,10 @@
 "fechadas_agora": 0,
 "acontecimentos_novos": 0,
 "moedas_com_sinal": 0,
-"t": 1794969075,
+"t": 1794970876,
 "versao_codigo": "f1c64eb"
 },
-"t": 1794969075,
+"t": 1794970876,
 "aviso": "PAPEL: simulado, nunca somado aos resultados reais; sem ordens",
 "vistos": [
 "057f68c36111|APR|1794902400",
