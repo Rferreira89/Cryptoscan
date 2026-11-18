@@ -587,10 +587,10 @@
     }
    },
    "real": {
-    "fechadas": 0,
-    "r_medio": null,
+    "fechadas": 1,
+    "r_medio": 1.143,
     "deslize_medio_pct": 0.0,
-    "papel_vs_real_r": null
+    "papel_vs_real_r": -0.0407
    },
    "desde": 1794923573,
    "motivo": "auditoria tecnica cumprida; experimenta em real com os limites do piloto (papel: 8 fechadas, 6 acontecimentos, 0.8 dias)",
@@ -846,7 +846,7 @@
    }
   }
  },
- "t": 1794976276,
+ "t": 1794978076,
  "pedidos_teste_final": [],
  "piloto_operacional": true,
  "criterios": {

@@ -1,29 +1,29 @@
 {
 "resumo": {
-"t": 1794976276,
+"t": 1794978076,
 "janela_h": 24,
 "instrumentos_com_1h": 260,
-"movimentos": 385,
+"movimentos": 381,
 "detetados": 10,
-"nao_detetados_D": 375,
-"D_identificaveis": 212,
+"nao_detetados_D": 371,
+"D_identificaveis": 211,
 "D_por_condicao": {
-"extensao_baixa": 70,
-"fraqueza_relativa": 31,
-"rompimento_alta": 45,
-"extensao_alta": 72,
-"forca_relativa": 52,
-"nenhuma": 163,
+"nenhuma": 160,
+"extensao_alta": 71,
+"forca_relativa": 53,
+"fraqueza_relativa": 29,
+"volume": 84,
 "rompimento_baixa": 25,
-"volume": 82
+"extensao_baixa": 67,
+"rompimento_alta": 44
 },
 "D_por_lado": {
-"LONG": 182,
-"SHORT": 193
+"LONG": 179,
+"SHORT": 192
 },
 "D_por_classe": {
-"equity": 174,
-"crypto": 200,
+"crypto": 198,
+"equity": 172,
 "precious_metal": 1
 },
 "aviso": "teto_hipotetico = excursao maxima menos custos, escolhida depois do movimento: NAO e resultado real nem realizavel"
@@ -817,6 +817,49 @@
 "teto_hipotetico": 0.0531
 },
 {
+"base": "AXIS",
+"classe": "crypto",
+"lado": "LONG",
+"inicio": 1794895200,
+"movimento": 0.0789,
+"limite": 0.0774,
+"detetado": false,
+"condicoes_em_tempo_real": [
+"extensao_alta",
+"forca_relativa"
+],
+"identificavel": true,
+"teto_hipotetico": 0.0777
+},
+{
+"base": "BTW",
+"classe": "crypto",
+"lado": "LONG",
+"inicio": 1794895200,
+"movimento": 0.37,
+"limite": 0.1764,
+"detetado": false,
+"condicoes_em_tempo_real": [
+"forca_relativa"
+],
+"identificavel": true,
+"teto_hipotetico": 0.3688
+},
+{
+"base": "OP",
+"classe": "crypto",
+"lado": "SHORT",
+"inicio": 1794895200,
+"movimento": 0.0368,
+"limite": 0.03,
+"detetado": false,
+"condicoes_em_tempo_real": [
+"volume"
+],
+"identificavel": true,
+"teto_hipotetico": 0.0356
+},
+{
 "base": "ACU",
 "classe": "crypto",
 "lado": "LONG",
@@ -871,6 +914,21 @@
 "condicoes_em_tempo_real": [],
 "identificavel": false,
 "teto_hipotetico": 0.0892
+},
+{
+"base": "ALLO",
+"classe": "crypto",
+"lado": "SHORT",
+"inicio": 1794898800,
+"movimento": 0.0703,
+"limite": 0.057,
+"detetado": false,
+"condicoes_em_tempo_real": [
+"extensao_baixa",
+"fraqueza_relativa"
+],
+"identificavel": true,
+"teto_hipotetico": 0.0691
 },
 {
 "base": "ACT",
@@ -5690,6 +5748,20 @@
 ],
 "identificavel": true,
 "teto_hipotetico": 0.0387
+},
+{
+"base": "PARTI",
+"classe": "crypto",
+"lado": "LONG",
+"inicio": 1794963600,
+"movimento": 0.0511,
+"limite": 0.0409,
+"detetado": false,
+"condicoes_em_tempo_real": [
+"volume"
+],
+"identificavel": true,
+"teto_hipotetico": 0.0499
 },
 {
 "base": "MINIMAX",
