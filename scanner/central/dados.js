@@ -326,9 +326,10 @@ export function eventos({ O, S, St, K }) {
   const R = (O || {}).resumo || {};
   add(R.t, "panico", null, `Varreu ${R.analisados || 0} perpétuos de cripto na OKX${(R.pendentes || []).length ? `; sinal em ${R.pendentes.join(", ")}` : ""}`, "analise");
   for (const [a, o] of Object.entries(((O || {}).real || {}).ops || {})) {
-    add(o.criado, o.estrategia === "recuo" ? "recuo" : "panico", "exec_okx", `${a}: sinal ${o.estrategia === "recuo" ? "H46" : "H40"} entregue à execução (ordem limite)`, "encaminhamento");
+    add(o.criado, o.estrategia === "recuo" ? "recuo" : o.estrategia === "espelho" ? "arena" : o.estrategia === "panico" ? "panico" : "exec_okx",
+        "exec_okx", `${a}: sinal ${rotuloOKX(o)} entregue à execução (ordem limite)`, "encaminhamento");
     add(o.criado && o.criado + 1, "risco", "exec_okx", `${a}: risco ${o.risco_pct ?? "?"}% da conta aprovado, stop e objetivo anexados`, "risco");
-    add(o.t_fill, "exec_okx", "centro", `${a}: compra executada a ${o.entrada}`, "execucao");
+    add(o.t_fill, "exec_okx", "centro", `${a}: ${o.lado === "SHORT" ? "venda" : "compra"} executada a ${o.entrada}`, "execucao");
     add(o.stop_ok, "exec_okx", "centro", `${a}: stop confirmado na OKX`, "protecao");
     add(o.cancelar_pedido, "exec_okx", "centro", `${a}: pedido de cancelamento da entrada (estratégia suspensa)`, "execucao");
   }
