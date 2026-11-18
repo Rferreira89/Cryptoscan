@@ -162,7 +162,7 @@ def _passo(x, passo):
     return math.floor(x / passo + 1e-9) * passo if passo else x
 
 
-def dimensionar(pl, inst, c, spread_pct, saldo=None, funding_8h=None, horas=24.0):
+def dimensionar(pl, inst, c, spread_pct, saldo=None, funding_8h=None, horas=24.0, orc=None):
     """Contratos para arriscar <= risco_max_op USDC INCLUINDO custos (comissao ida e volta, spread, reserva de
     deslizamento, funding estimado na duracao maxima); nocional <= nocional_max; alavancagem entre alav_min e alav_max
     (alav_min de referencia; sobe so se a margem nao couber no capital livre) e nunca acima da do instrumento.
@@ -175,12 +175,25 @@ def dimensionar(pl, inst, c, spread_pct, saldo=None, funding_8h=None, horas=24.0
     fr = FUNDING_RESERVA_8H if funding_8h is None else (funding_8h if lado == "LONG" else -funding_8h)
     custo_pct = 2 * COMISSAO + spread_pct / 100 + c["reserva_deslize_pct"] / 100 + max(0.0, fr) * math.ceil(horas / 8)
     risco_1 = nocional_1 * abs(e - st) / e + nocional_1 * custo_pct
-    n = _passo(min(c["risco_max_op"] / risco_1, c["nocional_max"] / nocional_1), float(inst["lotSz"]))
+    # (18/11, duas posicoes) o risco, o nocional e a margem desta entrada saem do orcamento que SOBRA depois das
+    # posicoes vivas do piloto (orcamento(st, c)); o orcamento total e o de sempre (uma posicao inteira)
+    r_max = c["risco_max_op"] if orc is None else min(c["risco_max_op"], orc["risco_livre"])
+    n_max = c["nocional_max"] if orc is None else min(c["nocional_max"], orc["nocional_livre"])
+    if r_max <= 0 or n_max <= 0:
+        return None, "orcamento de risco/nocional do piloto esgotado pelas posicoes abertas"
+    n = _passo(min(r_max / risco_1, n_max / nocional_1), float(inst["lotSz"]))
     minimo = float(inst["minSz"])
     if n < minimo:
-        return None, (f"tamanho minimo ({minimo:g} contratos) passaria o risco ou o nocional autorizados")
+        return None, (f"tamanho minimo ({minimo:g} contratos) passaria o risco ou o nocional autorizados"
+                      + ("" if orc is None or not orc.get("abertas") else
+                         f" (livre depois das {orc['abertas']} posicoes abertas: risco {orc['risco_livre']:.4f}, "
+                         f"nocional {orc['nocional_livre']:.2f})"))
     nocional = n * nocional_1
     livre = min(c["capital_max"], saldo if saldo is not None else c["capital_max"])
+    if orc is not None:
+        livre = min(livre, orc["margem_livre"])
+        if livre <= 0:
+            return None, "margem do piloto esgotada pelas posicoes abertas"
     alav = max(int(c["alav_min"]), math.ceil(nocional / max(1e-9, livre * 0.9)))
     teto_inst = float(inst.get("lever") or 0) or c["alav_max"]
     if alav > c["alav_max"]:
@@ -190,6 +203,34 @@ def dimensionar(pl, inst, c, spread_pct, saldo=None, funding_8h=None, horas=24.0
     return {"contratos": n, "nocional": round(nocional, 4), "risco_total": round(n * risco_1, 4), "alav": alav,
             "margem": round(nocional / alav, 4), "custos_estimados": round(n * nocional_1 * custo_pct, 4),
             "custo_r": round(custo_pct * e / abs(e - st), 4)}, None
+
+
+# ------------------------------------------------------------------ orcamento partilhado (18/11) ------------------
+def _fracao_exec(o):
+    c, e = float(o.get("contratos") or 0), o.get("contratos_exec")
+    return 1.0 if e is None or not c else min(1.0, float(e) / c)
+
+
+def orcamento(st, c):
+    """Orcamento do piloto partilhado pelas posicoes vivas. Os TOTAIS sao os de antes das duas posicoes: risco
+    'risco_total_max' (omissao: risco_max_op), nocional 'nocional_total_max' (omissao: nocional_max), margem
+    'capital_max'. Cada posicao viva consome o seu risco planeado no stop (com custos; uma pendente conta inteira, uma
+    parcial so a parte executada), o seu nocional e a sua margem. Risco agregado = SOMA dos riscos (correlacao 1, o pior
+    caso: duas posicoes nunca valem menos do que a soma). Nada e partilhado com outro executor."""
+    vivas = ativas(st)
+    risco = sum(float(o.get("risco_planeado") or 0) for o in vivas)       # risco_planeado ja e reduzido nas parciais
+    noc = sum(float(o.get("nocional") or 0) * (_fracao_exec(o) if o.get("estado") != "pendente" else 1.0) for o in vivas)
+    mar = sum(float(o.get("nocional") or 0) * (_fracao_exec(o) if o.get("estado") != "pendente" else 1.0)
+              / max(1.0, float(o.get("alav") or c["alav_min"])) for o in vivas)
+    r_tot = float(c.get("risco_total_max", c["risco_max_op"]))
+    n_tot = float(c.get("nocional_total_max", c["nocional_max"]))
+    return {"abertas": len(vivas), "vagas": max(0, int(c["posicoes_max"]) - len(vivas)),
+            "risco_aberto": round(risco, 6), "risco_livre": round(r_tot - risco, 6), "risco_total": r_tot,
+            "nocional_aberto": round(noc, 4), "nocional_livre": round(n_tot - noc, 4), "nocional_total": n_tot,
+            "margem_usada": round(mar, 4), "margem_livre": round(float(c["capital_max"]) - mar, 4),
+            "por_direcao": {l: round(sum(float(o.get("risco_planeado") or 0) for o in vivas if o.get("lado") == l), 6)
+                            for l in ("LONG", "SHORT")},
+            "ativos": sorted({o.get("base") for o in vivas if o.get("base")})}
 
 
 # ------------------------------------------------------------------ estado e limites ------------------------------
@@ -287,10 +328,10 @@ def portas(api, st, c, now, registo, papel, isolado, cifra_ok, aprovadas, falhas
                               ("copy", now - t_cp <= COPY_MAX_IDADE_S)) if ok]
     out["dados_frescos"] = (bool(fontes), f"fontes de sinais frescas: {', '.join(fontes) or 'nenhuma'} (registo ha {(now - t_reg) // 60} min, "
                                           f"papel ha {(now - t_pap) // 60} min, copy ha {(now - t_cp) // 60 if t_cp else '-'} min)")
-    ab = st.get("aberta") or {}
-    out["posicoes_protegidas"] = (not ab or ab.get("estado") == "pendente" or ab.get("stop_estado", "confirmado" if ab.get("stop_confirmado") else "inexistente") == "confirmado",
-                                  "todas as posicoes do piloto com stop confirmado na OKX" if not ab or ab.get("stop_confirmado") or ab.get("estado") == "pendente"
-                                  else f"posicao {ab.get('base')} com stop {ab.get('stop_estado')}: sem entradas novas")
+    sem = [o for o in ativas(st) if o.get("estado") != "pendente"
+           and o.get("stop_estado", "confirmado" if o.get("stop_confirmado") else "inexistente") != "confirmado"]
+    out["posicoes_protegidas"] = (not sem, "todas as posicoes do piloto com stop confirmado na OKX" if not sem else
+                                  "; ".join(f"posicao {o.get('base')} com stop {o.get('stop_estado')}" for o in sem) + ": sem entradas novas")
     out["contas_confirmadas"] = (not any(o.get("pnl_por_confirmar") for o in st["ops"]), "resultado de todas as posicoes fechadas confirmado na OKX")
     nexp = sum(1 for e in aprovadas.values() if e.get("estado") == "EXPERIMENTAL_REAL")
     out["estrategias_elegiveis"] = (bool(aprovadas), f"{len(aprovadas) - nexp} aprovadas e {nexp} experimentais" if aprovadas else
@@ -405,23 +446,29 @@ def ciclo(api, pasta, now=None, simular=False, registo=None, papel=None, isolado
     # 3. portas e entrada nova (so sem posicao)
     st["portas"] = portas(api, st, c, now, registo, papel, isolado, cifra_ok, aprovadas, api.falhas)
     fechadas = [k for k, v in st["portas"].items() if not v["ok"]]
-    if st["aberta"] is None and len([o for o in st["ops"] if o.get("estado") in ("pendente", "aberta")]) < c["posicoes_max"]:
-        registar_sinais(st, papel, registo, aprovadas, recusadas, now)
-        cand = procurar(api, st, c, now, papel, aprovadas)
-        st["ultimo_sinal"] = {k: v for k, v in (cand or {}).items() if k != "inst_spec"} if cand else None
-        if cand and cand.get("plano"):
-            if fechadas:
+    # (18/11, duas posicoes) entradas novas enquanto houver vaga E orcamento; a contagem e a das operacoes vivas depois
+    # de reconciliadas com a OKX (orfas do piloto suspendem; OKX sem resposta fecha a porta api_fiavel)
+    orc = orcamento(st, c)
+    st["orcamento"] = orc
+    registar_sinais(st, papel, registo, aprovadas, recusadas, now)
+    if orc["vagas"] > 0 and not rec.get("falhou"):
+        cands = procurar(api, st, c, now, papel, aprovadas, orc)
+        st["ultimo_sinal"] = None
+        if cands and fechadas:
+            for cand in cands:
                 evento(st, now, "sinal valido NAO executado: portas fechadas", portas=fechadas, sinal=cand["id"])
                 perdido(st, now, cand["id"], "portas fechadas: " + ", ".join(fechadas))
-                msgs.append(f"🔒 Piloto OKX: sinal {cand['base']} {cand['lado']} ({cand['estrategia']}) não executado — "
-                            f"portas fechadas: {', '.join(fechadas)}.")
-            else:
-                entrar(api, st, c, cand, now, msgs, simular)
-    if st["aberta"] is not None:
-        registar_sinais(st, papel, registo, aprovadas, recusadas, now)
+            msgs.append(f"🔒 Piloto OKX: {len(cands)} sinal(is) válido(s) não executado(s) — portas fechadas: {', '.join(fechadas)}.")
+        elif cands:
+            escolher_e_entrar(api, st, c, cands, now, msgs, simular)
+    orc = orcamento(st, c)
+    st["orcamento"] = orc
+    st["aberta"] = (ativas(st) or [None])[0]
+    if orc["vagas"] <= 0 or rec.get("falhou"):
         for sid, r in st["oportunidades"].items():
             if r["decisao"] is None and r.get("origem") in aprovadas:
-                decidir_oportunidade(st, sid, "REJEITADA", "posicao aberta: 1 posicao de cada vez", now)
+                decidir_oportunidade(st, sid, "REJEITADA", f"sem vaga: {orc['abertas']} posicoes vivas (maximo {c['posicoes_max']})"
+                                     if not rec.get("falhou") else "OKX sem resposta sobre as posicoes: sem entradas", now)
     st["perdas"] = pp
     st["recusadas_pelo_executor"] = recusadas
     relatorio_diario(st, now, msgs, aprovadas)
@@ -537,7 +584,7 @@ def perdido(st, now, sid, motivo):
     decidir_oportunidade(st, sid, "REJEITADA", motivo, now)
 
 
-def procurar(api, st, c, now, papel, aprovadas):
+def procurar(api, st, c, now, papel, aprovadas, orc=None):
     """Sinais do papel das estrategias aprovadas, ainda frescos; escolhe o melhor (expectativa fora da amostra menos o
     custo extra estimado; empate: liquidez). Um sinal nunca e tratado duas vezes."""
     if not aprovadas:
@@ -570,6 +617,10 @@ def procurar(api, st, c, now, papel, aprovadas):
         if not inst:
             perdido(st, now, sid, "contrato nao negociavel por esta conta")
             continue
+        viva = next((x for x in ativas(st) if x.get("inst") == o["inst"] or (o.get("b") and x.get("base") == o.get("b"))), None)
+        if viva:                                              # (18/11) nunca duas operacoes do piloto no mesmo ativo
+            perdido(st, now, sid, f"o piloto ja tem uma operacao viva em {viva.get('base')} (sem duplicar)")
+            continue
         t = tick.get(o["inst"]) or {}
         bid, ask = float(t.get("bidPx") or 0), float(t.get("askPx") or 0)
         spread = 100 * (ask - bid) / ((ask + bid) / 2) if bid > 0 and ask > 0 else None
@@ -595,7 +646,7 @@ def procurar(api, st, c, now, papel, aprovadas):
         fund = api.pub("/api/v5/public/funding-rate", {"instId": o["inst"]}) or []
         f8 = float(fund[0]["fundingRate"]) if fund and fund[0].get("fundingRate") not in (None, "") else None
         pl = {"entrada": px, "stop": stop, "alvo": alvo, "lado": lado}
-        dim, porque = dimensionar(pl, inst, c, spread, saldo=st.get("_saldo_usdc"), funding_8h=f8, horas=horas)
+        dim, porque = dimensionar(pl, inst, c, spread, saldo=st.get("_saldo_usdc"), funding_8h=f8, horas=horas, orc=orc)
         if not dim:
             perdido(st, now, sid, porque)
             continue
@@ -607,14 +658,38 @@ def procurar(api, st, c, now, papel, aprovadas):
         cands.append({"id": sid, "estrategia": o["estrategia"], "versao": e.get("versao") or o["estrategia"], "base": o.get("b"),
                       "inst": o["inst"], "lado": lado, "tf": o.get("tf"), "regime": o.get("regime"), "t_sinal": int(o["t_sinal"]),
                       "plano": pl, "dim": dim, "spread_pct": round(spread, 4), "tick": inst["tickSz"], "hold_s": int(horas * 3600),
-                      "score": round(score, 4), "vol": float(t.get("volCcy24h") or 0)})
+                      "score": round(score, 4), "vol": float(t.get("volCcy24h") or 0),
+                      "_dim": {"inst": inst, "spread": spread, "f8": f8, "horas": horas}})
     st["vistos"] = st["vistos"][-20000:]
-    if not cands:
-        return None
     cands.sort(key=lambda x: (-x["score"], -x["vol"]))
-    for x in cands[1:]:
-        perdido(st, now, x["id"], f"outra oportunidade melhor na mesma volta ({cands[0]['id']}); 1 posicao de cada vez")
-    return cands[0]
+    return cands
+
+
+def escolher_e_entrar(api, st, c, cands, now, msgs, simular):
+    """(18/11, duas posicoes) Do melhor para o pior (expectativa liquida estimada menos custo; empate: liquidez): cada
+    candidato e redimensionado com o orcamento que sobra DEPOIS das entradas anteriores desta mesma volta (uma
+    pendente conta inteira) e so entra se couber. Sem vaga, sem orcamento ou sem tamanho minimo: rejeitado com o motivo.
+    Uma so execucao de cada vez (workflow com concurrency) e a reserva e feita no estado antes da ordem seguinte."""
+    for cand in cands:
+        orc = orcamento(st, c)
+        if orc["vagas"] <= 0:
+            perdido(st, now, cand["id"], f"sem vaga: {orc['abertas']} posicoes vivas do piloto (maximo {c['posicoes_max']})")
+            continue
+        if cand.get("base") in orc["ativos"]:
+            perdido(st, now, cand["id"], f"o piloto ja tem uma operacao viva em {cand.get('base')} (sem duplicar)")
+            continue
+        x = cand["_dim"]
+        dim, porque = dimensionar(cand["plano"], x["inst"], c, x["spread"], saldo=st.get("_saldo_usdc"), funding_8h=x["f8"],
+                                  horas=x["horas"], orc=orc)
+        if not dim:
+            perdido(st, now, cand["id"], porque)
+            continue
+        cand = dict(cand, dim=dim)
+        st["ultimo_sinal"] = {k: v for k, v in cand.items() if k not in ("inst_spec", "_dim")}
+        n0 = len(ativas(st))
+        entrar(api, st, c, cand, now, msgs, simular)
+        if len(ativas(st)) == n0 and not simular:
+            continue                                          # recusada/sem ordem: o orcamento nao mexeu
 
 
 def entrar(api, st, c, cand, now, msgs, simular):
@@ -735,23 +810,39 @@ def _algos(api, inst):
     return [x for x in ((a1 or {}).get("data") or []) + ((a2 or {}).get("data") or []) if x.get("instId", inst) == inst]
 
 
+ESTADOS_ATIVOS = ("pendente", "aberta", "a fechar")
+
+
+def ativas(st):
+    """(18/11, duas posicoes) Operacoes do piloto ainda vivas (ordem pendente, posicao aberta ou a fechar), pela ordem de
+    entrada. E a lista de "st['ops']" que conta: cada uma tem o seu clOrdId, posId, stop e orcamento."""
+    return [o for o in st["ops"] if o.get("estado") in ESTADOS_ATIVOS]
+
+
 def reconciliar(api, st, now, msgs, simular=False):
-    """Estado da OKX para a operacao do piloto: ordem (executada, parcial, cancelada), posicao, stop, fecho."""
-    for o in st["ops"][-5:]:                                 # limpeza de condicionais que falhou numa volta anterior
+    """Estado da OKX para CADA operacao viva do piloto (ordem, posicao, stop, fecho). upl somado; 'falhou' se a OKX nao
+    respondeu sobre alguma (nesse caso as portas ficam fechadas a entradas novas pela api_fiavel)."""
+    for o in st["ops"][-10:]:                                # limpeza de condicionais que falhou numa volta anterior
         if o.get("estado") == "fechada" and o.get("limpeza_pendente") and not simular:
             pos = api.priv("GET", f"/api/v5/account/positions?instId={o['inst']}")
             if (pos or {}).get("code") == "0" and not any(float(x.get("pos") or 0) for x in pos.get("data") or []):
                 limpar_condicionais(api, st, o, now, msgs)
-    op = st.get("aberta")
-    if not op or "simulada" in op.get("estado", ""):
-        if op:
-            st["aberta"] = None
-        return {}
+    upl, falhou = 0.0, False
+    for op in ativas(st):
+        r = reconciliar_op(api, st, op, now, msgs, simular)
+        upl += r.get("upl", 0.0)
+        falhou = falhou or bool(r.get("falhou"))
+    st["aberta"] = (ativas(st) or [None])[0]                # compatibilidade: a primeira viva (ou None)
+    return {"upl": upl, "falhou": falhou}
+
+
+def reconciliar_op(api, st, op, now, msgs, simular=False):
+    """Estado da OKX para UMA operacao do piloto."""
     o = api.priv("GET", f"/api/v5/trade/order?instId={op['inst']}&ordId={op.get('ordId')}")
     od = ((o or {}).get("data") or [{}])[0] if (o or {}).get("code") == "0" else {}
     pos = api.priv("GET", f"/api/v5/account/positions?instId={op['inst']}")
     if (pos or {}).get("code") != "0":
-        return {"upl": 0.0}                                  # sem resposta: nada se decide nesta volta
+        return {"upl": 0.0, "falhou": True}                  # sem resposta: nada se decide nesta volta
     pd = next((x for x in pos.get("data") or [] if float(x.get("pos") or 0) != 0), None)
     upl = float(pd.get("upl") or 0) if pd else 0.0
     marcar_preco(op, pd, now)
@@ -781,13 +872,12 @@ def reconciliar(api, st, now, msgs, simular=False):
                 q = api.priv("GET", f"/api/v5/trade/order?instId={op['inst']}&ordId={op.get('ordId')}")
                 qd = ((q or {}).get("data") or [{}])[0]
                 if float(qd.get("accFillSz") or 0) > 0:          # executou entre a leitura e o cancelamento
-                    return reconciliar(api, st, now, msgs, simular)
+                    return reconciliar_op(api, st, op, now, msgs, simular)
                 if qd.get("state") not in ("canceled", "mmp_canceled") and (cx or {}).get("code") != "0":
                     evento(st, now, "cancelamento por confirmar: tento na volta seguinte", op=op["id"])
                     return {"upl": upl}
             op["estado"] = "nao executada (cancelada)"
             decidir_oportunidade(st, op["id"], "NAO_EXECUTADA", "ordem limite nao executada no prazo: cancelada", now)
-            st["aberta"] = None
             evento(st, now, "entrada nao executada no prazo: cancelada", op=op["id"])
             msgs.append(f"⏹️ Piloto OKX: entrada em {op['base']} não executada no prazo; cancelada.")
             return {"upl": 0.0}
@@ -858,10 +948,10 @@ def reconciliar(api, st, now, msgs, simular=False):
 
 def orfas(api, st, now, msgs, simular):
     """Ordens e posicoes do piloto na OKX que o estado nao segue (estado perdido, falha a meio): cancela/fecha e suspende."""
-    seguida = (st.get("aberta") or {}).get("ordId")
+    seguidas_ord = {o.get("ordId") for o in ativas(st)}
     pend = api.priv("GET", "/api/v5/trade/orders-pending?instType=FUTURES")
     for x in (pend or {}).get("data") or [] if (pend or {}).get("code") == "0" else []:
-        if str(x.get("clOrdId") or "").startswith(PREFIXO) and x.get("ordId") != seguida:
+        if str(x.get("clOrdId") or "").startswith(PREFIXO) and x.get("ordId") not in seguidas_ord:
             evento(st, now, "ORDEM ORFA DO PILOTO", inst=x.get("instId"))
             if not simular:
                 api.priv("POST", "/api/v5/trade/cancel-order", {"instId": x["instId"], "ordId": x["ordId"]})
@@ -870,7 +960,7 @@ def orfas(api, st, now, msgs, simular):
     pos = api.priv("GET", "/api/v5/account/positions?instType=FUTURES")
     if (pos or {}).get("code") != "0":
         return
-    seguidas = {(st.get("aberta") or {}).get("inst")}
+    seguidas = {o.get("inst") for o in ativas(st)}
     for x in pos.get("data") or []:
         if not float(x.get("pos") or 0) or x.get("instId") in seguidas:
             continue
@@ -919,9 +1009,14 @@ def _registar_fecho(st, op, now, liquido, px_saida, motivo):
 
 
 def gerir(api, st, now, msgs, simular, papel):
-    op = st.get("aberta")
-    if not op or op.get("estado") != "aberta" or simular:
+    if simular:
         return
+    for op in ativas(st):
+        if op.get("estado") == "aberta":
+            gerir_op(api, st, op, now, msgs, papel)
+
+
+def gerir_op(api, st, op, now, msgs, papel):
     pap = next((x for x in (papel or {}).get("fechadas") or [] if x.get("id_op") == op["id"]), None)
     motivo = None
     if pap:
@@ -937,16 +1032,16 @@ def gerir(api, st, now, msgs, simular, papel):
 
 
 def executar_acoes(api, st, acoes, now, msgs, simular):
-    op = st.get("aberta")
     motivo = (st["bloqueio"] or st["suspenso"] or {}).get("motivo") or "perda diaria maxima atingida"
-    if op and op.get("estado") == "pendente" and "cancelar_entradas" in acoes and not simular:
-        api.priv("POST", "/api/v5/trade/cancel-order", {"instId": op["inst"], "ordId": op.get("ordId")})
-        evento(st, now, "entrada pendente cancelada por limite (confirmo na volta seguinte)", op=op["id"])
-        op["prazo"] = 0
-    if op and op.get("estado") == "aberta" and "fechar_posicao" in acoes and not simular:
-        op["motivo_saida"] = "limite de perda"
-        pedir_fecho(api, st, op, now, "limite de perda")
-        op["estado"] = "a fechar"                            # mesmo se recusado: a recuperacao do estado a fechar repete
+    for op in ativas(st):
+        if op.get("estado") == "pendente" and "cancelar_entradas" in acoes and not simular:
+            api.priv("POST", "/api/v5/trade/cancel-order", {"instId": op["inst"], "ordId": op.get("ordId")})
+            evento(st, now, "entrada pendente cancelada por limite (confirmo na volta seguinte)", op=op["id"])
+            op["prazo"] = 0
+        if op.get("estado") == "aberta" and "fechar_posicao" in acoes and not simular:
+            op["motivo_saida"] = "limite de perda"
+            pedir_fecho(api, st, op, now, "limite de perda")
+            op["estado"] = "a fechar"                        # mesmo se recusado: a recuperacao do estado a fechar repete
     chave = (tuple(acoes), motivo)
     if st.get("_ultimo_limite") != list(chave[0]) + [motivo]:
         st["_ultimo_limite"] = list(chave[0]) + [motivo]
@@ -1021,6 +1116,16 @@ def desempenho(st):
     return res
 
 
+def orcamento_publico(st, c):
+    """O orcamento partilhado em PERCENTAGENS dos totais (o ficheiro publico nao tem valores monetarios)."""
+    o = orcamento(st, c)
+    pct = lambda a, b: round(100 * a / b, 1) if b else None
+    return {"abertas": o["abertas"], "vagas": o["vagas"], "maximo": c["posicoes_max"], "ativos": o["ativos"],
+            "risco_usado_pct": pct(o["risco_aberto"], o["risco_total"]), "nocional_usado_pct": pct(o["nocional_aberto"], o["nocional_total"]),
+            "margem_usada_pct": pct(o["margem_usada"], c["capital_max"]),
+            "risco_por_direcao_pct": {k: pct(v, o["risco_total"]) for k, v in o["por_direcao"].items()}}
+
+
 def publico(st, c, aprovadas, now):
     """Resumo SEM valores monetarios (repositorio publico): estados, precos, R, motivos."""
     campos = ("id", "estrategia", "versao", "base", "inst", "lado", "tf", "regime", "t_sinal", "t_ordem", "t_execucao", "t_fecho",
@@ -1036,6 +1141,7 @@ def publico(st, c, aprovadas, now):
             "limites": {k: c[k] for k in ("alav_min", "alav_max", "posicoes_max", "margem", "lados")},
             "portas": {k: {"ok": v["ok"], "detalhe": v["detalhe"] if k not in ("saldo_usdc",) else ("ok" if v["ok"] else "insuficiente")}
                        for k, v in st["portas"].items()},
+            "orcamento": orcamento_publico(st, c),
             "bloqueado": bool(st["bloqueio"]), "suspenso": bool(st["suspenso"]),
             "motivo": (st["bloqueio"] or st["suspenso"] or {}).get("motivo"),
             "ops": [{k: o.get(k) for k in campos} for o in st["ops"][-200:]],

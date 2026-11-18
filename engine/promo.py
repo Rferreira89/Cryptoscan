@@ -566,7 +566,29 @@ def short_plan_for(sig, px, cfg):
 
 
 
-def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
+def bloqueio_conta(state, conta, now):
+    """(18/11, duas posicoes na Bybit UE) Entradas REAIS novas so com a conta CONFIRMADA na corretora nesta volta:
+    leitura do servidor europeu recente (o scanner da None se tiver mais de 45 min ou falhou), as ordens abertas lidas
+    (sem elas nao se sabe se os stops existem), nenhuma divida de margem sem operacao no registo (posicao que o programa
+    nao segue) e todas as posicoes abertas com a protecao ATIVA lida na corretora. Devolve o motivo ou None.
+    conta=None quando quem chama nao passou a conta (testes antigos): sem esta guarda, como antes."""
+    if conta is False:
+        return "conta Bybit não confirmada nesta volta (leitura falhada ou com mais de 45 min): sem entradas novas"
+    if not conta:
+        return None
+    if conta.get("ordens_lidas") is False:
+        return "a Bybit não respondeu à leitura das ordens abertas: sem entradas novas até confirmar os stops"
+    sem = conta.get("posicoes_sem_registo") or []
+    if sem:
+        return f"posição na Bybit sem registo no programa ({', '.join(sem)}): sem entradas novas até reconciliar"
+    for t in conta.get("trades") or []:
+        pr = t.get("protecao") or {}
+        if (t.get("held") or t.get("fill_px")) and pr and pr.get("estado") != "ATIVA":
+            return f"proteção de {t.get('asset')} {pr.get('estado')} na Bybit: sem entradas novas"
+    return None
+
+
+def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for, conta=None):
     """{ativo: decisao LONG ou SHORT} para os sinais frescos dos campeoes.
     O melhor campeao com sinal ganha a moeda. Cada vela de sinal so e usada
     uma vez por moeda. block_for(ativo) -> motivo ou None.
@@ -662,7 +684,7 @@ def decisions(state, rows, bars, cfg, now, champs, market_ok, block_for):
     fam = family_open(state)
     risco = risco_aberto(state)
     teto_ag = float(cfg.get("risco_agregado_max_pct") or RISCO_AGREGADO_MAX)
-    trav = travao_conta(state, cfg, now)
+    trav = travao_conta(state, cfg, now) or bloqueio_conta(state, conta, now)
     for rank, a, champ, sig, p, d0 in sorted(cands, key=lambda x: x[0]):
         seen[a] = sig["t_sig"]
         # (12/11 15:44, ordem do Rui) gestor global de risco da conta: uma posicao por moeda e o risco REAL aberto de
