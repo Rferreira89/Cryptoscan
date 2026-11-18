@@ -14,7 +14,7 @@ from tools.copy import smart as SM
 
 RANKING_S = 3600
 RANKING_VERSAO = 3            # mudar quando os criterios mudam: obriga a refazer o ranking na volta seguinte
-SEGUIR_OKX, SEGUIR_HL = 30, 30
+SEGUIR_OKX, SEGUIR_HL = 30, 40
 CUSTO_SOMBRA = 0.001          # ida e volta, para o resultado-sombra das decisoes
 
 
@@ -41,10 +41,10 @@ def atualizar_ranking(trs, now, log=print):
         except Exception as e:
             F.FALHAS.add(f"avaliar {chave}", f"{type(e).__name__}: {e}")
 
-    for t in F.okx_lideres(10):
+    for t in F.okx_lideres(10):      # a OKX expoe no maximo ~197 lideres publicos (10 paginas), igual em todas as ordenacoes
         um(f"okx:{t['id']}", t, F.okx_historico, F.okx_posicoes)   # posicoes: perdas por fechar (o historico so tem as fechadas)
         time.sleep(0.6)
-    for t in F.hl_ranking(120) or []:
+    for t in F.hl_ranking(300) or []:
         um(f"hyperliquid:{t['id']}", t, F.hl_historico, F.hl_posicoes)
         time.sleep(0.3)
     if not out:
