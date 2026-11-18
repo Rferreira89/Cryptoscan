@@ -16,6 +16,9 @@ import okx_exec as E  # noqa: E402
 PRIV = []
 
 
+SZ = {}   # tamanhos das condicionais: so para a cobertura (nunca no log publico)
+
+
 def origem(cl):
     cl = str(cl or "")
     return "piloto (pil)" if cl.startswith("pil") else "executor antigo (cs)" if cl.startswith("cs") else ("sem identificador" if not cl else "outro")
@@ -45,6 +48,7 @@ def okx(bases):
                     algos.append({"tipo": t, "erro": a.get("code")})
                     continue
                 for x in a.get("data") or []:
+                    SZ[x.get("algoId")] = float(x.get("sz") or 0)
                     algos.append({"algoId": x.get("algoId"), "tipo": t, "lado": x.get("side"), "estado": x.get("state"),
                                   "stop": x.get("slTriggerPx") or None, "objetivo": x.get("tpTriggerPx") or None,
                                   "trigger": x.get("triggerPx") or None, "reduce_only": x.get("reduceOnly"),
@@ -56,17 +60,19 @@ def okx(bases):
                      "estado": x.get("state"), "reduce_only": x.get("reduceOnly"), "origem": origem(x.get("clOrdId"))}
                     for x in (pend.get("data") or [])] if pend.get("code") == "0" else [{"erro": pend.get("code")}]
             fecho = None if not ps else ("buy" if q < 0 else "sell")
+            # (18/11, correcao) cobertura da MESMA leitura das ordens (antes havia uma 2.a leitura sem verificar erros:
+            # uma resposta falhada dava cobertura 0 com a ordem ativa). Leitura com erro: cobertura None (nao verificada)
             cob = 0.0
+            leitura_falhou = any("erro" in x for x in algos if x.get("tipo") in ("conditional", "oco"))
             for x in algos:
                 if x.get("stop") and x.get("lado") == fecho:
                     if x.get("fecha_posicao"):
                         cob = abs(q)
-            for a in (E.privado("GET", f"/api/v5/trade/orders-algo-pending?instId={inst}&ordType=conditional").get("data") or []) + \
-                     (E.privado("GET", f"/api/v5/trade/orders-algo-pending?instId={inst}&ordType=oco").get("data") or []):
-                if a.get("slTriggerPx") and a.get("side") == fecho and a.get("closeFraction") != "1":
-                    cob += float(a.get("sz") or 0)
+                    else:
+                        cob += SZ.get(x.get("algoId"), 0.0)
             r.update(ordens_condicionais=algos, ordens_normais_pendentes=ords,
-                     cobertura_do_stop=None if not ps else round(min(cob, abs(q)) / abs(q), 3),
+                     cobertura_do_stop=None if not ps or leitura_falhou else round(min(cob, abs(q)) / abs(q), 3),
+                     leitura_das_condicionais="falhou" if leitura_falhou else "ok",
                      condicionais_sem_posicao=[x["algoId"] for x in algos if not ps and x.get("algoId")])
             out[inst] = r
     return out
