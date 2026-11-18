@@ -89,7 +89,21 @@ def bybit(bases):
         out["chave"] = {"so_leitura": k.get("readOnly") == 1, "uid_presente": bool(k.get("userID"))}
         info = AC.get("/v5/account/info")
         out["conta"] = {"modo_margem": info.get("marginMode"), "unificada": info.get("unifiedMarginStatus")}
-        w = (AC.get("/v5/account/wallet-balance", {"accountType": "UNIFIED"}).get("list") or [{}])[0]
+        wall = AC.get("/v5/account/wallet-balance", {"accountType": "UNIFIED"})
+        w = (wall.get("list") or [{}])[0]
+        # (18/11) moedas em divida (short em margem) e as que o programa NAO segue, como o motor as ve (so nomes)
+        try:
+            tk = AC._tickers_ou_none()
+            opened = [r for r in json.load(open(os.environ["ESTADO_BYBIT"])).get("ledger", [])
+                      if r.get("kind") == "4H" and r.get("status") == "OPEN" and r.get("executed") is not False] \
+                if os.environ.get("ESTADO_BYBIT") and os.path.exists(os.environ["ESTADO_BYBIT"]) else None
+            out["moedas_em_divida"] = sorted(AC.debts(wall))
+            seg = {str(r.get("asset") or "").upper() for r in opened or [] if r.get("side") == "SHORT"}
+            out["posicoes_sem_registo"] = ([c for c, q in sorted(AC.debts(wall).items()) if c not in seg
+                                            and not (((tk or {}).get(c) or [None])[0] is not None and q * (tk or {})[c][0] < 1.0)]
+                                           if opened is not None else "sem estado")
+        except Exception as e:
+            out["moedas_em_divida_erro"] = type(e).__name__
         for b in bases:
             c = next((x for x in w.get("coin") or [] if x.get("coin") == b), None)
             out[b] = {"tem_saldo_ou_divida": bool(c), "em_divida_short_margem": bool(c and float(c.get("borrowAmount") or 0) > 0)}
