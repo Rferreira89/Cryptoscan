@@ -16,7 +16,7 @@ Venue deste motor: Bybit (o OKX tem caminhos proprios).
 """
 import os
 
-from . import promo, trade
+from . import promo, trade, travao_sombra
 
 TF = 14400
 MAX_POS = 6
@@ -62,7 +62,7 @@ def _r_medio(closed):
     return len(rs), round(sum(rs) / len(rs), 3)
 
 
-def update(state, rows, bars, now, market_ok=True):
+def update(state, rows, bars, now, market_ok=True, longas=None):
     st = state.setdefault("paper_ring", {})
     killed = state.setdefault("papel_kill", {})
     extra_estudo, extra_fase, extra_nmin = (), {}, {}
@@ -118,6 +118,8 @@ def update(state, rows, bars, now, market_ok=True):
                 _tg(state, f"FECHO|{k}|{a}|{t_key}",
                     f"[{VENUE}] PAPEL FECHO {k} {lado} {a} R={rec['r']:+.2f} "
                     f"motivo={rec.get('reason') or '?'} entrada={rec.get('entry')}")
+        # (18/11) travao em modo sombra (engine/travao_sombra): so regista o que K4 e K8 decidiriam; nao muda nada
+        travao_sombra.registar(state, k, b["closed"], now)
         if k not in killed:
             n, rm = _r_medio(b["closed"])
             if n >= KILL_N and rm is not None and rm < 0:
@@ -133,7 +135,7 @@ def update(state, rows, bars, now, market_ok=True):
         if k not in active or k in killed or (
                 not market_ok and not short_k and k not in PAPEL_SEM_FILTRO_BTC):
             continue
-        promo.set_context(rows, bars)
+        promo.set_context(rows, bars, longas)
         try:
             from tools.arena_ringue import CTX
         except Exception:

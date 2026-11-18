@@ -690,3 +690,192 @@ class Experimental(Base):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class FakeFecho(FakeOKX):
+    """OKX falsa com o fecho controlavel: fecha | aceita (mas a posicao fica) | recusa | parcial."""
+    def __init__(self, modo="aceita", **kw):
+        super().__init__(**kw)
+        self.modo, self.cancelados = modo, []
+
+    def priv(self, metodo, path, corpo=None):
+        base = path.split("?")[0].rsplit("/", 1)[-1]
+        if base == "close-position":
+            self.chamadas.append((metodo, path, corpo))
+            if self.modo == "recusa":
+                return {"code": "51000", "data": []}
+            if self.modo == "aceita":
+                return {"code": "0", "data": [{}]}
+            if self.modo == "parcial" and self.pos:
+                self.pos = dict(self.pos, pos=str(float(self.pos["pos"]) / 2))
+                return {"code": "0", "data": [{}]}
+        if base == "cancel-algos":
+            self.chamadas.append((metodo, path, corpo))
+            self.cancelados += [c["algoId"] for c in corpo]
+            self.algos = [a for a in self.algos if a.get("algoId") not in self.cancelados]
+            return {"code": "0", "data": [{}]}
+        return super().priv(metodo, path, corpo)
+
+
+class PrecoAtual(Base):
+    """(18/11) Preco atual com hora e R da posicao aberta no estado publico e no desempenho."""
+
+    def test_preco_e_r_aberto(self):
+        api = FakeOKX()
+        self.corre(api)
+        st, _ = self.corre(api, now=NOW0 + 900)
+        op = st["aberta"]
+        ent, stp = op["preco_efetivo"], op.get("stop_inicial") or op["stop"]
+        mk = ent + (ent - stp) * 0.5 * (1 if op["lado"] == "LONG" else -1)     # meio R a favor
+        api.pos = dict(api.pos, markPx=str(mk))
+        st, _ = self.corre(api, now=NOW0 + 1800)
+        op = st["aberta"]
+        self.assertEqual((op["preco_atual"], op["t_preco"]), (mk, NOW0 + 1800))
+        self.assertAlmostEqual(op["r_aberto"], 0.5, places=2)
+        d = P.desempenho(st)[op["estrategia"]]
+        self.assertEqual(d["abertas"], 1)
+        self.assertAlmostEqual(d["r_aberto"], 0.5, places=2)
+        self.assertAlmostEqual(d["r_total_com_abertas"], 0.5, places=2)
+        pub = P.publico(st, P.cfg(), {}, NOW0 + 1800)
+        o = [x for x in pub["ops"] if x["estado"] == "aberta"][0]
+        self.assertEqual((o["preco_atual"], o["t_preco"]), (mk, NOW0 + 1800))
+        self.assertAlmostEqual(o["r_aberto"], 0.5, places=2)
+        # sem resposta da OKX: fica o ultimo preco com a hora antiga (nao se inventa um novo)
+        api.pos = dict(api.pos)
+        api.pos.pop("markPx")
+        st, _ = self.corre(api, now=NOW0 + 2700)
+        self.assertEqual(st["aberta"]["t_preco"], NOW0 + 1800)
+
+
+class FechoRecuperacao(Base):
+    """(18/11) pedido de fecho aceite mas posicao aberta: repete, limita, bloqueia sem abandonar o stop."""
+    def a_fechar(self, modo="aceita", **kw):
+        api = FakeFecho(modo=modo, **kw)
+        self.corre(api)                                            # entrada
+        self.corre(api, now=NOW0 + 900)                            # executada
+        for a in api.algos:
+            a["algoId"] = "a1"
+        st, _ = self.corre(api, now=NOW0 + 900 + 4 * 3600 + 60)    # saida por tempo: 1.o pedido
+        return api, st, NOW0 + 900 + 4 * 3600 + 60
+
+    def fechos(self, api):
+        return [c for c in api.chamadas if c[1].endswith("close-position")]
+
+    def test_aceite_mas_aberta_repete_depois_do_intervalo(self):
+        api, st, t = self.a_fechar()
+        self.assertEqual(st["aberta"]["estado"], "a fechar")
+        self.corre(api, now=t + 300)                               # antes de 10 min: nada
+        self.assertEqual(len(self.fechos(api)), 1)
+        st, _ = self.corre(api, now=t + P.FECHO_REPETIR_S + 1)
+        self.assertEqual(len(self.fechos(api)), 2)
+        self.assertTrue(all(c[2] == {"instId": INST, "mgnMode": "isolated"} for c in self.fechos(api)))
+        self.assertTrue(st["aberta"]["stop_confirmado"])           # continua protegida entre tentativas
+
+    def test_limite_de_pedidos_bloqueia_e_mantem_stop(self):
+        api, st, t = self.a_fechar()
+        for k in range(1, 6):
+            st, msgs = self.corre(api, now=t + k * (P.FECHO_REPETIR_S + 1))
+        self.assertEqual(len(self.fechos(api)), P.FECHO_MAX_PEDIDOS)
+        self.assertTrue(st["bloqueio"])
+        self.assertFalse(st["portas"]["bloqueio"]["ok"])
+        self.assertEqual(st["aberta"]["stop_estado"], "confirmado")
+        self.assertEqual(api.posts("/trade/order"), api.posts("/trade/order")[:1])   # nenhuma entrada nova
+
+    def test_recusado_repete_com_intervalo_e_limite(self):
+        # (revisao 18/11) antes, um fecho recusado deixava a operacao "aberta" e o pedido repetia-se em TODAS as voltas,
+        # sem limite. Agora fica "a fechar": repete de 10 em 10 min, no maximo 3 pedidos, e depois bloqueia.
+        api, st, t = self.a_fechar(modo="recusa")
+        self.assertEqual(st["aberta"]["estado"], "a fechar")
+        self.corre(api, now=t + 60)
+        self.assertEqual(len(self.fechos(api)), 1)                 # antes do intervalo: nada
+        for k in range(1, 6):
+            st, _ = self.corre(api, now=t + k * (P.FECHO_REPETIR_S + 1))
+        self.assertEqual(len(self.fechos(api)), P.FECHO_MAX_PEDIDOS)
+        self.assertTrue(st["bloqueio"])
+        self.assertEqual(st["aberta"]["stop_estado"], "confirmado")
+
+    def test_lado_contrario_sem_stop_nenhuma_ordem(self):
+        # (revisao 18/11) com a posicao do lado contrario e sem stop do lado da operacao, o caminho do stop tentava repor
+        # o stop e, se falhasse, pedia close-position: fecharia uma posicao que nao e do piloto. Agora: nenhuma ordem.
+        api, st, t = self.a_fechar()
+        api.pos = dict(api.pos, pos="-3")
+        api.algos = []
+        n_algo = len(api.posts("/trade/order-algo"))
+        st, msgs = self.corre(api, now=t + P.FECHO_REPETIR_S + 1)
+        self.assertEqual(len(self.fechos(api)), 1)
+        self.assertEqual(len(api.posts("/trade/order-algo")), n_algo)
+        self.assertTrue(st["bloqueio"])
+        self.assertEqual(st["aberta"]["divergencia"], "lado contrario")
+        st, msgs2 = self.corre(api, now=t + 2 * (P.FECHO_REPETIR_S + 1))
+        self.assertFalse([m for m in msgs2 if "não corresponde" in m])   # alerta uma vez, nao em todas as voltas
+
+    def test_aberta_com_contratos_a_mais_nenhuma_ordem(self):
+        api = FakeFecho(modo="aceita")
+        self.corre(api)
+        st, _ = self.corre(api, now=NOW0 + 900)
+        self.assertEqual(st["aberta"]["estado"], "aberta")
+        api.pos = dict(api.pos, pos=str(float(api.pos["pos"]) * 3))  # outro executor/manual no mesmo instrumento
+        api.algos = []
+        n_algo = len(api.posts("/trade/order-algo"))
+        st, msgs = self.corre(api, now=NOW0 + 1800)
+        self.assertEqual(len(self.fechos(api)), 0)
+        self.assertEqual(len(api.posts("/trade/order-algo")), n_algo)
+        self.assertEqual(st["aberta"]["divergencia"], "contratos a mais")
+        self.assertTrue(st["bloqueio"])
+        self.assertTrue(any("não corresponde" in m for m in msgs))
+
+    def test_parcial_nao_e_divergencia(self):
+        api, st, t = self.a_fechar(modo="parcial", ctval="0.1")
+        st, _ = self.corre(api, now=t + P.FECHO_REPETIR_S + 1)
+        self.assertNotIn("divergencia", st["aberta"])
+
+    def test_fechada_entre_tentativas_reconcilia_e_limpa_so_as_condicionais_da_operacao(self):
+        api, st, t = self.a_fechar()
+        api.algos.append({"algoId": "outro", "algoClOrdId": "csXLM1", "slTriggerPx": "2", "side": "buy", "instId": INST})
+        api.algos.append({"algoId": "semid", "slTriggerPx": "2", "side": "buy", "instId": INST})
+        api.historico.append({"posId": "p1", "instId": INST, "realizedPnl": "0.1", "closeAvgPx": "1.0", "cTime": "1", "uTime": str(10 ** 13)})
+        api.pos = None                                             # fechou sozinha (ex.: a OKX executou o pedido tarde)
+        st, _ = self.corre(api, now=t + 120)
+        self.assertEqual(st["ops"][-1]["estado"], "fechada")
+        self.assertEqual(len(self.fechos(api)), 1)                 # nao repetiu
+        self.assertEqual(api.cancelados, ["a1"])                   # so a do piloto desta operacao
+        self.assertFalse(st["ops"][-1]["limpeza_pendente"])
+
+    def test_reinicio_no_estado_a_fechar(self):
+        api, st, t = self.a_fechar()
+        e = json.load(open(os.path.join(self.d, "piloto_estado.json")))
+        e["aberta"].pop("fecho_pedidos", None)                     # estado antigo, sem o registo de pedidos
+        json.dump(e, open(os.path.join(self.d, "piloto_estado.json"), "w"))
+        self.corre(api, now=t + 60)
+        self.assertEqual(len(self.fechos(api)), 2)
+
+    def test_api_indisponivel_nada_e_pedido(self):
+        api, st, t = self.a_fechar()
+        api.falha.add("positions")
+        st, _ = self.corre(api, now=t + P.FECHO_REPETIR_S + 1)
+        self.assertEqual(len(self.fechos(api)), 1)
+        self.assertEqual(st["aberta"]["estado"], "a fechar")
+
+    def test_parcial_repete_ate_fechar(self):
+        api, st, t = self.a_fechar(modo="parcial", ctval="0.1")
+        st, _ = self.corre(api, now=t + P.FECHO_REPETIR_S + 1)
+        self.assertLess(st["aberta"]["fecho_restante_pct"], 100)
+        self.assertEqual(len(self.fechos(api)), 2)
+
+    def test_lado_contrario_nao_fecha_e_bloqueia(self):
+        api, st, t = self.a_fechar()
+        api.pos = dict(api.pos, pos="-3")                          # a OKX mostra SHORT numa operacao LONG
+        st, msgs = self.corre(api, now=t + P.FECHO_REPETIR_S + 1)
+        self.assertEqual(len(self.fechos(api)), 1)
+        self.assertTrue(st["bloqueio"])
+
+    def test_limpeza_falhada_repete_na_volta_seguinte(self):
+        api, st, t = self.a_fechar()
+        api.historico.append({"posId": "p1", "instId": INST, "realizedPnl": "0.1", "closeAvgPx": "1.0", "cTime": "1", "uTime": str(10 ** 13)})
+        api.pos = None
+        api.falha.add("orders-algo-pending")
+        st, _ = self.corre(api, now=t + 120)
+        self.assertTrue(st["ops"][-1]["limpeza_pendente"])
+        api.falha.discard("orders-algo-pending")
+        st, _ = self.corre(api, now=t + 240)
+        self.assertEqual(api.cancelados, ["a1"])

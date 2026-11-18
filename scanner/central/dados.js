@@ -143,9 +143,28 @@ export function estadoBybit(pub, priv, agora = Date.now() / 1000) {
 
 // ---------------------------------------------------------------- posicoes e ordens (normalizadas)
 // lado: o executor OKX so abre LONG (net mode); a posicao privada traz o sinal da quantidade.
-export function okxOperacoes(O, K, Pi = null) {
+// (18/11) nome real da estrategia do executor OKX antigo (okx_exec: "panico", "recuo", "espelho"); o que nao for
+// reconhecido aparece como desconhecido, nunca como H40 por omissao
+export function rotuloOKX(o) {
+  const e = (o || {}).estrategia;
+  if (e === "recuo") return "H46 recuo";
+  if (e === "panico") return "H40 pânico";
+  if (e === "espelho") return o.estrategia_bybit ? `Espelho da arena (${o.estrategia_bybit})` : "Espelho da arena";
+  return `desconhecida (${e || "sem nome"})`;
+}
+
+// (18/11) frescura de cada fonte das operacoes: dados indisponiveis nao sao posicoes fechadas, e uma leitura antiga
+// nao aparece como atual. estado: atual | atrasado | desatualizado | sem_hora | indisponivel
+export function frescuraFonte(chave, d, agora = Date.now() / 1000) {
+  if (!d) return { estado: "indisponivel", t: null, idade: null };
+  const t = horaDe(chave, d), fr = frescura(t, (FONTES[chave] || {}).limite, agora);
+  return { estado: fr.estado, t, idade: fr.idade };
+}
+
+export function okxOperacoes(O, K, Pi = null, agora = Date.now() / 1000) {
   const ops = ((O || {}).real || {}).ops || {};
   const pos = [], ordens = [];
+  const fontes = { agente: frescuraFonte("okx", O, agora), piloto: frescuraFonte("piloto", Pi, agora) };
   // (18/11) operacoes do piloto OKX: o estado do stop vem da leitura do piloto na OKX (stop_estado), nunca do pedido
   for (const o of ((Pi || {}).ops || [])) {
     if (!["aberta", "a fechar", "pendente"].includes(o.estado)) continue;
@@ -153,15 +172,18 @@ export function okxOperacoes(O, K, Pi = null) {
                    lado: o.lado, entrada: o.preco_efetivo || o.preco_previsto || null, stop: o.stop || null, alvo: o.alvo || null,
                    alav: o.alav || null, stop_confirmado: o.stop_estado === "confirmado" || (o.stop_estado == null && o.stop_confirmado) ? (Pi.t || null) : null,
                    stop_estado: o.stop_estado || (o.stop_confirmado ? "confirmado" : "por_confirmar"), stop_cobertura: o.stop_cobertura ?? null,
-                   desde: o.t_execucao || o.t_ordem || null, fonte: "estado do piloto" };
+                   desde: o.t_execucao || o.t_ordem || null, fonte: "estado do piloto",
+                   preco_atual: o.preco_atual ?? null, preco_t: o.t_preco ?? null, R: o.r_aberto ?? null,
+                   dados_t: fontes.piloto.t, dados_estado: fontes.piloto.estado };
     if (o.estado === "pendente") ordens.push({ ...base, preco: o.preco_previsto });
     else pos.push(base);
   }
   for (const [a, o] of Object.entries(ops)) {
-    const base = { corretora: "OKX", ativo: a, inst: o.inst, estrategia: o.estrategia === "recuo" ? "H46 recuo" : "H40 pânico",
-                   lado: "LONG", entrada: o.entrada || null, stop: o.stop || null, alvo: o.alvo || null, alav: o.alav || null,
+    const base = { corretora: "OKX", ativo: a, inst: o.inst, estrategia: rotuloOKX(o),
+                   lado: o.lado === "SHORT" ? "SHORT" : "LONG", entrada: o.entrada || null, stop: o.stop || null, alvo: o.alvo || null, alav: o.alav || null,
                    risco_pct: o.risco_pct ?? null, stop_confirmado: o.stop_ok || null, desde: o.t_fill || o.criado || null,
-                   sair_em: o.sair_em || null, parcial: !!o.parcial, fonte: "estado do agente" };
+                   sair_em: o.sair_em || null, parcial: !!o.parcial, fonte: "estado do agente",
+                   dados_t: fontes.agente.t, dados_estado: fontes.agente.estado };
     if (o.estado === "aberta") pos.push(base);
     else if (o.estado === "pendente") ordens.push({ ...base, preco: o.lim, valida_ate: o.valido_ate, cancelamento_pedido: o.cancelar_pedido || null });
   }
@@ -179,13 +201,26 @@ export function okxOperacoes(O, K, Pi = null) {
       Object.assign(x, { preco_corretora: q.preco, quantidade: q.contratos, lado: q.lado === "sell" ? "SHORT" : "LONG" });
     }
   }
-  return { posicoes: pos, ordens };
+  // sem posicoes e com uma fonte indisponivel: "sem dados", nunca "sem posicoes" (nao se sabe se estao fechadas)
+  const faltam = Object.entries(fontes).filter(([, f]) => f.estado === "indisponivel").map(([k]) => k);
+  const antigas = Object.entries(fontes).filter(([, f]) => ["desatualizado", "sem_hora"].includes(f.estado)).map(([k]) => k);
+  return { posicoes: pos, ordens, fontes, faltam, antigas };
+}
+
+// texto da frescura de uma posicao/fonte para o ecra (hora local da ultima atualizacao e aviso se ja nao e atual)
+export function textoDados(estado, t, agora = Date.now() / 1000) {
+  if (estado === "indisponivel") return "dados indisponíveis";
+  const h = t ? new Date(t * 1000).toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" }) : null;
+  if (estado === "sem_hora" || !h) return "dados sem hora (podem não ser atuais)";
+  if (estado === "desatualizado") return `dados de ${h} (${texIdade(idade(t, agora))}: DESATUALIZADOS)`;
+  if (estado === "atrasado") return `dados de ${h} (atrasados)`;
+  return `dados de ${h}`;
 }
 
 export function okxFechadas(O, K) {
   const hist = (((O || {}).real || {}).hist || []).filter(h => h.estado === "fechada" || h.estado === "cancelada");
   const pub = hist.map(h => ({ corretora: "OKX", ativo: h.asset, estado: h.estado, motivo: h.motivo || null, ret_pct: h.ret_pct ?? null,
-                               R: h.R ?? null, t: h.fechado || h.t_fill || h.criado || null, estrategia: h.estrategia === "recuo" ? "H46 recuo" : "H40 pânico" }));
+                               R: h.R ?? null, t: h.fechado || h.t_fill || h.criado || null, estrategia: rotuloOKX(h) }));
   const priv = ((K || {}).fechadas || []).map(f => ({ corretora: "OKX", ativo: f.asset, estado: "fechada", entrada: f.entrada, saida: f.saida, pnl_usd: f.pnl_usd, t: f.t }));
   return { publico: pub.sort((a, b) => (b.t || 0) - (a.t || 0)), privado: priv.sort((a, b) => (b.t || 0) - (a.t || 0)) };
 }
@@ -316,9 +351,10 @@ export function eventos({ O, S, St, K }) {
   const R = (O || {}).resumo || {};
   add(R.t, "panico", null, `Varreu ${R.analisados || 0} perpétuos de cripto na OKX${(R.pendentes || []).length ? `; sinal em ${R.pendentes.join(", ")}` : ""}`, "analise");
   for (const [a, o] of Object.entries(((O || {}).real || {}).ops || {})) {
-    add(o.criado, o.estrategia === "recuo" ? "recuo" : "panico", "exec_okx", `${a}: sinal ${o.estrategia === "recuo" ? "H46" : "H40"} entregue à execução (ordem limite)`, "encaminhamento");
+    add(o.criado, o.estrategia === "recuo" ? "recuo" : o.estrategia === "espelho" ? "arena" : o.estrategia === "panico" ? "panico" : "exec_okx",
+        "exec_okx", `${a}: sinal ${rotuloOKX(o)} entregue à execução (ordem limite)`, "encaminhamento");
     add(o.criado && o.criado + 1, "risco", "exec_okx", `${a}: risco ${o.risco_pct ?? "?"}% da conta aprovado, stop e objetivo anexados`, "risco");
-    add(o.t_fill, "exec_okx", "centro", `${a}: compra executada a ${o.entrada}`, "execucao");
+    add(o.t_fill, "exec_okx", "centro", `${a}: ${o.lado === "SHORT" ? "venda" : "compra"} executada a ${o.entrada}`, "execucao");
     add(o.stop_ok, "exec_okx", "centro", `${a}: stop confirmado na OKX`, "protecao");
     add(o.cancelar_pedido, "exec_okx", "centro", `${a}: pedido de cancelamento da entrada (estratégia suspensa)`, "execucao");
   }
@@ -450,7 +486,7 @@ export function fechadasR(O, S) {
   const out = [];
   for (const h of (((O || {}).real || {}).hist || [])) {
     if (h.estado !== "fechada" || !h.entrada || !h.stop || !h.saida) continue;
-    out.push({ corretora: "OKX", ativo: h.asset, t: h.fechado, R: Math.round((h.saida - h.entrada) / (h.entrada - h.stop) * 100) / 100, ret_pct: h.ret_pct ?? null, estrategia: h.estrategia === "recuo" ? "H46 recuo" : "H40 pânico" });
+    out.push({ corretora: "OKX", ativo: h.asset, t: h.fechado, R: Math.round((h.saida - h.entrada) / (h.entrada - h.stop) * 100) / 100, ret_pct: h.ret_pct ?? null, estrategia: rotuloOKX(h) });
   }
   for (const r of (((S || {}).journal || {}).rows || []))
     if (r.mode === "REAL" && r.status === "CLOSED" && r.executed === true && r.result_r != null) out.push({ corretora: "Bybit", ativo: r.asset, t: r.closed_at, R: r.result_r, estrategia: r.strategy });

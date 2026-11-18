@@ -336,6 +336,29 @@ class Execucao(unittest.TestCase):
         _, ordens, msgs = self._esp([("XLM", sig)], 0.0262)                     # ja acima do stop
         self.assertEqual(ordens, []); self.assertTrue(any("fora do plano" in m for m in msgs))
 
+    def test_funil_regista_decisoes_sem_repetir(self):
+        # (18/11) cada sinal fica com a ultima decisao do executor (publico, sem valores)
+        now = 2_000_000_000
+        ok = {"tipo": "espelho", "lado": "SHORT", "stop": 0.0260, "alvo": 0.0200, "t_sig": now - 600,
+              "estrategia": "SHORT_TURTLE", "origem": "okx"}
+        fora = dict(ok, stop=0.0230)                                        # preco ja acima do stop
+        st, ordens, _ = self._esp([("XLM", ok), ("ABC", fora)], 0.0236)
+        f = st["real"]["funil"]
+        self.assertEqual(f[f"XLM:{now - 600}"]["decisao"], "ordem enviada")
+        self.assertEqual(f[f"XLM:{now - 600}"]["origem"], "espelho_okx")
+        self.assertEqual(f[f"ABC:{now - 600}"]["decisao"], "preco fora do plano")
+        r = self.E.resumo_funil(st["real"], now)
+        dia = list(r)[0]
+        self.assertEqual(r[dia]["espelho_okx"], {"ordem enviada": 1, "preco fora do plano": 1})
+        self.assertNotIn("usd", str(f).lower())
+
+    def test_funil_h40_suspensa(self):
+        now = 2_000_000_000
+        sig = {"t_sig": now - H4, "lim": 0.0236, "atr": 0.001, "tipo": "mercado"}
+        st, ordens, _ = self._corre([("HUMA", sig)], dict(panico_real=False), now=now)
+        self.assertEqual(ordens, [])
+        self.assertEqual(st["real"]["funil"][f"HUMA:{now - H4}"]["decisao"], "H40 suspensa do real")
+
     def test_espelho_long_arrisca_1pct(self):
         now = 2_000_000_000
         sig = {"tipo": "espelho", "lado": "LONG", "stop": 0.0226, "alvo": 0.0280, "t_sig": now - 600}
@@ -378,8 +401,10 @@ class Execucao(unittest.TestCase):
         sinal = lambda c4, px, cfg=None: ({"side": "SHORT", "stop": 1.1, "tp": [0.9, 0.8], "hold_s": 86400,
                                            "t_sig": c4[-1]["t"] + H4} if AR.CTX["asset"] == "ADA" else None)
         xp = {b: self.info(inst=f"{b}-USD_UM_XPERP-1") for b in ("ADA", "DOT", "BTC")}
+        # (18/11) SHORT_TURTLE esta em arena.mortos (morreu noutra fase) mas e campeao da Bybit: conta. Uma morte
+        # decidida pelo Rui ("decisao") e o que esta so em papel nunca contam.
         sb = {"campeoes_ant": ["SHORT_TURTLE", "MORTO", "PAPEL"], "so_papel": {"PAPEL": {}},
-              "arena": {"mortos": {"MORTO": {}}}}
+              "arena": {"mortos": {"MORTO": {"decisao": True}, "SHORT_TURTLE": {"motivo": "forma recente (90 dias)"}}}}
         reg = AR._Sinais({"SHORT_TURTLE": sinal, "MORTO": lambda *a: 1 / 0, "PAPEL": lambda *a: 1 / 0})
         with mock.patch.object(AR, "SINAIS", reg):
             out = self.E.campeoes_sinais(sb, xp, now, velas=velas)

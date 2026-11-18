@@ -140,9 +140,14 @@ def executar_real(st, now, msgs):
                 if a not in vistos:
                     novos_real.append((a, s_)); vistos.add(a)
             try:
-                for a, s_ in okx_exec.campeoes_sinais(sb, okx_exec.xperps(), now):
+                cs = okx_exec.campeoes_sinais(sb, okx_exec.xperps(), now)
+                for a, s_ in cs:
                     if a not in vistos:
                         novos_real.append((a, s_)); vistos.add(a)
+                # (18/11) para a monitorizacao: o que o espelho viu nesta volta (sem valores)
+                st.setdefault("real", {})["espelho_volta"] = {
+                    "t": int(now), "bybit_lida": sb is not None, "campeoes": list((sb or {}).get("campeoes_ant") or []),
+                    "sinais_campeoes": len(cs)}
             except Exception as e:
                 print("campeoes na OKX:", type(e).__name__, str(e)[:120])
         okx_exec.correr(st, novos_real, now, msgs)

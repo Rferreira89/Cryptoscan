@@ -670,6 +670,44 @@ def entrar(api, st, c, cand, now, msgs, simular):
                 f"Enviada não é executada: confirmo na volta seguinte.")
 
 
+FECHO_REPETIR_S = 600          # (18/11) pedido de fecho aceite e posicao ainda aberta: repete ao fim de 10 min
+FECHO_MAX_PEDIDOS = 3          # depois disto: bloqueia entradas novas e alerta (a posicao continua com o stop)
+
+
+def pedir_fecho(api, st, op, now, motivo):
+    """Pede o fecho a mercado de TODA a posicao do instrumento (close-position, margem isolada). E idempotente na OKX:
+    fecha so o que resta e nunca abre do lado contrario; sem posicao, a OKX recusa sem efeito. Nao usa autoCxl: as
+    ordens condicionais do piloto sao canceladas explicitamente depois de a OKX confirmar que a posicao fechou."""
+    r = api.priv("POST", "/api/v5/trade/close-position", {"instId": op["inst"], "mgnMode": "isolated"})
+    op.setdefault("fecho_pedidos", []).append({"t": int(now), "code": (r or {}).get("code"), "motivo": motivo})
+    evento(st, now, f"fecho pedido ({motivo}); confirmo na volta seguinte", op=op["id"], resposta=(r or {}).get("code"),
+           pedido=len(op["fecho_pedidos"]))
+    return (r or {}).get("code") == "0"
+
+
+def limpar_condicionais(api, st, op, now, msgs):
+    """Depois de a OKX confirmar que a posicao fechou: cancela so as ordens condicionais pendentes DESTA operacao
+    (algoClOrdId com o prefixo do clOrdId da entrada), nesse instrumento. Nunca toca em ordens de outros executores."""
+    pref = str(op.get("clOrdId") or "")[:24]
+    if not pref.startswith(PREFIXO):
+        return
+    algos = _algos(api, op["inst"])
+    if algos is None:
+        op["limpeza_pendente"] = True
+        return
+    minhas = [a for a in algos if str(a.get("algoClOrdId") or "").startswith(pref) and a.get("algoId")]
+    if minhas:
+        r = api.priv("POST", "/api/v5/trade/cancel-algos", [{"algoId": a["algoId"], "instId": op["inst"]} for a in minhas])
+        ok = (r or {}).get("code") == "0"
+        evento(st, now, f"ordens condicionais residuais da operacao: {len(minhas)} {'canceladas' if ok else 'por cancelar'}",
+               op=op["id"])
+        op["limpeza_pendente"] = not ok
+        if not ok:
+            msgs.append(f"⚠️ Piloto OKX: {op['base']} fechada mas ficaram {len(minhas)} ordens condicionais do piloto; volto a tentar.")
+    else:
+        op["limpeza_pendente"] = False
+
+
 def estado_stop(algos, q, lado, entrada):
     """(18/11, incidente RENDER) Estado do stop SO a partir do que a OKX devolveu: confirmado, sem_resposta (a OKX nao
     respondeu: nada se conclui nem se repoe), inexistente, lado_errado, quantidade_insuficiente. Devolve tambem a
@@ -699,6 +737,11 @@ def _algos(api, inst):
 
 def reconciliar(api, st, now, msgs, simular=False):
     """Estado da OKX para a operacao do piloto: ordem (executada, parcial, cancelada), posicao, stop, fecho."""
+    for o in st["ops"][-5:]:                                 # limpeza de condicionais que falhou numa volta anterior
+        if o.get("estado") == "fechada" and o.get("limpeza_pendente") and not simular:
+            pos = api.priv("GET", f"/api/v5/account/positions?instId={o['inst']}")
+            if (pos or {}).get("code") == "0" and not any(float(x.get("pos") or 0) for x in pos.get("data") or []):
+                limpar_condicionais(api, st, o, now, msgs)
     op = st.get("aberta")
     if not op or "simulada" in op.get("estado", ""):
         if op:
@@ -711,6 +754,7 @@ def reconciliar(api, st, now, msgs, simular=False):
         return {"upl": 0.0}                                  # sem resposta: nada se decide nesta volta
     pd = next((x for x in pos.get("data") or [] if float(x.get("pos") or 0) != 0), None)
     upl = float(pd.get("upl") or 0) if pd else 0.0
+    marcar_preco(op, pd, now)
     acc = float(od.get("accFillSz") or 0)
     if op["estado"] == "pendente":
         if acc > 0:
@@ -750,7 +794,42 @@ def reconciliar(api, st, now, msgs, simular=False):
     if op["estado"] in ("aberta", "a fechar"):
         if pd is None:                                       # fechou (stop, objetivo, tempo, espelho ou manual)
             fechar_contas(api, st, op, now, msgs)
+            if op.get("estado") == "fechada":
+                limpar_condicionais(api, st, op, now, msgs)
             return {"upl": 0.0}
+        # (18/11, revisao) a posicao na OKX tem de ser a DESTA operacao: mesmo lado e nunca maior do que o executado.
+        # Se nao for (lado contrario, ou contratos a mais de outro executor/manual no mesmo instrumento), nenhuma ordem e
+        # enviada (nem fecho, nem stop: o close-position fecharia contratos que nao sao do piloto). So se le o stop,
+        # bloqueia e alerta uma vez.
+        lado_okx = "LONG" if float(pd["pos"]) > 0 else "SHORT"
+        q_okx, q_op = abs(float(pd["pos"])), float(op.get("contratos_exec") or op.get("contratos") or 0)
+        diverg = ("lado contrario" if lado_okx != op["lado"] else
+                  "contratos a mais" if q_op and q_okx > q_op * (1 + 1e-6) + 1e-9 else None)
+        if diverg:
+            est, mot, coberto = estado_stop(_algos(api, op["inst"]), q_okx, lado_okx, op.get("preco_efetivo"))
+            op["stop_estado"], op["stop_detalhe"], op["stop_confirmado"] = est, mot, est == "confirmado"
+            op["stop_cobertura"] = round(coberto / q_okx, 3) if q_okx else None
+            if op.get("divergencia") != diverg:
+                op["divergencia"] = diverg
+                st["bloqueio"] = st["bloqueio"] or {"t": int(now), "motivo": f"{op['base']}: posicao na OKX nao corresponde a operacao ({diverg})"}
+                evento(st, now, f"POSICAO NA OKX NAO CORRESPONDE ({diverg}): nenhuma ordem enviada", op=op["id"], lado_okx=lado_okx)
+                msgs.append(f"🛑 Piloto OKX: a posição de {op['base']} na OKX não corresponde à operação do piloto ({diverg}). "
+                            "Não enviei nenhuma ordem e bloqueei o piloto. Verifica na app.")
+            return {"upl": upl}
+        op.pop("divergencia", None)
+        if op["estado"] == "a fechar":
+            pedidos = op.get("fecho_pedidos") or []
+            ult = max([p["t"] for p in pedidos] or [0])
+            op["fecho_restante_pct"] = round(100 * q_okx / max(1e-12, q_op or 1), 1)
+            if len(pedidos) >= FECHO_MAX_PEDIDOS:
+                if not op.get("fecho_alertado"):
+                    op["fecho_alertado"] = int(now)
+                    st["bloqueio"] = st["bloqueio"] or {"t": int(now), "motivo": f"{op['base']}: fecho pedido {len(pedidos)} vezes e a posicao continua aberta"}
+                    evento(st, now, "FECHO NAO CONFIRMADO apos o limite de pedidos: piloto bloqueado (stop mantido)", op=op["id"])
+                    msgs.append(f"🛑 Piloto OKX: pedi o fecho de {op['base']} {len(pedidos)} vezes e a OKX ainda mostra a posição. "
+                                "Bloqueei novas entradas; o stop continua na OKX. Verifica na app.")
+            elif now - ult >= FECHO_REPETIR_S:
+                pedir_fecho(api, st, op, now, (op.get("motivo_saida") or "fecho") + " (repeticao)")
         op["posId"] = op.get("posId") or pd.get("posId")
         q = abs(float(pd["pos"]))
         est, mot, coberto = estado_stop(_algos(api, op["inst"]), q, op["lado"], op.get("preco_efetivo"))
@@ -769,7 +848,7 @@ def reconciliar(api, st, now, msgs, simular=False):
             if (r or {}).get("code") == "0":
                 msgs.append(f"⚠️ Piloto OKX: {op['base']} estava sem stop confirmado; stop reposto (confirmo na volta seguinte).")
             else:
-                api.priv("POST", "/api/v5/trade/close-position", {"instId": op["inst"], "mgnMode": "isolated"})
+                pedir_fecho(api, st, op, now, "stop nao colocado")
                 st["bloqueio"] = {"t": int(now), "motivo": "stop nao colocado: posicao fechada por seguranca"}
                 op["estado"] = "a fechar"
                 evento(st, now, "stop falhou: fecho de seguranca e piloto bloqueado")
@@ -851,10 +930,9 @@ def gerir(api, st, now, msgs, simular, papel):
     elif op.get("sair_em") and now >= op["sair_em"]:
         motivo = "tempo"
     if motivo:
-        r = api.priv("POST", "/api/v5/trade/close-position", {"instId": op["inst"], "mgnMode": "isolated"})
         op["motivo_saida"] = motivo
-        op["estado"] = "a fechar" if (r or {}).get("code") == "0" else "aberta"
-        evento(st, now, f"fecho pedido ({motivo}); confirmo na volta seguinte", op=op["id"], resposta=(r or {}).get("code"))
+        pedir_fecho(api, st, op, now, motivo)
+        op["estado"] = "a fechar"            # mesmo se recusado: a recuperacao repete (10 min, max. 3) e depois bloqueia
         msgs.append(f"⏱️ Piloto OKX: {op['base']} — pedi o fecho ({motivo}).")
 
 
@@ -865,9 +943,10 @@ def executar_acoes(api, st, acoes, now, msgs, simular):
         api.priv("POST", "/api/v5/trade/cancel-order", {"instId": op["inst"], "ordId": op.get("ordId")})
         evento(st, now, "entrada pendente cancelada por limite (confirmo na volta seguinte)", op=op["id"])
         op["prazo"] = 0
-    if op and op.get("estado") in ("aberta", "a fechar") and "fechar_posicao" in acoes and not simular:
-        api.priv("POST", "/api/v5/trade/close-position", {"instId": op["inst"], "mgnMode": "isolated"})
-        op["estado"], op["motivo_saida"] = "a fechar", "limite de perda"
+    if op and op.get("estado") == "aberta" and "fechar_posicao" in acoes and not simular:
+        op["motivo_saida"] = "limite de perda"
+        pedir_fecho(api, st, op, now, "limite de perda")
+        op["estado"] = "a fechar"                            # mesmo se recusado: a recuperacao do estado a fechar repete
     chave = (tuple(acoes), motivo)
     if st.get("_ultimo_limite") != list(chave[0]) + [motivo]:
         st["_ultimo_limite"] = list(chave[0]) + [motivo]
@@ -889,6 +968,21 @@ def relatorio_diario(st, now, msgs, aprovadas):
                 + (f"{len(aprovadas)} estratégias aprovadas" if aprovadas else "nenhuma estratégia aprovada")
                 + ("; portas fechadas: " + ", ".join(fech) if fech else "; todas as portas abertas")
                 + (" ; BLOQUEADO" if st["bloqueio"] else " ; SUSPENSO" if st["suspenso"] else "") + ".")
+
+
+def marcar_preco(op, pd, now):
+    """(18/11) Preco atual (markPx da OKX, com a hora da leitura) e o resultado em R da posicao aberta, para a app e
+    para o desempenho contar as abertas. Sem resposta da OKX nao se apaga o ultimo: fica com a hora antiga (a app
+    mostra-o como desatualizado)."""
+    try:
+        mk = float((pd or {}).get("markPx") or 0)
+        ent, stp = float(op.get("preco_efetivo") or 0), float(op.get("stop_inicial") or op.get("stop") or 0)
+    except (TypeError, ValueError):
+        return
+    if mk <= 0 or ent <= 0 or not stp or ent == stp:
+        return
+    sinal = 1 if op.get("lado") == "LONG" else -1
+    op.update(preco_atual=mk, t_preco=int(now), r_aberto=round(sinal * (mk - ent) / abs(ent - stp), 3))
 
 
 def desempenho(st):
@@ -919,6 +1013,11 @@ def desempenho(st):
                   "deslize_medio_pct": med([o["slippage_pct"] for o in d["ops"] if o.get("slippage_pct") is not None]),
                   "duracao_media_h": med([o["duracao_h"] for o in fe if o.get("duracao_h") is not None]),
                   "por_moeda": grp("base"), "por_regime": grp("regime"), "por_tf": grp("tf"), "recente_r": med(rs[-10:])}
+        # (18/11) as abertas contam: o resultado atual nao e so o das fechadas
+        ab = [o for o in d["ops"] if o.get("estado") in ("aberta", "a fechar") and o.get("r_aberto") is not None]
+        res[k].update(abertas=len([o for o in d["ops"] if o.get("estado") in ("aberta", "a fechar")]),
+                      r_aberto=round(sum(o["r_aberto"] for o in ab), 3) if ab else None,
+                      r_total_com_abertas=round(sum(rs) + sum(o["r_aberto"] for o in ab), 3) if (rs or ab) else None)
     return res
 
 
@@ -927,7 +1026,7 @@ def publico(st, c, aprovadas, now):
     campos = ("id", "estrategia", "versao", "base", "inst", "lado", "tf", "regime", "t_sinal", "t_ordem", "t_execucao", "t_fecho",
               "preco_previsto", "preco_efetivo", "slippage_pct", "stop", "alvo", "preco_saida", "alav", "estado", "stop_confirmado",
               "stop_estado", "stop_cobertura", "stop_detalhe",
-              "motivo_saida", "r", "r_papel", "duracao_h", "spread_pct")
+              "motivo_saida", "r", "r_papel", "duracao_h", "spread_pct", "preco_atual", "t_preco", "r_aberto")
     oper = all(v["ok"] for k, v in st["portas"].items() if k != "estrategias_elegiveis")
     return {"t": now, "aviso": "REAL (piloto OKX). Sem valores monetarios neste ficheiro.", "simulacao": st.get("simulacao"),
             "operacional": oper, "ativas": sorted(aprovadas) if oper else [],

@@ -206,11 +206,15 @@ def symbol_of(rec):
     return f"{base}{quote or 'USDC'}".upper()
 
 
-def check_trades(ledger, held, orders, execs, now, debt=None):
+def check_trades(ledger, held, orders, execs, now, debt=None, leitura=None):
     """Para cada operacao 4H aberta: moedas na conta, stop, entrada vista.
     (24/10) Num short a posicao existe quando a moeda esta negativa ou em
     divida (antes 'held' so via saldo positivo e os alarmes de stop saltavam
-    todos os shorts)."""
+    todos os shorts).
+    (18/11) leitura=(leitura_ok, lida_em) de open_orders_lidas: cada linha leva tambem 'protecao', o estado da
+    protecao lido na corretora (engine/protecao.estado_protecao_bybit). So representacao: stop_found e os alarmes
+    continuam como estavam."""
+    from . import protecao as PROT
     debt = debt or {}
     out = []
     for r in ledger:
@@ -231,6 +235,10 @@ def check_trades(ledger, held, orders, execs, now, debt=None):
                "fill_px": round(fill[0], 10) if fill else None}
         if stop is not None and r.get("stop"):
             row["stop_gap_pct"] = round((stop / r["stop"] - 1) * 100, 2)
+        if leitura is not None:
+            row["protecao"] = PROT.estado_protecao_bybit(sym, side, orders, leitura[0], leitura[1], now,
+                                                         plano_stop=r.get("stop"),
+                                                         estado_interno=(r.get("real") or {}).get("estado"))
         out.append(row)
     return out
 
@@ -241,7 +249,14 @@ def open_orders():
     """Todas as ordens spot abertas. A Bybit UE so devolve as TP/SL
     (BidirectionalTpslOrder) quando o pedido vai SEM orderFilter
     (confirmado a 2026-10-13 com as ordens da SOL e da XRP)."""
-    seen = {}
+    return open_orders_lidas()[0]
+
+
+def open_orders_lidas():
+    """(18/11) Como open_orders, mas diz tambem se a leitura SEM orderFilter respondeu (e a unica que traz as
+    BidirectionalTpslOrder) e quando foi feita: (ordens, leitura_ok, t). Uma lista vazia com leitura_ok False nao
+    quer dizer 'sem ordens'."""
+    seen, ok = {}, False
     for flt in (None, "Order", "StopOrder", "tpslOrder"):
         prm = {"category": "spot", "limit": 50}
         if flt:
@@ -250,9 +265,11 @@ def open_orders():
             res = get("/v5/order/realtime", prm)
         except AccountError:
             continue
+        if flt is None:
+            ok = True
         for o in res.get("list") or []:
             seen[o.get("orderId") or id(o)] = o
-    return list(seen.values())
+    return list(seen.values()), ok, int(time.time())
 
 
 def executions(symbols, since):
@@ -480,7 +497,9 @@ def agregar(r, execs, juros, protecao):
            "compra_usdc": round(v_in, 6), "venda_usdc": round(v_out, 6), "comissoes_usdc": round(custos, 6),
            "juros_valor_moeda": None if juros is None else round(juros, 10), "preco_entrada": round(px_in, 10),
            "preco_saida": round(v_out / q_out, 10) if q_out else None, "saida_por": sorted(set(tipos_saida)) or None,
-           "protecao": protecao, "custos_incompletos": bool(falta_juros),
+           "protecao": protecao, "protecao_fonte": "historico de ordens terminadas (vazio enquanto o stop esta ativo; "
+                                                   "a protecao ativa esta em conta.trades[].protecao)",
+           "custos_incompletos": bool(falta_juros),
            "entradas_manuais_ignoradas": manuais, "origem_entrada_verificada": tem_link,
            "pnl_usdc": round(pnl, 6) if fechada and not falta_juros else None,
            "pnl_usdc_sem_juros": round(pnl, 6) if fechada and falta_juros else None}
@@ -795,7 +814,7 @@ def snapshot(state, now=None):
         led = state.get("ledger", [])
         opened = [r for r in led if r.get("kind") == "4H"
                   and r.get("status") == "OPEN" and r.get("executed") is not False]
-        orders = open_orders()
+        orders, ordens_ok, ordens_t = open_orders_lidas()
         since = min([r.get("issued_at") or now for r in opened] or [now])
         execs = executions([symbol_of(r) for r in opened], since - 600)
         try:                                 # resultado real (fase 1): ultimos 6,5 dias
@@ -825,7 +844,7 @@ def snapshot(state, now=None):
                 "tickers": tk,
                 "movimentos": mv,
                 "saldos": {c: round(held.get(c, 0.0), 10) for c in ("BTC", "ETH", "SOL")},
-                "trades": check_trades(led, held, orders, execs, now, debts(wallet))}
+                "trades": check_trades(led, held, orders, execs, now, debts(wallet), leitura=(ordens_ok, ordens_t))}
     except AccountError as e:
         return {"ok": False, "error": str(e)[:120], "t": int(now)}
 

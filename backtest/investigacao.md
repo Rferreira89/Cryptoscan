@@ -1,18 +1,18 @@
 # Diário de investigação
 
-**Hipóteses testadas contra esta reserva: 30** (15 neste diário: compra de
+**Hipóteses testadas contra esta reserva: 31** (15 neste diário: compra de
 quedas, compressão, oversold bounce 4H, day trade 1H, bounce com outras
 saídas, sweep a mercado, funding negativo, quebra com compradores,
 capitulação do mercado, atraso face ao BTC, resiliente, impulso de
 amplitude, CAP_MERCADO_V2 e BOUNCE_LARGO (2026-11-14) e BOUNCE_ALVO
-(2026-11-17); mais 15 no diário de afinação, H1 a H13, H15 e H16, sem
-hipótese nova desde 2026-11-13). Atualizado em 2026-11-17. O contador global do
+(2026-11-17); mais 16 no diário de afinação, H1 a H13 e H15 a H17, a última
+de 2026-11-18). Atualizado em 2026-11-18. O contador global do
 programa (`engine/hipoteses.py` mais `backtest/hipoteses_offline.json`,
-contra dados que incluem esta reserva) já vai em 87 (ringue longo,
-2026-11-04), mais os estudos H38–H41 de 03–04/11 em `backtest/estudos/`.
+contra dados que incluem esta reserva) já vai em 103 (28 agendadas + 75
+offline, segundo a H17 de 2026-11-18).
 Quanto maior este número, maior a probabilidade de uma hipótese passar por
-sorte: com 30 testes, a probabilidade de pelo menos um falso positivo a 5%
-já ronda os 79% (e as várias configurações de cada grelha aumentam-na
+sorte: com 31 testes, a probabilidade de pelo menos um falso positivo a 5%
+já ronda os 80% (e as várias configurações de cada grelha aumentam-na
 ainda mais).
 
 Uma hipótese por entrada, com o veredicto. Método: `tools/research.py`
@@ -208,6 +208,7 @@ o Rui), e o morto fica registado. Um por corrida, na segunda vaga.
 | VOLUME_ACUMULACAO_R2 | 2026-11-13 03:45 UTC (forma recente, morte rápida; 10 op., −0,506R) | a mesma função de VOLUME_ACUMULACAO (`sig_volume`), regressada a 2026-10-24 pela regra do regresso (regime lateral): desde então 10 op., 2 ganhadoras, 8 stops (−0,63R); no combate de 90 dias 46 op., −0,357R, abaixo da mediana do acaso (−0,26R; últimos 30 dias −0,72R em 17 op.); no ringue longo a lateral dá −0,18R e −0,76R nas duas metades; no desenho continua no percentil 80 do acaso (sem vantagem provada) com a geometria a perder também ao acaso (−0,14R). Sem causa única (ver entrada de 2026-11-13) | sem sucessor (segunda morte da mesma função; trocar a saída só leva ao nível do acaso, que também perde) | — |
 | CAP_MERCADO_V2_N3K15, _N3K2, _N5K15 | 2026-11-15 04:45 UTC (clones de CAP_MERCADO_V2_N5K2, correlação 0,99–1,00) | não é desempenho: o representante (N5K2) está vivo, o corte dos clones funcionou como decidido a 2026-11-14 | sem sucessor (a família continua viva em N5K2) | — |
 | BOUNCE_LARGO_X35V20, BOUNCE_LARGO_X30V20 | 2026-11-14 16:55 e 2026-11-17 11:40 UTC (forma recente; 44 op. −0,255R e 20 op. −0,204R) | a geometria: o 1.º objetivo (SMA20) fica a menos de 1R em ~70% das operações (mediana 0,6R–0,8R), metade sai aí e o resto vai ao stop na entrada, logo ganha ~0,4R e perde 1R; igual no desenho e no combate (ver entrada de 2026-11-17) | BOUNCE_LARGO → BOUNCE_ALVO (só com a média a ≥ 1R) | AMOSTRA INSUFICIENTE — PARA PAPEL (2026-11-17; 22 op. fora da amostra, +0,585R, percentil 100 do acaso; reserva contaminada pela autópsia) |
+| CAPITULACAO_R2 | 2026-11-14 14:00 UTC (decisão do Rui, `engine/arena.MORTES_DECIDIDAS`) | não é a regra de morte: a função `sig_capitulacao` tinha +0,08R em 46 op. e o lutador −0,66R em 3 op. (ver ordem de 2026-11-14) | a função ficou como base de CAP_MERCADO_V2 (registo acrescentado a 2026-11-18; sem teste novo) | CAP_MERCADO_V2_N5K2, a variante viva: PARA PAPEL (2026-11-14; 65 op. fora da amostra, −0,041R, percentil 98,3 do acaso) |
 
 ## Hipóteses anteriores a este diário (até 2026-10-02, período 2021-2026)
 
@@ -2886,3 +2887,40 @@ Testes: 1456, todos a passar.
   (5 dias). O regime precisa de 10 dias de retorno: primeiros sinais possíveis na vela de 17/11 (H52),
   18/11 (H53), 21/11 (H57–H59) e 22/11 (H60).
 - Nenhum resultado em dados antigos foi usado como validação.
+
+## 2026-11-18 — Sem hipótese nova hoje (sem mortos novos; fila vazia)
+
+**Veredicto da corrida: nenhuma hipótese testada por este agente.** O contador desta reserva sobe de 30 para
+**31** só pela H17 da afinação (2026-11-18). Com 31 testes, a probabilidade de pelo menos um falso positivo a 5%
+ronda os 80%.
+
+- **Histórico** (ramo `history`): último commit 2026-11-14 14:39 UTC, última vela de 4H 2026-11-14 12:00 UTC
+  (4 dias de atraso, dentro do limite de 7; workflow não lançado). Janela inalterada: desenho
+  2024-11-14 → 2026-05-13, reserva 2026-05-14 → 2026-11-13. O limite de 7 dias passa a 2026-11-21 12:00 UTC.
+- **Arena** (`scan.json` do ramo `data`, 2026-11-18 11:50 UTC): **11 lutadores a competir** (mínimo 5),
+  `recrutar` falso. Último morto: BOUNCE_LARGO_X30V20 (2026-11-17 11:40 UTC), já com autópsia e sucessor. Nenhum
+  morto novo. Registo em falta corrigido: CAPITULACAO_R2 (morta por decisão do Rui a 2026-11-14) não constava da
+  tabela de sucessores; acrescentada, sem teste novo.
+- **Fila do Rui**: vazia (5 de 5 testadas). Pela ordem de 2026-11-14, sem fila não se geram hipóteses.
+- **Regime**: BTC 68 314 no fecho de 2026-11-13, abaixo da SMA200 diária (73 092): as compras com filtro do BTC
+  estão bloqueadas.
+- **Combate de 90 dias** (`forma.json`, 2026-11-18 11:37 UTC, 43 moedas), lutadores vivos:
+
+| Lutador | Op. | Ganhadoras | R médio | Acaso mediana | Acaso p95 |
+|---|---|---|---|---|---|
+| BOUNCE_AMPLITUDE | 16 | 15 | +0,642 | −0,445 | −0,050 |
+| CAP_MERCADO_V2_N5K2 | 20 | 17 | +0,546 | −0,537 | −0,290 |
+| BOUNCE_ALVO | 4 | 2 | +0,498 | −0,343 | +0,531 |
+| RACIO_DISP | 33 | 14 | +0,113 | −0,154 | +0,077 |
+| MAIORES_RECUO | 17 | 9 | −0,019 | −0,298 | +0,064 |
+| REVERSAO_INTERVALO | 23 | 16 | −0,031 | −0,252 | −0,038 |
+| MAIORES_TENDENCIA | 3 | 0 | −0,793 | −0,146 | +1,247 |
+| SHORT_SQUEEZE | 2 | 0 | −0,670 | −0,548 | +0,135 |
+| BOUNCE_MEDO | 2 | 0 | −1,015 | −1,015 | −0,066 |
+| BREAKOUT_R2 | 1 | 0 | −1,026 | −1,041 | +0,493 |
+
+  SHORT_TURTLE_SHORT não aparece no `forma.json`; no `scan.json` tem 4 op., todas ganhadoras, +0,942R, abaixo da
+  mediana do acaso (+1,354R). Estes números são do combate, dentro da reserva: não validam nada.
+- **Testes**: 1499, todos a passar.
+- **Próxima corrida**: lançar primeiro "Historico para backtest" se for depois de 2026-11-21 12:00 UTC; autópsia
+  se morrer alguém; testar o que entrar na fila do Rui.
