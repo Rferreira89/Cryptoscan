@@ -468,7 +468,7 @@
   },
   "bbc2557ab78e": {
    "id": "bbc2557ab78e",
-   "estado": "EXPERIMENTAL_REAL",
+   "estado": "PAPER_TRADING",
    "historico": [
     {
      "t": 1794914965,
@@ -481,6 +481,12 @@
      "de": "PAPER_TRADING",
      "para": "EXPERIMENTAL_REAL",
      "motivo": "auditoria tecnica cumprida; experimenta em real com os limites do piloto (papel: 1 fechadas, 1 acontecimentos, 0.2 dias)"
+    },
+    {
+     "t": 1794985275,
+     "de": "EXPERIMENTAL_REAL",
+     "para": "PAPER_TRADING",
+     "motivo": "papel: 11 fechadas, 7 acontecimentos, 0.9 dias | experimental recusada: bloqueada pelo motor de sobrevivencia do papel"
     }
    ],
    "criado": 1794914965,
@@ -517,16 +523,16 @@
     "operacoes_por_semana": 38.43
    },
    "papel": {
-    "fechadas": 8,
-    "acontecimentos": 6,
-    "dias": 0.8,
-    "r_medio": 0.32,
-    "r_medio_por_acontecimento": 0.1563,
-    "falhas_criticas": 0,
+    "fechadas": 11,
+    "acontecimentos": 7,
+    "dias": 0.9,
+    "r_medio": -0.986,
+    "r_medio_por_acontecimento": -0.5044,
+    "falhas_criticas": 1,
     "desde": 1794906000,
     "ic95_acontecimento": [
-     -0.8418,
-     1.4751
+     -2.0975,
+     1.0895
     ],
     "ok": false
    },
@@ -563,12 +569,24 @@
      "RENDER": [
       1,
       1.1837
+     ],
+     "CNPY": [
+      1,
+      -7.0728
+     ],
+     "NES": [
+      1,
+      -1.0754
+     ],
+     "ZKP": [
+      1,
+      -5.2583
      ]
     },
     "por_tf": {
      "1H": [
-      8,
-      0.32
+      11,
+      -0.986
      ]
     },
     "por_regime": {
@@ -577,8 +595,8 @@
       2.8494
      ],
      "btc_acima_media50": [
-      6,
-      0.1419
+      9,
+      -1.395
      ],
      "btc_abaixo_media50": [
       1,
@@ -592,12 +610,14 @@
     "deslize_medio_pct": 0.0,
     "papel_vs_real_r": -0.0407
    },
-   "desde": 1794923573,
-   "motivo": "auditoria tecnica cumprida; experimenta em real com os limites do piloto (papel: 8 fechadas, 6 acontecimentos, 0.8 dias)",
+   "desde": 1794985275,
+   "motivo": "papel: 11 fechadas, 7 acontecimentos, 0.9 dias | experimental recusada: bloqueada pelo motor de sobrevivencia do papel",
    "estado_estatistico": "PAPER_TRADING",
    "auditoria_tecnica": {
-    "ok": true,
-    "falhas": [],
+    "ok": false,
+    "falhas": [
+     "bloqueada pelo motor de sobrevivencia do papel"
+    ],
     "sinal": "velas fechadas; entrada na abertura da vela seguinte",
     "saida_real": "stop inicial na OKX + fecho quando o papel fecha (trailing/inversao) + saida por tempo"
    }
@@ -846,7 +866,7 @@
    }
   }
  },
- "t": 1794983476,
+ "t": 1794985275,
  "pedidos_teste_final": [],
  "piloto_operacional": true,
  "criterios": {
