@@ -131,3 +131,65 @@ Conclusões:
    distribuição para todas); o modo "fases" é uma aproximação da dependência entre
    operações; o horizonte de 150 operações é arbitrário (um ano a poucas operações por
    semana).
+
+## Ordem final de 18/11 — travão do papel: comparação rigorosa (prioridade 5)
+
+Código: `tools/investigacao_travao_v2.py`. Resultado: `backtest/investigacao_travao_v2.json`.
+Regras verificadas a cada operação fechada, como o `paper_ring` faz. 3000 sequências por célula, semente diferente
+por célula. Três distribuições de R reais: calibração (últimas de metade dos lutadores, sorteio fixo) e duas fora da
+amostra (a outra metade, com outra forma: desvio 0,79 contra 1,00 e assimetria 1,61 contra 0,88; e as últimas por
+regime, 930 operações, desvio 1,20). Custos: os R já os têm; um custo extra por operação é o mesmo que baixar μ (a
+grelha de μ cobre-o). Dependência: independentes, fases (±0,15R em fases de 25 op.) e grupos de 3 operações da mesma
+vela com choque comum (correlação ≈ 0,5).
+
+Corte em 150 operações, modo fases (calibração / fora A / fora B):
+
+| Regra | +0,05 | +0,10 | +0,20 | −0,05 escapa | −0,10 escapa | −0,20 escapa |
+|---|---|---|---|---|---|---|
+| K1 atual | 0,75 / 0,74 / 0,79 | 0,62 / 0,58 / 0,67 | 0,37 / 0,26 / 0,43 | 0,06 / 0,04 / 0,06 | 0,02 / 0,01 / 0,03 | 0,00 |
+| K4 t < −2,33 | 0,08 / 0,11 / 0,09 | 0,06 / 0,06 / 0,07 | 0,02 / 0,01 / 0,03 | 0,75 / 0,67 / 0,76 | 0,62 / 0,46 / 0,66 | 0,26 / 0,12 / 0,36 |
+| K8 Bayes > 0,90 | 0,16 / 0,18 / 0,16 | 0,08 / 0,10 / 0,09 | 0,02 / 0,02 / 0,03 | 0,54 / 0,44 / 0,62 | 0,35 / 0,22 / 0,48 | 0,09 / 0,03 / 0,18 |
+
+("escapa" = estratégia negativa que não é cortada em 150 operações.)
+
+Horizontes e dependência (detalhe no JSON):
+- Com 50 operações K4 e K8 quase não cortam nada (K4 apanha 34–54% das de −0,20R); com 300 apanham 86–99%.
+- Operações da mesma vela correlacionadas (modo grupos) **aumentam os falsos cortes**: K4 +0,10R passa para
+  10–13%, K8 para 17–20%. As duas regras tratam operações agrupadas como independentes; contar por vela (média por
+  fecho) seria a correção, ainda não testada.
+- K1 é mau em todas as condições: corta 47–70% das estratégias com +0,10R e não melhora com mais operações.
+
+Leitura: nenhuma das duas alternativas domina. K4 corta menos estratégias boas e deixa escapar mais das más; K8 o
+contrário. A escolha depende de quanto custa perder uma boa estratégia contra manter uma má no papel, que é uma
+decisão do Rui. **Implementado só em modo SOMBRA** (`trabalho/paper-travao-sombra`): as duas ficam registadas ao
+lado da regra ativa, que não muda.
+
+## Ordem final de 18/11 — acaso da arena neutro à tendência (prioridade 6)
+
+Código: `tools/investigacao_arena_acaso.py`. Resultado: `backtest/investigacao_arena_acaso.json`.
+Operações reais do ringue no último ano (as do TURTLE e as compras caem nos últimos 90 dias por causa do filtro do
+BTC). Controlos com a mesma geometria e os custos da arena: C0 = método atual (preservado); C0j = C0 com juros nos
+shorts; N = qualquer vela da moeda, com juros; NR = só velas ANTERIORES à entrada e com o mesmo regime do BTC (regime
+do dia anterior, sem olhar para o fecho do próprio dia), com juros. Funding não se aplica (spot e margem spot pagam
+juros). 5 sementes × 12 entradas por operação e controlo. IC 90% por bootstrap de grupos de vela (operações no
+mesmo fecho de 4H contam como um grupo).
+
+| Estratégia | Op. (grupos) | Real | C0 atual | N neutro | NR neutro+regime | Real − NR (IC 90%) |
+|---|---|---|---|---|---|---|
+| TURTLE | 212 (105) | +0,23 | +0,57 | −0,12 | −0,05 | **+0,27 (+0,04 a +0,50)** |
+| SHORT_TURTLE | 694 (313) | +0,22 | +0,61 | +0,21 | +0,30 | −0,07 (−0,19 a +0,05) |
+| BRK_ESPACO | 209 (113) | −0,34 | −0,08 | −0,31 | −0,27 | −0,07 (−0,23 a +0,10) |
+| MOMENTUM | 45 (11) | −0,46 | +0,13 | −0,13 | −0,01 | −0,45 (−0,78 a −0,07) |
+
+- Sementes: a média de cada controlo varia pouco entre sementes (ex.: C0 do TURTLE de +0,56 a +0,61; NR de −0,09 a
+  −0,02).
+- **O método atual põe as quatro abaixo do acaso** (real − C0 negativo, com IC a excluir zero em todas). Contra o
+  acaso neutro só o TURTLE fica claramente acima; o SHORT_TURTLE e o BRK_ESPACO ficam iguais ao acaso; o MOMENTUM
+  fica abaixo mas com só 11 grupos de vela.
+- Por regime, SHORT_TURTLE: lateral +0,15R acima do NR (IC +0,01 a +0,29, 211 grupos), queda −0,31R (IC −0,47 a
+  −0,13), subida −1,09R (16 grupos). TURTLE: subida +0,30 e lateral +0,26 acima do NR, ambos com IC a tocar zero.
+- Por moeda as amostras são pequenas (≤ 15 operações): ficam no JSON, sem leitura.
+- Limitações: um ano de dados; as compras só nos últimos 90 dias; NR exige velas passadas do mesmo regime (menos
+  candidatas no início do histórico de cada moeda); os juros usam a taxa média da configuração, não a real por moeda.
+
+**Não muda veredictos nem classificações.** Registado como melhoria futura: a arena mostrar o NR ao lado do C0.

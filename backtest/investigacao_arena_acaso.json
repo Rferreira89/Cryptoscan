@@ -1,0 +1,1941 @@
+{
+ "fim": 1794672000,
+ "moedas": 72,
+ "juros_margem_dia_pct": 0.03,
+ "sementes": [
+  11,
+  22,
+  33,
+  44,
+  55
+ ],
+ "reps": 12,
+ "estrategias": {
+  "TURTLE": {
+   "lado": "LONG",
+   "total": {
+    "n": 212,
+    "real": 0.2266,
+    "C0": 0.5747,
+    "real_menos_C0": -0.3481,
+    "ic90_real_menos_C0": [
+     -0.5643,
+     -0.1385
+    ],
+    "grupos": 105,
+    "C0_sementes": [
+     0.5555,
+     0.6068
+    ],
+    "C0j": 0.5747,
+    "real_menos_C0j": -0.3481,
+    "ic90_real_menos_C0j": [
+     -0.565,
+     -0.1384
+    ],
+    "C0j_sementes": [
+     0.5555,
+     0.6068
+    ],
+    "N": -0.1169,
+    "real_menos_N": 0.3436,
+    "ic90_real_menos_N": [
+     0.0974,
+     0.5618
+    ],
+    "N_sementes": [
+     -0.1285,
+     -0.1033
+    ],
+    "NR": -0.046,
+    "real_menos_NR": 0.2726,
+    "ic90_real_menos_NR": [
+     0.041,
+     0.4951
+    ],
+    "NR_sementes": [
+     -0.0913,
+     -0.0209
+    ]
+   },
+   "por_regime": {
+    "subida": {
+     "n": 58,
+     "real": 0.3135,
+     "C0": 0.3981,
+     "real_menos_C0": -0.0846,
+     "ic90_real_menos_C0": [
+      -0.4397,
+      0.2152
+     ],
+     "grupos": 35,
+     "C0_sementes": [
+      0.328,
+      0.4618
+     ],
+     "C0j": 0.3981,
+     "real_menos_C0j": -0.0846,
+     "ic90_real_menos_C0j": [
+      -0.4402,
+      0.2289
+     ],
+     "C0j_sementes": [
+      0.328,
+      0.4618
+     ],
+     "N": -0.1184,
+     "real_menos_N": 0.432,
+     "ic90_real_menos_N": [
+      0.0556,
+      0.7522
+     ],
+     "N_sementes": [
+      -0.182,
+      -0.0413
+     ],
+     "NR": 0.0089,
+     "real_menos_NR": 0.3046,
+     "ic90_real_menos_NR": [
+      -0.0817,
+      0.6516
+     ],
+     "NR_sementes": [
+      -0.08,
+      0.0916
+     ]
+    },
+    "lateral": {
+     "n": 154,
+     "real": 0.1939,
+     "C0": 0.6412,
+     "real_menos_C0": -0.4474,
+     "ic90_real_menos_C0": [
+      -0.7191,
+      -0.1903
+     ],
+     "grupos": 70,
+     "C0_sementes": [
+      0.6117,
+      0.672
+     ],
+     "C0j": 0.6412,
+     "real_menos_C0j": -0.4474,
+     "ic90_real_menos_C0j": [
+      -0.7304,
+      -0.1931
+     ],
+     "C0j_sementes": [
+      0.6117,
+      0.672
+     ],
+     "N": -0.1164,
+     "real_menos_N": 0.3103,
+     "ic90_real_menos_N": [
+      0.0019,
+      0.5853
+     ],
+     "N_sementes": [
+      -0.16,
+      -0.0876
+     ],
+     "NR": -0.0666,
+     "real_menos_NR": 0.2605,
+     "ic90_real_menos_NR": [
+      -0.0535,
+      0.5429
+     ],
+     "NR_sementes": [
+      -0.1219,
+      -0.0371
+     ]
+    },
+    "queda": {
+     "n": 0
+    }
+   },
+   "por_moeda": {
+    "POL": {
+     "n": 5,
+     "real": -0.4708,
+     "C0": 0.2942,
+     "real_menos_C0": -0.765,
+     "ic90_real_menos_C0": [
+      -1.6405,
+      0.0045
+     ],
+     "grupos": 5,
+     "C0_sementes": [
+      0.1338,
+      0.5033
+     ],
+     "C0j": 0.2942,
+     "real_menos_C0j": -0.765,
+     "ic90_real_menos_C0j": [
+      -1.6457,
+      0.0045
+     ],
+     "C0j_sementes": [
+      0.1338,
+      0.5033
+     ],
+     "N": -0.1782,
+     "real_menos_N": -0.2926,
+     "ic90_real_menos_N": [
+      -0.9778,
+      0.913
+     ],
+     "N_sementes": [
+      -0.4666,
+      -0.0564
+     ],
+     "NR": -0.0776,
+     "real_menos_NR": -0.3932,
+     "ic90_real_menos_NR": [
+      -1.0127,
+      0.5999
+     ],
+     "NR_sementes": [
+      -0.1993,
+      0.0024
+     ]
+    },
+    "ARB": {
+     "n": 5,
+     "real": 0.5224,
+     "C0": 0.7945,
+     "real_menos_C0": -0.2721,
+     "ic90_real_menos_C0": [
+      -1.1188,
+      0.4953
+     ],
+     "grupos": 5,
+     "C0_sementes": [
+      0.521,
+      1.1379
+     ],
+     "C0j": 0.7945,
+     "real_menos_C0j": -0.2721,
+     "ic90_real_menos_C0j": [
+      -1.1188,
+      0.5201
+     ],
+     "C0j_sementes": [
+      0.521,
+      1.1379
+     ],
+     "N": -0.1235,
+     "real_menos_N": 0.6459,
+     "ic90_real_menos_N": [
+      -0.4363,
+      1.7282
+     ],
+     "N_sementes": [
+      -0.3825,
+      0.0996
+     ],
+     "NR": -0.1606,
+     "real_menos_NR": 0.6831,
+     "ic90_real_menos_NR": [
+      -0.3562,
+      1.7223
+     ],
+     "NR_sementes": [
+      -0.408,
+      0.0211
+     ]
+    },
+    "PEPE": {
+     "n": 5,
+     "real": 0.0872,
+     "C0": 0.3483,
+     "real_menos_C0": -0.2611,
+     "ic90_real_menos_C0": [
+      -1.2691,
+      0.7954
+     ],
+     "grupos": 5,
+     "C0_sementes": [
+      0.2124,
+      0.4145
+     ],
+     "C0j": 0.3483,
+     "real_menos_C0j": -0.2611,
+     "ic90_real_menos_C0j": [
+      -1.2691,
+      0.8154
+     ],
+     "C0j_sementes": [
+      0.2124,
+      0.4145
+     ],
+     "N": -0.0126,
+     "real_menos_N": 0.0998,
+     "ic90_real_menos_N": [
+      -1.0812,
+      1.2819
+     ],
+     "N_sementes": [
+      -0.2572,
+      0.1615
+     ],
+     "NR": -0.0069,
+     "real_menos_NR": 0.0941,
+     "ic90_real_menos_NR": [
+      -1.0479,
+      1.2676
+     ],
+     "NR_sementes": [
+      -0.1198,
+      0.1553
+     ]
+    },
+    "W": {
+     "n": 5,
+     "real": 0.621,
+     "C0": 0.7377,
+     "real_menos_C0": -0.1167,
+     "ic90_real_menos_C0": [
+      -1.1361,
+      0.787
+     ],
+     "grupos": 5,
+     "C0_sementes": [
+      0.4294,
+      0.9525
+     ],
+     "C0j": 0.7377,
+     "real_menos_C0j": -0.1167,
+     "ic90_real_menos_C0j": [
+      -1.1277,
+      0.7985
+     ],
+     "C0j_sementes": [
+      0.4294,
+      0.9525
+     ],
+     "N": -0.2002,
+     "real_menos_N": 0.8212,
+     "ic90_real_menos_N": [
+      -0.2687,
+      1.7562
+     ],
+     "N_sementes": [
+      -0.2727,
+      -0.0349
+     ],
+     "NR": 0.0417,
+     "real_menos_NR": 0.5793,
+     "ic90_real_menos_NR": [
+      -0.4386,
+      1.5859
+     ],
+     "NR_sementes": [
+      -0.0476,
+      0.1147
+     ]
+    },
+    "S": {
+     "n": 5,
+     "real": 0.5698,
+     "C0": 1.2949,
+     "real_menos_C0": -0.7251,
+     "ic90_real_menos_C0": [
+      -1.8437,
+      0.2805
+     ],
+     "grupos": 5,
+     "C0_sementes": [
+      1.0141,
+      1.6806
+     ],
+     "C0j": 1.2949,
+     "real_menos_C0j": -0.7251,
+     "ic90_real_menos_C0j": [
+      -1.8842,
+      0.2805
+     ],
+     "C0j_sementes": [
+      1.0141,
+      1.6806
+     ],
+     "N": -0.1239,
+     "real_menos_N": 0.6937,
+     "ic90_real_menos_N": [
+      -0.4011,
+      1.787
+     ],
+     "N_sementes": [
+      -0.2675,
+      -0.0277
+     ],
+     "NR": -0.1227,
+     "real_menos_NR": 0.6925,
+     "ic90_real_menos_NR": [
+      -0.2545,
+      1.6395
+     ],
+     "NR_sementes": [
+      -0.3562,
+      0.1171
+     ]
+    },
+    "PYTH": {
+     "n": 5,
+     "real": 0.1084,
+     "C0": 0.911,
+     "real_menos_C0": -0.8026,
+     "ic90_real_menos_C0": [
+      -1.755,
+      0.0954
+     ],
+     "grupos": 5,
+     "C0_sementes": [
+      0.8011,
+      1.0458
+     ],
+     "C0j": 0.911,
+     "real_menos_C0j": -0.8026,
+     "ic90_real_menos_C0j": [
+      -1.755,
+      0.0954
+     ],
+     "C0j_sementes": [
+      0.8011,
+      1.0458
+     ],
+     "N": -0.0686,
+     "real_menos_N": 0.177,
+     "ic90_real_menos_N": [
+      -0.8604,
+      1.2284
+     ],
+     "N_sementes": [
+      -0.1914,
+      0.147
+     ],
+     "NR": -0.2937,
+     "real_menos_NR": 0.4021,
+     "ic90_real_menos_NR": [
+      -0.7481,
+      1.6008
+     ],
+     "NR_sementes": [
+      -0.3802,
+      -0.239
+     ]
+    },
+    "INJ": {
+     "n": 5,
+     "real": -0.7932,
+     "C0": 0.5178,
+     "real_menos_C0": -1.311,
+     "ic90_real_menos_C0": [
+      -1.793,
+      -0.8146
+     ],
+     "grupos": 5,
+     "C0_sementes": [
+      0.3661,
+      0.6509
+     ],
+     "C0j": 0.5178,
+     "real_menos_C0j": -1.311,
+     "ic90_real_menos_C0j": [
+      -1.793,
+      -0.8146
+     ],
+     "C0j_sementes": [
+      0.3661,
+      0.6509
+     ],
+     "N": 0.0988,
+     "real_menos_N": -0.892,
+     "ic90_real_menos_N": [
+      -1.1532,
+      -0.4387
+     ],
+     "N_sementes": [
+      -0.0683,
+      0.2299
+     ],
+     "NR": 0.1556,
+     "real_menos_NR": -0.9488,
+     "ic90_real_menos_NR": [
+      -1.2765,
+      -0.4971
+     ],
+     "NR_sementes": [
+      -0.0383,
+      0.3871
+     ]
+    },
+    "KAIA": {
+     "n": 4,
+     "real": 0.2472,
+     "C0": 0.4524,
+     "real_menos_C0": -0.2052,
+     "C0_sementes": [
+      0.2554,
+      0.7346
+     ],
+     "C0j": 0.4524,
+     "real_menos_C0j": -0.2052,
+     "C0j_sementes": [
+      0.2554,
+      0.7346
+     ],
+     "N": -0.2569,
+     "real_menos_N": 0.5041,
+     "N_sementes": [
+      -0.6435,
+      0.144
+     ],
+     "NR": -0.1579,
+     "real_menos_NR": 0.4051,
+     "NR_sementes": [
+      -0.414,
+      0.1756
+     ]
+    }
+   }
+  },
+  "MOMENTUM": {
+   "lado": "LONG",
+   "total": {
+    "n": 45,
+    "real": -0.4578,
+    "C0": 0.1255,
+    "real_menos_C0": -0.5833,
+    "ic90_real_menos_C0": [
+     -0.9148,
+     -0.2096
+    ],
+    "grupos": 11,
+    "C0_sementes": [
+     0.0866,
+     0.154
+    ],
+    "C0j": 0.1255,
+    "real_menos_C0j": -0.5833,
+    "ic90_real_menos_C0j": [
+     -0.9195,
+     -0.2251
+    ],
+    "C0j_sementes": [
+     0.0866,
+     0.154
+    ],
+    "N": -0.1335,
+    "real_menos_N": -0.3244,
+    "ic90_real_menos_N": [
+     -0.6588,
+     0.0834
+    ],
+    "N_sementes": [
+     -0.1844,
+     -0.0827
+    ],
+    "NR": -0.01,
+    "real_menos_NR": -0.4478,
+    "ic90_real_menos_NR": [
+     -0.7806,
+     -0.0665
+    ],
+    "NR_sementes": [
+     -0.0596,
+     0.0264
+    ]
+   },
+   "por_regime": {
+    "subida": {
+     "n": 18,
+     "real": -0.1863,
+     "C0": 0.2765,
+     "real_menos_C0": -0.4629,
+     "C0_sementes": [
+      0.202,
+      0.391
+     ],
+     "C0j": 0.2765,
+     "real_menos_C0j": -0.4629,
+     "C0j_sementes": [
+      0.202,
+      0.391
+     ],
+     "N": -0.083,
+     "real_menos_N": -0.1034,
+     "N_sementes": [
+      -0.1491,
+      0.0024
+     ],
+     "NR": 0.0342,
+     "real_menos_NR": -0.2205,
+     "NR_sementes": [
+      -0.0816,
+      0.1124
+     ]
+    },
+    "lateral": {
+     "n": 27,
+     "real": -0.6389,
+     "C0": 0.0248,
+     "real_menos_C0": -0.6636,
+     "ic90_real_menos_C0": [
+      -0.9963,
+      -0.3043
+     ],
+     "grupos": 7,
+     "C0_sementes": [
+      -0.0097,
+      0.0987
+     ],
+     "C0j": 0.0248,
+     "real_menos_C0j": -0.6636,
+     "ic90_real_menos_C0j": [
+      -0.999,
+      -0.3165
+     ],
+     "C0j_sementes": [
+      -0.0097,
+      0.0987
+     ],
+     "N": -0.1671,
+     "real_menos_N": -0.4717,
+     "ic90_real_menos_N": [
+      -0.6959,
+      -0.1927
+     ],
+     "N_sementes": [
+      -0.208,
+      -0.1395
+     ],
+     "NR": -0.0395,
+     "real_menos_NR": -0.5994,
+     "ic90_real_menos_NR": [
+      -0.819,
+      -0.3231
+     ],
+     "NR_sementes": [
+      -0.1667,
+      0.0165
+     ]
+    },
+    "queda": {
+     "n": 0
+    }
+   },
+   "por_moeda": {
+    "NEAR": {
+     "n": 5,
+     "real": -0.4292,
+     "C0": 0.1024,
+     "real_menos_C0": -0.5316,
+     "ic90_real_menos_C0": [
+      -1.1046,
+      0.0832
+     ],
+     "grupos": 5,
+     "C0_sementes": [
+      -0.0588,
+      0.3021
+     ],
+     "C0j": 0.1024,
+     "real_menos_C0j": -0.5316,
+     "ic90_real_menos_C0j": [
+      -1.1245,
+      0.0917
+     ],
+     "C0j_sementes": [
+      -0.0588,
+      0.3021
+     ],
+     "N": -0.0006,
+     "real_menos_N": -0.4286,
+     "ic90_real_menos_N": [
+      -1.0681,
+      0.7438
+     ],
+     "N_sementes": [
+      -0.1179,
+      0.1608
+     ],
+     "NR": 0.1489,
+     "real_menos_NR": -0.5781,
+     "ic90_real_menos_NR": [
+      -1.2019,
+      0.5207
+     ],
+     "NR_sementes": [
+      0.0247,
+      0.2964
+     ]
+    },
+    "STRK": {
+     "n": 5,
+     "real": -0.9084,
+     "C0": 0.1645,
+     "real_menos_C0": -1.0729,
+     "ic90_real_menos_C0": [
+      -1.6575,
+      -0.4371
+     ],
+     "grupos": 5,
+     "C0_sementes": [
+      -0.0277,
+      0.315
+     ],
+     "C0j": 0.1645,
+     "real_menos_C0j": -1.0729,
+     "ic90_real_menos_C0j": [
+      -1.6248,
+      -0.4255
+     ],
+     "C0j_sementes": [
+      -0.0277,
+      0.315
+     ],
+     "N": -0.1352,
+     "real_menos_N": -0.7732,
+     "ic90_real_menos_N": [
+      -0.9263,
+      -0.5726
+     ],
+     "N_sementes": [
+      -0.2209,
+      -0.0207
+     ],
+     "NR": -0.0751,
+     "real_menos_NR": -0.8333,
+     "ic90_real_menos_NR": [
+      -0.9373,
+      -0.6973
+     ],
+     "NR_sementes": [
+      -0.1899,
+      0.0455
+     ]
+    },
+    "KAIA": {
+     "n": 3,
+     "real": -1.0073,
+     "C0": -0.3395,
+     "real_menos_C0": -0.6679,
+     "C0_sementes": [
+      -0.4777,
+      -0.2311
+     ],
+     "C0j": -0.3395,
+     "real_menos_C0j": -0.6679,
+     "C0j_sementes": [
+      -0.4777,
+      -0.2311
+     ],
+     "N": -0.3084,
+     "real_menos_N": -0.699,
+     "N_sementes": [
+      -0.4542,
+      -0.1393
+     ],
+     "NR": -0.0816,
+     "real_menos_NR": -0.9257,
+     "NR_sementes": [
+      -0.2881,
+      0.0479
+     ]
+    },
+    "ARB": {
+     "n": 3,
+     "real": 0.343,
+     "C0": 0.5875,
+     "real_menos_C0": -0.2445,
+     "C0_sementes": [
+      0.3432,
+      0.8336
+     ],
+     "C0j": 0.5875,
+     "real_menos_C0j": -0.2445,
+     "C0j_sementes": [
+      0.3432,
+      0.8336
+     ],
+     "N": -0.1908,
+     "real_menos_N": 0.5338,
+     "N_sementes": [
+      -0.4244,
+      -0.0501
+     ],
+     "NR": -0.0086,
+     "real_menos_NR": 0.3516,
+     "NR_sementes": [
+      -0.2158,
+      0.207
+     ]
+    },
+    "UNI": {
+     "n": 3,
+     "real": 0.5283,
+     "C0": 0.6929,
+     "real_menos_C0": -0.1646,
+     "C0_sementes": [
+      0.4794,
+      0.8679
+     ],
+     "C0j": 0.6929,
+     "real_menos_C0j": -0.1646,
+     "C0j_sementes": [
+      0.4794,
+      0.8679
+     ],
+     "N": -0.1853,
+     "real_menos_N": 0.7137,
+     "N_sementes": [
+      -0.3287,
+      0.0814
+     ],
+     "NR": -0.0075,
+     "real_menos_NR": 0.5359,
+     "NR_sementes": [
+      -0.098,
+      0.1369
+     ]
+    },
+    "CRV": {
+     "n": 3,
+     "real": -0.9067,
+     "C0": 0.203,
+     "real_menos_C0": -1.1097,
+     "C0_sementes": [
+      -0.037,
+      0.4576
+     ],
+     "C0j": 0.203,
+     "real_menos_C0j": -1.1097,
+     "C0j_sementes": [
+      -0.037,
+      0.4576
+     ],
+     "N": -0.1254,
+     "real_menos_N": -0.7813,
+     "N_sementes": [
+      -0.2399,
+      0.141
+     ],
+     "NR": -0.0899,
+     "real_menos_NR": -0.8168,
+     "NR_sementes": [
+      -0.3948,
+      0.1341
+     ]
+    },
+    "ENA": {
+     "n": 3,
+     "real": 0.1337,
+     "C0": 0.5215,
+     "real_menos_C0": -0.3878,
+     "C0_sementes": [
+      0.096,
+      0.8342
+     ],
+     "C0j": 0.5215,
+     "real_menos_C0j": -0.3878,
+     "C0j_sementes": [
+      0.096,
+      0.8342
+     ],
+     "N": -0.1271,
+     "real_menos_N": 0.2607,
+     "N_sementes": [
+      -0.3786,
+      0.0388
+     ],
+     "NR": 0.0361,
+     "real_menos_NR": 0.0975,
+     "NR_sementes": [
+      -0.2534,
+      0.1956
+     ]
+    },
+    "S": {
+     "n": 3,
+     "real": -0.8543,
+     "C0": -0.2329,
+     "real_menos_C0": -0.6214,
+     "C0_sementes": [
+      -0.4823,
+      -0.1011
+     ],
+     "C0j": -0.2329,
+     "real_menos_C0j": -0.6214,
+     "C0j_sementes": [
+      -0.4823,
+      -0.1011
+     ],
+     "N": -0.1204,
+     "real_menos_N": -0.7339,
+     "N_sementes": [
+      -0.246,
+      0.0084
+     ],
+     "NR": -0.159,
+     "real_menos_NR": -0.6954,
+     "NR_sementes": [
+      -0.3477,
+      -0.005
+     ]
+    }
+   }
+  },
+  "BRK_ESPACO": {
+   "lado": "LONG",
+   "total": {
+    "n": 209,
+    "real": -0.3366,
+    "C0": -0.0773,
+    "real_menos_C0": -0.2593,
+    "ic90_real_menos_C0": [
+     -0.4279,
+     -0.0999
+    ],
+    "grupos": 113,
+    "C0_sementes": [
+     -0.1217,
+     -0.0425
+    ],
+    "C0j": -0.0773,
+    "real_menos_C0j": -0.2593,
+    "ic90_real_menos_C0j": [
+     -0.4211,
+     -0.0993
+    ],
+    "C0j_sementes": [
+     -0.1217,
+     -0.0425
+    ],
+    "N": -0.3122,
+    "real_menos_N": -0.0245,
+    "ic90_real_menos_N": [
+     -0.1865,
+     0.1334
+    ],
+    "N_sementes": [
+     -0.3321,
+     -0.2978
+    ],
+    "NR": -0.2712,
+    "real_menos_NR": -0.0654,
+    "ic90_real_menos_NR": [
+     -0.2306,
+     0.0966
+    ],
+    "NR_sementes": [
+     -0.3405,
+     -0.2392
+    ]
+   },
+   "por_regime": {
+    "subida": {
+     "n": 71,
+     "real": -0.5342,
+     "C0": -0.0812,
+     "real_menos_C0": -0.453,
+     "ic90_real_menos_C0": [
+      -0.6265,
+      -0.263
+     ],
+     "grupos": 48,
+     "C0_sementes": [
+      -0.1129,
+      -0.0141
+     ],
+     "C0j": -0.0812,
+     "real_menos_C0j": -0.453,
+     "ic90_real_menos_C0j": [
+      -0.6232,
+      -0.2645
+     ],
+     "C0j_sementes": [
+      -0.1129,
+      -0.0141
+     ],
+     "N": -0.287,
+     "real_menos_N": -0.2472,
+     "ic90_real_menos_N": [
+      -0.4298,
+      -0.0416
+     ],
+     "N_sementes": [
+      -0.3281,
+      -0.2398
+     ],
+     "NR": -0.2386,
+     "real_menos_NR": -0.2956,
+     "ic90_real_menos_NR": [
+      -0.4761,
+      -0.0879
+     ],
+     "NR_sementes": [
+      -0.317,
+      -0.1891
+     ]
+    },
+    "lateral": {
+     "n": 138,
+     "real": -0.235,
+     "C0": -0.0754,
+     "real_menos_C0": -0.1596,
+     "ic90_real_menos_C0": [
+      -0.3831,
+      0.0645
+     ],
+     "grupos": 65,
+     "C0_sementes": [
+      -0.1262,
+      -0.048
+     ],
+     "C0j": -0.0754,
+     "real_menos_C0j": -0.1596,
+     "ic90_real_menos_C0j": [
+      -0.3851,
+      0.0671
+     ],
+     "C0j_sementes": [
+      -0.1262,
+      -0.048
+     ],
+     "N": -0.3251,
+     "real_menos_N": 0.0901,
+     "ic90_real_menos_N": [
+      -0.123,
+      0.3003
+     ],
+     "N_sementes": [
+      -0.3572,
+      -0.3044
+     ],
+     "NR": -0.288,
+     "real_menos_NR": 0.053,
+     "ic90_real_menos_NR": [
+      -0.1547,
+      0.2588
+     ],
+     "NR_sementes": [
+      -0.3526,
+      -0.2574
+     ]
+    },
+    "queda": {
+     "n": 0
+    }
+   },
+   "por_moeda": {
+    "NEAR": {
+     "n": 9,
+     "real": -0.2006,
+     "C0": 0.0361,
+     "real_menos_C0": -0.2367,
+     "ic90_real_menos_C0": [
+      -0.905,
+      0.3919
+     ],
+     "grupos": 9,
+     "C0_sementes": [
+      -0.2638,
+      0.156
+     ],
+     "C0j": 0.0361,
+     "real_menos_C0j": -0.2367,
+     "ic90_real_menos_C0j": [
+      -0.8808,
+      0.404
+     ],
+     "C0j_sementes": [
+      -0.2638,
+      0.156
+     ],
+     "N": -0.3017,
+     "real_menos_N": 0.1011,
+     "ic90_real_menos_N": [
+      -0.4344,
+      0.6827
+     ],
+     "N_sementes": [
+      -0.4804,
+      -0.1281
+     ],
+     "NR": -0.2369,
+     "real_menos_NR": 0.0363,
+     "ic90_real_menos_NR": [
+      -0.552,
+      0.6419
+     ],
+     "NR_sementes": [
+      -0.3748,
+      -0.127
+     ]
+    },
+    "STRK": {
+     "n": 6,
+     "real": 0.4078,
+     "C0": 0.0476,
+     "real_menos_C0": 0.3602,
+     "ic90_real_menos_C0": [
+      -0.3537,
+      1.0158
+     ],
+     "grupos": 6,
+     "C0_sementes": [
+      -0.1289,
+      0.2199
+     ],
+     "C0j": 0.0476,
+     "real_menos_C0j": 0.3602,
+     "ic90_real_menos_C0j": [
+      -0.3453,
+      1.0158
+     ],
+     "C0j_sementes": [
+      -0.1289,
+      0.2199
+     ],
+     "N": -0.3153,
+     "real_menos_N": 0.7231,
+     "ic90_real_menos_N": [
+      0.015,
+      1.3649
+     ],
+     "N_sementes": [
+      -0.3913,
+      -0.1368
+     ],
+     "NR": -0.2261,
+     "real_menos_NR": 0.6339,
+     "ic90_real_menos_NR": [
+      -0.0323,
+      1.2625
+     ],
+     "NR_sementes": [
+      -0.384,
+      0.0334
+     ]
+    },
+    "ENA": {
+     "n": 6,
+     "real": 0.1145,
+     "C0": 0.1199,
+     "real_menos_C0": -0.0054,
+     "ic90_real_menos_C0": [
+      -0.9198,
+      0.9869
+     ],
+     "grupos": 6,
+     "C0_sementes": [
+      0.038,
+      0.2839
+     ],
+     "C0j": 0.1199,
+     "real_menos_C0j": -0.0054,
+     "ic90_real_menos_C0j": [
+      -0.9198,
+      0.9099
+     ],
+     "C0j_sementes": [
+      0.038,
+      0.2839
+     ],
+     "N": -0.1916,
+     "real_menos_N": 0.3061,
+     "ic90_real_menos_N": [
+      -0.54,
+      1.2018
+     ],
+     "N_sementes": [
+      -0.3068,
+      -0.0117
+     ],
+     "NR": -0.1637,
+     "real_menos_NR": 0.2782,
+     "ic90_real_menos_NR": [
+      -0.5676,
+      1.1494
+     ],
+     "NR_sementes": [
+      -0.3642,
+      0.0696
+     ]
+    },
+    "VIRTUAL": {
+     "n": 6,
+     "real": -0.412,
+     "C0": -0.1715,
+     "real_menos_C0": -0.2405,
+     "ic90_real_menos_C0": [
+      -0.8138,
+      0.3536
+     ],
+     "grupos": 6,
+     "C0_sementes": [
+      -0.217,
+      -0.1171
+     ],
+     "C0j": -0.1715,
+     "real_menos_C0j": -0.2405,
+     "ic90_real_menos_C0j": [
+      -0.82,
+      0.3598
+     ],
+     "C0j_sementes": [
+      -0.217,
+      -0.1171
+     ],
+     "N": -0.3234,
+     "real_menos_N": -0.0886,
+     "ic90_real_menos_N": [
+      -0.729,
+      0.5824
+     ],
+     "N_sementes": [
+      -0.4589,
+      -0.1453
+     ],
+     "NR": -0.2109,
+     "real_menos_NR": -0.2011,
+     "ic90_real_menos_NR": [
+      -0.8355,
+      0.4813
+     ],
+     "NR_sementes": [
+      -0.4196,
+      0.0056
+     ]
+    },
+    "ARB": {
+     "n": 5,
+     "real": -0.014,
+     "C0": -0.1982,
+     "real_menos_C0": 0.1842,
+     "ic90_real_menos_C0": [
+      -0.6652,
+      1.0335
+     ],
+     "grupos": 5,
+     "C0_sementes": [
+      -0.3392,
+      -0.0636
+     ],
+     "C0j": -0.1982,
+     "real_menos_C0j": 0.1842,
+     "ic90_real_menos_C0j": [
+      -0.6652,
+      1.0335
+     ],
+     "C0j_sementes": [
+      -0.3392,
+      -0.0636
+     ],
+     "N": -0.3121,
+     "real_menos_N": 0.2981,
+     "ic90_real_menos_N": [
+      -0.6174,
+      1.2203
+     ],
+     "N_sementes": [
+      -0.5097,
+      -0.2211
+     ],
+     "NR": -0.3044,
+     "real_menos_NR": 0.2904,
+     "ic90_real_menos_NR": [
+      -0.7007,
+      1.2815
+     ],
+     "NR_sementes": [
+      -0.4503,
+      -0.1239
+     ]
+    },
+    "JUP": {
+     "n": 5,
+     "real": -0.4662,
+     "C0": -0.1144,
+     "real_menos_C0": -0.3518,
+     "ic90_real_menos_C0": [
+      -1.0101,
+      0.615
+     ],
+     "grupos": 5,
+     "C0_sementes": [
+      -0.526,
+      0.1102
+     ],
+     "C0j": -0.1144,
+     "real_menos_C0j": -0.3518,
+     "ic90_real_menos_C0j": [
+      -1.0105,
+      0.6647
+     ],
+     "C0j_sementes": [
+      -0.526,
+      0.1102
+     ],
+     "N": -0.243,
+     "real_menos_N": -0.2232,
+     "ic90_real_menos_N": [
+      -0.8063,
+      0.8469
+     ],
+     "N_sementes": [
+      -0.5366,
+      0.0506
+     ],
+     "NR": -0.1362,
+     "real_menos_NR": -0.33,
+     "ic90_real_menos_NR": [
+      -0.9224,
+      0.7875
+     ],
+     "NR_sementes": [
+      -0.338,
+      0.2542
+     ]
+    },
+    "AVAX": {
+     "n": 5,
+     "real": 0.3774,
+     "C0": -0.0479,
+     "real_menos_C0": 0.4253,
+     "ic90_real_menos_C0": [
+      -0.4741,
+      1.3248
+     ],
+     "grupos": 5,
+     "C0_sementes": [
+      -0.3235,
+      0.0856
+     ],
+     "C0j": -0.0479,
+     "real_menos_C0j": 0.4253,
+     "ic90_real_menos_C0j": [
+      -0.4741,
+      1.3113
+     ],
+     "C0j_sementes": [
+      -0.3235,
+      0.0856
+     ],
+     "N": -0.2874,
+     "real_menos_N": 0.6648,
+     "ic90_real_menos_N": [
+      -0.2639,
+      1.5432
+     ],
+     "N_sementes": [
+      -0.5286,
+      -0.1784
+     ],
+     "NR": -0.3694,
+     "real_menos_NR": 0.7468,
+     "ic90_real_menos_NR": [
+      -0.2016,
+      1.648
+     ],
+     "NR_sementes": [
+      -0.4623,
+      -0.2761
+     ]
+    },
+    "SOL": {
+     "n": 5,
+     "real": -0.2086,
+     "C0": 0.0723,
+     "real_menos_C0": -0.2809,
+     "ic90_real_menos_C0": [
+      -0.8941,
+      0.3627
+     ],
+     "grupos": 5,
+     "C0_sementes": [
+      -0.0719,
+      0.2708
+     ],
+     "C0j": 0.0723,
+     "real_menos_C0j": -0.2809,
+     "ic90_real_menos_C0j": [
+      -0.8823,
+      0.3627
+     ],
+     "C0j_sementes": [
+      -0.0719,
+      0.2708
+     ],
+     "N": -0.3088,
+     "real_menos_N": 0.1002,
+     "ic90_real_menos_N": [
+      -0.6504,
+      0.9451
+     ],
+     "N_sementes": [
+      -0.439,
+      -0.155
+     ],
+     "NR": -0.2815,
+     "real_menos_NR": 0.0729,
+     "ic90_real_menos_NR": [
+      -0.7537,
+      0.9002
+     ],
+     "NR_sementes": [
+      -0.3879,
+      -0.2032
+     ]
+    }
+   }
+  },
+  "SHORT_TURTLE": {
+   "lado": "SHORT",
+   "total": {
+    "n": 694,
+    "real": 0.223,
+    "C0": 0.6114,
+    "real_menos_C0": -0.3866,
+    "ic90_real_menos_C0": [
+     -0.4656,
+     -0.3038
+    ],
+    "grupos": 313,
+    "C0_sementes": [
+     0.5914,
+     0.6251
+    ],
+    "C0j": 0.577,
+    "real_menos_C0j": -0.3522,
+    "ic90_real_menos_C0j": [
+     -0.4277,
+     -0.2727
+    ],
+    "C0j_sementes": [
+     0.5571,
+     0.5907
+    ],
+    "N": 0.2056,
+    "real_menos_N": 0.0174,
+    "ic90_real_menos_N": [
+     -0.0996,
+     0.1304
+    ],
+    "N_sementes": [
+     0.1823,
+     0.2197
+    ],
+    "NR": 0.2975,
+    "real_menos_NR": -0.0727,
+    "ic90_real_menos_NR": [
+     -0.1923,
+     0.0478
+    ],
+    "NR_sementes": [
+     0.2888,
+     0.3051
+    ]
+   },
+   "por_regime": {
+    "subida": {
+     "n": 42,
+     "real": -0.5522,
+     "C0": -0.1159,
+     "real_menos_C0": -0.4363,
+     "ic90_real_menos_C0": [
+      -0.5791,
+      -0.2411
+     ],
+     "grupos": 16,
+     "C0_sementes": [
+      -0.1494,
+      -0.0399
+     ],
+     "C0j": -0.1452,
+     "real_menos_C0j": -0.407,
+     "ic90_real_menos_C0j": [
+      -0.5436,
+      -0.2121
+     ],
+     "C0j_sementes": [
+      -0.1778,
+      -0.0701
+     ],
+     "N": 0.2255,
+     "real_menos_N": -0.7778,
+     "ic90_real_menos_N": [
+      -1.2369,
+      -0.334
+     ],
+     "N_sementes": [
+      0.1459,
+      0.3199
+     ],
+     "NR": 0.538,
+     "real_menos_NR": -1.0902,
+     "ic90_real_menos_NR": [
+      -1.6298,
+      -0.5851
+     ],
+     "NR_sementes": [
+      0.4686,
+      0.6141
+     ]
+    },
+    "lateral": {
+     "n": 424,
+     "real": 0.3819,
+     "C0": 0.682,
+     "real_menos_C0": -0.2968,
+     "ic90_real_menos_C0": [
+      -0.3781,
+      -0.2089
+     ],
+     "grupos": 211,
+     "C0_sementes": [
+      0.6359,
+      0.6967
+     ],
+     "C0j": 0.6456,
+     "real_menos_C0j": -0.2604,
+     "ic90_real_menos_C0j": [
+      -0.3432,
+      -0.1756
+     ],
+     "C0j_sementes": [
+      0.5997,
+      0.6601
+     ],
+     "N": 0.2071,
+     "real_menos_N": 0.1748,
+     "ic90_real_menos_N": [
+      0.0271,
+      0.3204
+     ],
+     "N_sementes": [
+      0.1712,
+      0.2205
+     ],
+     "NR": 0.2276,
+     "real_menos_NR": 0.1542,
+     "ic90_real_menos_NR": [
+      0.0074,
+      0.2911
+     ],
+     "NR_sementes": [
+      0.2031,
+      0.2548
+     ]
+    },
+    "queda": {
+     "n": 228,
+     "real": 0.0703,
+     "C0": 0.6145,
+     "real_menos_C0": -0.5442,
+     "ic90_real_menos_C0": [
+      -0.6873,
+      -0.3798
+     ],
+     "grupos": 86,
+     "C0_sementes": [
+      0.5839,
+      0.6422
+     ],
+     "C0j": 0.5828,
+     "real_menos_C0j": -0.5125,
+     "ic90_real_menos_C0j": [
+      -0.6492,
+      -0.3444
+     ],
+     "C0j_sementes": [
+      0.5522,
+      0.6103
+     ],
+     "N": 0.199,
+     "real_menos_N": -0.1287,
+     "ic90_real_menos_N": [
+      -0.2981,
+      0.0493
+     ],
+     "N_sementes": [
+      0.1889,
+      0.2152
+     ],
+     "NR": 0.3836,
+     "real_menos_NR": -0.3085,
+     "ic90_real_menos_NR": [
+      -0.47,
+      -0.126
+     ],
+     "NR_sementes": [
+      0.3389,
+      0.417
+     ]
+    }
+   },
+   "por_moeda": {
+    "KAIA": {
+     "n": 15,
+     "real": -0.0617,
+     "C0": 0.816,
+     "real_menos_C0": -0.8777,
+     "ic90_real_menos_C0": [
+      -1.2995,
+      -0.4425
+     ],
+     "grupos": 15,
+     "C0_sementes": [
+      0.7291,
+      0.9148
+     ],
+     "C0j": 0.7747,
+     "real_menos_C0j": -0.8364,
+     "ic90_real_menos_C0j": [
+      -1.2656,
+      -0.3956
+     ],
+     "C0j_sementes": [
+      0.6872,
+      0.8723
+     ],
+     "N": 0.4132,
+     "real_menos_N": -0.4749,
+     "ic90_real_menos_N": [
+      -0.9572,
+      0.0224
+     ],
+     "N_sementes": [
+      0.227,
+      0.5679
+     ],
+     "NR": 0.4701,
+     "real_menos_NR": -0.5318,
+     "ic90_real_menos_NR": [
+      -1.0114,
+      -0.0024
+     ],
+     "NR_sementes": [
+      0.2605,
+      0.6084
+     ]
+    },
+    "ANIME": {
+     "n": 14,
+     "real": -0.1762,
+     "C0": 0.274,
+     "real_menos_C0": -0.4503,
+     "ic90_real_menos_C0": [
+      -0.7817,
+      -0.124
+     ],
+     "grupos": 14,
+     "C0_sementes": [
+      0.0728,
+      0.4009
+     ],
+     "C0j": 0.2459,
+     "real_menos_C0j": -0.4221,
+     "ic90_real_menos_C0j": [
+      -0.7558,
+      -0.0922
+     ],
+     "C0j_sementes": [
+      0.0468,
+      0.373
+     ],
+     "N": 0.0746,
+     "real_menos_N": -0.2509,
+     "ic90_real_menos_N": [
+      -0.7397,
+      0.2276
+     ],
+     "N_sementes": [
+      0.0027,
+      0.2468
+     ],
+     "NR": 0.1016,
+     "real_menos_NR": -0.2779,
+     "ic90_real_menos_NR": [
+      -0.8199,
+      0.2844
+     ],
+     "NR_sementes": [
+      0.0437,
+      0.1498
+     ]
+    },
+    "HOME": {
+     "n": 13,
+     "real": 0.4222,
+     "C0": 0.5665,
+     "real_menos_C0": -0.1443,
+     "ic90_real_menos_C0": [
+      -0.627,
+      0.3813
+     ],
+     "grupos": 13,
+     "C0_sementes": [
+      0.4296,
+      0.6671
+     ],
+     "C0j": 0.5389,
+     "real_menos_C0j": -0.1167,
+     "ic90_real_menos_C0j": [
+      -0.6104,
+      0.3965
+     ],
+     "C0j_sementes": [
+      0.4015,
+      0.6391
+     ],
+     "N": 0.3822,
+     "real_menos_N": 0.04,
+     "ic90_real_menos_N": [
+      -0.5596,
+      0.654
+     ],
+     "N_sementes": [
+      0.3115,
+      0.472
+     ],
+     "NR": 0.4293,
+     "real_menos_NR": -0.0071,
+     "ic90_real_menos_NR": [
+      -0.5891,
+      0.5791
+     ],
+     "NR_sementes": [
+      0.2786,
+      0.5677
+     ]
+    },
+    "ARB": {
+     "n": 12,
+     "real": -0.0481,
+     "C0": 0.5478,
+     "real_menos_C0": -0.5959,
+     "ic90_real_menos_C0": [
+      -0.8598,
+      -0.348
+     ],
+     "grupos": 12,
+     "C0_sementes": [
+      0.4593,
+      0.6369
+     ],
+     "C0j": 0.5148,
+     "real_menos_C0j": -0.5629,
+     "ic90_real_menos_C0j": [
+      -0.8242,
+      -0.3151
+     ],
+     "C0j_sementes": [
+      0.4271,
+      0.6025
+     ],
+     "N": 0.1987,
+     "real_menos_N": -0.2468,
+     "ic90_real_menos_N": [
+      -0.8154,
+      0.3654
+     ],
+     "N_sementes": [
+      0.1064,
+      0.2515
+     ],
+     "NR": 0.264,
+     "real_menos_NR": -0.3121,
+     "ic90_real_menos_NR": [
+      -0.8859,
+      0.2944
+     ],
+     "NR_sementes": [
+      0.1925,
+      0.3429
+     ]
+    },
+    "AVNT": {
+     "n": 12,
+     "real": 0.1214,
+     "C0": 0.582,
+     "real_menos_C0": -0.4606,
+     "ic90_real_menos_C0": [
+      -0.7887,
+      -0.1074
+     ],
+     "grupos": 12,
+     "C0_sementes": [
+      0.4178,
+      0.6586
+     ],
+     "C0j": 0.5555,
+     "real_menos_C0j": -0.4341,
+     "ic90_real_menos_C0j": [
+      -0.76,
+      -0.089
+     ],
+     "C0j_sementes": [
+      0.3943,
+      0.631
+     ],
+     "N": 0.3682,
+     "real_menos_N": -0.2468,
+     "ic90_real_menos_N": [
+      -0.8275,
+      0.3334
+     ],
+     "N_sementes": [
+      0.253,
+      0.5123
+     ],
+     "NR": 0.7809,
+     "real_menos_NR": -0.6595,
+     "ic90_real_menos_NR": [
+      -1.1854,
+      -0.0941
+     ],
+     "NR_sementes": [
+      0.6923,
+      0.9205
+     ]
+    },
+    "APE": {
+     "n": 12,
+     "real": 0.2473,
+     "C0": 0.6508,
+     "real_menos_C0": -0.4035,
+     "ic90_real_menos_C0": [
+      -0.7717,
+      -0.0545
+     ],
+     "grupos": 12,
+     "C0_sementes": [
+      0.506,
+      0.7798
+     ],
+     "C0j": 0.6156,
+     "real_menos_C0j": -0.3683,
+     "ic90_real_menos_C0j": [
+      -0.7532,
+      -0.0175
+     ],
+     "C0j_sementes": [
+      0.4704,
+      0.7435
+     ],
+     "N": 0.3471,
+     "real_menos_N": -0.0999,
+     "ic90_real_menos_N": [
+      -0.6799,
+      0.4845
+     ],
+     "N_sementes": [
+      0.2151,
+      0.4502
+     ],
+     "NR": 0.2727,
+     "real_menos_NR": -0.0254,
+     "ic90_real_menos_NR": [
+      -0.5873,
+      0.5559
+     ],
+     "NR_sementes": [
+      0.1215,
+      0.4036
+     ]
+    },
+    "BCH": {
+     "n": 12,
+     "real": 0.5438,
+     "C0": 0.6129,
+     "real_menos_C0": -0.069,
+     "ic90_real_menos_C0": [
+      -0.4002,
+      0.2689
+     ],
+     "grupos": 12,
+     "C0_sementes": [
+      0.5058,
+      0.7211
+     ],
+     "C0j": 0.5745,
+     "real_menos_C0j": -0.0307,
+     "ic90_real_menos_C0j": [
+      -0.3608,
+      0.3046
+     ],
+     "C0j_sementes": [
+      0.4707,
+      0.6841
+     ],
+     "N": 0.109,
+     "real_menos_N": 0.4348,
+     "ic90_real_menos_N": [
+      -0.1325,
+      1.0183
+     ],
+     "N_sementes": [
+      -0.0237,
+      0.202
+     ],
+     "NR": 0.2005,
+     "real_menos_NR": 0.3434,
+     "ic90_real_menos_NR": [
+      -0.2543,
+      0.939
+     ],
+     "NR_sementes": [
+      0.1282,
+      0.3173
+     ]
+    },
+    "JUP": {
+     "n": 12,
+     "real": -0.2132,
+     "C0": 0.4147,
+     "real_menos_C0": -0.6278,
+     "ic90_real_menos_C0": [
+      -0.9793,
+      -0.2503
+     ],
+     "grupos": 12,
+     "C0_sementes": [
+      0.252,
+      0.505
+     ],
+     "C0j": 0.3858,
+     "real_menos_C0j": -0.599,
+     "ic90_real_menos_C0j": [
+      -0.9513,
+      -0.1992
+     ],
+     "C0j_sementes": [
+      0.2233,
+      0.4769
+     ],
+     "N": 0.0652,
+     "real_menos_N": -0.2784,
+     "ic90_real_menos_N": [
+      -0.705,
+      0.1772
+     ],
+     "N_sementes": [
+      -0.0533,
+      0.1807
+     ],
+     "NR": 0.1384,
+     "real_menos_NR": -0.3516,
+     "ic90_real_menos_NR": [
+      -0.7403,
+      0.0584
+     ],
+     "NR_sementes": [
+      0.0457,
+      0.302
+     ]
+    }
+   }
+  }
+ }
+}
