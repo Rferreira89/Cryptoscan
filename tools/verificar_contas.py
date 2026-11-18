@@ -98,6 +98,12 @@ def bybit(bases):
                       if r.get("kind") == "4H" and r.get("status") == "OPEN" and r.get("executed") is not False] \
                 if os.environ.get("ESTADO_BYBIT") and os.path.exists(os.environ["ESTADO_BYBIT"]) else None
             out["moedas_em_divida"] = sorted(AC.debts(wall))
+            # (18/11) a protecao como o motor novo a ve (engine/protecao.estado_protecao_bybit): so o estado
+            import time as _t
+            from engine import protecao as PROT
+            ords, lidas, t_l = AC.open_orders_lidas()
+            out["protecao_como_o_motor_ve"] = {b: PROT.estado_protecao_bybit(f"{b}USDC", "SHORT", ords, lidas, t_l, _t.time())["estado"]
+                                               for b in bases if b in AC.debts(wall)}
             seg = {str(r.get("asset") or "").upper() for r in opened or [] if r.get("side") == "SHORT"}
             out["posicoes_sem_registo"] = ([c for c, q in sorted(AC.debts(wall).items()) if c not in seg
                                             and not (((tk or {}).get(c) or [None])[0] is not None and q * (tk or {})[c][0] < 1.0)]
