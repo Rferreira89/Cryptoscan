@@ -123,6 +123,15 @@ test("rotulos do executor OKX antigo: nome real, desconhecida nunca vira H40 (18
   const Pi = { t: T0, ops: [{ base: "SPCX", inst: "SPCX-X", estrategia: "29933c49ce9e", lado: "LONG", estado: "aberta", preco_efetivo: 142.89, stop: 137.92, stop_estado: "confirmado" }] };
   assert.equal(D.okxOperacoes(O, null, Pi).posicoes.find(x => x.ativo === "SPCX").estrategia, "Piloto · 29933c49ce9e");
 });
+test("piloto: preco atual e R da posicao aberta vem do estado do piloto (18/11)", () => {
+  const Pi = { t: 2_000_000_000, ops: [{ base: "SPCX", inst: "SPCX-X", estrategia: "29933c49ce9e", lado: "LONG", estado: "aberta",
+    preco_efetivo: 142.89, stop: 137.92, stop_estado: "confirmado", preco_atual: 145.37, t_preco: 2_000_000_000 - 60, r_aberto: 0.499 }] };
+  const p = D.okxOperacoes(null, null, Pi, 2_000_000_000).posicoes.find(x => x.ativo === "SPCX");
+  assert.equal(p.preco_atual, 145.37); assert.equal(p.preco_t, 2_000_000_000 - 60); assert.equal(p.R, 0.499);
+  const sem = D.okxOperacoes(null, null, { t: 1, ops: [{ ...Pi.ops[0], preco_atual: undefined, r_aberto: undefined }] }, 2).posicoes[0];
+  assert.equal(sem.preco_atual, null); assert.equal(sem.R, null);
+});
+
 test("frescura das operacoes OKX: indisponivel nao e fechada; dados antigos nao passam por atuais (18/11)", () => {
   const O = OKX(); O.real.ops.XLM = { inst: "XLM-X", estado: "aberta", estrategia: "espelho", estrategia_bybit: "SHORT_TURTLE", lado: "SHORT", entrada: 0.13745, stop: 0.15363 };
   const tO = D.horaDe("okx", O);

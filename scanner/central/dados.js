@@ -173,6 +173,7 @@ export function okxOperacoes(O, K, Pi = null, agora = Date.now() / 1000) {
                    alav: o.alav || null, stop_confirmado: o.stop_estado === "confirmado" || (o.stop_estado == null && o.stop_confirmado) ? (Pi.t || null) : null,
                    stop_estado: o.stop_estado || (o.stop_confirmado ? "confirmado" : "por_confirmar"), stop_cobertura: o.stop_cobertura ?? null,
                    desde: o.t_execucao || o.t_ordem || null, fonte: "estado do piloto",
+                   preco_atual: o.preco_atual ?? null, preco_t: o.t_preco ?? null, R: o.r_aberto ?? null,
                    dados_t: fontes.piloto.t, dados_estado: fontes.piloto.estado };
     if (o.estado === "pendente") ordens.push({ ...base, preco: o.preco_previsto });
     else pos.push(base);
