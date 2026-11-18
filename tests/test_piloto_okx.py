@@ -717,6 +717,36 @@ class FakeFecho(FakeOKX):
         return super().priv(metodo, path, corpo)
 
 
+class PrecoAtual(Base):
+    """(18/11) Preco atual com hora e R da posicao aberta no estado publico e no desempenho."""
+
+    def test_preco_e_r_aberto(self):
+        api = FakeOKX()
+        self.corre(api)
+        st, _ = self.corre(api, now=NOW0 + 900)
+        op = st["aberta"]
+        ent, stp = op["preco_efetivo"], op.get("stop_inicial") or op["stop"]
+        mk = ent + (ent - stp) * 0.5 * (1 if op["lado"] == "LONG" else -1)     # meio R a favor
+        api.pos = dict(api.pos, markPx=str(mk))
+        st, _ = self.corre(api, now=NOW0 + 1800)
+        op = st["aberta"]
+        self.assertEqual((op["preco_atual"], op["t_preco"]), (mk, NOW0 + 1800))
+        self.assertAlmostEqual(op["r_aberto"], 0.5, places=2)
+        d = P.desempenho(st)[op["estrategia"]]
+        self.assertEqual(d["abertas"], 1)
+        self.assertAlmostEqual(d["r_aberto"], 0.5, places=2)
+        self.assertAlmostEqual(d["r_total_com_abertas"], 0.5, places=2)
+        pub = P.publico(st, P.cfg(), {}, NOW0 + 1800)
+        o = [x for x in pub["ops"] if x["estado"] == "aberta"][0]
+        self.assertEqual((o["preco_atual"], o["t_preco"]), (mk, NOW0 + 1800))
+        self.assertAlmostEqual(o["r_aberto"], 0.5, places=2)
+        # sem resposta da OKX: fica o ultimo preco com a hora antiga (nao se inventa um novo)
+        api.pos = dict(api.pos)
+        api.pos.pop("markPx")
+        st, _ = self.corre(api, now=NOW0 + 2700)
+        self.assertEqual(st["aberta"]["t_preco"], NOW0 + 1800)
+
+
 class FechoRecuperacao(Base):
     """(18/11) pedido de fecho aceite mas posicao aberta: repete, limita, bloqueia sem abandonar o stop."""
     def a_fechar(self, modo="aceita", **kw):

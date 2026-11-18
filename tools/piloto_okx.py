@@ -754,6 +754,7 @@ def reconciliar(api, st, now, msgs, simular=False):
         return {"upl": 0.0}                                  # sem resposta: nada se decide nesta volta
     pd = next((x for x in pos.get("data") or [] if float(x.get("pos") or 0) != 0), None)
     upl = float(pd.get("upl") or 0) if pd else 0.0
+    marcar_preco(op, pd, now)
     acc = float(od.get("accFillSz") or 0)
     if op["estado"] == "pendente":
         if acc > 0:
@@ -969,6 +970,21 @@ def relatorio_diario(st, now, msgs, aprovadas):
                 + (" ; BLOQUEADO" if st["bloqueio"] else " ; SUSPENSO" if st["suspenso"] else "") + ".")
 
 
+def marcar_preco(op, pd, now):
+    """(18/11) Preco atual (markPx da OKX, com a hora da leitura) e o resultado em R da posicao aberta, para a app e
+    para o desempenho contar as abertas. Sem resposta da OKX nao se apaga o ultimo: fica com a hora antiga (a app
+    mostra-o como desatualizado)."""
+    try:
+        mk = float((pd or {}).get("markPx") or 0)
+        ent, stp = float(op.get("preco_efetivo") or 0), float(op.get("stop_inicial") or op.get("stop") or 0)
+    except (TypeError, ValueError):
+        return
+    if mk <= 0 or ent <= 0 or not stp or ent == stp:
+        return
+    sinal = 1 if op.get("lado") == "LONG" else -1
+    op.update(preco_atual=mk, t_preco=int(now), r_aberto=round(sinal * (mk - ent) / abs(ent - stp), 3))
+
+
 def desempenho(st):
     """Metricas reais por estrategia (sem valores monetarios): sinais vistos, executaveis, operacoes, acerto,
     expectativa, PF, drawdown em R, deslize, duracao, por moeda/regime/timeframe, recente (ultimas 10)."""
@@ -997,6 +1013,11 @@ def desempenho(st):
                   "deslize_medio_pct": med([o["slippage_pct"] for o in d["ops"] if o.get("slippage_pct") is not None]),
                   "duracao_media_h": med([o["duracao_h"] for o in fe if o.get("duracao_h") is not None]),
                   "por_moeda": grp("base"), "por_regime": grp("regime"), "por_tf": grp("tf"), "recente_r": med(rs[-10:])}
+        # (18/11) as abertas contam: o resultado atual nao e so o das fechadas
+        ab = [o for o in d["ops"] if o.get("estado") in ("aberta", "a fechar") and o.get("r_aberto") is not None]
+        res[k].update(abertas=len([o for o in d["ops"] if o.get("estado") in ("aberta", "a fechar")]),
+                      r_aberto=round(sum(o["r_aberto"] for o in ab), 3) if ab else None,
+                      r_total_com_abertas=round(sum(rs) + sum(o["r_aberto"] for o in ab), 3) if (rs or ab) else None)
     return res
 
 
@@ -1005,7 +1026,7 @@ def publico(st, c, aprovadas, now):
     campos = ("id", "estrategia", "versao", "base", "inst", "lado", "tf", "regime", "t_sinal", "t_ordem", "t_execucao", "t_fecho",
               "preco_previsto", "preco_efetivo", "slippage_pct", "stop", "alvo", "preco_saida", "alav", "estado", "stop_confirmado",
               "stop_estado", "stop_cobertura", "stop_detalhe",
-              "motivo_saida", "r", "r_papel", "duracao_h", "spread_pct")
+              "motivo_saida", "r", "r_papel", "duracao_h", "spread_pct", "preco_atual", "t_preco", "r_aberto")
     oper = all(v["ok"] for k, v in st["portas"].items() if k != "estrategias_elegiveis")
     return {"t": now, "aviso": "REAL (piloto OKX). Sem valores monetarios neste ficheiro.", "simulacao": st.get("simulacao"),
             "operacional": oper, "ativas": sorted(aprovadas) if oper else [],
