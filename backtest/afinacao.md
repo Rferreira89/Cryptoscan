@@ -1,7 +1,7 @@
 # Diário de afinação dos sinais
 
 Hipóteses testadas sobre as estratégias que já estão ao vivo, uma por
-entrada, com o veredicto. Hipóteses testadas até agora: 15 (H1 a H15).
+entrada, com o veredicto. Hipóteses testadas até agora: 17 (H1 a H17).
 
 ## Decisões do Rui (valem para todas as execuções)
 
@@ -2117,3 +2117,71 @@ Notas para as próximas execuções:
   sinais); 27 contra os mesmos dados (diários agendados); 64 no contador
   global de estudos offline. Com 27 tentativas, a probabilidade de pelo
   menos um falso positivo a 5% ronda os 75%.
+
+### 2026-11-18 — H17: rácio moeda/BTC só com dispersão alta do universo (RACIO_DISP / SHORT_RACIO_DISP)
+
+**Escrito antes de correr qualquer teste.**
+
+- Situação: regime atual (scan.json, `mercado`) **lateral**, BTC abaixo da
+  média de 200 dias (compras bloqueadas ao vivo). Ringue de 90 dias
+  (forma.json de 18/11, 42 moedas): sobem BOUNCE_G0 (+0,22R), CAPITULACAO
+  (+0,14R), BOUNCE_FORTE (+0,12R), DIP_TREND (+0,10R), BOUNCE_SQUEEZE
+  (+0,09R), V2 e V3: **todos sobrevenda/recuo**. Ringue longo (longo.json de
+  18/11, 40 moedas), por regime, quem passa o filtro atual: **queda**
+  SHORT_X30 (+0,61R, 41 op.), SHORT_ISOLADA (+0,52R, 34), SHORT_FALSO_ROMP
+  (+0,30R, 32), todos mortos ou em papel; **subida** ninguém (só amostras de
+  10-15 op.); **lateral** ninguém (BOUNCE_AMPLITUDE e CAP_MERCADO têm 12-16
+  op.). Regimes sem campeão vivo que ganhe: **subida, lateral e queda**.
+- Hipótese (família **valor relativo**, a proposta (a) da H16): a reversão do
+  rácio moeda/BTC (H9/H10) tem percentil 100 do acaso, mas não paga na
+  lateral de 2021-24. Lógica: quando as moedas se movem em bloco, um rácio
+  esticado reflete a beta da moeda ao mercado e não um desvio próprio; quando
+  a **dispersão entre moedas é alta**, o mercado está a separar moedas por
+  fluxo específico (rotação), e os desvios são os que mais tendem a voltar.
+  Confirmei: `investigacao.md` não tem a palavra "dispersão"; não foi testada.
+- Medida (só velas fechadas, sem look-ahead): em cada fecho de 4H, para as
+  moedas com vela nesse fecho (mínimo 20), retorno de 30 velas (5 dias) em
+  logaritmo; **dispersão = amplitude interquartil** desses retornos (robusta a
+  uma moeda a disparar). Percentil = posição da dispersão atual entre os 1080
+  valores **anteriores** (180 dias; mínimo 540). Sem dados suficientes: não há
+  sinal.
+- Regra-base (já fixada, sem afinar): compra = R4 da H9
+  (`racio_var(120, 2.5, 2.0, 3, 35)`, com o filtro do BTC acima da SMA200 do
+  ringue); short = Q1 da H10 só na **lateral**
+  (`racio_short(120, 2.5, 2.0, 3, 35, ("lateral",))`, sem filtro do BTC, com
+  juros da margem).
+- Grelha (6, escrita antes de testar; D3 e D6 são controlos e não podem ser
+  escolhidos):
+  D1 compra, dispersão ≥ percentil 50;
+  D2 compra, dispersão ≥ percentil 70;
+  D3 controlo de compra, dispersão < percentil 50;
+  D4 short lateral, dispersão ≥ percentil 50;
+  D5 short lateral, dispersão ≥ percentil 70;
+  D6 controlo de short, dispersão < percentil 50.
+  Referências sem filtro (já contadas na H9/H10, não são candidatas): R4 e Q1
+  lateral.
+- Custos e método: 0,25% de comissão + 0,1% de slippage por lado,
+  `generic_trades` e `judge` do ringue, percentil contra 1000 carteiras ao
+  acaso (mesma moeda, ±90 velas, mesma geometria; shorts no espelho).
+- Janelas (ramo `history`, 4H até 2026-11-14): **B (decide)** 2021-08-01 a
+  2024-10-10; **A (confirma)** 2024-10-11 ao fim; **C** últimos 90 dias;
+  **L** últimos 365 dias, por regime.
+- Critérios (todos, para D1, D2, D4, D5): em B ≥ 30 op., R médio > 0,
+  percentil > 95 e R > 0 sem a melhor moeda; na **lateral de B** ≥ 20 op., R
+  > 0 e acima do p95; em A ≥ 15 op., R > 0 e percentil > 95; em L ≥ 20 op., R
+  > 0 e percentil > 95; **o filtro tem de acrescentar**: R acima da referência
+  sem filtro e acima do controlo (D3/D6) em B e em A; correlação diária com
+  BOUNCE_X30 (compras) ou SHORT_X30 (shorts) < 0,5 em B e em A. Escolha: maior
+  R em B entre as que passam. Só se passar entra no ringue, como RACIO_DISP
+  (NEW_SIGS) ou SHORT_RACIO_DISP (SHORT_SIGS); REAL_OK não se mexe.
+- Limite declarado: as regras-base foram vistas em B, A e C na H9/H10, por
+  isso A não é fora da amostra para elas; só o filtro é novo. O teste real
+  continua a ser o ringue e o papel ao vivo.
+- Previsão honesta: provável falhar. A dispersão alta costuma coincidir com
+  altcoins a cair sem volta, e a H9/H10 já mostraram resultado instável entre
+  2021-24 e 2024-26.
+- Hipóteses testadas até agora (com esta): 17 entradas neste diário (H1 a
+  H17; 16 sinais); **28 contra os mesmos dados** (diários agendados); 103 no
+  contador global (`engine/hipoteses.py`: 28 agendadas + 75 offline). Com 28
+  tentativas, a probabilidade de pelo menos um falso positivo a 5% ronda os
+  76%.
