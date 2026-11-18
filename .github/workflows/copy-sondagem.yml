@@ -1,6 +1,5 @@
 name: CopyTrading - sondagem das APIs (so leitura)
-# (17/11) Confirma o que as APIs permitem (OKX copy trading publico e da conta, Bybit EU, Hyperliquid).
-# Nenhuma ordem, nenhuma alteracao; saida sem valores monetarios.
+# (18/11, RAMO DE PROVA, NAO PUBLICAR) so dados publicos: confirma que as fontes dao >= 600 velas de 4H validas.
 on:
   workflow_dispatch:
 permissions:
@@ -8,24 +7,23 @@ permissions:
 jobs:
   publico:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
-      - run: python3 tools/copy_sondagem.py publico
-      - run: python3 tools/copy_sondagem.py lideres
-  eu:
-    runs-on: [self-hosted, eu]
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v4
-      - env:
-          OKX_API_KEY: ${{ secrets.OKX_API_KEY }}
-          OKX_API_SECRET: ${{ secrets.OKX_API_SECRET }}
-          OKX_PASSPHRASE: ${{ secrets.OKX_PASSPHRASE }}
-          BYBIT_API_KEY: ${{ secrets.BYBIT_API_KEY }}
-          BYBIT_API_SECRET: ${{ secrets.BYBIT_API_SECRET }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: |
-          python3 tools/copy_sondagem.py eu
-          python3 tools/piloto_verificar.py
+      - run: |
+          python3 - <<'PY'
+          import time
+          from engine import sources, scanner
+          now = time.time()
+          for base in ("BTC", "ETH", "XLM", "SOL"):
+              for s in sources.ALL:
+                  try:
+                      t0 = time.time(); c = s.candles(base, "4h", limit=scanner.VELAS_LONGAS_4H)
+                      v = scanner.velas_longas_validas(c, now)
+                      curtas, _ = scanner._velas(s, base, "4h")
+                      ts = sorted(x["t"] for x in c)
+                      print(s.name, base, "recebidas", len(c), "unicas", len(set(ts)), "validas_continuas", len(v) if v else None,
+                            "ultima_fechada", bool(v) and v[-1]["t"] + 14400 <= now, "analise", len(curtas), f"{time.time()-t0:.1f}s", flush=True)
+                  except Exception as e:
+                      print(s.name, base, "falhou", type(e).__name__, str(e)[:100], flush=True)
+          PY
