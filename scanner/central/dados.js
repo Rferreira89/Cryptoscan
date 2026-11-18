@@ -143,6 +143,16 @@ export function estadoBybit(pub, priv, agora = Date.now() / 1000) {
 
 // ---------------------------------------------------------------- posicoes e ordens (normalizadas)
 // lado: o executor OKX so abre LONG (net mode); a posicao privada traz o sinal da quantidade.
+// (18/11) nome real da estrategia do executor OKX antigo (okx_exec: "panico", "recuo", "espelho"); o que nao for
+// reconhecido aparece como desconhecido, nunca como H40 por omissao
+export function rotuloOKX(o) {
+  const e = (o || {}).estrategia;
+  if (e === "recuo") return "H46 recuo";
+  if (e === "panico") return "H40 pânico";
+  if (e === "espelho") return o.estrategia_bybit ? `Espelho da arena (${o.estrategia_bybit})` : "Espelho da arena";
+  return `desconhecida (${e || "sem nome"})`;
+}
+
 export function okxOperacoes(O, K, Pi = null) {
   const ops = ((O || {}).real || {}).ops || {};
   const pos = [], ordens = [];
@@ -158,8 +168,8 @@ export function okxOperacoes(O, K, Pi = null) {
     else pos.push(base);
   }
   for (const [a, o] of Object.entries(ops)) {
-    const base = { corretora: "OKX", ativo: a, inst: o.inst, estrategia: o.estrategia === "recuo" ? "H46 recuo" : "H40 pânico",
-                   lado: "LONG", entrada: o.entrada || null, stop: o.stop || null, alvo: o.alvo || null, alav: o.alav || null,
+    const base = { corretora: "OKX", ativo: a, inst: o.inst, estrategia: rotuloOKX(o),
+                   lado: o.lado === "SHORT" ? "SHORT" : "LONG", entrada: o.entrada || null, stop: o.stop || null, alvo: o.alvo || null, alav: o.alav || null,
                    risco_pct: o.risco_pct ?? null, stop_confirmado: o.stop_ok || null, desde: o.t_fill || o.criado || null,
                    sair_em: o.sair_em || null, parcial: !!o.parcial, fonte: "estado do agente" };
     if (o.estado === "aberta") pos.push(base);
@@ -185,7 +195,7 @@ export function okxOperacoes(O, K, Pi = null) {
 export function okxFechadas(O, K) {
   const hist = (((O || {}).real || {}).hist || []).filter(h => h.estado === "fechada" || h.estado === "cancelada");
   const pub = hist.map(h => ({ corretora: "OKX", ativo: h.asset, estado: h.estado, motivo: h.motivo || null, ret_pct: h.ret_pct ?? null,
-                               R: h.R ?? null, t: h.fechado || h.t_fill || h.criado || null, estrategia: h.estrategia === "recuo" ? "H46 recuo" : "H40 pânico" }));
+                               R: h.R ?? null, t: h.fechado || h.t_fill || h.criado || null, estrategia: rotuloOKX(h) }));
   const priv = ((K || {}).fechadas || []).map(f => ({ corretora: "OKX", ativo: f.asset, estado: "fechada", entrada: f.entrada, saida: f.saida, pnl_usd: f.pnl_usd, t: f.t }));
   return { publico: pub.sort((a, b) => (b.t || 0) - (a.t || 0)), privado: priv.sort((a, b) => (b.t || 0) - (a.t || 0)) };
 }
@@ -450,7 +460,7 @@ export function fechadasR(O, S) {
   const out = [];
   for (const h of (((O || {}).real || {}).hist || [])) {
     if (h.estado !== "fechada" || !h.entrada || !h.stop || !h.saida) continue;
-    out.push({ corretora: "OKX", ativo: h.asset, t: h.fechado, R: Math.round((h.saida - h.entrada) / (h.entrada - h.stop) * 100) / 100, ret_pct: h.ret_pct ?? null, estrategia: h.estrategia === "recuo" ? "H46 recuo" : "H40 pânico" });
+    out.push({ corretora: "OKX", ativo: h.asset, t: h.fechado, R: Math.round((h.saida - h.entrada) / (h.entrada - h.stop) * 100) / 100, ret_pct: h.ret_pct ?? null, estrategia: rotuloOKX(h) });
   }
   for (const r of (((S || {}).journal || {}).rows || []))
     if (r.mode === "REAL" && r.status === "CLOSED" && r.executed === true && r.result_r != null) out.push({ corretora: "Bybit", ativo: r.asset, t: r.closed_at, R: r.result_r, estrategia: r.strategy });
