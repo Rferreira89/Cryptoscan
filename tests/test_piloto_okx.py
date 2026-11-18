@@ -751,11 +751,53 @@ class FechoRecuperacao(Base):
         self.assertEqual(st["aberta"]["stop_estado"], "confirmado")
         self.assertEqual(api.posts("/trade/order"), api.posts("/trade/order")[:1])   # nenhuma entrada nova
 
-    def test_recusado_fica_aberta_e_repete_na_volta_seguinte(self):
+    def test_recusado_repete_com_intervalo_e_limite(self):
+        # (revisao 18/11) antes, um fecho recusado deixava a operacao "aberta" e o pedido repetia-se em TODAS as voltas,
+        # sem limite. Agora fica "a fechar": repete de 10 em 10 min, no maximo 3 pedidos, e depois bloqueia.
         api, st, t = self.a_fechar(modo="recusa")
-        self.assertEqual(st["aberta"]["estado"], "aberta")
+        self.assertEqual(st["aberta"]["estado"], "a fechar")
         self.corre(api, now=t + 60)
-        self.assertEqual(len(self.fechos(api)), 2)
+        self.assertEqual(len(self.fechos(api)), 1)                 # antes do intervalo: nada
+        for k in range(1, 6):
+            st, _ = self.corre(api, now=t + k * (P.FECHO_REPETIR_S + 1))
+        self.assertEqual(len(self.fechos(api)), P.FECHO_MAX_PEDIDOS)
+        self.assertTrue(st["bloqueio"])
+        self.assertEqual(st["aberta"]["stop_estado"], "confirmado")
+
+    def test_lado_contrario_sem_stop_nenhuma_ordem(self):
+        # (revisao 18/11) com a posicao do lado contrario e sem stop do lado da operacao, o caminho do stop tentava repor
+        # o stop e, se falhasse, pedia close-position: fecharia uma posicao que nao e do piloto. Agora: nenhuma ordem.
+        api, st, t = self.a_fechar()
+        api.pos = dict(api.pos, pos="-3")
+        api.algos = []
+        n_algo = len(api.posts("/trade/order-algo"))
+        st, msgs = self.corre(api, now=t + P.FECHO_REPETIR_S + 1)
+        self.assertEqual(len(self.fechos(api)), 1)
+        self.assertEqual(len(api.posts("/trade/order-algo")), n_algo)
+        self.assertTrue(st["bloqueio"])
+        self.assertEqual(st["aberta"]["divergencia"], "lado contrario")
+        st, msgs2 = self.corre(api, now=t + 2 * (P.FECHO_REPETIR_S + 1))
+        self.assertFalse([m for m in msgs2 if "não corresponde" in m])   # alerta uma vez, nao em todas as voltas
+
+    def test_aberta_com_contratos_a_mais_nenhuma_ordem(self):
+        api = FakeFecho(modo="aceita")
+        self.corre(api)
+        st, _ = self.corre(api, now=NOW0 + 900)
+        self.assertEqual(st["aberta"]["estado"], "aberta")
+        api.pos = dict(api.pos, pos=str(float(api.pos["pos"]) * 3))  # outro executor/manual no mesmo instrumento
+        api.algos = []
+        n_algo = len(api.posts("/trade/order-algo"))
+        st, msgs = self.corre(api, now=NOW0 + 1800)
+        self.assertEqual(len(self.fechos(api)), 0)
+        self.assertEqual(len(api.posts("/trade/order-algo")), n_algo)
+        self.assertEqual(st["aberta"]["divergencia"], "contratos a mais")
+        self.assertTrue(st["bloqueio"])
+        self.assertTrue(any("não corresponde" in m for m in msgs))
+
+    def test_parcial_nao_e_divergencia(self):
+        api, st, t = self.a_fechar(modo="parcial", ctval="0.1")
+        st, _ = self.corre(api, now=t + P.FECHO_REPETIR_S + 1)
+        self.assertNotIn("divergencia", st["aberta"])
 
     def test_fechada_entre_tentativas_reconcilia_e_limpa_so_as_condicionais_da_operacao(self):
         api, st, t = self.a_fechar()

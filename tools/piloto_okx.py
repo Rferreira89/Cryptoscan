@@ -796,16 +796,31 @@ def reconciliar(api, st, now, msgs, simular=False):
             if op.get("estado") == "fechada":
                 limpar_condicionais(api, st, op, now, msgs)
             return {"upl": 0.0}
+        # (18/11, revisao) a posicao na OKX tem de ser a DESTA operacao: mesmo lado e nunca maior do que o executado.
+        # Se nao for (lado contrario, ou contratos a mais de outro executor/manual no mesmo instrumento), nenhuma ordem e
+        # enviada (nem fecho, nem stop: o close-position fecharia contratos que nao sao do piloto). So se le o stop,
+        # bloqueia e alerta uma vez.
+        lado_okx = "LONG" if float(pd["pos"]) > 0 else "SHORT"
+        q_okx, q_op = abs(float(pd["pos"])), float(op.get("contratos_exec") or op.get("contratos") or 0)
+        diverg = ("lado contrario" if lado_okx != op["lado"] else
+                  "contratos a mais" if q_op and q_okx > q_op * (1 + 1e-6) + 1e-9 else None)
+        if diverg:
+            est, mot, coberto = estado_stop(_algos(api, op["inst"]), q_okx, lado_okx, op.get("preco_efetivo"))
+            op["stop_estado"], op["stop_detalhe"], op["stop_confirmado"] = est, mot, est == "confirmado"
+            op["stop_cobertura"] = round(coberto / q_okx, 3) if q_okx else None
+            if op.get("divergencia") != diverg:
+                op["divergencia"] = diverg
+                st["bloqueio"] = st["bloqueio"] or {"t": int(now), "motivo": f"{op['base']}: posicao na OKX nao corresponde a operacao ({diverg})"}
+                evento(st, now, f"POSICAO NA OKX NAO CORRESPONDE ({diverg}): nenhuma ordem enviada", op=op["id"], lado_okx=lado_okx)
+                msgs.append(f"🛑 Piloto OKX: a posição de {op['base']} na OKX não corresponde à operação do piloto ({diverg}). "
+                            "Não enviei nenhuma ordem e bloqueei o piloto. Verifica na app.")
+            return {"upl": upl}
+        op.pop("divergencia", None)
         if op["estado"] == "a fechar":
-            lado_okx = "LONG" if float(pd["pos"]) > 0 else "SHORT"
             pedidos = op.get("fecho_pedidos") or []
             ult = max([p["t"] for p in pedidos] or [0])
-            op["fecho_restante_pct"] = round(100 * abs(float(pd["pos"])) / max(1e-12, float(op.get("contratos_exec") or op.get("contratos") or 1)), 1)
-            if lado_okx != op["lado"]:
-                st["bloqueio"] = st["bloqueio"] or {"t": int(now), "motivo": f"{op['base']}: a posicao na OKX esta do lado contrario ao da operacao a fechar"}
-                evento(st, now, "FECHO: posicao do lado contrario na OKX; nada pedido", op=op["id"])
-                msgs.append(f"🛑 Piloto OKX: {op['base']} está do lado contrário na OKX; não pedi fecho e bloqueei o piloto.")
-            elif len(pedidos) >= FECHO_MAX_PEDIDOS:
+            op["fecho_restante_pct"] = round(100 * q_okx / max(1e-12, q_op or 1), 1)
+            if len(pedidos) >= FECHO_MAX_PEDIDOS:
                 if not op.get("fecho_alertado"):
                     op["fecho_alertado"] = int(now)
                     st["bloqueio"] = st["bloqueio"] or {"t": int(now), "motivo": f"{op['base']}: fecho pedido {len(pedidos)} vezes e a posicao continua aberta"}
@@ -915,7 +930,8 @@ def gerir(api, st, now, msgs, simular, papel):
         motivo = "tempo"
     if motivo:
         op["motivo_saida"] = motivo
-        op["estado"] = "a fechar" if pedir_fecho(api, st, op, now, motivo) else "aberta"   # recusado: repete na volta seguinte
+        pedir_fecho(api, st, op, now, motivo)
+        op["estado"] = "a fechar"            # mesmo se recusado: a recuperacao repete (10 min, max. 3) e depois bloqueia
         msgs.append(f"⏱️ Piloto OKX: {op['base']} — pedi o fecho ({motivo}).")
 
 
