@@ -1,0 +1,104 @@
+{
+ "vivo": [
+  {
+   "velas": 300,
+   "fechos_com_percentil_ultimos_30": 0
+  },
+  {
+   "velas": 500,
+   "fechos_com_percentil_ultimos_30": 0
+  },
+  {
+   "velas": 569,
+   "fechos_com_percentil_ultimos_30": 0
+  },
+  {
+   "velas": 570,
+   "fechos_com_percentil_ultimos_30": 0
+  },
+  {
+   "velas": 600,
+   "fechos_com_percentil_ultimos_30": 30
+  },
+  {
+   "velas": 1100,
+   "fechos_com_percentil_ultimos_30": 30
+  }
+ ],
+ "R4": {
+  "tudo": {
+   "n": 769,
+   "r_medio": 0.0567,
+   "ic90": [
+    -0.0648,
+    0.1834
+   ],
+   "p_r_menor_igual_0": 0.2244
+  },
+  "sem_ultimos_90d": {
+   "n": 681,
+   "r_medio": 0.0293,
+   "ic90": [
+    -0.0933,
+    0.1558
+   ],
+   "p_r_menor_igual_0": 0.3464
+  },
+  "ultimos_90d": {
+   "n": 88,
+   "r_medio": 0.2687,
+   "ic90": [
+    -0.2141,
+    0.6917
+   ],
+   "p_r_menor_igual_0": 0.1994
+  },
+  "por_ano": {
+   "2021": {
+    "n": 43,
+    "r_medio": 0.1551,
+    "ic90": [
+     -0.1815,
+     0.3731
+    ],
+    "p_r_menor_igual_0": 0.1816
+   },
+   "2023": {
+    "n": 195,
+    "r_medio": 0.0885,
+    "ic90": [
+     -0.1321,
+     0.32
+    ],
+    "p_r_menor_igual_0": 0.2712
+   },
+   "2024": {
+    "n": 240,
+    "r_medio": 0.0524,
+    "ic90": [
+     -0.1646,
+     0.2464
+    ],
+    "p_r_menor_igual_0": 0.3556
+   },
+   "2025": {
+    "n": 203,
+    "r_medio": -0.0816,
+    "ic90": [
+     -0.3027,
+     0.174
+    ],
+    "p_r_menor_igual_0": 0.6904
+   },
+   "2026": {
+    "n": 88,
+    "r_medio": 0.2687,
+    "ic90": [
+     -0.2236,
+     0.6897
+    ],
+    "p_r_menor_igual_0": 0.204
+   }
+  }
+ }
+}
