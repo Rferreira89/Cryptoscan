@@ -59,13 +59,19 @@ EU = None            # dados do servidor europeu (scanner.run preenche)
 DAILY = {}           # velas diarias do scanner por moeda (scanner.run preenche)
 
 
-def set_context(rows, bars):
+def set_context(rows, bars, longas=None):
     """Da as funcoes de sinal o BTC, o funding atual (Binance pelo servidor
-    europeu, ou OKX) e o open interest da Binance de cada moeda."""
+    europeu, ou OKX) e o open interest da Binance de cada moeda.
+    (18/11) longas: velas de 4H longas (>= 600, continuas) SO para o filtro de dispersao (CTX["bars_disp"]); as
+    funcoes de sinal continuam a receber as velas de sempre."""
     try:
         from tools.arena_ringue import CTX
     except Exception:
         return
+    if longas:
+        CTX["bars_disp"] = dict(longas)
+    else:
+        CTX.pop("bars_disp", None)
     CTX["btc"] = bars.get("BTC")
     CTX["daily"] = {a: c for a, c in (DAILY or {}).items() if c}
     CTX["bars"] = {a: c for a, c in bars.items() if c}    # rotacao: ranking ao vivo

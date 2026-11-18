@@ -129,10 +129,44 @@ def incluir_margem(uni, eligible, state, now):
     return out
 
 
+# (18/11) historico longo de 4H so para quem precisa (filtro de dispersao do RACIO_DISP: >= 571 velas fechadas;
+# pedem-se 640 para sobrar margem). A analise continua a receber EXATAMENTE as velas de antes: as do pedido antigo
+# de cada fonte (as N mais recentes, N = limite por omissao dessa fonte), recortadas do pedido longo.
+VELAS_LONGAS_4H = 640
+VELAS_LONGAS_MIN = 600
+LIMITE_ANTIGO = {"binance": 500, "okx": 300, "kucoin": 500, "bybit": 500}
+
+
+def _velas(src, asset, tf):
+    """(velas para a analise, velas longas ou None). As da analise sao as mesmas que o pedido antigo dava."""
+    if tf != "4h" or src.name not in LIMITE_ANTIGO:
+        return src.candles(asset, tf), None
+    try:
+        longas = src.candles(asset, tf, limit=VELAS_LONGAS_4H)
+    except sources.SourceError:
+        return src.candles(asset, tf), None             # o pedido longo falhou: o de sempre
+    ordenadas = sorted(longas, key=lambda c: c["t"])
+    return ordenadas[-LIMITE_ANTIGO[src.name]:], longas
+
+
+def velas_longas_validas(longas, now):
+    """Velas longas fechadas, sem duplicados, alinhadas e CONTINUAS (nenhuma em falta), ou None."""
+    if not longas:
+        return None
+    tf = sources.TF_SECONDS["4h"]
+    cs, rep = validate.validate_candles(longas, tf, now, VELAS_LONGAS_MIN)
+    if rep["status"] == validate.INVALID or len(cs) < VELAS_LONGAS_MIN:
+        return None
+    if (cs[-1]["t"] - cs[0]["t"]) // tf + 1 != len(cs):
+        return None
+    return cs
+
+
 def deep_check(row, src_order, now):
     """Velas + validacao para um ativo. Usa a 1a fonte que responder."""
     out = {"timeframes": {}, "flags": []}
     clean = {}
+    longas_por_fonte = {}
     for tf in TIMEFRAMES:
         rep, used = None, None
         best = None          # (n, velas, relatorio, fonte, indice)
@@ -140,12 +174,14 @@ def deep_check(row, src_order, now):
             if src.name not in row["sources"]:
                 continue
             try:
-                raw = src.candles(row["asset"], tf)
+                raw, longas = _velas(src, row["asset"], tf)
             except sources.SourceError as e:
                 if best is None:
                     rep = {"status": "DATA SOURCE ERROR",
                            "issues": [str(e)[:120]], "n": 0}
                 continue
+            if longas is not None:
+                longas_por_fonte[src.name] = longas
             cs, r = validate.validate_candles(
                 raw, sources.TF_SECONDS[tf], now, validate.MIN_HISTORY[tf])
             if best is None or r["n"] > best[0]:
@@ -181,6 +217,8 @@ def deep_check(row, src_order, now):
     # Sem dados validos nao ha analise (hierarquia: 1. dados validos?)
     out["_c4"] = clean.get("4h")
     out["_c1"] = clean.get("1d")
+    src4 = (out["timeframes"].get("4h") or {}).get("source")
+    out["_c4_longas"] = velas_longas_validas(longas_por_fonte.get(src4), now) if "4h" in clean else None
     usable = (out["data_status"] != validate.INVALID
               and len(clean) == len(TIMEFRAMES))
     out["analysis"] = analysis.multi(clean) if usable else None
@@ -465,6 +503,8 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
                   disabled_strategies=disabled)
     # regime do BTC no espelho (para os shorts de altcoins)
     btc_reg_m, c4s = None, {r["asset"]: r.get("_c4") for r in eligible}
+    c4_longas = {r["asset"]: r.pop("_c4_longas", None) for r in eligible}
+    c4_longas = {a: c for a, c in c4_longas.items() if c}
     if cfg.get("shorts") and daily.get("BTC") and \
             len(daily["BTC"]) >= analysis.MIN_BARS:
         btc_reg_m = regime.classify(
@@ -663,7 +703,7 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
         result["sombra_rejeitadas"] = {"erro": str(e)[:120]}
     # papel automatico dos qualificados no combate (sem papel proprio)
     try:
-        result["paper_ring"] = paper_ring.update(state, eligible, c4s, now, market_ok)
+        result["paper_ring"] = paper_ring.update(state, eligible, c4s, now, market_ok, longas=c4_longas)
     except Exception as e:  # nunca pode parar o scan
         result["paper_ring"] = {"erro": str(e)[:120]}
     # arena: classificacao de todas as estrategias contra o acaso
