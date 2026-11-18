@@ -16,7 +16,7 @@ Venue deste motor: Bybit (o OKX tem caminhos proprios).
 """
 import os
 
-from . import promo, trade
+from . import promo, trade, travao_sombra
 
 TF = 14400
 MAX_POS = 6
@@ -118,6 +118,8 @@ def update(state, rows, bars, now, market_ok=True):
                 _tg(state, f"FECHO|{k}|{a}|{t_key}",
                     f"[{VENUE}] PAPEL FECHO {k} {lado} {a} R={rec['r']:+.2f} "
                     f"motivo={rec.get('reason') or '?'} entrada={rec.get('entry')}")
+        # (18/11) travao em modo sombra (engine/travao_sombra): so regista o que K4 e K8 decidiriam; nao muda nada
+        travao_sombra.registar(state, k, b["closed"], now)
         if k not in killed:
             n, rm = _r_medio(b["closed"])
             if n >= KILL_N and rm is not None and rm < 0:
