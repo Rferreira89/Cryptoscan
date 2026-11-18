@@ -182,16 +182,16 @@
    "tf": "4H",
    "versao": "1a40f1f6422a",
    "backtest": {
-    "n": 779,
-    "dias": 70,
-    "acontecimentos": 208,
-    "r_medio": 0.0923,
+    "n": 795,
+    "dias": 71,
+    "acontecimentos": 210,
+    "r_medio": 0.1028,
     "ic95_blocos_acontecimento": [
-     -0.0419,
-     0.2173
+     -0.0286,
+     0.2266
     ],
-    "profit_factor": 1.281,
-    "operacoes_por_semana": 35.95
+    "profit_factor": 1.317,
+    "operacoes_por_semana": 36.61
    },
    "papel": {
     "fechadas": 0,
@@ -256,16 +256,16 @@
    "tf": "4H",
    "versao": "29933c49ce9e",
    "backtest": {
-    "n": 741,
-    "dias": 108,
-    "acontecimentos": 327,
-    "r_medio": 0.0615,
+    "n": 754,
+    "dias": 109,
+    "acontecimentos": 328,
+    "r_medio": 0.0787,
     "ic95_blocos_acontecimento": [
-     -0.045,
-     0.1673
+     -0.0216,
+     0.1802
     ],
-    "profit_factor": 1.156,
-    "operacoes_por_semana": 34.77
+    "profit_factor": 1.203,
+    "operacoes_por_semana": 35.3
    },
    "papel": {
     "fechadas": 2,
@@ -359,12 +359,12 @@
     "n": 461,
     "dias": 10,
     "acontecimentos": 10,
-    "r_medio": 0.0535,
+    "r_medio": 0.0547,
     "ic95_blocos_acontecimento": [
-     -0.0914,
-     0.2275
+     -0.0879,
+     0.2303
     ],
-    "profit_factor": 1.104,
+    "profit_factor": 1.106,
     "operacoes_por_semana": 30.82
    },
    "papel": {
@@ -430,16 +430,16 @@
    "tf": "4H",
    "versao": "a576dd368963",
    "backtest": {
-    "n": 341,
-    "dias": 79,
-    "acontecimentos": 194,
-    "r_medio": 0.0903,
+    "n": 347,
+    "dias": 80,
+    "acontecimentos": 196,
+    "r_medio": 0.0932,
     "ic95_blocos_acontecimento": [
-     -0.0198,
-     0.1921
+     -0.0085,
+     0.1959
     ],
-    "profit_factor": 1.345,
-    "operacoes_por_semana": 17.09
+    "profit_factor": 1.362,
+    "operacoes_por_semana": 17.35
    },
    "papel": {
     "fechadas": 0,
@@ -468,7 +468,7 @@
   },
   "bbc2557ab78e": {
    "id": "bbc2557ab78e",
-   "estado": "PAPER_TRADING",
+   "estado": "EXPLORATORY",
    "historico": [
     {
      "t": 1794914965,
@@ -487,6 +487,12 @@
      "de": "EXPERIMENTAL_REAL",
      "para": "PAPER_TRADING",
      "motivo": "papel: 11 fechadas, 7 acontecimentos, 0.9 dias | experimental recusada: bloqueada pelo motor de sobrevivencia do papel"
+    },
+    {
+     "t": 1794999675,
+     "de": "PAPER_TRADING",
+     "para": "EXPLORATORY",
+     "motivo": "sem amostra/expectativa suficientes no backtest; fora do papel"
     }
    ],
    "criado": 1794914965,
@@ -511,16 +517,16 @@
    "tf": "1H",
    "versao": "bbc2557ab78e",
    "backtest": {
-    "n": 879,
-    "dias": 109,
-    "acontecimentos": 485,
-    "r_medio": -0.111,
+    "n": 882,
+    "dias": 110,
+    "acontecimentos": 488,
+    "r_medio": -0.1099,
     "ic95_blocos_acontecimento": [
-     -0.2675,
-     0.053
+     -0.2558,
+     0.055
     ],
     "profit_factor": 0.832,
-    "operacoes_por_semana": 38.43
+    "operacoes_por_semana": 38.51
    },
    "papel": {
     "fechadas": 11,
@@ -610,12 +616,13 @@
     "deslize_medio_pct": 0.0,
     "papel_vs_real_r": -0.0407
    },
-   "desde": 1794985275,
-   "motivo": "papel: 11 fechadas, 7 acontecimentos, 0.9 dias | experimental recusada: bloqueada pelo motor de sobrevivencia do papel",
-   "estado_estatistico": "PAPER_TRADING",
+   "desde": 1794999675,
+   "motivo": "sem amostra/expectativa suficientes no backtest; fora do papel",
+   "estado_estatistico": "EXPLORATORY",
    "auditoria_tecnica": {
     "ok": false,
     "falhas": [
+     "fora do paper trading (sem sinais vivos)",
      "bloqueada pelo motor de sobrevivencia do papel"
     ],
     "sinal": "velas fechadas; entrada na abertura da vela seguinte",
@@ -654,16 +661,16 @@
    "tf": "4H",
    "versao": "e495d11739f6",
    "backtest": {
-    "n": 494,
-    "dias": 101,
-    "acontecimentos": 248,
-    "r_medio": 0.102,
+    "n": 500,
+    "dias": 102,
+    "acontecimentos": 249,
+    "r_medio": 0.1061,
     "ic95_blocos_acontecimento": [
-     0.0041,
-     0.1962
+     0.0149,
+     0.2018
     ],
-    "profit_factor": 1.412,
-    "operacoes_por_semana": 23.18
+    "profit_factor": 1.436,
+    "operacoes_por_semana": 23.41
    },
    "oos": {
     "n": 382,
@@ -759,16 +766,16 @@
    "tf": "4H",
    "versao": "f482badea9f5",
    "backtest": {
-    "n": 1346,
-    "dias": 76,
-    "acontecimentos": 267,
-    "r_medio": 0.0904,
+    "n": 1363,
+    "dias": 77,
+    "acontecimentos": 269,
+    "r_medio": 0.0996,
     "ic95_blocos_acontecimento": [
-     -0.0281,
-     0.2214
+     -0.0234,
+     0.2268
     ],
-    "profit_factor": 1.303,
-    "operacoes_por_semana": 62.05
+    "profit_factor": 1.338,
+    "operacoes_por_semana": 62.7
    },
    "papel": {
     "fechadas": 0,
@@ -866,7 +873,7 @@
    }
   }
  },
- "t": 1794996076,
+ "t": 1794999675,
  "pedidos_teste_final": [],
  "piloto_operacional": true,
  "criterios": {
