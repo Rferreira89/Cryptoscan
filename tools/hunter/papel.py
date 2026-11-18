@@ -354,6 +354,12 @@ def volta(pasta, now=None, uni=None, velas=None, funding_fn=None, falhas=None, s
     linha = {"t": now, "versao": VERSAO, **{k: v for k, v in funil.items()}, "abertas": len(st["abertas"]),
              "fechadas_total": len(st["fechadas"]),
              "estado": ("falha tecnica" if not fiavel else "sem sinais (ausencia legitima)" if not brutos else "ativo")}
+    if validos.get("1H"):                       # (18/11) categoria D: movimentos que nenhum sinal apanhou
+        try:
+            from tools.hunter import cobertura as CB
+            linha["cobertura"] = CB.atualizar(pasta, validos["1H"], uni or {}, now, st)
+        except Exception as e:
+            linha["cobertura"] = {"erro": f"{type(e).__name__}: {str(e)[:120]}"}
     with open(p("papel_ciclos.jsonl"), "a", encoding="utf-8") as f:
         f.write(json.dumps(linha, ensure_ascii=False) + "\n")
     return st

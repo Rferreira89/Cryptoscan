@@ -121,3 +121,43 @@ class Experimental(unittest.TestCase):
     def test_rejeitadas_por_ordem_nunca_voltam(self):
         for rid in ("e495d11739f6", "f8f018b82179"):
             self.assertEqual(Q.decidir({"id": rid, "estado": None}, True, False, True, [], [])[0], "REJECTED")
+
+
+class Cobertura(unittest.TestCase):
+    def velas(self, n=60, salto_em=50, salto=0.06, vol_pico=False):
+        v, px = [], 100.0
+        for k in range(n):
+            o = px
+            if k > salto_em:
+                px *= 1 + salto / 4 if k <= salto_em + 4 else 1.0
+            else:
+                px *= 1.0005 if k % 2 else 0.9995
+            v.append({"t": 1_800_000_000 + k * 3600, "o": o, "h": max(o, px) * 1.002, "l": min(o, px) * 0.998, "c": px,
+                      "v": 5000 if (vol_pico and k == salto_em) else 1000})
+        return v
+
+    def test_movimento_nao_detetado_e_condicao_em_tempo_real(self):
+        import tempfile, os, json
+        from tools.hunter import cobertura as CB
+        v = self.velas(vol_pico=True)
+        now = v[-1]["t"] + 3600
+        d = tempfile.mkdtemp()
+        os.makedirs(os.path.join(d, "hunter"))
+        r = CB.atualizar(d, {"AAA": v}, {"AAA": {"classe": "crypto"}}, now, {"abertas": [], "fechadas": []})
+        self.assertGreaterEqual(r["nao_detetados_D"], 1)
+        ev = json.load(open(os.path.join(d, "hunter", "cobertura.json")))["eventos"]
+        self.assertTrue(any("volume" in (e.get("condicoes_em_tempo_real") or []) for e in ev))
+        self.assertIn("NAO e resultado real", r["aviso"])
+        t_ini = [e["inicio"] for e in ev if e["lado"] == "LONG"][0]
+        s = {"b": "AAA", "lado": "LONG", "tf": "1H", "t_sinal": t_ini - 3600}
+        r = CB.atualizar(d, {"AAA": v}, {}, now, {"abertas": [s], "fechadas": []})
+        self.assertEqual(r["D_por_lado"]["LONG"], 0)
+
+    def test_condicoes_so_usam_o_passado(self):
+        from tools.hunter import cobertura as CB
+        v = self.velas()
+        a = CB.condicoes(v, 50)
+        v2 = [dict(b) for b in v]
+        for b in v2[51:]:
+            b["c"] *= 5; b["h"] *= 5; b["v"] = 10 ** 6
+        self.assertEqual(CB.condicoes(v2, 50), a)          # mudar o futuro nao muda a condicao no fecho da vela
