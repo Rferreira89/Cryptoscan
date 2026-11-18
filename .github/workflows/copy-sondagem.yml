@@ -12,6 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: python3 tools/copy_sondagem.py publico
+      - run: python3 tools/copy_sondagem.py lideres
   eu:
     runs-on: [self-hosted, eu]
     timeout-minutes: 5

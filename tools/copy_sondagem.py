@@ -115,6 +115,24 @@ def bybit_eu():
 
 if __name__ == "__main__":
     modo = sys.argv[1] if len(sys.argv) > 1 else "publico"
+    if modo == "lideres":
+        out = {}
+        for base in ("https://www.okx.com",):
+            for st in ("overview", "pnl", "aum", "win_ratio", "pnl_ratio", "current_copy_trader_pnl"):
+                vistos, paginas = set(), None
+                for pg in range(1, 40):
+                    s_, d = _http(f"{base}/api/v5/copytrading/public-lead-traders?instType=SWAP&sortType={st}&page={pg}&limit=20")
+                    if not isinstance(d, dict) or d.get("code") != "0" or not d.get("data"):
+                        out[st] = {"erro_pagina": pg, "code": (d or {}).get("code") if isinstance(d, dict) else s_, "msg": str((d or {}).get("msg"))[:80] if isinstance(d, dict) else None}
+                        break
+                    paginas = d["data"][0].get("totalPage")
+                    for r_ in d["data"][0].get("ranks") or []:
+                        vistos.add(r_.get("uniqueCode"))
+                    if paginas and pg >= int(paginas):
+                        break
+                out[st] = {**out.get(st, {}), "total_paginas": paginas, "traders": len(vistos)}
+        print(json.dumps(out, indent=1))
+        sys.exit(0)
     if modo == "publico":
         r = {"okx_www": okx_publico("https://www.okx.com"), "okx_eea": okx_publico("https://eea.okx.com"), "hyperliquid": hyperliquid()}
     else:
