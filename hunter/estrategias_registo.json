@@ -62,14 +62,17 @@
     "operacoes_por_semana": 16.82
    },
    "papel": {
-    "fechadas": 12,
-    "acontecimentos": 1,
-    "dias": 1.0,
-    "r_medio": -0.6414,
-    "r_medio_por_acontecimento": -0.6414,
+    "fechadas": 24,
+    "acontecimentos": 2,
+    "dias": 1.2,
+    "r_medio": -0.3592,
+    "r_medio_por_acontecimento": -0.3592,
     "falhas_criticas": 1,
     "desde": 1794916800,
-    "ic95_acontecimento": null,
+    "ic95_acontecimento": [
+     -0.6414,
+     -0.077
+    ],
     "ok": false
    },
    "metricas_papel": {
@@ -121,18 +124,66 @@
      "H": [
       1,
       0.3504
+     ],
+     "AR": [
+      1,
+      0.3143
+     ],
+     "ASTS": [
+      1,
+      -1.075
+     ],
+     "DRAM": [
+      1,
+      0.3013
+     ],
+     "EWY": [
+      1,
+      0.366
+     ],
+     "JTO": [
+      1,
+      0.6549
+     ],
+     "KMNO": [
+      1,
+      -1.0639
+     ],
+     "META": [
+      1,
+      -0.4069
+     ],
+     "NFLX": [
+      1,
+      -0.501
+     ],
+     "TSM": [
+      1,
+      0.1391
+     ],
+     "US100": [
+      1,
+      -0.0978
+     ],
+     "USAR": [
+      1,
+      0.7288
+     ],
+     "WLFI": [
+      1,
+      -0.2842
      ]
     },
     "por_tf": {
      "4H": [
-      12,
-      -0.6414
+      24,
+      -0.3592
      ]
     },
     "por_regime": {
      "btc_abaixo_media50": [
-      12,
-      -0.6414
+      24,
+      -0.3592
      ]
     }
    },
@@ -280,14 +331,17 @@
     "operacoes_por_semana": 35.3
    },
    "papel": {
-    "fechadas": 3,
-    "acontecimentos": 1,
-    "dias": 1.0,
-    "r_medio": -0.7856,
-    "r_medio_por_acontecimento": -0.7856,
+    "fechadas": 4,
+    "acontecimentos": 2,
+    "dias": 1.2,
+    "r_medio": -0.0957,
+    "r_medio_por_acontecimento": 0.5942,
     "falhas_criticas": 0,
     "desde": 1794916800,
-    "ic95_acontecimento": null,
+    "ic95_acontecimento": [
+     -0.7856,
+     1.974
+    ],
     "ok": false
    },
    "metricas_papel": {
@@ -303,18 +357,22 @@
      "O": [
       1,
       -0.244
+     ],
+     "PIEVERSE": [
+      1,
+      1.974
      ]
     },
     "por_tf": {
      "4H": [
-      3,
-      -0.7856
+      4,
+      -0.0957
      ]
     },
     "por_regime": {
      "btc_abaixo_media50": [
-      3,
-      -0.7856
+      4,
+      -0.0957
      ]
     }
    },
@@ -325,7 +383,7 @@
     "papel_vs_real_r": null
    },
    "desde": 1794923573,
-   "motivo": "auditoria tecnica cumprida; experimenta em real com os limites do piloto (papel: 3 fechadas, 1 acontecimentos, 1.0 dias)",
+   "motivo": "auditoria tecnica cumprida; experimenta em real com os limites do piloto (papel: 4 fechadas, 2 acontecimentos, 1.2 dias)",
    "estado_estatistico": "PAPER_TRADING",
    "auditoria_tecnica": {
     "ok": true,
@@ -458,14 +516,36 @@
     "operacoes_por_semana": 17.35
    },
    "papel": {
-    "fechadas": 0,
-    "acontecimentos": 0,
-    "dias": 0,
-    "r_medio": null,
+    "fechadas": 1,
+    "acontecimentos": 1,
+    "dias": 0.2,
+    "r_medio": 1.4838,
+    "r_medio_por_acontecimento": 1.4838,
     "falhas_criticas": 0,
+    "desde": 1795003200,
+    "ic95_acontecimento": null,
     "ok": false
    },
-   "metricas_papel": {},
+   "metricas_papel": {
+    "por_moeda": {
+     "PIEVERSE": [
+      1,
+      1.4838
+     ]
+    },
+    "por_tf": {
+     "4H": [
+      1,
+      1.4838
+     ]
+    },
+    "por_regime": {
+     "btc_abaixo_media50": [
+      1,
+      1.4838
+     ]
+    }
+   },
    "real": {
     "fechadas": 0,
     "r_medio": null,
@@ -473,7 +553,7 @@
     "papel_vs_real_r": null
    },
    "desde": 1794923573,
-   "motivo": "auditoria tecnica cumprida; experimenta em real com os limites do piloto (papel: 0 fechadas, 0 acontecimentos, 0 dias)",
+   "motivo": "auditoria tecnica cumprida; experimenta em real com os limites do piloto (papel: 1 fechadas, 1 acontecimentos, 0.2 dias)",
    "estado_estatistico": "PAPER_TRADING",
    "auditoria_tecnica": {
     "ok": true,
@@ -889,7 +969,7 @@
    }
   }
  },
- "t": 1795015875,
+ "t": 1795017675,
  "pedidos_teste_final": [],
  "piloto_operacional": true,
  "criterios": {
