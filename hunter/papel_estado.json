@@ -3418,7 +3418,7 @@
 "instrumentos_descobertos": 262,
 "com_dados_validos": 260,
 "falhas_tecnicas": 14,
-"excluidos_por_dados": 600,
+"excluidos_por_dados": 612,
 "candidatos": 1,
 "aprovados": 1,
 "abertas_novas": 44,
@@ -3435,7 +3435,7 @@
 "filtro cripto": 1
 }
 },
-"voltas": 50,
+"voltas": 51,
 "bloqueadas": {
 "057f68c36111": [
 "drawdown 10.35R >= 8.0R"
@@ -3492,19 +3492,17 @@
 "falhas_tecnicas": 0,
 "excluidos_por_dados": 12,
 "dados_fiaveis": true,
-"sinais_brutos": 1,
-"rejeitados": {
-"estrategia bloqueada pelo motor de sobrevivencia": 1
-},
+"sinais_brutos": 0,
+"rejeitados": {},
 "elegiveis_apos_concentracao": 0,
 "abertas_novas": 0,
 "fechadas_agora": 0,
 "acontecimentos_novos": 0,
-"moedas_com_sinal": 1,
-"t": 1794992475,
+"moedas_com_sinal": 0,
+"t": 1794994276,
 "versao_codigo": "f1c64eb"
 },
-"t": 1794992475,
+"t": 1794994276,
 "aviso": "PAPEL: simulado, nunca somado aos resultados reais; sem ordens",
 "vistos": [
 "057f68c36111|APR|1794902400",
