@@ -1,30 +1,30 @@
 {
 "resumo": {
-"t": 1795041076,
+"t": 1795042876,
 "janela_h": 24,
 "instrumentos_com_1h": 260,
-"movimentos": 276,
+"movimentos": 277,
 "detetados": 5,
-"nao_detetados_D": 271,
-"D_identificaveis": 138,
+"nao_detetados_D": 272,
+"D_identificaveis": 137,
 "D_por_condicao": {
-"fraqueza_relativa": 14,
-"nenhuma": 133,
-"extensao_baixa": 23,
+"volume": 40,
 "extensao_alta": 81,
-"forca_relativa": 67,
-"volume": 39,
 "rompimento_alta": 22,
-"rompimento_baixa": 6
+"forca_relativa": 67,
+"nenhuma": 135,
+"extensao_baixa": 23,
+"fraqueza_relativa": 12,
+"rompimento_baixa": 7
 },
 "D_por_lado": {
-"LONG": 116,
-"SHORT": 155
+"LONG": 109,
+"SHORT": 163
 },
 "D_por_classe": {
-"precious_metal": 3,
-"equity": 89,
-"crypto": 179
+"crypto": 183,
+"equity": 86,
+"precious_metal": 3
 },
 "aviso": "teto_hipotetico = excursao maxima menos custos, escolhida depois do movimento: NAO e resultado real nem realizavel"
 },
@@ -10989,6 +10989,63 @@
 "teto_hipotetico": 0.0897
 },
 {
+"base": "APP",
+"classe": "equity",
+"lado": "LONG",
+"inicio": 1794960000,
+"movimento": 0.0326,
+"limite": 0.03,
+"detetado": false,
+"condicoes_em_tempo_real": [
+"extensao_baixa",
+"fraqueza_relativa"
+],
+"identificavel": true,
+"teto_hipotetico": 0.0314
+},
+{
+"base": "CP",
+"classe": "crypto",
+"lado": "LONG",
+"inicio": 1794960000,
+"movimento": 0.0908,
+"limite": 0.03,
+"detetado": false,
+"condicoes_em_tempo_real": [
+"extensao_alta"
+],
+"identificavel": true,
+"teto_hipotetico": 0.0896
+},
+{
+"base": "MINIMAX",
+"classe": "equity",
+"lado": "LONG",
+"inicio": 1794960000,
+"movimento": 0.0309,
+"limite": 0.03,
+"detetado": false,
+"condicoes_em_tempo_real": [
+"extensao_alta"
+],
+"identificavel": true,
+"teto_hipotetico": 0.0297
+},
+{
+"base": "ZIL",
+"classe": "crypto",
+"lado": "LONG",
+"inicio": 1794960000,
+"movimento": 0.0813,
+"limite": 0.0745,
+"detetado": false,
+"condicoes_em_tempo_real": [
+"forca_relativa"
+],
+"identificavel": true,
+"teto_hipotetico": 0.0801
+},
+{
 "base": "CP",
 "classe": "crypto",
 "lado": "SHORT",
@@ -14379,6 +14436,111 @@
 ],
 "identificavel": true,
 "teto_hipotetico": 0.0405
+},
+{
+"base": "CP",
+"classe": "crypto",
+"lado": "SHORT",
+"inicio": 1795028400,
+"movimento": 0.0405,
+"limite": 0.0322,
+"detetado": false,
+"condicoes_em_tempo_real": [
+"extensao_alta",
+"forca_relativa"
+],
+"identificavel": true,
+"teto_hipotetico": 0.0393
+},
+{
+"base": "EIGEN",
+"classe": "crypto",
+"lado": "SHORT",
+"inicio": 1795028400,
+"movimento": 0.0374,
+"limite": 0.03,
+"detetado": false,
+"condicoes_em_tempo_real": [],
+"identificavel": false,
+"teto_hipotetico": 0.0362
+},
+{
+"base": "JTO",
+"classe": "crypto",
+"lado": "SHORT",
+"inicio": 1795028400,
+"movimento": 0.034,
+"limite": 0.03,
+"detetado": false,
+"condicoes_em_tempo_real": [],
+"identificavel": false,
+"teto_hipotetico": 0.0328
+},
+{
+"base": "MON",
+"classe": "crypto",
+"lado": "SHORT",
+"inicio": 1795028400,
+"movimento": 0.0413,
+"limite": 0.0326,
+"detetado": false,
+"condicoes_em_tempo_real": [
+"volume",
+"rompimento_baixa",
+"extensao_baixa"
+],
+"identificavel": true,
+"teto_hipotetico": 0.0401
+},
+{
+"base": "MOODENG",
+"classe": "crypto",
+"lado": "SHORT",
+"inicio": 1795028400,
+"movimento": 0.0314,
+"limite": 0.03,
+"detetado": false,
+"condicoes_em_tempo_real": [],
+"identificavel": false,
+"teto_hipotetico": 0.0302
+},
+{
+"base": "MRNA",
+"classe": "equity",
+"lado": "SHORT",
+"inicio": 1795028400,
+"movimento": 0.0396,
+"limite": 0.0359,
+"detetado": false,
+"condicoes_em_tempo_real": [
+"extensao_baixa"
+],
+"identificavel": true,
+"teto_hipotetico": 0.0384
+},
+{
+"base": "PYTH",
+"classe": "crypto",
+"lado": "SHORT",
+"inicio": 1795028400,
+"movimento": 0.0431,
+"limite": 0.032,
+"detetado": false,
+"condicoes_em_tempo_real": [],
+"identificavel": false,
+"teto_hipotetico": 0.0419
+},
+{
+"base": "TIA",
+"classe": "crypto",
+"lado": "SHORT",
+"inicio": 1795028400,
+"movimento": 0.0327,
+"limite": 0.03,
+"detetado": false,
+"condicoes_em_tempo_real": [],
+"identificavel": false,
+"teto_hipotetico": 0.0315
 },
 {
 "base": "RAVE",
