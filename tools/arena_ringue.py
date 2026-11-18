@@ -1230,7 +1230,8 @@ def serie_dispersao(bars):
 def percentil_dispersao(t):
     """Percentil (0-100) da dispersao no fecho t face aos DISP_JANELA valores ANTERIORES, ou None."""
     import bisect
-    bars = CTX.get("bars") or {}
+    # (18/11) ao vivo, o papel passa velas longas so para isto (CTX["bars_disp"]); no ringue nao existe e usa as barras
+    bars = CTX.get("bars_disp") or CTX.get("bars") or {}
     chave = (id(bars), len(bars), sum(len(c) for c in bars.values()), max((c[-1]["t"] for c in bars.values() if c), default=0))
     if _DISP["chave"] != chave:
         ts, ds = serie_dispersao(bars)
@@ -1707,6 +1708,7 @@ def run(bars, cfg, now, days=DAYS, seed=7, bars1h=None, funding=None, oi=None,
     vender). None = lista desconhecida: comportamento antigo, assinalado em 'shorts_universo'."""
     t0 = now - days * DAY
     btc = bars.get("BTC")
+    CTX.pop("bars_disp", None)            # (18/11) so o papel ao vivo o usa
     CTX.update(btc=btc, funding=funding or {}, oi=oi or {}, macro=macro or {}, ls=ls or {},
                bars=bars, rank={})
     # rotacao semanal: o ranking de cada segunda-feira 00h UTC, calculado uma vez

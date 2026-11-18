@@ -141,13 +141,35 @@ class OKX:
                                     x.get("volCcy24h"), chg)
         return out
 
+    PAGINA = 300            # maximo por pedido em /market/candles
+    PAGINAS_MAX = 4         # (18/11) ate 1200 velas: chega para o historico longo de 4H (RACIO_DISP)
+    PAUSA_S = 0.12          # entre paginas (limite publico: 40 pedidos / 2 s)
+
     def candles(self, base, tf, limit=300):
-        d = _get(self.base_url + "/api/v5/market/candles",
-                 {"instId": f"{base}-{QUOTE}", "bar": self._tf[tf],
-                  "limit": min(limit, 300)})
+        """Velas mais recentes primeiro (como a OKX as devolve). Ate 300: um pedido, igual a antes. Mais do que 300:
+        pagina para tras com 'after' (velas mais antigas do que a ultima recebida), sem duplicar; se uma pagina
+        seguinte falhar, devolve o que ja tem (a primeira pagina e a mesma de antes)."""
+        prm = {"instId": f"{base}-{QUOTE}", "bar": self._tf[tf], "limit": min(limit, self.PAGINA)}
+        d = _get(self.base_url + "/api/v5/market/candles", prm)
         if d.get("code") != "0":
             raise SourceError(f"code {d.get('code')}: {d.get('msg')}")
-        return [_candle(r[0], r[1], r[2], r[3], r[4], r[5]) for r in d["data"]]
+        rows = list(d["data"])
+        vistos = {r[0] for r in rows}
+        for _ in range(self.PAGINAS_MAX - 1):
+            if len(rows) >= limit or not rows:
+                break
+            time.sleep(self.PAUSA_S)
+            try:
+                d = _get(self.base_url + "/api/v5/market/candles",
+                         dict(prm, after=min(int(r[0]) for r in rows), limit=self.PAGINA))
+            except SourceError:
+                break
+            novas = [r for r in d.get("data") or [] if r[0] not in vistos] if d.get("code") == "0" else []
+            if not novas:
+                break
+            vistos.update(r[0] for r in novas)
+            rows += novas
+        return [_candle(r[0], r[1], r[2], r[3], r[4], r[5]) for r in rows[:limit]]
 
     def book(self, base):
         d = _get(self.base_url + "/api/v5/market/books",

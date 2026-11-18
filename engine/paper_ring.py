@@ -62,7 +62,7 @@ def _r_medio(closed):
     return len(rs), round(sum(rs) / len(rs), 3)
 
 
-def update(state, rows, bars, now, market_ok=True):
+def update(state, rows, bars, now, market_ok=True, longas=None):
     st = state.setdefault("paper_ring", {})
     killed = state.setdefault("papel_kill", {})
     extra_estudo, extra_fase, extra_nmin = (), {}, {}
@@ -133,7 +133,7 @@ def update(state, rows, bars, now, market_ok=True):
         if k not in active or k in killed or (
                 not market_ok and not short_k and k not in PAPEL_SEM_FILTRO_BTC):
             continue
-        promo.set_context(rows, bars)
+        promo.set_context(rows, bars, longas)
         try:
             from tools.arena_ringue import CTX
         except Exception:
