@@ -91,9 +91,9 @@ def bybit(bases):
                 PRIV.append(f"Bybit EU {b}: saldo {c.get('walletBalance')}, divida {c.get('borrowAmount')}")
             for filtro in ("Order", "StopOrder", "tpslOrder"):
                 try:
-                    o = AC.get("/v5/order/realtime", {"category": "spot", "symbol": f"{b}USDT", "orderFilter": filtro})
-                    lst = o.get("list") or []
-                    out[b][f"ordens_{filtro}"] = [{"orderId": x.get("orderId"), "lado": x.get("side"), "tipo": x.get("orderType"),
+                    o = AC.get("/v5/order/realtime", {"category": "spot", "orderFilter": filtro})       # todos os pares spot
+                    lst = [x for x in o.get("list") or [] if str(x.get("symbol", "")).startswith(b)]
+                    out[b][f"ordens_{filtro}"] = [{"orderId": x.get("orderId"), "par": x.get("symbol"), "lado": x.get("side"), "tipo": x.get("orderType"),
                                                   "trigger": x.get("triggerPrice"), "preco": x.get("price"), "estado": x.get("orderStatus"),
                                                   "orderLinkId": x.get("orderLinkId")} for x in lst]
                     for x in lst:
