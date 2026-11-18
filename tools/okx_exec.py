@@ -449,6 +449,39 @@ def aplicar_suspensao(base, op, c, now, msgs):
     return False
 
 
+FUNIL_MAX = 800
+
+
+def funil(R, now, base, sig, decisao):
+    """(18/11, ordem executiva) Registo publico (sem valores) da ultima decisao do executor para cada sinal:
+    R["funil"][base:t_sig] = {t, origem, estrategia, lado, decisao}. Serve para contar sinais vistos, recusados (e
+    porque) e ordens, sem repetir o mesmo sinal de hora a hora."""
+    try:
+        f = R.setdefault("funil", {})
+        origem = sig.get("tipo") or "panico"
+        if origem == "espelho":
+            origem = "espelho_okx" if sig.get("origem") == "okx" else "espelho_bybit"
+        f[f"{base}:{sig.get('t_sig')}"] = {"t": int(now), "origem": origem, "estrategia": sig.get("estrategia"),
+                                           "lado": sig.get("lado"), "decisao": decisao}
+        if len(f) > FUNIL_MAX:
+            for k in sorted(f, key=lambda k: f[k]["t"])[:len(f) - FUNIL_MAX]:
+                del f[k]
+    except Exception:                       # noqa: BLE001 - o registo nunca para o executor
+        pass
+
+
+def resumo_funil(R, now, dias=7):
+    """{dia: {origem: {decisao: n}}} dos ultimos 'dias' (para a app e para o relatorio)."""
+    out = {}
+    for v in (R.get("funil") or {}).values():
+        if now - v["t"] > dias * 86400:
+            continue
+        d = time.strftime("%Y-%m-%d", time.gmtime(v["t"]))
+        o = out.setdefault(d, {}).setdefault(v["origem"], {})
+        o[v["decisao"]] = o.get(v["decisao"], 0) + 1
+    return out
+
+
 R_AVISOS = set()
 ESPELHO_FOLGA = 0.002          # limite 0,2% para o lado pior do preco atual: entra ja, como o mercado da Bybit
 
@@ -494,8 +527,14 @@ def campeoes_sinais(st_bybit, xp, now, velas=velas_4h):
     negociaveis na conta da OKX, com as velas de 4H da propria OKX e a mesma funcao de sinal da Bybit
     (tools/arena_ringue.SINAIS). So sinais da vela que acabou de fechar. [(base, sinal no formato espelho)]."""
     sb = st_bybit or {}
+    # (18/11, ordem executiva) os campeoes sao os que o motor da Bybit escolheu para dinheiro real (campeoes_ant ja
+    # passa REAL_OK, suspensoes e a qualificacao por fase do ringue de um ano). Antes tirava-se tambem quem estivesse
+    # em arena.mortos: o SHORT_TURTLE morreu a 12/10 na fase de subida (forma de 90 dias) e voltou a campeao pela fase
+    # de queda; a Bybit opera-o e a OKX nunca o via (0 sinais de campeoes desde 14/11). Ficam de fora so os que a
+    # Bybit tem so em papel e as mortes decididas pelo Rui (definitivas).
+    mortos = (sb.get("arena") or {}).get("mortos") or {}
     champs = [k for k in sb.get("campeoes_ant") or [] if k not in (sb.get("so_papel") or {})
-              and k not in ((sb.get("arena") or {}).get("mortos") or {})]
+              and not (mortos.get(k) or {}).get("decisao")]
     if not champs or not xp:
         return []
     from tools import arena_ringue as AR
@@ -614,18 +653,28 @@ def correr(st, novos, now, msgs):
     tent = R.setdefault("colocados", [])          # so os sinais com ordem posta (uma recusa por tamanho volta a tentar)
     for base, sig in novos:
         chave = f"{base}:{sig['t_sig']}"
-        if base in R["ops"] or chave in tent or len(R["ops"]) >= c["max_posicoes"] or now >= sig["t_sig"] + 3 * H4 - 300:
+        if base in R["ops"] or chave in tent:
+            continue
+        if len(R["ops"]) >= c["max_posicoes"]:
+            funil(R, now, base, sig, "maximo de posicoes")
+            continue
+        if now >= sig["t_sig"] + 3 * H4 - 300:
+            funil(R, now, base, sig, "sinal velho")
             continue
         recuo = sig.get("tipo") == "recuo"
         if recuo and not c.get("recuo_real"):
+            funil(R, now, base, sig, "recuo desligado")
             continue
         esp = sig.get("tipo") == "espelho"                        # (14/11) campeoes da arena (sinais REAIS da Bybit)
         if esp and not c.get("espelho_real"):
+            funil(R, now, base, sig, "espelho desligado")
             continue
         h40 = sig.get("tipo") in ("mercado", "isolado", None)      # sinais do panico do agente (tools/okx_agente.py)
         if not recuo and not h40 and not esp:
+            funil(R, now, base, sig, "estrategia desconhecida")
             continue                                              # estrategia desconhecida: nunca abre ordens reais
         if h40 and not c.get("panico_real", False):
+            funil(R, now, base, sig, "H40 suspensa do real")
             # (05/11, OK do Rui) H40 suspensa do dinheiro real: o sinal fica so em papel (a H46 continua)
             chave_p = f"p:{base}:{sig['t_sig']}"
             if chave_p not in R.setdefault("avisados", []):
@@ -635,9 +684,11 @@ def correr(st, novos, now, msgs):
         if sig.get("tipo") in ("isolado", None) and h40:
             # (13/11, ordem do Rui) panico ISOLADO reprovado para dinheiro real (22 em papel, -0,60R/op, PF 0,28,
             # IC95 abaixo de 0): nunca entra em real, mesmo que a configuracao volte a ligar a H40 ou o "so_mercado"
+            funil(R, now, base, sig, "panico isolado reprovado")
             continue
         if c.get("so_mercado", True) and sig.get("tipo") not in ("mercado", "recuo", "espelho"):
             # (04/11, H40) o panico isolado perdeu na metade recente (-0,126R); o do mercado todo deu +0,17R/+0,41R
+            funil(R, now, base, sig, "panico isolado (so mercado)")
             chave_i = f"i:{base}:{sig['t_sig']}"
             if chave_i not in R.setdefault("avisados", []):
                 R["avisados"].append(chave_i)
@@ -645,6 +696,7 @@ def correr(st, novos, now, msgs):
             continue
         info = xp.get(base)
         if not info:
+            funil(R, now, base, sig, "sem X-Perp na conta")
             chave_x = f"x:{base}:{sig['t_sig']}"
             if chave_x not in R.setdefault("avisados", []):
                 R["avisados"].append(chave_x)
@@ -653,8 +705,10 @@ def correr(st, novos, now, msgs):
         avisados = R.setdefault("avisados", [])
         n0 = len(msgs)
         if esp:
+            sig0 = sig
             sig = espelho_preco(base, sig, info)
             if not sig:
+                funil(R, now, base, sig0, "preco fora do plano")
                 chave_e = f"e:{base}:{sig_t(base, novos)}"
                 if chave_e not in avisados:
                     avisados.append(chave_e)
@@ -664,6 +718,7 @@ def correr(st, novos, now, msgs):
             short_e = sig.get("lado") == "SHORT"
             n_esp = sum(1 for o in R["ops"].values() if o.get("estrategia") == "espelho")
             if n_esp >= int(c.get("espelho_max_posicoes", 2)):
+                funil(R, now, base, sig, "maximo de posicoes do espelho")
                 chave_m = f"me:{base}:{sig['t_sig']}"
                 if chave_m not in avisados:
                     avisados.append(chave_m)
@@ -683,6 +738,7 @@ def correr(st, novos, now, msgs):
                   "risco_max_pct": float(c.get("panico_risco_max_pct", 1.0))}
             n_h40 = sum(1 for o in R["ops"].values() if o.get("estrategia") != "recuo")
             if n_h40 >= int(c.get("panico_max_posicoes", 3)):
+                funil(R, now, base, sig, "maximo de posicoes H40")
                 chave_m = f"m:{base}:{sig['t_sig']}"
                 if chave_m not in avisados:
                     avisados.append(chave_m)
@@ -693,6 +749,7 @@ def correr(st, novos, now, msgs):
         aberto = sum(float(o.get("risco_pct") or (cc["risco_max_pct"] if o.get("estrategia") != "recuo" else 2.0))
                      for o in R["ops"].values())
         if p and aberto + 100 * p["risco_usd"] / eq > float(c.get("risco_total_max_pct", 3.0)) + 1e-9:
+            funil(R, now, base, sig, "teto de risco aberto")
             chave_r = f"r:{base}:{sig['t_sig']}"
             if chave_r not in avisados:
                 avisados.append(chave_r)
@@ -710,6 +767,7 @@ def correr(st, novos, now, msgs):
                 risco_real = round(100 * p["risco_usd"] / eq, 2) if p else None
                 ok_ptl, motivo = PTL.pode_abrir(ops_ptl, "OKX", risco_real)
                 if not ok_ptl:
+                    funil(R, now, base, sig, "guarda TURTLE LONG")
                     chave_t = f"t:{base}:{sig.get('t_sig')}"
                     if chave_t not in avisados:
                         avisados.append(chave_t)
@@ -732,6 +790,7 @@ def correr(st, novos, now, msgs):
         if op and recuo:
             op["estrategia"] = "recuo"
             msgs[-1] = msgs[-1].replace("OKX real — ", "OKX real (recuo na subida, H46) — ", 1)
+        funil(R, now, base, sig, "ordem enviada" if op else "recusada no plano ou pela OKX")
         if op:
             R["ops"][base] = op
             tent.append(chave)
