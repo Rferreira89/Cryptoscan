@@ -89,17 +89,23 @@ def bybit(bases):
             out[b] = {"tem_saldo_ou_divida": bool(c), "em_divida_short_margem": bool(c and float(c.get("borrowAmount") or 0) > 0)}
             if c:
                 PRIV.append(f"Bybit EU {b}: saldo {c.get('walletBalance')}, divida {c.get('borrowAmount')}")
-            for filtro in ("Order", "StopOrder", "tpslOrder"):
-                try:
-                    o = AC.get("/v5/order/realtime", {"category": "spot", "orderFilter": filtro})       # todos os pares spot
-                    lst = [x for x in o.get("list") or [] if str(x.get("symbol", "")).startswith(b)]
-                    out[b][f"ordens_{filtro}"] = [{"orderId": x.get("orderId"), "par": x.get("symbol"), "lado": x.get("side"), "tipo": x.get("orderType"),
-                                                  "trigger": x.get("triggerPrice"), "preco": x.get("price"), "estado": x.get("orderStatus"),
+            for par in (f"{b}USDC", f"{b}USDT"):              # como o executor (engine/executor.tpsl_orders): por par
+                for filtro in (None, "Order", "tpslOrder", "StopOrder"):
+                    prm = {"category": "spot", "symbol": par, "limit": 50}
+                    if filtro:
+                        prm["orderFilter"] = filtro
+                    try:
+                        lst = AC.get("/v5/order/realtime", prm).get("list") or []
+                    except Exception as e:
+                        out[b][f"{par}_{filtro}"] = f"erro: {str(e)[:80]}"
+                        continue
+                    out[b][f"{par}_{filtro}"] = [{"orderId": x.get("orderId"), "lado": x.get("side"), "tipo": x.get("orderType"),
+                                                  "filtro": x.get("orderFilter"), "trigger": x.get("triggerPrice"),
+                                                  "stopLoss": x.get("stopLoss"), "takeProfit": x.get("takeProfit"),
+                                                  "stopOrderType": x.get("stopOrderType"), "estado": x.get("orderStatus"),
                                                   "orderLinkId": x.get("orderLinkId")} for x in lst]
                     for x in lst:
-                        PRIV.append(f"Bybit EU ordem {b} {x.get('orderId')} ({filtro}, {x.get('side')}): qty {x.get('qty')}")
-                except Exception as e:
-                    out[b][f"ordens_{filtro}"] = f"erro: {str(e)[:80]}"
+                        PRIV.append(f"Bybit EU ordem {par} {x.get('orderId')} ({filtro}, {x.get('side')}): qty {x.get('qty')}")
     except Exception as e:
         out["erro"] = f"{type(e).__name__}: {str(e)[:120]}"
     return out
