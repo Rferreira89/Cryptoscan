@@ -550,7 +550,7 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
             e = calendar.block(now, a)
             return e["name"] if e else None
         for a, d in promo.decisions(state, eligible, c4s, cfg, now, champs,
-                                    market_ok, block_for, conta=conta).items():
+                                    market_ok, block_for, conta=conta or False).items():
             row = next(r for r in eligible if r["asset"] == a)
             if d["decision"] == "SHORT":           # shorts seguem o ciclo dos shorts
                 row["decision_short"] = d
