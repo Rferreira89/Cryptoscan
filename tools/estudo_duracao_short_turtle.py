@@ -28,7 +28,8 @@ import time
 from engine import arena, backtest as B
 
 H4, DAY = 14400, 86400
-FEE, SLIP = 0.0025, 0.001
+FEE = float(os.environ.get("FEE", "0.0025"))       # (19/11) por corretora: Bybit UE spot 0,25%; OKX futuros 0,05% taker
+SLIP = float(os.environ.get("SLIP", "0.001"))
 JURO_DIA = float(os.environ.get("JURO_DIA", "0.0003"))
 DIAS = (1, 2, 3, 5, 7, 10, 15, 20)
 HOLD = 20 * DAY
