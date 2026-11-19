@@ -107,6 +107,12 @@ DEFAULTS = {
     "cooldown_after_losses": 3,     # perdas seguidas -> pausa de 24h (0 = desligado; config.json tem 0 desde 18/10)
     # (16/11) piloto experimental TURTLE LONG (0,5%, 1 pos/exchange, kill -3R)
     "piloto_turtle_long": {},
+    # (19/11, decisao do Rui: "a Bybit fica como acumulacao... quero a OKX completamente dedicada ao trading")
+    # "trading": como antes. "acumulacao": a Bybit nao abre operacoes de trading novas (as abertas seguem as suas
+    # regras ate fecharem); os sinais dos campeoes continuam a ser decididos (em papel na Bybit) para a OKX os usar.
+    "bybit_modo": "trading",
+    # carteira de acumulacao da Bybit UE (engine/acumulacao): so spot, sem alavancagem nem emprestimos
+    "acumulacao": {},
 }
 
 

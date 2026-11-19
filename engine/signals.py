@@ -509,11 +509,12 @@ def update_state(state, rows, cfg, now, daily=None):
                 "exposição correlacionada: já há " + str(MAX_CORRELATED)
                 + " posições com correlação acima de " + str(CORR_LIMIT)))
             continue
-        if slots[d["mode"]] <= 0:
+        conta = "REAL" if d.get("espelho_okx") else d["mode"]   # (19/11) decisao real do campeao (Bybit em acumulacao)
+        if slots[conta] <= 0:
             d.update(decision="WATCHLIST",
                      reason="limite de operações em simultâneo atingido")
             continue
-        slots[d["mode"]] -= 1
+        slots[conta] -= 1
         live.add(r["asset"])
         key = f"{r['asset']}-{d['strategy']}-{now}"
         sig = {"id": key, "asset": r["asset"], "pair": d["venue"]["pair"],
@@ -528,6 +529,8 @@ def update_state(state, rows, cfg, now, daily=None):
                "status": "ACTIVE", "mode": d["mode"], "correlation": corr,
                "validation": validation.status(d["strategy"]),
                "diretor": d.get("diretor")}
+        if d.get("espelho_okx"):
+            sig["espelho_okx"] = True
         sig["validated"] = bool(sig["validation"].get("validated"))
         sigs[key] = sig
         events.append({"t": now, "event": "ISSUED", "id": key,

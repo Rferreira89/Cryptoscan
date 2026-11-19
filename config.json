@@ -1,6 +1,6 @@
 {
   "require_btc_above_sma200": false,
-"shorts": true,
+  "shorts": true,
   "max_risk_usdc": 2.5,
   "fee_pct": 0.25,
   "max_rr_tp1": 2.5,
@@ -14,7 +14,9 @@
   "cooldown_after_losses": 0,
   "nucleo_ligado": true,
   "nucleo_reforcar": true,
-  "nucleo_moedas": ["BTC"],
+  "nucleo_moedas": [
+    "BTC"
+  ],
   "nucleo_fracao": 0.5,
   "nucleo_dias": 50,
   "nucleo_alavancagem": 1,
@@ -24,7 +26,6 @@
     ]
   },
   "familias_so_papel": [],
-  
   "liberdade": {
     "deposito_mensal": 300,
     "rendimento_mensal": 2000,
@@ -33,24 +34,27 @@
   },
   "real_autorizados": null,
   "piloto": {
-  "estrategia": "SHORT_TURTLE",
-  "teto_pct": 5,
-  "teto_agregado_pct": 5,
-  "risco_alvo_pct": 2.5,
-  "max_posicoes": 2,
-  "perda_max_r": -8,
-  "juro_max_r": 0.06,
-  "dias_max": 20,
-  "inicio": 1794441600,
-  "autorizado": "Rui, 12/11/2026 00:34; teto 5%: Rui, 12/11/2026 09:06; risco-alvo 2,5%: Rui, 13/11/2026 01:03"
-},
+    "estrategia": "SHORT_TURTLE",
+    "teto_pct": 5,
+    "teto_agregado_pct": 5,
+    "risco_alvo_pct": 2.5,
+    "max_posicoes": 2,
+    "perda_max_r": -8,
+    "juro_max_r": 0.06,
+    "dias_max": 20,
+    "inicio": 1794441600,
+    "autorizado": "Rui, 12/11/2026 00:34; teto 5%: Rui, 12/11/2026 09:06; risco-alvo 2,5%: Rui, 13/11/2026 01:03"
+  },
   "piloto_turtle_long": {
     "ligado": true,
     "estrategia": "TURTLE",
     "risco_max_pct": 0.5,
     "max_posicoes_por_exchange": 1,
     "perda_max_r": -3,
-    "exchanges": ["Bybit EU", "OKX"],
+    "exchanges": [
+      "Bybit EU",
+      "OKX"
+    ],
     "inicio": 1794799200,
     "autorizado": "Rui, 16/11/2026: piloto experimental LONG a 0,5%, 1 pos/exchange, kill -3R"
   },
@@ -67,5 +71,22 @@
     "risco_max_pct": 3,
     "so_mercado": true,
     "composto": true
+  },
+  "bybit_modo": "acumulacao",
+  "acumulacao": {
+    "modo": "sombra",
+    "pesos": {
+      "BTC": 0.7,
+      "ETH": 0.15,
+      "SOL": 0.0375,
+      "LINK": 0.0375,
+      "XRP": 0.0375,
+      "AVAX": 0.0375
+    },
+    "banda_pp": 5.0,
+    "ordem_min_usdc": 5.0,
+    "max_alt_pct": 5.0,
+    "revisao_alts_dias": 90,
+    "autorizado": "Rui, 19/11/2026 15:01: Bybit para acumulacao (BTC 70 / ETH 15 / alts 15, bandas 5 pp, compras com depositos, sem vendas por tendencia, so spot); real so depois de a XLM fechar e com o OK do Rui"
   }
 }

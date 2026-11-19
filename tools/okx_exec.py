@@ -518,7 +518,9 @@ def espelho_sinais(st_bybit, now):
     sinais = (st_bybit or {}).get("signals") or {}
     out = []
     for r in (st_bybit or {}).get("ledger") or []:
-        if r.get("mode") != "REAL" or r.get("status") not in ESTADOS_VIVOS or not r.get("asset"):
+        # (19/11) com a Bybit em acumulacao as decisoes dos campeoes ficam em papel na Bybit com a marca espelho_okx:
+        # continuam a ser sinais para a OKX
+        if (r.get("mode") != "REAL" and not r.get("espelho_okx")) or r.get("status") not in ESTADOS_VIVOS or not r.get("asset"):
             continue
         t_sig = int(r.get("issued_at") or 0) // H4 * H4
         if not t_sig or now >= t_sig + H4 or not r.get("stop") or not r.get("tp"):

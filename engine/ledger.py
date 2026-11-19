@@ -39,6 +39,8 @@ def apply(state, events):
                    "deps": (s.get("diretor") or {}).get("deps"),
                    "fase": (state.get("mercado") or {}).get("regime"),   # para o pos-morte
                    "status": "WAITING", "tp_hit": 0}
+            if s.get("espelho_okx"):
+                rec["espelho_okx"] = True                 # (19/11) Bybit em acumulacao: decisao real do campeao, para a OKX
             led.append(rec)
             by_id[rec["id"]] = rec
         elif k == "PAPER_BUY":

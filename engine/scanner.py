@@ -356,6 +356,15 @@ def apply_account(state, eu, now):
             "fundo": acc.get("fundo"), "reais": acc.get("reais") or {}, "expira": acc.get("expires")}
 
 
+def para_acumulacao(d, modo):
+    """(19/11, decisao do Rui) Com a Bybit em acumulacao, a decisao REAL de um campeao continua a existir (a OKX usa-a
+    pelo espelho), mas na Bybit fica em papel, marcada espelho_okx. Devolve d."""
+    if modo == "acumulacao" and d.get("mode") == "REAL":
+        d.update(mode="PAPER", espelho_okx=True)
+        d.setdefault("notes", []).append("Bybit em acumulação: sem trading real; o sinal segue para a OKX.")
+    return d
+
+
 def run(now=None, state=None, cfg=None, forma=None, eu=None):
     """Devolve (resultado, estado, eventos de auditoria)."""
     now = int(now or time.time())
@@ -539,6 +548,7 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
     promo.SO_PAPEL_FAM = set(cfg.get("familias_so_papel") or [])
     ra = cfg.get("real_autorizados")
     promo.AUTORIZADOS = None if ra is None else set(ra)
+    state["bybit_modo"] = cfg.get("bybit_modo") or "trading"
     champs = promo.champions(state, set(disabled), (state.get("mercado") or {}).get("regime"),
                              bool(cfg.get("campeoes_por_fase")))
     champ = champs[0] if champs else None
@@ -552,6 +562,7 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
         for a, d in promo.decisions(state, eligible, c4s, cfg, now, champs,
                                     market_ok, block_for, conta=conta or False).items():
             row = next(r for r in eligible if r["asset"] == a)
+            para_acumulacao(d, state["bybit_modo"])
             if d["decision"] == "SHORT":           # shorts seguem o ciclo dos shorts
                 row["decision_short"] = d
             else:

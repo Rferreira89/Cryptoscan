@@ -264,6 +264,13 @@ def sem_capital(state):
 
 
 def request(state, acao, op, now):
+    if acao in ENTRADAS and state.get("bybit_modo") == "acumulacao":
+        # (19/11, decisao do Rui) a Bybit deixou de fazer trading: nenhuma entrada nova; fechos, saidas e protecoes das
+        # posicoes abertas passam sempre (a XLM segue as suas regras)
+        b = state.setdefault("entradas_bloqueadas", [])
+        b.append({"t": int(now), "acao": acao, "op": str(op)[-40:], "motivo": "Bybit em acumulação: sem trading"})
+        del b[:-50]
+        return None
     if acao in ENTRADAS and sem_capital(state):
         b = state.setdefault("entradas_bloqueadas", [])
         b.append({"t": int(now), "acao": acao, "op": str(op)[-40:], "motivo": "sem saldo real confirmado"})
