@@ -35,7 +35,10 @@ def _get_publico(path):
 # deslize por lado) so e realista com spread <= 8 bps.
 VOL_MIN_USD = 5_000_000
 SPREAD_MAX_BPS = 8.0
-TOPO_MIN_USD = 2_000          # valor no melhor bid e no melhor ask (ordem pequena executa sem varrer o livro)
+# valor no melhor bid e no melhor ask: 10x as ordens reais da OKX (piloto: nocional ate ~20), para uma ordem pequena
+# executar sem varrer o livro. (19/11) 2000 deixava 13 perpetuos (54 cortados so por isto): mal calibrado para o
+# tamanho real das ordens, corrigido antes de haver resultados.
+TOPO_MIN_USD = 250
 N_MAX = 150                   # limite de pedidos por volta (as velas sao um pedido por moeda)
 ELEG = {}
 
