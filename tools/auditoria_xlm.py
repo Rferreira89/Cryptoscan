@@ -187,7 +187,9 @@ if __name__ == "__main__":
     OUT.pop("_okx_qty_base", None)
     priv_b = OUT.pop("_bybit", None)
     print("AUDITORIA_XLM_JSON_INICIO")
-    print(json.dumps(OUT, ensure_ascii=False, separators=(",", ":")))
+    txt = json.dumps(OUT, ensure_ascii=False, separators=(",", ":"))
+    for i in range(0, len(txt), 2000):
+        print("AXJ|" + txt[i:i + 2000], flush=True)
     print("AUDITORIA_XLM_JSON_FIM")
     if PRIV:
         try:
