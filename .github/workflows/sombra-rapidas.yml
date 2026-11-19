@@ -1,0 +1,35 @@
+name: Sombra das rapidas (so leitura, SHADOW)
+# (19/11, ordem do Rui, ponto 11) De hora a hora: hipoteses rapidas R1-R4 (tools/estudo_rapidas_1h) seguidas AO VIVO
+# em velas publicas de 1 h da OKX, para acumular evidencia fora da amostra. Sem chaves, sem ordens, sem Telegram.
+# Estado publico no ramo sombra-rapidas (so precos, R e contagens; passa pela guarda publica).
+on:
+  schedule:
+    - cron: "4 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: sombra-rapidas
+  cancel-in-progress: false
+jobs:
+  sombra:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Estado anterior
+        run: |
+          mkdir -p /tmp/sr
+          RC=0; git ls-remote --exit-code -q origin refs/heads/sombra-rapidas >/dev/null 2>&1 || RC=$?
+          if [ "$RC" = 0 ]; then
+            git fetch -q --depth 1 origin sombra-rapidas && git show FETCH_HEAD:sombra_rapidas.json > /tmp/sr/sombra_rapidas.json \
+              || { echo "nao consegui ler o ramo sombra-rapidas: nada publicado"; exit 1; }
+          elif [ "$RC" != 2 ]; then
+            echo "nao consegui consultar o ramo (codigo $RC)"; exit 1
+          fi
+      - name: Volta
+        env:
+          PUSH_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
+        run: |
+          python3 tools/sombra_rapidas.py /tmp/sr/sombra_rapidas.json
+          python3 tools/publicar_estado.py publicar /tmp/sr sombra-rapidas sombra_rapidas.json

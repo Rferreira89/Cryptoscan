@@ -100,7 +100,7 @@ def apagar_copia(ramo, ficheiros):
 # ESTADOS: o proprio agente le-os na volta seguinte -> nao se podem trocar (parava o executor): publica-se, avisa-se
 # no Telegram e a fuga e corrigida na origem; o teste automatico corre o mesmo filtro sobre o que o codigo gera, e o
 # codigo que o falhe nunca chega a codigo validado.
-VISTAS = {"piloto_publico.json", "contabilidade_okx.json", "historico_exposicao.jsonl"}   # scan.json e lido pelo motor
+VISTAS = {"piloto_publico.json", "contabilidade_okx.json", "historico_exposicao.jsonl", "sombra_rapidas.json"}   # scan.json e lido pelo motor
 CIFRADOS_OU_PRIVADOS = ("_privado.json", "cofre_", "piloto_estado.json")
 
 
