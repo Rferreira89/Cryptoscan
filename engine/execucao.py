@@ -91,9 +91,9 @@ def apply(state, ex):
         # (19/11) o executor fechou a operacao (fecho pedido pelo Rui) antes de o sinal sair pelas suas regras: o registo
         # e o acompanhamento do sinal fecham com o preco de saida da corretora; o resultado real vem depois da
         # reconciliacao das execucoes (real_r). Sem preco de saida nao se fecha nada (nao se inventa).
-        if rec and rec.get("status") == "OPEN" and o.get("status") == "fechada" and o.get("saida") \
-                and "pedido pelo Rui" in str(o.get("motivo") or ""):
-            fechar_registo(state, rec, o)
+        if rec and o.get("status") == "fechada" and o.get("saida") and "pedido pelo Rui" in str(o.get("motivo") or "") \
+                and (rec.get("status") == "OPEN" or not ((state.get("signals") or {}).get(k) or {}).get("closed_at")):
+            fechar_registo(state, rec, o)            # tambem repara um fecho anterior sem closed_at no sinal
         if o.get("status") == "aberta":
             # TP1 do sinal sem venda na Bybit: volta a pedir de 15 em 15 minutos (20/10)
             if o.get("be_pendente"):
@@ -150,7 +150,11 @@ def fechar_registo(state, rec, o):
         rec["result_r"] = r
     if pos and not pos.get("closed"):
         pos.update(closed=True, r=r, exit_reason="MANUAL")
-        sig["status"] = "CLOSED"
+    if sig:
+        # um sinal fechado tem sempre closed_at e result_r (signals.circuit_breaker e os relatorios ordenam por eles);
+        # 19/11 16:28: sem eles o scan parou ate esta correcao
+        sig.update(status="CLOSED", closed_at=sig.get("closed_at") or t or rec.get("issued_at") or 0,
+                   result_r=sig.get("result_r") if sig.get("result_r") is not None else (r if r is not None else 0.0))
 
 
 def avisos_em_falta(state, ex, now):

@@ -790,7 +790,7 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
     result["closed_signals"] = sorted(
         (s for s in state["signals"].values()
          if s["status"] in ("EXPIRED", "INVALIDATED", "CLOSED")),
-        key=lambda s: -s["closed_at"])[:15]
+        key=lambda s: -(s.get("closed_at") or 0))[:15]
     ok_all = len(live) == len(sources.ALL) and ven is not None
     dec = [r["decision"]["decision"] for r in eligible]
     result.update(

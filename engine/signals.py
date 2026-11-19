@@ -301,8 +301,10 @@ def trading_halt(sigs, cfg, now, led=None):
             continue
         # resultado real da Bybit primeiro (Rui, 20/10), depois o fecho a mao, depois o sinal
         res = r["real_r"] if r.get("real_r") is not None else \
-            r["user_result_r"] if r.get("user_result_r") is not None else s["result_r"]
+            r["user_result_r"] if r.get("user_result_r") is not None else s.get("result_r")
         closed.append(dict(s, result_r=res))
+    # (19/11) um sinal fechado sem hora ou resultado nunca pode parar o scan: conta com hora 0 / resultado 0
+    closed = [dict(s, closed_at=s.get("closed_at") or 0, result_r=s.get("result_r") or 0.0) for s in closed]
     closed.sort(key=lambda s: s["closed_at"])
     day = sum(s["result_r"] for s in closed if now - s["closed_at"] < 86400)
     week = sum(s["result_r"] for s in closed if now - s["closed_at"] < 7 * 86400)

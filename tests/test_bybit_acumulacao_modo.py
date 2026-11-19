@@ -120,6 +120,22 @@ class FechoPedidoPeloRui(unittest.TestCase):
         self.assertEqual((rec["status"], rec["exit"], rec["reason"]), ("CLOSED", 0.138, "MANUAL"))
         self.assertAlmostEqual(rec["result_r"], round((0.1374 - 0.138) / (0.15364 - 0.1374), 3))
         self.assertTrue(st["signals"]["XLM-SHORT_TURTLE-1"]["position"]["closed"])
+        sig = st["signals"]["XLM-SHORT_TURTLE-1"]
+        self.assertEqual((sig["status"], sig["closed_at"]), ("CLOSED", NOW))
+        self.assertIsNotNone(sig["result_r"])
+
+    def test_repara_sinal_fechado_sem_hora_e_o_travao_nao_rebenta(self):
+        from engine import signals
+        st = self.estado()
+        st["ledger"][0].update(status="CLOSED", reason="MANUAL")
+        st["signals"]["XLM-SHORT_TURTLE-1"].update(status="CLOSED", id="XLM-SHORT_TURTLE-1", mode="REAL")  # como ficou a 19/11
+        ex = {"ops": {"XLM-SHORT_TURTLE-1": {"status": "fechada", "saida": 0.1380, "fechado": NOW,
+                                             "motivo": "fecho pedido pelo Rui (a Bybit passa a acumulação)"}}, "feitos": []}
+        execucao.apply(st, ex)
+        self.assertEqual(st["signals"]["XLM-SHORT_TURTLE-1"]["closed_at"], NOW)
+        st["signals"]["OUTRO"] = {"id": "OUTRO", "status": "CLOSED", "mode": "REAL"}       # sem hora nem resultado
+        cfg = {"max_daily_loss_r": 3, "max_weekly_loss_r": 6, "cooldown_after_losses": 0}
+        signals.trading_halt(st["signals"], cfg, NOW + 60, st["ledger"])          # nao rebenta (KeyError a 19/11)
 
     def test_sem_preco_de_saida_nao_fecha(self):
         st = self.estado()
