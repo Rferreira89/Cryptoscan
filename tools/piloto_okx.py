@@ -26,6 +26,7 @@ import hashlib
 import json
 import math
 import os
+import re
 import sys
 import time
 
@@ -158,6 +159,26 @@ def estrategias_aprovadas(registo, c, ops_reais=()):
 
 
 # ------------------------------------------------------------------ dimensionamento -------------------------------
+def _pct_orc(x, total):
+    """(19/11) Fração do orçamento em % (os motivos vão para piloto_publico.json, repositório público: nunca USDC)."""
+    return f"{100 * x / total:.0f}% do orcamento" if total else "?"
+
+
+# (19/11) Motivos antigos ainda no estado (de antes da correção) traziam "risco 0.0240, nocional 14.28" em USDC.
+_VALOR_USDC = re.compile(r"\b(risco|nocional) -?\d+(?:\.\d+)?(?![\d.%])")
+
+
+def sem_valores(txt):
+    """Retira valores monetários absolutos de um motivo antes de o publicar (percentagens ficam)."""
+    return _VALOR_USDC.sub(r"\1 (valor omitido)", txt) if isinstance(txt, str) else txt
+
+
+def _limpo(d, chaves=("motivo", "txt", "motivos")):
+    def f(v):
+        return [sem_valores(x) for x in v] if isinstance(v, list) else sem_valores(v)
+    return {k: (f(v) if k in chaves else v) for k, v in d.items()}
+
+
 def _passo(x, passo):
     return math.floor(x / passo + 1e-9) * passo if passo else x
 
@@ -186,8 +207,9 @@ def dimensionar(pl, inst, c, spread_pct, saldo=None, funding_8h=None, horas=24.0
     if n < minimo:
         return None, (f"tamanho minimo ({minimo:g} contratos) passaria o risco ou o nocional autorizados"
                       + ("" if orc is None or not orc.get("abertas") else
-                         f" (livre depois das {orc['abertas']} posicoes abertas: risco {orc['risco_livre']:.4f}, "
-                         f"nocional {orc['nocional_livre']:.2f})"))
+                         f" (livre depois das {orc['abertas']} posicoes abertas: risco "
+                         f"{_pct_orc(orc['risco_livre'], c['risco_max_op'])}, nocional "
+                         f"{_pct_orc(orc['nocional_livre'], c['nocional_max'])})"))
     nocional = n * nocional_1
     livre = min(c["capital_max"], saldo if saldo is not None else c["capital_max"])
     if orc is not None:
@@ -1145,12 +1167,12 @@ def publico(st, c, aprovadas, now):
             "bloqueado": bool(st["bloqueio"]), "suspenso": bool(st["suspenso"]),
             "motivo": (st["bloqueio"] or st["suspenso"] or {}).get("motivo"),
             "ops": [{k: o.get(k) for k in campos} for o in st["ops"][-200:]],
-            "sinais_perdidos": st["sinais_perdidos"][-50:],
-            "oportunidades": [dict({k: v for k, v in r.items() if k != "margem_livre"}, id=sid,
+            "sinais_perdidos": [_limpo(x) for x in st["sinais_perdidos"][-50:]],
+            "oportunidades": [dict(_limpo({k: v for k, v in r.items() if k != "margem_livre"}), id=sid,
                                    margem_disponivel=None if r.get("margem_livre") is None else r["margem_livre"] >= c["nocional_max"] / c["alav_max"])
                               for sid, r in sorted((st.get("oportunidades") or {}).items(), key=lambda kv: kv[1]["t"])[-300:]],
             "resumo_oportunidades": st.get("resumo_oportunidades"),
-            "eventos": [{k: v for k, v in e.items() if k in ("t", "txt", "op", "motivo", "r", "portas", "sinal", "inst", "motivos")}
+            "eventos": [_limpo({k: v for k, v in e.items() if k in ("t", "txt", "op", "motivo", "r", "portas", "sinal", "inst", "motivos")})
                         for e in st["eventos"][-50:]]}
 
 
