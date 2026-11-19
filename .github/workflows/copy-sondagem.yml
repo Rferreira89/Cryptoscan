@@ -30,4 +30,4 @@ jobs:
           python3 tools/copy_sondagem.py eu
           python3 tools/piloto_verificar.py
           git fetch -q origin data && git show FETCH_HEAD:state.json > /tmp/estado_bybit.json || true
-          ESTADO_BYBIT=/tmp/estado_bybit.json python3 tools/verificar_contas.py RENDER SPCX XLM
+          python3 tools/auditoria_xlm.py
