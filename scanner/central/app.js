@@ -64,10 +64,11 @@ function contexto() {
   for (const p of posicoes) { const pr = preco(p.ativo, p); p.preco = pr.v; p.preco_de = pr.de; p.R = Dd.rAtual(p, pr.v); }
   const eventos = Dd.eventos({ O, S, St, K });
   const estados = estadosAgentes({ fontes, O, S, St, Dv, T, cfgOkx, K, P, eventos }, t);
-  const fr = Dd.fechadasR(O, S);
-  const c = { t, S, St, O, cfgOkx, Dv, L, T, Sb, K, P, fontes, okx, bybit, opOkx, opBy, recOkx, recBybit, eventos, estados, posicoes, ordens, fr,
+  const Pi = d("piloto");
+  const fr = Dd.fechadasR(O, S, Pi);
+  const c = { t, S, St, O, Pi, cfgOkx, Dv, L, T, Sb, K, P, fontes, okx, bybit, opOkx, opBy, recOkx, recBybit, eventos, estados, posicoes, ordens, fr,
               frHoje: Dd.deHoje(fr, t), acum: Dd.acumulado(fr), simuladas: Dd.simuladas(O, S, T, Sb),
-              fechadas: { okx: Dd.okxFechadas(O, K), bybit: opBy.fechadas }, estrategias: Dd.estrategias(cfgOkx, S, St),
+              fechadas: { okx: Dd.okxFechadas(O, K, Pi), bybit: opBy.fechadas }, estrategias: Dd.estrategias(cfgOkx, S, St),
               oportunidades: Dd.oportunidades(S, O), rejeicoes: Dd.rejeicoes(S), exposicao: Dd.exposicao(posicoes), pnl: Dd.pnl(K, P), colab: colaboracoes(eventos, t) };
   c.alertas = Dd.alertas({ okx, bybit, recOkx, recBybit, O, S, cfgOkx, agora: t });
   for (const a of AGENTES) estados[a.id].metrica = metrica(a.id, c);
@@ -293,7 +294,7 @@ function renderDetalhe() {
       ${ok ? `<h4>Ordens pendentes (${ops.ordens.length})</h4>${lista(ops.ordens.map(o => [o.ativo, `limite ${px(o.preco || o.preco_corretora)} · até ${hora(o.valida_ate)}`]), "Nenhuma.")}` : `<h4>Sinais reais não executados (${ops.sinais_nao_executados.length})</h4>${lista(ops.sinais_nao_executados.map(s => [`${s.ativo} ${s.lado}`, `${s.estrategia} · ${s.motivo}`]), "Nenhum.")}`}
       <h4>Reconciliação com a corretora</h4>${rec.estado === "por_verificar" ? `<p class="nota">${esc(rec.razao)}</p>` : lista(rec.itens.map(i => [`<span class="${i.estado === "confere" ? "up" : "dn"}">${i.estado === "confere" ? "✓" : "✗"}</span> ${esc(i.ativo)}`, esc(i.texto)]), "Sem posições nem ordens para comparar.", true)}
       <h4>Histórico</h4>${ok && c.fechadas.okx.privado.length ? lista(c.fechadas.okx.privado.slice(0, 8).map(f => [f.ativo, `${px(f.entrada)} → ${px(f.saida)} · <span class="${tom(f.pnl_usd)}">${sg(f.pnl_usd)} USD</span> · ${hora(f.t)}`]), "", true) : ""}
-      ${lista((ok ? c.fechadas.okx.publico : c.fechadas.bybit).slice(0, 10).map(h => [`${h.ativo}${h.estado ? " · " + h.estado : ""}`, `${h.motivo || h.estrategia || ""}${h.ret_pct != null ? ` · ${sg(h.ret_pct)}%` : ""}${h.R != null ? ` · ${sg(h.R)}R` : ""} · ${hora(h.t)}`]), "Sem histórico.")}`;
+      ${lista((ok ? c.fechadas.okx.publico : c.fechadas.bybit).slice(0, 10).map(h => [`${h.ativo}${h.estado ? " · " + h.estado : ""}`, `${h.executor ? h.executor + " · " : ""}${h.motivo || h.estrategia || ""}${h.ret_pct != null ? ` · ${sg(h.ret_pct)}%` : ""}${h.R != null ? ` · ${sg(h.R)}R` : h.R_modelo != null ? " · R por confirmar na corretora" : ""} · ${hora(h.t)}`]), "Sem histórico.")}`;
   } else if (S.k === "posicao") {
     const [cx, at] = S.id.split(":"), p = c.posicoes.find(x => x.corretora === cx && x.ativo === at);
     if (!p) { T(at); el.innerHTML = `<p class="nota">Esta posição já não está aberta.</p>`; return; }

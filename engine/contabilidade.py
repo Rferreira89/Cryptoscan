@@ -115,7 +115,7 @@ def relatorio(ops):
     """Relatorio completo: total, por corretora, estrategia e ativo; R liquido e, a parte, R bruto."""
     out = {"total": resumo(ops), "total_bruto": resumo(ops, "r_bruto"),
            "incompletas": sum(1 for o in ops if not o.get("completa"))}
-    for chave in ("corretora", "estrategia", "ativo"):
+    for chave in ("corretora", "executor", "estrategia", "ativo"):
         out[f"por_{chave}"] = {k: resumo(v) for k, v in sorted(agrupar(ops, chave).items())}
     return out
 
@@ -128,7 +128,7 @@ def registo_privado(ops):
 
 def publico(ops):
     """So contagens, R e percentagens; nenhum preco, quantidade, identificador nem valor em dinheiro."""
-    linhas = [{"corretora": o["corretora"], "estrategia": o["estrategia"], "ativo": o["ativo"], "lado": o["lado"],
+    linhas = [{"corretora": o["corretora"], "executor": o.get("executor"), "estrategia": o["estrategia"], "ativo": o["ativo"], "lado": o["lado"],
                "motivo": o.get("motivo"), "dia_fecho": int(o["t_fecho"] // 86400 * 86400) if o.get("t_fecho") else None,
                "r_bruto": o["r_bruto"], "r_liquido": o["r_liquido"], "custo_r": o["custo_r"],
                "deslize_stop_r": o["deslize_stop_r"], "deslize_entrada_r": o["deslize_entrada_r"],

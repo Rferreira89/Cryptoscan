@@ -120,6 +120,43 @@ class Privacidade(unittest.TestCase):
             self.assertEqual(len(cifrados), 1)
 
 
+class Executor(unittest.TestCase):
+    """(19/11) Cada posicao da conta OKX atribuida ao executor certo pelos clOrdId; as do piloto deixam de ser 'manual?'."""
+
+    def test_piloto_executor_antigo_e_desconhecido(self):
+        pos = [  # inventados para o teste
+            {"instId": "SPCX-USD_UM_XPERP-1", "direction": "long", "openAvgPx": "100", "closeAvgPx": "104", "pnl": "0.4",
+             "fee": "-0.01", "fundingFee": "-0.005", "realizedPnl": "0.385", "cTime": "1000000", "uTime": "2000000", "type": "2"},
+            {"instId": "HUMA-USD_UM_XPERP-1", "direction": "long", "openAvgPx": "1", "closeAvgPx": "0.9", "pnl": "-1",
+             "fee": "-0.01", "fundingFee": "0", "realizedPnl": "-1.01", "cTime": "3000000", "uTime": "4000000", "type": "2"},
+            {"instId": "ZZZ-USD_UM_XPERP-1", "direction": "short", "openAvgPx": "1", "closeAvgPx": "1", "pnl": "0",
+             "fee": "-0.01", "fundingFee": "0", "realizedPnl": "-0.01", "cTime": "5000000", "uTime": "6000000", "type": "2"}]
+        fills = {"SPCX-USD_UM_XPERP-1": [{"clOrdId": "pil380c01", "ts": "1000000", "execType": "T"}, {"clOrdId": "", "ts": "2000000"}],
+                 "HUMA-USD_UM_XPERP-1": [{"clOrdId": "cs12ab", "ts": "3000000", "execType": "T"}],
+                 "ZZZ-USD_UM_XPERP-1": [{"clOrdId": "", "ts": "5000000"}]}
+        hist = [{"inst": "HUMA-USD_UM_XPERP-1", "estado": "fechada", "stop": 0.9, "estrategia": "panico", "t_fill": 3000}]
+        piloto = {"ops": [{"base": "SPCX", "estrategia": "29933c49ce9e", "t_execucao": 1000, "stop": 96.0, "motivo_saida": "tempo"}]}
+        ops = K.construir(pos, hist, fills_de=lambda i: fills[i], piloto=piloto)
+        self.assertEqual([o["executor"] for o in ops], ["piloto", "executor antigo", "desconhecido"])
+        self.assertEqual(ops[0]["estrategia"], "piloto:29933c49ce9e")
+        self.assertAlmostEqual(ops[0]["r_bruto"], 1.0)                      # (104-100)/(100-96)
+        self.assertEqual(ops[1]["estrategia"], "panico")
+        self.assertEqual(ops[2]["estrategia"], "manual?")
+        pub = C.publico(ops)
+        self.assertEqual(C.sem_dinheiro(pub), [])
+        self.assertEqual(sorted(pub["relatorio"]["por_executor"]), ["desconhecido", "executor antigo", "piloto"])
+        from engine import guarda_publica as G
+        self.assertEqual(G.verificar(pub), [])
+
+    def test_repetir_nao_duplica(self):
+        pos = [{"instId": "AAA-USD_UM_XPERP-1", "openAvgPx": "1", "closeAvgPx": "1.1", "pnl": "1", "fee": "0", "fundingFee": "0",
+                "realizedPnl": "1", "cTime": "1000", "uTime": "2000", "type": "2"}]
+        a = K.construir(pos, [], fills_de=lambda i: [])
+        b = K.construir(pos, [], fills_de=lambda i: [])
+        self.assertEqual(len(a), len(b))
+        self.assertEqual(C.publico(a), C.publico(b))
+
+
 class SemRegisto(unittest.TestCase):
     def test_sem_okx_json_para_em_vez_de_publicar_incompleto(self):
         with tempfile.TemporaryDirectory() as d:

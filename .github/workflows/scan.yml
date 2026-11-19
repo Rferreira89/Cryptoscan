@@ -44,6 +44,8 @@ jobs:
           CODIGO_BOM_INICIAL=$(git fetch -q origin data 2>/dev/null && git show FETCH_HEAD:codigo_bom.txt 2>/dev/null | tr -dc '0-9a-f' | head -c 40 || true)
           [ ${#CODIGO_BOM_INICIAL} = 40 ] || CODIGO_BOM_INICIAL=""
           publish() {
+            # (19/11) guarda dos ficheiros publicos: o motor le estes estados, por isso so avisa (nunca para a publicacao)
+            GUARDA_MARCA=/tmp/guarda_publica.marca timeout 60 python3 -m engine.guarda_publica --avisar out/scan.json out/state.json > /tmp/guarda_publica.log 2>&1 || true
             ( cd out && git init -q -b data \
               && git config user.name cryptoscan-bot \
               && git config user.email bot@users.noreply.github.com \

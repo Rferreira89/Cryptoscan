@@ -23,7 +23,7 @@ const OKX = () => ({
 });
 const SCAN = () => ({ generated_at: T0 - 60, sources: { binance: { ok: true }, okx: { ok: true } }, venue_source: { ok: true, pairs: 81 },
   counts: { deep_checked: 65, eligible: 65, long: 0, short: 0 }, market_regime: { btc: "BEAR" },
-  journal: { rows: [{ asset: "SEI", strategy: "SHORT_TURTLE", side: "SHORT", mode: "REAL", status: "CLOSED", executed: true, issued_at: T0 - 9e5, closed_at: T0 - 5e5, result_r: 1.3 },
+  journal: { rows: [{ asset: "SEI", strategy: "SHORT_TURTLE", side: "SHORT", mode: "REAL", status: "CLOSED", executed: true, issued_at: T0 - 9e5, closed_at: T0 - 5e5, result_r: 1.3, real_r: 1.3 },
                     { asset: "AVAX", strategy: "SHORT_TURTLE", side: "SHORT", mode: "REAL", status: "OPEN", executed: false, issued_at: T0 - 6e5 }] },
   disabled_strategies: { BREAKOUT: { motivo: "forma recente (90 dias)" } }, arena: { atualizado: T0 - 300, vivos: 10, minimo_vivos: 5, forma: { janela_dias: 90 }, classificacao: [] },
   diretor: { decisoes: [{ t: T0 - 4e6, ativo: "PUMP", lado: "LONG", decisao: "AUTORIZADO", motivos: [] }] } });
@@ -123,6 +123,32 @@ test("rotulos do executor OKX antigo: nome real, desconhecida nunca vira H40 (18
   const Pi = { t: T0, ops: [{ base: "SPCX", inst: "SPCX-X", estrategia: "29933c49ce9e", lado: "LONG", estado: "aberta", preco_efetivo: 142.89, stop: 137.92, stop_estado: "confirmado" }] };
   assert.equal(D.okxOperacoes(O, null, Pi).posicoes.find(x => x.ativo === "SPCX").estrategia, "Piloto · 29933c49ce9e");
 });
+test("operacoes reais fechadas: piloto incluido e Bybit so com o R da corretora (19/11)", () => {
+  const Pi = { t: 1795075980, ops: [
+    { id: "29933c49ce9e|SPCX|1794974400", base: "SPCX", estado: "fechada", lado: "LONG", estrategia: "29933c49ce9e", preco_efetivo: 142.89,
+      preco_saida: 146.32, r: 0.581, motivo_saida: "espelho do papel (tempo)", t_execucao: 1794989209, t_fecho: 1795075614 },
+    { id: "bbc2557ab78e|RENDER|1794956400", base: "RENDER", estado: "fechada", lado: "SHORT", estrategia: "bbc2557ab78e", r: 1.143, t_fecho: 1794976399 },
+    { id: "x|Y|1", base: "YYY", estado: "fechada", lado: "LONG", estrategia: "x", r: -1, pnl_por_confirmar: true, t_fecho: 1795000000 },
+    { id: "a|B|1", base: "BBB", estado: "aberta", lado: "LONG", estrategia: "a" }] };
+  const f = D.okxFechadas({ real: { hist: [{ asset: "HUMA", estado: "fechada", estrategia: "panico", R: -0.98, fechado: 1793000000 }] } }, null, Pi).publico;
+  assert.deepEqual(f.map(x => x.ativo), ["SPCX", "YYY", "RENDER", "HUMA"]);          // do mais recente para o mais antigo
+  const spcx = f[0];
+  assert.equal(spcx.executor, "piloto"); assert.equal(spcx.R, 0.581); assert.equal(spcx.saida, 146.32); assert.ok(spcx.confirmado);
+  assert.equal(f[1].R, null); assert.equal(f[1].confirmado, false);                    // por confirmar: nunca um R inventado
+  assert.equal(f[3].executor, "executor antigo");
+  const S = { journal: { rows: [
+    { mode: "REAL", status: "CLOSED", executed: true, asset: "BTC", strategy: "SHORT_TURTLE", side: "SHORT", result_r: 1.47, real_r: 0.09, closed_at: 1794689886 },
+    { mode: "REAL", status: "CLOSED", executed: true, asset: "SEI", strategy: "SHORT_TURTLE", side: "SHORT", result_r: 1.307, real_r: null, closed_at: 1793400000 }] } };
+  const fr = D.fechadasR(null, S, Pi);
+  assert.deepEqual(fr.map(x => [x.ativo, x.R]), [["BTC", 0.09], ["RENDER", 1.143], ["SPCX", 0.581]]);   // SEI fica de fora
+  const by = D.bybitOperacoes(S, null).fechadas;
+  assert.equal(by.find(x => x.ativo === "BTC").R, 0.09);                               // o da corretora, nao o do modelo (1,47)
+  const sei = by.find(x => x.ativo === "SEI");
+  assert.equal(sei.R, null); assert.equal(sei.R_modelo, 1.307); assert.equal(sei.estado, "por confirmar na corretora");
+  const d = D.desempenho("Piloto · 29933c49ce9e", { Pi });
+  assert.deepEqual(d.map(x => [x.ambiente, x.n, x.r_medio]), [["REAL", 1, 0.581]]);
+});
+
 test("piloto: preco atual e R da posicao aberta vem do estado do piloto (18/11)", () => {
   const Pi = { t: 2_000_000_000, ops: [{ base: "SPCX", inst: "SPCX-X", estrategia: "29933c49ce9e", lado: "LONG", estado: "aberta",
     preco_efetivo: 142.89, stop: 137.92, stop_estado: "confirmado", preco_atual: 145.37, t_preco: 2_000_000_000 - 60, r_aberto: 0.499 }] };

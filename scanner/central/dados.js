@@ -217,10 +217,21 @@ export function textoDados(estado, t, agora = Date.now() / 1000) {
   return `dados de ${h}`;
 }
 
-export function okxFechadas(O, K) {
+// (19/11) operacoes do PILOTO fechadas (estado publico do piloto): o R e o liquido da OKX (realizedPnl: preco,
+// comissoes e funding) sobre o risco planeado; "por confirmar" quando a OKX ainda nao deu o resultado
+export function pilotoFechadas(Pi) {
+  return ((Pi || {}).ops || []).filter(o => o.estado === "fechada").map(o => ({
+    corretora: "OKX", executor: "piloto", ativo: o.base, estado: o.estado, lado: o.lado, estrategia: `Piloto · ${o.estrategia}`,
+    motivo: o.motivo_saida || null, entrada: o.preco_efetivo ?? null, saida: o.preco_saida ?? null,
+    R: o.pnl_por_confirmar ? null : (o.r ?? null), confirmado: !o.pnl_por_confirmar && o.r != null,
+    t: o.t_fecho || null, desde: o.t_execucao || null, id: o.id }));
+}
+
+export function okxFechadas(O, K, Pi = null) {
   const hist = (((O || {}).real || {}).hist || []).filter(h => h.estado === "fechada" || h.estado === "cancelada");
-  const pub = hist.map(h => ({ corretora: "OKX", ativo: h.asset, estado: h.estado, motivo: h.motivo || null, ret_pct: h.ret_pct ?? null,
-                               R: h.R ?? null, t: h.fechado || h.t_fill || h.criado || null, estrategia: rotuloOKX(h) }));
+  const pub = hist.map(h => ({ corretora: "OKX", executor: "executor antigo", ativo: h.asset, estado: h.estado, motivo: h.motivo || null, ret_pct: h.ret_pct ?? null,
+                               R: h.R ?? null, t: h.fechado || h.t_fill || h.criado || null, estrategia: rotuloOKX(h) }))
+    .concat(pilotoFechadas(Pi));
   const priv = ((K || {}).fechadas || []).map(f => ({ corretora: "OKX", ativo: f.asset, estado: "fechada", entrada: f.entrada, saida: f.saida, pnl_usd: f.pnl_usd, t: f.t }));
   return { publico: pub.sort((a, b) => (b.t || 0) - (a.t || 0)), privado: priv.sort((a, b) => (b.t || 0) - (a.t || 0)) };
 }
@@ -246,8 +257,12 @@ export function bybitOperacoes(S, P) {
                  quantidade: v.qty ?? null, fonte: "conta (núcleo)" });
     }
   }
+  // (19/11) o R real e o da corretora (real_r: execucoes da Bybit UE com comissoes e juros); o result_r e o do modelo
+  // (plano e velas) e nunca aparece como resultado real. Sem real_r: "por confirmar na corretora".
   const fech = rows.filter(r => r.mode === "REAL" && r.status === "CLOSED" && r.executed === true).map(r => ({
-    corretora: "Bybit", ativo: r.asset, estrategia: r.strategy, lado: r.side, R: r.result_r ?? null, t: r.closed_at }))
+    corretora: "Bybit", executor: "Bybit UE", ativo: r.asset, estrategia: r.strategy, lado: r.side, R: r.real_r ?? null,
+    R_modelo: r.result_r ?? null, confirmado: r.real_r != null, estado: r.real_r != null ? "fechada" : "por confirmar na corretora",
+    t: r.closed_at }))
     .sort((a, b) => (b.t || 0) - (a.t || 0));
   return { posicoes: pos, sinais_nao_executados: naoExec, fechadas: fech };
 }
@@ -482,22 +497,23 @@ export function rAtual(p, preco) {
 }
 
 // Operacoes REAIS fechadas com resultado em R (publico): OKX pelo preco de saida, Bybit pelo journal. Ordem cronologica.
-export function fechadasR(O, S) {
+export function fechadasR(O, S, Pi = null) {
   const out = [];
+  for (const f of pilotoFechadas(Pi)) if (f.R != null && f.t) out.push({ corretora: "OKX", executor: "piloto", ativo: f.ativo, t: f.t, R: f.R, estrategia: f.estrategia });
   for (const h of (((O || {}).real || {}).hist || [])) {
     if (h.estado !== "fechada" || !h.entrada || !h.stop || !h.saida) continue;
     out.push({ corretora: "OKX", ativo: h.asset, t: h.fechado, R: Math.round((h.saida - h.entrada) / (h.entrada - h.stop) * 100) / 100, ret_pct: h.ret_pct ?? null, estrategia: rotuloOKX(h) });
   }
-  for (const r of (((S || {}).journal || {}).rows || []))
-    if (r.mode === "REAL" && r.status === "CLOSED" && r.executed === true && r.result_r != null) out.push({ corretora: "Bybit", ativo: r.asset, t: r.closed_at, R: r.result_r, estrategia: r.strategy });
+  for (const r of (((S || {}).journal || {}).rows || []))      // so o R confirmado pela corretora (real_r)
+    if (r.mode === "REAL" && r.status === "CLOSED" && r.executed === true && r.real_r != null) out.push({ corretora: "Bybit", executor: "Bybit UE", ativo: r.asset, t: r.closed_at, R: r.real_r, estrategia: r.strategy });
   return out.filter(x => x.t).sort((a, b) => a.t - b.t);
 }
 export function acumulado(fechadas) { let s = 0; return fechadas.map(f => ({ t: f.t, v: (s += f.R) })); }
 export function deHoje(lista, agora = Date.now() / 1000) { const d = new Date(agora * 1000).toISOString().slice(0, 10); return lista.filter(x => x.t && new Date(x.t * 1000).toISOString().slice(0, 10) === d); }
 
 // Desempenho medido de uma estrategia, com o ambiente de cada numero (nunca se apresenta backtest como real)
-export function desempenho(nome, { O, S, T } = {}) {
-  const out = [], fr = fechadasR(O, S);
+export function desempenho(nome, { O, S, T, Pi } = {}) {
+  const out = [], fr = fechadasR(O, S, Pi);
   const real = fr.filter(f => f.estrategia === nome || (nome.startsWith("H40") && f.estrategia.startsWith("H40")) || (nome.startsWith("H46") && f.estrategia.startsWith("H46")));
   if (real.length) out.push({ ambiente: "REAL", n: real.length, r_medio: real.reduce((s, f) => s + f.R, 0) / real.length, acerto_pct: Math.round(100 * real.filter(f => f.R > 0).length / real.length) });
   if (nome.startsWith("H40")) { const d = ((O || {}).desempenho || {}); for (const [k, v] of Object.entries(d)) if (v && v.n) out.push({ ambiente: "PAPEL", nota: `sinais ${k}`, n: v.n, r_medio: v.r_medio, acerto_pct: v.acerto_pct, pf: v.profit_factor }); }

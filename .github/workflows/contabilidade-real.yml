@@ -2,8 +2,12 @@ name: Contabilidade real (so leitura)
 # (11/11, auditoria P4) PnL bruto e liquido, comissoes, funding e deslize das operacoes REAIS da OKX, so com GET.
 # Publico (ramo contabilidade): so contagens, R e %. Privado: cifrado com DATA_KEY. Sem schedule: so corre quando
 # for lancado a mao, depois de autorizado (ligar o horario e uma alteracao de producao).
+# (19/11, ordem do Rui: espelhar todas as operacoes reais) horario ligado: de 6 em 6 h, so GET; junta o estado
+# publico do piloto para atribuir cada posicao da conta ao executor certo (piloto / executor antigo).
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "41 */6 * * *"
 permissions:
   contents: write
 concurrency:
@@ -25,6 +29,7 @@ jobs:
         run: |
           rm -rf /tmp/contab && mkdir -p /tmp/contab
           git fetch -q origin okx && git show FETCH_HEAD:okx.json > /tmp/contab/okx.json
+          git fetch -q origin piloto-okx && git show FETCH_HEAD:piloto_publico.json > /tmp/contab/piloto_publico.json || true
           python3 -m pip install -q --user cryptography==43.0.3 2>/dev/null || true
-          python3 tools/okx_contabilidade.py /tmp/contab/okx.json /tmp/contab/saida
+          python3 tools/okx_contabilidade.py /tmp/contab/okx.json /tmp/contab/saida /tmp/contab/piloto_publico.json
           python3 tools/publicar_estado.py publicar /tmp/contab/saida contabilidade contabilidade_okx.json contabilidade_okx_privado.json

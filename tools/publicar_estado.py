@@ -95,9 +95,54 @@ def apagar_copia(ramo, ficheiros):
             pass
 
 
+# (19/11) guarda dos ficheiros publicos antes de cada push (engine.guarda_publica).
+# VISTAS: ficheiros so de leitura para a app/vigia -> com fuga NAO sao publicados (fica um aviso no lugar, sem dados).
+# ESTADOS: o proprio agente le-os na volta seguinte -> nao se podem trocar (parava o executor): publica-se, avisa-se
+# no Telegram e a fuga e corrigida na origem; o teste automatico corre o mesmo filtro sobre o que o codigo gera, e o
+# codigo que o falhe nunca chega a codigo validado.
+VISTAS = {"piloto_publico.json", "contabilidade_okx.json", "historico_exposicao.jsonl"}   # scan.json e lido pelo motor
+CIFRADOS_OU_PRIVADOS = ("_privado.json", "cofre_", "piloto_estado.json")
+
+
+def guardar_publicos(pasta, ficheiros, avisar=None, agora=None):
+    """Corre a guarda sobre os ficheiros publicos de 'ficheiros'. Devolve {ficheiro: [(campo, motivo)]} das fugas."""
+    try:
+        sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+        from engine import guarda_publica as G
+    except Exception as e:                                # sem a guarda nao se bloqueia nada (mas diz-se)
+        print("guarda publica indisponivel:", type(e).__name__)
+        return {}
+    fugas = {}
+    for f in ficheiros:
+        p = os.path.join(pasta, f)
+        if not os.path.exists(p) or any(x in f for x in CIFRADOS_OU_PRIVADOS) or not f.endswith((".json", ".jsonl")):
+            continue
+        try:
+            r = G.verificar_ficheiro(p)
+        except Exception as e:
+            r = [("(ficheiro)", f"nao foi possivel verificar: {type(e).__name__}")]
+        if not r:
+            continue
+        fugas[f] = r
+        campos = "; ".join(f"{c} ({m})" for c, m in r[:5])
+        if f in VISTAS:
+            with open(p, "w") as fh:
+                json.dump({"t": int(agora or time.time()), "publicacao_bloqueada": {
+                    "motivo": "a guarda dos ficheiros publicos encontrou dados privados; nada deste ficheiro foi publicado",
+                    "campos": [c for c, _ in r[:20]], "n": len(r)}}, fh)
+            print(f"PUBLICACAO BLOQUEADA {f}: {len(r)} campo(s): {campos}")
+        else:
+            print(f"AVISO guarda publica {f}: {len(r)} campo(s) (estado do agente: publicado para nao parar o executor): {campos}")
+        if avisar:
+            avisar(f"🛑 Cryptoscan: dados privados em {f} ({len(r)} campo(s): {campos[:300]}). "
+                   + ("Não publicado." if f in VISTAS else "Estado do agente publicado para não parar o trading; corrigir na origem."))
+    return fugas
+
+
 def publicar(pasta, ramo, ficheiros, push_url=None, esperas=ESPERAS, dormir=time.sleep, git=_git, avisar=telegram):
     """Devolve True se o ramo ficou publicado. Nunca levanta excecao por falha de rede."""
     push_url = push_url or os.environ.get("PUSH_URL")
+    guardar_publicos(pasta, ficheiros, avisar=avisar)
     presentes = [f for f in ficheiros if os.path.exists(os.path.join(pasta, f))]
     guardar_copia(pasta, ramo, presentes, os.environ.get("ESTADO_SHA_BASE") or None)   # antes de tudo
     if not os.path.isdir(os.path.join(pasta, ".git")):

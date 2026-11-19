@@ -83,14 +83,45 @@ def _motivo(h, x):
     return m or None
 
 
-def construir(posicoes, hist, fills_de=None):
-    """Lista de operacoes normalizadas (engine.contabilidade.operacao) a partir dos dados lidos."""
+def _origem(fills, t_abre, t_fecha):
+    """(19/11) Executor pelo clOrdId das execucoes da posicao: 'pil' = piloto, 'cs' = executor antigo."""
+    cls = [str(f.get("clOrdId") or "") for f in fills or []
+           if t_abre - 120 <= int(f.get("ts") or 0) / 1000 <= t_fecha + 120]
+    if any(c.startswith("pil") for c in cls):
+        return "piloto"
+    if any(c.startswith("cs") for c in cls):
+        return "executor antigo"
+    return None
+
+
+def _op_do_piloto(piloto, base, t_abre, t_fecha):
+    ops = [o for o in (piloto or {}).get("ops") or [] if o.get("base") == base and o.get("t_execucao")
+           and t_abre - 3600 <= o["t_execucao"] <= t_fecha + 60]
+    return min(ops, key=lambda o: abs(o["t_execucao"] - t_abre)) if ops else None
+
+
+def construir(posicoes, hist, fills_de=None, piloto=None):
+    """Lista de operacoes normalizadas (engine.contabilidade.operacao) a partir dos dados lidos.
+    (19/11) Cada posicao e atribuida ao executor pelos clOrdId das execucoes (piloto 'pil', executor antigo 'cs');
+    as do piloto vao buscar a estrategia e o stop ao estado publico do piloto. Antes, as do piloto (RENDER e SPCX)
+    ficavam 'manual?' porque so se procurava no registo do executor antigo."""
     ops = []
+    cache = {}
     for x in posicoes:
         inst = x.get("instId") or ""
         t_abre = int(x.get("cTime") or 0) / 1000
         t_fecha = int(x.get("uTime") or 0) / 1000
-        h = _registo_do_executor(hist, inst, t_abre, t_fecha)
+        if fills_de and inst not in cache:
+            cache[inst] = fills_de(inst)
+        fs = cache.get(inst)
+        executor = _origem(fs, t_abre, t_fecha)
+        pop = _op_do_piloto(piloto, inst.split("-")[0], t_abre, t_fecha) if executor == "piloto" or (executor is None and piloto) else None
+        if pop and executor is None:
+            executor = "piloto"
+        h = None if executor == "piloto" else _registo_do_executor(hist, inst, t_abre, t_fecha)
+        if pop:
+            h = {"estrategia": f"piloto:{pop.get('estrategia')}", "stop": pop.get("stop_inicial") or pop.get("stop"),
+                 "motivo": pop.get("motivo_saida"), "lim": None}
         lado = "SHORT" if x.get("direction") == "short" or x.get("posSide") == "short" else "LONG"
         pnl = C._f(x.get("pnl"))
         fee = C._f(x.get("fee"))
@@ -104,8 +135,8 @@ def construir(posicoes, hist, fills_de=None):
                        comissoes=fee, funding=fund, penalizacao=liq, limite=(h or {}).get("lim"),
                        motivo=_motivo(h, x), t_abertura=t_abre, t_fecho=t_fecha)
         o["no_executor"] = bool(h)
+        o["executor"] = executor or ("executor antigo" if h else "desconhecido")
         if fills_de:
-            fs = fills_de(inst)
             if fs:
                 o["execucoes"] = len(fs)
                 o["taker_pct"] = round(100 * sum(1 for f in fs if f.get("execType") == "T") / len(fs), 1)
@@ -113,7 +144,7 @@ def construir(posicoes, hist, fills_de=None):
     return ops
 
 
-def correr(caminho_estado, pasta, ler=leitura, cifrar=None):
+def correr(caminho_estado, pasta, ler=leitura, cifrar=None, caminho_piloto=None):
     # (11/11, revisao) sem o registo do executor nao ha stop nem estrategia: o R ficaria vazio e a operacao "manual?".
     # Melhor parar do que publicar um relatorio incompleto como se fosse completo.
     if not os.path.exists(caminho_estado):
@@ -121,7 +152,11 @@ def correr(caminho_estado, pasta, ler=leitura, cifrar=None):
     with open(caminho_estado) as f:
         st = json.load(f)
     hist = ((st.get("real") or {}).get("hist")) or []
-    ops = construir(historico_posicoes(ler), hist, fills_de=lambda i: execucoes(i, ler))
+    piloto = None
+    if caminho_piloto and os.path.exists(caminho_piloto):
+        with open(caminho_piloto) as f:
+            piloto = json.load(f)
+    ops = construir(historico_posicoes(ler), hist, fills_de=lambda i: execucoes(i, ler), piloto=piloto)
     pub = C.publico(ops)
     maus = C.sem_dinheiro(pub)
     if maus:
@@ -149,7 +184,7 @@ def _cifrar(p):
 
 
 if __name__ == "__main__":
-    pub, priv = correr(sys.argv[1], sys.argv[2])
+    pub, priv = correr(sys.argv[1], sys.argv[2], caminho_piloto=sys.argv[3] if len(sys.argv) > 3 else None)
     t = pub["relatorio"]["total"]
     print(f"operacoes {t['n']} | com custos completos {t.get('n_com_dados', 0)} | R liquido medio {t.get('expectativa_r')} | "
           f"privado cifrado {'sim' if priv else 'nao (sem DATA_KEY)'}")
