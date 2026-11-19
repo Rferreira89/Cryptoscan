@@ -1,0 +1,2782 @@
+{
+ "pre_registo": "backtest/pre_registo_c4_reversao.md",
+ "testes": 36,
+ "de": "2011-11-21",
+ "ate": "2026-11-19",
+ "cortes": [
+  "2019-05-21",
+  "2023-02-19"
+ ],
+ "ativos": [
+  "acoes:AAPL",
+  "acoes:ADBE",
+  "acoes:AMAT",
+  "acoes:AMD",
+  "acoes:AMZN",
+  "acoes:AVGO",
+  "acoes:GOOGL",
+  "acoes:IBM",
+  "acoes:INTC",
+  "acoes:KO",
+  "acoes:LLY",
+  "acoes:META",
+  "acoes:MRVL",
+  "acoes:MSFT",
+  "acoes:MSTR",
+  "acoes:MU",
+  "acoes:NFLX",
+  "acoes:NVDA",
+  "acoes:ORCL",
+  "acoes:QCOM",
+  "acoes:TSLA",
+  "acoes:TSM",
+  "indices:NASDAQ100",
+  "indices:SP500",
+  "metais:OURO",
+  "metais:PRATA"
+ ],
+ "celulas": [
+  {
+   "classe": "indices",
+   "regra": "V3",
+   "lado": "LONG",
+   "regime": "subida",
+   "n": 277,
+   "ativos_com_dados": 2,
+   "r_medio": -0.0548,
+   "acerto_pct": 53.8,
+   "periodos": [
+    {
+     "n": 136,
+     "r_medio": -0.0465
+    },
+    {
+     "n": 53,
+     "r_medio": -0.1863
+    },
+    {
+     "n": 88,
+     "r_medio": 0.0115
+    }
+   ],
+   "r_custo125": -0.0836,
+   "por_ativo": {
+    "NASDAQ100": {
+     "n": 136,
+     "soma_r": -8.28
+    },
+    "SP500": {
+     "n": 141,
+     "soma_r": -6.912
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "SP500",
+    "r_medio": -0.0609
+   },
+   "acaso_mediana": -0.0974,
+   "acaso_p95": -0.0554,
+   "p": 0.04748,
+   "p_holm": 1.0,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)",
+    "custos +25% <= 0",
+    "sem o melhor ativo <= 0"
+   ]
+  },
+  {
+   "classe": "indices",
+   "regra": "V3",
+   "lado": "LONG",
+   "regime": "lateral",
+   "n": 58,
+   "ativos_com_dados": 2,
+   "r_medio": 0.0348,
+   "acerto_pct": 60.3,
+   "periodos": [
+    {
+     "n": 28,
+     "r_medio": -0.0921
+    },
+    {
+     "n": 19,
+     "r_medio": 0.1065
+    },
+    {
+     "n": 11,
+     "r_medio": 0.234
+    }
+   ],
+   "r_custo125": 0.0164,
+   "por_ativo": {
+    "NASDAQ100": {
+     "n": 28,
+     "soma_r": 0.274
+    },
+    "SP500": {
+     "n": 30,
+     "soma_r": 1.746
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "SP500",
+    "r_medio": 0.0098
+   },
+   "acaso_mediana": -0.0207,
+   "acaso_p95": 0.0741,
+   "p": 0.16642,
+   "p_holm": 1.0,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)"
+   ]
+  },
+  {
+   "classe": "indices",
+   "regra": "V3",
+   "lado": "LONG",
+   "regime": "descida",
+   "n": 42,
+   "ativos_com_dados": 2,
+   "r_medio": 0.0416,
+   "acerto_pct": 57.1,
+   "periodos": [
+    {
+     "n": 13,
+     "r_medio": -0.0232
+    },
+    {
+     "n": 28,
+     "r_medio": 0.0686
+    },
+    {
+     "n": 1,
+     "r_medio": 0.1297
+    }
+   ],
+   "r_custo125": 0.026,
+   "por_ativo": {
+    "NASDAQ100": {
+     "n": 19,
+     "soma_r": 1.303
+    },
+    "SP500": {
+     "n": 23,
+     "soma_r": 0.446
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "NASDAQ100",
+    "r_medio": 0.0194
+   },
+   "acaso_mediana": 0.0137,
+   "acaso_p95": 0.1171,
+   "p": 0.32884,
+   "p_holm": 1.0,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)"
+   ]
+  },
+  {
+   "classe": "indices",
+   "regra": "V3",
+   "lado": "SHORT",
+   "regime": "subida",
+   "n": 478,
+   "ativos_com_dados": 2,
+   "r_medio": -0.1741,
+   "acerto_pct": 37.2,
+   "periodos": [
+    {
+     "n": 229,
+     "r_medio": -0.2103
+    },
+    {
+     "n": 109,
+     "r_medio": -0.0975
+    },
+    {
+     "n": 140,
+     "r_medio": -0.1745
+    }
+   ],
+   "r_custo125": -0.2057,
+   "por_ativo": {
+    "NASDAQ100": {
+     "n": 244,
+     "soma_r": -40.039
+    },
+    "SP500": {
+     "n": 234,
+     "soma_r": -43.173
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "NASDAQ100",
+    "r_medio": -0.1845
+   },
+   "acaso_mediana": -0.1511,
+   "acaso_p95": -0.115,
+   "p": 0.85407,
+   "p_holm": 1.0,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)",
+    "custos +25% <= 0",
+    "sem o melhor ativo <= 0"
+   ]
+  },
+  {
+   "classe": "indices",
+   "regra": "V3",
+   "lado": "SHORT",
+   "regime": "lateral",
+   "n": 50,
+   "ativos_com_dados": 2,
+   "r_medio": -0.0602,
+   "acerto_pct": 44.0,
+   "periodos": [
+    {
+     "n": 24,
+     "r_medio": 0.0275
+    },
+    {
+     "n": 15,
+     "r_medio": -0.0552
+    },
+    {
+     "n": 11,
+     "r_medio": -0.2584
+    }
+   ],
+   "r_custo125": -0.0803,
+   "por_ativo": {
+    "NASDAQ100": {
+     "n": 24,
+     "soma_r": -1.277
+    },
+    "SP500": {
+     "n": 26,
+     "soma_r": -1.733
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "NASDAQ100",
+    "r_medio": -0.0666
+   },
+   "acaso_mediana": -0.0817,
+   "acaso_p95": 0.0343,
+   "p": 0.37831,
+   "p_holm": 1.0,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)",
+    "custos +25% <= 0",
+    "sem o melhor ativo <= 0"
+   ]
+  },
+  {
+   "classe": "indices",
+   "regra": "V3",
+   "lado": "SHORT",
+   "regime": "descida",
+   "n": 42,
+   "ativos_com_dados": 2,
+   "r_medio": 0.0381,
+   "acerto_pct": 52.4,
+   "periodos": [
+    {
+     "n": 16,
+     "r_medio": -0.049
+    },
+    {
+     "n": 21,
+     "r_medio": 0.1406
+    },
+    {
+     "n": 5,
+     "r_medio": -0.1133
+    }
+   ],
+   "r_custo125": 0.0234,
+   "por_ativo": {
+    "NASDAQ100": {
+     "n": 17,
+     "soma_r": 2.111
+    },
+    "SP500": {
+     "n": 25,
+     "soma_r": -0.509
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "NASDAQ100",
+    "r_medio": -0.0204
+   },
+   "acaso_mediana": -0.075,
+   "acaso_p95": 0.0294,
+   "p": 0.04198,
+   "p_holm": 1.0,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)",
+    "sem o melhor ativo <= 0"
+   ]
+  },
+  {
+   "classe": "indices",
+   "regra": "RSI2",
+   "lado": "LONG",
+   "regime": "subida",
+   "n": 279,
+   "ativos_com_dados": 2,
+   "r_medio": -0.0155,
+   "acerto_pct": 64.2,
+   "periodos": [
+    {
+     "n": 134,
+     "r_medio": -0.065
+    },
+    {
+     "n": 54,
+     "r_medio": -0.0122
+    },
+    {
+     "n": 91,
+     "r_medio": 0.0555
+    }
+   ],
+   "r_custo125": -0.0483,
+   "por_ativo": {
+    "NASDAQ100": {
+     "n": 141,
+     "soma_r": -2.855
+    },
+    "SP500": {
+     "n": 138,
+     "soma_r": -1.458
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "SP500",
+    "r_medio": -0.0202
+   },
+   "acaso_mediana": -0.0829,
+   "acaso_p95": -0.0393,
+   "p": 0.005,
+   "p_holm": 0.165,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)",
+    "custos +25% <= 0",
+    "sem o melhor ativo <= 0"
+   ]
+  },
+  {
+   "classe": "indices",
+   "regra": "RSI2",
+   "lado": "LONG",
+   "regime": "lateral",
+   "n": 60,
+   "ativos_com_dados": 2,
+   "r_medio": -0.0267,
+   "acerto_pct": 55.0,
+   "periodos": [
+    {
+     "n": 27,
+     "r_medio": -0.1136
+    },
+    {
+     "n": 17,
+     "r_medio": -0.0841
+    },
+    {
+     "n": 16,
+     "r_medio": 0.1808
+    }
+   ],
+   "r_custo125": -0.0483,
+   "por_ativo": {
+    "NASDAQ100": {
+     "n": 31,
+     "soma_r": -1.524
+    },
+    "SP500": {
+     "n": 29,
+     "soma_r": -0.08
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "SP500",
+    "r_medio": -0.0492
+   },
+   "acaso_mediana": -0.0108,
+   "acaso_p95": 0.0958,
+   "p": 0.5927,
+   "p_holm": 1.0,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)",
+    "custos +25% <= 0",
+    "sem o melhor ativo <= 0"
+   ]
+  },
+  {
+   "classe": "indices",
+   "regra": "RSI2",
+   "lado": "LONG",
+   "regime": "descida",
+   "n": 43,
+   "ativos_com_dados": 2,
+   "r_medio": 0.0344,
+   "acerto_pct": 65.1,
+   "periodos": [
+    {
+     "n": 15,
+     "r_medio": -0.1485
+    },
+    {
+     "n": 24,
+     "r_medio": 0.0931
+    },
+    {
+     "n": 4,
+     "r_medio": 0.3675
+    }
+   ],
+   "r_custo125": 0.0173,
+   "por_ativo": {
+    "NASDAQ100": {
+     "n": 16,
+     "soma_r": 2.379
+    },
+    "SP500": {
+     "n": 27,
+     "soma_r": -0.901
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "NASDAQ100",
+    "r_medio": -0.0334
+   },
+   "acaso_mediana": 0.0091,
+   "acaso_p95": 0.1196,
+   "p": 0.34333,
+   "p_holm": 1.0,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)",
+    "sem o melhor ativo <= 0"
+   ]
+  },
+  {
+   "classe": "indices",
+   "regra": "RSI2",
+   "lado": "SHORT",
+   "regime": "subida",
+   "n": 422,
+   "ativos_com_dados": 2,
+   "r_medio": -0.217,
+   "acerto_pct": 43.6,
+   "periodos": [
+    {
+     "n": 206,
+     "r_medio": -0.26
+    },
+    {
+     "n": 96,
+     "r_medio": -0.1801
+    },
+    {
+     "n": 120,
+     "r_medio": -0.1727
+    }
+   ],
+   "r_custo125": -0.2575,
+   "por_ativo": {
+    "NASDAQ100": {
+     "n": 215,
+     "soma_r": -46.104
+    },
+    "SP500": {
+     "n": 207,
+     "soma_r": -45.471
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "SP500",
+    "r_medio": -0.2144
+   },
+   "acaso_mediana": -0.1669,
+   "acaso_p95": -0.1212,
+   "p": 0.95552,
+   "p_holm": 1.0,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)",
+    "custos +25% <= 0",
+    "sem o melhor ativo <= 0"
+   ]
+  },
+  {
+   "classe": "indices",
+   "regra": "RSI2",
+   "lado": "SHORT",
+   "regime": "lateral",
+   "n": 40,
+   "ativos_com_dados": 2,
+   "r_medio": -0.1346,
+   "acerto_pct": 47.5,
+   "periodos": [
+    {
+     "n": 18,
+     "r_medio": -0.0523
+    },
+    {
+     "n": 13,
+     "r_medio": -0.1917
+    },
+    {
+     "n": 9,
+     "r_medio": -0.217
+    }
+   ],
+   "r_custo125": -0.1614,
+   "por_ativo": {
+    "NASDAQ100": {
+     "n": 22,
+     "soma_r": -1.703
+    },
+    "SP500": {
+     "n": 18,
+     "soma_r": -3.683
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "NASDAQ100",
+    "r_medio": -0.2046
+   },
+   "acaso_mediana": -0.0945,
+   "acaso_p95": 0.035,
+   "p": 0.69265,
+   "p_holm": 1.0,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)",
+    "custos +25% <= 0",
+    "sem o melhor ativo <= 0"
+   ]
+  },
+  {
+   "classe": "indices",
+   "regra": "RSI2",
+   "lado": "SHORT",
+   "regime": "descida",
+   "n": 36,
+   "ativos_com_dados": 2,
+   "r_medio": 0.0645,
+   "acerto_pct": 58.3,
+   "periodos": [
+    {
+     "n": 13,
+     "r_medio": -0.0073
+    },
+    {
+     "n": 21,
+     "r_medio": 0.1582
+    },
+    {
+     "n": 2,
+     "r_medio": -0.4528
+    }
+   ],
+   "r_custo125": 0.0463,
+   "por_ativo": {
+    "NASDAQ100": {
+     "n": 14,
+     "soma_r": 1.464
+    },
+    "SP500": {
+     "n": 22,
+     "soma_r": 0.857
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "NASDAQ100",
+    "r_medio": 0.039
+   },
+   "acaso_mediana": -0.0761,
+   "acaso_p95": 0.0538,
+   "p": 0.03848,
+   "p_holm": 1.0,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)"
+   ]
+  },
+  {
+   "classe": "metais",
+   "regra": "V3",
+   "lado": "LONG",
+   "regime": "subida",
+   "n": 146,
+   "ativos_com_dados": 2,
+   "r_medio": -0.0113,
+   "acerto_pct": 50.7,
+   "periodos": [
+    {
+     "n": 37,
+     "r_medio": -0.0068
+    },
+    {
+     "n": 41,
+     "r_medio": 0.025
+    },
+    {
+     "n": 68,
+     "r_medio": -0.0357
+    }
+   ],
+   "r_custo125": -0.0314,
+   "por_ativo": {
+    "OURO": {
+     "n": 80,
+     "soma_r": 0.006
+    },
+    "PRATA": {
+     "n": 66,
+     "soma_r": -1.66
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "OURO",
+    "r_medio": -0.0252
+   },
+   "acaso_mediana": -0.0504,
+   "acaso_p95": 0.0097,
+   "p": 0.13293,
+   "p_holm": 1.0,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)",
+    "custos +25% <= 0",
+    "sem o melhor ativo <= 0"
+   ]
+  },
+  {
+   "classe": "metais",
+   "regra": "V3",
+   "lado": "LONG",
+   "regime": "lateral",
+   "n": 105,
+   "ativos_com_dados": 2,
+   "r_medio": -0.1598,
+   "acerto_pct": 44.8,
+   "periodos": [
+    {
+     "n": 53,
+     "r_medio": -0.155
+    },
+    {
+     "n": 30,
+     "r_medio": -0.2388
+    },
+    {
+     "n": 22,
+     "r_medio": -0.0638
+    }
+   ],
+   "r_custo125": -0.1828,
+   "por_ativo": {
+    "OURO": {
+     "n": 49,
+     "soma_r": -12.185
+    },
+    "PRATA": {
+     "n": 56,
+     "soma_r": -4.595
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "PRATA",
+    "r_medio": -0.2487
+   },
+   "acaso_mediana": -0.1075,
+   "acaso_p95": -0.0293,
+   "p": 0.87206,
+   "p_holm": 1.0,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)",
+    "custos +25% <= 0",
+    "sem o melhor ativo <= 0"
+   ]
+  },
+  {
+   "classe": "metais",
+   "regra": "V3",
+   "lado": "LONG",
+   "regime": "descida",
+   "n": 173,
+   "ativos_com_dados": 2,
+   "r_medio": -0.1297,
+   "acerto_pct": 43.9,
+   "periodos": [
+    {
+     "n": 135,
+     "r_medio": -0.1337
+    },
+    {
+     "n": 27,
+     "r_medio": -0.2009
+    },
+    {
+     "n": 11,
+     "r_medio": 0.0946
+    }
+   ],
+   "r_custo125": -0.153,
+   "por_ativo": {
+    "OURO": {
+     "n": 76,
+     "soma_r": -7.236
+    },
+    "PRATA": {
+     "n": 97,
+     "soma_r": -15.194
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "OURO",
+    "r_medio": -0.1566
+   },
+   "acaso_mediana": -0.0832,
+   "acaso_p95": -0.0244,
+   "p": 0.89555,
+   "p_holm": 1.0,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)",
+    "custos +25% <= 0",
+    "sem o melhor ativo <= 0"
+   ]
+  },
+  {
+   "classe": "metais",
+   "regra": "V3",
+   "lado": "SHORT",
+   "regime": "subida",
+   "n": 274,
+   "ativos_com_dados": 2,
+   "r_medio": -0.0958,
+   "acerto_pct": 51.8,
+   "periodos": [
+    {
+     "n": 50,
+     "r_medio": -0.1423
+    },
+    {
+     "n": 94,
+     "r_medio": -0.0829
+    },
+    {
+     "n": 130,
+     "r_medio": -0.0872
+    }
+   ],
+   "r_custo125": -0.1182,
+   "por_ativo": {
+    "OURO": {
+     "n": 154,
+     "soma_r": -20.159
+    },
+    "PRATA": {
+     "n": 120,
+     "soma_r": -6.081
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "PRATA",
+    "r_medio": -0.1309
+   },
+   "acaso_mediana": -0.0941,
+   "acaso_p95": -0.039,
+   "p": 0.51624,
+   "p_holm": 1.0,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)",
+    "custos +25% <= 0",
+    "sem o melhor ativo <= 0"
+   ]
+  },
+  {
+   "classe": "metais",
+   "regra": "V3",
+   "lado": "SHORT",
+   "regime": "lateral",
+   "n": 95,
+   "ativos_com_dados": 2,
+   "r_medio": -0.0704,
+   "acerto_pct": 48.4,
+   "periodos": [
+    {
+     "n": 51,
+     "r_medio": -0.0884
+    },
+    {
+     "n": 24,
+     "r_medio": -0.077
+    },
+    {
+     "n": 20,
+     "r_medio": -0.0165
+    }
+   ],
+   "r_custo125": -0.0937,
+   "por_ativo": {
+    "OURO": {
+     "n": 42,
+     "soma_r": -2.48
+    },
+    "PRATA": {
+     "n": 53,
+     "soma_r": -4.204
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "OURO",
+    "r_medio": -0.0793
+   },
+   "acaso_mediana": -0.0472,
+   "acaso_p95": 0.0297,
+   "p": 0.68166,
+   "p_holm": 1.0,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)",
+    "custos +25% <= 0",
+    "sem o melhor ativo <= 0"
+   ]
+  },
+  {
+   "classe": "metais",
+   "regra": "V3",
+   "lado": "SHORT",
+   "regime": "descida",
+   "n": 128,
+   "ativos_com_dados": 2,
+   "r_medio": -0.137,
+   "acerto_pct": 46.9,
+   "periodos": [
+    {
+     "n": 93,
+     "r_medio": -0.1641
+    },
+    {
+     "n": 33,
+     "r_medio": -0.071
+    },
+    {
+     "n": 2,
+     "r_medio": 0.0354
+    }
+   ],
+   "r_custo125": -0.1606,
+   "por_ativo": {
+    "OURO": {
+     "n": 56,
+     "soma_r": -8.148
+    },
+    "PRATA": {
+     "n": 72,
+     "soma_r": -9.386
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "OURO",
+    "r_medio": -0.1304
+   },
+   "acaso_mediana": -0.0666,
+   "acaso_p95": 0.0092,
+   "p": 0.94153,
+   "p_holm": 1.0,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)",
+    "custos +25% <= 0",
+    "sem o melhor ativo <= 0"
+   ]
+  },
+  {
+   "classe": "metais",
+   "regra": "RSI2",
+   "lado": "LONG",
+   "regime": "subida",
+   "n": 129,
+   "ativos_com_dados": 2,
+   "r_medio": -0.1149,
+   "acerto_pct": 53.5,
+   "periodos": [
+    {
+     "n": 34,
+     "r_medio": -0.236
+    },
+    {
+     "n": 35,
+     "r_medio": -0.1085
+    },
+    {
+     "n": 60,
+     "r_medio": -0.0501
+    }
+   ],
+   "r_custo125": -0.1404,
+   "por_ativo": {
+    "OURO": {
+     "n": 71,
+     "soma_r": -5.531
+    },
+    "PRATA": {
+     "n": 58,
+     "soma_r": -9.294
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "OURO",
+    "r_medio": -0.1602
+   },
+   "acaso_mediana": -0.0629,
+   "acaso_p95": 0.009,
+   "p": 0.88106,
+   "p_holm": 1.0,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)",
+    "custos +25% <= 0",
+    "sem o melhor ativo <= 0"
+   ]
+  },
+  {
+   "classe": "metais",
+   "regra": "RSI2",
+   "lado": "LONG",
+   "regime": "lateral",
+   "n": 101,
+   "ativos_com_dados": 2,
+   "r_medio": -0.2111,
+   "acerto_pct": 48.5,
+   "periodos": [
+    {
+     "n": 54,
+     "r_medio": -0.286
+    },
+    {
+     "n": 26,
+     "r_medio": -0.1732
+    },
+    {
+     "n": 21,
+     "r_medio": -0.0653
+    }
+   ],
+   "r_custo125": -0.2382,
+   "por_ativo": {
+    "OURO": {
+     "n": 48,
+     "soma_r": -19.096
+    },
+    "PRATA": {
+     "n": 53,
+     "soma_r": -2.225
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "PRATA",
+    "r_medio": -0.3978
+   },
+   "acaso_mediana": -0.1273,
+   "acaso_p95": -0.0371,
+   "p": 0.93103,
+   "p_holm": 1.0,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)",
+    "custos +25% <= 0",
+    "sem o melhor ativo <= 0"
+   ]
+  },
+  {
+   "classe": "metais",
+   "regra": "RSI2",
+   "lado": "LONG",
+   "regime": "descida",
+   "n": 182,
+   "ativos_com_dados": 2,
+   "r_medio": -0.1128,
+   "acerto_pct": 53.3,
+   "periodos": [
+    {
+     "n": 135,
+     "r_medio": -0.1167
+    },
+    {
+     "n": 36,
+     "r_medio": -0.1047
+    },
+    {
+     "n": 11,
+     "r_medio": -0.0921
+    }
+   ],
+   "r_custo125": -0.1404,
+   "por_ativo": {
+    "OURO": {
+     "n": 75,
+     "soma_r": 0.918
+    },
+    "PRATA": {
+     "n": 107,
+     "soma_r": -21.452
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "OURO",
+    "r_medio": -0.2005
+   },
+   "acaso_mediana": -0.0835,
+   "acaso_p95": -0.0197,
+   "p": 0.75062,
+   "p_holm": 1.0,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)",
+    "custos +25% <= 0",
+    "sem o melhor ativo <= 0"
+   ]
+  },
+  {
+   "classe": "metais",
+   "regra": "RSI2",
+   "lado": "SHORT",
+   "regime": "subida",
+   "n": 271,
+   "ativos_com_dados": 2,
+   "r_medio": -0.1718,
+   "acerto_pct": 50.2,
+   "periodos": [
+    {
+     "n": 55,
+     "r_medio": -0.0197
+    },
+    {
+     "n": 83,
+     "r_medio": -0.1699
+    },
+    {
+     "n": 133,
+     "r_medio": -0.2359
+    }
+   ],
+   "r_custo125": -0.1981,
+   "por_ativo": {
+    "OURO": {
+     "n": 151,
+     "soma_r": -31.928
+    },
+    "PRATA": {
+     "n": 120,
+     "soma_r": -14.634
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "PRATA",
+    "r_medio": -0.2114
+   },
+   "acaso_mediana": -0.1111,
+   "acaso_p95": -0.0523,
+   "p": 0.94703,
+   "p_holm": 1.0,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)",
+    "custos +25% <= 0",
+    "sem o melhor ativo <= 0"
+   ]
+  },
+  {
+   "classe": "metais",
+   "regra": "RSI2",
+   "lado": "SHORT",
+   "regime": "lateral",
+   "n": 107,
+   "ativos_com_dados": 2,
+   "r_medio": -0.0703,
+   "acerto_pct": 58.9,
+   "periodos": [
+    {
+     "n": 66,
+     "r_medio": 0.0202
+    },
+    {
+     "n": 22,
+     "r_medio": -0.0842
+    },
+    {
+     "n": 19,
+     "r_medio": -0.3685
+    }
+   ],
+   "r_custo125": -0.1006,
+   "por_ativo": {
+    "OURO": {
+     "n": 46,
+     "soma_r": -9.087
+    },
+    "PRATA": {
+     "n": 61,
+     "soma_r": 1.569
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "PRATA",
+    "r_medio": -0.1975
+   },
+   "acaso_mediana": -0.0606,
+   "acaso_p95": 0.0251,
+   "p": 0.57521,
+   "p_holm": 1.0,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)",
+    "custos +25% <= 0",
+    "sem o melhor ativo <= 0"
+   ]
+  },
+  {
+   "classe": "metais",
+   "regra": "RSI2",
+   "lado": "SHORT",
+   "regime": "descida",
+   "n": 117,
+   "ativos_com_dados": 2,
+   "r_medio": -0.2812,
+   "acerto_pct": 46.2,
+   "periodos": [
+    {
+     "n": 85,
+     "r_medio": -0.2462
+    },
+    {
+     "n": 29,
+     "r_medio": -0.3583
+    },
+    {
+     "n": 3,
+     "r_medio": -0.5264
+    }
+   ],
+   "r_custo125": -0.3092,
+   "por_ativo": {
+    "OURO": {
+     "n": 52,
+     "soma_r": -13.287
+    },
+    "PRATA": {
+     "n": 65,
+     "soma_r": -19.609
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "OURO",
+    "r_medio": -0.3017
+   },
+   "acaso_mediana": -0.0803,
+   "acaso_p95": 0.0054,
+   "p": 1.0,
+   "p_holm": 1.0,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)",
+    "custos +25% <= 0",
+    "sem o melhor ativo <= 0"
+   ]
+  },
+  {
+   "classe": "acoes",
+   "regra": "V3",
+   "lado": "LONG",
+   "regime": "subida",
+   "n": 2632,
+   "ativos_com_dados": 22,
+   "r_medio": 0.0123,
+   "acerto_pct": 58.4,
+   "periodos": [
+    {
+     "n": 1238,
+     "r_medio": 0.0179
+    },
+    {
+     "n": 638,
+     "r_medio": -0.005
+    },
+    {
+     "n": 756,
+     "r_medio": 0.0176
+    }
+   ],
+   "r_custo125": -0.001,
+   "por_ativo": {
+    "AAPL": {
+     "n": 147,
+     "soma_r": 2.25
+    },
+    "ADBE": {
+     "n": 116,
+     "soma_r": 3.881
+    },
+    "AMAT": {
+     "n": 108,
+     "soma_r": 2.216
+    },
+    "AMD": {
+     "n": 112,
+     "soma_r": 0.48
+    },
+    "AMZN": {
+     "n": 149,
+     "soma_r": -2.242
+    },
+    "AVGO": {
+     "n": 139,
+     "soma_r": -5.822
+    },
+    "GOOGL": {
+     "n": 167,
+     "soma_r": 7.776
+    },
+    "IBM": {
+     "n": 64,
+     "soma_r": -4.842
+    },
+    "INTC": {
+     "n": 93,
+     "soma_r": -4.162
+    },
+    "KO": {
+     "n": 98,
+     "soma_r": -3.678
+    },
+    "LLY": {
+     "n": 143,
+     "soma_r": -1.039
+    },
+    "META": {
+     "n": 133,
+     "soma_r": 1.997
+    },
+    "MRVL": {
+     "n": 118,
+     "soma_r": 2.96
+    },
+    "MSFT": {
+     "n": 124,
+     "soma_r": 0.845
+    },
+    "MSTR": {
+     "n": 97,
+     "soma_r": 4.047
+    },
+    "MU": {
+     "n": 109,
+     "soma_r": 6.366
+    },
+    "NFLX": {
+     "n": 141,
+     "soma_r": -2.457
+    },
+    "NVDA": {
+     "n": 148,
+     "soma_r": 14.366
+    },
+    "ORCL": {
+     "n": 104,
+     "soma_r": 2.116
+    },
+    "QCOM": {
+     "n": 92,
+     "soma_r": -0.99
+    },
+    "TSLA": {
+     "n": 99,
+     "soma_r": 4.078
+    },
+    "TSM": {
+     "n": 131,
+     "soma_r": 4.117
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "NVDA",
+    "r_medio": 0.0072
+   },
+   "acaso_mediana": -0.0351,
+   "acaso_p95": -0.0214,
+   "p": 0.0005,
+   "p_holm": 0.018,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "custos +25% <= 0"
+   ]
+  },
+  {
+   "classe": "acoes",
+   "regra": "V3",
+   "lado": "LONG",
+   "regime": "lateral",
+   "n": 866,
+   "ativos_com_dados": 22,
+   "r_medio": -0.0009,
+   "acerto_pct": 55.4,
+   "periodos": [
+    {
+     "n": 391,
+     "r_medio": -0.0235
+    },
+    {
+     "n": 247,
+     "r_medio": 0.0499
+    },
+    {
+     "n": 228,
+     "r_medio": -0.0173
+    }
+   ],
+   "r_custo125": -0.0131,
+   "por_ativo": {
+    "AAPL": {
+     "n": 30,
+     "soma_r": -3.776
+    },
+    "ADBE": {
+     "n": 22,
+     "soma_r": 0.13
+    },
+    "AMAT": {
+     "n": 37,
+     "soma_r": 2.785
+    },
+    "AMD": {
+     "n": 34,
+     "soma_r": -0.554
+    },
+    "AMZN": {
+     "n": 39,
+     "soma_r": 1.081
+    },
+    "AVGO": {
+     "n": 34,
+     "soma_r": 2.016
+    },
+    "GOOGL": {
+     "n": 30,
+     "soma_r": -0.21
+    },
+    "IBM": {
+     "n": 56,
+     "soma_r": 1.272
+    },
+    "INTC": {
+     "n": 47,
+     "soma_r": -2.948
+    },
+    "KO": {
+     "n": 64,
+     "soma_r": -4.713
+    },
+    "LLY": {
+     "n": 33,
+     "soma_r": -0.947
+    },
+    "META": {
+     "n": 29,
+     "soma_r": 0.529
+    },
+    "MRVL": {
+     "n": 36,
+     "soma_r": -2.193
+    },
+    "MSFT": {
+     "n": 35,
+     "soma_r": 4.669
+    },
+    "MSTR": {
+     "n": 37,
+     "soma_r": -1.82
+    },
+    "MU": {
+     "n": 41,
+     "soma_r": -1.21
+    },
+    "NFLX": {
+     "n": 40,
+     "soma_r": 0.571
+    },
+    "NVDA": {
+     "n": 20,
+     "soma_r": 0.782
+    },
+    "ORCL": {
+     "n": 44,
+     "soma_r": 0.221
+    },
+    "QCOM": {
+     "n": 45,
+     "soma_r": 2.265
+    },
+    "TSLA": {
+     "n": 67,
+     "soma_r": 2.942
+    },
+    "TSM": {
+     "n": 46,
+     "soma_r": -1.69
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "MSFT",
+    "r_medio": -0.0066
+   },
+   "acaso_mediana": -0.0172,
+   "acaso_p95": 0.0052,
+   "p": 0.11294,
+   "p_holm": 1.0,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)",
+    "custos +25% <= 0",
+    "sem o melhor ativo <= 0"
+   ]
+  },
+  {
+   "classe": "acoes",
+   "regra": "V3",
+   "lado": "LONG",
+   "regime": "descida",
+   "n": 1129,
+   "ativos_com_dados": 22,
+   "r_medio": -0.0087,
+   "acerto_pct": 55.3,
+   "periodos": [
+    {
+     "n": 484,
+     "r_medio": -0.0377
+    },
+    {
+     "n": 367,
+     "r_medio": 0.0227
+    },
+    {
+     "n": 278,
+     "r_medio": 0.0004
+    }
+   ],
+   "r_custo125": -0.0195,
+   "por_ativo": {
+    "AAPL": {
+     "n": 46,
+     "soma_r": -1.878
+    },
+    "ADBE": {
+     "n": 66,
+     "soma_r": -1.635
+    },
+    "AMAT": {
+     "n": 56,
+     "soma_r": -3.49
+    },
+    "AMD": {
+     "n": 65,
+     "soma_r": 1.847
+    },
+    "AMZN": {
+     "n": 31,
+     "soma_r": -1.879
+    },
+    "AVGO": {
+     "n": 15,
+     "soma_r": -0.55
+    },
+    "GOOGL": {
+     "n": 39,
+     "soma_r": 2.599
+    },
+    "IBM": {
+     "n": 90,
+     "soma_r": -3.458
+    },
+    "INTC": {
+     "n": 77,
+     "soma_r": -3.061
+    },
+    "KO": {
+     "n": 44,
+     "soma_r": -2.753
+    },
+    "LLY": {
+     "n": 26,
+     "soma_r": 0.335
+    },
+    "META": {
+     "n": 34,
+     "soma_r": 0.17
+    },
+    "MRVL": {
+     "n": 50,
+     "soma_r": -1.953
+    },
+    "MSFT": {
+     "n": 35,
+     "soma_r": 2.66
+    },
+    "MSTR": {
+     "n": 90,
+     "soma_r": -7.398
+    },
+    "MU": {
+     "n": 68,
+     "soma_r": 0.375
+    },
+    "NFLX": {
+     "n": 47,
+     "soma_r": 0.469
+    },
+    "NVDA": {
+     "n": 36,
+     "soma_r": 2.814
+    },
+    "ORCL": {
+     "n": 45,
+     "soma_r": -0.345
+    },
+    "QCOM": {
+     "n": 81,
+     "soma_r": 5.144
+    },
+    "TSLA": {
+     "n": 52,
+     "soma_r": 1.037
+    },
+    "TSM": {
+     "n": 36,
+     "soma_r": 1.147
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "QCOM",
+    "r_medio": -0.0143
+   },
+   "acaso_mediana": -0.0209,
+   "acaso_p95": -0.0007,
+   "p": 0.17241,
+   "p_holm": 1.0,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)",
+    "custos +25% <= 0",
+    "sem o melhor ativo <= 0"
+   ]
+  },
+  {
+   "classe": "acoes",
+   "regra": "V3",
+   "lado": "SHORT",
+   "regime": "subida",
+   "n": 3914,
+   "ativos_com_dados": 22,
+   "r_medio": -0.0656,
+   "acerto_pct": 51.9,
+   "periodos": [
+    {
+     "n": 1791,
+     "r_medio": -0.0855
+    },
+    {
+     "n": 994,
+     "r_medio": -0.0272
+    },
+    {
+     "n": 1129,
+     "r_medio": -0.068
+    }
+   ],
+   "r_custo125": -0.0801,
+   "por_ativo": {
+    "AAPL": {
+     "n": 193,
+     "soma_r": -19.952
+    },
+    "ADBE": {
+     "n": 194,
+     "soma_r": -17.021
+    },
+    "AMAT": {
+     "n": 166,
+     "soma_r": -12.222
+    },
+    "AMD": {
+     "n": 165,
+     "soma_r": -6.023
+    },
+    "AMZN": {
+     "n": 212,
+     "soma_r": -16.109
+    },
+    "AVGO": {
+     "n": 222,
+     "soma_r": -18.101
+    },
+    "GOOGL": {
+     "n": 236,
+     "soma_r": -11.578
+    },
+    "IBM": {
+     "n": 102,
+     "soma_r": -11.517
+    },
+    "INTC": {
+     "n": 143,
+     "soma_r": -9.847
+    },
+    "KO": {
+     "n": 156,
+     "soma_r": -16.557
+    },
+    "LLY": {
+     "n": 213,
+     "soma_r": -27.501
+    },
+    "META": {
+     "n": 205,
+     "soma_r": 2.967
+    },
+    "MRVL": {
+     "n": 158,
+     "soma_r": 0.389
+    },
+    "MSFT": {
+     "n": 200,
+     "soma_r": -19.85
+    },
+    "MSTR": {
+     "n": 130,
+     "soma_r": -10.268
+    },
+    "MU": {
+     "n": 167,
+     "soma_r": -16.229
+    },
+    "NFLX": {
+     "n": 174,
+     "soma_r": -6.951
+    },
+    "NVDA": {
+     "n": 233,
+     "soma_r": -26.003
+    },
+    "ORCL": {
+     "n": 174,
+     "soma_r": -10.372
+    },
+    "QCOM": {
+     "n": 130,
+     "soma_r": 9.964
+    },
+    "TSLA": {
+     "n": 158,
+     "soma_r": -5.194
+    },
+    "TSM": {
+     "n": 183,
+     "soma_r": -8.979
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "QCOM",
+    "r_medio": -0.0705
+   },
+   "acaso_mediana": -0.0728,
+   "acaso_p95": -0.0601,
+   "p": 0.16942,
+   "p_holm": 1.0,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)",
+    "custos +25% <= 0",
+    "sem o melhor ativo <= 0"
+   ]
+  },
+  {
+   "classe": "acoes",
+   "regra": "V3",
+   "lado": "SHORT",
+   "regime": "lateral",
+   "n": 856,
+   "ativos_com_dados": 22,
+   "r_medio": -0.0604,
+   "acerto_pct": 53.2,
+   "periodos": [
+    {
+     "n": 425,
+     "r_medio": -0.0603
+    },
+    {
+     "n": 199,
+     "r_medio": -0.0206
+    },
+    {
+     "n": 232,
+     "r_medio": -0.0946
+    }
+   ],
+   "r_custo125": -0.0741,
+   "por_ativo": {
+    "AAPL": {
+     "n": 30,
+     "soma_r": -4.692
+    },
+    "ADBE": {
+     "n": 25,
+     "soma_r": 0.875
+    },
+    "AMAT": {
+     "n": 41,
+     "soma_r": -1.506
+    },
+    "AMD": {
+     "n": 34,
+     "soma_r": -4.449
+    },
+    "AMZN": {
+     "n": 38,
+     "soma_r": -2.326
+    },
+    "AVGO": {
+     "n": 29,
+     "soma_r": -1.729
+    },
+    "GOOGL": {
+     "n": 19,
+     "soma_r": 0.306
+    },
+    "IBM": {
+     "n": 71,
+     "soma_r": -4.947
+    },
+    "INTC": {
+     "n": 47,
+     "soma_r": 3.874
+    },
+    "KO": {
+     "n": 51,
+     "soma_r": -7.017
+    },
+    "LLY": {
+     "n": 38,
+     "soma_r": -4.568
+    },
+    "META": {
+     "n": 23,
+     "soma_r": 3.725
+    },
+    "MRVL": {
+     "n": 43,
+     "soma_r": -2.984
+    },
+    "MSFT": {
+     "n": 31,
+     "soma_r": -1.38
+    },
+    "MSTR": {
+     "n": 31,
+     "soma_r": -2.329
+    },
+    "MU": {
+     "n": 47,
+     "soma_r": -4.476
+    },
+    "NFLX": {
+     "n": 43,
+     "soma_r": -0.319
+    },
+    "NVDA": {
+     "n": 17,
+     "soma_r": -0.159
+    },
+    "ORCL": {
+     "n": 45,
+     "soma_r": -4.576
+    },
+    "QCOM": {
+     "n": 53,
+     "soma_r": -6.91
+    },
+    "TSLA": {
+     "n": 61,
+     "soma_r": -7.643
+    },
+    "TSM": {
+     "n": 39,
+     "soma_r": 1.549
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "INTC",
+    "r_medio": -0.0687
+   },
+   "acaso_mediana": -0.0731,
+   "acaso_p95": -0.0478,
+   "p": 0.1924,
+   "p_holm": 1.0,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)",
+    "custos +25% <= 0",
+    "sem o melhor ativo <= 0"
+   ]
+  },
+  {
+   "classe": "acoes",
+   "regra": "V3",
+   "lado": "SHORT",
+   "regime": "descida",
+   "n": 1029,
+   "ativos_com_dados": 22,
+   "r_medio": -0.0457,
+   "acerto_pct": 54.2,
+   "periodos": [
+    {
+     "n": 474,
+     "r_medio": -0.0592
+    },
+    {
+     "n": 312,
+     "r_medio": 0.011
+    },
+    {
+     "n": 243,
+     "r_medio": -0.0923
+    }
+   ],
+   "r_custo125": -0.0572,
+   "por_ativo": {
+    "AAPL": {
+     "n": 50,
+     "soma_r": -2.263
+    },
+    "ADBE": {
+     "n": 48,
+     "soma_r": -0.016
+    },
+    "AMAT": {
+     "n": 48,
+     "soma_r": -1.341
+    },
+    "AMD": {
+     "n": 53,
+     "soma_r": -2.869
+    },
+    "AMZN": {
+     "n": 29,
+     "soma_r": -2.787
+    },
+    "AVGO": {
+     "n": 29,
+     "soma_r": 3.966
+    },
+    "GOOGL": {
+     "n": 32,
+     "soma_r": 1.034
+    },
+    "IBM": {
+     "n": 73,
+     "soma_r": -12.129
+    },
+    "INTC": {
+     "n": 75,
+     "soma_r": -0.492
+    },
+    "KO": {
+     "n": 43,
+     "soma_r": -1.017
+    },
+    "LLY": {
+     "n": 33,
+     "soma_r": -4.37
+    },
+    "META": {
+     "n": 33,
+     "soma_r": 1.019
+    },
+    "MRVL": {
+     "n": 47,
+     "soma_r": -3.064
+    },
+    "MSFT": {
+     "n": 29,
+     "soma_r": 0.493
+    },
+    "MSTR": {
+     "n": 80,
+     "soma_r": -4.417
+    },
+    "MU": {
+     "n": 58,
+     "soma_r": -1.376
+    },
+    "NFLX": {
+     "n": 38,
+     "soma_r": -4.879
+    },
+    "NVDA": {
+     "n": 29,
+     "soma_r": 0.734
+    },
+    "ORCL": {
+     "n": 35,
+     "soma_r": -4.278
+    },
+    "QCOM": {
+     "n": 83,
+     "soma_r": -2.546
+    },
+    "TSLA": {
+     "n": 53,
+     "soma_r": -4.376
+    },
+    "TSM": {
+     "n": 31,
+     "soma_r": -2.088
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "AVGO",
+    "r_medio": -0.051
+   },
+   "acaso_mediana": -0.0664,
+   "acaso_p95": -0.0449,
+   "p": 0.05697,
+   "p_holm": 1.0,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)",
+    "custos +25% <= 0",
+    "sem o melhor ativo <= 0"
+   ]
+  },
+  {
+   "classe": "acoes",
+   "regra": "RSI2",
+   "lado": "LONG",
+   "regime": "subida",
+   "n": 2400,
+   "ativos_com_dados": 22,
+   "r_medio": 0.0206,
+   "acerto_pct": 63.6,
+   "periodos": [
+    {
+     "n": 1126,
+     "r_medio": 0.0343
+    },
+    {
+     "n": 595,
+     "r_medio": -0.0044
+    },
+    {
+     "n": 679,
+     "r_medio": 0.0197
+    }
+   ],
+   "r_custo125": 0.0049,
+   "por_ativo": {
+    "AAPL": {
+     "n": 132,
+     "soma_r": -1.944
+    },
+    "ADBE": {
+     "n": 106,
+     "soma_r": 7.728
+    },
+    "AMAT": {
+     "n": 109,
+     "soma_r": 5.723
+    },
+    "AMD": {
+     "n": 107,
+     "soma_r": 4.938
+    },
+    "AMZN": {
+     "n": 135,
+     "soma_r": 5.174
+    },
+    "AVGO": {
+     "n": 128,
+     "soma_r": 0.897
+    },
+    "GOOGL": {
+     "n": 142,
+     "soma_r": 13.439
+    },
+    "IBM": {
+     "n": 68,
+     "soma_r": -6.367
+    },
+    "INTC": {
+     "n": 87,
+     "soma_r": -9.253
+    },
+    "KO": {
+     "n": 94,
+     "soma_r": -8.047
+    },
+    "LLY": {
+     "n": 129,
+     "soma_r": -4.594
+    },
+    "META": {
+     "n": 122,
+     "soma_r": 12.698
+    },
+    "MRVL": {
+     "n": 94,
+     "soma_r": -4.476
+    },
+    "MSFT": {
+     "n": 116,
+     "soma_r": 10.416
+    },
+    "MSTR": {
+     "n": 86,
+     "soma_r": 0.218
+    },
+    "MU": {
+     "n": 99,
+     "soma_r": 2.272
+    },
+    "NFLX": {
+     "n": 123,
+     "soma_r": -6.906
+    },
+    "NVDA": {
+     "n": 138,
+     "soma_r": 12.184
+    },
+    "ORCL": {
+     "n": 103,
+     "soma_r": 3.666
+    },
+    "QCOM": {
+     "n": 80,
+     "soma_r": 4.354
+    },
+    "TSLA": {
+     "n": 87,
+     "soma_r": 5.234
+    },
+    "TSM": {
+     "n": 115,
+     "soma_r": 2.082
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "GOOGL",
+    "r_medio": 0.0159
+   },
+   "acaso_mediana": -0.0312,
+   "acaso_p95": -0.0152,
+   "p": 0.0005,
+   "p_holm": 0.018,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo"
+   ]
+  },
+  {
+   "classe": "acoes",
+   "regra": "RSI2",
+   "lado": "LONG",
+   "regime": "lateral",
+   "n": 911,
+   "ativos_com_dados": 22,
+   "r_medio": -0.0042,
+   "acerto_pct": 61.7,
+   "periodos": [
+    {
+     "n": 427,
+     "r_medio": -0.058
+    },
+    {
+     "n": 246,
+     "r_medio": 0.0175
+    },
+    {
+     "n": 238,
+     "r_medio": 0.0698
+    }
+   ],
+   "r_custo125": -0.0186,
+   "por_ativo": {
+    "AAPL": {
+     "n": 34,
+     "soma_r": -2.855
+    },
+    "ADBE": {
+     "n": 23,
+     "soma_r": -1.226
+    },
+    "AMAT": {
+     "n": 32,
+     "soma_r": 0.476
+    },
+    "AMD": {
+     "n": 38,
+     "soma_r": -4.258
+    },
+    "AMZN": {
+     "n": 37,
+     "soma_r": 6.893
+    },
+    "AVGO": {
+     "n": 39,
+     "soma_r": 5.356
+    },
+    "GOOGL": {
+     "n": 31,
+     "soma_r": 2.422
+    },
+    "IBM": {
+     "n": 59,
+     "soma_r": -9.351
+    },
+    "INTC": {
+     "n": 42,
+     "soma_r": -2.219
+    },
+    "KO": {
+     "n": 63,
+     "soma_r": -4.325
+    },
+    "LLY": {
+     "n": 37,
+     "soma_r": -7.916
+    },
+    "META": {
+     "n": 35,
+     "soma_r": 5.438
+    },
+    "MRVL": {
+     "n": 42,
+     "soma_r": 0.763
+    },
+    "MSFT": {
+     "n": 32,
+     "soma_r": -1.071
+    },
+    "MSTR": {
+     "n": 44,
+     "soma_r": -2.719
+    },
+    "MU": {
+     "n": 44,
+     "soma_r": -0.097
+    },
+    "NFLX": {
+     "n": 36,
+     "soma_r": 0.31
+    },
+    "NVDA": {
+     "n": 23,
+     "soma_r": -1.734
+    },
+    "ORCL": {
+     "n": 59,
+     "soma_r": 2.288
+    },
+    "QCOM": {
+     "n": 45,
+     "soma_r": 1.326
+    },
+    "TSLA": {
+     "n": 68,
+     "soma_r": 4.104
+    },
+    "TSM": {
+     "n": 48,
+     "soma_r": 4.541
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "AMZN",
+    "r_medio": -0.0123
+   },
+   "acaso_mediana": -0.0139,
+   "acaso_p95": 0.013,
+   "p": 0.27536,
+   "p_holm": 1.0,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)",
+    "custos +25% <= 0",
+    "sem o melhor ativo <= 0"
+   ]
+  },
+  {
+   "classe": "acoes",
+   "regra": "RSI2",
+   "lado": "LONG",
+   "regime": "descida",
+   "n": 1095,
+   "ativos_com_dados": 22,
+   "r_medio": 0.03,
+   "acerto_pct": 64.0,
+   "periodos": [
+    {
+     "n": 498,
+     "r_medio": 0.0088
+    },
+    {
+     "n": 329,
+     "r_medio": 0.0526
+    },
+    {
+     "n": 268,
+     "r_medio": 0.0415
+    }
+   ],
+   "r_custo125": 0.017,
+   "por_ativo": {
+    "AAPL": {
+     "n": 44,
+     "soma_r": 1.699
+    },
+    "ADBE": {
+     "n": 58,
+     "soma_r": -4.745
+    },
+    "AMAT": {
+     "n": 54,
+     "soma_r": -1.153
+    },
+    "AMD": {
+     "n": 63,
+     "soma_r": 1.91
+    },
+    "AMZN": {
+     "n": 34,
+     "soma_r": -0.4
+    },
+    "AVGO": {
+     "n": 23,
+     "soma_r": -2.322
+    },
+    "GOOGL": {
+     "n": 35,
+     "soma_r": 3.398
+    },
+    "IBM": {
+     "n": 86,
+     "soma_r": 0.635
+    },
+    "INTC": {
+     "n": 69,
+     "soma_r": -0.458
+    },
+    "KO": {
+     "n": 46,
+     "soma_r": -0.743
+    },
+    "LLY": {
+     "n": 26,
+     "soma_r": 2.817
+    },
+    "META": {
+     "n": 33,
+     "soma_r": 2.923
+    },
+    "MRVL": {
+     "n": 55,
+     "soma_r": 5.656
+    },
+    "MSFT": {
+     "n": 31,
+     "soma_r": 3.696
+    },
+    "MSTR": {
+     "n": 85,
+     "soma_r": 4.81
+    },
+    "MU": {
+     "n": 59,
+     "soma_r": -2.317
+    },
+    "NFLX": {
+     "n": 43,
+     "soma_r": 1.618
+    },
+    "NVDA": {
+     "n": 34,
+     "soma_r": 0.803
+    },
+    "ORCL": {
+     "n": 43,
+     "soma_r": -1.06
+    },
+    "QCOM": {
+     "n": 82,
+     "soma_r": 3.899
+    },
+    "TSLA": {
+     "n": 59,
+     "soma_r": 3.352
+    },
+    "TSM": {
+     "n": 33,
+     "soma_r": 8.798
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "TSM",
+    "r_medio": 0.0226
+   },
+   "acaso_mediana": -0.0128,
+   "acaso_p95": 0.0106,
+   "p": 0.001,
+   "p_holm": 0.034,
+   "aprovada": true,
+   "falhas": []
+  },
+  {
+   "classe": "acoes",
+   "regra": "RSI2",
+   "lado": "SHORT",
+   "regime": "subida",
+   "n": 3940,
+   "ativos_com_dados": 22,
+   "r_medio": -0.1047,
+   "acerto_pct": 54.8,
+   "periodos": [
+    {
+     "n": 1846,
+     "r_medio": -0.1073
+    },
+    {
+     "n": 973,
+     "r_medio": -0.116
+    },
+    {
+     "n": 1121,
+     "r_medio": -0.0908
+    }
+   ],
+   "r_custo125": -0.1222,
+   "por_ativo": {
+    "AAPL": {
+     "n": 188,
+     "soma_r": -42.196
+    },
+    "ADBE": {
+     "n": 184,
+     "soma_r": -22.07
+    },
+    "AMAT": {
+     "n": 179,
+     "soma_r": -22.982
+    },
+    "AMD": {
+     "n": 180,
+     "soma_r": -17.637
+    },
+    "AMZN": {
+     "n": 211,
+     "soma_r": -20.064
+    },
+    "AVGO": {
+     "n": 221,
+     "soma_r": -10.682
+    },
+    "GOOGL": {
+     "n": 216,
+     "soma_r": -27.355
+    },
+    "IBM": {
+     "n": 104,
+     "soma_r": -16.73
+    },
+    "INTC": {
+     "n": 145,
+     "soma_r": -22.544
+    },
+    "KO": {
+     "n": 149,
+     "soma_r": -19.976
+    },
+    "LLY": {
+     "n": 210,
+     "soma_r": -31.815
+    },
+    "META": {
+     "n": 197,
+     "soma_r": -7.246
+    },
+    "MRVL": {
+     "n": 159,
+     "soma_r": -1.923
+    },
+    "MSFT": {
+     "n": 212,
+     "soma_r": -18.112
+    },
+    "MSTR": {
+     "n": 133,
+     "soma_r": -19.61
+    },
+    "MU": {
+     "n": 175,
+     "soma_r": -18.656
+    },
+    "NFLX": {
+     "n": 187,
+     "soma_r": -15.402
+    },
+    "NVDA": {
+     "n": 237,
+     "soma_r": -37.208
+    },
+    "ORCL": {
+     "n": 173,
+     "soma_r": -10.948
+    },
+    "QCOM": {
+     "n": 119,
+     "soma_r": 5.813
+    },
+    "TSLA": {
+     "n": 164,
+     "soma_r": -26.057
+    },
+    "TSM": {
+     "n": 197,
+     "soma_r": -9.267
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "QCOM",
+    "r_medio": -0.1095
+   },
+   "acaso_mediana": -0.0856,
+   "acaso_p95": -0.0705,
+   "p": 0.98501,
+   "p_holm": 1.0,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)",
+    "custos +25% <= 0",
+    "sem o melhor ativo <= 0"
+   ]
+  },
+  {
+   "classe": "acoes",
+   "regra": "RSI2",
+   "lado": "SHORT",
+   "regime": "lateral",
+   "n": 804,
+   "ativos_com_dados": 22,
+   "r_medio": -0.1101,
+   "acerto_pct": 54.2,
+   "periodos": [
+    {
+     "n": 398,
+     "r_medio": -0.1426
+    },
+    {
+     "n": 194,
+     "r_medio": -0.0308
+    },
+    {
+     "n": 212,
+     "r_medio": -0.1217
+    }
+   ],
+   "r_custo125": -0.1271,
+   "por_ativo": {
+    "AAPL": {
+     "n": 31,
+     "soma_r": -0.033
+    },
+    "ADBE": {
+     "n": 20,
+     "soma_r": 1.652
+    },
+    "AMAT": {
+     "n": 38,
+     "soma_r": -0.566
+    },
+    "AMD": {
+     "n": 38,
+     "soma_r": -7.763
+    },
+    "AMZN": {
+     "n": 29,
+     "soma_r": -7.394
+    },
+    "AVGO": {
+     "n": 24,
+     "soma_r": 1.893
+    },
+    "GOOGL": {
+     "n": 16,
+     "soma_r": -7.041
+    },
+    "IBM": {
+     "n": 64,
+     "soma_r": 1.601
+    },
+    "INTC": {
+     "n": 45,
+     "soma_r": 0.394
+    },
+    "KO": {
+     "n": 56,
+     "soma_r": -7.989
+    },
+    "LLY": {
+     "n": 36,
+     "soma_r": -6.379
+    },
+    "META": {
+     "n": 26,
+     "soma_r": -2.673
+    },
+    "MRVL": {
+     "n": 42,
+     "soma_r": -6.745
+    },
+    "MSFT": {
+     "n": 29,
+     "soma_r": -5.089
+    },
+    "MSTR": {
+     "n": 33,
+     "soma_r": 1.924
+    },
+    "MU": {
+     "n": 42,
+     "soma_r": -6.233
+    },
+    "NFLX": {
+     "n": 36,
+     "soma_r": -7.662
+    },
+    "NVDA": {
+     "n": 16,
+     "soma_r": -3.197
+    },
+    "ORCL": {
+     "n": 41,
+     "soma_r": -6.135
+    },
+    "QCOM": {
+     "n": 47,
+     "soma_r": -12.754
+    },
+    "TSLA": {
+     "n": 55,
+     "soma_r": -6.563
+    },
+    "TSM": {
+     "n": 40,
+     "soma_r": -1.771
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "MSTR",
+    "r_medio": -0.1173
+   },
+   "acaso_mediana": -0.0857,
+   "acaso_p95": -0.0567,
+   "p": 0.91054,
+   "p_holm": 1.0,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)",
+    "custos +25% <= 0",
+    "sem o melhor ativo <= 0"
+   ]
+  },
+  {
+   "classe": "acoes",
+   "regra": "RSI2",
+   "lado": "SHORT",
+   "regime": "descida",
+   "n": 962,
+   "ativos_com_dados": 22,
+   "r_medio": -0.0767,
+   "acerto_pct": 57.5,
+   "periodos": [
+    {
+     "n": 449,
+     "r_medio": -0.0869
+    },
+    {
+     "n": 298,
+     "r_medio": -0.047
+    },
+    {
+     "n": 215,
+     "r_medio": -0.0967
+    }
+   ],
+   "r_custo125": -0.0906,
+   "por_ativo": {
+    "AAPL": {
+     "n": 42,
+     "soma_r": -7.343
+    },
+    "ADBE": {
+     "n": 45,
+     "soma_r": -0.567
+    },
+    "AMAT": {
+     "n": 38,
+     "soma_r": -2.165
+    },
+    "AMD": {
+     "n": 62,
+     "soma_r": 1.876
+    },
+    "AMZN": {
+     "n": 23,
+     "soma_r": -0.625
+    },
+    "AVGO": {
+     "n": 23,
+     "soma_r": 0.391
+    },
+    "GOOGL": {
+     "n": 25,
+     "soma_r": 4.673
+    },
+    "IBM": {
+     "n": 76,
+     "soma_r": -10.347
+    },
+    "INTC": {
+     "n": 63,
+     "soma_r": -10.447
+    },
+    "KO": {
+     "n": 42,
+     "soma_r": -5.375
+    },
+    "LLY": {
+     "n": 29,
+     "soma_r": -1.219
+    },
+    "META": {
+     "n": 32,
+     "soma_r": -3.314
+    },
+    "MRVL": {
+     "n": 52,
+     "soma_r": -3.855
+    },
+    "MSFT": {
+     "n": 28,
+     "soma_r": 2.2
+    },
+    "MSTR": {
+     "n": 66,
+     "soma_r": -3.647
+    },
+    "MU": {
+     "n": 58,
+     "soma_r": -5.395
+    },
+    "NFLX": {
+     "n": 41,
+     "soma_r": -6.291
+    },
+    "NVDA": {
+     "n": 29,
+     "soma_r": -2.617
+    },
+    "ORCL": {
+     "n": 35,
+     "soma_r": -2.382
+    },
+    "QCOM": {
+     "n": 69,
+     "soma_r": -4.682
+    },
+    "TSLA": {
+     "n": 52,
+     "soma_r": -6.904
+    },
+    "TSM": {
+     "n": 32,
+     "soma_r": -5.783
+    }
+   },
+   "sem_melhor_ativo": {
+    "ativo": "GOOGL",
+    "r_medio": -0.0838
+   },
+   "acaso_mediana": -0.0755,
+   "acaso_p95": -0.0498,
+   "p": 0.53123,
+   "p_holm": 1.0,
+   "aprovada": false,
+   "falhas": [
+    "R medio <= 0 ou < 5 op. em algum periodo",
+    "nao bate o acaso (Holm)",
+    "custos +25% <= 0",
+    "sem o melhor ativo <= 0"
+   ]
+  }
+ ]
+}

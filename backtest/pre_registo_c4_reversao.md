@@ -60,3 +60,20 @@ e stops só com a bolsa de Nova Iorque aberta) e **só entra no piloto depois de
 os SHORT são aprovados em separado; nenhuma célula aprovada autoriza o lado oposto.
 
 Código: `backtest/estudos/c4_reversao.py`; resultado: `backtest/estudos/c4_resultado.json`.
+
+## Resultado (corrido a 20/11/2026, depois de publicado o pré-registo no commit b26aae1)
+
+**1 de 36 células aprovada**: ações, RSI2, LONG, regime de descida — 1095 operações (22 ações, 2011-11 → 2026-11),
+**+0,030R** por operação, acerto 64%, os três períodos positivos (+0,009 / +0,053 / +0,042), acaso p95 +0,011,
+p de Holm 0,034, custos +25%: +0,017R, sem a TSM: +0,023R; 14 de 22 ações positivas.
+
+Todas as outras 35 falharam, incluindo **todas as células de metais** (12 de 12 negativas) e **todos os SHORT**
+das três classes. Nos índices nada passou (o melhor, RSI2 LONG em subida, p de Holm 0,165).
+
+Limites da célula aprovada (não mudam o veredicto, mas condicionam o uso):
+- a vantagem é pequena: um custo extra de ida e volta de ~0,23% do preço (risco médio 2×ATR ≈ 7,5% do preço)
+  anula-a. Na OKX vimos spreads de 0,06% (SPCX) a 0,94% (GEV): só serve em ações com spread muito baixo;
+- viés de sobrevivência forte para esta regra: compra quedas de ações que hoje sabemos que sobreviveram e cresceram;
+- o financiamento real dos perpétuos de ações da OKX não foi medido (usou-se 0,03%/dia).
+Próximo passo possível: papel na OKX com spread ≤ 0,10% e só com a bolsa de Nova Iorque aberta; nada no piloto
+antes de 26/11.
