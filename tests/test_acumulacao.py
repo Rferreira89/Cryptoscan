@@ -128,7 +128,7 @@ class Executor(unittest.TestCase):
         from unittest import mock
         from engine import executor as X
         posts, msgs = [], []
-        plano = {"modo": modo, "ordens": [{"ativo": "BTC", "lado": "comprar", "valor": 20.0},
+        plano = {"modo": modo, "t": 1, "ordens": [{"ativo": "BTC", "lado": "comprar", "valor": 20.0},
                                           {"ativo": "SOL", "lado": "vender", "valor": 6.0}]}
         w = {"list": [{"coin": [{"coin": "USDC", "walletBalance": "50", "borrowAmount": str(divida)},
                                 {"coin": "SOL", "walletBalance": "1"}]}]}
@@ -148,8 +148,17 @@ class Executor(unittest.TestCase):
         r, posts, ex, msgs = self.correr()
         self.assertEqual(r, "ok")
         self.assertEqual([b["side"] for b in posts], ["Sell", "Buy"])
+        self.assertEqual(ex["acumulacao_ult_plano"], 1)
         self.assertTrue(all("isLeverage" not in b for b in posts))
         self.assertEqual([x["lado"] for x in ex["acumulacao_log"]], ["vender", "comprar"])
+
+    def test_mesmo_plano_nao_corre_duas_vezes(self):
+        from unittest import mock
+        from engine import executor as X
+        ex = {"ops": {}, "acumulacao_ult_plano": 100}
+        r = X.do_acumular({"acumulacao_plano": {"modo": "real", "t": 100, "ordens": [{"ativo": "BTC", "lado": "comprar", "valor": 9}]}},
+                          {"op": "x"}, ex, 1, lambda *a, **k: None)
+        self.assertIn("já executado", r)
 
     def test_sombra_nao_envia_nada(self):
         r, posts, _, _ = self.correr(modo="sombra")
@@ -172,7 +181,11 @@ class Executor(unittest.TestCase):
               "ledger": [], "capital_confirmado": True, "bybit_modo": "acumulacao"}
         A.atualizar(st, cfgr, 100, None)
         self.assertEqual([r["acao"] for r in st["exec_req"]], ["acumular"])
-        A.atualizar(st, cfgr, 200, None)                                    # mesmo plano: nao repete
+        A.atualizar(st, cfgr, 200, None)                                    # sem nova leitura da conta: nao repete
+        self.assertEqual(len(st["exec_req"]), 1)
+        st["exec_req"] = []
+        st["conta_livre"] = {"t": 500, "usdc": 50.0}                         # nova leitura: pode pedir de novo
+        A.atualizar(st, cfgr, 600, None)
         self.assertEqual(len(st["exec_req"]), 1)
         st2 = dict(st, exec_req=[], acumulacao_pedido=None,
                    ledger=[{"mode": "REAL", "executed": True, "status": "OPEN", "asset": "XLM"}])

@@ -154,14 +154,15 @@ def atualizar(state, cfg, now, enviar=None):
     p = plano(c, sal, tk, livre, abertas)
     p["t"] = int(now)
     state["acumulacao_plano"] = p
-    if p.get("modo") == "real" and p.get("ordens") and not abertas and state.get("capital_confirmado"):
-        # (19/11) so com a leitura da conta desta volta; o mesmo plano nao e pedido duas vezes
+    conta_t = int((state.get("conta_livre") or {}).get("t") or 0)
+    ped = state.get("acumulacao_pedido") or {}
+    # so com uma leitura da conta POSTERIOR ao ultimo pedido (as compras anteriores ja la estao)
+    if p.get("modo") == "real" and p.get("ordens") and not abertas and state.get("capital_confirmado") \
+            and conta_t > int(ped.get("t") or 0):
         ass = [(o["ativo"], o["lado"], round(o["valor"])) for o in p["ordens"]]
-        if ass != (state.get("acumulacao_pedido") or {}).get("assinatura") or \
-                now - int((state.get("acumulacao_pedido") or {}).get("t") or 0) >= 6 * 3600:
-            from . import execucao
-            if execucao.request(state, "acumular", f"acumulacao-{int(now)}", now):
-                state["acumulacao_pedido"] = {"t": int(now), "assinatura": ass}
+        from . import execucao
+        if execucao.request(state, "acumular", f"acumulacao-{int(now)}", now):
+            state["acumulacao_pedido"] = {"t": int(now), "assinatura": ass}
     ant = state.get("acumulacao_aviso") or {}
     assinatura = [(o["ativo"], o["lado"]) for o in p.get("ordens") or []]
     mudou = assinatura != ant.get("assinatura")

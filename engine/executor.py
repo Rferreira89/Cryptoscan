@@ -2060,6 +2060,11 @@ def do_acumular(state, req, ex, now, send):
     p = state.get("acumulacao_plano") or {}
     if p.get("modo") != "real":
         return "acumulação não está em modo real"
+    # (19/11) um plano so e executado uma vez: a 16:51 e 16:57 o mesmo plano (calculado antes de a conta refletir as
+    # compras) correu duas vezes; as compras estavam limitadas ao USDC livre, mas um plano velho nao deve correr
+    if int(p.get("t") or 0) <= int(ex.get("acumulacao_ult_plano") or 0):
+        return "plano já executado: espera pela leitura seguinte da conta"
+    ex["acumulacao_ult_plano"] = int(p.get("t") or 0)
     if any(o.get("status") in ("aberta", "pendente", "verificar") for o in (ex.get("ops") or {}).values()
            if isinstance(o, dict)):
         return "há posições de trading abertas: nada feito"
