@@ -415,7 +415,7 @@
    "real": {
     "fechadas": 1,
     "r_medio": 0.581,
-    "deslize_medio_pct": -0.014,
+    "deslize_medio_pct": -0.007,
     "papel_vs_real_r": -0.0577
    },
    "desde": 1794923573,
@@ -585,7 +585,7 @@
    "real": {
     "fechadas": 0,
     "r_medio": null,
-    "deslize_medio_pct": null,
+    "deslize_medio_pct": 0.0,
     "papel_vs_real_r": null
    },
    "desde": 1794923573,
@@ -1005,7 +1005,7 @@
    }
   }
  },
- "t": 1795091475,
+ "t": 1795093276,
  "pedidos_teste_final": [],
  "piloto_operacional": true,
  "criterios": {
