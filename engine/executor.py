@@ -2040,7 +2040,57 @@ def do_panico_refazer(state, req, ex, now, send):
     return "refeita: " + str(do_panico_ordem(state, {"op": oid}, ex, now, send))
 
 
-ACTIONS = {"vender": do_short, "teste_short": do_test_short, "limpar_short": do_clean_short, "ordens": do_orders, "teste_alav": do_test_lev, "teste_margem": do_test_margin, "teste2": do_test2, "limpar": do_clean, "diag": do_diag, "comprar": do_buy, "breakeven": do_breakeven, "fechar": do_close,
+def do_acumular(state, req, ex, now, send):
+    """(19/11, decisao do Rui) Ordens da carteira de ACUMULACAO da Bybit UE (engine/acumulacao), so no modo "real".
+    So spot, sem alavancagem nem emprestimos (nunca isLeverage); compras com o USDC livre da conta unificada, vendas
+    no maximo do saldo livre da moeda. Recusa tudo se houver posicoes de trading abertas no executor (o USDC e a sua
+    garantia) ou qualquer divida na conta. Primeiro as vendas, depois as compras (o vendido paga as compras)."""
+    p = state.get("acumulacao_plano") or {}
+    if p.get("modo") != "real":
+        return "acumulação não está em modo real"
+    if any(o.get("status") in ("aberta", "pendente", "verificar") for o in (ex.get("ops") or {}).values()
+           if isinstance(o, dict)):
+        return "há posições de trading abertas: nada feito"
+    w = get("/v5/account/wallet-balance", {"accountType": "UNIFIED"})        # nunca a conta SPOT (sem dividas visiveis)
+    if any(coin_debt(w, c) > 0 for c in ["USDC"] + [o["ativo"] for o in p.get("ordens") or []]):
+        send("🚨 Acumulação: há uma dívida na conta da Bybit; nenhuma ordem de acumulação foi enviada.")
+        return "dívida na conta: nada feito"
+    log = ex.setdefault("acumulacao_log", [])
+    feitas = []
+    for o in sorted(p.get("ordens") or [], key=lambda x: x["lado"] != "vender"):
+        a, valor = o["ativo"], float(o["valor"])
+        sym = f"{a}USDC"
+        try:
+            inst = instrument(sym)
+            px = last_price(sym)
+            if o["lado"] == "vender":
+                q = min(held(wallet(), a), valor / px)
+                oid = sell_all(sym, q, inst, f"av{a}{now % 1000000}")
+                avg, qq = fills(oid, sym, a, side="Sell") if oid else (None, 0.0)
+            else:
+                usdc = min(valor, usdc_free(get("/v5/account/wallet-balance", {"accountType": "UNIFIED"})) * 0.99)
+                if usdc < max(inst["min_amt"], 5.0):
+                    feitas.append(f"{a}: USDC livre insuficiente")
+                    continue
+                lim = float(fmt(px * (1 + LIMIT_SLIP), inst["tick"]))
+                qty = floor_to(usdc / lim, inst["base_step"])
+                r = post("/v5/order/create", {"category": "spot", "symbol": sym, "side": "Buy", "orderType": "Limit",
+                                              "timeInForce": "IOC", "price": fmt(lim, inst["tick"]),
+                                              "qty": fmt(qty, inst["base_step"]),
+                                              "orderLinkId": f"{LINK}ac{a}{now % 1000000}"[:36]})
+                avg, qq = fills(r["orderId"], sym, a)
+        except ExecError as e:
+            feitas.append(f"{a}: falhou ({str(e)[:60]})")
+            continue
+        log.append({"t": int(now), "ativo": a, "lado": o["lado"], "preco": avg, "qty": qq,
+                    "usdc": round((avg or 0) * qq, 2)})
+        feitas.append(f"{o['lado']} {a}: {(avg or 0) * qq:.2f} USDC a {avg:.6g}" if avg else f"{a}: sem execução")
+    ex["acumulacao_log"] = log[-300:]
+    send("🧺 <b>Acumulação Bybit</b>\n" + "\n".join(f"• {x}" for x in feitas), html=True)
+    return "ok" if feitas else "sem ordens"
+
+
+ACTIONS = {"acumular": do_acumular, "vender": do_short, "teste_short": do_test_short, "limpar_short": do_clean_short, "ordens": do_orders, "teste_alav": do_test_lev, "teste_margem": do_test_margin, "teste2": do_test2, "limpar": do_clean, "diag": do_diag, "comprar": do_buy, "breakeven": do_breakeven, "fechar": do_close,
            "parar": do_stop_all, "teste": do_test,
            "nucleo_comprar": do_nucleo_comprar, "nucleo_vender": do_nucleo_vender,
            "nucleo_reforcar": do_nucleo_reforcar, "nucleo_acertar": do_nucleo_acertar,

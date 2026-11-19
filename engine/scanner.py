@@ -583,6 +583,11 @@ def run(now=None, state=None, cfg=None, forma=None, eu=None):
         result["papel_fases"] = papel_fases.update(state, c4s, promo.DAILY.get("BTC"), pv, now)
     except Exception as e:
         result["papel_fases"] = {"erro": str(e)[:120]}
+    try:                                      # (19/11) carteira de acumulacao da Bybit UE (sombra ate ao OK do Rui)
+        from . import acumulacao, alerts
+        result["acumulacao"] = acumulacao.atualizar(state, cfg, now, alerts.send if alerts.configured() else None)
+    except Exception as e:                   # nunca para o scan
+        result["acumulacao"] = {"erro": str(e)[:120]}
     try:                                      # (30/10) modo acelerado (preparado desligado; so informa o estado)
         from . import acelerado
         result["acelerado"] = acelerado.resumo(state, cfg)

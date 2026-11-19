@@ -22,6 +22,7 @@ DINHEIRO = re.compile(
 SCAN_FORA = {"conta", "meta_base", "meta", "reais", "contributo", "nucleo", "evolucao", "liberdade",
              "execucao", "posmortem", "risco"}
 STATE_FORA = {"capital", "capital_t", "capital_auto", "conta_livre", "conta_mov", "conta_saldos",
+              "acumulacao_plano", "acumulacao_aviso", "acumulacao_pedido",       # (19/11) valores da carteira de acumulacao: so no cofre
               "evolucao", "risco", "nucleo", "meta_base", "reconc", "saltos_avisados", "exec_abertas",
               "exec_req", "auto_ops", "chave_negociacao_expira", "privado"}
 

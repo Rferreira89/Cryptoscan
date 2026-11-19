@@ -861,7 +861,8 @@ def snapshot(state, now=None):
                 "lotes": _lotes_ou_none(),
                 "tickers": tk,
                 "movimentos": mv,
-                "saldos": {c: round(held.get(c, 0.0), 10) for c in ("BTC", "ETH", "SOL")},
+                # (19/11) todas as moedas com saldo (a carteira de acumulacao precisa delas); vai cifrado (campo conta)
+                "saldos": {c: round(q, 10) for c, q in sorted(held.items()) if q > 0 and c != "USDC"},
                 "posicoes_sem_registo": posicoes_sem_registo(debts(wallet), opened, tk),
                 "ordens_lidas": bool(ordens_ok),
                 "trades": check_trades(led, held, orders, execs, now, debts(wallet), leitura=(ordens_ok, ordens_t))}
