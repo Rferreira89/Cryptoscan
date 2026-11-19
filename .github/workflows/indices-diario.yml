@@ -27,6 +27,11 @@ jobs:
             curl -sS -m 60 -A "Mozilla/5.0" "https://query1.finance.yahoo.com/v8/finance/chart/${s}?range=15y&interval=1d" -o "yahoo_${n}.json" || true
             head -c 160 "yahoo_${n}.json"; echo
           done
+          # (20/11, C4) acoes com perpetuo na OKX, lista fixa do pre-registo backtest/pre_registo_c4_reversao.md
+          for s in AAPL AMD AMZN ADBE AMAT AVGO GOOGL IBM INTC KO LLY META MRVL MSFT MSTR MU NFLX NVDA ORCL QCOM TSLA TSM; do
+            curl -sS -m 60 -A "Mozilla/5.0" "https://query1.finance.yahoo.com/v8/finance/chart/${s}?range=15y&interval=1d" -o "yahoo_${s}.json" || true
+            sleep 1
+          done
           ls -la
           git init -q -b indices-diario && git config user.name cryptoscan-bot && git config user.email bot@users.noreply.github.com \
             && git add -A && git commit -q -m "indices $(date -u +%FT%TZ)" \
