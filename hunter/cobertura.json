@@ -1,29 +1,29 @@
 {
 "resumo": {
-"t": 1795107676,
+"t": 1795109476,
 "janela_h": 24,
-"instrumentos_com_1h": 260,
-"movimentos": 320,
+"instrumentos_com_1h": 261,
+"movimentos": 322,
 "detetados": 1,
-"nao_detetados_D": 319,
-"D_identificaveis": 221,
+"nao_detetados_D": 321,
+"D_identificaveis": 223,
 "D_por_condicao": {
 "extensao_baixa": 53,
-"fraqueza_relativa": 28,
+"fraqueza_relativa": 29,
 "nenhuma": 98,
 "extensao_alta": 128,
 "forca_relativa": 52,
-"volume": 64,
+"volume": 65,
 "rompimento_baixa": 13,
 "rompimento_alta": 43
 },
 "D_por_lado": {
-"LONG": 143,
+"LONG": 145,
 "SHORT": 176
 },
 "D_por_classe": {
 "crypto": 188,
-"equity": 131
+"equity": 133
 },
 "aviso": "teto_hipotetico = excursao maxima menos custos, escolhida depois do movimento: NAO e resultado real nem realizavel"
 },
@@ -18987,6 +18987,20 @@
 "teto_hipotetico": 0.0739
 },
 {
+"base": "ANTHROPIC",
+"classe": "equity",
+"lado": "LONG",
+"inicio": 1795071600,
+"movimento": 0.0657,
+"limite": 0.0437,
+"detetado": false,
+"condicoes_em_tempo_real": [
+"fraqueza_relativa"
+],
+"identificavel": true,
+"teto_hipotetico": 0.0645
+},
+{
 "base": "SOPH",
 "classe": "crypto",
 "lado": "LONG",
@@ -21212,6 +21226,20 @@
 "condicoes_em_tempo_real": [],
 "identificavel": false,
 "teto_hipotetico": 0.0382
+},
+{
+"base": "ANTHROPIC",
+"classe": "equity",
+"lado": "LONG",
+"inicio": 1795096800,
+"movimento": 0.1039,
+"limite": 0.0557,
+"detetado": false,
+"condicoes_em_tempo_real": [
+"volume"
+],
+"identificavel": true,
+"teto_hipotetico": 0.1027
 },
 {
 "base": "ALAB",
