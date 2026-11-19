@@ -215,15 +215,14 @@ AMBIGUO_REPETIR = 6 * 3600                          # (11/11, revisao) o alerta 
 NAO_EXISTE = "51603"                                # a OKX ja nao tem a ordem (canceladas sem execucao saem ao fim de ~2 h)
 
 
-def _ambiguo(base, op, now, msgs, porque):
+def _ambiguo(base, op, now, msgs, porque, fica="A ordem fica como PENDENTE (nada assumido: pode ter executado)"):
     """Estado desconhecido: nada e assumido. Conta as voltas SEGUIDAS sem confirmacao (o contador volta a zero com
     qualquer leitura conclusiva, em _confirmado) e alerta a partir de AMBIGUO_ALERTA, repetindo de 6 em 6 h."""
     op["ambiguo"] = int(op.get("ambiguo") or 0) + 1
     op["ambiguo_desde"] = op.get("ambiguo_desde") or int(now)
     if op["ambiguo"] >= AMBIGUO_ALERTA and now - float(op.get("ambiguo_aviso") or 0) >= AMBIGUO_REPETIR:
         op["ambiguo_aviso"] = int(now)
-        msgs.append(f"🚨 OKX real — {base}: {porque}, há {op['ambiguo']} voltas seguidas. A ordem fica como PENDENTE "
-                    f"(nada assumido: pode ter executado). Confirma na app da OKX.")
+        msgs.append(f"🚨 OKX real — {base}: {porque}, há {op['ambiguo']} voltas seguidas. {fica}. Confirma na app da OKX.")
 
 
 def _confirmado(op):
@@ -248,7 +247,8 @@ def _sem_ordem_na_okx(base, op, now, msgs):
         q = sum(float(x["fillSz"]) for x in fills)
         px = sum(float(x["fillSz"]) * float(x["fillPx"]) for x in fills) / q
         t = min(int(x.get("ts") or now * 1000) for x in fills) / 1000
-        op.update(estado="aberta", entrada=px, t_fill=int(t), parcial=True, sair_em=int(t) + 18 * H4)
+        # (19/11) o prazo e o da propria operacao (hold_s); antes ficava sempre 72 h (um espelho de 20 dias saia cedo)
+        op.update(estado="aberta", entrada=px, t_fill=int(t), parcial=True, sair_em=int(t) + int(op.get("hold_s") or 18 * H4))
         _confirmado(op)
         msgs.append(f"✅ OKX real — {base}: a ordem já não aparece na OKX mas as execuções mostram compra a {px:.6g}; "
                     f"fica aberta e gerida (stop, objetivo, saída por tempo).")
@@ -336,16 +336,37 @@ def acompanhar(base, op, now, msgs):
         return acompanhar_estado(base, op, d, now, msgs)
     if op["estado"] == "aberta":
         pos = privado("GET", f"/api/v5/account/positions?instId={op['inst']}")
-        aberta = any(float(x.get("pos") or 0) != 0 for x in (pos.get("data") or []))
+        # (19/11, ordem do Rui) leitura falhada NUNCA e "posicao fechada": antes uma resposta de erro (sem "data")
+        # marcava a operacao como fechada por "stop ou objetivo" e deixava de a gerir (sem saida por tempo)
+        if str(pos.get("code")) != "0" or not isinstance(pos.get("data"), list):
+            _ambiguo(base, op, now, msgs, "não consegui ler a posição na OKX",
+                     fica="A operação continua ABERTA e gerida (nada assumido; o stop na OKX continua)")
+            return False
+        _confirmado(op)
+        aberta = any(float(x.get("pos") or 0) != 0 for x in pos["data"])
         motivo = None
-        if aberta and now >= op["sair_em"]:
-            privado("POST", "/api/v5/trade/close-position", {"instId": op["inst"], "mgnMode": "isolated", "autoCxl": True})
+        if aberta and op.get("sair_em") is not None and now >= op["sair_em"]:
+            r = privado("POST", "/api/v5/trade/close-position", {"instId": op["inst"], "mgnMode": "isolated", "autoCxl": True})
+            if str(r.get("code")) != "0":
+                # (19/11) fecho recusado ou sem resposta: a posicao continua aberta (e protegida pelo stop na OKX);
+                # nada e dado como fechado, tenta na volta seguinte
+                op["fecho_tempo_falhas"] = int(op.get("fecho_tempo_falhas") or 0) + 1
+                if now - float(op.get("fecho_tempo_aviso") or 0) >= AMBIGUO_REPETIR:
+                    op["fecho_tempo_aviso"] = int(now)
+                    msgs.append(f"⚠️ OKX real — {base}: saída por tempo pedida mas a OKX não confirmou o fecho "
+                                f"({r.get('code')}: {str(r.get('msg') or '')[:60]}). Continua aberta com o stop; tento na volta seguinte.")
+                return False
             motivo = f"tempo ({int(op.get('hold_s') or 18 * H4) // 3600} h)"
         elif not aberta:
             motivo = "stop ou objetivo"
         if motivo:
-            h = privado("GET", f"/api/v5/account/positions-history?instId={op['inst']}&limit=1")
-            hd = (h.get("data") or [{}])[0]
+            h = privado("GET", f"/api/v5/account/positions-history?instId={op['inst']}&limit=5")
+            # (19/11) so o historico DESTA posicao (fechada depois de a operacao abrir); uma posicao anterior do mesmo
+            # instrumento dava a saida e o resultado errados. Sem historico valido: resultado por confirmar
+            hd = next((x for x in (h.get("data") or []) if str(h.get("code")) == "0"
+                       and int(x.get("uTime") or 0) // 1000 >= int(op.get("t_fill") or 0) - 60), None) or {}
+            if not hd:
+                op["resultado_por_confirmar"] = True
             pnl = hd.get("realizedPnl") or hd.get("pnl")
             px = hd.get("closeAvgPx")
             msgs.append(f"🏁 OKX real — {base} fechou ({motivo})" + (f" a {float(px):.6g}" if px else "") +
@@ -902,7 +923,11 @@ def reconciliar(R, now, msgs):
         t_fill = int(int(x.get("cTime") or now * 1000) / 1000)
         short = float(x.get("pos") or 0) < 0 or x.get("posSide") == "short"
         op = {"inst": inst, "ordId": ant.get("ordId"), "estado": "aberta", "entrada": float(x.get("avgPx") or 0), "t_fill": t_fill,
-              "sair_em": t_fill + int(ant.get("hold_s") or 18 * H4), "stop": ant.get("stop"), "alvo": ant.get("alvo"),
+              # (19/11) prazo so quando se sabe qual era (registo anterior desta posicao); sem ele NAO se inventa 72 h
+              # para uma posicao que pode ser um espelho de 20 dias: fica sem saida por tempo (stop e objetivo na OKX)
+              # e com aviso para o Rui decidir
+              "sair_em": t_fill + int(ant["hold_s"]) if ant.get("hold_s") else None,
+              "prazo_desconhecido": not ant.get("hold_s"), "stop": ant.get("stop"), "alvo": ant.get("alvo"),
               "alav": int(float(x.get("lever") or 0) or 0),
               "t_sig": ant.get("t_sig"), "criado": int(now), "adotada": True}
         for k in ("estrategia", "hold_s", "estrategia_bybit", "id_bybit"):
@@ -926,7 +951,9 @@ def reconciliar(R, now, msgs):
             tem_stop = r.get("code") == "0"
         if tem_stop:
             op["stop_ok"] = int(now)
-        msgs.append(f"🔁 OKX real — {base}: posição aberta a {op['entrada']:.6g} encontrada e adotada (sai no stop, no objetivo ou ao fim de 72 h). "
+        prazo = (f"ao fim de {int(ant['hold_s']) // 3600} h" if ant.get("hold_s") else
+                 "sem saída por tempo: prazo original desconhecido, decide tu")
+        msgs.append(f"🔁 OKX real — {base}: posição aberta a {op['entrada']:.6g} encontrada e adotada (sai no stop, no objetivo ou {prazo}). "
                     + ("Stop confirmado ✅" if tem_stop else "⚠️ NÃO consegui confirmar o stop: verifica na app da OKX."))
 
 
