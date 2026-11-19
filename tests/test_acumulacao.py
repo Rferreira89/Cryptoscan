@@ -194,3 +194,53 @@ class Executor(unittest.TestCase):
         st3 = dict(st, exec_req=[], acumulacao_pedido=None)
         A.atualizar(st3, {"bybit_modo": "acumulacao", "acumulacao": CFG}, 400, None)   # sombra
         self.assertEqual(st3["exec_req"], [])
+
+
+class ResumoSemanal(unittest.TestCase):
+    """(19/11) Resumo semanal da carteira so no Telegram (dinheiro nunca nos ficheiros publicos), uma vez por semana."""
+    DOM = 1_800_000_000 - (1_800_000_000 % 86400) + 20 * 3600       # hora 20 UTC desse dia
+
+    def domingo(self):
+        import time as _t
+        t = self.DOM
+        while _t.gmtime(t).tm_wday != A.RESUMO_DIA:
+            t += 86400
+        return t
+
+    def estado(self):
+        return {"conta_saldos": {"t": 1, "m": {"BTC": 70 / 60000, "ETH": 29 / 3000}}, "bybit_tickers": {"t": 1, "m": TK},
+                "conta_livre": {"t": 1, "usdc": 1.0}, "ledger": [], "capital_confirmado": True,
+                "acumulacao_log": [{"t": 0, "ativo": "BTC", "lado": "comprar", "preco": 60000, "qty": 0.001, "usdc": 60.0}]}
+
+    def test_domingo_envia_uma_vez(self):
+        st, msgs, t = self.estado(), [], self.domingo()
+        st["acumulacao_log"].append({"t": t - 86400, "ativo": "ETH", "lado": "comprar", "preco": 3000, "qty": 0.01, "usdc": 30.0})
+        cfg = {"bybit_modo": "acumulacao", "acumulacao": dict(CFG, modo="real")}
+        A.atualizar(st, cfg, t, msgs.append)
+        A.atualizar(st, cfg, t + 600, msgs.append)
+        self.assertEqual(len(msgs), 1)
+        m = msgs[0]
+        self.assertIn("resumo semanal", m)
+        self.assertIn("comprar ETH 30.00 USDC", m)
+        self.assertNotIn("comprar BTC", m.split("últimos 7 dias")[1].split("\n")[0])   # a compra antiga nao e desta semana
+        self.assertIn("90.00 USDC", m)                                                   # aplicado desde o inicio
+        self.assertIn("BTC", m.split("pesos")[1])
+        A.atualizar(st, cfg, t + 7 * 86400, msgs.append)                                   # domingo seguinte
+        self.assertEqual(len(msgs), 2)
+
+    def test_fora_de_domingo_e_na_sombra_nao_envia(self):
+        t = self.domingo()
+        msgs = []
+        A.resumo_semanal(self.estado(), dict(CFG, modo="real"), t - 2 * 86400, msgs.append)
+        A.resumo_semanal(self.estado(), CFG, t, msgs.append)                              # sombra
+        self.assertEqual(msgs, [])
+
+    def test_registo_e_resumo_fora_do_publico(self):
+        from engine import execucao, publico
+        st = self.estado()
+        execucao.apply(st, {"ops": {}, "acumulacao_log": [{"t": 5, "ativo": "BTC", "lado": "comprar", "qty": 1, "usdc": 9.0}]})
+        self.assertEqual(st["acumulacao_log"][-1]["t"], 5)
+        st["acumulacao_resumo"] = {"t": 1}
+        pub = publico.state(st)
+        self.assertNotIn("acumulacao_log", pub)
+        self.assertNotIn("acumulacao_resumo", pub)

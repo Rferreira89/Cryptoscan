@@ -16,6 +16,8 @@ import time
 
 MODOS = ("desligado", "sombra", "real")
 AVISO_S = 20 * 3600                 # no maximo um aviso da sombra por dia (ou quando o plano muda)
+SEMANA_S = 7 * 86400
+RESUMO_DIA, RESUMO_HORA = 6, 19     # resumo semanal: domingo, primeira volta depois das 19:00 UTC
 
 
 def _px(tickers, a):
@@ -134,6 +136,63 @@ def texto_aviso(p):
     return "\n".join(linhas)
 
 
+def pesos_agora(cfg_ac, saldos, tickers, usdc_livre):
+    """Valor de cada ativo da carteira, caixa e pesos atuais em % (ANTES de ordens). Privado: tem dinheiro."""
+    alvo, _ = pesos_efetivos(cfg_ac, tickers)
+    val = {a: float((saldos or {}).get(a) or 0) * (_px(tickers, a) or 0) for a in alvo}
+    caixa = max(0.0, float(usdc_livre or 0))
+    tot = sum(val.values()) + caixa
+    pes = {a: (100 * v / tot if tot > 0 else 0.0) for a, v in val.items()}
+    return alvo, val, caixa, pes
+
+
+def texto_resumo(cfg_ac, saldos, tickers, usdc_livre, log, now):
+    """(19/11, desenho da acumulacao) Resumo semanal para o Telegram: valor da carteira, caixa, pesos atuais vs alvo e o
+    que foi comprado/vendido nos ultimos 7 dias. So mensagem privada; nunca vai para ficheiros publicos."""
+    alvo, val, caixa, pes = pesos_agora(cfg_ac, saldos, tickers, usdc_livre)
+    lin = ["🧺 Acumulação Bybit — resumo semanal",
+           f"• carteira: {sum(val.values()):.2f} USDC em moedas + {caixa:.2f} USDC em caixa"]
+    if alvo:
+        lin.append("• pesos (atual / alvo): " + ", ".join(
+            f"{a} {pes[a]:.1f}%/{100 * w:.1f}%" for a, w in sorted(alvo.items(), key=lambda x: -x[1])))
+    sem = [x for x in log or [] if now - int(x.get("t") or 0) <= SEMANA_S and x.get("qty")]
+    if sem:
+        por = {}
+        for x in sem:
+            k = (x.get("lado"), x.get("ativo"))
+            por[k] = por.get(k, 0.0) + float(x.get("usdc") or 0)
+        lin.append("• últimos 7 dias: " + ", ".join(f"{l} {a} {v:.2f} USDC" for (l, a), v in sorted(por.items())))
+    else:
+        lin.append("• últimos 7 dias: sem compras nem vendas")
+    tot = sum(float(x.get("usdc") or 0) * (1 if x.get("lado") == "comprar" else -1) for x in log or [] if x.get("qty"))
+    lin.append(f"• aplicado desde o início (compras − vendas): {tot:.2f} USDC")
+    if caixa >= float((cfg_ac or {}).get("ordem_min_usdc") or 5.0):
+        lin.append("• a caixa será investida na próxima volta com leitura nova da conta")
+    lin.append("Sem alavancagem, sem empréstimos. O programa nunca transfere nem levanta.")
+    return "\n".join(lin)
+
+
+def resumo_semanal(state, c, now, enviar):
+    """Uma vez por semana: primeira volta de domingo depois das 19:00 UTC (no maximo um por semana)."""
+    if not enviar or c.get("modo") != "real":
+        return False
+    g = time.gmtime(now)
+    ult = int((state.get("acumulacao_resumo") or {}).get("t") or 0)
+    if not (g.tm_wday == RESUMO_DIA and g.tm_hour >= RESUMO_HORA) or now - ult < 5 * 86400:
+        return False
+    sal = ((state.get("conta_saldos") or {}).get("m")) or {}
+    tk = ((state.get("bybit_tickers") or {}).get("m")) or {}
+    if not tk:
+        return False
+    try:
+        enviar(texto_resumo(c, sal, tk, (state.get("conta_livre") or {}).get("usdc"), state.get("acumulacao_log"), now))
+        state["acumulacao_resumo"] = {"t": int(now)}
+        return True
+    except Exception as e:
+        state["acumulacao_resumo"] = {"t": ult, "erro": type(e).__name__}
+        return False
+
+
 def atualizar(state, cfg, now, enviar=None):
     """Chamado pelo scanner em cada volta. Guarda o plano no estado (privado) e o resumo publico; na sombra avisa no
     maximo uma vez por dia, ou quando as ordens mudam. Nunca pede ordens (a execucao real tem o seu proprio passo)."""
@@ -173,4 +232,5 @@ def atualizar(state, cfg, now, enviar=None):
             state["acumulacao_aviso"] = {"t": int(now), "assinatura": assinatura}
         except Exception as e:
             state["acumulacao_aviso"] = dict(ant, erro=type(e).__name__)
+    resumo_semanal(state, c, now, enviar)
     return publico(p)

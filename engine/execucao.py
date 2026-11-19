@@ -37,6 +37,8 @@ def apply(state, ex):
     # (ex.: IOC sem execucao) conta como recusado: nao ocupa a familia, a moeda nem o limite do dia.
     # "erro inesperado" fica de fora: ai pode ter havido execucao e a app tem de ser confirmada.
     ops = ex.setdefault("ops", {})
+    if isinstance(ex.get("acumulacao_log"), list):       # (19/11) compras/vendas da acumulacao: so no cofre (resumo semanal)
+        state["acumulacao_log"] = ex["acumulacao_log"][-300:]
     for x in ex.get("log") or []:
         acao, res = x.get("acao"), str(x.get("res") or "")
         if acao in ("comprar", "vender", "panico_ordem") and res.startswith("erro: "):

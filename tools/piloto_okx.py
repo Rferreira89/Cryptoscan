@@ -517,6 +517,7 @@ def ciclo(api, pasta, now=None, simular=False, registo=None, papel=None, isolado
     st["perdas"] = pp
     st["recusadas_pelo_executor"] = recusadas
     relatorio_diario(st, now, msgs, aprovadas)
+    aviso_lucro(st, c, now, msgs)
     st["t"] = now
     st["simulacao"] = bool(simular)
     with open(p, "w", encoding="utf-8") as f:
@@ -1143,6 +1144,36 @@ def relatorio_diario(st, now, msgs, aprovadas):
                 + (f"{len(aprovadas)} estratégias aprovadas" if aprovadas else "nenhuma estratégia aprovada")
                 + ("; portas fechadas: " + ", ".join(fech) if fech else "; todas as portas abertas")
                 + (" ; BLOQUEADO" if st["bloqueio"] else " ; SUSPENSO" if st["suspenso"] else "") + ".")
+
+
+LUCRO_AVISO_S = 6 * 86400            # (19/11) aviso de lucro para a acumulacao: no maximo um por semana
+
+
+def aviso_lucro(st, c, now, msgs):
+    """(19/11, desenho da acumulacao do Rui) Lucro REALIZADO e confirmado na OKX pelo piloto (pnl_liquido das
+    operacoes fechadas) desde o ultimo aviso. Quando chega a um minimo, avisa por Telegram que esse lucro pode ser
+    passado para a Bybit (acumulacao). So AVISA: nunca transfere, nao muda tamanhos, limites nem a logica do trading.
+    Comeca a contar a partir da primeira volta com esta funcao (lucros e perdas anteriores nao contam). Uma perda
+    depois do aviso abate ao lucro seguinte (a base so sobe quando ha aviso)."""
+    tot = round(sum(float(o.get("pnl_liquido") or 0) for o in st["ops"]
+                    if o.get("estado") == "fechada" and o.get("pnl_liquido") is not None and not o.get("pnl_por_confirmar")), 6)
+    la = st.get("lucro_aviso")
+    if not isinstance(la, dict):
+        st["lucro_aviso"] = {"base": tot, "t": 0, "inicio": int(now)}
+        return None
+    novo = round(tot - float(la.get("base") or 0), 6)
+    minimo = max(5.0, 0.10 * float(c["capital_max"]))
+    if novo < minimo or now - int(la.get("t") or 0) < LUCRO_AVISO_S or any(o.get("pnl_por_confirmar") for o in st["ops"]):
+        return None
+    disp = st.get("_saldo_usdc")
+    folga = disp is not None and float(disp) - float(c["capital_max"]) >= novo
+    msgs.append(f"💶 Piloto OKX: lucro realizado líquido de {novo:.2f} USDC (confirmado na OKX) desde o último aviso. "
+                f"Se quiseres, podes passar até esse valor para a Bybit, onde entra na acumulação automática. "
+                + ("O saldo livre da OKX fica acima do capital do piloto. " if folga else
+                   "Atenção: o saldo livre da OKX agora não chega para isso sem descer do capital do piloto; espera que fechem posições. ")
+                + "Confirma também o capital do executor antigo (a conta é a mesma). O programa nunca transfere nada.")
+    st["lucro_aviso"] = {"base": tot, "t": int(now), "inicio": la.get("inicio"), "ultimo": novo}
+    return novo
 
 
 def marcar_preco(op, pd, now):
