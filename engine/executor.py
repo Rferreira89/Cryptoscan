@@ -857,15 +857,37 @@ def do_short(state, req, ex, now, send):
 def close_short(state, req, ex, now, send, why):
     op = ex["ops"][req["op"]]
     inst = instrument(op["symbol"])
+    # (19/11, ordem do Rui) a divida e lida na conta UNIFICADA ANTES de cancelar a protecao. Antes: a protecao era
+    # cancelada primeiro e a divida lida depois com wallet(), que em falha cai na conta SPOT (sem divida visivel): a
+    # operacao ficava "fechada" com o emprestimo aberto e SEM stop. Sem leitura confirmada nada e tocado (o pedido
+    # repete-se: execucao.apply volta a pedir o fecho enquanto a operacao estiver aberta).
+    try:
+        debt = coin_debt(get("/v5/account/wallet-balance", {"accountType": "UNIFIED"}), op["asset"])
+    except ExecError as e:
+        raise ExecError(f"dívida de {op['asset']} por confirmar ({str(e)[:60]}); proteção mantida, nada feito")
     for o in ours(tpsl_orders(op["symbol"]), op):
         try:
             cancel(op["symbol"], o)
         except ExecError as e:
             op.setdefault("avisos", []).append(f"cancelar: {str(e)[:80]}")
     time.sleep(1)
-    debt = coin_debt(wallet(), op["asset"])
     owe = min(debt, (op.get("emprestado_moeda") or op["qty"]) * 1.01) if debt else 0.0
-    oid = buy_back(op["symbol"], owe * 1.002, inst, f"{_tag(req['op'])}-r") if owe > 0 else None
+    try:
+        oid = buy_back(op["symbol"], owe * 1.002, inst, f"{_tag(req['op'])}-r") if owe > 0 else None
+    except ExecError as e:
+        # (19/11) a recompra falhou depois de cancelada a protecao: repoe o stop do plano para a divida nao ficar
+        # descoberta; a operacao continua aberta e o fecho volta a ser pedido
+        reposto = None
+        if op.get("stop"):
+            try:
+                reposto = stop_order_buy(op["symbol"], owe, op["stop"], inst, f"{_tag(req['op'])}-s2")
+                op.setdefault("partes", []).append({"stopId": reposto, "reposto": int(now)})
+            except ExecError as e2:
+                op.setdefault("avisos", []).append(f"repor stop: {str(e2)[:80]}")
+        send(f"🚨 {op['asset']} (venda a descoberto): a recompra falhou ({str(e)[:80]}). "
+             + ("Stop reposto na Bybit; " if reposto else "NÃO consegui repor o stop: confirma já na app da Bybit; ")
+             + "o fecho volta a ser pedido.")
+        raise ExecError(f"recompra falhou ({str(e)[:60]}); stop {'reposto' if reposto else 'NAO reposto'}")
     time.sleep(2)
     try:                                       # devolve o que ainda faltar com as moedas compradas
         left = coin_debt(wallet(), op["asset"])
