@@ -497,6 +497,12 @@ class EndToEnd(unittest.TestCase):
         self.assertEqual(len(res["rewards"]), 5)
         res2, state, _ = S.run(now=now + 900, state=state, cfg=dict(CFG))
         self.assertLessEqual(len(res2["active_signals"]), CFG["max_open_positions"])
+        # (19/11) com a Bybit em acumulacao o scan corre inteiro e publica o resumo da carteira (sem erro)
+        acum = dict(CFG, bybit_modo="acumulacao", acumulacao={"modo": "sombra", "pesos": {"BTC": 1.0}})
+        res3, state, _ = S.run(now=now + 1800, state=state, cfg=acum)
+        self.assertNotIn("erro", res3.get("acumulacao") or {})
+        self.assertEqual(state["bybit_modo"], "acumulacao")
+        self.assertFalse([s for s in res3["active_signals"] if s.get("mode") == "REAL"])
 
     def test_venue_down_means_no_trade(self):
         now = 1_800_000_000
