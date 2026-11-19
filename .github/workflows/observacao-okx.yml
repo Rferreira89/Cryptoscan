@@ -1,0 +1,93 @@
+name: Observacao OKX 7 dias (so leitura)
+# (19/11, ordem do Rui "OKX Autonomous Profit Engine") Periodo de observacao operacional de 7 dias a partir de
+# observacao_okx.json (inicio). So le os estados publicados pelos executores (piloto-okx, okx), a contabilidade
+# real (ramo contabilidade) e as voltas no GitHub Actions; nunca envia ordens nem altera posicoes, stops, estrategias
+# ou risco. Publico (ramo observacao-okx): so contagens, R e %. Dinheiro: so no Telegram (contabilidade privada
+# decifrada aqui com DATA_KEY e apagada antes de publicar). Corre 14 min depois da contabilidade (41 */6).
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "55 */3 * * *"
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: observacao-okx
+  cancel-in-progress: false
+jobs:
+  observar:
+    runs-on: [self-hosted, eu]
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ler e registar
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DATA_KEY: ${{ secrets.DATA_KEY }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          D=/tmp/obs; rm -rf $D && mkdir -p $D
+          RC=0; git ls-remote --exit-code -q origin refs/heads/observacao-okx >/dev/null 2>&1 || RC=$?
+          if [ "$RC" = 0 ]; then
+            git fetch -q origin observacao-okx && git show FETCH_HEAD:observacao_okx.json > $D/observacao_okx.json \
+              || { echo "nao consegui ler o estado da observacao: volta cancelada"; rm -rf $D; exit 1; }
+            git rev-parse FETCH_HEAD > $D/.sha_base
+            python3 tools/publicar_estado.py recuperar $D observacao-okx observacao_okx.json "$(cat $D/.sha_base)" || true
+          elif [ "$RC" != 2 ]; then
+            echo "nao consegui consultar o ramo observacao-okx (codigo $RC): volta cancelada"; rm -rf $D; exit 1
+          fi
+          git fetch -q origin piloto-okx && git show FETCH_HEAD:piloto_publico.json > $D/piloto_publico.json || rm -f $D/piloto_publico.json
+          git fetch -q origin okx && git show FETCH_HEAD:okx.json > $D/okx.json || rm -f $D/okx.json
+          git fetch -q origin autonomo && git show FETCH_HEAD:hunter/estrategias_registo.json > $D/estrategias_registo.json || rm -f $D/estrategias_registo.json
+          if git fetch -q origin contabilidade; then
+            git show FETCH_HEAD:contabilidade_okx.json > $D/contabilidade_okx.json || rm -f $D/contabilidade_okx.json
+            if [ -n "$DATA_KEY" ] && git show FETCH_HEAD:contabilidade_okx_privado.json > $D/contabilidade_okx_privado.json; then
+              python3 -m pip install -q --user cryptography==43.0.3 2>/dev/null || true
+              python3 -m engine.cifra abrir $D/contabilidade_okx_privado.json || rm -f $D/contabilidade_okx_privado.json
+            fi
+          fi
+          python3 - <<'PY' || echo "voltas do GitHub Actions nao lidas nesta volta"
+          import json, os, urllib.request
+          cfg = json.load(open("observacao_okx.json"))
+          ini = cfg["inicio"]
+          import datetime
+          desde = datetime.datetime.fromtimestamp(ini, datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+          out = {}
+          for wf in ("piloto-okx.yml", "okx-agente.yml", "contabilidade-real.yml"):
+              lst, page = [], 1
+              while page <= 10:
+                  u = (f"https://api.github.com/repos/{os.environ['REPO']}/actions/workflows/{wf}/runs"
+                       f"?per_page=100&page={page}&created=%3E%3D{desde}")
+                  req = urllib.request.Request(u, headers={"Authorization": "Bearer " + os.environ["GH_TOKEN"],
+                                                           "Accept": "application/vnd.github+json"})
+                  runs = json.loads(urllib.request.urlopen(req, timeout=20).read()).get("workflow_runs") or []
+                  for r in runs:
+                      if r.get("status") != "completed":
+                          continue
+                      t = int(datetime.datetime.strptime(r["run_started_at"], "%Y-%m-%dT%H:%M:%SZ")
+                              .replace(tzinfo=datetime.timezone.utc).timestamp())
+                      lst.append({"t": t, "ok": r.get("conclusion") == "success"})
+                  if len(runs) < 100:
+                      break
+                  page += 1
+              out[wf] = lst
+          json.dump(out, open("/tmp/obs/runs.json", "w"))
+          print({k: len(v) for k, v in out.items()})
+          PY
+          python3 tools/observacao_okx.py $D
+          rm -f $D/contabilidade_okx_privado.json      # o dinheiro nunca sai deste passo
+      - name: Publicar
+        if: always()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          PUSH_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
+        run: |
+          D=/tmp/obs
+          rm -f $D/contabilidade_okx_privado.json
+          if [ ! -s $D/observacao_okx.json ]; then echo "sem estado para publicar"; exit 0; fi
+          export ESTADO_SHA_BASE=$(cat $D/.sha_base 2>/dev/null)
+          F="observacao_okx.json"; [ -s $D/relatorio_final.txt ] && F="$F relatorio_final.txt"
+          python3 tools/publicar_estado.py publicar $D observacao-okx $F
