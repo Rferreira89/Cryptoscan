@@ -21,8 +21,12 @@ class Falso:
 
     def __call__(self, path):
         self.pedidos.append(path)
+        if "public/instruments" in path:
+            return [{"instId": "AAA-USDT-SWAP", "instCategory": "1"}, {"instId": "BTC-USDT-SWAP", "instCategory": "1"},
+                    {"instId": "USDC-USDT-SWAP", "instCategory": "1"}, {"instId": "INTC-USDT-SWAP", "instCategory": "3"}]
         if "tickers" in path:
             return [{"instId": "AAA-USDT-SWAP", "volCcy24h": "1000", "last": "1"},
+                    {"instId": "INTC-USDT-SWAP", "volCcy24h": "99999", "last": "30"},
                     {"instId": "USDC-USDT-SWAP", "volCcy24h": "9999", "last": "1"},
                     {"instId": "BTC-USDT-SWAP", "volCcy24h": "500", "last": "60000"}]
         base = path.split("instId=")[1].split("-")[0]

@@ -32,10 +32,13 @@ def _get_publico(path):
 
 def universo(get=_get_publico, n=N_MOEDAS):
     tk = get("/api/v5/market/tickers?instType=SWAP") or []
+    # (19/11) so cripto, como no estudo: a OKX tambem tem perpetuos de acoes e indices (instCategory != "1")
+    ins = get("/api/v5/public/instruments?instType=SWAP") or []
+    cripto = {x.get("instId") for x in ins if str(x.get("instCategory") or "1") == "1"} if ins else None
     xs = []
     for t in tk:
         inst = t.get("instId") or ""
-        if not inst.endswith("-USDT-SWAP"):
+        if not inst.endswith("-USDT-SWAP") or (cripto is not None and inst not in cripto):
             continue
         base = inst.split("-")[0]
         if base in ESTAVEIS:
