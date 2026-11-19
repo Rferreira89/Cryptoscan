@@ -1,0 +1,2701 @@
+{
+ "regime": {
+  "dias_por_regime": {
+   "queda": 279,
+   "lateral": 1283,
+   "subida": 382
+  },
+  "trocas": 113,
+  "trocas_em_menos_de_7_dias": 66,
+  "duracao_media_dias": {
+   "queda": 11.2,
+   "lateral": 22.4,
+   "subida": 11.9
+  },
+  "ultimas_trocas": [
+   [
+    "2026-10-05",
+    "lateral",
+    "subida"
+   ],
+   [
+    "2026-10-06",
+    "subida",
+    "lateral"
+   ],
+   [
+    "2026-10-11",
+    "lateral",
+    "subida"
+   ],
+   [
+    "2026-10-13",
+    "subida",
+    "lateral"
+   ],
+   [
+    "2026-10-14",
+    "lateral",
+    "subida"
+   ],
+   [
+    "2026-10-15",
+    "subida",
+    "lateral"
+   ],
+   [
+    "2026-10-16",
+    "lateral",
+    "subida"
+   ],
+   [
+    "2026-10-17",
+    "subida",
+    "lateral"
+   ]
+  ]
+ },
+ "resultados": {
+  "B1|SHORT|executavel|subida": {
+   "A_ate_2024_06": {
+    "n": 113,
+    "dias_independentes": 58,
+    "media_r": -0.125,
+    "ic90": [
+     -0.378,
+     0.105
+    ],
+    "pf": 0.77,
+    "acerto_pct": 40.7,
+    "drawdown_r": -41.1,
+    "custo_medio_r": 0.165,
+    "mae_media": -0.82,
+    "mfe_media": 1.17,
+    "moedas": 19
+   },
+   "B_depois": {
+    "n": 77,
+    "dias_independentes": 27,
+    "media_r": 0.377,
+    "ic90": [
+     -0.005,
+     0.708
+    ],
+    "pf": 1.88,
+    "acerto_pct": 54.5,
+    "drawdown_r": -10.6,
+    "custo_medio_r": 0.153,
+    "mae_media": -0.81,
+    "mfe_media": 1.65,
+    "moedas": 27
+   },
+   "tudo": {
+    "n": 190,
+    "dias_independentes": 85,
+    "media_r": 0.078,
+    "ic90": [
+     -0.137,
+     0.291
+    ],
+    "pf": 1.16,
+    "acerto_pct": 46.3,
+    "drawdown_r": -41.1,
+    "custo_medio_r": 0.16,
+    "mae_media": -0.82,
+    "mfe_media": 1.36,
+    "moedas": 29
+   },
+   "acaso_tudo": {
+    "n": 186,
+    "dias_independentes": 151,
+    "media_r": -0.172,
+    "ic90": [
+     -0.309,
+     -0.017
+    ],
+    "pf": 0.72,
+    "acerto_pct": 35.5,
+    "drawdown_r": -42.0,
+    "custo_medio_r": 0.16,
+    "mae_media": -1.02,
+    "mfe_media": 1.09,
+    "moedas": 29
+   }
+  },
+  "B1|SHORT|executavel|queda": {
+   "A_ate_2024_06": {
+    "n": 542,
+    "dias_independentes": 118,
+    "media_r": -0.101,
+    "ic90": [
+     -0.272,
+     0.061
+    ],
+    "pf": 0.82,
+    "acerto_pct": 37.8,
+    "drawdown_r": -91.0,
+    "custo_medio_r": 0.126,
+    "mae_media": -0.81,
+    "mfe_media": 0.96,
+    "moedas": 19
+   },
+   "B_depois": {
+    "n": 650,
+    "dias_independentes": 91,
+    "media_r": 0.011,
+    "ic90": [
+     -0.174,
+     0.191
+    ],
+    "pf": 1.02,
+    "acerto_pct": 44.5,
+    "drawdown_r": -70.5,
+    "custo_medio_r": 0.144,
+    "mae_media": -0.78,
+    "mfe_media": 1.08,
+    "moedas": 34
+   },
+   "tudo": {
+    "n": 1192,
+    "dias_independentes": 209,
+    "media_r": -0.04,
+    "ic90": [
+     -0.157,
+     0.085
+    ],
+    "pf": 0.92,
+    "acerto_pct": 41.4,
+    "drawdown_r": -121.6,
+    "custo_medio_r": 0.136,
+    "mae_media": -0.8,
+    "mfe_media": 1.02,
+    "moedas": 34
+   },
+   "acaso_tudo": {
+    "n": 1108,
+    "dias_independentes": 275,
+    "media_r": 0.01,
+    "ic90": [
+     -0.077,
+     0.101
+    ],
+    "pf": 1.02,
+    "acerto_pct": 44.1,
+    "drawdown_r": -56.5,
+    "custo_medio_r": 0.136,
+    "mae_media": -0.78,
+    "mfe_media": 1.01,
+    "moedas": 34
+   }
+  },
+  "B1|SHORT|executavel|lateral": {
+   "A_ate_2024_06": {
+    "n": 910,
+    "dias_independentes": 307,
+    "media_r": -0.12,
+    "ic90": [
+     -0.216,
+     -0.018
+    ],
+    "pf": 0.79,
+    "acerto_pct": 39.1,
+    "drawdown_r": -149.3,
+    "custo_medio_r": 0.181,
+    "mae_media": -0.83,
+    "mfe_media": 0.97,
+    "moedas": 23
+   },
+   "B_depois": {
+    "n": 1664,
+    "dias_independentes": 371,
+    "media_r": -0.167,
+    "ic90": [
+     -0.255,
+     -0.067
+    ],
+    "pf": 0.71,
+    "acerto_pct": 36.8,
+    "drawdown_r": -313.5,
+    "custo_medio_r": 0.158,
+    "mae_media": -0.83,
+    "mfe_media": 0.91,
+    "moedas": 34
+   },
+   "tudo": {
+    "n": 2574,
+    "dias_independentes": 678,
+    "media_r": -0.151,
+    "ic90": [
+     -0.223,
+     -0.082
+    ],
+    "pf": 0.74,
+    "acerto_pct": 37.6,
+    "drawdown_r": -434.2,
+    "custo_medio_r": 0.166,
+    "mae_media": -0.83,
+    "mfe_media": 0.93,
+    "moedas": 34
+   },
+   "acaso_tudo": {
+    "n": 2571,
+    "dias_independentes": 1090,
+    "media_r": -0.075,
+    "ic90": [
+     -0.123,
+     -0.028
+    ],
+    "pf": 0.86,
+    "acerto_pct": 40.3,
+    "drawdown_r": -235.4,
+    "custo_medio_r": 0.165,
+    "mae_media": -0.84,
+    "mfe_media": 1.01,
+    "moedas": 34
+   }
+  },
+  "B1|SHORT|executavel|todos": {
+   "A_ate_2024_06": {
+    "n": 1565,
+    "dias_independentes": 483,
+    "media_r": -0.113,
+    "ic90": [
+     -0.2,
+     -0.023
+    ],
+    "pf": 0.8,
+    "acerto_pct": 38.8,
+    "drawdown_r": -227.2,
+    "custo_medio_r": 0.161,
+    "mae_media": -0.82,
+    "mfe_media": 0.98,
+    "moedas": 23
+   },
+   "B_depois": {
+    "n": 2391,
+    "dias_independentes": 489,
+    "media_r": -0.102,
+    "ic90": [
+     -0.183,
+     -0.017
+    ],
+    "pf": 0.82,
+    "acerto_pct": 39.5,
+    "drawdown_r": -277.5,
+    "custo_medio_r": 0.154,
+    "mae_media": -0.82,
+    "mfe_media": 0.98,
+    "moedas": 34
+   },
+   "tudo": {
+    "n": 3956,
+    "dias_independentes": 972,
+    "media_r": -0.106,
+    "ic90": [
+     -0.165,
+     -0.041
+    ],
+    "pf": 0.81,
+    "acerto_pct": 39.2,
+    "drawdown_r": -459.3,
+    "custo_medio_r": 0.157,
+    "mae_media": -0.82,
+    "mfe_media": 0.98,
+    "moedas": 34
+   },
+   "acaso_tudo": {
+    "n": 3865,
+    "dias_independentes": 1516,
+    "media_r": -0.056,
+    "ic90": [
+     -0.099,
+     -0.012
+    ],
+    "pf": 0.9,
+    "acerto_pct": 41.1,
+    "drawdown_r": -257.3,
+    "custo_medio_r": 0.156,
+    "mae_media": -0.83,
+    "mfe_media": 1.02,
+    "moedas": 34
+   }
+  },
+  "B1|SHORT|largo|subida": {
+   "A_ate_2024_06": {
+    "n": 1419,
+    "dias_independentes": 175,
+    "media_r": -0.251,
+    "ic90": [
+     -0.399,
+     -0.071
+    ],
+    "pf": 0.57,
+    "acerto_pct": 34.7,
+    "drawdown_r": -513.9,
+    "custo_medio_r": 0.142,
+    "mae_media": -0.96,
+    "mfe_media": 0.82,
+    "moedas": 177
+   },
+   "B_depois": {
+    "n": 890,
+    "dias_independentes": 97,
+    "media_r": 0.181,
+    "ic90": [
+     -0.086,
+     0.437
+    ],
+    "pf": 1.36,
+    "acerto_pct": 47.2,
+    "drawdown_r": -160.3,
+    "custo_medio_r": 0.138,
+    "mae_media": -0.87,
+    "mfe_media": 1.53,
+    "moedas": 175
+   },
+   "tudo": {
+    "n": 2309,
+    "dias_independentes": 272,
+    "media_r": -0.085,
+    "ic90": [
+     -0.24,
+     0.064
+    ],
+    "pf": 0.85,
+    "acerto_pct": 39.5,
+    "drawdown_r": -513.9,
+    "custo_medio_r": 0.14,
+    "mae_media": -0.92,
+    "mfe_media": 1.09,
+    "moedas": 220
+   },
+   "acaso_tudo": {
+    "n": 2258,
+    "dias_independentes": 377,
+    "media_r": -0.235,
+    "ic90": [
+     -0.297,
+     -0.172
+    ],
+    "pf": 0.63,
+    "acerto_pct": 32.5,
+    "drawdown_r": -622.5,
+    "custo_medio_r": 0.139,
+    "mae_media": -1.03,
+    "mfe_media": 0.98,
+    "moedas": 218
+   }
+  },
+  "B1|SHORT|largo|queda": {
+   "A_ate_2024_06": {
+    "n": 4453,
+    "dias_independentes": 167,
+    "media_r": -0.248,
+    "ic90": [
+     -0.36,
+     -0.129
+    ],
+    "pf": 0.58,
+    "acerto_pct": 32.6,
+    "drawdown_r": -1274.4,
+    "custo_medio_r": 0.108,
+    "mae_media": -1.03,
+    "mfe_media": 0.8,
+    "moedas": 174
+   },
+   "B_depois": {
+    "n": 2180,
+    "dias_independentes": 109,
+    "media_r": 0.003,
+    "ic90": [
+     -0.139,
+     0.143
+    ],
+    "pf": 1.01,
+    "acerto_pct": 44.8,
+    "drawdown_r": -162.0,
+    "custo_medio_r": 0.13,
+    "mae_media": -0.85,
+    "mfe_media": 1.04,
+    "moedas": 183
+   },
+   "tudo": {
+    "n": 6633,
+    "dias_independentes": 276,
+    "media_r": -0.166,
+    "ic90": [
+     -0.253,
+     -0.08
+    ],
+    "pf": 0.7,
+    "acerto_pct": 36.6,
+    "drawdown_r": -1434.8,
+    "custo_medio_r": 0.115,
+    "mae_media": -0.97,
+    "mfe_media": 0.88,
+    "moedas": 238
+   },
+   "acaso_tudo": {
+    "n": 6253,
+    "dias_independentes": 279,
+    "media_r": -0.132,
+    "ic90": [
+     -0.195,
+     -0.074
+    ],
+    "pf": 0.76,
+    "acerto_pct": 38.8,
+    "drawdown_r": -1099.8,
+    "custo_medio_r": 0.114,
+    "mae_media": -0.98,
+    "mfe_media": 0.9,
+    "moedas": 235
+   }
+  },
+  "B1|SHORT|largo|lateral": {
+   "A_ate_2024_06": {
+    "n": 8443,
+    "dias_independentes": 534,
+    "media_r": -0.202,
+    "ic90": [
+     -0.27,
+     -0.132
+    ],
+    "pf": 0.65,
+    "acerto_pct": 36.2,
+    "drawdown_r": -1770.5,
+    "custo_medio_r": 0.154,
+    "mae_media": -0.96,
+    "mfe_media": 0.86,
+    "moedas": 201
+   },
+   "B_depois": {
+    "n": 8743,
+    "dias_independentes": 582,
+    "media_r": -0.14,
+    "ic90": [
+     -0.216,
+     -0.062
+    ],
+    "pf": 0.76,
+    "acerto_pct": 37.8,
+    "drawdown_r": -1401.3,
+    "custo_medio_r": 0.14,
+    "mae_media": -0.9,
+    "mfe_media": 0.94,
+    "moedas": 201
+   },
+   "tudo": {
+    "n": 17186,
+    "dias_independentes": 1116,
+    "media_r": -0.171,
+    "ic90": [
+     -0.224,
+     -0.119
+    ],
+    "pf": 0.71,
+    "acerto_pct": 37.1,
+    "drawdown_r": -3011.6,
+    "custo_medio_r": 0.147,
+    "mae_media": -0.93,
+    "mfe_media": 0.9,
+    "moedas": 249
+   },
+   "acaso_tudo": {
+    "n": 17171,
+    "dias_independentes": 1281,
+    "media_r": -0.142,
+    "ic90": [
+     -0.171,
+     -0.111
+    ],
+    "pf": 0.75,
+    "acerto_pct": 37.6,
+    "drawdown_r": -2512.0,
+    "custo_medio_r": 0.145,
+    "mae_media": -0.97,
+    "mfe_media": 0.96,
+    "moedas": 249
+   }
+  },
+  "B1|SHORT|largo|todos": {
+   "A_ate_2024_06": {
+    "n": 14315,
+    "dias_independentes": 876,
+    "media_r": -0.222,
+    "ic90": [
+     -0.276,
+     -0.167
+    ],
+    "pf": 0.62,
+    "acerto_pct": 34.9,
+    "drawdown_r": -3325.0,
+    "custo_medio_r": 0.138,
+    "mae_media": -0.98,
+    "mfe_media": 0.84,
+    "moedas": 201
+   },
+   "B_depois": {
+    "n": 11813,
+    "dias_independentes": 788,
+    "media_r": -0.09,
+    "ic90": [
+     -0.156,
+     -0.026
+    ],
+    "pf": 0.84,
+    "acerto_pct": 39.8,
+    "drawdown_r": -1237.4,
+    "custo_medio_r": 0.138,
+    "mae_media": -0.89,
+    "mfe_media": 1.0,
+    "moedas": 201
+   },
+   "tudo": {
+    "n": 26128,
+    "dias_independentes": 1664,
+    "media_r": -0.162,
+    "ic90": [
+     -0.204,
+     -0.119
+    ],
+    "pf": 0.72,
+    "acerto_pct": 37.1,
+    "drawdown_r": -4284.0,
+    "custo_medio_r": 0.138,
+    "mae_media": -0.94,
+    "mfe_media": 0.91,
+    "moedas": 249
+   },
+   "acaso_tudo": {
+    "n": 25682,
+    "dias_independentes": 1937,
+    "media_r": -0.148,
+    "ic90": [
+     -0.174,
+     -0.122
+    ],
+    "pf": 0.74,
+    "acerto_pct": 37.5,
+    "drawdown_r": -3873.0,
+    "custo_medio_r": 0.137,
+    "mae_media": -0.98,
+    "mfe_media": 0.95,
+    "moedas": 249
+   }
+  },
+  "B2|SHORT|executavel|subida": {
+   "A_ate_2024_06": {
+    "n": 34,
+    "dias_independentes": 21,
+    "media_r": -0.514,
+    "ic90": [
+     -0.797,
+     -0.138
+    ],
+    "pf": 0.35,
+    "acerto_pct": 23.5,
+    "drawdown_r": -17.5,
+    "custo_medio_r": 0.3,
+    "mae_media": -1.15,
+    "mfe_media": 0.87,
+    "moedas": 19
+   },
+   "B_depois": {
+    "n": 66,
+    "dias_independentes": 22,
+    "media_r": -0.4,
+    "ic90": [
+     -0.697,
+     0.013
+    ],
+    "pf": 0.47,
+    "acerto_pct": 25.8,
+    "drawdown_r": -27.8,
+    "custo_medio_r": 0.216,
+    "mae_media": -1.11,
+    "mfe_media": 1.67,
+    "moedas": 28
+   },
+   "tudo": {
+    "n": 100,
+    "dias_independentes": 43,
+    "media_r": -0.438,
+    "ic90": [
+     -0.663,
+     -0.172
+    ],
+    "pf": 0.43,
+    "acerto_pct": 25.0,
+    "drawdown_r": -43.8,
+    "custo_medio_r": 0.244,
+    "mae_media": -1.12,
+    "mfe_media": 1.4,
+    "moedas": 31
+   },
+   "acaso_tudo": {
+    "n": 99,
+    "dias_independentes": 89,
+    "media_r": -0.067,
+    "ic90": [
+     -0.274,
+     0.152
+    ],
+    "pf": 0.89,
+    "acerto_pct": 38.4,
+    "drawdown_r": -22.1,
+    "custo_medio_r": 0.244,
+    "mae_media": -1.05,
+    "mfe_media": 1.24,
+    "moedas": 30
+   }
+  },
+  "B2|SHORT|executavel|queda": {
+   "A_ate_2024_06": {
+    "n": 139,
+    "dias_independentes": 45,
+    "media_r": -0.033,
+    "ic90": [
+     -0.339,
+     0.278
+    ],
+    "pf": 0.95,
+    "acerto_pct": 39.6,
+    "drawdown_r": -41.9,
+    "custo_medio_r": 0.182,
+    "mae_media": -0.9,
+    "mfe_media": 1.34,
+    "moedas": 18
+   },
+   "B_depois": {
+    "n": 214,
+    "dias_independentes": 48,
+    "media_r": 0.103,
+    "ic90": [
+     -0.171,
+     0.345
+    ],
+    "pf": 1.2,
+    "acerto_pct": 46.3,
+    "drawdown_r": -29.4,
+    "custo_medio_r": 0.188,
+    "mae_media": -0.8,
+    "mfe_media": 1.24,
+    "moedas": 34
+   },
+   "tudo": {
+    "n": 353,
+    "dias_independentes": 93,
+    "media_r": 0.049,
+    "ic90": [
+     -0.16,
+     0.243
+    ],
+    "pf": 1.09,
+    "acerto_pct": 43.6,
+    "drawdown_r": -69.1,
+    "custo_medio_r": 0.186,
+    "mae_media": -0.83,
+    "mfe_media": 1.28,
+    "moedas": 34
+   },
+   "acaso_tudo": {
+    "n": 321,
+    "dias_independentes": 173,
+    "media_r": -0.073,
+    "ic90": [
+     -0.197,
+     0.056
+    ],
+    "pf": 0.87,
+    "acerto_pct": 40.5,
+    "drawdown_r": -56.5,
+    "custo_medio_r": 0.187,
+    "mae_media": -0.9,
+    "mfe_media": 1.07,
+    "moedas": 34
+   }
+  },
+  "B2|SHORT|executavel|lateral": {
+   "A_ate_2024_06": {
+    "n": 375,
+    "dias_independentes": 146,
+    "media_r": -0.22,
+    "ic90": [
+     -0.348,
+     -0.09
+    ],
+    "pf": 0.67,
+    "acerto_pct": 33.9,
+    "drawdown_r": -88.0,
+    "custo_medio_r": 0.248,
+    "mae_media": -0.9,
+    "mfe_media": 1.13,
+    "moedas": 24
+   },
+   "B_depois": {
+    "n": 700,
+    "dias_independentes": 205,
+    "media_r": -0.198,
+    "ic90": [
+     -0.332,
+     -0.066
+    ],
+    "pf": 0.7,
+    "acerto_pct": 33.1,
+    "drawdown_r": -194.3,
+    "custo_medio_r": 0.227,
+    "mae_media": -0.94,
+    "mfe_media": 1.07,
+    "moedas": 34
+   },
+   "tudo": {
+    "n": 1075,
+    "dias_independentes": 351,
+    "media_r": -0.206,
+    "ic90": [
+     -0.3,
+     -0.108
+    ],
+    "pf": 0.69,
+    "acerto_pct": 33.4,
+    "drawdown_r": -235.0,
+    "custo_medio_r": 0.234,
+    "mae_media": -0.92,
+    "mfe_media": 1.09,
+    "moedas": 34
+   },
+   "acaso_tudo": {
+    "n": 1074,
+    "dias_independentes": 716,
+    "media_r": -0.24,
+    "ic90": [
+     -0.297,
+     -0.182
+    ],
+    "pf": 0.63,
+    "acerto_pct": 33.6,
+    "drawdown_r": -260.0,
+    "custo_medio_r": 0.235,
+    "mae_media": -0.94,
+    "mfe_media": 1.03,
+    "moedas": 34
+   }
+  },
+  "B2|SHORT|executavel|todos": {
+   "A_ate_2024_06": {
+    "n": 548,
+    "dias_independentes": 212,
+    "media_r": -0.19,
+    "ic90": [
+     -0.313,
+     -0.063
+    ],
+    "pf": 0.71,
+    "acerto_pct": 34.7,
+    "drawdown_r": -114.8,
+    "custo_medio_r": 0.234,
+    "mae_media": -0.92,
+    "mfe_media": 1.17,
+    "moedas": 24
+   },
+   "B_depois": {
+    "n": 980,
+    "dias_independentes": 275,
+    "media_r": -0.146,
+    "ic90": [
+     -0.271,
+     -0.026
+    ],
+    "pf": 0.77,
+    "acerto_pct": 35.5,
+    "drawdown_r": -198.7,
+    "custo_medio_r": 0.218,
+    "mae_media": -0.92,
+    "mfe_media": 1.15,
+    "moedas": 34
+   },
+   "tudo": {
+    "n": 1528,
+    "dias_independentes": 487,
+    "media_r": -0.162,
+    "ic90": [
+     -0.247,
+     -0.074
+    ],
+    "pf": 0.75,
+    "acerto_pct": 35.2,
+    "drawdown_r": -266.2,
+    "custo_medio_r": 0.224,
+    "mae_media": -0.92,
+    "mfe_media": 1.15,
+    "moedas": 34
+   },
+   "acaso_tudo": {
+    "n": 1494,
+    "dias_independentes": 978,
+    "media_r": -0.193,
+    "ic90": [
+     -0.246,
+     -0.14
+    ],
+    "pf": 0.7,
+    "acerto_pct": 35.4,
+    "drawdown_r": -290.6,
+    "custo_medio_r": 0.225,
+    "mae_media": -0.94,
+    "mfe_media": 1.05,
+    "moedas": 34
+   }
+  },
+  "B2|SHORT|largo|subida": {
+   "A_ate_2024_06": {
+    "n": 360,
+    "dias_independentes": 80,
+    "media_r": -0.126,
+    "ic90": [
+     -0.401,
+     0.063
+    ],
+    "pf": 0.81,
+    "acerto_pct": 36.7,
+    "drawdown_r": -108.5,
+    "custo_medio_r": 0.218,
+    "mae_media": -1.18,
+    "mfe_media": 1.08,
+    "moedas": 158
+   },
+   "B_depois": {
+    "n": 393,
+    "dias_independentes": 57,
+    "media_r": -0.126,
+    "ic90": [
+     -0.41,
+     0.179
+    ],
+    "pf": 0.8,
+    "acerto_pct": 36.4,
+    "drawdown_r": -100.3,
+    "custo_medio_r": 0.203,
+    "mae_media": -0.99,
+    "mfe_media": 1.44,
+    "moedas": 164
+   },
+   "tudo": {
+    "n": 753,
+    "dias_independentes": 137,
+    "media_r": -0.126,
+    "ic90": [
+     -0.323,
+     0.055
+    ],
+    "pf": 0.8,
+    "acerto_pct": 36.5,
+    "drawdown_r": -119.0,
+    "custo_medio_r": 0.21,
+    "mae_media": -1.09,
+    "mfe_media": 1.27,
+    "moedas": 208
+   },
+   "acaso_tudo": {
+    "n": 740,
+    "dias_independentes": 323,
+    "media_r": -0.18,
+    "ic90": [
+     -0.265,
+     -0.095
+    ],
+    "pf": 0.72,
+    "acerto_pct": 35.3,
+    "drawdown_r": -156.3,
+    "custo_medio_r": 0.212,
+    "mae_media": -1.08,
+    "mfe_media": 1.17,
+    "moedas": 206
+   }
+  },
+  "B2|SHORT|largo|queda": {
+   "A_ate_2024_06": {
+    "n": 1319,
+    "dias_independentes": 118,
+    "media_r": 0.044,
+    "ic90": [
+     -0.2,
+     0.285
+    ],
+    "pf": 1.08,
+    "acerto_pct": 41.6,
+    "drawdown_r": -304.6,
+    "custo_medio_r": 0.166,
+    "mae_media": -0.97,
+    "mfe_media": 1.23,
+    "moedas": 165
+   },
+   "B_depois": {
+    "n": 765,
+    "dias_independentes": 89,
+    "media_r": -0.069,
+    "ic90": [
+     -0.262,
+     0.117
+    ],
+    "pf": 0.89,
+    "acerto_pct": 38.6,
+    "drawdown_r": -112.2,
+    "custo_medio_r": 0.185,
+    "mae_media": -1.04,
+    "mfe_media": 1.17,
+    "moedas": 146
+   },
+   "tudo": {
+    "n": 2084,
+    "dias_independentes": 207,
+    "media_r": 0.002,
+    "ic90": [
+     -0.178,
+     0.169
+    ],
+    "pf": 1.0,
+    "acerto_pct": 40.5,
+    "drawdown_r": -392.9,
+    "custo_medio_r": 0.173,
+    "mae_media": -0.99,
+    "mfe_media": 1.21,
+    "moedas": 230
+   },
+   "acaso_tudo": {
+    "n": 1964,
+    "dias_independentes": 277,
+    "media_r": -0.208,
+    "ic90": [
+     -0.272,
+     -0.142
+    ],
+    "pf": 0.67,
+    "acerto_pct": 34.4,
+    "drawdown_r": -436.4,
+    "custo_medio_r": 0.175,
+    "mae_media": -1.19,
+    "mfe_media": 1.03,
+    "moedas": 228
+   }
+  },
+  "B2|SHORT|largo|lateral": {
+   "A_ate_2024_06": {
+    "n": 3506,
+    "dias_independentes": 352,
+    "media_r": -0.254,
+    "ic90": [
+     -0.353,
+     -0.154
+    ],
+    "pf": 0.63,
+    "acerto_pct": 31.8,
+    "drawdown_r": -913.9,
+    "custo_medio_r": 0.217,
+    "mae_media": -1.06,
+    "mfe_media": 1.06,
+    "moedas": 202
+   },
+   "B_depois": {
+    "n": 3568,
+    "dias_independentes": 413,
+    "media_r": -0.133,
+    "ic90": [
+     -0.247,
+     -0.018
+    ],
+    "pf": 0.79,
+    "acerto_pct": 35.2,
+    "drawdown_r": -754.7,
+    "custo_medio_r": 0.191,
+    "mae_media": -1.01,
+    "mfe_media": 1.18,
+    "moedas": 200
+   },
+   "tudo": {
+    "n": 7074,
+    "dias_independentes": 765,
+    "media_r": -0.193,
+    "ic90": [
+     -0.272,
+     -0.113
+    ],
+    "pf": 0.71,
+    "acerto_pct": 33.5,
+    "drawdown_r": -1407.5,
+    "custo_medio_r": 0.204,
+    "mae_media": -1.03,
+    "mfe_media": 1.12,
+    "moedas": 249
+   },
+   "acaso_tudo": {
+    "n": 7068,
+    "dias_independentes": 1262,
+    "media_r": -0.21,
+    "ic90": [
+     -0.242,
+     -0.177
+    ],
+    "pf": 0.67,
+    "acerto_pct": 34.3,
+    "drawdown_r": -1486.6,
+    "custo_medio_r": 0.206,
+    "mae_media": -1.07,
+    "mfe_media": 1.02,
+    "moedas": 249
+   }
+  },
+  "B2|SHORT|largo|todos": {
+   "A_ate_2024_06": {
+    "n": 5185,
+    "dias_independentes": 550,
+    "media_r": -0.17,
+    "ic90": [
+     -0.266,
+     -0.074
+    ],
+    "pf": 0.74,
+    "acerto_pct": 34.6,
+    "drawdown_r": -979.0,
+    "custo_medio_r": 0.204,
+    "mae_media": -1.04,
+    "mfe_media": 1.1,
+    "moedas": 203
+   },
+   "B_depois": {
+    "n": 4726,
+    "dias_independentes": 559,
+    "media_r": -0.122,
+    "ic90": [
+     -0.214,
+     -0.022
+    ],
+    "pf": 0.81,
+    "acerto_pct": 35.8,
+    "drawdown_r": -854.7,
+    "custo_medio_r": 0.191,
+    "mae_media": -1.01,
+    "mfe_media": 1.2,
+    "moedas": 200
+   },
+   "tudo": {
+    "n": 9911,
+    "dias_independentes": 1109,
+    "media_r": -0.147,
+    "ic90": [
+     -0.217,
+     -0.08
+    ],
+    "pf": 0.77,
+    "acerto_pct": 35.2,
+    "drawdown_r": -1526.2,
+    "custo_medio_r": 0.198,
+    "mae_media": -1.03,
+    "mfe_media": 1.15,
+    "moedas": 249
+   },
+   "acaso_tudo": {
+    "n": 9772,
+    "dias_independentes": 1862,
+    "media_r": -0.207,
+    "ic90": [
+     -0.235,
+     -0.18
+    ],
+    "pf": 0.68,
+    "acerto_pct": 34.4,
+    "drawdown_r": -2030.8,
+    "custo_medio_r": 0.2,
+    "mae_media": -1.09,
+    "mfe_media": 1.04,
+    "moedas": 249
+   }
+  },
+  "U1|LONG|executavel|subida": {
+   "A_ate_2024_06": {
+    "n": 4259,
+    "dias_independentes": 248,
+    "media_r": -0.012,
+    "ic90": [
+     -0.121,
+     0.099
+    ],
+    "pf": 0.98,
+    "acerto_pct": 40.4,
+    "drawdown_r": -254.9,
+    "custo_medio_r": 0.117,
+    "mae_media": -0.93,
+    "mfe_media": 1.18,
+    "moedas": 182
+   },
+   "B_depois": {
+    "n": 941,
+    "dias_independentes": 115,
+    "media_r": -0.149,
+    "ic90": [
+     -0.308,
+     0.012
+    ],
+    "pf": 0.75,
+    "acerto_pct": 34.0,
+    "drawdown_r": -232.7,
+    "custo_medio_r": 0.108,
+    "mae_media": -0.86,
+    "mfe_media": 1.05,
+    "moedas": 146
+   },
+   "tudo": {
+    "n": 5200,
+    "dias_independentes": 363,
+    "media_r": -0.037,
+    "ic90": [
+     -0.127,
+     0.059
+    ],
+    "pf": 0.93,
+    "acerto_pct": 39.2,
+    "drawdown_r": -364.4,
+    "custo_medio_r": 0.115,
+    "mae_media": -0.91,
+    "mfe_media": 1.15,
+    "moedas": 210
+   },
+   "acaso_tudo": {
+    "n": 5131,
+    "dias_independentes": 382,
+    "media_r": -0.013,
+    "ic90": [
+     -0.066,
+     0.043
+    ],
+    "pf": 0.98,
+    "acerto_pct": 40.8,
+    "drawdown_r": -366.8,
+    "custo_medio_r": 0.115,
+    "mae_media": -0.83,
+    "mfe_media": 1.13,
+    "moedas": 209
+   }
+  },
+  "U1|LONG|executavel|queda": {
+   "A_ate_2024_06": {
+    "n": 78,
+    "dias_independentes": 51,
+    "media_r": -0.159,
+    "ic90": [
+     -0.401,
+     0.077
+    ],
+    "pf": 0.73,
+    "acerto_pct": 33.3,
+    "drawdown_r": -24.9,
+    "custo_medio_r": 0.108,
+    "mae_media": -0.84,
+    "mfe_media": 1.46,
+    "moedas": 27
+   },
+   "B_depois": {
+    "n": 57,
+    "dias_independentes": 42,
+    "media_r": -0.467,
+    "ic90": [
+     -0.666,
+     -0.264
+    ],
+    "pf": 0.32,
+    "acerto_pct": 21.1,
+    "drawdown_r": -31.7,
+    "custo_medio_r": 0.172,
+    "mae_media": -0.84,
+    "mfe_media": 0.85,
+    "moedas": 21
+   },
+   "tudo": {
+    "n": 135,
+    "dias_independentes": 93,
+    "media_r": -0.289,
+    "ic90": [
+     -0.454,
+     -0.115
+    ],
+    "pf": 0.54,
+    "acerto_pct": 28.1,
+    "drawdown_r": -41.9,
+    "custo_medio_r": 0.135,
+    "mae_media": -0.84,
+    "mfe_media": 1.2,
+    "moedas": 44
+   },
+   "acaso_tudo": {
+    "n": 122,
+    "dias_independentes": 104,
+    "media_r": -0.203,
+    "ic90": [
+     -0.359,
+     -0.03
+    ],
+    "pf": 0.66,
+    "acerto_pct": 32.8,
+    "drawdown_r": -28.1,
+    "custo_medio_r": 0.14,
+    "mae_media": -0.8,
+    "mfe_media": 0.94,
+    "moedas": 39
+   }
+  },
+  "U1|LONG|executavel|lateral": {
+   "A_ate_2024_06": {
+    "n": 2330,
+    "dias_independentes": 481,
+    "media_r": -0.17,
+    "ic90": [
+     -0.24,
+     -0.097
+    ],
+    "pf": 0.72,
+    "acerto_pct": 33.0,
+    "drawdown_r": -439.4,
+    "custo_medio_r": 0.112,
+    "mae_media": -0.91,
+    "mfe_media": 1.06,
+    "moedas": 188
+   },
+   "B_depois": {
+    "n": 1259,
+    "dias_independentes": 386,
+    "media_r": -0.215,
+    "ic90": [
+     -0.29,
+     -0.129
+    ],
+    "pf": 0.65,
+    "acerto_pct": 31.8,
+    "drawdown_r": -278.0,
+    "custo_medio_r": 0.148,
+    "mae_media": -0.85,
+    "mfe_media": 0.97,
+    "moedas": 125
+   },
+   "tudo": {
+    "n": 3589,
+    "dias_independentes": 867,
+    "media_r": -0.186,
+    "ic90": [
+     -0.238,
+     -0.134
+    ],
+    "pf": 0.7,
+    "acerto_pct": 32.5,
+    "drawdown_r": -708.0,
+    "custo_medio_r": 0.124,
+    "mae_media": -0.89,
+    "mfe_media": 1.03,
+    "moedas": 222
+   },
+   "acaso_tudo": {
+    "n": 3587,
+    "dias_independentes": 1179,
+    "media_r": -0.12,
+    "ic90": [
+     -0.157,
+     -0.081
+    ],
+    "pf": 0.78,
+    "acerto_pct": 36.2,
+    "drawdown_r": -510.9,
+    "custo_medio_r": 0.125,
+    "mae_media": -0.8,
+    "mfe_media": 0.96,
+    "moedas": 222
+   }
+  },
+  "U1|LONG|executavel|todos": {
+   "A_ate_2024_06": {
+    "n": 6667,
+    "dias_independentes": 780,
+    "media_r": -0.069,
+    "ic90": [
+     -0.141,
+     0.003
+    ],
+    "pf": 0.88,
+    "acerto_pct": 37.7,
+    "drawdown_r": -581.3,
+    "custo_medio_r": 0.115,
+    "mae_media": -0.92,
+    "mfe_media": 1.14,
+    "moedas": 192
+   },
+   "B_depois": {
+    "n": 2257,
+    "dias_independentes": 543,
+    "media_r": -0.194,
+    "ic90": [
+     -0.267,
+     -0.112
+    ],
+    "pf": 0.68,
+    "acerto_pct": 32.4,
+    "drawdown_r": -494.5,
+    "custo_medio_r": 0.132,
+    "mae_media": -0.86,
+    "mfe_media": 1.0,
+    "moedas": 156
+   },
+   "tudo": {
+    "n": 8924,
+    "dias_independentes": 1323,
+    "media_r": -0.1,
+    "ic90": [
+     -0.16,
+     -0.04
+    ],
+    "pf": 0.83,
+    "acerto_pct": 36.4,
+    "drawdown_r": -937.1,
+    "custo_medio_r": 0.119,
+    "mae_media": -0.9,
+    "mfe_media": 1.1,
+    "moedas": 227
+   },
+   "acaso_tudo": {
+    "n": 8840,
+    "dias_independentes": 1665,
+    "media_r": -0.059,
+    "ic90": [
+     -0.096,
+     -0.023
+    ],
+    "pf": 0.89,
+    "acerto_pct": 38.8,
+    "drawdown_r": -706.8,
+    "custo_medio_r": 0.119,
+    "mae_media": -0.82,
+    "mfe_media": 1.06,
+    "moedas": 226
+   }
+  },
+  "U1|LONG|largo|subida": {
+   "A_ate_2024_06": {
+    "n": 4259,
+    "dias_independentes": 248,
+    "media_r": -0.012,
+    "ic90": [
+     -0.121,
+     0.099
+    ],
+    "pf": 0.98,
+    "acerto_pct": 40.4,
+    "drawdown_r": -254.9,
+    "custo_medio_r": 0.117,
+    "mae_media": -0.93,
+    "mfe_media": 1.18,
+    "moedas": 182
+   },
+   "B_depois": {
+    "n": 941,
+    "dias_independentes": 115,
+    "media_r": -0.149,
+    "ic90": [
+     -0.308,
+     0.012
+    ],
+    "pf": 0.75,
+    "acerto_pct": 34.0,
+    "drawdown_r": -232.7,
+    "custo_medio_r": 0.108,
+    "mae_media": -0.86,
+    "mfe_media": 1.05,
+    "moedas": 146
+   },
+   "tudo": {
+    "n": 5200,
+    "dias_independentes": 363,
+    "media_r": -0.037,
+    "ic90": [
+     -0.127,
+     0.059
+    ],
+    "pf": 0.93,
+    "acerto_pct": 39.2,
+    "drawdown_r": -364.4,
+    "custo_medio_r": 0.115,
+    "mae_media": -0.91,
+    "mfe_media": 1.15,
+    "moedas": 210
+   },
+   "acaso_tudo": {
+    "n": 5131,
+    "dias_independentes": 382,
+    "media_r": -0.013,
+    "ic90": [
+     -0.066,
+     0.043
+    ],
+    "pf": 0.98,
+    "acerto_pct": 40.8,
+    "drawdown_r": -366.8,
+    "custo_medio_r": 0.115,
+    "mae_media": -0.83,
+    "mfe_media": 1.13,
+    "moedas": 209
+   }
+  },
+  "U1|LONG|largo|queda": {
+   "A_ate_2024_06": {
+    "n": 78,
+    "dias_independentes": 51,
+    "media_r": -0.159,
+    "ic90": [
+     -0.401,
+     0.077
+    ],
+    "pf": 0.73,
+    "acerto_pct": 33.3,
+    "drawdown_r": -24.9,
+    "custo_medio_r": 0.108,
+    "mae_media": -0.84,
+    "mfe_media": 1.46,
+    "moedas": 27
+   },
+   "B_depois": {
+    "n": 57,
+    "dias_independentes": 42,
+    "media_r": -0.467,
+    "ic90": [
+     -0.666,
+     -0.264
+    ],
+    "pf": 0.32,
+    "acerto_pct": 21.1,
+    "drawdown_r": -31.7,
+    "custo_medio_r": 0.172,
+    "mae_media": -0.84,
+    "mfe_media": 0.85,
+    "moedas": 21
+   },
+   "tudo": {
+    "n": 135,
+    "dias_independentes": 93,
+    "media_r": -0.289,
+    "ic90": [
+     -0.454,
+     -0.115
+    ],
+    "pf": 0.54,
+    "acerto_pct": 28.1,
+    "drawdown_r": -41.9,
+    "custo_medio_r": 0.135,
+    "mae_media": -0.84,
+    "mfe_media": 1.2,
+    "moedas": 44
+   },
+   "acaso_tudo": {
+    "n": 122,
+    "dias_independentes": 104,
+    "media_r": -0.203,
+    "ic90": [
+     -0.359,
+     -0.03
+    ],
+    "pf": 0.66,
+    "acerto_pct": 32.8,
+    "drawdown_r": -28.1,
+    "custo_medio_r": 0.14,
+    "mae_media": -0.8,
+    "mfe_media": 0.94,
+    "moedas": 39
+   }
+  },
+  "U1|LONG|largo|lateral": {
+   "A_ate_2024_06": {
+    "n": 2330,
+    "dias_independentes": 481,
+    "media_r": -0.17,
+    "ic90": [
+     -0.24,
+     -0.097
+    ],
+    "pf": 0.72,
+    "acerto_pct": 33.0,
+    "drawdown_r": -439.4,
+    "custo_medio_r": 0.112,
+    "mae_media": -0.91,
+    "mfe_media": 1.06,
+    "moedas": 188
+   },
+   "B_depois": {
+    "n": 1259,
+    "dias_independentes": 386,
+    "media_r": -0.215,
+    "ic90": [
+     -0.29,
+     -0.129
+    ],
+    "pf": 0.65,
+    "acerto_pct": 31.8,
+    "drawdown_r": -278.0,
+    "custo_medio_r": 0.148,
+    "mae_media": -0.85,
+    "mfe_media": 0.97,
+    "moedas": 125
+   },
+   "tudo": {
+    "n": 3589,
+    "dias_independentes": 867,
+    "media_r": -0.186,
+    "ic90": [
+     -0.238,
+     -0.134
+    ],
+    "pf": 0.7,
+    "acerto_pct": 32.5,
+    "drawdown_r": -708.0,
+    "custo_medio_r": 0.124,
+    "mae_media": -0.89,
+    "mfe_media": 1.03,
+    "moedas": 222
+   },
+   "acaso_tudo": {
+    "n": 3587,
+    "dias_independentes": 1179,
+    "media_r": -0.12,
+    "ic90": [
+     -0.157,
+     -0.081
+    ],
+    "pf": 0.78,
+    "acerto_pct": 36.2,
+    "drawdown_r": -510.9,
+    "custo_medio_r": 0.125,
+    "mae_media": -0.8,
+    "mfe_media": 0.96,
+    "moedas": 222
+   }
+  },
+  "U1|LONG|largo|todos": {
+   "A_ate_2024_06": {
+    "n": 6667,
+    "dias_independentes": 780,
+    "media_r": -0.069,
+    "ic90": [
+     -0.141,
+     0.003
+    ],
+    "pf": 0.88,
+    "acerto_pct": 37.7,
+    "drawdown_r": -581.3,
+    "custo_medio_r": 0.115,
+    "mae_media": -0.92,
+    "mfe_media": 1.14,
+    "moedas": 192
+   },
+   "B_depois": {
+    "n": 2257,
+    "dias_independentes": 543,
+    "media_r": -0.194,
+    "ic90": [
+     -0.267,
+     -0.112
+    ],
+    "pf": 0.68,
+    "acerto_pct": 32.4,
+    "drawdown_r": -494.5,
+    "custo_medio_r": 0.132,
+    "mae_media": -0.86,
+    "mfe_media": 1.0,
+    "moedas": 156
+   },
+   "tudo": {
+    "n": 8924,
+    "dias_independentes": 1323,
+    "media_r": -0.1,
+    "ic90": [
+     -0.16,
+     -0.04
+    ],
+    "pf": 0.83,
+    "acerto_pct": 36.4,
+    "drawdown_r": -937.1,
+    "custo_medio_r": 0.119,
+    "mae_media": -0.9,
+    "mfe_media": 1.1,
+    "moedas": 227
+   },
+   "acaso_tudo": {
+    "n": 8840,
+    "dias_independentes": 1665,
+    "media_r": -0.059,
+    "ic90": [
+     -0.096,
+     -0.023
+    ],
+    "pf": 0.89,
+    "acerto_pct": 38.8,
+    "drawdown_r": -706.8,
+    "custo_medio_r": 0.119,
+    "mae_media": -0.82,
+    "mfe_media": 1.06,
+    "moedas": 226
+   }
+  },
+  "L1|LONG|executavel|subida": {
+   "A_ate_2024_06": {
+    "n": 109,
+    "dias_independentes": 37,
+    "media_r": 0.488,
+    "ic90": [
+     -0.055,
+     0.93
+    ],
+    "pf": 2.01,
+    "acerto_pct": 49.5,
+    "drawdown_r": -12.1,
+    "custo_medio_r": 0.185,
+    "mae_media": -0.76,
+    "mfe_media": 1.87,
+    "moedas": 76
+   },
+   "B_depois": {
+    "n": 169,
+    "dias_independentes": 32,
+    "media_r": -0.663,
+    "ic90": [
+     -0.859,
+     -0.296
+    ],
+    "pf": 0.26,
+    "acerto_pct": 11.2,
+    "drawdown_r": -120.1,
+    "custo_medio_r": 0.177,
+    "mae_media": -1.09,
+    "mfe_media": 0.66,
+    "moedas": 102
+   },
+   "tudo": {
+    "n": 278,
+    "dias_independentes": 69,
+    "media_r": -0.211,
+    "ic90": [
+     -0.559,
+     0.219
+    ],
+    "pf": 0.71,
+    "acerto_pct": 26.3,
+    "drawdown_r": -129.0,
+    "custo_medio_r": 0.18,
+    "mae_media": -0.96,
+    "mfe_media": 1.13,
+    "moedas": 145
+   },
+   "acaso_tudo": {
+    "n": 273,
+    "dias_independentes": 187,
+    "media_r": -0.161,
+    "ic90": [
+     -0.315,
+     0.008
+    ],
+    "pf": 0.76,
+    "acerto_pct": 27.5,
+    "drawdown_r": -65.4,
+    "custo_medio_r": 0.179,
+    "mae_media": -0.98,
+    "mfe_media": 1.28,
+    "moedas": 143
+   }
+  },
+  "L1|LONG|executavel|queda": {
+   "A_ate_2024_06": {
+    "n": 52,
+    "dias_independentes": 26,
+    "media_r": -0.151,
+    "ic90": [
+     -0.713,
+     0.486
+    ],
+    "pf": 0.79,
+    "acerto_pct": 28.8,
+    "drawdown_r": -17.6,
+    "custo_medio_r": 0.244,
+    "mae_media": -0.88,
+    "mfe_media": 1.3,
+    "moedas": 32
+   },
+   "B_depois": {
+    "n": 25,
+    "dias_independentes": 18,
+    "media_r": -0.77,
+    "ic90": [
+     -0.975,
+     -0.459
+    ],
+    "pf": 0.15,
+    "acerto_pct": 12.0,
+    "drawdown_r": -19.6,
+    "custo_medio_r": 0.299,
+    "mae_media": -1.06,
+    "mfe_media": 0.57,
+    "moedas": 17
+   },
+   "tudo": {
+    "n": 77,
+    "dias_independentes": 44,
+    "media_r": -0.352,
+    "ic90": [
+     -0.734,
+     0.091
+    ],
+    "pf": 0.54,
+    "acerto_pct": 23.4,
+    "drawdown_r": -27.4,
+    "custo_medio_r": 0.262,
+    "mae_media": -0.94,
+    "mfe_media": 1.06,
+    "moedas": 48
+   },
+   "acaso_tudo": {
+    "n": 75,
+    "dias_independentes": 65,
+    "media_r": -0.334,
+    "ic90": [
+     -0.572,
+     -0.047
+    ],
+    "pf": 0.54,
+    "acerto_pct": 25.3,
+    "drawdown_r": -26.5,
+    "custo_medio_r": 0.262,
+    "mae_media": -1.02,
+    "mfe_media": 1.25,
+    "moedas": 47
+   }
+  },
+  "L1|LONG|executavel|lateral": {
+   "A_ate_2024_06": {
+    "n": 564,
+    "dias_independentes": 153,
+    "media_r": -0.306,
+    "ic90": [
+     -0.464,
+     -0.132
+    ],
+    "pf": 0.56,
+    "acerto_pct": 26.8,
+    "drawdown_r": -195.4,
+    "custo_medio_r": 0.222,
+    "mae_media": -1.08,
+    "mfe_media": 1.28,
+    "moedas": 178
+   },
+   "B_depois": {
+    "n": 281,
+    "dias_independentes": 125,
+    "media_r": -0.32,
+    "ic90": [
+     -0.491,
+     -0.145
+    ],
+    "pf": 0.54,
+    "acerto_pct": 27.8,
+    "drawdown_r": -89.8,
+    "custo_medio_r": 0.241,
+    "mae_media": -1.0,
+    "mfe_media": 1.05,
+    "moedas": 117
+   },
+   "tudo": {
+    "n": 845,
+    "dias_independentes": 278,
+    "media_r": -0.311,
+    "ic90": [
+     -0.44,
+     -0.185
+    ],
+    "pf": 0.55,
+    "acerto_pct": 27.1,
+    "drawdown_r": -264.8,
+    "custo_medio_r": 0.228,
+    "mae_media": -1.05,
+    "mfe_media": 1.2,
+    "moedas": 216
+   },
+   "acaso_tudo": {
+    "n": 845,
+    "dias_independentes": 609,
+    "media_r": -0.244,
+    "ic90": [
+     -0.332,
+     -0.148
+    ],
+    "pf": 0.66,
+    "acerto_pct": 25.9,
+    "drawdown_r": -227.4,
+    "custo_medio_r": 0.229,
+    "mae_media": -1.09,
+    "mfe_media": 1.49,
+    "moedas": 216
+   }
+  },
+  "L1|LONG|executavel|todos": {
+   "A_ate_2024_06": {
+    "n": 725,
+    "dias_independentes": 216,
+    "media_r": -0.176,
+    "ic90": [
+     -0.346,
+     -0.002
+    ],
+    "pf": 0.74,
+    "acerto_pct": 30.3,
+    "drawdown_r": -175.2,
+    "custo_medio_r": 0.218,
+    "mae_media": -1.02,
+    "mfe_media": 1.37,
+    "moedas": 187
+   },
+   "B_depois": {
+    "n": 475,
+    "dias_independentes": 175,
+    "media_r": -0.465,
+    "ic90": [
+     -0.613,
+     -0.289
+    ],
+    "pf": 0.4,
+    "acerto_pct": 21.1,
+    "drawdown_r": -222.0,
+    "custo_medio_r": 0.221,
+    "mae_media": -1.03,
+    "mfe_media": 0.89,
+    "moedas": 146
+   },
+   "tudo": {
+    "n": 1200,
+    "dias_independentes": 391,
+    "media_r": -0.29,
+    "ic90": [
+     -0.414,
+     -0.159
+    ],
+    "pf": 0.59,
+    "acerto_pct": 26.7,
+    "drawdown_r": -350.7,
+    "custo_medio_r": 0.219,
+    "mae_media": -1.02,
+    "mfe_media": 1.18,
+    "moedas": 231
+   },
+   "acaso_tudo": {
+    "n": 1193,
+    "dias_independentes": 861,
+    "media_r": -0.23,
+    "ic90": [
+     -0.312,
+     -0.154
+    ],
+    "pf": 0.67,
+    "acerto_pct": 26.2,
+    "drawdown_r": -296.3,
+    "custo_medio_r": 0.219,
+    "mae_media": -1.06,
+    "mfe_media": 1.43,
+    "moedas": 231
+   }
+  },
+  "L1|LONG|largo|subida": {
+   "A_ate_2024_06": {
+    "n": 109,
+    "dias_independentes": 37,
+    "media_r": 0.488,
+    "ic90": [
+     -0.055,
+     0.93
+    ],
+    "pf": 2.01,
+    "acerto_pct": 49.5,
+    "drawdown_r": -12.1,
+    "custo_medio_r": 0.185,
+    "mae_media": -0.76,
+    "mfe_media": 1.87,
+    "moedas": 76
+   },
+   "B_depois": {
+    "n": 169,
+    "dias_independentes": 32,
+    "media_r": -0.663,
+    "ic90": [
+     -0.859,
+     -0.296
+    ],
+    "pf": 0.26,
+    "acerto_pct": 11.2,
+    "drawdown_r": -120.1,
+    "custo_medio_r": 0.177,
+    "mae_media": -1.09,
+    "mfe_media": 0.66,
+    "moedas": 102
+   },
+   "tudo": {
+    "n": 278,
+    "dias_independentes": 69,
+    "media_r": -0.211,
+    "ic90": [
+     -0.559,
+     0.219
+    ],
+    "pf": 0.71,
+    "acerto_pct": 26.3,
+    "drawdown_r": -129.0,
+    "custo_medio_r": 0.18,
+    "mae_media": -0.96,
+    "mfe_media": 1.13,
+    "moedas": 145
+   },
+   "acaso_tudo": {
+    "n": 273,
+    "dias_independentes": 187,
+    "media_r": -0.161,
+    "ic90": [
+     -0.315,
+     0.008
+    ],
+    "pf": 0.76,
+    "acerto_pct": 27.5,
+    "drawdown_r": -65.4,
+    "custo_medio_r": 0.179,
+    "mae_media": -0.98,
+    "mfe_media": 1.28,
+    "moedas": 143
+   }
+  },
+  "L1|LONG|largo|queda": {
+   "A_ate_2024_06": {
+    "n": 52,
+    "dias_independentes": 26,
+    "media_r": -0.151,
+    "ic90": [
+     -0.713,
+     0.486
+    ],
+    "pf": 0.79,
+    "acerto_pct": 28.8,
+    "drawdown_r": -17.6,
+    "custo_medio_r": 0.244,
+    "mae_media": -0.88,
+    "mfe_media": 1.3,
+    "moedas": 32
+   },
+   "B_depois": {
+    "n": 25,
+    "dias_independentes": 18,
+    "media_r": -0.77,
+    "ic90": [
+     -0.975,
+     -0.459
+    ],
+    "pf": 0.15,
+    "acerto_pct": 12.0,
+    "drawdown_r": -19.6,
+    "custo_medio_r": 0.299,
+    "mae_media": -1.06,
+    "mfe_media": 0.57,
+    "moedas": 17
+   },
+   "tudo": {
+    "n": 77,
+    "dias_independentes": 44,
+    "media_r": -0.352,
+    "ic90": [
+     -0.734,
+     0.091
+    ],
+    "pf": 0.54,
+    "acerto_pct": 23.4,
+    "drawdown_r": -27.4,
+    "custo_medio_r": 0.262,
+    "mae_media": -0.94,
+    "mfe_media": 1.06,
+    "moedas": 48
+   },
+   "acaso_tudo": {
+    "n": 75,
+    "dias_independentes": 65,
+    "media_r": -0.334,
+    "ic90": [
+     -0.572,
+     -0.047
+    ],
+    "pf": 0.54,
+    "acerto_pct": 25.3,
+    "drawdown_r": -26.5,
+    "custo_medio_r": 0.262,
+    "mae_media": -1.02,
+    "mfe_media": 1.25,
+    "moedas": 47
+   }
+  },
+  "L1|LONG|largo|lateral": {
+   "A_ate_2024_06": {
+    "n": 564,
+    "dias_independentes": 153,
+    "media_r": -0.306,
+    "ic90": [
+     -0.464,
+     -0.132
+    ],
+    "pf": 0.56,
+    "acerto_pct": 26.8,
+    "drawdown_r": -195.4,
+    "custo_medio_r": 0.222,
+    "mae_media": -1.08,
+    "mfe_media": 1.28,
+    "moedas": 178
+   },
+   "B_depois": {
+    "n": 281,
+    "dias_independentes": 125,
+    "media_r": -0.32,
+    "ic90": [
+     -0.491,
+     -0.145
+    ],
+    "pf": 0.54,
+    "acerto_pct": 27.8,
+    "drawdown_r": -89.8,
+    "custo_medio_r": 0.241,
+    "mae_media": -1.0,
+    "mfe_media": 1.05,
+    "moedas": 117
+   },
+   "tudo": {
+    "n": 845,
+    "dias_independentes": 278,
+    "media_r": -0.311,
+    "ic90": [
+     -0.44,
+     -0.185
+    ],
+    "pf": 0.55,
+    "acerto_pct": 27.1,
+    "drawdown_r": -264.8,
+    "custo_medio_r": 0.228,
+    "mae_media": -1.05,
+    "mfe_media": 1.2,
+    "moedas": 216
+   },
+   "acaso_tudo": {
+    "n": 845,
+    "dias_independentes": 609,
+    "media_r": -0.244,
+    "ic90": [
+     -0.332,
+     -0.148
+    ],
+    "pf": 0.66,
+    "acerto_pct": 25.9,
+    "drawdown_r": -227.4,
+    "custo_medio_r": 0.229,
+    "mae_media": -1.09,
+    "mfe_media": 1.49,
+    "moedas": 216
+   }
+  },
+  "L1|LONG|largo|todos": {
+   "A_ate_2024_06": {
+    "n": 725,
+    "dias_independentes": 216,
+    "media_r": -0.176,
+    "ic90": [
+     -0.346,
+     -0.002
+    ],
+    "pf": 0.74,
+    "acerto_pct": 30.3,
+    "drawdown_r": -175.2,
+    "custo_medio_r": 0.218,
+    "mae_media": -1.02,
+    "mfe_media": 1.37,
+    "moedas": 187
+   },
+   "B_depois": {
+    "n": 475,
+    "dias_independentes": 175,
+    "media_r": -0.465,
+    "ic90": [
+     -0.613,
+     -0.289
+    ],
+    "pf": 0.4,
+    "acerto_pct": 21.1,
+    "drawdown_r": -222.0,
+    "custo_medio_r": 0.221,
+    "mae_media": -1.03,
+    "mfe_media": 0.89,
+    "moedas": 146
+   },
+   "tudo": {
+    "n": 1200,
+    "dias_independentes": 391,
+    "media_r": -0.29,
+    "ic90": [
+     -0.414,
+     -0.159
+    ],
+    "pf": 0.59,
+    "acerto_pct": 26.7,
+    "drawdown_r": -350.7,
+    "custo_medio_r": 0.219,
+    "mae_media": -1.02,
+    "mfe_media": 1.18,
+    "moedas": 231
+   },
+   "acaso_tudo": {
+    "n": 1193,
+    "dias_independentes": 861,
+    "media_r": -0.23,
+    "ic90": [
+     -0.312,
+     -0.154
+    ],
+    "pf": 0.67,
+    "acerto_pct": 26.2,
+    "drawdown_r": -296.3,
+    "custo_medio_r": 0.219,
+    "mae_media": -1.06,
+    "mfe_media": 1.43,
+    "moedas": 231
+   }
+  },
+  "L1|SHORT|executavel|subida": {
+   "A_ate_2024_06": {
+    "n": 47,
+    "dias_independentes": 30,
+    "media_r": -0.057,
+    "ic90": [
+     -0.498,
+     0.346
+    ],
+    "pf": 0.91,
+    "acerto_pct": 36.2,
+    "drawdown_r": -16.3,
+    "custo_medio_r": 0.23,
+    "mae_media": -0.96,
+    "mfe_media": 1.23,
+    "moedas": 18
+   },
+   "B_depois": {
+    "n": 8,
+    "dias_independentes": 4,
+    "media_r": -0.972,
+    "ic90": null,
+    "pf": 0.0,
+    "acerto_pct": 0.0,
+    "drawdown_r": -7.8,
+    "custo_medio_r": 0.191,
+    "mae_media": -1.45,
+    "mfe_media": 0.56,
+    "moedas": 8
+   },
+   "tudo": {
+    "n": 55,
+    "dias_independentes": 34,
+    "media_r": -0.19,
+    "ic90": [
+     -0.57,
+     0.195
+    ],
+    "pf": 0.72,
+    "acerto_pct": 30.9,
+    "drawdown_r": -16.3,
+    "custo_medio_r": 0.224,
+    "mae_media": -1.03,
+    "mfe_media": 1.13,
+    "moedas": 22
+   },
+   "acaso_tudo": {
+    "n": 55,
+    "dias_independentes": 53,
+    "media_r": -0.171,
+    "ic90": [
+     -0.461,
+     0.131
+    ],
+    "pf": 0.74,
+    "acerto_pct": 30.9,
+    "drawdown_r": -14.8,
+    "custo_medio_r": 0.223,
+    "mae_media": -0.89,
+    "mfe_media": 1.15,
+    "moedas": 22
+   }
+  },
+  "L1|SHORT|executavel|queda": {
+   "A_ate_2024_06": {
+    "n": 8,
+    "dias_independentes": 8,
+    "media_r": -0.523,
+    "ic90": [
+     -1.019,
+     0.104
+    ],
+    "pf": 0.32,
+    "acerto_pct": 12.5,
+    "drawdown_r": -4.2,
+    "custo_medio_r": 0.182,
+    "mae_media": -1.12,
+    "mfe_media": 0.62,
+    "moedas": 7
+   },
+   "B_depois": {
+    "n": 4,
+    "dias_independentes": 4,
+    "media_r": 1.291,
+    "ic90": null,
+    "pf": 6.01,
+    "acerto_pct": 75.0,
+    "drawdown_r": -1.0,
+    "custo_medio_r": 0.18,
+    "mae_media": -0.74,
+    "mfe_media": 2.04,
+    "moedas": 4
+   },
+   "tudo": {
+    "n": 12,
+    "dias_independentes": 12,
+    "media_r": 0.082,
+    "ic90": [
+     -0.605,
+     0.926
+    ],
+    "pf": 1.14,
+    "acerto_pct": 33.3,
+    "drawdown_r": -5.2,
+    "custo_medio_r": 0.181,
+    "mae_media": -0.99,
+    "mfe_media": 1.1,
+    "moedas": 10
+   },
+   "acaso_tudo": {
+    "n": 9,
+    "dias_independentes": 9,
+    "media_r": -0.495,
+    "ic90": [
+     -1.026,
+     0.044
+    ],
+    "pf": 0.38,
+    "acerto_pct": 22.2,
+    "drawdown_r": -4.7,
+    "custo_medio_r": 0.18,
+    "mae_media": -0.87,
+    "mfe_media": 0.76,
+    "moedas": 8
+   }
+  },
+  "L1|SHORT|executavel|lateral": {
+   "A_ate_2024_06": {
+    "n": 114,
+    "dias_independentes": 65,
+    "media_r": -0.413,
+    "ic90": [
+     -0.657,
+     -0.112
+    ],
+    "pf": 0.45,
+    "acerto_pct": 26.3,
+    "drawdown_r": -47.4,
+    "custo_medio_r": 0.264,
+    "mae_media": -1.02,
+    "mfe_media": 1.03,
+    "moedas": 20
+   },
+   "B_depois": {
+    "n": 169,
+    "dias_independentes": 89,
+    "media_r": -0.312,
+    "ic90": [
+     -0.544,
+     -0.054
+    ],
+    "pf": 0.57,
+    "acerto_pct": 26.0,
+    "drawdown_r": -64.7,
+    "custo_medio_r": 0.259,
+    "mae_media": -0.94,
+    "mfe_media": 0.98,
+    "moedas": 33
+   },
+   "tudo": {
+    "n": 283,
+    "dias_independentes": 154,
+    "media_r": -0.352,
+    "ic90": [
+     -0.522,
+     -0.163
+    ],
+    "pf": 0.52,
+    "acerto_pct": 26.1,
+    "drawdown_r": -100.1,
+    "custo_medio_r": 0.261,
+    "mae_media": -0.97,
+    "mfe_media": 1.0,
+    "moedas": 33
+   },
+   "acaso_tudo": {
+    "n": 282,
+    "dias_independentes": 254,
+    "media_r": -0.184,
+    "ic90": [
+     -0.331,
+     -0.038
+    ],
+    "pf": 0.73,
+    "acerto_pct": 29.4,
+    "drawdown_r": -52.3,
+    "custo_medio_r": 0.26,
+    "mae_media": -0.99,
+    "mfe_media": 1.16,
+    "moedas": 33
+   }
+  },
+  "L1|SHORT|executavel|todos": {
+   "A_ate_2024_06": {
+    "n": 169,
+    "dias_independentes": 103,
+    "media_r": -0.319,
+    "ic90": [
+     -0.531,
+     -0.085
+    ],
+    "pf": 0.56,
+    "acerto_pct": 28.4,
+    "drawdown_r": -63.0,
+    "custo_medio_r": 0.251,
+    "mae_media": -1.01,
+    "mfe_media": 1.07,
+    "moedas": 21
+   },
+   "B_depois": {
+    "n": 181,
+    "dias_independentes": 97,
+    "media_r": -0.306,
+    "ic90": [
+     -0.534,
+     -0.049
+    ],
+    "pf": 0.58,
+    "acerto_pct": 26.0,
+    "drawdown_r": -66.7,
+    "custo_medio_r": 0.254,
+    "mae_media": -0.96,
+    "mfe_media": 0.98,
+    "moedas": 33
+   },
+   "tudo": {
+    "n": 350,
+    "dias_independentes": 200,
+    "media_r": -0.312,
+    "ic90": [
+     -0.475,
+     -0.133
+    ],
+    "pf": 0.57,
+    "acerto_pct": 27.1,
+    "drawdown_r": -110.4,
+    "custo_medio_r": 0.252,
+    "mae_media": -0.98,
+    "mfe_media": 1.02,
+    "moedas": 33
+   },
+   "acaso_tudo": {
+    "n": 346,
+    "dias_independentes": 316,
+    "media_r": -0.19,
+    "ic90": [
+     -0.31,
+     -0.058
+    ],
+    "pf": 0.72,
+    "acerto_pct": 29.5,
+    "drawdown_r": -66.1,
+    "custo_medio_r": 0.252,
+    "mae_media": -0.97,
+    "mfe_media": 1.15,
+    "moedas": 33
+   }
+  },
+  "L1|SHORT|largo|subida": {
+   "A_ate_2024_06": {
+    "n": 335,
+    "dias_independentes": 101,
+    "media_r": -0.372,
+    "ic90": [
+     -0.551,
+     -0.17
+    ],
+    "pf": 0.5,
+    "acerto_pct": 26.6,
+    "drawdown_r": -143.8,
+    "custo_medio_r": 0.207,
+    "mae_media": -1.19,
+    "mfe_media": 0.98,
+    "moedas": 140
+   },
+   "B_depois": {
+    "n": 55,
+    "dias_independentes": 24,
+    "media_r": -0.313,
+    "ic90": [
+     -0.593,
+     -0.025
+    ],
+    "pf": 0.57,
+    "acerto_pct": 25.5,
+    "drawdown_r": -20.0,
+    "custo_medio_r": 0.171,
+    "mae_media": -1.2,
+    "mfe_media": 1.19,
+    "moedas": 47
+   },
+   "tudo": {
+    "n": 390,
+    "dias_independentes": 125,
+    "media_r": -0.363,
+    "ic90": [
+     -0.524,
+     -0.19
+    ],
+    "pf": 0.51,
+    "acerto_pct": 26.4,
+    "drawdown_r": -143.8,
+    "custo_medio_r": 0.202,
+    "mae_media": -1.19,
+    "mfe_media": 1.01,
+    "moedas": 159
+   },
+   "acaso_tudo": {
+    "n": 388,
+    "dias_independentes": 237,
+    "media_r": -0.324,
+    "ic90": [
+     -0.432,
+     -0.216
+    ],
+    "pf": 0.55,
+    "acerto_pct": 26.5,
+    "drawdown_r": -125.6,
+    "custo_medio_r": 0.2,
+    "mae_media": -1.03,
+    "mfe_media": 1.11,
+    "moedas": 158
+   }
+  },
+  "L1|SHORT|largo|queda": {
+   "A_ate_2024_06": {
+    "n": 60,
+    "dias_independentes": 32,
+    "media_r": -0.144,
+    "ic90": [
+     -0.425,
+     0.174
+    ],
+    "pf": 0.77,
+    "acerto_pct": 35.0,
+    "drawdown_r": -14.0,
+    "custo_medio_r": 0.154,
+    "mae_media": -0.83,
+    "mfe_media": 1.01,
+    "moedas": 44
+   },
+   "B_depois": {
+    "n": 39,
+    "dias_independentes": 13,
+    "media_r": -0.487,
+    "ic90": [
+     -0.793,
+     0.339
+    ],
+    "pf": 0.39,
+    "acerto_pct": 20.5,
+    "drawdown_r": -30.2,
+    "custo_medio_r": 0.212,
+    "mae_media": -1.31,
+    "mfe_media": 0.69,
+    "moedas": 34
+   },
+   "tudo": {
+    "n": 99,
+    "dias_independentes": 45,
+    "media_r": -0.279,
+    "ic90": [
+     -0.524,
+     0.063
+    ],
+    "pf": 0.6,
+    "acerto_pct": 29.3,
+    "drawdown_r": -42.2,
+    "custo_medio_r": 0.177,
+    "mae_media": -1.02,
+    "mfe_media": 0.88,
+    "moedas": 68
+   },
+   "acaso_tudo": {
+    "n": 91,
+    "dias_independentes": 76,
+    "media_r": -0.17,
+    "ic90": [
+     -0.417,
+     0.079
+    ],
+    "pf": 0.74,
+    "acerto_pct": 33.0,
+    "drawdown_r": -30.7,
+    "custo_medio_r": 0.174,
+    "mae_media": -1.14,
+    "mfe_media": 1.07,
+    "moedas": 64
+   }
+  },
+  "L1|SHORT|largo|lateral": {
+   "A_ate_2024_06": {
+    "n": 560,
+    "dias_independentes": 189,
+    "media_r": -0.45,
+    "ic90": [
+     -0.573,
+     -0.311
+    ],
+    "pf": 0.41,
+    "acerto_pct": 23.6,
+    "drawdown_r": -260.9,
+    "custo_medio_r": 0.211,
+    "mae_media": -1.17,
+    "mfe_media": 0.96,
+    "moedas": 163
+   },
+   "B_depois": {
+    "n": 475,
+    "dias_independentes": 162,
+    "media_r": -0.24,
+    "ic90": [
+     -0.446,
+     0.003
+    ],
+    "pf": 0.66,
+    "acerto_pct": 28.0,
+    "drawdown_r": -174.2,
+    "custo_medio_r": 0.236,
+    "mae_media": -1.03,
+    "mfe_media": 1.12,
+    "moedas": 145
+   },
+   "tudo": {
+    "n": 1035,
+    "dias_independentes": 351,
+    "media_r": -0.354,
+    "ic90": [
+     -0.472,
+     -0.213
+    ],
+    "pf": 0.52,
+    "acerto_pct": 25.6,
+    "drawdown_r": -375.1,
+    "custo_medio_r": 0.222,
+    "mae_media": -1.1,
+    "mfe_media": 1.03,
+    "moedas": 215
+   },
+   "acaso_tudo": {
+    "n": 1034,
+    "dias_independentes": 693,
+    "media_r": -0.203,
+    "ic90": [
+     -0.277,
+     -0.13
+    ],
+    "pf": 0.7,
+    "acerto_pct": 31.2,
+    "drawdown_r": -210.1,
+    "custo_medio_r": 0.222,
+    "mae_media": -1.04,
+    "mfe_media": 1.17,
+    "moedas": 215
+   }
+  },
+  "L1|SHORT|largo|todos": {
+   "A_ate_2024_06": {
+    "n": 955,
+    "dias_independentes": 322,
+    "media_r": -0.403,
+    "ic90": [
+     -0.502,
+     -0.287
+    ],
+    "pf": 0.46,
+    "acerto_pct": 25.3,
+    "drawdown_r": -402.3,
+    "custo_medio_r": 0.206,
+    "mae_media": -1.15,
+    "mfe_media": 0.97,
+    "moedas": 182
+   },
+   "B_depois": {
+    "n": 569,
+    "dias_independentes": 199,
+    "media_r": -0.264,
+    "ic90": [
+     -0.441,
+     -0.06
+    ],
+    "pf": 0.63,
+    "acerto_pct": 27.2,
+    "drawdown_r": -207.7,
+    "custo_medio_r": 0.228,
+    "mae_media": -1.06,
+    "mfe_media": 1.1,
+    "moedas": 156
+   },
+   "tudo": {
+    "n": 1524,
+    "dias_independentes": 521,
+    "media_r": -0.351,
+    "ic90": [
+     -0.444,
+     -0.249
+    ],
+    "pf": 0.52,
+    "acerto_pct": 26.0,
+    "drawdown_r": -542.1,
+    "custo_medio_r": 0.214,
+    "mae_media": -1.12,
+    "mfe_media": 1.02,
+    "moedas": 229
+   },
+   "acaso_tudo": {
+    "n": 1513,
+    "dias_independentes": 1006,
+    "media_r": -0.232,
+    "ic90": [
+     -0.291,
+     -0.17
+    ],
+    "pf": 0.66,
+    "acerto_pct": 30.1,
+    "drawdown_r": -351.2,
+    "custo_medio_r": 0.213,
+    "mae_media": -1.05,
+    "mfe_media": 1.15,
+    "moedas": 229
+   }
+  }
+ },
+ "moedas": 251,
+ "segundos": 45.9,
+ "custos": {
+  "comissao_lado": 0.0025,
+  "deslize_lado": 0.0007,
+  "juro_falta_dia": 0.0003
+ }
+}
