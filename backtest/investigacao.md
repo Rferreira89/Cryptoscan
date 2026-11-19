@@ -3006,3 +3006,16 @@ no BTC). Não tenho hoje uma ideia de entrada com lógica económica séria que 
   autópsia se morrer alguém; testar o que entrar na fila do Rui. Proposta para a fila (só com o sim do Rui): medir
   se o controlo ao acaso da arena é demasiado favorável nas saídas com stop que segue (proposta da afinação H17
   sobre TURTLE/SHORT_TURTLE), antes de qualquer sucessor dessa família.
+
+## 2026-11-19 (dados novos, caçador noturno) — sem hipótese nova; acompanhamento H52, H53, H57–H60
+
+- **Registo (dia ímpar, LONG)**: nenhum. As ideias LONG com os campos novos continuam cobertas e sem operações
+  — H53 (recuo com contratos a cair), H57 (squeeze de shorts), H58 (capitulação com desalavancagem), H60 (subida
+  sem alavancagem nova). Outra combinação de preço, OI e financiamento seria variante cosmética delas. Sem ideia
+  séria não se regista nada.
+- **Acompanhamento** (ramo `dados-novos`, velas de 05/11 a 18/11, lidas só por `dados_para_avaliar`):
+  H52 — a acumular: 0 de 30 (12 dias de dados depois do registo); H53 — a acumular: 0 de 30, controlo 0 de 10
+  (11 dias); H57, H58, H59 — a acumular: 0 de 30 (8 dias); H60 — a acumular: 0 de 30, controlo 0 de 10 (7 dias).
+  Só contam operações fechadas (saída em D+3); as primeiras fechadas possíveis continuam a ser a 20/11 (H52),
+  21/11 (H53), 24/11 (H57–H59) e 25/11 (H60). Regras, parâmetros e critérios inalterados; nenhum resultado calculado.
+- Nenhum resultado em dados antigos foi usado como validação.
