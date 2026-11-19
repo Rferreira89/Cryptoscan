@@ -88,6 +88,12 @@ def apply(state, ex):
         if rec and o.get("status") == "recusada" and rec.get("executed") is None and not o.get("entrada"):
             rec.update(executed=False, recusada=str(o.get("motivo") or o.get("erro") or "recusada pela Bybit")[:140])
         state.setdefault("auto_be_flag", {})[k] = bool(o.get("be_pendente")) and o.get("status") == "aberta"
+        # (19/11) o executor fechou a operacao (fecho pedido pelo Rui) antes de o sinal sair pelas suas regras: o registo
+        # e o acompanhamento do sinal fecham com o preco de saida da corretora; o resultado real vem depois da
+        # reconciliacao das execucoes (real_r). Sem preco de saida nao se fecha nada (nao se inventa).
+        if rec and rec.get("status") == "OPEN" and o.get("status") == "fechada" and o.get("saida") \
+                and "pedido pelo Rui" in str(o.get("motivo") or ""):
+            fechar_registo(state, rec, o)
         if o.get("status") == "aberta":
             # TP1 do sinal sem venda na Bybit: volta a pedir de 15 em 15 minutos (20/10)
             if o.get("be_pendente"):
@@ -126,6 +132,25 @@ def apply(state, ex):
 
 
 A2_DESDE = 1794528000        # 13/11/2026 00:00 UTC: ordens anteriores (BNB de 12/11) ja foram tratadas a parte
+
+
+def fechar_registo(state, rec, o):
+    sig = (state.get("signals") or {}).get(rec["id"]) or {}
+    pos = sig.get("position") or {}
+    e = float(pos.get("entry") or rec.get("entry") or o.get("entrada") or 0)
+    st0 = float(pos.get("stop0") or rec.get("stop") or 0)
+    sx = float(o["saida"])
+    curto = (rec.get("side") or pos.get("side")) == "SHORT"
+    r = None
+    if e and st0 and abs(st0 - e) > 0:
+        r = round(((e - sx) if curto else (sx - e)) / abs(st0 - e), 3)
+    t = int(o.get("fechado") or 0) or None
+    rec.update(status="CLOSED", closed_at=t, exit=sx, exit_reason=str(o.get("motivo"))[:80], reason="MANUAL")
+    if r is not None:
+        rec["result_r"] = r
+    if pos and not pos.get("closed"):
+        pos.update(closed=True, r=r, exit_reason="MANUAL")
+        sig["status"] = "CLOSED"
 
 
 def avisos_em_falta(state, ex, now):

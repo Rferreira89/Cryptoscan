@@ -144,8 +144,13 @@ def atualizar(state, cfg, now, enviar=None):
     sal = ((state.get("conta_saldos") or {}).get("m")) or {}
     tk = ((state.get("bybit_tickers") or {}).get("m")) or {}
     livre = (state.get("conta_livre") or {}).get("usdc")
+    # trading aberto: pelo registo E pelo executor (uma operacao que o executor ainda tem aberta conta, mesmo que o
+    # registo ja a tenha fechado; uma que o executor ja fechou na corretora nao conta)
+    ops = state.get("auto_ops") or {}
     abertas = sum(1 for r in state.get("ledger") or [] if r.get("mode") == "REAL" and r.get("executed") is True
-                  and r.get("status") == "OPEN")
+                  and r.get("status") == "OPEN" and ops.get(r.get("id")) not in ("fechada", "cancelada", "recusada"))
+    abertas += sum(1 for k, v in ops.items() if v in ("aberta", "pendente", "verificar")
+                   and not any(r.get("id") == k and r.get("status") == "OPEN" for r in state.get("ledger") or []))
     p = plano(c, sal, tk, livre, abertas)
     p["t"] = int(now)
     state["acumulacao_plano"] = p

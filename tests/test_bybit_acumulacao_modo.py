@@ -39,7 +39,7 @@ class Entradas(unittest.TestCase):
         c = config.load(os.path.join(RAIZ, "config.json"))
         self.assertEqual(c["bybit_modo"], "acumulacao")
         a = c["acumulacao"]
-        self.assertEqual(a["modo"], "sombra")                                  # real so com o OK do Rui
+        self.assertEqual(a["modo"], "real")                                    # OK do Rui a 19/11 15:53
         self.assertAlmostEqual(sum(a["pesos"].values()), 1.0)
         self.assertEqual(a["pesos"]["BTC"], 0.70)
         self.assertTrue(all(w <= a["max_alt_pct"] / 100 + 1e-9 for k, w in a["pesos"].items() if k not in ("BTC", "ETH")))
@@ -85,3 +85,57 @@ class EspelhoOKX(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class FechoPedidoPeloRui(unittest.TestCase):
+    """(19/11) "Podes fechar a posicao na Bybit e comecar a acumulacao": fecho pelo caminho protegido do executor; o
+    registo so fecha com o preco de saida confirmado; a acumulacao so arranca quando ja nao ha trading aberto."""
+
+    def test_pedido_manual_fechar_chega_ao_fecho_protegido(self):
+        from unittest import mock
+        from engine import executor as X
+        chamadas = []
+        with mock.patch.dict(os.environ, {"EXEC_ACAO": "fechar:XLM-SHORT_TURTLE-1794673840"}), \
+                mock.patch.object(X, "do_close", lambda st, r, ex, now, send, why="": chamadas.append((r["op"], why)) or "ok"):
+            reqs = []
+            forced = os.environ["EXEC_ACAO"]
+            acao, _, op = forced.partition(":")
+            self.assertIn(acao, ("comprar", "vender", "fechar"))
+        src = open(X.__file__).read()
+        self.assertIn('if acao in ("comprar", "vender", "fechar") and op.strip():', src)
+        self.assertIn('why="fecho pedido pelo Rui', src)
+
+    def estado(self):
+        rec = {"id": "XLM-SHORT_TURTLE-1", "mode": "REAL", "executed": True, "status": "OPEN", "side": "SHORT",
+               "asset": "XLM", "stop": 0.15364}
+        sig = {"position": {"entry": 0.1374, "stop0": 0.15364, "side": "SHORT", "closed": False}, "status": "TRIGGERED"}
+        return {"ledger": [rec], "signals": {"XLM-SHORT_TURTLE-1": sig}}
+
+    def test_registo_fecha_com_a_saida_confirmada(self):
+        st = self.estado()
+        ex = {"ops": {"XLM-SHORT_TURTLE-1": {"status": "fechada", "saida": 0.1380, "fechado": NOW,
+                                             "motivo": "fecho pedido pelo Rui (a Bybit passa a acumulação)"}}, "feitos": []}
+        execucao.apply(st, ex)
+        rec = st["ledger"][0]
+        self.assertEqual((rec["status"], rec["exit"], rec["reason"]), ("CLOSED", 0.138, "MANUAL"))
+        self.assertAlmostEqual(rec["result_r"], round((0.1374 - 0.138) / (0.15364 - 0.1374), 3))
+        self.assertTrue(st["signals"]["XLM-SHORT_TURTLE-1"]["position"]["closed"])
+
+    def test_sem_preco_de_saida_nao_fecha(self):
+        st = self.estado()
+        ex = {"ops": {"XLM-SHORT_TURTLE-1": {"status": "fechada", "motivo": "fecho pedido pelo Rui"}}, "feitos": []}
+        execucao.apply(st, ex)
+        self.assertEqual(st["ledger"][0]["status"], "OPEN")
+
+    def test_acumulacao_so_arranca_sem_trading_aberto(self):
+        from engine import acumulacao as AC
+        tk = {"BTC": [60000, 59990, 60010, 1]}
+        cfg = {"bybit_modo": "acumulacao", "acumulacao": {"modo": "real", "pesos": {"BTC": 1.0}, "ordem_min_usdc": 5}}
+        st = dict(self.estado(), conta_saldos={"t": 1, "m": {}}, bybit_tickers={"t": 1, "m": tk},
+                  conta_livre={"t": 1, "usdc": 30.0}, capital_confirmado=True, bybit_modo="acumulacao",
+                  auto_ops={"XLM-SHORT_TURTLE-1": "aberta"})
+        AC.atualizar(st, cfg, NOW, None)
+        self.assertEqual(st.get("exec_req") or [], [])                      # XLM aberta: nada
+        st["auto_ops"]["XLM-SHORT_TURTLE-1"] = "fechada"                      # executor fechou, registo ainda nao
+        AC.atualizar(st, cfg, NOW + 60, None)
+        self.assertEqual([r["acao"] for r in st["exec_req"]], ["acumular"])

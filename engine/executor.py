@@ -2167,7 +2167,7 @@ def main(state_path, ex_in, out):
     if forced:                                   # pedido manual (teste)
         acao, _, op = forced.partition(":")      # (23/10) "vender:<id>" = o botao Executar pedido pelo Rui
         acao = acao.strip()
-        if acao in ("comprar", "vender") and op.strip():
+        if acao in ("comprar", "vender", "fechar") and op.strip():   # (19/11) "fechar:<id>": fecho pedido pelo Rui
             reqs.append({"id": f"{acao}-{op.strip()}-manual-{now}", "acao": acao, "op": op.strip(), "t": now,
                          "manual": int(now)})
         else:
@@ -2183,7 +2183,11 @@ def main(state_path, ex_in, out):
             res = "pedido demasiado antigo"
         elif r.get("acao") in ACTIONS:
             try:
-                res = ACTIONS[r["acao"]](state, r, ex, now, send)
+                if r.get("acao") == "fechar" and r.get("manual"):
+                    # (19/11) fecho pedido pelo Rui (a Bybit passa a acumulacao): o mesmo fecho protegido do plano
+                    res = do_close(state, r, ex, now, send, why="fecho pedido pelo Rui (a Bybit passa a acumulação)")
+                else:
+                    res = ACTIONS[r["acao"]](state, r, ex, now, send)
             except ExecError as e:
                 res = f"erro: {e}"
                 send(f"⚠️ Erro na Bybit ao {r['acao']} {r.get('op', '')[:30]}: {str(e)[:120]}")

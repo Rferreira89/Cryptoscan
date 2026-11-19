@@ -74,7 +74,7 @@
   },
   "bybit_modo": "acumulacao",
   "acumulacao": {
-    "modo": "sombra",
+    "modo": "real",
     "pesos": {
       "BTC": 0.7,
       "ETH": 0.15,
@@ -87,6 +87,6 @@
     "ordem_min_usdc": 5.0,
     "max_alt_pct": 5.0,
     "revisao_alts_dias": 90,
-    "autorizado": "Rui, 19/11/2026 15:01: Bybit para acumulacao (BTC 70 / ETH 15 / alts 15, bandas 5 pp, compras com depositos, sem vendas por tendencia, so spot); real so depois de a XLM fechar e com o OK do Rui"
+    "autorizado": "Rui, 19/11/2026 15:01: Bybit para acumulacao (BTC 70 / ETH 15 / alts 15, bandas 5 pp, compras com depositos, sem vendas por tendencia, so spot); real so depois de a XLM fechar e com o OK do Rui; real: Rui, 19/11/2026 15:53 (\"Podes fechar a posição na Bybit e começar a acumulação\")"
   }
 }
