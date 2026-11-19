@@ -616,6 +616,18 @@ def decidir_oportunidade(st, sid, decisao, motivo, now):
     cat, cls = classificar(motivo, visto_tarde=(r.get("visto_atraso_s") or 0) > 900)
     if decisao in ("ORDEM_ENVIADA", "EXECUTADA_REAL"):
         cat, cls = "executada", "X"
+    # (19/11) o resumo diario conta OPORTUNIDADES, nao decisoes: uma oportunidade que muda de decisao (ORDEM_ENVIADA
+    # -> EXECUTADA_REAL, ou rejeitada de novo noutra volta) sai da contagem antiga antes de entrar na nova. Antes a
+    # mesma operacao contava duas vezes como executada e a mesma rejeicao varias vezes.
+    if r.get("decisao") is not None and r.get("classe"):
+        dia0 = time.strftime("%Y-%m-%d", time.gmtime(r.get("t_decisao") or now))
+        r0 = (st.get("resumo_oportunidades") or {}).get(dia0)
+        if r0 is not None:
+            if r0.get(r["classe"]):
+                r0[r["classe"]] -= 1
+            pc = r0.get("por_categoria") or {}
+            if pc.get(r.get("categoria")):
+                pc[r["categoria"]] -= 1
     r.update(decisao=decisao, motivo=motivo, categoria=cat, classe=cls, t_decisao=int(now))
     dia = time.strftime("%Y-%m-%d", time.gmtime(now))
     rs = st.setdefault("resumo_oportunidades", {}).setdefault(dia, {"voltas": 0, "voltas_sem_sinais": 0})

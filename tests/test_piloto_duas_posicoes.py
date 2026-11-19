@@ -473,3 +473,28 @@ class DuasPosicoes(Base):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ResumoContaOportunidades(Base):
+    """(19/11) o resumo diario do funil conta cada oportunidade uma vez (a 18/11 dizia 4 executadas para 2)."""
+
+    def test_executada_conta_uma_vez(self):
+        api = MultiOKX()
+        st, _ = self.corre(api, sinal("boa", "AAA", atr=0.05))                   # ORDEM_ENVIADA
+        st, _ = self.corre(api, now=NOW0 + 900)                                   # EXECUTADA_REAL
+        tot = sum((v.get("por_categoria") or {}).get("executada", 0) for v in st["resumo_oportunidades"].values())
+        self.assertEqual(tot, 1)
+        self.assertEqual(sum(v.get("X", 0) for v in st["resumo_oportunidades"].values()), 1)
+
+    def test_decisoes_somam_o_numero_de_oportunidades(self):
+        api = MultiOKX()
+        st, _ = self.corre(api, sinal("fraca", "AAA", atr=0.05))
+        st, _ = self.corre(api, now=NOW0 + 900)
+        t = NOW0 + 1800 - 660
+        st, _ = self.corre(api, sinal("fraca", "CCC", t_fecho=t, atr=0.0025), sinal("boa", "BBB", t_fecho=t, atr=0.0025),
+                           now=NOW0 + 1800)
+        for k in range(1, 5):
+            st, _ = self.corre(api, sinal("fraca", "CCC", t_fecho=t, atr=0.0025), now=NOW0 + 1800 + 600 * k)
+        decididas = sum(1 for r in st["oportunidades"].values() if r.get("decisao"))
+        contadas = sum(v.get("X", 0) + v.get("B", 0) + v.get("A", 0) + v.get("C", 0) for v in st["resumo_oportunidades"].values())
+        self.assertEqual(contadas, decididas)
