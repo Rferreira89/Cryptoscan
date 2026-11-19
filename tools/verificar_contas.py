@@ -167,9 +167,59 @@ def historico_okx():
     return out
 
 
+def auditoria_bybit():
+    """(19/11) Cada operacao REAL executada do registo do motor (state.json) refeita do zero a partir das execucoes da
+    Bybit UE (mesma funcao do motor: account.agregar). Publico: estado, precos, n de execucoes, R pela corretora contra
+    o R do registo; dinheiro so por Telegram. So GET."""
+    import time as _t
+    from engine import account as AC
+    caminho = os.environ.get("ESTADO_BYBIT")
+    if not caminho or not os.path.exists(caminho):
+        return {"erro": "sem estado"}
+    led = json.load(open(caminho)).get("ledger") or []
+    now, out = _t.time(), []
+    for r in led:
+        if r.get("mode") != "REAL" or r.get("executed") is not True:
+            continue
+        sym = AC.symbol_of(r)
+        t0, t1 = AC._limites(r, led, now)
+        execs, falha, a = {}, None, t0
+        while a < t1:
+            b = min(t1, a + AC.JANELA_S)
+            try:
+                for e in AC.execs_janela(sym, a, b):
+                    k = e.get("execId") or f"{e.get('orderId')}-{e.get('execTime')}"
+                    execs[k] = {"id": k, "t": float(e.get("execTime") or 0) / 1000, "lado": e.get("side"),
+                                "q": float(e.get("execQty") or 0), "px": float(e.get("execPrice") or 0),
+                                "fee": float(e.get("execFee") or 0), "fee_moeda": e.get("feeCurrency") or "",
+                                "tipo": e.get("stopOrderType") or None, "link": e.get("orderLinkId") if "orderLinkId" in e else None}
+            except Exception as ex:
+                falha = f"{type(ex).__name__}: {str(ex)[:80]}"
+                break
+            a = b
+        ex = sorted(execs.values(), key=lambda e: e["t"])
+        short = r.get("side") == "SHORT"
+        jr = AC.juros_margem((r.get("asset") or "").upper(), t0, t1) if short and ex else None
+        g = AC.agregar(r, ex, jr, None) if ex else {"estado": "sem_dados"}
+        pnl = g.get("pnl_usdc") if g.get("pnl_usdc") is not None else g.get("pnl_usdc_sem_juros")
+        rr = round(pnl / g["risco_usdc"], 3) if pnl is not None and g.get("risco_usdc") else None
+        out.append({"id": r.get("id"), "ativo": r.get("asset"), "estrategia": r.get("strategy"), "lado": r.get("side"),
+                    "registo": r.get("status"), "r_registo": r.get("result_r"), "corretora": g.get("estado"),
+                    "pct_fechado": g.get("pct_fechado"), "execucoes": len(ex), "preco_entrada": g.get("preco_entrada"),
+                    "preco_saida": g.get("preco_saida"), "r_corretora": rr, "custos_incompletos": g.get("custos_incompletos"),
+                    "entradas_manuais_ignoradas": g.get("entradas_manuais_ignoradas"), "falha_leitura": falha})
+        if pnl is not None:
+            PRIV.append(f"Bybit EU {r.get('asset')} {r.get('strategy')}: pnl {pnl:.4f} USDC, custos {g.get('comissoes_usdc')}")
+    return out
+
+
 if __name__ == "__main__":
     bases = sys.argv[1:] or ["RENDER", "SPCX", "XLM"]
     r = {"okx": okx(bases), "bybit_eu": bybit(["XLM"])}
+    try:
+        r["bybit_auditoria"] = auditoria_bybit()
+    except Exception as e:
+        r["bybit_auditoria"] = {"erro": f"{type(e).__name__}: {str(e)[:100]}"}
     try:
         r["okx_historico"] = historico_okx()
     except Exception as e:
