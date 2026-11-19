@@ -36,6 +36,11 @@ try:
     op = (ex.get("ops") or {}).get(ID) or {}
     ids = {q.get("filho") for q in op.get("partes") or []} | {q.get("stopId") for q in op.get("partes") or []}
     ids.discard(None)
+    import collections
+    out["bybit_executor_estados"] = dict(collections.Counter(str(o.get("status")) for o in (ex.get("ops") or {}).values()
+                                                              if isinstance(o, dict)))
+    out["bybit_executor_nao_finais"] = [(k[:40], o.get("status"), o.get("lado")) for k, o in (ex.get("ops") or {}).items()
+                                         if isinstance(o, dict) and o.get("status") not in ("fechada", "cancelada", "recusada")]
     out["bybit_executor"] = {"estado": op.get("status"), "lado": op.get("lado"), "tem_stop_no_registo": bool(op.get("stop")),
                              "tem_emprestado_moeda": op.get("emprestado_moeda") is not None, "n_partes": len(op.get("partes") or []),
                              "criado": T(op.get("criado") or op.get("t"))}
