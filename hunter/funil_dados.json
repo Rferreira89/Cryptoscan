@@ -1,24 +1,17 @@
 {
  "instrumentos_descobertos": 262,
  "pedidos": 262,
- "com_dados_validos": 260,
- "excluidos": {
-  "JCT": [
-   "historico curto (92 velas)"
-  ],
-  "TTWO": [
-   "historico curto (99 velas)"
-  ]
- },
+ "com_dados_validos": 262,
+ "excluidos": {},
  "por_classe": {
-  "crypto": 167,
-  "equity": 89,
+  "crypto": 168,
+  "equity": 90,
   "precious_metal": 4
  },
  "por_tier": {
-  "A": 11,
-  "B": 41,
-  "C": 208
+  "A": 13,
+  "B": 34,
+  "C": 215
  },
  "falhas_api": {
   "total": 0,
