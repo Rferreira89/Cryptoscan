@@ -96,6 +96,12 @@ def volta(estado, now=None, get=_get_publico):
     st.setdefault("abertas", {})
     st.setdefault("fechadas", [])
     moedas = universo(get)
+    # (19/11) a 1.a volta ainda apanhou perpetuos de acoes: os eventos de ativos que nao sao cripto saem (nao contam)
+    ins = get("/api/v5/public/instruments?instType=SWAP") or []
+    nao_cripto = {x.get("instId", "").split("-")[0] for x in ins if str(x.get("instCategory") or "1") != "1"}
+    if nao_cripto:
+        st["abertas"] = {k: v for k, v in st["abertas"].items() if v.get("ativo") not in nao_cripto}
+        st["fechadas"] = [f for f in st["fechadas"] if f.get("ativo") not in nao_cripto]
     if not moedas:
         st["ultima_falha"] = {"t": now, "motivo": "OKX sem resposta (universo)"}
         return st

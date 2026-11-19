@@ -72,6 +72,11 @@ class Volta(unittest.TestCase):
         self.assertTrue(f["sem_dados"])
         self.assertNotIn("R1|1h|LONG", {k for k in st["resumo"] if "ZZZ" in k})
 
+    def test_eventos_de_acoes_saem(self):
+        st0 = {"abertas": {"R2|INTC|1|-1": {"hip": "R2", "ativo": "INTC", "t": T0, "lado": -1}}, "fechadas": []}
+        st = S.volta(st0, now=T0 + 40 * H, get=Falso(n=40))
+        self.assertNotIn("R2|INTC|1|-1", st["abertas"])
+
     def test_okx_sem_resposta_nao_muda_nada(self):
         st0 = {"abertas": {"x": {"hip": "R1", "ativo": "AAA", "t": T0, "lado": 1}}, "fechadas": []}
         st = S.volta(st0, now=T0 + 3 * H, get=lambda p: None)
