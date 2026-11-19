@@ -35,10 +35,10 @@ def _get_publico(path):
 # deslize por lado) so e realista com spread <= 8 bps.
 VOL_MIN_USD = 5_000_000
 SPREAD_MAX_BPS = 8.0
-# valor no melhor bid e no melhor ask: 10x as ordens reais da OKX (piloto: nocional ate ~20), para uma ordem pequena
-# executar sem varrer o livro. (19/11) 2000 deixava 13 perpetuos (54 cortados so por isto): mal calibrado para o
-# tamanho real das ordens, corrigido antes de haver resultados.
-TOPO_MIN_USD = 250
+# valor no lado mais fino do topo do livro, numa fotografia do ticker: >= 2,5x o nocional maximo das ordens reais da
+# OKX (piloto ~20). (19/11) 2000 e depois 250 cortavam BNB, AVAX, ENA, HBAR so porque a fotografia apanhava um lado
+# momentaneamente fino (ex.: BNB com 19 contratos no ask); corrigido antes de haver resultados da sombra.
+TOPO_MIN_USD = 50
 N_MAX = 150                   # limite de pedidos por volta (as velas sao um pedido por moeda)
 ELEG = {}
 
@@ -86,7 +86,7 @@ def universo(get=_get_publico, n=N_MAX):
         xs.append((vol, base, round(spread, 2)))
     xs.sort(reverse=True)
     ELEG.clear()
-    print("cortados pelo topo do livro (base, valor, bidSz, askSz, ctVal):", cont.pop("_cortados_topo", [])[:25])
+    print("cortados pelo topo do livro (base, valor, bidSz, askSz, ctVal):", cont.pop("_cortados_topo", [])[:12])
     ELEG.update(cont, usadas=min(n, len(xs)), criterios={"volume_24h_minimo_milhoes": VOL_MIN_USD / 1e6,
                                                          "spread_maximo_bps": SPREAD_MAX_BPS,
                                                          "topo_do_livro_minimo_milhares": TOPO_MIN_USD / 1e3, "maximo": n},
