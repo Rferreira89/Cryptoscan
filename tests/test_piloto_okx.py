@@ -220,7 +220,9 @@ class Dimensionamento(Base):
         self.assertEqual((CFG["capital_max"], CFG["nocional_max"], CFG["perda_max"], CFG["suspender_em"],
                           CFG["perda_diaria_max"], CFG["risco_max_op"], CFG["alav_min"], CFG["alav_max"],
                           CFG["posicoes_max"], CFG["margem"], sorted(CFG["lados"])),
-                         (20.0, 20.0, 5.0, 3.0, 1.0, 0.25, 5, 10, 1, "isolated", ["LONG", "SHORT"]))
+                         (20.0, 20.0, 5.0, 3.0, 1.0, 0.25, 5, 10, 2, "isolated", ["LONG", "SHORT"]))
+        # (18/11, Rui: 2 posicoes sem aumentar o risco) os totais partilhados sao os de uma operacao
+        self.assertEqual((CFG["risco_total_max"], CFG["nocional_total_max"]), (CFG["risco_max_op"], CFG["nocional_max"]))
 
 
 class Ordens(Base):

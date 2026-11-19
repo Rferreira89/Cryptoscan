@@ -2924,3 +2924,17 @@ ronda os 80%.
 - **Testes**: 1499, todos a passar.
 - **Próxima corrida**: lançar primeiro "Historico para backtest" se for depois de 2026-11-21 12:00 UTC; autópsia
   se morrer alguém; testar o que entrar na fila do Rui.
+
+## 2026-11-18 (dados novos, caçador noturno) — sem hipótese nova; acompanhamento H52, H53, H57–H60
+
+- **Registo (dia par, SHORT)**: nenhum. As ideias SHORT com os campos novos continuam cobertas — H52 (queda com
+  OI a subir) e H59 (subida com OI a cair e financiamento positivo) — e o excesso de longs por financiamento
+  chumbou (H44). A divergência entre o OI do X-Perp e o OI global não tem lógica económica clara (o X-Perp é uma
+  fração pequena do mercado). Sem ideia séria não se regista nada.
+- **Acompanhamento** (ramo `dados-novos`, velas de 05/11 a 17/11, lidas só por `dados_para_avaliar`):
+  H52 — a acumular: 0 de 30 (11 dias de dados depois do registo); H53 — a acumular: 0 de 30, controlo 0 de 10
+  (10 dias); H57, H58, H59 — a acumular: 0 de 30 (7 dias); H60 — a acumular: 0 de 30, controlo 0 de 10 (6 dias).
+  Só contam operações fechadas (saída em D+3): com os primeiros sinais possíveis nas velas de 17/11 (H52),
+  18/11 (H53), 21/11 (H57–H59) e 22/11 (H60), as primeiras operações fechadas possíveis são a 20/11, 21/11,
+  24/11 e 25/11. Regras, parâmetros e critérios inalterados; nenhum resultado calculado.
+- Nenhum resultado em dados antigos foi usado como validação.

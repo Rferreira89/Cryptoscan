@@ -245,6 +245,24 @@ def check_trades(ledger, held, orders, execs, now, debt=None, leitura=None):
 
 # ---------- leitura completa ----------
 
+DIVIDA_MIN_USD = 1.0           # (18/11) abaixo disto e resto de juro/arredondamento, nao uma posicao
+
+
+def posicoes_sem_registo(dividas, abertas, tk):
+    """(18/11, duas posicoes) Moedas com divida de margem (short) na Bybit UE sem operacao aberta no registo do
+    programa: posicao que o programa nao segue. So nomes (sem quantidades). Sem preco, conta (nao se assume pequena)."""
+    seguidas = {str(r.get("asset") or "").upper() for r in abertas or [] if r.get("side") == "SHORT"}
+    out = []
+    for c, q in sorted((dividas or {}).items()):
+        if c in seguidas or c in ("USDC", "USDT", "USD"):
+            continue
+        px = ((tk or {}).get(c) or [None])[0]
+        if px is not None and q * px < DIVIDA_MIN_USD:
+            continue
+        out.append(c)
+    return out
+
+
 def open_orders():
     """Todas as ordens spot abertas. A Bybit UE so devolve as TP/SL
     (BidirectionalTpslOrder) quando o pedido vai SEM orderFilter
@@ -844,6 +862,8 @@ def snapshot(state, now=None):
                 "tickers": tk,
                 "movimentos": mv,
                 "saldos": {c: round(held.get(c, 0.0), 10) for c in ("BTC", "ETH", "SOL")},
+                "posicoes_sem_registo": posicoes_sem_registo(debts(wallet), opened, tk),
+                "ordens_lidas": bool(ordens_ok),
                 "trades": check_trades(led, held, orders, execs, now, debts(wallet), leitura=(ordens_ok, ordens_t))}
     except AccountError as e:
         return {"ok": False, "error": str(e)[:120], "t": int(now)}

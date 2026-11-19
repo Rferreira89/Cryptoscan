@@ -13,7 +13,7 @@
  "risco_max_op": 0.25,
  "alav_min": 5,
  "alav_max": 10,
- "posicoes_max": 1,
+ "posicoes_max": 2,
  "margem": "isolated",
  "reserva_deslize_pct": 0.3,
  "spread_max_pct": 0.3,
@@ -26,5 +26,8 @@
  },
  "estrategias_suspensas": {
   "bbc2557ab78e": "18/11: negativa no backtest (-0,12R); sem novas entradas reais ate revisao e validacao independente (a posicao aberta continua gerida)"
- }
+ },
+ "risco_total_max": 0.25,
+ "nocional_total_max": 20.0,
+ "_nota_posicoes": "18/11 (ordem do Rui): ate 2 posicoes simultaneas SEM aumentar o risco: o risco somado das posicoes vivas <= risco_total_max (= o risco de uma operacao, 0.25), o nocional somado <= nocional_total_max (= nocional_max) e a margem somada <= capital_max. A segunda posicao so usa o que sobra."
 }
