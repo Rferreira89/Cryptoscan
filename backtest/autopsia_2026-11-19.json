@@ -1,0 +1,1047 @@
+{
+ "ultima_vela_btc": 1794657600,
+ "moedas": 70,
+ "periodos": {
+  "combate_90d": [
+   1786896000,
+   1794672000
+  ],
+  "desenho_18m": [
+   1731600000,
+   1778947200
+  ],
+  "reserva_6m_sem_combate": [
+   1778947200,
+   1786896000
+  ],
+  "antigo_2021_2024": [
+   1627488000,
+   1731600000
+  ]
+ },
+ "combate_90d": {
+  "n": 55,
+  "r_medio": 0.424,
+  "acerto_pct": 60.0,
+  "saidas": {
+   "BREAKEVEN": 6,
+   "TP1": 17,
+   "TIME": 20,
+   "STOP": 12
+  },
+  "tp_tocado_pct": 41.8,
+  "stops_antes_24h_pct": 25.0,
+  "tp_r_mediano": 1.7,
+  "dias_distintos": 21,
+  "max_ops_mesmo_dia": 10,
+  "racio_x_btc": {
+   "racio_desce/btc_desce": {
+    "n": 14,
+    "r": -0.847
+   },
+   "racio_desce/btc_sobe": {
+    "n": 7,
+    "r": 0.481
+   },
+   "racio_sobe/btc_desce": {
+    "n": 11,
+    "r": 0.267
+   },
+   "racio_sobe/btc_sobe": {
+    "n": 23,
+    "r": 1.255
+   }
+  },
+  "media_moeda_pct": 4.0,
+  "media_btc_pct": 1.12,
+  "media_racio_pct": 2.79,
+  "racio_sobe_pct": 61.8,
+  "perdedoras_com_racio_a_subir_pct": 22.7,
+  "perdedoras_btc_mediano_pct": -1.87,
+  "ganhadoras_btc_mediano_pct": 1.76,
+  "por_btc_7d": {
+   "btc7d -5..0%": {
+    "n": 17,
+    "r": -0.099
+   },
+   "btc7d<-5%": {
+    "n": 1,
+    "r": -0.18
+   },
+   "btc7d>=0": {
+    "n": 37,
+    "r": 0.681
+   }
+  },
+  "por_regime": {
+   "lateral": {
+    "n": 51,
+    "r": 0.481
+   },
+   "subida": {
+    "n": 4,
+    "r": -0.305
+   }
+  },
+  "operacoes": [
+   {
+    "asset": "ASTER",
+    "t": 1787198400,
+    "r": 1.089,
+    "saida": "BREAKEVEN",
+    "tp_tocado": true,
+    "mfe_r": 2.92,
+    "horas": 4.0,
+    "stop_pct": 2.23,
+    "tp_r": 1.65,
+    "moeda_pct": 4.77,
+    "btc_pct": 0.9,
+    "racio_pct": 3.84,
+    "btc7d_pct": 8.72
+   },
+   {
+    "asset": "BCH",
+    "t": 1787212800,
+    "r": 2.024,
+    "saida": "TP1",
+    "tp_tocado": true,
+    "mfe_r": 8.29,
+    "horas": 24.0,
+    "stop_pct": 2.82,
+    "tp_r": 2.67,
+    "moeda_pct": 22.86,
+    "btc_pct": 9.3,
+    "racio_pct": 12.4,
+    "btc7d_pct": 9.32
+   },
+   {
+    "asset": "SEI",
+    "t": 1787212800,
+    "r": 1.702,
+    "saida": "TP1",
+    "tp_tocado": true,
+    "mfe_r": 2.81,
+    "horas": 24.0,
+    "stop_pct": 3.27,
+    "tp_r": 2.2,
+    "moeda_pct": 8.51,
+    "btc_pct": 9.3,
+    "racio_pct": -0.72,
+    "btc7d_pct": 9.32
+   },
+   {
+    "asset": "FIL",
+    "t": 1787227200,
+    "r": 2.299,
+    "saida": "TP1",
+    "tp_tocado": true,
+    "mfe_r": 3.12,
+    "horas": 24.0,
+    "stop_pct": 4.59,
+    "tp_r": 2.73,
+    "moeda_pct": 12.07,
+    "btc_pct": 6.67,
+    "racio_pct": 5.06,
+    "btc7d_pct": 13.3
+   },
+   {
+    "asset": "GALA",
+    "t": 1787227200,
+    "r": 3.988,
+    "saida": "TP1",
+    "tp_tocado": true,
+    "mfe_r": 4.75,
+    "horas": 24.0,
+    "stop_pct": 6.3,
+    "tp_r": 4.46,
+    "moeda_pct": 25.32,
+    "btc_pct": 6.67,
+    "racio_pct": 17.49,
+    "btc7d_pct": 13.3
+   },
+   {
+    "asset": "SUI",
+    "t": 1787227200,
+    "r": 0.988,
+    "saida": "TP1",
+    "tp_tocado": true,
+    "mfe_r": 1.77,
+    "horas": 20.0,
+    "stop_pct": 4.17,
+    "tp_r": 1.27,
+    "moeda_pct": 6.78,
+    "btc_pct": 6.09,
+    "racio_pct": 0.65,
+    "btc7d_pct": 13.3
+   },
+   {
+    "asset": "ANIME",
+    "t": 1787241600,
+    "r": 1.649,
+    "saida": "TP1",
+    "tp_tocado": true,
+    "mfe_r": 2.77,
+    "horas": 20.0,
+    "stop_pct": 3.22,
+    "tp_r": 2.14,
+    "moeda_pct": 8.14,
+    "btc_pct": 5.87,
+    "racio_pct": 2.15,
+    "btc7d_pct": 14.27
+   },
+   {
+    "asset": "IMX",
+    "t": 1787241600,
+    "r": 1.675,
+    "saida": "TP1",
+    "tp_tocado": true,
+    "mfe_r": 2.39,
+    "horas": 20.0,
+    "stop_pct": 5.59,
+    "tp_r": 1.96,
+    "moeda_pct": 10.55,
+    "btc_pct": 5.87,
+    "racio_pct": 4.42,
+    "btc7d_pct": 14.27
+   },
+   {
+    "asset": "LTC",
+    "t": 1787241600,
+    "r": 1.7,
+    "saida": "TP1",
+    "tp_tocado": true,
+    "mfe_r": 3.05,
+    "horas": 20.0,
+    "stop_pct": 2.39,
+    "tp_r": 2.38,
+    "moeda_pct": 4.54,
+    "btc_pct": 5.87,
+    "racio_pct": -1.25,
+    "btc7d_pct": 14.27
+   },
+   {
+    "asset": "W",
+    "t": 1787241600,
+    "r": 1.046,
+    "saida": "TP1",
+    "tp_tocado": true,
+    "mfe_r": 1.58,
+    "horas": 20.0,
+    "stop_pct": 3.77,
+    "tp_r": 1.37,
+    "moeda_pct": 4.38,
+    "btc_pct": 5.87,
+    "racio_pct": -1.41,
+    "btc7d_pct": 14.27
+   },
+   {
+    "asset": "APE",
+    "t": 1787270400,
+    "r": 2.524,
+    "saida": "TP1",
+    "tp_tocado": true,
+    "mfe_r": 5.99,
+    "horas": 28.0,
+    "stop_pct": 3.41,
+    "tp_r": 3.15,
+    "moeda_pct": 19.21,
+    "btc_pct": 7.38,
+    "racio_pct": 11.02,
+    "btc7d_pct": 15.02
+   },
+   {
+    "asset": "ASTER",
+    "t": 1787270400,
+    "r": 0.588,
+    "saida": "BREAKEVEN",
+    "tp_tocado": true,
+    "mfe_r": 2.04,
+    "horas": 8.0,
+    "stop_pct": 4.13,
+    "tp_r": 0.82,
+    "moeda_pct": 7.37,
+    "btc_pct": 4.5,
+    "racio_pct": 2.75,
+    "btc7d_pct": 15.02
+   },
+   {
+    "asset": "BNB",
+    "t": 1787313600,
+    "r": 1.752,
+    "saida": "TP1",
+    "tp_tocado": true,
+    "mfe_r": 2.62,
+    "horas": 16.0,
+    "stop_pct": 2.68,
+    "tp_r": 2.37,
+    "moeda_pct": 6.48,
+    "btc_pct": 2.2,
+    "racio_pct": 4.18,
+    "btc7d_pct": 22.04
+   },
+   {
+    "asset": "LTC",
+    "t": 1787328000,
+    "r": 0.855,
+    "saida": "BREAKEVEN",
+    "tp_tocado": true,
+    "mfe_r": 1.37,
+    "horas": 8.0,
+    "stop_pct": 3.31,
+    "tp_r": 1.19,
+    "moeda_pct": 2.57,
+    "btc_pct": 1.45,
+    "racio_pct": 1.1,
+    "btc7d_pct": 22.59
+   },
+   {
+    "asset": "W",
+    "t": 1787328000,
+    "r": 0.788,
+    "saida": "TP1",
+    "tp_tocado": true,
+    "mfe_r": 1.72,
+    "horas": 12.0,
+    "stop_pct": 4.27,
+    "tp_r": 1.04,
+    "moeda_pct": 6.81,
+    "btc_pct": 1.54,
+    "racio_pct": 5.19,
+    "btc7d_pct": 22.59
+   },
+   {
+    "asset": "TRX",
+    "t": 1787342400,
+    "r": 0.217,
+    "saida": "TIME",
+    "tp_tocado": false,
+    "mfe_r": 2.84,
+    "horas": 72.0,
+    "stop_pct": 1.03,
+    "tp_r": 15.31,
+    "moeda_pct": 1.06,
+    "btc_pct": 2.24,
+    "racio_pct": -1.16,
+    "btc7d_pct": 22.33
+   },
+   {
+    "asset": "ASTER",
+    "t": 1787356800,
+    "r": 0.41,
+    "saida": "BREAKEVEN",
+    "tp_tocado": true,
+    "mfe_r": 1.36,
+    "horas": 4.0,
+    "stop_pct": 6.95,
+    "tp_r": 0.53,
+    "moeda_pct": 6.76,
+    "btc_pct": 0.09,
+    "racio_pct": 6.66,
+    "btc7d_pct": 24.26
+   },
+   {
+    "asset": "ASTER",
+    "t": 1787428800,
+    "r": 0.555,
+    "saida": "TIME",
+    "tp_tocado": false,
+    "mfe_r": 0.94,
+    "horas": 72.0,
+    "stop_pct": 10.21,
+    "tp_r": 1.04,
+    "moeda_pct": 6.71,
+    "btc_pct": 1.95,
+    "racio_pct": 4.67,
+    "btc7d_pct": 22.64
+   },
+   {
+    "asset": "ICP",
+    "t": 1787472000,
+    "r": -0.053,
+    "saida": "TIME",
+    "tp_tocado": false,
+    "mfe_r": 0.51,
+    "horas": 72.0,
+    "stop_pct": 8.63,
+    "tp_r": 0.85,
+    "moeda_pct": 0.21,
+    "btc_pct": 3.84,
+    "racio_pct": -3.5,
+    "btc7d_pct": 20.53
+   },
+   {
+    "asset": "W",
+    "t": 1787472000,
+    "r": 0.899,
+    "saida": "TP1",
+    "tp_tocado": true,
+    "mfe_r": 1.7,
+    "horas": 12.0,
+    "stop_pct": 7.45,
+    "tp_r": 1.05,
+    "moeda_pct": 10.71,
+    "btc_pct": 1.76,
+    "racio_pct": 8.79,
+    "btc7d_pct": 20.53
+   },
+   {
+    "asset": "HUMA",
+    "t": 1787486400,
+    "r": 0.789,
+    "saida": "TIME",
+    "tp_tocado": false,
+    "mfe_r": 1.53,
+    "horas": 72.0,
+    "stop_pct": 5.53,
+    "tp_r": 1.76,
+    "moeda_pct": 5.54,
+    "btc_pct": 1.52,
+    "racio_pct": 3.96,
+    "btc7d_pct": 22.69
+   },
+   {
+    "asset": "ANIME",
+    "t": 1787716800,
+    "r": -0.178,
+    "saida": "TIME",
+    "tp_tocado": false,
+    "mfe_r": 1.04,
+    "horas": 72.0,
+    "stop_pct": 5.47,
+    "tp_r": 2.24,
+    "moeda_pct": -0.38,
+    "btc_pct": -2.0,
+    "racio_pct": 1.65,
+    "btc7d_pct": 22.94
+   },
+   {
+    "asset": "APT",
+    "t": 1787716800,
+    "r": -0.858,
+    "saida": "TIME",
+    "tp_tocado": false,
+    "mfe_r": 0.42,
+    "horas": 72.0,
+    "stop_pct": 7.57,
+    "tp_r": 2.44,
+    "moeda_pct": -6.32,
+    "btc_pct": -2.0,
+    "racio_pct": -4.4,
+    "btc7d_pct": 22.94
+   },
+   {
+    "asset": "LTC",
+    "t": 1787716800,
+    "r": -0.628,
+    "saida": "TIME",
+    "tp_tocado": false,
+    "mfe_r": 0.24,
+    "horas": 72.0,
+    "stop_pct": 4.97,
+    "tp_r": 1.7,
+    "moeda_pct": -2.8,
+    "btc_pct": -2.0,
+    "racio_pct": -0.82,
+    "btc7d_pct": 22.94
+   },
+   {
+    "asset": "XLM",
+    "t": 1787716800,
+    "r": -0.603,
+    "saida": "TIME",
+    "tp_tocado": false,
+    "mfe_r": 0.41,
+    "horas": 72.0,
+    "stop_pct": 6.94,
+    "tp_r": 1.02,
+    "moeda_pct": -3.85,
+    "btc_pct": -2.0,
+    "racio_pct": -1.89,
+    "btc7d_pct": 22.94
+   },
+   {
+    "asset": "AVAX",
+    "t": 1787731200,
+    "r": -0.415,
+    "saida": "TIME",
+    "tp_tocado": false,
+    "mfe_r": 0.56,
+    "horas": 72.0,
+    "stop_pct": 4.97,
+    "tp_r": 1.2,
+    "moeda_pct": -1.61,
+    "btc_pct": -1.65,
+    "racio_pct": 0.04,
+    "btc7d_pct": 22.75
+   },
+   {
+    "asset": "STRK",
+    "t": 1787774400,
+    "r": -0.177,
+    "saida": "TIME",
+    "tp_tocado": false,
+    "mfe_r": 1.29,
+    "horas": 72.0,
+    "stop_pct": 6.95,
+    "tp_r": 1.92,
+    "moeda_pct": -0.64,
+    "btc_pct": -0.37,
+    "racio_pct": -0.27,
+    "btc7d_pct": 14.68
+   },
+   {
+    "asset": "SUI",
+    "t": 1787788800,
+    "r": -0.446,
+    "saida": "TIME",
+    "tp_tocado": false,
+    "mfe_r": 0.65,
+    "horas": 72.0,
+    "stop_pct": 7.57,
+    "tp_r": 1.07,
+    "moeda_pct": -2.94,
+    "btc_pct": -1.0,
+    "racio_pct": -1.96,
+    "btc7d_pct": 13.97
+   },
+   {
+    "asset": "RENDER",
+    "t": 1788019200,
+    "r": -0.024,
+    "saida": "TIME",
+    "tp_tocado": false,
+    "mfe_r": 0.41,
+    "horas": 72.0,
+    "stop_pct": 5.61,
+    "tp_r": 0.86,
+    "moeda_pct": 0.55,
+    "btc_pct": 0.07,
+    "racio_pct": 0.48,
+    "btc7d_pct": 1.15
+   },
+   {
+    "asset": "ZK",
+    "t": 1788019200,
+    "r": 1.257,
+    "saida": "TP1",
+    "tp_tocado": true,
+    "mfe_r": 3.32,
+    "horas": 20.0,
+    "stop_pct": 5.17,
+    "tp_r": 1.52,
+    "moeda_pct": 10.26,
+    "btc_pct": 0.39,
+    "racio_pct": 9.84,
+    "btc7d_pct": 1.15
+   },
+   {
+    "asset": "HUMA",
+    "t": 1788148800,
+    "r": 0.504,
+    "saida": "TIME",
+    "tp_tocado": false,
+    "mfe_r": 1.25,
+    "horas": 72.0,
+    "stop_pct": 11.41,
+    "tp_r": 1.73,
+    "moeda_pct": 6.76,
+    "btc_pct": -0.06,
+    "racio_pct": 6.83,
+    "btc7d_pct": 1.07
+   },
+   {
+    "asset": "HBAR",
+    "t": 1788220800,
+    "r": 1.794,
+    "saida": "TP1",
+    "tp_tocado": true,
+    "mfe_r": 2.97,
+    "horas": 68.0,
+    "stop_pct": 3.36,
+    "tp_r": 2.29,
+    "moeda_pct": 8.19,
+    "btc_pct": 4.04,
+    "racio_pct": 3.99,
+    "btc7d_pct": -0.52
+   },
+   {
+    "asset": "SKY",
+    "t": 1789156800,
+    "r": 0.589,
+    "saida": "TIME",
+    "tp_tocado": false,
+    "mfe_r": 1.12,
+    "horas": 72.0,
+    "stop_pct": 6.28,
+    "tp_r": 1.41,
+    "moeda_pct": 4.76,
+    "btc_pct": 2.19,
+    "racio_pct": 2.51,
+    "btc7d_pct": -3.14
+   },
+   {
+    "asset": "TRX",
+    "t": 1790049600,
+    "r": -1.062,
+    "saida": "STOP",
+    "tp_tocado": false,
+    "mfe_r": 0.34,
+    "horas": 12.0,
+    "stop_pct": 1.01,
+    "tp_r": 5.15,
+    "moeda_pct": -1.92,
+    "btc_pct": 0.84,
+    "racio_pct": -2.74,
+    "btc7d_pct": 10.32
+   },
+   {
+    "asset": "TRX",
+    "t": 1790107200,
+    "r": -1.056,
+    "saida": "STOP",
+    "tp_tocado": false,
+    "mfe_r": 0.91,
+    "horas": 64.0,
+    "stop_pct": 1.15,
+    "tp_r": 6.69,
+    "moeda_pct": -1.26,
+    "btc_pct": -1.87,
+    "racio_pct": 0.62,
+    "btc7d_pct": 13.13
+   },
+   {
+    "asset": "CRV",
+    "t": 1790222400,
+    "r": 0.479,
+    "saida": "TIME",
+    "tp_tocado": false,
+    "mfe_r": 1.13,
+    "horas": 72.0,
+    "stop_pct": 8.34,
+    "tp_r": 1.43,
+    "moeda_pct": 4.99,
+    "btc_pct": 0.56,
+    "racio_pct": 4.4,
+    "btc7d_pct": 9.8
+   },
+   {
+    "asset": "ROBO",
+    "t": 1790985600,
+    "r": 0.31,
+    "saida": "TIME",
+    "tp_tocado": false,
+    "mfe_r": 1.06,
+    "horas": 72.0,
+    "stop_pct": 8.38,
+    "tp_r": 1.6,
+    "moeda_pct": 3.49,
+    "btc_pct": 1.48,
+    "racio_pct": 1.99,
+    "btc7d_pct": 0.5
+   },
+   {
+    "asset": "LA",
+    "t": 1791489600,
+    "r": 1.599,
+    "saida": "TP1",
+    "tp_tocado": true,
+    "mfe_r": 2.42,
+    "horas": 56.0,
+    "stop_pct": 6.58,
+    "tp_r": 1.84,
+    "moeda_pct": 14.78,
+    "btc_pct": 1.28,
+    "racio_pct": 13.33,
+    "btc7d_pct": -3.42
+   },
+   {
+    "asset": "ANIME",
+    "t": 1791907200,
+    "r": -1.016,
+    "saida": "STOP",
+    "tp_tocado": false,
+    "mfe_r": 0.25,
+    "horas": 36.0,
+    "stop_pct": 5.38,
+    "tp_r": 1.56,
+    "moeda_pct": -7.64,
+    "btc_pct": -3.0,
+    "racio_pct": -4.78,
+    "btc7d_pct": -2.67
+   },
+   {
+    "asset": "BNB",
+    "t": 1791907200,
+    "r": -1.035,
+    "saida": "STOP",
+    "tp_tocado": false,
+    "mfe_r": 0.19,
+    "horas": 32.0,
+    "stop_pct": 2.21,
+    "tp_r": 1.04,
+    "moeda_pct": -1.8,
+    "btc_pct": -2.1,
+    "racio_pct": 0.31,
+    "btc7d_pct": -2.67
+   },
+   {
+    "asset": "BONK",
+    "t": 1791907200,
+    "r": -1.014,
+    "saida": "STOP",
+    "tp_tocado": false,
+    "mfe_r": 0.36,
+    "horas": 36.0,
+    "stop_pct": 6.1,
+    "tp_r": 1.88,
+    "moeda_pct": -7.48,
+    "btc_pct": -3.0,
+    "racio_pct": -4.61,
+    "btc7d_pct": -2.67
+   },
+   {
+    "asset": "PNUT",
+    "t": 1791907200,
+    "r": -1.014,
+    "saida": "STOP",
+    "tp_tocado": false,
+    "mfe_r": 0.23,
+    "horas": 36.0,
+    "stop_pct": 6.27,
+    "tp_r": 1.54,
+    "moeda_pct": -7.97,
+    "btc_pct": -3.0,
+    "racio_pct": -5.12,
+    "btc7d_pct": -2.67
+   },
+   {
+    "asset": "SHIB",
+    "t": 1791907200,
+    "r": -1.019,
+    "saida": "STOP",
+    "tp_tocado": false,
+    "mfe_r": 0.18,
+    "horas": 36.0,
+    "stop_pct": 4.36,
+    "tp_r": 1.88,
+    "moeda_pct": -4.81,
+    "btc_pct": -3.0,
+    "racio_pct": -1.86,
+    "btc7d_pct": -2.67
+   },
+   {
+    "asset": "SOL",
+    "t": 1791907200,
+    "r": -1.02,
+    "saida": "STOP",
+    "tp_tocado": false,
+    "mfe_r": 0.28,
+    "horas": 36.0,
+    "stop_pct": 4.17,
+    "tp_r": 1.9,
+    "moeda_pct": -4.59,
+    "btc_pct": -3.0,
+    "racio_pct": -1.64,
+    "btc7d_pct": -2.67
+   },
+   {
+    "asset": "ANIME",
+    "t": 1792080000,
+    "r": 1.618,
+    "saida": "BREAKEVEN",
+    "tp_tocado": true,
+    "mfe_r": 6.67,
+    "horas": 4.0,
+    "stop_pct": 5.39,
+    "tp_r": 1.91,
+    "moeda_pct": 21.11,
+    "btc_pct": -0.04,
+    "racio_pct": 21.16,
+    "btc7d_pct": 1.7
+   },
+   {
+    "asset": "MASK",
+    "t": 1792080000,
+    "r": -1.015,
+    "saida": "STOP",
+    "tp_tocado": false,
+    "mfe_r": 0.69,
+    "horas": 56.0,
+    "stop_pct": 5.75,
+    "tp_r": 1.38,
+    "moeda_pct": -1.87,
+    "btc_pct": -1.12,
+    "racio_pct": -0.75,
+    "btc7d_pct": 1.7
+   },
+   {
+    "asset": "ANIME",
+    "t": 1792396800,
+    "r": 0.433,
+    "saida": "TIME",
+    "tp_tocado": false,
+    "mfe_r": 1.8,
+    "horas": 72.0,
+    "stop_pct": 7.28,
+    "tp_r": 2.3,
+    "moeda_pct": 4.12,
+    "btc_pct": -0.58,
+    "racio_pct": 4.72,
+    "btc7d_pct": -1.52
+   },
+   {
+    "asset": "LA",
+    "t": 1792396800,
+    "r": 0.594,
+    "saida": "TIME",
+    "tp_tocado": false,
+    "mfe_r": 2.74,
+    "horas": 72.0,
+    "stop_pct": 5.49,
+    "tp_r": 3.55,
+    "moeda_pct": 4.32,
+    "btc_pct": -0.58,
+    "racio_pct": 4.93,
+    "btc7d_pct": -1.52
+   },
+   {
+    "asset": "MASK",
+    "t": 1792396800,
+    "r": 0.944,
+    "saida": "TIME",
+    "tp_tocado": false,
+    "mfe_r": 2.41,
+    "horas": 72.0,
+    "stop_pct": 4.91,
+    "tp_r": 2.49,
+    "moeda_pct": 5.91,
+    "btc_pct": -0.58,
+    "racio_pct": 6.53,
+    "btc7d_pct": -1.52
+   },
+   {
+    "asset": "HUMA",
+    "t": 1793030400,
+    "r": 1.303,
+    "saida": "TP1",
+    "tp_tocado": true,
+    "mfe_r": 1.59,
+    "horas": 68.0,
+    "stop_pct": 15.49,
+    "tp_r": 1.39,
+    "moeda_pct": 21.74,
+    "btc_pct": -0.32,
+    "racio_pct": 22.13,
+    "btc7d_pct": -1.85
+   },
+   {
+    "asset": "UNI",
+    "t": 1793332800,
+    "r": 0.226,
+    "saida": "BREAKEVEN",
+    "tp_tocado": true,
+    "mfe_r": 0.44,
+    "horas": 8.0,
+    "stop_pct": 8.31,
+    "tp_r": 0.31,
+    "moeda_pct": 2.24,
+    "btc_pct": -1.09,
+    "racio_pct": 3.37,
+    "btc7d_pct": -4.46
+   },
+   {
+    "asset": "PENDLE",
+    "t": 1793390400,
+    "r": -0.18,
+    "saida": "TIME",
+    "tp_tocado": false,
+    "mfe_r": 1.07,
+    "horas": 72.0,
+    "stop_pct": 7.68,
+    "tp_r": 1.15,
+    "moeda_pct": -0.79,
+    "btc_pct": 0.2,
+    "racio_pct": -0.99,
+    "btc7d_pct": -5.34
+   },
+   {
+    "asset": "PUMP",
+    "t": 1794081600,
+    "r": -1.01,
+    "saida": "STOP",
+    "tp_tocado": false,
+    "mfe_r": 0.27,
+    "horas": 68.0,
+    "stop_pct": 8.56,
+    "tp_r": 1.23,
+    "moeda_pct": -8.05,
+    "btc_pct": -3.42,
+    "racio_pct": -4.8,
+    "btc7d_pct": -2.3
+   },
+   {
+    "asset": "PENGU",
+    "t": 1794096000,
+    "r": -1.016,
+    "saida": "STOP",
+    "tp_tocado": false,
+    "mfe_r": 0.09,
+    "horas": 24.0,
+    "stop_pct": 5.36,
+    "tp_r": 1.87,
+    "moeda_pct": -4.43,
+    "btc_pct": -1.34,
+    "racio_pct": -3.13,
+    "btc7d_pct": -2.21
+   },
+   {
+    "asset": "XLM",
+    "t": 1794096000,
+    "r": -1.02,
+    "saida": "STOP",
+    "tp_tocado": false,
+    "mfe_r": 0.11,
+    "horas": 24.0,
+    "stop_pct": 4.23,
+    "tp_r": 1.55,
+    "moeda_pct": -3.24,
+    "btc_pct": -1.34,
+    "racio_pct": -1.93,
+    "btc7d_pct": -2.21
+   }
+  ]
+ },
+ "desenho_18m": {
+  "n": 143,
+  "r_medio": -0.072,
+  "acerto_pct": 35.7,
+  "saidas": {
+   "TP1": 16,
+   "TIME": 105,
+   "STOP": 18,
+   "BREAKEVEN": 4
+  },
+  "tp_tocado_pct": 14.0,
+  "stops_antes_24h_pct": 38.9,
+  "tp_r_mediano": 1.57,
+  "dias_distintos": 36,
+  "max_ops_mesmo_dia": 45,
+  "racio_x_btc": {
+   "racio_desce/btc_desce": {
+    "n": 52,
+    "r": -0.67
+   },
+   "racio_desce/btc_sobe": {
+    "n": 14,
+    "r": -0.046
+   },
+   "racio_sobe/btc_desce": {
+    "n": 50,
+    "r": 0.007
+   },
+   "racio_sobe/btc_sobe": {
+    "n": 27,
+    "r": 0.918
+   }
+  },
+  "media_moeda_pct": -0.59,
+  "media_btc_pct": -1.09,
+  "media_racio_pct": 0.48,
+  "racio_sobe_pct": 53.8,
+  "perdedoras_com_racio_a_subir_pct": 33.7,
+  "perdedoras_btc_mediano_pct": -2.12,
+  "ganhadoras_btc_mediano_pct": 0.56,
+  "por_btc_7d": {
+   "btc7d -5..0%": {
+    "n": 51,
+    "r": -0.228
+   },
+   "btc7d<-5%": {
+    "n": 51,
+    "r": 0.016
+   },
+   "btc7d>=0": {
+    "n": 41,
+    "r": 0.011
+   }
+  },
+  "por_regime": {
+   "lateral": {
+    "n": 127,
+    "r": -0.17
+   },
+   "subida": {
+    "n": 16,
+    "r": 0.701
+   }
+  }
+ },
+ "reserva_6m_sem_combate": {
+  "n": 0
+ },
+ "antigo_2021_2024": {
+  "n": 298,
+  "r_medio": 0.105,
+  "acerto_pct": 51.3,
+  "saidas": {
+   "TP1": 65,
+   "STOP": 94,
+   "BREAKEVEN": 7,
+   "TIME": 132
+  },
+  "tp_tocado_pct": 24.5,
+  "stops_antes_24h_pct": 46.8,
+  "tp_r_mediano": 1.86,
+  "dias_distintos": 104,
+  "max_ops_mesmo_dia": 15,
+  "racio_x_btc": {
+   "racio_desce/btc_desce": {
+    "n": 98,
+    "r": -0.883
+   },
+   "racio_desce/btc_sobe": {
+    "n": 76,
+    "r": 0.109
+   },
+   "racio_sobe/btc_desce": {
+    "n": 44,
+    "r": 0.592
+   },
+   "racio_sobe/btc_sobe": {
+    "n": 80,
+    "r": 1.045
+   }
+  },
+  "media_moeda_pct": 1.59,
+  "media_btc_pct": 1.32,
+  "media_racio_pct": 0.28,
+  "racio_sobe_pct": 41.6,
+  "perdedoras_com_racio_a_subir_pct": 9.0,
+  "perdedoras_btc_mediano_pct": -1.02,
+  "ganhadoras_btc_mediano_pct": 3.99,
+  "por_btc_7d": {
+   "btc7d -5..0%": {
+    "n": 66,
+    "r": 0.159
+   },
+   "btc7d<-5%": {
+    "n": 29,
+    "r": 0.018
+   },
+   "btc7d>=0": {
+    "n": 203,
+    "r": 0.1
+   }
+  },
+  "por_regime": {
+   "lateral": {
+    "n": 171,
+    "r": 0.075
+   },
+   "subida": {
+    "n": 127,
+    "r": 0.146
+   }
+  }
+ }
+}

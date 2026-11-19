@@ -6,7 +6,7 @@ saídas, sweep a mercado, funding negativo, quebra com compradores,
 capitulação do mercado, atraso face ao BTC, resiliente, impulso de
 amplitude, CAP_MERCADO_V2 e BOUNCE_LARGO (2026-11-14) e BOUNCE_ALVO
 (2026-11-17); mais 16 no diário de afinação, H1 a H13 e H15 a H17, a última
-de 2026-11-18). Atualizado em 2026-11-18. O contador global do
+de 2026-11-18). Atualizado em 2026-11-19 (sem hipótese nova; autópsia de RACIO_DISP sem sucessor). O contador global do
 programa (`engine/hipoteses.py` mais `backtest/hipoteses_offline.json`,
 contra dados que incluem esta reserva) já vai em 103 (28 agendadas + 75
 offline, segundo a H17 de 2026-11-18).
@@ -208,6 +208,7 @@ o Rui), e o morto fica registado. Um por corrida, na segunda vaga.
 | VOLUME_ACUMULACAO_R2 | 2026-11-13 03:45 UTC (forma recente, morte rápida; 10 op., −0,506R) | a mesma função de VOLUME_ACUMULACAO (`sig_volume`), regressada a 2026-10-24 pela regra do regresso (regime lateral): desde então 10 op., 2 ganhadoras, 8 stops (−0,63R); no combate de 90 dias 46 op., −0,357R, abaixo da mediana do acaso (−0,26R; últimos 30 dias −0,72R em 17 op.); no ringue longo a lateral dá −0,18R e −0,76R nas duas metades; no desenho continua no percentil 80 do acaso (sem vantagem provada) com a geometria a perder também ao acaso (−0,14R). Sem causa única (ver entrada de 2026-11-13) | sem sucessor (segunda morte da mesma função; trocar a saída só leva ao nível do acaso, que também perde) | — |
 | CAP_MERCADO_V2_N3K15, _N3K2, _N5K15 | 2026-11-15 04:45 UTC (clones de CAP_MERCADO_V2_N5K2, correlação 0,99–1,00) | não é desempenho: o representante (N5K2) está vivo, o corte dos clones funcionou como decidido a 2026-11-14 | sem sucessor (a família continua viva em N5K2) | — |
 | BOUNCE_LARGO_X35V20, BOUNCE_LARGO_X30V20 | 2026-11-14 16:55 e 2026-11-17 11:40 UTC (forma recente; 44 op. −0,255R e 20 op. −0,204R) | a geometria: o 1.º objetivo (SMA20) fica a menos de 1R em ~70% das operações (mediana 0,6R–0,8R), metade sai aí e o resto vai ao stop na entrada, logo ganha ~0,4R e perde 1R; igual no desenho e no combate (ver entrada de 2026-11-17) | BOUNCE_LARGO → BOUNCE_ALVO (só com a média a ≥ 1R) | AMOSTRA INSUFICIENTE — PARA PAPEL (2026-11-17; 22 op. fora da amostra, +0,585R, percentil 100 do acaso; reserva contaminada pela autópsia) |
+| RACIO_DISP | 2026-11-19 05:40 UTC (forma recente; 20 op., −0,219R; no forma.json das 11:36 UTC 30 op., −0,160R, últimas 10 todas perdedoras) | a regra é uma reversão do rácio moeda/BTC comprada em dólares sem cobrir o BTC: o ganho vem quase só da direção do BTC durante a operação. Rácio a descer com o BTC a cair perde −0,67R a −0,88R em todos os períodos; a reversão do rácio em si vale só +0,3% a +0,5% por operação (desenho e período antigo), menos do que os custos de uma versão coberta (~1,4% ida e volta). Nenhum preditor ex-ante estável (BTC 7 dias antes, sinais simultâneos, regime) e o filtro de dispersão já tinha efeito nulo (H17, p 0,41–0,55) (ver entrada de 2026-11-19) | sem sucessor (cobrir o BTC não paga os custos; filtrar pela direção do BTC só se sabe depois) | — |
 | CAPITULACAO_R2 | 2026-11-14 14:00 UTC (decisão do Rui, `engine/arena.MORTES_DECIDIDAS`) | não é a regra de morte: a função `sig_capitulacao` tinha +0,08R em 46 op. e o lutador −0,66R em 3 op. (ver ordem de 2026-11-14) | a função ficou como base de CAP_MERCADO_V2 (registo acrescentado a 2026-11-18; sem teste novo) | CAP_MERCADO_V2_N5K2, a variante viva: PARA PAPEL (2026-11-14; 65 op. fora da amostra, −0,041R, percentil 98,3 do acaso) |
 
 ## Hipóteses anteriores a este diário (até 2026-10-02, período 2021-2026)
@@ -2938,3 +2939,70 @@ ronda os 80%.
   18/11 (H53), 21/11 (H57–H59) e 22/11 (H60), as primeiras operações fechadas possíveis são a 20/11, 21/11,
   24/11 e 25/11. Regras, parâmetros e critérios inalterados; nenhum resultado calculado.
 - Nenhum resultado em dados antigos foi usado como validação.
+
+## 2026-11-19 — Sem hipótese nova hoje; autópsia de RACIO_DISP (sem sucessor)
+
+**Veredicto da corrida: nenhuma hipótese testada.** Contador desta reserva: **31** (inalterado; a afinação não
+registou hipótese nova desde a H17 de 2026-11-18; o estudo das "oportunidades rápidas" R1–R4 de 2026-11-19 é de
+outra sessão, em 1H na OKX, e não entra neste contador). Com 31 testes, a probabilidade de pelo menos um falso
+positivo a 5% ronda os 80%.
+
+- **Histórico** (ramo `history`): último commit 2026-11-14 14:39 UTC, última vela de 4H 2026-11-14 12:00 UTC
+  (5 dias de atraso, dentro do limite de 7; workflow não lançado). Janela inalterada: desenho
+  2024-11-14 → 2026-05-13, reserva 2026-05-14 → 2026-11-13. O limite de 7 dias passa a 2026-11-21 12:00 UTC.
+- **Arena** (`scan.json` do ramo `data`; `forma.json` do ramo `arena`, 2026-11-19 11:36 UTC, 47 moedas da Bybit UE):
+  **10 lutadores a competir** (mínimo 5), `recrutar` falso. Morto novo: **RACIO_DISP** (2026-11-19 05:40 UTC,
+  forma recente, 20 op., −0,219R), um dia depois de entrar no ringue pela afinação (H17).
+- **Fila do Rui**: vazia (5 de 5 testadas). Regime: lateral, BTC abaixo da SMA200 diária desde 2026-11-12 (as
+  compras com filtro do BTC estão bloqueadas).
+
+### Autópsia de RACIO_DISP (sem sucessor)
+
+Código: `tools/autopsia_racio_disp.py` (reproduz `generic_trades` da arena com `AR.NEW_SIGS["RACIO_DISP"]` sobre o
+histórico, 70 moedas além do BTC; decompõe cada operação em retorno da moeda, do BTC e do rácio moeda/BTC entre a
+entrada e a saída); teste `tests/test_autopsia_racio_disp.py` (o preço do BTC usado é só o de velas fechadas).
+Ficheiro: `backtest/autopsia_2026-11-19.json`.
+
+| | Últimos 90 d do histórico (até 14/11) | Desenho 18 m | Antigo 2021-07 → 2024-11 |
+|---|---|---|---|
+| Operações | 55 | 143 | 298 |
+| R médio | +0,424 | −0,072 | +0,105 |
+| Acerto | 60% | 36% | 51% |
+| Objetivo tocado | 42% | 14% | 25% |
+| Rácio a descer e BTC a cair: op., R | 14, **−0,85** | 52, **−0,67** | 98, **−0,88** |
+| Rácio a subir e BTC a subir: op., R | 23, +1,26 | 27, +0,92 | 80, +1,05 |
+| Retorno médio do rácio por operação (bruto) | +2,8% | **+0,5%** | **+0,3%** |
+| Máximo de operações no mesmo dia | 10 | 45 | 15 |
+
+- **Causa principal: a vantagem da regra não está no rácio, está na direção do BTC.** A regra compra a moeda em
+  dólares quando o rácio moeda/BTC está esticado para baixo, mas não vende o BTC; quando o BTC cai durante a
+  operação, as moedas de rácio fraco caem mais (beta), o rácio continua a descer e a operação perde −0,7R a −0,9R
+  em todos os períodos. A reversão do rácio propriamente dita vale +0,3% a +0,5% por operação no desenho e no
+  período antigo; só nos últimos 90 dias (+2,8%) foi grande.
+- **Porque não há sucessor:** (1) a correção direta, cobrir o BTC (comprar a moeda e vender BTC em margem), passa a
+  pagar quatro pernas (~1,4% ida e volta) contra uma reversão de +0,3% a +0,5%: perde por construção; (2) a direção
+  do BTC durante a operação só se conhece depois; os preditores ex-ante que verifiquei não são estáveis (BTC nos 7
+  dias antes: no desenho −0,23R com queda ligeira, no combate +0,68R com subida, no antigo sem padrão; sinais
+  simultâneos: no antigo os dias com 4+ sinais são os melhores, +0,22R, no desenho e no combate os piores;
+  regime: subida melhor no desenho, pior no combate); (3) o filtro de dispersão, a única coisa nova da H17, já
+  tinha efeito nulo nas mesmas operações (p 0,41–0,55). Escrever um sucessor seria inventar.
+- **Diferença entre a arena e a reprodução:** com o histórico (70 moedas, até 14/11) os últimos 90 dias dão +0,42R
+  em 55 op.; na arena (47 moedas da Bybit UE, até 19/11) 30 op., −0,16R, com os últimos 30 dias a 6 op., −0,77R e
+  as últimas 10 todas perdedoras (inclui o dia 13/10, 6 stops na mesma vela com o BTC −3%, e 07–08/11, 3 stops com
+  o BTC a perder a SMA200). Ou seja, mesmo o período bom depende de quais moedas estão no universo: mais um sinal de
+  que não há vantagem própria. A morte é definitiva.
+- **Aviso:** esta autópsia olhou para o desenho e para o combate (dentro da reserva); não houve teste de hipótese
+  e nada aqui valida ou rejeita outra regra.
+
+### Porque não há hipótese nova
+
+Fila do Rui vazia, `recrutar` falso (10 vivos) e a ordem de 2026-11-14 manda não gerar hipóteses artificialmente.
+As fontes pouco usadas já foram exploradas (funding: hipótese 4 da fila e MAIORES_FUNDING; fluxo comprador:
+hipótese 5; valor relativo: H9, H10, H17 e esta autópsia, que mostra que o rácio comprado sem cobertura é uma aposta
+no BTC). Não tenho hoje uma ideia de entrada com lógica económica séria que não seja variante destas.
+
+- **Testes**: 1648, todos a passar.
+- **Próxima corrida**: lançar primeiro "Historico para backtest" (o limite de 7 dias passa a 2026-11-21 12:00 UTC);
+  autópsia se morrer alguém; testar o que entrar na fila do Rui. Proposta para a fila (só com o sim do Rui): medir
+  se o controlo ao acaso da arena é demasiado favorável nas saídas com stop que segue (proposta da afinação H17
+  sobre TURTLE/SHORT_TURTLE), antes de qualquer sucessor dessa família.
