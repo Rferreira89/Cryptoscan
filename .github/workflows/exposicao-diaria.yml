@@ -31,7 +31,7 @@ jobs:
       - name: Copias publicas
         run: |
           rm -rf /tmp/ex /tmp/exh && mkdir -p /tmp/ex /tmp/exh
-          for par in data:state.json okx:okx.json okx-tfshort:okx_tfshort.json okx-tfshort:okx_tfshort_sombra.json; do
+          for par in data:state.json okx:okx.json okx-tfshort:okx_tfshort.json okx-tfshort:okx_tfshort_sombra.json piloto-okx:piloto_publico.json; do
             R=${par%%:*}; F=${par##*:}
             git fetch -q --depth 1 origin "$R" 2>/dev/null && git show FETCH_HEAD:"$F" > /tmp/ex/"$F" 2>/dev/null || rm -f /tmp/ex/"$F"
           done

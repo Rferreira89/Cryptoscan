@@ -34,12 +34,26 @@ def _c(p, n):
     return d.get("estado", d) if isinstance(d, dict) and "soma" in d else d
 
 
+PILOTO_VIVAS = ("pendente", "aberta", "a fechar")
+
+
 def exposicoes(pasta):
-    st, okx, tfs, som = (_c(pasta, n) for n in ("state.json", "okx.json", "okx_tfshort.json", "okx_tfshort_sombra.json"))
-    okx_real = [{"ativo": a, "lado": "LONG", "origem": f"OKX {v.get('estrategia') or 'panico'} ({v.get('estado')})", "op": v}
-                for a, v in ((okx.get("real") or {}).get("ops") or {}).items()]
-    bybit_real = [{"ativo": r.get("asset"), "lado": r.get("side") or "LONG", "origem": f"Bybit {r.get('strategy')}"}
+    st, okx, tfs, som, pil = (_c(pasta, n) for n in ("state.json", "okx.json", "okx_tfshort.json",
+                                                      "okx_tfshort_sombra.json", "piloto_publico.json"))
+    # (19/11) o lado vem da operacao: antes era sempre LONG (o espelho SHORT_TURTLE da XLM aparecia como LONG e a
+    # mesma aposta da Bybit parecia uma cobertura)
+    okx_real = [{"ativo": a, "lado": v.get("lado") or "LONG", "executor": "OKX executor antigo", "id": f"okx:{a}",
+                 "risco_pct_conta": v.get("risco_pct"),
+                 "origem": f"OKX {v.get('estrategia') or 'panico'} ({v.get('estado')})", "op": v}
+                for a, v in ((okx.get("real") or {}).get("ops") or {}).items()
+                if v.get("estado") in ("pendente", "aberta")]
+    bybit_real = [{"ativo": r.get("asset"), "lado": r.get("side") or "LONG", "executor": "Bybit UE",
+                   "origem": f"Bybit {r.get('strategy')}", "risco_pct_conta": r.get("risk_pct")}
                   for r in st.get("ledger") or [] if r.get("executed") is True and r.get("status") == "OPEN"]
+    # (19/11) piloto OKX: conta e orcamento proprios (so contagens, lados e % do orcamento do piloto)
+    piloto_real = [{"ativo": o.get("base"), "lado": o.get("lado") or "LONG", "executor": "piloto OKX", "id": f"piloto:{o.get('id')}",
+                    "origem": f"piloto {o.get('estrategia')} ({o.get('estado')})"}
+                   for o in pil.get("ops") or [] if o.get("estado") in PILOTO_VIVAS]
     papel = [{"ativo": a, "lado": "LONG", "origem": f"H40 papel ({v.get('tipo')})"} for a, v in (okx.get("abertas") or {}).items()]
     papel += [{"ativo": a, "lado": "LONG", "origem": "H46 papel"} for a in ((okx.get("recuo") or {}).get("abertas") or [])]
     papel += [{"ativo": a, "lado": "SHORT", "origem": "TF-SHORT papel"} for a in ((tfs.get("conta") or {}).get("abertas") or {})]
@@ -48,11 +62,68 @@ def exposicoes(pasta):
     for fase, lado in (("lateral", "SHORT"), ("subida", "LONG")):
         papel += [{"ativo": a, "lado": lado, "origem": f"fases {fase} papel"}
                   for a in (((st.get("papel_fases") or {}).get(fase) or {}).get("abertas") or {})]
-    return {"okx_real": okx_real, "bybit_real": bybit_real, "papel": papel, "sombra": sombra}
+    return {"okx_real": okx_real, "bybit_real": bybit_real, "piloto_real": piloto_real, "papel": papel, "sombra": sombra}
+
+
+def pendentes_reais(pasta):
+    """Sinais/ordens REAIS que ainda podem entrar (para ver se aumentariam a concentracao): sinais REAIS ativos da
+    Bybit, ordens pendentes do executor OKX antigo e do piloto."""
+    st, okx, pil = (_c(pasta, n) for n in ("state.json", "okx.json", "piloto_publico.json"))
+    out = [{"ativo": s.get("asset"), "lado": s.get("direction") or "LONG", "executor": "Bybit UE",
+            "origem": f"sinal Bybit {s.get('strategy')}"}
+           for s in (st.get("signals") or {}).values() if s.get("mode") == "REAL" and s.get("status") == "ACTIVE"]
+    out += [{"ativo": a, "lado": v.get("lado") or "LONG", "executor": "OKX executor antigo", "origem": "ordem OKX pendente",
+             "id": f"okx:{a}"}
+            for a, v in ((okx.get("real") or {}).get("ops") or {}).items() if v.get("estado") == "pendente"]
+    out += [{"ativo": o.get("base"), "lado": o.get("lado") or "LONG", "executor": "piloto OKX", "origem": "ordem do piloto pendente",
+             "id": f"piloto:{o.get('id')}"}
+            for o in pil.get("ops") or [] if o.get("estado") == "pendente"]
+    return out
+
+
+def agregado_real(reais, grupos=None):
+    """(19/11, ordem do Rui, ponto 3) Visibilidade AGREGADA do real entre executores. So leitura: nenhum executor
+    passa a ver ou controlar posicoes de outro, os limites de cada conta nao mudam e o dinheiro nunca se soma (contas
+    separadas; o risco aparece em % da conta de cada executor). Por ativo e lado: quantos executores tem a mesma
+    aposta; por grupo correlacionado (>= 0,7) e lado: quantas posicoes sao, na pratica, a mesma aposta."""
+    grupos = grupos or {}
+    por_ativo, por_grupo = {}, {}
+    for e in reais:
+        if not e.get("ativo"):
+            continue
+        por_ativo.setdefault((e["ativo"], e["lado"]), []).append(e)
+        g = grupos.get(e["ativo"])
+        if g:
+            por_grupo.setdefault((g, e["lado"]), []).append(e)
+    mesma = [{"ativo": a, "lado": l, "n": len(v), "executores": sorted({x["executor"] for x in v}),
+              "origens": sorted(x["origem"] for x in v),
+              "risco_pct_por_conta": {x["executor"]: x.get("risco_pct_conta") for x in v if x.get("risco_pct_conta") is not None}}
+             for (a, l), v in sorted(por_ativo.items()) if len(v) > 1]
+    correl = [{"grupo": g, "lado": l, "n": len(v), "ativos": sorted({x["ativo"] for x in v}),
+               "executores": sorted({x["executor"] for x in v})}
+              for (g, l), v in sorted(por_grupo.items()) if len({x["ativo"] for x in v}) > 1]
+    return {"n": len(reais), "mesmo_ativo_e_lado": mesma, "grupos_correlacionados": correl,
+            "nota": "contas separadas: nada e somado em dinheiro; so leitura, nao bloqueia nem altera posicoes"}
+
+
+def concentracao_de(sinal, reais, grupos=None):
+    """Um sinal/ordem nova aumentaria a concentracao? Devolve None ou o que ja existe com a mesma aposta (mesmo ativo e
+    lado, ou ativo correlacionado no mesmo lado). Informativo: nao decide entradas."""
+    grupos = grupos or {}
+    reais = [e for e in reais if not (sinal.get("id") and e.get("id") == sinal.get("id"))]   # a propria ordem pendente
+    iguais = [e for e in reais if e.get("ativo") == sinal.get("ativo") and e.get("lado") == sinal.get("lado")]
+    g = grupos.get(sinal.get("ativo"))
+    correl = [e for e in reais if g and e.get("ativo") != sinal.get("ativo") and grupos.get(e.get("ativo")) == g
+              and e.get("lado") == sinal.get("lado")]
+    if not iguais and not correl:
+        return None
+    return {"sinal": f"{sinal.get('executor')}: {sinal.get('ativo')} {sinal.get('lado')} ({sinal.get('origem')})",
+            "ja_existe": sorted(f"{e['executor']}: {e['ativo']} {e['lado']}" for e in iguais + correl),
+            "n_apos_entrar": len(iguais) + len(correl) + 1}
 
 
 FONTES = {"state.json": "scan/Bybit (ramo data)", "okx.json": "OKX (ramo okx)", "okx_tfshort.json": "TF-SHORT papel",
-          "okx_tfshort_sombra.json": "TF-SHORT sombra"}
+          "okx_tfshort_sombra.json": "TF-SHORT sombra", "piloto_publico.json": "piloto OKX (ramo piloto-okx)"}
 
 
 def em_falta(pasta):
@@ -75,13 +146,16 @@ def velas(moeda, horas=720):
 
 
 def posicao_real(op, px):
-    """R atual e distancias, para um long da OKX; risco efetivo ate ao stop com custos previsiveis (sem financiamento)."""
+    """R atual e distancias de uma posicao da OKX (LONG ou SHORT); risco efetivo ate ao stop com custos previsiveis
+    (sem financiamento). (19/11) antes so servia para longs: o short da XLM ficava sem nada."""
     e, s, a, rp = op.get("entrada") or op.get("lim"), op.get("stop"), op.get("alvo"), op.get("risco_pct")
-    if not (e and s and px) or e <= s:
+    d = -1 if op.get("lado") == "SHORT" else 1
+    if not (e and s and px) or d * (e - s) <= 0:
         return {}
-    dist = (e - s) / e
-    return {"preco": px, "entrada": e, "R_atual": round((px - e) / (e - s), 2),
-            "dist_stop_pct": round(100 * (px - s) / px, 2), "dist_objetivo_pct": round(100 * (a - px) / px, 2) if a else None,
+    dist = d * (e - s) / e
+    return {"lado": "SHORT" if d < 0 else "LONG", "preco": px, "entrada": e, "R_atual": round(d * (px - e) / (d * (e - s)), 2),
+            "dist_stop_pct": round(100 * d * (px - s) / px, 2),
+            "dist_objetivo_pct": round(100 * d * (a - px) / px, 2) if a else None,
             "risco_plano_pct_conta": rp,
             "risco_com_custos_pct_conta": round(rp * (dist + CUSTOS_IDA_VOLTA) / dist, 3) if rp else None,
             "stop_confirmado_na_okx": op.get("stop_ok"), "estado": op.get("estado")}
@@ -128,7 +202,8 @@ def bloco(expos, fechos):
 
 def texto(mapa_):
     """Bloco do relatorio (sem valores em dinheiro)."""
-    nomes = {"okx_real": "OKX real", "bybit_real": "Bybit real", "papel": "Papel (todas as estratégias)",
+    nomes = {"okx_real": "OKX real (executor antigo)", "bybit_real": "Bybit real", "piloto_real": "Piloto OKX real",
+             "papel": "Papel (todas as estratégias)",
              "sombra": "Sombra (sem ordens)"}
     L = ["", "EXPOSIÇÃO E CORRELAÇÃO (informativo; contas separadas; real, papel e sombra nunca se somam)"]
     for k, b in mapa_["blocos"].items():
@@ -145,6 +220,15 @@ def texto(mapa_):
             L.append(f"  · grupos correlacionados com LONG e SHORT ao mesmo tempo: {len(c['grupo_oposto'])}")
         if b["sem_precos"]:
             L.append(f"  · sem preços (correlação desconhecida): {', '.join(b['sem_precos'][:10])}")
+    ag = mapa_.get("real_agregado") or {}
+    if ag.get("mesmo_ativo_e_lado") or ag.get("grupos_correlacionados"):
+        L.append("- REAL entre executores (contas separadas, nada somado em dinheiro):")
+        for m in ag.get("mesmo_ativo_e_lado") or []:
+            L.append(f"  · {m['ativo']} {m['lado']}: a mesma aposta em {m['n']} posições ({', '.join(m['executores'])})")
+        for g in (ag.get("grupos_correlacionados") or [])[:3]:
+            L.append(f"  · {g['n']} {g['lado']} correlacionados ({', '.join(g['ativos'][:6])}) em {', '.join(g['executores'])}")
+    for c in mapa_.get("sinais_que_aumentam_concentracao") or []:
+        L.append(f"- Sinal que aumentaria a concentração: {c['sinal']} — já existe {'; '.join(c['ja_existe'])}")
     if "bybit_real" in mapa_["blocos"]:
         L.append("- Dados em falta: Bybit — a tendência BTC (núcleo) só aparece na cópia privada; não está neste mapa.")
     for f in mapa_.get("dados_em_falta") or []:
@@ -161,6 +245,10 @@ def correr(pasta, obter=velas):
         if len(v) >= 48:
             fechos[m] = v
     out = {"t": int(time.time()), "blocos": {k: bloco(v, fechos) for k, v in ex.items()}, "dados_em_falta": em_falta(pasta)}
+    reais = ex["okx_real"] + ex["bybit_real"] + ex["piloto_real"]
+    grupos = X.mapa(fechos, reais)["grupos"] if reais else {}
+    out["real_agregado"] = agregado_real(reais, grupos)
+    out["sinais_que_aumentam_concentracao"] = [c for c in (concentracao_de(s, reais, grupos) for s in pendentes_reais(pasta)) if c]
     out["okx_posicoes_reais"] = {e["ativo"]: posicao_real(e["op"], (fechos.get(e["ativo"]) or [None])[-1])
                                  for e in ex["okx_real"]}
     return out

@@ -82,7 +82,7 @@ class ExposicaoDiaria(unittest.TestCase):
                   "OP": serie(rs, base, 0.002)}
         series["PARTI"][-1] = 0.042
         out = E.correr(d, obter=lambda m: series.get(m, []))
-        self.assertEqual(set(out["blocos"]), {"okx_real", "bybit_real", "papel", "sombra"})
+        self.assertEqual(set(out["blocos"]), {"okx_real", "bybit_real", "piloto_real", "papel", "sombra"})
         self.assertIn("TF-SHORT papel", out["dados_em_falta"])             # copia publica ausente: assinalada
         self.assertIn("Dados em falta", E.texto(out))
         self.assertEqual(out["blocos"]["bybit_real"]["n"], 1)
