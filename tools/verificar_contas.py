@@ -137,9 +137,43 @@ def bybit(bases):
     return out
 
 
+def historico_okx():
+    """(19/11) Fechos da conta OKX (positions-history) e execucoes (fills-history) com a origem pelo clOrdId
+    (pil = piloto, cs = executor antigo). Publico: precos, horas, tipo, sinais/razoes; dinheiro so por Telegram."""
+    import okx_exec as E
+    out = []
+    h = E.privado("GET", "/api/v5/account/positions-history?instType=FUTURES&limit=100")
+    if h.get("code") != "0":
+        return {"erro": h.get("code")}
+    fills = {}
+    for inst in sorted({x.get("instId") for x in h.get("data") or []}):
+        f = E.privado("GET", f"/api/v5/trade/fills-history?instType=FUTURES&instId={inst}&limit=100")
+        fills[inst] = f.get("data") or [] if f.get("code") == "0" else None
+    for x in h.get("data") or []:
+        inst, c0, c1 = x.get("instId"), int(x.get("cTime") or 0) // 1000, int(x.get("uTime") or 0) // 1000
+        fs = fills.get(inst)
+        dentro = [f for f in fs or [] if c0 - 120 <= int(f.get("ts") or 0) // 1000 <= c1 + 120]
+        origens = sorted({origem(f.get("clOrdId") or "") for f in dentro})
+        pnl, fee, fund, liq = (float(x.get(k) or 0) for k in ("pnl", "fee", "fundingFee", "liqPenalty"))
+        real = float(x.get("realizedPnl") or 0)
+        out.append({"inst": inst, "posId": x.get("posId"), "lado": x.get("direction"), "tipo_fecho": x.get("type"),
+                    "abertura": c0, "fecho": c1, "preco_abertura": x.get("openAvgPx"), "preco_fecho": x.get("closeAvgPx"),
+                    "origem_pelos_fills": origens or (["fills indisponiveis"] if fs is None else ["sem fills na janela"]),
+                    "execucoes": len(dentro), "ganhou": real > 0,
+                    "realizado_igual_pnl_mais_custos": abs(real - (pnl + fee + fund + liq)) < 1e-6,
+                    "custos_sobre_pnl_bruto": round(abs(fee + fund + liq) / abs(pnl), 3) if pnl else None})
+        PRIV.append(f"OKX fecho {inst} posId {x.get('posId')}: pnl {pnl:.4f} fee {fee:.4f} funding {fund:.4f} "
+                    f"liq {liq:.4f} realizado {real:.4f} USDC")
+    return out
+
+
 if __name__ == "__main__":
     bases = sys.argv[1:] or ["RENDER", "SPCX", "XLM"]
     r = {"okx": okx(bases), "bybit_eu": bybit(["XLM"])}
+    try:
+        r["okx_historico"] = historico_okx()
+    except Exception as e:
+        r["okx_historico"] = {"erro": f"{type(e).__name__}: {str(e)[:100]}"}
     print(json.dumps(r, ensure_ascii=False, indent=1))
     if PRIV:
         try:
