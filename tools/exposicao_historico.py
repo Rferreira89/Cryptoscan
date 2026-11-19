@@ -33,7 +33,14 @@ def entrada(mapa_, dia, tipo):
                      "conflitos_grupo_oposto": len(c.get("grupo_oposto") or []),
                      "conflitos_mesma_exposicao": len(c.get("mesma_exposicao") or {}),
                      "sem_precos": len(b.get("sem_precos") or [])}
-    return {"dia": dia, "tipo": tipo, "t": int(mapa_.get("t") or time.time()), "blocos": blocos,
+    ag = mapa_.get("real_agregado") or {}
+    mesma = ag.get("mesmo_ativo_e_lado") or []
+    # (19/11) a vista do real entre executores entra no historico (so contagens; nenhum ativo nem dinheiro)
+    real = {"n": int(ag.get("n") or 0), "mesma_aposta_ativos": len(mesma),
+            "mesma_aposta_maior_n": max((int(m.get("n") or 0) for m in mesma), default=0),
+            "grupos_correlacionados": len(ag.get("grupos_correlacionados") or []),
+            "sinais_que_aumentam_concentracao": len(mapa_.get("sinais_que_aumentam_concentracao") or [])}
+    return {"dia": dia, "tipo": tipo, "t": int(mapa_.get("t") or time.time()), "blocos": blocos, "real_agregado": real,
             "dados_em_falta": list(mapa_.get("dados_em_falta") or []), "enviado": False}
 
 

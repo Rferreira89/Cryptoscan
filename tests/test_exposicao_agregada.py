@@ -105,3 +105,15 @@ class Agregado(Base):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Historico(unittest.TestCase):
+    def test_historico_guarda_as_contagens_do_agregado(self):
+        from tools import exposicao_historico as EH
+        mapa = {"t": 1, "blocos": {}, "real_agregado": {"n": 3, "mesmo_ativo_e_lado": [{"ativo": "XLM", "n": 3}],
+                                                         "grupos_correlacionados": []},
+                "sinais_que_aumentam_concentracao": [{"sinal": "x"}]}
+        e = EH.entrada(mapa, "2026-11-19", "manual")
+        self.assertEqual(e["real_agregado"], {"n": 3, "mesma_aposta_ativos": 1, "mesma_aposta_maior_n": 3,
+                                              "grupos_correlacionados": 0, "sinais_que_aumentam_concentracao": 1})
+        self.assertNotIn("XLM", json.dumps(e))
