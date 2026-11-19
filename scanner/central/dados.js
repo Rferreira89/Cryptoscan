@@ -26,6 +26,9 @@ export const FONTES = {
   tfsombra:  { url: RAW + "okx-tfshort/okx_tfshort_sombra.json", nome: "TF-SHORT (sombra)",    periodo: 86400, limite: 2 * 86400 + 7200 },
   // (18/11) piloto OKX isolado (tools/piloto_okx.py): as suas posicoes sao do CryptoScan, nao "da corretora so"
   piloto:    { url: RAW + "piloto-okx/piloto_publico.json", nome: "Piloto OKX (copia publica)", periodo: 1800, limite: 5400 },
+  // (19/11) sombra das hipoteses rapidas (so dados publicos, sem ordens) e contabilidade da OKX por executor
+  sombra:    { url: RAW + "sombra-rapidas/sombra_rapidas.json", nome: "Sombra das rápidas (OKX)", periodo: 3600, limite: 3 * 3600 + 900 },
+  contab:    { url: RAW + "contabilidade/contabilidade_okx.json", nome: "Contabilidade OKX (corretora)", periodo: 6 * 3600, limite: 13 * 3600 },
 };
 
 // ---------------------------------------------------------------- pedidos com tentativas controladas
@@ -529,4 +532,44 @@ export function desempenho(nome, { O, S, T, Pi } = {}) {
 export function suporteResistencia(velas, n = 50) {
   const c = (velas || []).slice(-n); if (c.length < 10) return null;
   return { suporte: Math.min(...c.map(x => x.l)), resistencia: Math.max(...c.map(x => x.h)), n: c.length };
+}
+
+
+// ---------------------------------------------------------------- (19/11) acumulacao da Bybit e trading da OKX
+// So leitura dos ficheiros publicos: sem dinheiro (pesos em %, desvios em pontos, R e contagens).
+export function acumulacaoVista(S) {
+  const a = (S || {}).acumulacao;
+  if (!a || a.erro) return { ativa: false, erro: a && a.erro, linhas: [] };
+  const alvo = a.pesos_alvo_pct || {}, dv = a.desvios_pp || {};
+  const linhas = Object.keys(alvo).map(k => ({ ativo: k, alvo_pct: alvo[k], desvio_pp: dv[k] ?? null,
+    atual_pct: dv[k] == null ? null : Math.round((alvo[k] + dv[k]) * 100) / 100 }));
+  const estado = { reservado: "à espera do fecho do trading aberto (USDC reservado)", ordens: "com ordens a fazer",
+    equilibrada: "dentro das bandas", sem_saldo: "sem saldo para investir", desligado: "desligada" }[a.estado] || a.estado || "–";
+  return { ativa: true, modo: a.modo, estado, reservado: !!a.posicoes_de_trading_por_fechar, linhas,
+    ordens: a.ordens || { comprar: 0, vender: 0 }, fora: a.fora_da_bybit || [], t: a.t };
+}
+
+export function tradingOkx({ Pi, O, Sr, C }, agora) {
+  const p = Pi || {}, dia = new Date((agora || Date.now() / 1000) * 1000).toISOString().slice(0, 10);
+  const vivas = (p.ops || []).filter(o => ["pendente", "aberta", "a fechar"].includes(o.estado)).map(o => ({
+    executor: "piloto", ativo: o.base, lado: o.lado, estrategia: o.estrategia, estado: o.estado,
+    r: o.r_aberto ?? null, stop: o.stop_confirmado === true }));
+  for (const [a, o] of Object.entries(((O || {}).real || {}).ops || {}))
+    if (["pendente", "aberta"].includes(o.estado))
+      vivas.push({ executor: "executor antigo", ativo: a, lado: o.lado || "LONG", estrategia: o.estrategia || "–",
+        estado: o.estado, r: null, stop: !!o.stop_ok });
+  const rs = (p.resumo_oportunidades || {})[dia] || {};
+  const cats = rs.por_categoria || {};
+  const funil = { voltas: rs.voltas || 0, sem_sinais: rs.voltas_sem_sinais || 0, executadas: cats.executada || 0,
+    rejeitadas: Object.entries(cats).filter(([k]) => k !== "executada").reduce((s, [, v]) => s + v, 0),
+    motivos: Object.entries(cats).filter(([k]) => k !== "executada").sort((a, b) => b[1] - a[1]) };
+  const estrategias = Object.entries(p.estados || {}).map(([k, v]) => ({ id: k, estado: v }));
+  const sr = Sr || {}, el = sr.elegibilidade || {};
+  const sombra = { moedas: sr.moedas ?? null, elegiveis: el.elegiveis ?? null, perpetuos: el.perpetuos ?? null,
+    abertas: Object.keys(sr.abertas || {}).length, fechadas: (sr.fechadas || []).length, t: sr.t || null,
+    linhas: Object.entries(sr.resumo || {}).map(([k, v]) => ({ k, n: v.n, dias: v.dias_independentes, r: v.media_R_liquido }))
+      .sort((a, b) => b.n - a.n) };
+  const pe = (((C || {}).relatorio) || {}).por_executor || {};
+  const contas = Object.entries(pe).map(([k, v]) => ({ executor: k, n: v.n, soma_r: v.soma_r, expectativa_r: v.expectativa_r }));
+  return { vivas, funil, estrategias, sombra, contas, bloqueado: !!p.bloqueado, suspenso: !!p.suspenso };
 }

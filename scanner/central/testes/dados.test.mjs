@@ -328,3 +328,36 @@ test("suporte e resistencia: minimo e maximo das ultimas velas", () => {
   const v = Array.from({ length: 60 }, (_, i) => ({ h: 10 + i, l: 5 + i }));
   assert.deepEqual(D.suporteResistencia(v, 50), { suporte: 15, resistencia: 69, n: 50 });
 });
+
+test("acumulacao: pesos em %, desvios em pp, estado reservado enquanto ha trading aberto (19/11)", () => {
+  const S = { acumulacao: { modo: "sombra", estado: "reservado", posicoes_de_trading_por_fechar: true,
+    pesos_alvo_pct: { BTC: 70, ETH: 15, SOL: 3.75 }, desvios_pp: {}, fora_da_bybit: ["AVAX"], ordens: { comprar: 0, vender: 0 }, t: 1 } };
+  const v = D.acumulacaoVista(S);
+  assert.equal(v.ativa, true);
+  assert.equal(v.reservado, true);
+  assert.match(v.estado, /reservado/);
+  assert.deepEqual(v.linhas.map(l => [l.ativo, l.alvo_pct, l.atual_pct]), [["BTC", 70, null], ["ETH", 15, null], ["SOL", 3.75, null]]);
+  const v2 = D.acumulacaoVista({ acumulacao: { modo: "sombra", estado: "ordens", pesos_alvo_pct: { BTC: 70 }, desvios_pp: { BTC: -10 } } });
+  assert.equal(v2.linhas[0].atual_pct, 60);
+  assert.equal(D.acumulacaoVista({}).ativa, false);
+});
+
+test("trading OKX: posicoes dos dois executores, funil do dia, sombra e contabilidade sem dinheiro (19/11)", () => {
+  const t = Date.UTC(2026, 10, 19, 12) / 1000;
+  const Pi = { ops: [{ base: "BASED", lado: "LONG", estrategia: "a5", estado: "aberta", r_aberto: -0.2, stop_confirmado: true },
+                     { base: "SPCX", estado: "fechada" }],
+    estados: { a5: "EXPERIMENTAL_REAL" },
+    resumo_oportunidades: { "2026-11-19": { voltas: 30, voltas_sem_sinais: 27, por_categoria: { executada: 2, liquidez: 4, expirado: 4 } } } };
+  const O = { real: { ops: { XLM: { estado: "aberta", lado: "SHORT", estrategia: "espelho", stop_ok: 123 } } } };
+  const Sr = { moedas: 46, elegibilidade: { elegiveis: 46, perpetuos: 534 }, abertas: { a: {} }, fechadas: [{}],
+    resumo: { "R3|4h|LONG": { n: 5, dias_independentes: 2, media_R_liquido: 0.1 } }, t };
+  const C = { relatorio: { por_executor: { piloto: { n: 2, soma_r: 2.18, expectativa_r: 1.09 } } } };
+  const v = D.tradingOkx({ Pi, O, Sr, C }, t);
+  assert.deepEqual(v.vivas.map(x => [x.executor, x.ativo, x.lado, x.stop]), [["piloto", "BASED", "LONG", true], ["executor antigo", "XLM", "SHORT", true]]);
+  assert.deepEqual([v.funil.executadas, v.funil.rejeitadas, v.funil.voltas], [2, 8, 30]);
+  assert.equal(v.sombra.elegiveis, 46);
+  assert.equal(v.sombra.linhas[0].k, "R3|4h|LONG");
+  assert.equal(v.contas[0].soma_r, 2.18);
+  const vazio = D.tradingOkx({}, t);
+  assert.deepEqual([vazio.vivas.length, vazio.funil.voltas, vazio.sombra.abertas], [0, 0, 0]);
+});

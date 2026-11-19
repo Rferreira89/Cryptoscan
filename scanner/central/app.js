@@ -23,7 +23,7 @@ const A = window.CS_APP = {
   f: { ambiente: "REAL", corretora: "todas", lado: "todos", estrategia: "todas", ativo: "", agente: "todos", nivel: "todos" },
   graf: { ativo: "BTC", iv: ler("atlas_iv") || "1h", rsi: true, macd: false }, ativ: "eventos",
 };
-const REFRESCO = { scan: 60, state: 120, okx: 120, cofreOkx: 120, cofreScan: 120, cfgOkx: 900, derivados: 600, liquidez: 900, tfshort: 1800, tfsombra: 1800 };
+const REFRESCO = { scan: 60, state: 120, okx: 120, cofreOkx: 120, cofreScan: 120, cfgOkx: 900, derivados: 600, liquidez: 900, tfshort: 1800, tfsombra: 1800, sombra: 900, contab: 1800 };
 
 // ---------------------------------------------------------------- dados
 async function carregar(chave) {
@@ -70,6 +70,8 @@ function contexto() {
               frHoje: Dd.deHoje(fr, t), acum: Dd.acumulado(fr), simuladas: Dd.simuladas(O, S, T, Sb),
               fechadas: { okx: Dd.okxFechadas(O, K, Pi), bybit: opBy.fechadas }, estrategias: Dd.estrategias(cfgOkx, S, St),
               oportunidades: Dd.oportunidades(S, O), rejeicoes: Dd.rejeicoes(S), exposicao: Dd.exposicao(posicoes), pnl: Dd.pnl(K, P), colab: colaboracoes(eventos, t) };
+  c.acumulacao = Dd.acumulacaoVista(S);
+  c.trading = Dd.tradingOkx({ Pi, O, Sr: d("sombra"), C: d("contab") }, t);
   c.alertas = Dd.alertas({ okx, bybit, recOkx, recBybit, O, S, cfgOkx, agora: t });
   for (const a of AGENTES) estados[a.id].metrica = metrica(a.id, c);
   return c;
@@ -255,6 +257,22 @@ function renderAtiv(c) {
   } else if (t === "resultado") {
     el.innerHTML = `<div class="duas"><section><div class="graf fixo"><canvas id="cv-acum" height="150"></canvas></div></section><section>${lista([...c.fr].reverse().slice(0, 12).map(f => [`${f.corretora} ${f.ativo}`, `<span class="${tom(f.R)}">${sg(f.R)}R</span> · ${esc(f.estrategia)} · ${hora(f.t)} ${amb("REAL")}`]), "Sem operações reais fechadas.", true)}</section></div>`;
     const [g, w, h] = ajustar($("#cv-acum"), 150); Gx.serie(g, w, h, c.acum.map(x => x.t), c.acum.map(x => x.v), { titulo: `Resultado real acumulado (${c.fr.length} operações fechadas)`, unidade: "R", cor: "#E8B84A", fonte: "OKX + Bybit · público", zero: true });
+  } else if (t === "trading") {
+    const T = c.trading, f = T.funil;
+    el.innerHTML = `<div class="duas"><section><h4>Posições de trading na OKX ${amb("REAL")}</h4>${lista(T.vivas.map(v => [`${v.ativo} ${v.lado}`, `${esc(v.executor)} · ${esc(v.estrategia)} · ${esc(v.estado)}${v.r != null ? ` · <span class="${tom(v.r)}">${sg(v.r)}R</span>` : ""} · stop ${v.stop ? "confirmado" : "<b class=dn>por confirmar</b>"}`]), "Sem posições de trading abertas na OKX.", true, T.vivas.map(v => `ativo:${v.ativo}`))}
+      <h4>Funil do piloto hoje</h4>${lista([["Voltas", `${f.voltas} (${f.sem_sinais} sem sinais)`], ["Executadas", String(f.executadas)], ["Rejeitadas", String(f.rejeitadas)], ...f.motivos.map(([k, n]) => [`· ${k.replace(/_/g, " ")}`, String(n)])], "–")}
+      <h4>Resultado real por executor (corretora)</h4>${lista(T.contas.map(x => [x.executor, `${x.n} fechadas · <span class="${tom(x.soma_r)}">${sg(x.soma_r)}R</span> · ${sg(x.expectativa_r)}R/op`]), "Sem contabilidade publicada.", true)}</section>
+      <section><h4>Estratégias do piloto</h4>${lista(T.estrategias.map(e => [e.id.length > 16 ? e.id.slice(0, 16) + "…" : e.id, esc(e.estado.replace(/_/g, " "))]), "–")}
+      <h4>Sombra das rápidas (1–4 h) ${amb("SOMBRA")}</h4><p class="nota">${T.sombra.moedas ?? "–"} perpétuos elegíveis de ${T.sombra.perpetuos ?? "–"} · ${T.sombra.abertas} eventos a decorrer · ${T.sombra.fechadas} resolvidos · ${hora(T.sombra.t)}. Sem ordens: só mede se R1–R4 valem a pena.</p>
+      ${lista(T.sombra.linhas.slice(0, 12).map(x => [x.k, `${x.n} evento${x.n === 1 ? "" : "s"} · ${x.dias} dia${x.dias === 1 ? "" : "s"} · <span class="${tom(x.r)}">${sg(x.r, 3)}R</span> líquido`]), "Ainda sem eventos resolvidos.", true)}</section></div>`;
+  } else if (t === "acumulacao") {
+    const Ac = c.acumulacao;
+    el.innerHTML = !Ac.ativa ? `<p class="nota">${Ac.erro ? "Erro: " + esc(Ac.erro) : "Acumulação ainda não publicada pelo scanner."}</p>` :
+      `<div class="duas"><section><h4>Carteira de acumulação Bybit UE ${amb(Ac.modo === "real" ? "REAL" : "SOMBRA")}</h4>
+      <p class="nota">Estado: <b>${esc(Ac.estado)}</b>. Compras com os depósitos e os lucros que enviares para a Bybit; vendas só acima da banda de 5 pp; só spot, sem alavancagem nem empréstimos. ${Ac.modo === "sombra" ? "Em sombra: calcula e avisa, não executa." : ""}</p>
+      <div class="tw"><table><tr><th>Ativo</th><th>Alvo</th><th>Atual</th><th>Desvio</th><th></th></tr>${Ac.linhas.map(l => `<tr><td><b>${esc(l.ativo)}</b></td><td>${num(l.alvo_pct, 1)}%</td><td>${l.atual_pct == null ? "–" : num(l.atual_pct, 1) + "%"}</td><td class="${l.desvio_pp == null ? "" : Math.abs(l.desvio_pp) > 5 ? "dn" : ""}">${l.desvio_pp == null ? "–" : sg(l.desvio_pp, 1) + " pp"}</td><td><div class="pbar" style="width:90px;height:6px;background:var(--linha);border-radius:3px;position:relative"><div style="width:${Math.max(0, Math.min(100, l.atual_pct ?? 0))}%;height:6px;background:#E8B84A;border-radius:3px"></div><span style="position:absolute;left:${Math.min(100, l.alvo_pct)}%;top:-2px;width:1px;height:10px;background:#3BD1FF"></span></div></td></tr>`).join("")}</table></div></section>
+      <section><h4>Próximas ordens</h4>${lista([["Comprar", String(Ac.ordens.comprar)], ["Vender", String(Ac.ordens.vender)], ["Fora da Bybit UE", Ac.fora.join(", ") || "nenhum"], ["Atualizado", hora(Ac.t)]], "–")}
+      <p class="nota">Valores em dinheiro só no Telegram. Os lucros da OKX só chegam à Bybit se os enviares tu: o programa nunca move dinheiro entre contas.</p></section></div>`;
   } else if (t === "fontes") {
     el.innerHTML = `<div class="tw"><table><tr><th>Fonte</th><th>Estado</th><th>Última atualização</th><th>Último pedido</th><th>Razão</th></tr>${Object.entries(c.fontes).map(([k, f]) => `<tr><td>${esc(Dd.FONTES[k].nome)}</td><td class="st-${f.estado}">${esc(f.estado)}</td><td>${f.t ? hora(f.t) + " (" + Dd.texIdade(f.idade) + ")" : "–"}</td><td>${hm((A.res[k] || {}).pedido)}${(A.res[k] || {}).tentativas > 1 ? ` (${A.res[k].tentativas} tentativas)` : ""}</td><td>${esc(f.razao || "")}</td></tr>`).join("")}</table></div>
       <small class="nota">As corretoras são lidas pelos agentes (chaves só nos segredos do GitHub); esta página lê o que eles publicam. ${A.of ? `3D ${A.of.qualidade} · ${A.of.fps} fps.` : "3D desligado."}</small>`;
