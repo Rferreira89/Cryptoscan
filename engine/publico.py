@@ -29,11 +29,15 @@ STATE_FORA = {"capital", "capital_t", "capital_auto", "conta_livre", "conta_mov"
 # (05/11, auditoria do Rui) valores em dinheiro escritos DENTRO de textos (ex.: "faltam 77.55 USDC",
 # "posicao de 4.11 USDC"): as chaves ja eram removidas, os textos nao. Qualquer numero seguido de moeda passa a
 # "[valor]" (inclui minimos da corretora: remover a mais e aceitavel).
-TEXTO_DINHEIRO = re.compile(r"(?<![\w.])[-+]?\d+(?:[ .,]\d+)*\s?(?:USDC|USDT|USD|EUR|€)(?![A-Za-z])")
+# (19/11) tambem com o numero entre parenteses antes da moeda: "autorizado (0.823) USDC" escapava
+TEXTO_DINHEIRO = re.compile(r"(?<![\w.])[-+]?\d+(?:[ .,]\d+)*\)?\s?(?:USDC|USDT|USD|EUR|€)(?![A-Za-z])")
+# texto com DOIS valores e a moeda so no fim ("(0.839) passa o autorizado (0.823) USDC"): os numeros entre
+# parenteses numa frase que acaba em moeda tambem saem
+TEXTO_PAR_MOEDA = re.compile(r"\((?:[-+]?\d+(?:[.,]\d+)?)\)(?=[^\n]*\b(?:USDC|USDT|USD|EUR)\b)")
 
 
 def limpar_texto(t):
-    return TEXTO_DINHEIRO.sub("[valor]", t)
+    return TEXTO_DINHEIRO.sub("[valor]", TEXTO_PAR_MOEDA.sub("([valor])", t))
 
 
 def limpar(x):

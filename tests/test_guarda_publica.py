@@ -177,3 +177,24 @@ class LoteDoPlano(unittest.TestCase):
         self.assertNotIn("risco_efetivo", lote)
         self.assertEqual(lote["preco_limite"], 0.1363)                    # precos continuam publicos
         self.assertEqual(G.verificar(limpo), [])
+
+
+class TextoComDoisValores(unittest.TestCase):
+    """(19/11) promo_lost no state.json publico: 'risco efetivo depois do arredondamento (0.839) passa o autorizado
+    (0.823) USDC' (AVAX, 14/11). A guarda apanha, a copia publica tira os dois e o motivo novo ja nao tem moeda."""
+    TXT = "plano: lote: risco efetivo depois do arredondamento (0.839) passa o autorizado (0.823) USDC"
+
+    def test_guarda_e_copia_publica(self):
+        from engine import publico
+        self.assertTrue(G.verificar({"reason": self.TXT}))
+        limpo = publico.limpar_texto(self.TXT)
+        self.assertNotIn("0.839", limpo)
+        self.assertNotIn("0.823", limpo)
+        self.assertEqual(G.verificar({"reason": limpo}), [])
+
+    def test_motivo_na_origem_sem_moeda(self):
+        import inspect
+        from engine import promo
+        src = inspect.getsource(promo)
+        self.assertNotIn("passa o autorizado ({float(mr):.3f}) USDC", src)
+        self.assertIn("% do autorizado", src)

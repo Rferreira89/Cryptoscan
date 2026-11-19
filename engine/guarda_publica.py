@@ -33,7 +33,7 @@ NEUTROS = {"pct", "r", "n", "t", "ok", "estado", "fonte", "motivo", "pnlr", "bps
 # caminhos conhecidos que nao sao dinheiro apesar do nome (contagem de contratos analisados; posicao na liga)
 PERMITIDO_CAMINHO = [re.compile(x) for x in (r"^resumo\.contratos$", r"^liga\.tabela\[\d+\]\.pos$",
                                               r"(^|\.)liga\.tabela\[\d+\]\.pos$")]
-MOEDA_TXT = re.compile(r"(?<![\w.])[-+]?\d+(?:[.,]\d+)?\s?(?:USDC|USDT|USD|EUR|€|\$)(?![A-Za-z])")
+MOEDA_TXT = re.compile(r"(?<![\w.])[-+]?\d+(?:[.,]\d+)?\)?\s?(?:USDC|USDT|USD|EUR|€|\$)(?![A-Za-z])")
 # texto livre: palavra de dinheiro seguida de um numero que NAO e percentagem nem R (ex.: "risco 0.0240, nocional
 # 14.28", a fuga corrigida em 7453957, que nem tinha a moeda escrita)
 PALAVRA_TXT = re.compile(r"(?i)\b(?:risco|nocional|saldo|margem|capital|pnl|lucro|perda|equity|balance|margin|notional|"

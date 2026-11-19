@@ -834,12 +834,14 @@ def validar_lote(p, px, lote, stop):
     if qty <= 0:
         return "lote: quantidade nula depois de arredondar ao lote da Bybit"
     if val > maxp + 1e-9:
-        return (f"lote: a ordem mínima da Bybit depois de arredondar ao lote ({val:.2f} USDC) passa o risco "
-                f"autorizado ({maxp:.2f} USDC)")
+        # (19/11) o motivo vai para o state.json PUBLICO (promo_lost): sem valores em moeda, so a proporcao
+        return (f"lote: a ordem mínima da Bybit depois de arredondar ao lote passa o risco autorizado "
+                f"({100 * val / maxp:.0f}% do autorizado)")
     risco = qty * abs(float(stop) - lim) + 0.0025 * qty * (lim + float(stop))
     mr = p.get("max_risk_usdc")
     if mr is not None and risco > float(mr) * 1.001:
-        return f"lote: risco efetivo depois do arredondamento ({risco:.3f}) passa o autorizado ({float(mr):.3f}) USDC"
+        return (f"lote: risco efetivo depois do arredondamento passa o autorizado "
+                f"({100 * risco / float(mr):.1f}% do autorizado)")
     f = val / pos if pos else 1.0
     for k in ("position_usdc", "collateral_usdc", "risk_usdc"):
         if p.get(k) is not None:
