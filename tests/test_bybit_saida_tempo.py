@@ -86,6 +86,7 @@ class FechoDoShortNuncaFicaSemProtecao(unittest.TestCase):
         self.chamadas = []
         self.divida = 36.8
         self.prot = [{"orderId": "P1", "_flt": "Order"}]
+        self.px = 1.0
 
     def correr(self, carteira_falha=False, recompra_falha=False):
         def get(path, q=None):
@@ -115,7 +116,8 @@ class FechoDoShortNuncaFicaSemProtecao(unittest.TestCase):
 
         with mock.patch.object(X, "get", get), mock.patch.object(X, "cancel", cancel), \
                 mock.patch.object(X, "buy_back", buy_back), mock.patch.object(X, "stop_order_buy", stop_buy), \
-                mock.patch.object(X, "instrument", lambda s: {"base_step": "0.1", "tick": "0.0001"}), \
+                mock.patch.object(X, "instrument", lambda s: {"base_step": "0.1", "tick": "0.0001", "min_amt": 5.0}), \
+                mock.patch.object(X, "last_price", lambda s: self.px), \
                 mock.patch.object(X, "tpsl_orders", lambda s: list(self.prot)), \
                 mock.patch.object(X, "fills", lambda *a, **k: (0.138, 36.8)), \
                 mock.patch.object(X, "repay_coin", lambda *a: None), mock.patch.object(X.time, "sleep", lambda s: None):
@@ -138,6 +140,13 @@ class FechoDoShortNuncaFicaSemProtecao(unittest.TestCase):
         self.assertEqual(self.chamadas, [])                                # protecao intacta
         self.assertEqual(self.op["status"], "aberta")
         self.assertEqual([p["orderId"] for p in self.prot], ["P1"])
+
+    def test_recompra_abaixo_do_minimo_compra_o_minimo(self):
+        self.px = 0.138                                     # 36,8 XLM a 0,138 = 5,08 USDC: abaixo do piso de 6
+        res = self.correr()
+        self.assertEqual(res, "ok")
+        q = [c for c in self.chamadas if c[0] == "recomprar"][0][1]
+        self.assertGreaterEqual(q * 0.138, 6.0 - 0.01)
 
     def test_recompra_falhada_repoe_o_stop(self):
         res = self.correr(recompra_falha=True)

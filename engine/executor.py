@@ -872,8 +872,20 @@ def close_short(state, req, ex, now, send, why):
             op.setdefault("avisos", []).append(f"cancelar: {str(e)[:80]}")
     time.sleep(1)
     owe = min(debt, (op.get("emprestado_moeda") or op["qty"]) * 1.01) if debt else 0.0
+    # (19/11) a Bybit recusa ordens abaixo do valor minimo (170140 "Order value exceeded lower limit", XLM de 19/11:
+    # ~36,9 XLM a 0,138 = 5,1 USDC com minimo de 5): recompra pelo menos 1,2x o minimo; o que sobrar fica na conta
+    # depois de devolver o emprestimo (so a divida e devolvida)
+    qty_rec = owe * 1.002
+    if owe > 0:
+        try:
+            pxr = last_price(op["symbol"])
+            piso = max(float(inst.get("min_amt") or 5.0) * 1.2, 6.0)
+            if pxr > 0 and qty_rec * pxr < piso:
+                qty_rec = piso / pxr
+        except (ExecError, KeyError, IndexError, TypeError, ValueError):
+            pass                                       # sem preco: recompra o que se deve, como antes
     try:
-        oid = buy_back(op["symbol"], owe * 1.002, inst, f"{_tag(req['op'])}-r") if owe > 0 else None
+        oid = buy_back(op["symbol"], qty_rec, inst, f"{_tag(req['op'])}-r") if owe > 0 else None
     except ExecError as e:
         # (19/11) a recompra falhou depois de cancelada a protecao: repoe o stop do plano para a divida nao ficar
         # descoberta; a operacao continua aberta e o fecho volta a ser pedido
