@@ -486,11 +486,34 @@ def ciclo(api, pasta, now=None, simular=False, registo=None, papel=None, isolado
     orc = orcamento(st, c)
     st["orcamento"] = orc
     st["aberta"] = (ativas(st) or [None])[0]
-    if orc["vagas"] <= 0 or rec.get("falhou"):
+    sem_vaga = orc["vagas"] <= 0 or rec.get("falhou")
+    if sem_vaga or any(r.get("aguarda") and r["decisao"] is None for r in st["oportunidades"].values()):
+        # (19/11) falta de vaga ou OKX sem resposta sao transitorios: o sinal ainda fresco fica a aguardar e volta a ser
+        # visto na volta seguinte; so fica REJEITADA quando ja nao entraria (velho ou fora do papel)
+        vivos = {o.get("id_op"): o for o in papel.get("abertas") or [] if o.get("id_op")}
         for sid, r in st["oportunidades"].items():
-            if r["decisao"] is None and r.get("origem") in aprovadas:
-                decidir_oportunidade(st, sid, "REJEITADA", f"sem vaga: {orc['abertas']} posicoes vivas (maximo {c['posicoes_max']})"
-                                     if not rec.get("falhou") else "OKX sem resposta sobre as posicoes: sem entradas", now)
+            if r["decisao"] is None and ((sem_vaga and r.get("origem") in aprovadas) or r.get("aguarda")):
+                if not sem_vaga:
+                    mot = r["aguarda"]
+                elif rec.get("falhou"):
+                    mot = "OKX sem resposta sobre as posicoes: sem entradas"
+                else:
+                    mot = f"sem vaga: {orc['abertas']} posicoes vivas (maximo {c['posicoes_max']})"
+                if r.get("origem") not in aprovadas:
+                    mot = "estrategia deixou de estar aprovada enquanto aguardava: " + mot
+                    r["aguarda"] = None
+                o = vivos.get(sid)
+                fresco = False
+                if o is not None and sid not in st["vistos"] and r.get("origem") in aprovadas:
+                    try:
+                        a, amax = atraso_sinal(o, c, now)
+                        fresco = a <= amax
+                    except (KeyError, TypeError, ValueError):
+                        fresco = False
+                if fresco:
+                    r.update(aguarda=mot, t_aguarda=int(now))
+                else:
+                    decidir_oportunidade(st, sid, "REJEITADA", mot, now)
     st["perdas"] = pp
     st["recusadas_pelo_executor"] = recusadas
     relatorio_diario(st, now, msgs, aprovadas)
@@ -606,6 +629,14 @@ def perdido(st, now, sid, motivo):
     decidir_oportunidade(st, sid, "REJEITADA", motivo, now)
 
 
+def atraso_sinal(o, c, now):
+    """(atraso, maximo) do sinal do papel: o mesmo criterio de frescura das entradas."""
+    copia = o.get("origem") == "copy"
+    tf_s = TF_S.get(o.get("tf"), 3600)
+    atraso = now - (int(o["t_ref"]) if copia else int(o["t_sinal"]) + tf_s)
+    return atraso, c["atraso_max_s"].get("copy" if copia else o.get("tf"), 600 if copia else 900)
+
+
 def procurar(api, st, c, now, papel, aprovadas, orc=None):
     """Sinais do papel das estrategias aprovadas, ainda frescos; escolhe o melhor (expectativa fora da amostra menos o
     custo extra estimado; empate: liquidez). Um sinal nunca e tratado duas vezes."""
@@ -623,8 +654,7 @@ def procurar(api, st, c, now, papel, aprovadas, orc=None):
         st["vistos"].append(sid)
         tf_s = TF_S.get(o.get("tf"), 3600)
         copia = o.get("origem") == "copy"
-        atraso = now - (int(o["t_ref"]) if copia else int(o["t_sinal"]) + tf_s)
-        amax = c["atraso_max_s"].get("copy" if copia else o.get("tf"), 600 if copia else 900)
+        atraso, amax = atraso_sinal(o, c, now)
         if atraso > amax:
             perdido(st, now, sid, (f"copia tardia: {atraso // 60} min depois da entrada do trader" if copia else
                                    f"chegou {atraso // 60} min depois do fecho da vela") + f" (maximo {amax // 60})")
@@ -692,10 +722,21 @@ def escolher_e_entrar(api, st, c, cands, now, msgs, simular):
     candidato e redimensionado com o orcamento que sobra DEPOIS das entradas anteriores desta mesma volta (uma
     pendente conta inteira) e so entra se couber. Sem vaga, sem orcamento ou sem tamanho minimo: rejeitado com o motivo.
     Uma so execucao de cada vez (workflow com concurrency) e a reserva e feita no estado antes da ordem seguinte."""
+    def aguarda(cand, motivo):
+        # (19/11) rejeicao por CAPACIDADE (vaga ou orcamento ocupados por outra posicao): o sinal volta a ser visto na
+        # volta seguinte enquanto estiver fresco (a porta do atraso trava-o depois). Antes ficava perdido de vez: a
+        # 19/11 08:06 a AMD e a BASED cairam por o SPCX ainda estar a fechar na mesma volta.
+        if cand["id"] in st["vistos"]:
+            st["vistos"].remove(cand["id"])
+        r = (st.get("oportunidades") or {}).get(cand["id"])
+        if r is not None:
+            r.update(aguarda=motivo, t_aguarda=int(now))
+        evento(st, now, f"sinal a aguardar capacidade: {motivo}", sinal=cand["id"])
+
     for cand in cands:
         orc = orcamento(st, c)
         if orc["vagas"] <= 0:
-            perdido(st, now, cand["id"], f"sem vaga: {orc['abertas']} posicoes vivas do piloto (maximo {c['posicoes_max']})")
+            aguarda(cand, f"sem vaga: {orc['abertas']} posicoes vivas do piloto (maximo {c['posicoes_max']})")
             continue
         if cand.get("base") in orc["ativos"]:
             perdido(st, now, cand["id"], f"o piloto ja tem uma operacao viva em {cand.get('base')} (sem duplicar)")
@@ -704,7 +745,12 @@ def escolher_e_entrar(api, st, c, cands, now, msgs, simular):
         dim, porque = dimensionar(cand["plano"], x["inst"], c, x["spread"], saldo=st.get("_saldo_usdc"), funding_8h=x["f8"],
                                   horas=x["horas"], orc=orc)
         if not dim:
-            perdido(st, now, cand["id"], porque)
+            sozinho, _ = (dimensionar(cand["plano"], x["inst"], c, x["spread"], saldo=st.get("_saldo_usdc"),
+                                      funding_8h=x["f8"], horas=x["horas"], orc=None) if orc["abertas"] else (None, None))
+            if sozinho:                                       # caberia com o orcamento inteiro: falta so capacidade
+                aguarda(cand, porque)
+            else:
+                perdido(st, now, cand["id"], porque)
             continue
         cand = dict(cand, dim=dim)
         st["ultimo_sinal"] = {k: v for k, v in cand.items() if k not in ("inst_spec", "_dim")}

@@ -212,7 +212,9 @@ class DuasPosicoes(Base):
         n_ord = len(api.posts("/trade/order"))
         st, _ = self.corre(api, sinal("curta", "CCC", t_fecho=NOW0 + 2700 - 660, atr=0.0001, lado="SHORT"), now=NOW0 + 2700)
         self.assertEqual(len(api.posts("/trade/order")), n_ord)
-        self.assertIn("sem vaga", st["oportunidades"]["curta|CCC|" + str(NOW0 + 2700 - 660 - 3600)]["motivo"])
+        r = st["oportunidades"]["curta|CCC|" + str(NOW0 + 2700 - 660 - 3600)]
+        self.assertIn("sem vaga", r["aguarda"])                                    # (19/11) fresco: aguarda vaga
+        self.assertIsNone(r["decisao"])
         self.limites_respeitados(st)
 
     def test_3_primeira_gasta_quase_todo_o_orcamento(self):
@@ -236,8 +238,60 @@ class DuasPosicoes(Base):
         st, _ = self.corre(api, sinal("fraca", "CCC", t_fecho=t, atr=0.0025), sinal("boa", "BBB", t_fecho=t, atr=0.0025),
                            now=NOW0 + 1800)
         self.assertEqual([o["base"] for o in self.vivas(st)], ["AAA", "BBB"])
-        mot = [x["motivo"] for x in st["sinais_perdidos"] if x["sinal"].startswith("fraca|CCC")][-1]
-        self.assertIn("sem vaga", mot)
+        # (19/11) sem vaga e capacidade, nao defeito do sinal: fica a aguardar (volta a ser visto enquanto fresco)
+        sid = sinal("fraca", "CCC", t_fecho=t)["id_op"]
+        self.assertFalse([x for x in st["sinais_perdidos"] if x["sinal"] == sid])
+        self.assertNotIn(sid, st["vistos"])
+        self.assertIn("sem vaga", st["oportunidades"][sid]["aguarda"])
+        self.assertNotEqual(st["oportunidades"][sid].get("decisao"), "REJEITADA")
+        self.limites_respeitados(st)
+
+    def test_4c_rejeitada_por_vaga_entra_quando_a_vaga_abre_ainda_fresca(self):
+        api = MultiOKX()
+        t = NOW0 + 1800 - 660
+        st, _ = self.corre(api, sinal("fraca", "AAA", atr=0.05))
+        st, _ = self.corre(api, now=NOW0 + 900)
+        cc = sinal("fraca", "CCC", t_fecho=t, atr=0.0025)
+        st, _ = self.corre(api, cc, sinal("boa", "BBB", t_fecho=t, atr=0.0025), now=NOW0 + 1800)   # sem vaga: aguarda
+        self.assertEqual([o["base"] for o in self.vivas(st)], ["AAA", "BBB"])
+        api.fechar("AAA")                                                          # stop na corretora liberta a vaga
+        st, _ = self.corre(api, cc, now=NOW0 + 1800 + 600)                         # ainda fresco (1H: 25 min)
+        self.assertIn("CCC", [o["base"] for o in self.vivas(st)])
+        self.assertIn(st["oportunidades"][cc["id_op"]].get("decisao"), ("ORDEM_ENVIADA", "EXECUTADA_REAL"))
+        self.assertEqual(st["vistos"].count(cc["id_op"]), 1)
+        self.limites_respeitados(st)
+
+    def test_4d_sem_vaga_ate_ficar_velho_fica_perdido_uma_vez(self):
+        api = MultiOKX()
+        t = NOW0 + 1800 - 660
+        st, _ = self.corre(api, sinal("fraca", "AAA", atr=0.05))
+        st, _ = self.corre(api, now=NOW0 + 900)
+        cc = sinal("fraca", "CCC", t_fecho=t, atr=0.0025)
+        st, _ = self.corre(api, cc, sinal("boa", "BBB", t_fecho=t, atr=0.0025), now=NOW0 + 1800)
+        self.assertEqual(len(self.vivas(st)), 2)
+        for k in range(1, 4):                                                         # 0, 10, 20, 30 min depois
+            st, _ = self.corre(api, cc, now=NOW0 + 1800 + 600 * k)
+        st, _ = self.corre(api, cc, now=NOW0 + 1800 + 2400)
+        r = st["oportunidades"][cc["id_op"]]
+        self.assertEqual(r["decisao"], "REJEITADA")                                # velho: decisao final, uma so vez
+        self.assertIn("sem vaga", r["motivo"])
+        dia = st["resumo_oportunidades"]
+        self.assertEqual(sum(v.get("por_categoria", {}).get(r["categoria"], 0) for v in dia.values()), 1)
+        self.assertEqual(len(self.vivas(st)), 2)
+        self.limites_respeitados(st)
+
+    def test_4e_a_aguardar_e_sai_do_papel_fica_decidida(self):
+        api = MultiOKX()
+        t = NOW0 + 1800 - 660
+        st, _ = self.corre(api, sinal("fraca", "AAA", atr=0.05))
+        st, _ = self.corre(api, now=NOW0 + 900)
+        cc = sinal("fraca", "CCC", t_fecho=t, atr=0.0025)
+        st, _ = self.corre(api, cc, sinal("boa", "BBB", t_fecho=t, atr=0.0025), now=NOW0 + 1800)
+        api.fechar("AAA")
+        st, _ = self.corre(api, now=NOW0 + 2100)                                   # vaga livre, sinal ja nao esta no papel
+        r = st["oportunidades"][cc["id_op"]]
+        self.assertEqual(r["decisao"], "REJEITADA")
+        self.assertIn("sem vaga", r["motivo"])
         self.limites_respeitados(st)
 
     def test_4b_duas_ao_mesmo_tempo_sem_posicoes_entram_as_duas_se_couberem(self):
