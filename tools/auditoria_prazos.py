@@ -37,6 +37,10 @@ try:
     ids = {q.get("filho") for q in op.get("partes") or []} | {q.get("stopId") for q in op.get("partes") or []}
     ids.discard(None)
     import collections
+    import re as _re
+    out["bybit_executor_log"] = [(T(x.get("t")), x.get("acao"), _re.sub(r"\d+\.\d+", "#", str(x.get("res"))[:200]))
+                                 for x in (ex.get("log") or [])[-4:]]
+    out["xlm_avisos"] = [_re.sub(r"\d+\.\d+", "#", str(a)[:160]) for a in (((ex.get("ops") or {}).get(ID) or {}).get("avisos") or [])][-4:]
     out["bybit_executor_estados"] = dict(collections.Counter(str(o.get("status")) for o in (ex.get("ops") or {}).values()
                                                               if isinstance(o, dict)))
     out["bybit_executor_nao_finais"] = [(k[:40], o.get("status"), o.get("lado")) for k, o in (ex.get("ops") or {}).items()
