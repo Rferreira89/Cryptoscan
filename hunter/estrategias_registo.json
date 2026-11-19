@@ -245,16 +245,16 @@
    "tf": "4H",
    "versao": "1a40f1f6422a",
    "backtest": {
-    "n": 795,
-    "dias": 71,
-    "acontecimentos": 210,
-    "r_medio": 0.1028,
+    "n": 847,
+    "dias": 72,
+    "acontecimentos": 215,
+    "r_medio": 0.0992,
     "ic95_blocos_acontecimento": [
-     -0.0286,
-     0.2266
+     -0.0266,
+     0.216
     ],
-    "profit_factor": 1.317,
-    "operacoes_por_semana": 36.61
+    "profit_factor": 1.307,
+    "operacoes_por_semana": 38.79
    },
    "papel": {
     "fechadas": 0,
@@ -319,16 +319,16 @@
    "tf": "4H",
    "versao": "29933c49ce9e",
    "backtest": {
-    "n": 754,
-    "dias": 109,
-    "acontecimentos": 328,
-    "r_medio": 0.0787,
+    "n": 799,
+    "dias": 110,
+    "acontecimentos": 333,
+    "r_medio": 0.0703,
     "ic95_blocos_acontecimento": [
-     -0.0216,
-     0.1802
+     -0.034,
+     0.1675
     ],
-    "profit_factor": 1.203,
-    "operacoes_por_semana": 35.3
+    "profit_factor": 1.18,
+    "operacoes_por_semana": 37.2
    },
    "papel": {
     "fechadas": 10,
@@ -454,16 +454,16 @@
    "tf": "1H",
    "versao": "987b19a113db",
    "backtest": {
-    "n": 461,
-    "dias": 10,
-    "acontecimentos": 10,
-    "r_medio": 0.0547,
+    "n": 529,
+    "dias": 11,
+    "acontecimentos": 11,
+    "r_medio": 0.0262,
     "ic95_blocos_acontecimento": [
-     -0.0879,
-     0.2303
+     -0.1,
+     0.1947
     ],
-    "profit_factor": 1.106,
-    "operacoes_por_semana": 30.82
+    "profit_factor": 1.046,
+    "operacoes_por_semana": 34.45
    },
    "papel": {
     "fechadas": 0,
@@ -528,16 +528,16 @@
    "tf": "4H",
    "versao": "a576dd368963",
    "backtest": {
-    "n": 347,
-    "dias": 80,
-    "acontecimentos": 196,
-    "r_medio": 0.0932,
+    "n": 380,
+    "dias": 81,
+    "acontecimentos": 201,
+    "r_medio": 0.0975,
     "ic95_blocos_acontecimento": [
-     -0.0085,
-     0.1959
+     0.0017,
+     0.1865
     ],
-    "profit_factor": 1.362,
-    "operacoes_por_semana": 17.35
+    "profit_factor": 1.392,
+    "operacoes_por_semana": 18.89
    },
    "papel": {
     "fechadas": 1,
@@ -781,16 +781,16 @@
    "tf": "4H",
    "versao": "e495d11739f6",
    "backtest": {
-    "n": 500,
-    "dias": 102,
-    "acontecimentos": 249,
-    "r_medio": 0.1061,
+    "n": 532,
+    "dias": 103,
+    "acontecimentos": 254,
+    "r_medio": 0.1095,
     "ic95_blocos_acontecimento": [
-     0.0149,
-     0.2018
+     0.0151,
+     0.198
     ],
-    "profit_factor": 1.436,
-    "operacoes_por_semana": 23.41
+    "profit_factor": 1.461,
+    "operacoes_por_semana": 24.77
    },
    "oos": {
     "n": 382,
@@ -886,16 +886,16 @@
    "tf": "4H",
    "versao": "f482badea9f5",
    "backtest": {
-    "n": 1363,
-    "dias": 77,
-    "acontecimentos": 269,
-    "r_medio": 0.0996,
+    "n": 1451,
+    "dias": 78,
+    "acontecimentos": 274,
+    "r_medio": 0.0968,
     "ic95_blocos_acontecimento": [
-     -0.0234,
-     0.2268
+     -0.0215,
+     0.2105
     ],
-    "profit_factor": 1.338,
-    "operacoes_por_semana": 62.7
+    "profit_factor": 1.329,
+    "operacoes_por_semana": 66.39
    },
    "papel": {
     "fechadas": 0,
@@ -993,7 +993,7 @@
    }
   }
  },
- "t": 1795082475,
+ "t": 1795086075,
  "pedidos_teste_final": [],
  "piloto_operacional": true,
  "criterios": {
