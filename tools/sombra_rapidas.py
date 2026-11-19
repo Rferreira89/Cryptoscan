@@ -80,11 +80,13 @@ def universo(get=_get_publico, n=N_MAX):
             continue
         if ins and topo < TOPO_MIN_USD:
             cont["topo_do_livro"] += 1
+            cont.setdefault("_cortados_topo", []).append((base, round(topo), t.get("bidSz"), t.get("askSz"), ctval.get(inst)))
             continue
         cont["elegiveis"] += 1
         xs.append((vol, base, round(spread, 2)))
     xs.sort(reverse=True)
     ELEG.clear()
+    print("cortados pelo topo do livro (base, valor, bidSz, askSz, ctVal):", cont.pop("_cortados_topo", [])[:25])
     ELEG.update(cont, usadas=min(n, len(xs)), criterios={"volume_24h_minimo_milhoes": VOL_MIN_USD / 1e6,
                                                          "spread_maximo_bps": SPREAD_MAX_BPS,
                                                          "topo_do_livro_minimo_milhares": TOPO_MIN_USD / 1e3, "maximo": n},
