@@ -213,9 +213,43 @@ def auditoria_bybit():
     return out
 
 
+def sei_short():
+    """(19/11) SEI SHORT_TURTLE: o registo diz fechada a 30/10, as execucoes do par SEIUSDC so mostram a entrada.
+    Procura a saida noutros pares e o reembolso do emprestimo. So GET; quantidades so por Telegram."""
+    from engine import account as AC
+    out = {}
+    a0, a1 = 1793_000_000, 1793_000_000 + 21 * 86400          # 23/10 a ~13/11 (janelas de 7 dias)
+    for sym in ("SEIUSDC", "SEIUSDT", "SEIEUR"):
+        xs, a = [], a0
+        while a < a1:
+            b = min(a1, a + AC.JANELA_S)
+            try:
+                xs += AC.execs_janela(sym, a, b)
+            except Exception as e:
+                out[sym + "_erro"] = str(e)[:80]
+                break
+            a = b
+        out[sym] = [{"t": int(float(x.get("execTime") or 0) / 1000), "lado": x.get("side"), "preco": x.get("execPrice"),
+                     "tipo": x.get("stopOrderType") or x.get("orderType"), "link": (x.get("orderLinkId") or "")[:6]} for x in xs]
+        for x in xs:
+            PRIV.append(f"Bybit EU {sym} {x.get('side')} {x.get('execTime')}: qty {x.get('execQty')}")
+    try:
+        h = AC.get("/v5/account/borrow-history", {"currency": "SEI", "startTime": a0 * 1000, "endTime": (a0 + 29 * 86400) * 1000, "limit": 50})
+        out["juros_sei_registos"] = len(h.get("list") or [])
+        ts = sorted(int(float(x.get("createdTime") or 0) / 1000) for x in h.get("list") or [])
+        out["juros_sei_primeiro_ultimo"] = [ts[0], ts[-1]] if ts else None
+    except Exception as e:
+        out["juros_erro"] = str(e)[:80]
+    return out
+
+
 if __name__ == "__main__":
     bases = sys.argv[1:] or ["RENDER", "SPCX", "XLM"]
     r = {"okx": okx(bases), "bybit_eu": bybit(["XLM"])}
+    try:
+        r["sei_short"] = sei_short()
+    except Exception as e:
+        r["sei_short"] = {"erro": f"{type(e).__name__}: {str(e)[:100]}"}
     try:
         r["bybit_auditoria"] = auditoria_bybit()
     except Exception as e:
