@@ -158,3 +158,22 @@ class Publicacao(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class LoteDoPlano(unittest.TestCase):
+    """(19/11) plan.lote.qtd e plan.lote.risco_efetivo sairam no state.json e no scan.json publicos (sinal XLM)."""
+    LOTE = {"signals": {"XLM-X-1": {"plan": {"stop": 0.15, "lote": {"qtd": 36.8, "passo": 0.1, "qtd_min": 0.1,
+                                                                     "preco_limite": 0.1363, "risco_efetivo": 0.66}}}}}
+
+    def test_guarda_apanha(self):
+        campos = {c.rsplit(".", 1)[-1] for c, _ in G.verificar(self.LOTE)}
+        self.assertTrue({"qtd", "risco_efetivo"} <= campos, campos)
+
+    def test_copia_publica_tira_na_origem(self):
+        from engine import publico
+        limpo = publico.state(self.LOTE)
+        lote = limpo["signals"]["XLM-X-1"]["plan"]["lote"]
+        self.assertNotIn("qtd", lote)
+        self.assertNotIn("risco_efetivo", lote)
+        self.assertEqual(lote["preco_limite"], 0.1363)                    # precos continuam publicos
+        self.assertEqual(G.verificar(limpo), [])

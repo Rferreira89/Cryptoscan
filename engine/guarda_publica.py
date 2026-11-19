@@ -16,7 +16,9 @@ import sys
 DINHEIRO = {"usdc", "usdt", "usd", "eur", "saldo", "saldos", "balance", "equity", "margem", "margin", "nocional",
             "notional", "capital", "pnl", "lucro", "valor", "wallet", "carteira", "disponivel", "avail", "availbal",
             "divida", "dividas", "debt", "borrow", "borrowed", "emprestimo", "comissoes", "fees", "juros", "fundo", "eq"}
-TAMANHO = {"qty", "quantidade", "contratos", "contracts", "sz", "size", "accfillsz", "execqty", "pos", "held"}
+TAMANHO = {"qty", "qtd", "quantidade", "contratos", "contracts", "sz", "size", "accfillsz", "execqty", "pos", "held"}
+# nomes inteiros que sao dinheiro sem uma palavra da lista acima (19/11: plan.lote.risco_efetivo no state.json)
+NOMES_DINHEIRO = {"risco_efetivo", "risco_usdc", "risco_moeda"}
 CONTA = {"uid", "apikey", "passphrase", "secret", "accountid", "subuid", "token", "senha"}
 # nomes inteiros permitidos: limites da configuracao PUBLICA (config.json e piloto_okx_config.json estao no
 # repositorio), especificacoes publicas dos contratos e indicadores sem dinheiro
@@ -87,7 +89,7 @@ def verificar(dados, nome=""):
                 k = str(k)
                 herda = pai
                 if not _permitido(k):
-                    herda = "dinheiro" if _tem(k, DINHEIRO) else "tamanho" if _tem(k, TAMANHO) else pai
+                    herda = "dinheiro" if (_tem(k, DINHEIRO) or k.lower() in NOMES_DINHEIRO) else "tamanho" if _tem(k, TAMANHO) else pai
                 else:
                     herda = None if not SIMBOLO.match(k) else pai
                 anda(x, f"{caminho}.{k}" if caminho else k, k, herda)
@@ -105,7 +107,8 @@ def verificar(dados, nome=""):
             elif chave and _permitido(chave):
                 proprio = None
             else:
-                proprio = "dinheiro" if chave and _tem(chave, DINHEIRO) else "tamanho" if chave and _tem(chave, TAMANHO) else pai
+                proprio = ("dinheiro" if chave and (_tem(chave, DINHEIRO) or chave.lower() in NOMES_DINHEIRO)
+                           else "tamanho" if chave and _tem(chave, TAMANHO) else pai)
             if proprio == "dinheiro":
                 out.append((caminho, f"valor monetario absoluto no campo '{chave}'"))
                 return

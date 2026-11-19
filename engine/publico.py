@@ -15,7 +15,8 @@ MARCA = "_publico"
 DINHEIRO = re.compile(
     r"usdc|usd|capital|equity|pnl|saldo|lucro|qty|quantidade|valor|investido|deposit|fluxo|"
     r"pico|^g$|serie|^pts$|emprestad|collateral|borrowed|fundo|comiss|^ult$|por_confirmar|"
-    r"livre|^falta|marco|multiplicar|cenarios|^reais$|preco_entrada|preco_saida",
+    r"livre|^falta|marco|multiplicar|cenarios|^reais$|preco_entrada|preco_saida|"
+    r"^qtd$|qtd_|risco_efetivo",          # (19/11) plan.lote.qtd e plan.lote.risco_efetivo sairam no state.json publico
     re.I)
 
 SCAN_FORA = {"conta", "meta_base", "meta", "reais", "contributo", "nucleo", "evolucao", "liberdade",
