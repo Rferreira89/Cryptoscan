@@ -30,25 +30,63 @@ def _get_publico(path):
     return TS._get(path)
 
 
-def universo(get=_get_publico, n=N_MOEDAS):
+# (19/11, ordem do Rui, ponto 4) elegibilidade objetiva em vez dos 60 maiores: volume, spread, tamanho no topo do
+# livro (deslize estimado) e so cripto. Valores fixados antes de olhar para resultados; o custo da sombra (0,05% de
+# deslize por lado) so e realista com spread <= 8 bps.
+VOL_MIN_USD = 5_000_000
+SPREAD_MAX_BPS = 8.0
+TOPO_MIN_USD = 2_000          # valor no melhor bid e no melhor ask (ordem pequena executa sem varrer o livro)
+N_MAX = 150                   # limite de pedidos por volta (as velas sao um pedido por moeda)
+ELEG = {}
+
+
+def universo(get=_get_publico, n=N_MAX):
     tk = get("/api/v5/market/tickers?instType=SWAP") or []
     # (19/11) so cripto, como no estudo: a OKX tambem tem perpetuos de acoes e indices (instCategory != "1")
     ins = get("/api/v5/public/instruments?instType=SWAP") or []
     cripto = {x.get("instId") for x in ins if str(x.get("instCategory") or "1") == "1"} if ins else None
-    xs = []
+    ctval = {x.get("instId"): x.get("ctVal") for x in ins}
+    xs, cont = [], {"perpetuos": 0, "nao_cripto": 0, "estavel": 0, "volume": 0, "spread": 0, "topo_do_livro": 0,
+                    "elegiveis": 0}
     for t in tk:
         inst = t.get("instId") or ""
-        if not inst.endswith("-USDT-SWAP") or (cripto is not None and inst not in cripto):
+        if not inst.endswith("-USDT-SWAP"):
+            continue
+        cont["perpetuos"] += 1
+        if cripto is not None and inst not in cripto:
+            cont["nao_cripto"] += 1
             continue
         base = inst.split("-")[0]
         if base in ESTAVEIS:
+            cont["estavel"] += 1
             continue
         try:
-            vol = float(t.get("volCcy24h") or 0) * float(t.get("last") or 0)
+            last = float(t.get("last") or 0)
+            vol = float(t.get("volCcy24h") or 0) * last
+            bid, ask = float(t.get("bidPx") or 0), float(t.get("askPx") or 0)
+            cv = float(ctval.get(inst) or 1)
+            topo = min(float(t.get("bidSz") or 0), float(t.get("askSz") or 0)) * cv * last
         except ValueError:
             continue
-        xs.append((vol, base))
-    return [b for _, b in sorted(xs, reverse=True)[:n]]
+        if vol < VOL_MIN_USD:
+            cont["volume"] += 1
+            continue
+        spread = 1e4 * (ask - bid) / ((ask + bid) / 2) if bid > 0 and ask > 0 else None
+        if spread is None or spread > SPREAD_MAX_BPS:
+            cont["spread"] += 1
+            continue
+        if ins and topo < TOPO_MIN_USD:
+            cont["topo_do_livro"] += 1
+            continue
+        cont["elegiveis"] += 1
+        xs.append((vol, base, round(spread, 2)))
+    xs.sort(reverse=True)
+    ELEG.clear()
+    ELEG.update(cont, usadas=min(n, len(xs)), criterios={"volume_24h_minimo_milhoes": VOL_MIN_USD / 1e6,
+                                                         "spread_maximo_bps": SPREAD_MAX_BPS,
+                                                         "topo_do_livro_minimo_milhares": TOPO_MIN_USD / 1e3, "maximo": n},
+                _spread={b: sp for _, b, sp in xs[:n]})
+    return [b for _, b, _ in xs[:n]]
 
 
 def velas(base, get=_get_publico, n=60):
@@ -120,7 +158,8 @@ def volta(estado, now=None, get=_get_publico):
             if k in st["abertas"] or k in set(st.get("chaves") or []):
                 continue
             st["abertas"][k] = {"hip": hip, "ativo": b, "t": c[i]["t"], "lado": lado, "preco_ref": c[i]["c"],
-                                "visto": now, "btc_1h": round(btc_ret.get(c[i]["t"], 0.0), 4)}
+                                "visto": now, "btc_1h": round(btc_ret.get(c[i]["t"], 0.0), 4),
+                                "spread_bps": (ELEG.get("_spread") or {}).get(b)}
             st.setdefault("chaves", []).append(k)
             novos += 1
     fechar = []
@@ -139,6 +178,7 @@ def volta(estado, now=None, get=_get_publico):
     st["fechadas"] = st["fechadas"][-MAX_FECHADAS:]
     st["chaves"] = (st.get("chaves") or [])[-20000:]
     st.update(t=now, classificacao="SHADOW", moedas=len(moedas), novos_ultima_volta=novos,
+              elegibilidade={k: v for k, v in ELEG.items() if k != "_spread"},
               resumo=resumo(st["fechadas"]), custo_ida_volta=CUSTO,
               nota="so precos publicos da OKX; nenhuma ordem; resultados hipoteticos (sombra), nao sao reais")
     return st

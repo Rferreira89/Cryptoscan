@@ -23,12 +23,16 @@ class Falso:
         self.pedidos.append(path)
         if "public/instruments" in path:
             return [{"instId": "AAA-USDT-SWAP", "instCategory": "1"}, {"instId": "BTC-USDT-SWAP", "instCategory": "1"},
+                    {"instId": "POUCO-USDT-SWAP", "instCategory": "1"}, {"instId": "LARGO-USDT-SWAP", "instCategory": "1"},
                     {"instId": "USDC-USDT-SWAP", "instCategory": "1"}, {"instId": "INTC-USDT-SWAP", "instCategory": "3"}]
         if "tickers" in path:
-            return [{"instId": "AAA-USDT-SWAP", "volCcy24h": "1000", "last": "1"},
-                    {"instId": "INTC-USDT-SWAP", "volCcy24h": "99999", "last": "30"},
-                    {"instId": "USDC-USDT-SWAP", "volCcy24h": "9999", "last": "1"},
-                    {"instId": "BTC-USDT-SWAP", "volCcy24h": "500", "last": "60000"}]
+            liv = {"bidSz": "5000", "askSz": "5000"}
+            return [dict(liv, instId="AAA-USDT-SWAP", volCcy24h="9000000", last="1", bidPx="0.9999", askPx="1.0001"),
+                    dict(liv, instId="INTC-USDT-SWAP", volCcy24h="999999", last="30", bidPx="29.99", askPx="30.01"),
+                    dict(liv, instId="USDC-USDT-SWAP", volCcy24h="99999999", last="1", bidPx="0.9999", askPx="1.0001"),
+                    dict(liv, instId="BTC-USDT-SWAP", volCcy24h="5000", last="60000", bidPx="59999", askPx="60001"),
+                    dict(liv, instId="POUCO-USDT-SWAP", volCcy24h="1000", last="1", bidPx="0.9999", askPx="1.0001"),
+                    dict(liv, instId="LARGO-USDT-SWAP", volCcy24h="9000000", last="1", bidPx="0.99", askPx="1.01")]
         base = path.split("instId=")[1].split("-")[0]
         d = serie(self.n, 60000.0 if base == "BTC" else 1.0)
         if base == "AAA" and self.evento:
@@ -71,6 +75,15 @@ class Volta(unittest.TestCase):
         f = [x for x in st["fechadas"] if x["ativo"] == "ZZZ"][0]
         self.assertTrue(f["sem_dados"])
         self.assertNotIn("R1|1h|LONG", {k for k in st["resumo"] if "ZZZ" in k})
+
+    def test_elegibilidade_objetiva(self):
+        g = Falso()
+        self.assertEqual(S.universo(g), ["BTC", "AAA"])
+        e = S.ELEG
+        self.assertEqual((e["nao_cripto"], e["estavel"], e["volume"], e["spread"], e["elegiveis"]), (1, 1, 1, 1, 2))
+        st = S.volta({}, now=T0 + 40 * H, get=Falso(n=40))
+        self.assertEqual(st["elegibilidade"]["elegiveis"], 2)
+        self.assertTrue(all(v.get("spread_bps") is not None for v in st["abertas"].values()))
 
     def test_eventos_de_acoes_saem(self):
         st0 = {"abertas": {"R2|INTC|1|-1": {"hip": "R2", "ativo": "INTC", "t": T0, "lado": -1}}, "fechadas": []}
