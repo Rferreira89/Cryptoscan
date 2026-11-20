@@ -343,16 +343,16 @@
     "operacoes_por_semana": 37.87
    },
    "papel": {
-    "fechadas": 26,
-    "acontecimentos": 9,
-    "dias": 2.8,
-    "r_medio": -0.2727,
-    "r_medio_por_acontecimento": -0.3049,
+    "fechadas": 30,
+    "acontecimentos": 12,
+    "dias": 3.2,
+    "r_medio": -0.3544,
+    "r_medio_por_acontecimento": -0.4139,
     "falhas_criticas": 1,
     "desde": 1794916800,
     "ic95_acontecimento": [
-     -0.7972,
-     0.1346
+     -0.7818,
+     -0.04
     ],
     "ok": false
    },
@@ -383,8 +383,8 @@
       -0.3596
      ],
      "NES": [
-      1,
-      1.4373
+      2,
+      0.5867
      ],
      "COHR": [
       2,
@@ -449,18 +449,30 @@
      "USELESS": [
       1,
       -1.029
+     ],
+     "CHIP": [
+      1,
+      -1.1201
+     ],
+     "BILL": [
+      1,
+      -1.079
+     ],
+     "CP": [
+      1,
+      -1.0787
      ]
     },
     "por_tf": {
      "4H": [
-      26,
-      -0.2727
+      30,
+      -0.3544
      ]
     },
     "por_regime": {
      "btc_abaixo_media50": [
-      26,
-      -0.2727
+      30,
+      -0.3544
      ]
     }
    },
@@ -1067,7 +1079,7 @@
    }
   }
  },
- "t": 1795188676,
+ "t": 1795190476,
  "pedidos_teste_final": [],
  "piloto_operacional": true,
  "criterios": {
