@@ -7,34 +7,9 @@
 "fechada_em": 1795191233
 }
 ],
-"t": 1795211619,
+"t": 1795211739,
 "aviso": "CopyTrading: sinais para o piloto OKX (execucao real so la, com os limites do piloto)",
 "estrategias": {
-"copy:hyperliquid:0x6e28520e5e4c821f55086805bfe8354d1b6df5f5": {
-"id": "copy:hyperliquid:0x6e28520e5e4c821f55086805bfe8354d1b6df5f5",
-"versao": "copy:hyperliquid:0x6e28520e5e4c821f55086805bfe8354d1b6df5f5",
-"estado": "EXPERIMENTAL_REAL",
-"lado": "AMBOS",
-"tf": "1H",
-"definicao": {
-"tf": "1H",
-"saida": {
-"tipo": "fixa",
-"k": 1.5,
-"tp": 2.0,
-"hold": 4
-}
-},
-"auditoria_tecnica": {
-"ok": true,
-"falhas": [],
-"sinal": "posicao publica do trader + preco atual da OKX EEA"
-},
-"backtest": {
-"r_medio": 0.03206
-},
-"origem": "copy"
-},
 "copy:hyperliquid:0x643b713c5c6b86f74c0bbd77d0fe257acc772801": {
 "id": "copy:hyperliquid:0x643b713c5c6b86f74c0bbd77d0fe257acc772801",
 "versao": "copy:hyperliquid:0x643b713c5c6b86f74c0bbd77d0fe257acc772801",
