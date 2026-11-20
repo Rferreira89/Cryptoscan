@@ -1,0 +1,376 @@
+{
+ "moedas": 68,
+ "fim": 1795190400,
+ "janelas": {
+  "reserva": [
+   1779465600,
+   1795190400
+  ],
+  "desenho": [
+   1732118400,
+   1779465600
+  ],
+  "antigo": [
+   1627776000,
+   1728604800
+  ]
+ },
+ "lideres": {
+  "BOUNCE_AMPLITUDE": {
+   "filtro_btc": true,
+   "reserva": {
+    "S": {
+     "n": 2,
+     "avg_r": 1.194,
+     "com_controlo": 2,
+     "acaso_mediana": -0.476,
+     "acaso_p95": 1.341,
+     "percentil": 87.6
+    },
+    "F": {
+     "n": 2,
+     "avg_r": 1.194,
+     "com_controlo": 2,
+     "acaso_mediana": -0.19,
+     "acaso_p95": 1.341,
+     "percentil": 89.1
+    },
+    "U": {
+     "n": 2,
+     "avg_r": 1.194,
+     "com_controlo": 2,
+     "acaso_mediana": -0.476,
+     "acaso_p95": 1.194,
+     "percentil": 94.8
+    },
+    "acerto": 1.0
+   },
+   "desenho": {
+    "S": {
+     "n": 180,
+     "avg_r": -0.107,
+     "com_controlo": 180,
+     "acaso_mediana": -0.177,
+     "acaso_p95": -0.089,
+     "percentil": 91.1
+    },
+    "F": {
+     "n": 180,
+     "avg_r": -0.107,
+     "com_controlo": 180,
+     "acaso_mediana": -0.147,
+     "acaso_p95": -0.06,
+     "percentil": 77.0
+    },
+    "U": {
+     "n": 180,
+     "avg_r": -0.107,
+     "com_controlo": 180,
+     "acaso_mediana": -0.133,
+     "acaso_p95": -0.038,
+     "percentil": 66.7
+    },
+    "acerto": 0.511
+   },
+   "antigo": {
+    "S": {
+     "n": 225,
+     "avg_r": -0.347,
+     "com_controlo": 225,
+     "acaso_mediana": -0.351,
+     "acaso_p95": -0.273,
+     "percentil": 54.1
+    },
+    "F": {
+     "n": 225,
+     "avg_r": -0.347,
+     "com_controlo": 225,
+     "acaso_mediana": -0.253,
+     "acaso_p95": -0.173,
+     "percentil": 3.0
+    },
+    "U": {
+     "n": 225,
+     "avg_r": -0.347,
+     "com_controlo": 225,
+     "acaso_mediana": -0.181,
+     "acaso_p95": -0.087,
+     "percentil": 0.0
+    },
+    "acerto": 0.391
+   },
+   "veredicto": {
+    "S": "AMOSTRA INSUFICIENTE",
+    "F": "AMOSTRA INSUFICIENTE",
+    "U": "AMOSTRA INSUFICIENTE"
+   }
+  },
+  "CAP_MERCADO_V2_N5K2": {
+   "filtro_btc": false,
+   "reserva": {
+    "S": {
+     "n": 68,
+     "avg_r": -0.206,
+     "com_controlo": 68,
+     "acaso_mediana": -0.453,
+     "acaso_p95": -0.317,
+     "percentil": 99.7
+    },
+    "F": {
+     "n": 68,
+     "avg_r": -0.206,
+     "com_controlo": 68,
+     "acaso_mediana": -0.346,
+     "acaso_p95": -0.207,
+     "percentil": 95.1
+    },
+    "U": {
+     "n": 68,
+     "avg_r": -0.206,
+     "com_controlo": 68,
+     "acaso_mediana": -0.199,
+     "acaso_p95": -0.008,
+     "percentil": 47.0
+    },
+    "acerto": 0.456
+   },
+   "desenho": {
+    "S": {
+     "n": 214,
+     "avg_r": 0.404,
+     "com_controlo": 214,
+     "acaso_mediana": -0.278,
+     "acaso_p95": -0.183,
+     "percentil": 100.0
+    },
+    "F": {
+     "n": 214,
+     "avg_r": 0.404,
+     "com_controlo": 214,
+     "acaso_mediana": -0.208,
+     "acaso_p95": -0.125,
+     "percentil": 100.0
+    },
+    "U": {
+     "n": 214,
+     "avg_r": 0.404,
+     "com_controlo": 214,
+     "acaso_mediana": -0.125,
+     "acaso_p95": -0.027,
+     "percentil": 100.0
+    },
+    "acerto": 0.682
+   },
+   "antigo": {
+    "S": {
+     "n": 295,
+     "avg_r": -0.107,
+     "com_controlo": 295,
+     "acaso_mediana": -0.223,
+     "acaso_p95": -0.147,
+     "percentil": 99.6
+    },
+    "F": {
+     "n": 295,
+     "avg_r": -0.107,
+     "com_controlo": 295,
+     "acaso_mediana": -0.041,
+     "acaso_p95": 0.039,
+     "percentil": 7.4
+    },
+    "U": {
+     "n": 295,
+     "avg_r": -0.107,
+     "com_controlo": 295,
+     "acaso_mediana": -0.103,
+     "acaso_p95": -0.024,
+     "percentil": 47.2
+    },
+    "acerto": 0.444
+   },
+   "veredicto": {
+    "S": "PERDE",
+    "F": "PERDE",
+    "U": "PERDE"
+   }
+  },
+  "BOUNCE_ALVO": {
+   "filtro_btc": true,
+   "reserva": {
+    "S": {
+     "n": 10,
+     "avg_r": 0.449,
+     "com_controlo": 10,
+     "acaso_mediana": -0.414,
+     "acaso_p95": 0.101,
+     "percentil": 99.6
+    },
+    "F": {
+     "n": 10,
+     "avg_r": 0.449,
+     "com_controlo": 10,
+     "acaso_mediana": -0.369,
+     "acaso_p95": 0.105,
+     "percentil": 99.5
+    },
+    "U": {
+     "n": 10,
+     "avg_r": 0.449,
+     "com_controlo": 10,
+     "acaso_mediana": -0.248,
+     "acaso_p95": 0.308,
+     "percentil": 98.0
+    },
+    "acerto": 0.5
+   },
+   "desenho": {
+    "S": {
+     "n": 33,
+     "avg_r": 0.045,
+     "com_controlo": 33,
+     "acaso_mediana": -0.337,
+     "acaso_p95": -0.064,
+     "percentil": 99.0
+    },
+    "F": {
+     "n": 33,
+     "avg_r": 0.045,
+     "com_controlo": 33,
+     "acaso_mediana": -0.221,
+     "acaso_p95": 0.018,
+     "percentil": 96.6
+    },
+    "U": {
+     "n": 33,
+     "avg_r": 0.045,
+     "com_controlo": 33,
+     "acaso_mediana": -0.189,
+     "acaso_p95": 0.087,
+     "percentil": 91.9
+    },
+    "acerto": 0.424
+   },
+   "antigo": {
+    "S": {
+     "n": 16,
+     "avg_r": -0.139,
+     "com_controlo": 16,
+     "acaso_mediana": -0.415,
+     "acaso_p95": -0.03,
+     "percentil": 89.5
+    },
+    "F": {
+     "n": 16,
+     "avg_r": -0.139,
+     "com_controlo": 16,
+     "acaso_mediana": -0.151,
+     "acaso_p95": 0.232,
+     "percentil": 51.5
+    },
+    "U": {
+     "n": 16,
+     "avg_r": -0.139,
+     "com_controlo": 16,
+     "acaso_mediana": -0.214,
+     "acaso_p95": 0.206,
+     "percentil": 62.6
+    },
+    "acerto": 0.438
+   },
+   "veredicto": {
+    "S": "AMOSTRA INSUFICIENTE",
+    "F": "AMOSTRA INSUFICIENTE",
+    "U": "AMOSTRA INSUFICIENTE"
+   }
+  },
+  "CAP_MERCADO_V2_N5K2_COM_FILTRO": {
+   "filtro_btc": true,
+   "reserva": {
+    "S": {
+     "n": 34,
+     "avg_r": 0.035,
+     "com_controlo": 34,
+     "acaso_mediana": -0.47,
+     "acaso_p95": -0.268,
+     "percentil": 100.0
+    },
+    "F": {
+     "n": 34,
+     "avg_r": 0.035,
+     "com_controlo": 34,
+     "acaso_mediana": -0.538,
+     "acaso_p95": -0.345,
+     "percentil": 100.0
+    },
+    "U": {
+     "n": 34,
+     "avg_r": 0.035,
+     "com_controlo": 34,
+     "acaso_mediana": -0.189,
+     "acaso_p95": 0.06,
+     "percentil": 92.9
+    },
+    "acerto": 0.618
+   },
+   "desenho": {
+    "S": {
+     "n": 81,
+     "avg_r": 0.073,
+     "com_controlo": 81,
+     "acaso_mediana": -0.179,
+     "acaso_p95": -0.024,
+     "percentil": 99.5
+    },
+    "F": {
+     "n": 81,
+     "avg_r": 0.073,
+     "com_controlo": 81,
+     "acaso_mediana": -0.166,
+     "acaso_p95": -0.019,
+     "percentil": 99.4
+    },
+    "U": {
+     "n": 81,
+     "avg_r": 0.073,
+     "com_controlo": 81,
+     "acaso_mediana": -0.12,
+     "acaso_p95": 0.033,
+     "percentil": 97.7
+    },
+    "acerto": 0.605
+   },
+   "antigo": {
+    "S": {
+     "n": 164,
+     "avg_r": -0.129,
+     "com_controlo": 164,
+     "acaso_mediana": -0.218,
+     "acaso_p95": -0.124,
+     "percentil": 93.7
+    },
+    "F": {
+     "n": 164,
+     "avg_r": -0.129,
+     "com_controlo": 164,
+     "acaso_mediana": -0.078,
+     "acaso_p95": 0.024,
+     "percentil": 22.7
+    },
+    "U": {
+     "n": 164,
+     "avg_r": -0.129,
+     "com_controlo": 164,
+     "acaso_mediana": -0.102,
+     "acaso_p95": 0.009,
+     "percentil": 33.5
+    },
+    "acerto": 0.439
+   },
+   "veredicto": {
+    "S": "MANTEM",
+    "F": "MANTEM",
+    "U": "PERDE"
+   }
+  }
+ }
+}

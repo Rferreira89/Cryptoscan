@@ -165,6 +165,15 @@ Uma estratégia que só ganha "em média por sinal" não serve a uma conta de 20
    saída ao fim de H dias. Grelha (4): q ∈ {0,55; 0,60} × H ∈ {3, 7}.
    Mesma carteira, custos, janela e critérios.
 
+6. (TESTADA em 2026-11-20, ver entrada "Líderes da arena contra o acaso incondicional": nenhum
+   mantém vantagem — CAP_MERCADO_V2_N5K2 PERDE, BOUNCE_AMPLITUDE e BOUNCE_ALVO AMOSTRA INSUFICIENTE.)
+   (PEDIDA em 2026-11-20, "Tens o meu sim".) **Reavaliar os líderes da arena com o acaso
+   incondicional.** Origem: a H18 da afinação (2026-11-20) provou que o controlo ao acaso da arena
+   (`arena.control_rs`, entradas a ±90 velas do sinal) é 0,1R a 0,2R mais fácil para a sobrevenda.
+   Os três líderes vivos são de sobrevenda/capitulação: BOUNCE_AMPLITUDE, CAP_MERCADO_V2_N5K2 e
+   BOUNCE_ALVO. Sem mudar nenhuma regra, medir se continuam acima do percentil 95 de um acaso
+   incondicional (modo U de `tools/afinacao_h18_controlo.py`). Ver pré-registo de 2026-11-20.
+
 ### Regra do papel (decisão do Rui, 2026-10-11)
 Qualquer hipótese que fique acima do percentil 95 contra o acaso fora da
 amostra vai logo para papel ao vivo, mesmo que falhe outros critérios. O
@@ -208,6 +217,7 @@ o Rui), e o morto fica registado. Um por corrida, na segunda vaga.
 | CAP_MERCADO_V2_N3K15, _N3K2, _N5K15 | 2026-11-15 04:45 UTC (clones de CAP_MERCADO_V2_N5K2, correlação 0,99–1,00) | não é desempenho: o representante (N5K2) está vivo, o corte dos clones funcionou como decidido a 2026-11-14 | sem sucessor (a família continua viva em N5K2) | — |
 | BOUNCE_LARGO_X35V20, BOUNCE_LARGO_X30V20 | 2026-11-14 16:55 e 2026-11-17 11:40 UTC (forma recente; 44 op. −0,255R e 20 op. −0,204R) | a geometria: o 1.º objetivo (SMA20) fica a menos de 1R em ~70% das operações (mediana 0,6R–0,8R), metade sai aí e o resto vai ao stop na entrada, logo ganha ~0,4R e perde 1R; igual no desenho e no combate (ver entrada de 2026-11-17) | BOUNCE_LARGO → BOUNCE_ALVO (só com a média a ≥ 1R) | AMOSTRA INSUFICIENTE — PARA PAPEL (2026-11-17; 22 op. fora da amostra, +0,585R, percentil 100 do acaso; reserva contaminada pela autópsia) |
 | RACIO_DISP | 2026-11-19 05:40 UTC (forma recente; 20 op., −0,219R; no forma.json das 11:36 UTC 30 op., −0,160R, últimas 10 todas perdedoras) | a regra é uma reversão do rácio moeda/BTC comprada em dólares sem cobrir o BTC: o ganho vem quase só da direção do BTC durante a operação. Rácio a descer com o BTC a cair perde −0,67R a −0,88R em todos os períodos; a reversão do rácio em si vale só +0,3% a +0,5% por operação (desenho e período antigo), menos do que os custos de uma versão coberta (~1,4% ida e volta). Nenhum preditor ex-ante estável (BTC 7 dias antes, sinais simultâneos, regime) e o filtro de dispersão já tinha efeito nulo (H17, p 0,41–0,55) (ver entrada de 2026-11-19) | sem sucessor (cobrir o BTC não paga os custos; filtrar pela direção do BTC só se sabe depois) | — |
+| CAP_MERCADO_V2_N5K2, BOUNCE_AMPLITUDE, BOUNCE_ALVO (vivos) | — (reavaliação, fila do Rui hipótese 6, 2026-11-20) | o juiz: o acaso à volta de uma sobrevenda perde muito (H18), por isso "bater o acaso" era "perder menos" | sem sucessor (não são mortos; regras inalteradas) | CAP_MERCADO_V2_N5K2 PERDE contra o U (68 op. na reserva, −0,206R, percentil 47); BOUNCE_AMPLITUDE (2 op.) e BOUNCE_ALVO (10 op., percentil 98) AMOSTRA INSUFICIENTE |
 | CAPITULACAO_R2 | 2026-11-14 14:00 UTC (decisão do Rui, `engine/arena.MORTES_DECIDIDAS`) | não é a regra de morte: a função `sig_capitulacao` tinha +0,08R em 46 op. e o lutador −0,66R em 3 op. (ver ordem de 2026-11-14) | a função ficou como base de CAP_MERCADO_V2 (registo acrescentado a 2026-11-18; sem teste novo) | CAP_MERCADO_V2_N5K2, a variante viva: PARA PAPEL (2026-11-14; 65 op. fora da amostra, −0,041R, percentil 98,3 do acaso) |
 
 ## Hipóteses anteriores a este diário (até 2026-10-02, período 2021-2026)
@@ -3066,3 +3076,84 @@ viés de família: testar uma família nova antes de corrigir o controlo seria j
   CAP_MERCADO_V2_N5K2 e BOUNCE_ALVO com o controlo incondicional da H18 (`tools/afinacao_h18_controlo.py`, modo U),
   fora da amostra, sem mudar regras — se caírem abaixo do p95, a arena não tem hoje nenhum lutador com vantagem
   provada.
+
+## 2026-11-20 (tarde, sessão com o Rui) — Pré-registo: líderes da arena contra o acaso incondicional (fila, hipótese 6)
+
+**Escrito antes de correr qualquer teste.** Pedido do Rui ("Tens o meu sim") à proposta da corrida da manhã.
+
+- **O que se mede:** as regras não mudam. Para cada líder, as operações são as do ringue
+  (`AR.generic_trades`, saída G0 do ringue, custos 0,25% + 0,1% por lado), com as funções exatas da arena:
+  BOUNCE_AMPLITUDE = `AR.sig_amplitude`; CAP_MERCADO_V2_N5K2 = `AR.sig_cap_mercado_v2(5, 2.0)`;
+  BOUNCE_ALVO = `AR.sig_bounce_alvo(30, 2.0, 1.0)`. Só muda o juiz: S (atual, ±90 velas), F (só para a frente)
+  e U (incondicional: entrada uniforme em qualquer vela da moeda dentro da janela avaliada), as funções de
+  `tools/afinacao_h18_controlo.py` (200 repetições por operação, 1000 carteiras).
+- **Filtro do BTC:** BOUNCE_AMPLITUDE e BOUNCE_ALVO com o BTC acima da SMA200 (como na arena e no desenho).
+  CAP_MERCADO_V2_N5K2 sem filtro do BTC (como foi desenhado e como opera em papel, `PAPEL_SEM_FILTRO_BTC`); a
+  versão com filtro (como o combate a corre hoje) é só informativa.
+- **Janela** (histórico atualizado hoje, última vela de 4H 2026-11-20 12:00 UTC): reserva = últimos 6 meses
+  (2026-05-20 → 2026-11-20), **janela decisiva**; desenho = os 18 meses antes (2024-11-20 → 2026-05-20),
+  informativo (foi onde as regras foram escolhidas); período antigo 2021-08 → 2024-10, só informativo.
+- **Critério (binário, por líder):** "mantém vantagem contra o acaso incondicional" se, na reserva, R médio > 0
+  e R médio > p95 do controlo U, com pelo menos 20 operações. Com menos de 20 operações: AMOSTRA INSUFICIENTE
+  (e menos de 40 nunca valida nada, regra de sempre). O critério também é aplicado ao controlo F, como leitura
+  secundária.
+- **O que faço com o resultado:** nada muda em `engine/` nem na arena (o controlo está em `engine/arena.py`).
+  Se um líder cair abaixo do p95 do U, fica escrito que a sua qualificação na arena depende do viés do juiz, e
+  a decisão de mudar o controlo é numa sessão com o Rui. Não é uma hipótese de entrada nova: o contador desta
+  reserva não sobe por este estudo (fica em 32), mas a reserva é a mesma já usada.
+- **Previsão honesta:** os três devem descer de percentil; BOUNCE_AMPLITUDE e BOUNCE_ALVO têm poucas operações
+  na reserva (o BTC esteve abaixo da SMA200 em boa parte dela), por isso o mais provável é AMOSTRA INSUFICIENTE
+  para eles.
+
+## 2026-11-20 — Líderes da arena contra o acaso incondicional (fila do Rui, hipótese 6)
+
+Código: `tools/reavaliacao_lideres_u.py` (operações de `AR.generic_trades` com as funções exatas da arena; juízes
+S, F e U de `tools/afinacao_h18_controlo.py`); testes `tests/test_reavaliacao_lideres_u.py` (incluindo um que prova
+que a função de sinal só vê velas fechadas antes da entrada e que mudar o futuro não muda uma operação já fechada).
+Ficheiro: `backtest/reavaliacao_lideres_u.json`. Histórico: 70 moedas além do BTC, última vela 2026-11-20 12:00 UTC.
+Reserva 2026-05-20 → 2026-11-20; desenho 2024-11-20 → 2026-05-20; antigo 2021-08 → 2024-10.
+
+R médio e percentil do R médio real em cada juiz (med./p95 do acaso entre parênteses só para o U):
+
+| Líder, janela | Op. | Acerto | R médio | Perc. S (atual) | Perc. F | Perc. U (med. / p95) |
+|---|---|---|---|---|---|---|
+| **CAP_MERCADO_V2_N5K2, reserva** | **68** | 46% | **−0,206** | 99,7 | 95,1 | **47,0** (−0,199 / −0,008) |
+| CAP_MERCADO_V2_N5K2, desenho | 214 | 68% | +0,404 | 100 | 100 | 100 (−0,125 / −0,027) |
+| CAP_MERCADO_V2_N5K2, antigo | 295 | 44% | −0,107 | 99,6 | 7,4 | 47,2 (−0,103 / −0,024) |
+| *CAP_MERCADO_V2_N5K2 com filtro do BTC, reserva* | 34 | 62% | +0,035 | 100 | 100 | 92,9 (−0,189 / +0,060) |
+| *idem, desenho* | 81 | 61% | +0,073 | 99,5 | 99,4 | 97,7 (−0,120 / +0,033) |
+| *idem, antigo* | 164 | 44% | −0,129 | 93,7 | 22,7 | 33,5 (−0,102 / +0,009) |
+| **BOUNCE_AMPLITUDE, reserva** | **2** | 100% | +1,194 | 87,6 | 89,1 | 94,8 (−0,476 / +1,194) |
+| BOUNCE_AMPLITUDE, desenho | 180 | 51% | −0,107 | 91,1 | 77,0 | 66,7 (−0,133 / −0,038) |
+| BOUNCE_AMPLITUDE, antigo | 225 | 39% | −0,347 | 54,1 | 3,0 | **0,0** (−0,181 / −0,087) |
+| **BOUNCE_ALVO, reserva** | **10** | 50% | +0,449 | 99,6 | 99,5 | 98,0 (−0,248 / +0,308) |
+| BOUNCE_ALVO, desenho | 33 | 42% | +0,045 | 99,0 | 96,6 | 91,9 (−0,189 / +0,087) |
+| BOUNCE_ALVO, antigo | 16 | 44% | −0,139 | 89,5 | 51,5 | 62,6 (−0,214 / +0,206) |
+
+**Veredicto (critério pré-registado, na reserva):**
+- **CAP_MERCADO_V2_N5K2: PERDE.** 68 operações, −0,206R: é exatamente o que dá entrar ao acaso na mesma moeda
+  (percentil 47 do U). O juiz atual põe-no no percentil 99,7 só porque o seu acaso, à volta de uma capitulação,
+  perde −0,45R. A vantagem que tinha no desenho (+0,40R em 214 op.) não se repete na reserva nem no período antigo.
+  Com o filtro do BTC (como o combate o corre), +0,035R em 34 op., percentil 92,9 do U: também abaixo do p95.
+- **BOUNCE_AMPLITUDE: AMOSTRA INSUFICIENTE** (2 operações na reserva). Nas janelas com amostra perde: desenho
+  −0,107R (percentil 66,7 do U), antigo −0,347R (percentil 0 do U). Nada aqui sustenta uma vantagem.
+- **BOUNCE_ALVO: AMOSTRA INSUFICIENTE** (10 operações na reserva, +0,449R, percentil 98 do U, o único que passa o
+  U, mas com 10 operações e uma reserva já contaminada pela autópsia de 2026-11-17). No desenho fica no
+  percentil 91,9 do U e no antigo perde (−0,139R em 16).
+- **Conclusão: nenhum dos três líderes tem vantagem provada contra o acaso incondicional.** As qualificações da
+  arena da família da sobrevenda/capitulação vêm em grande parte do viés do juiz descrito na H18: depois de uma
+  queda, o acaso à volta do sinal perde muito, e "ganhar ao acaso" passa a querer dizer só "perder menos".
+
+**Limites, ditos sem rodeios:**
+1. A reprodução usa as 70 moedas do histórico, não as 52 da Bybit UE do combate. Para BOUNCE_AMPLITUDE isto pesa
+   muito (o gatilho depende de 25% das moedas em sobrevenda): o combate de 90 dias tem 17 operações, aqui a reserva
+   tem 2. É o mesmo problema visto na autópsia de RACIO_DISP: o resultado depende do universo.
+2. 200 repetições por operação e 1000 carteiras: os percentis perto de 95 (BOUNCE_ALVO, CAP com filtro) têm ruído
+   de alguns pontos.
+3. Este estudo não muda regras; não sobe o contador desta reserva (fica em **32**), mas usa a mesma reserva.
+
+**O que não fiz (é em `engine/arena.py`, decisão numa sessão com o Rui):** trocar o controlo da arena pelo U ou
+pelo F. Se se trocasse hoje, CAP_MERCADO_V2_N5K2 deixava de se qualificar (percentil 47) e BOUNCE_AMPLITUDE e
+BOUNCE_ALVO ficariam a aguardar amostra. Nada foi ligado nem desligado; o papel ao vivo de CAP_MERCADO_V2
+continua a correr e é ele que vai dar a prova final, mas a leitura certa dos números dele é contra o U, não contra
+o acaso atual.
