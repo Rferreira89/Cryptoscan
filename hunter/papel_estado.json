@@ -67,76 +67,7 @@
 "t_entrada": 1795075200,
 "stop_inicial": 0.040459817142857145,
 "objetivo": 0.04978124571428571,
-"r_atual": 0.0692
-},
-{
-"id_op": "29933c49ce9e|DOS|1795060800",
-"estrategia": "29933c49ce9e",
-"versao_estrategia": "29933c49ce9e",
-"versao_codigo": "f1c64eb",
-"familia": "rompimento_reteste",
-"veredicto_origem": "EXPLORATORIA",
-"b": "DOS",
-"inst": "DOS-USD_UM_XPERP-310815",
-"mercado": "OKX X-Perp (PAPEL)",
-"classe": "crypto",
-"tier": "C",
-"lado": "LONG",
-"tf": "4H",
-"t_sinal": 1795060800,
-"atr_ref": 0.0040142857142857185,
-"saida": {
-"tipo": "fixa",
-"k": 2.0,
-"tp": 2.0,
-"hold": 6
-},
-"stop_ref": "4H",
-"regime": "btc_abaixo_media50",
-"acontecimento": "4H@1795060800",
-"carteiras": [
-"max3",
-"max5",
-"sem_limite"
-],
-"custos_previstos": {
-"comissao_lado_pct": 0.05,
-"deslize_lado_pct": 0.3036,
-"spread_pct": 0.6072
-},
-"decisao": {
-"fecho": 0.1657,
-"atr_tf": 0.0040142857142857185,
-"atr_ref": 0.0040142857142857185,
-"btc_ret_vela": 0.00854,
-"velas_disponiveis": 299,
-"ultima_vela_fechada": 1795060800
-},
-"tamanho": {
-"nocional_pct": 4.0,
-"margem_pct": 0.8,
-"perda_max_pct": 0.2221,
-"risco_pct": 0.2221,
-"cortado_pelo_teto_nocional": true,
-"cortado_pelo_limite_autorizado": false
-},
-"aberta_em": 1795075275,
-"historico": [
-{
-"t": 1795075275,
-"estado": "sinal aceite: entrada na abertura da vela seguinte"
-},
-{
-"t": 1795089676,
-"estado": "entrada simulada",
-"preco": 0.1666042796
-}
-],
-"entrada": 0.1666042796,
-"t_entrada": 1795075200,
-"stop_inicial": 0.15857570817142855,
-"objetivo": 0.18266142245714287,
-"r_atual": 1.4648
+"r_atual": 0.1809
 },
 {
 "id_op": "29933c49ce9e|SOON|1795060800",
@@ -204,77 +135,7 @@
 "t_entrada": 1795075200,
 "stop_inicial": 0.24650101840000002,
 "objetivo": 0.3032010184,
-"r_atual": -0.5701
-},
-{
-"id_op": "29933c49ce9e|ETHFI|1795075200",
-"estrategia": "29933c49ce9e",
-"versao_estrategia": "29933c49ce9e",
-"versao_codigo": "f1c64eb",
-"familia": "rompimento_reteste",
-"veredicto_origem": "EXPLORATORIA",
-"b": "ETHFI",
-"inst": "ETHFI-USD_UM_XPERP-310822",
-"mercado": "OKX X-Perp (PAPEL)",
-"classe": "crypto",
-"tier": "C",
-"lado": "LONG",
-"tf": "4H",
-"t_sinal": 1795075200,
-"atr_ref": 0.01615,
-"saida": {
-"tipo": "fixa",
-"k": 2.0,
-"tp": 2.0,
-"hold": 6
-},
-"stop_ref": "4H",
-"regime": "btc_abaixo_media50",
-"acontecimento": "4H@1795075200",
-"carteiras": [
-"max1",
-"max3",
-"max5",
-"sem_limite"
-],
-"custos_previstos": {
-"comissao_lado_pct": 0.05,
-"deslize_lado_pct": 0.2,
-"spread_pct": 0.3832
-},
-"decisao": {
-"fecho": 0.5229,
-"atr_tf": 0.01615,
-"atr_ref": 0.01615,
-"btc_ret_vela": 0.00332,
-"velas_disponiveis": 299,
-"ultima_vela_fechada": 1795075200
-},
-"tamanho": {
-"nocional_pct": 4.0,
-"margem_pct": 0.8,
-"perda_max_pct": 0.2671,
-"risco_pct": 0.2671,
-"cortado_pelo_teto_nocional": true,
-"cortado_pelo_limite_autorizado": false
-},
-"aberta_em": 1795089676,
-"historico": [
-{
-"t": 1795089676,
-"estado": "sinal aceite: entrada na abertura da vela seguinte"
-},
-{
-"t": 1795104076,
-"estado": "entrada simulada",
-"preco": 0.5222424
-}
-],
-"entrada": 0.5222424,
-"t_entrada": 1795089600,
-"stop_inicial": 0.4899424,
-"objetivo": 0.5868424,
-"r_atual": -0.7652
+"r_atual": -0.75
 },
 {
 "id_op": "29933c49ce9e|USELESS|1795075200",
@@ -343,7 +204,7 @@
 "t_entrada": 1795089600,
 "stop_inicial": 0.09355004857142858,
 "objetivo": 0.12645576285714286,
-"r_atual": -0.5881
+"r_atual": -0.5285
 },
 {
 "id_op": "29933c49ce9e|WDC|1795075200",
@@ -411,7 +272,7 @@
 "t_entrada": 1795089600,
 "stop_inicial": 287.3104007142857,
 "objetivo": 339.7675435714286,
-"r_atual": -0.5246
+"r_atual": -0.707
 },
 {
 "id_op": "a576dd368963|BASED|1795075200",
@@ -479,7 +340,7 @@
 "t_entrada": 1795089600,
 "stop_inicial": 0.03962481428571429,
 "objetivo": 0.05216052857142857,
-"r_atual": -0.1707
+"r_atual": -0.1015
 },
 {
 "id_op": "29933c49ce9e|NES|1795089600",
@@ -549,7 +410,7 @@
 "t_entrada": 1795104000,
 "stop_inicial": 0.2568860358285714,
 "objetivo": 0.39630032154285716,
-"r_atual": -0.1318
+"r_atual": -0.138
 },
 {
 "id_op": "29933c49ce9e|CHIP|1795104000",
@@ -608,8 +469,18 @@
 {
 "t": 1795118476,
 "estado": "sinal aceite: entrada na abertura da vela seguinte"
+},
+{
+"t": 1795132875,
+"estado": "entrada simulada",
+"preco": 0.0297098528
 }
-]
+],
+"entrada": 0.0297098528,
+"t_entrada": 1795118400,
+"stop_inicial": 0.027352709942857142,
+"objetivo": 0.03442413851428571,
+"r_atual": -0.4745
 },
 {
 "id_op": "29933c49ce9e|COHR|1795104000",
@@ -667,8 +538,18 @@
 {
 "t": 1795118476,
 "estado": "sinal aceite: entrada na abertura da vela seguinte"
+},
+{
+"t": 1795132875,
+"estado": "entrada simulada",
+"preco": 226.7494111
 }
-]
+],
+"entrada": 226.7494111,
+"t_entrada": 1795118400,
+"stop_inicial": 219.52226824285714,
+"objetivo": 241.2036968142857,
+"r_atual": -0.2526
 },
 {
 "id_op": "29933c49ce9e|VVV|1795104000",
@@ -726,8 +607,18 @@
 {
 "t": 1795118476,
 "estado": "sinal aceite: entrada na abertura da vela seguinte"
+},
+{
+"t": 1795132875,
+"estado": "entrada simulada",
+"preco": 22.479907403
 }
-]
+],
+"entrada": 22.479907403,
+"t_entrada": 1795118400,
+"stop_inicial": 20.513764545857143,
+"objetivo": 26.412193117285714,
+"r_atual": -0.3186
 }
 ],
 "fechadas": [
@@ -5575,30 +5466,213 @@
 "permanencia_min": 960,
 "resultado_pct_preco": 8.2261,
 "resultado_liquido_pct_capital": 0.3893
+},
+{
+"id_op": "29933c49ce9e|DOS|1795060800",
+"estrategia": "29933c49ce9e",
+"versao_estrategia": "29933c49ce9e",
+"versao_codigo": "f1c64eb",
+"familia": "rompimento_reteste",
+"veredicto_origem": "EXPLORATORIA",
+"b": "DOS",
+"inst": "DOS-USD_UM_XPERP-310815",
+"mercado": "OKX X-Perp (PAPEL)",
+"classe": "crypto",
+"tier": "C",
+"lado": "LONG",
+"tf": "4H",
+"t_sinal": 1795060800,
+"atr_ref": 0.0040142857142857185,
+"saida": {
+"tipo": "fixa",
+"k": 2.0,
+"tp": 2.0,
+"hold": 6
+},
+"stop_ref": "4H",
+"regime": "btc_abaixo_media50",
+"acontecimento": "4H@1795060800",
+"carteiras": [
+"max3",
+"max5",
+"sem_limite"
+],
+"custos_previstos": {
+"comissao_lado_pct": 0.05,
+"deslize_lado_pct": 0.3036,
+"spread_pct": 0.6072
+},
+"decisao": {
+"fecho": 0.1657,
+"atr_tf": 0.0040142857142857185,
+"atr_ref": 0.0040142857142857185,
+"btc_ret_vela": 0.00854,
+"velas_disponiveis": 299,
+"ultima_vela_fechada": 1795060800
+},
+"tamanho": {
+"nocional_pct": 4.0,
+"margem_pct": 0.8,
+"perda_max_pct": 0.2221,
+"risco_pct": 0.2221,
+"cortado_pelo_teto_nocional": true,
+"cortado_pelo_limite_autorizado": false
+},
+"aberta_em": 1795075275,
+"historico": [
+{
+"t": 1795075275,
+"estado": "sinal aceite: entrada na abertura da vela seguinte"
+},
+{
+"t": 1795089676,
+"estado": "entrada simulada",
+"preco": 0.1666042796
+},
+{
+"t": 1795132875,
+"estado": "fechada: alvo",
+"r": 1.906
+}
+],
+"entrada": 0.1666042796,
+"t_entrada": 1795075200,
+"stop_inicial": 0.15857570817142855,
+"objetivo": 0.18266142245714287,
+"r_atual": 1.4648,
+"fechada_em": 1795132875,
+"r": 1.906,
+"bruto_r": 1.9309,
+"custos": {
+"comissoes_e_deslize_r": 0.0208,
+"funding_pct": 0.02,
+"funding_fonte": "real",
+"total_r": 0.0249
+},
+"custos_r": 0.0249,
+"funding_pct": 0.02,
+"motivo": "alvo",
+"preco_saida_equivalente": 0.1821068624,
+"velas": 4,
+"permanencia_min": 960,
+"resultado_pct_preco": 9.305,
+"resultado_liquido_pct_capital": 0.4233
+},
+{
+"id_op": "29933c49ce9e|ETHFI|1795075200",
+"estrategia": "29933c49ce9e",
+"versao_estrategia": "29933c49ce9e",
+"versao_codigo": "f1c64eb",
+"familia": "rompimento_reteste",
+"veredicto_origem": "EXPLORATORIA",
+"b": "ETHFI",
+"inst": "ETHFI-USD_UM_XPERP-310822",
+"mercado": "OKX X-Perp (PAPEL)",
+"classe": "crypto",
+"tier": "C",
+"lado": "LONG",
+"tf": "4H",
+"t_sinal": 1795075200,
+"atr_ref": 0.01615,
+"saida": {
+"tipo": "fixa",
+"k": 2.0,
+"tp": 2.0,
+"hold": 6
+},
+"stop_ref": "4H",
+"regime": "btc_abaixo_media50",
+"acontecimento": "4H@1795075200",
+"carteiras": [
+"max1",
+"max3",
+"max5",
+"sem_limite"
+],
+"custos_previstos": {
+"comissao_lado_pct": 0.05,
+"deslize_lado_pct": 0.2,
+"spread_pct": 0.3832
+},
+"decisao": {
+"fecho": 0.5229,
+"atr_tf": 0.01615,
+"atr_ref": 0.01615,
+"btc_ret_vela": 0.00332,
+"velas_disponiveis": 299,
+"ultima_vela_fechada": 1795075200
+},
+"tamanho": {
+"nocional_pct": 4.0,
+"margem_pct": 0.8,
+"perda_max_pct": 0.2671,
+"risco_pct": 0.2671,
+"cortado_pelo_teto_nocional": true,
+"cortado_pelo_limite_autorizado": false
+},
+"aberta_em": 1795089676,
+"historico": [
+{
+"t": 1795089676,
+"estado": "sinal aceite: entrada na abertura da vela seguinte"
+},
+{
+"t": 1795104076,
+"estado": "entrada simulada",
+"preco": 0.5222424
+},
+{
+"t": 1795132875,
+"estado": "fechada: stop",
+"r": -1.0489
+}
+],
+"entrada": 0.5222424,
+"t_entrada": 1795089600,
+"stop_inicial": 0.4899424,
+"objetivo": 0.5868424,
+"r_atual": -0.7652,
+"fechada_em": 1795132875,
+"r": -1.0489,
+"bruto_r": -1.0303,
+"custos": {
+"comissoes_e_deslize_r": 0.0162,
+"funding_pct": 0.015,
+"funding_fonte": "real",
+"total_r": 0.0186
+},
+"custos_r": 0.0186,
+"funding_pct": 0.015,
+"motivo": "stop",
+"preco_saida_equivalente": 0.4889625152,
+"velas": 3,
+"permanencia_min": 720,
+"resultado_pct_preco": -6.3725,
+"resultado_liquido_pct_capital": -0.2802
 }
 ],
 "funil_total": {
 "instrumentos_descobertos": 263,
 "com_dados_validos": 263,
 "falhas_tecnicas": 23,
-"excluidos_por_dados": 1420,
+"excluidos_por_dados": 1430,
 "candidatos": 1,
 "aprovados": 1,
 "abertas_novas": 65,
-"fechadas_agora": 54,
-"sinais_brutos": 106,
+"fechadas_agora": 56,
+"sinais_brutos": 109,
 "elegiveis_apos_concentracao": 37,
 "acontecimentos_novos": 17,
-"moedas_com_sinal": 92,
+"moedas_com_sinal": 94,
 "rejeitados": {
 "concentracao: acontecimento ja com 3 posicoes (segue so nas carteiras-sombra max5/sem_limite)": 27,
 "ja ha exposicao a esta moeda neste acontecimento (outra estrategia)": 8,
-"ja ha posicao desta estrategia nesta moeda": 24,
+"ja ha posicao desta estrategia nesta moeda": 27,
 "estrategia bloqueada pelo motor de sobrevivencia": 8,
 "filtro cripto": 2
 }
 },
-"voltas": 127,
+"voltas": 128,
 "bloqueadas": {
 "057f68c36111": [
 "drawdown 10.35R >= 8.0R"
@@ -5637,13 +5711,13 @@
 ]
 },
 "29933c49ce9e": {
-"n": 18,
-"moedas": 17,
+"n": 20,
+"moedas": 19,
 "dias": 3,
 "acontecimentos": 8,
-"r_medio": -0.068,
-"r_total": -1.224,
-"acerto": 0.389,
+"r_medio": -0.0183,
+"r_total": -0.367,
+"acerto": 0.4,
 "drawdown_r": 3.709,
 "novas_entradas": true,
 "motivos": []
@@ -5664,20 +5738,22 @@
 "funil_ultima": {
 "instrumentos_descobertos": 263,
 "com_dados_validos": 263,
-"falhas_tecnicas": 3,
-"excluidos_por_dados": 9,
+"falhas_tecnicas": 0,
+"excluidos_por_dados": 10,
 "dados_fiaveis": true,
-"sinais_brutos": 0,
-"rejeitados": {},
+"sinais_brutos": 3,
+"rejeitados": {
+"ja ha posicao desta estrategia nesta moeda": 3
+},
 "elegiveis_apos_concentracao": 0,
 "abertas_novas": 0,
-"fechadas_agora": 0,
+"fechadas_agora": 2,
 "acontecimentos_novos": 0,
-"moedas_com_sinal": 0,
-"t": 1795131076,
+"moedas_com_sinal": 2,
+"t": 1795132875,
 "versao_codigo": "f1c64eb"
 },
-"t": 1795131076,
+"t": 1795132875,
 "aviso": "PAPEL: simulado, nunca somado aos resultados reais; sem ordens",
 "vistos": [
 "057f68c36111|APR|1794902400",
@@ -5748,28 +5824,28 @@
 ],
 "carteiras_sombra": {
 "max1": {
-"n": 14,
-"acontecimentos": 14,
-"r_total": -11.927,
-"r_medio": -0.852
+"n": 15,
+"acontecimentos": 15,
+"r_total": -12.976,
+"r_medio": -0.8651
 },
 "max3": {
-"n": 29,
+"n": 31,
 "acontecimentos": 15,
-"r_total": -14.958,
-"r_medio": -0.5158
+"r_total": -14.101,
+"r_medio": -0.4549
 },
 "max5": {
-"n": 36,
+"n": 38,
 "acontecimentos": 15,
-"r_total": -14.082,
-"r_medio": -0.3912
+"r_total": -13.225,
+"r_medio": -0.348
 },
 "sem_limite": {
-"n": 54,
+"n": 56,
 "acontecimentos": 16,
-"r_total": -19.207,
-"r_medio": -0.3557
+"r_total": -18.35,
+"r_medio": -0.3277
 }
 }
 }
