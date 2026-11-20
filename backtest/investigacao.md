@@ -21,6 +21,22 @@ avaliada uma única vez). Janela desde 2026-10-03 (decisão do Rui): últimos 24
 meses, 18 de desenho e 6 de reserva; menos de 40 operações fora da amostra
 dá "AMOSTRA INSUFICIENTE".
 
+## ACASO INCONDICIONAL OBRIGATÓRIO — 2026-11-20 (decisão do Rui: "Sim")
+
+A partir de 2026-11-20, o teste contra o acaso (7.º critério) é feito com DOIS juízes e a hipótese tem de passar
+os dois: (a) o de sempre (`tools/random_baseline` ou `arena.control_rs`, ±90 velas à volta do sinal) e (b) o
+**acaso incondicional U** (entrada uniforme em qualquer vela da mesma moeda dentro da janela avaliada, mesma
+geometria e custos: `tools/afinacao_h18_controlo.controlo(..., "U", ...)`, como em
+`tools/reavaliacao_lideres_u.py`). Reportar também o juiz F (só para a frente) como leitura secundária.
+- Vale para todos os veredictos: CANDIDATA, PARA PAPEL (incluindo o limiar do percentil 90 da regra de
+  agressividade de 2026-11-14, que passa a ter de se cumprir nos dois juízes) e ENTRADA NO RINGUE.
+- Vale para os dois agentes (investigação e afinação) e para todos os candidatos, novos ou reavaliados.
+- Porquê: a H18 da afinação provou que o juiz (a) é 0,1R a 0,2R mais fácil para a sobrevenda e mais duro para o
+  momento; a reavaliação de 2026-11-20 mostrou que CAP_MERCADO_V2_N5K2 (percentil 99,7 no juiz atual) fica no
+  percentil 47 do U na reserva.
+- O que isto NÃO muda: o controlo da arena e a promoção automática a papel (`engine/arena.py`,
+  `engine/promo.py`) continuam com o juiz atual até uma sessão com o Rui; nenhum agente mexe em `engine/`.
+
 ## AUTORIZAÇÃO PRÉVIA DO RUI PARA DINHEIRO REAL — 2026-11-01
 
 O Rui autorizou ("Sim dou", 01/11/2026) que uma estratégia nova passe a dinheiro real SEM novo pedido quando

@@ -5,6 +5,11 @@ entrada, com o veredicto. Hipóteses testadas até agora: 17 (H1 a H17).
 
 ## Decisões do Rui (valem para todas as execuções)
 
+- 2026-11-20: o teste contra o acaso passa a ter DOIS juízes obrigatórios: o de
+  sempre (`arena.control_rs`) e o acaso incondicional U da H18
+  (`tools/afinacao_h18_controlo.controlo(..., "U", ...)`). Nenhum lutador novo
+  entra no ringue sem ficar acima do percentil exigido nos dois (ver secção
+  "ACASO INCONDICIONAL OBRIGATÓRIO" em `backtest/investigacao.md`).
 - 2026-10-03: NÃO restringir o universo de moedas. Não testar nem propor
   hipóteses que excluam moedas por serem pequenas ou pouco líquidas: pode
   haver boas oportunidades em qualquer uma. (Os filtros de spread e de
