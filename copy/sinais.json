@@ -1,7 +1,33 @@
 {
-"abertas": [],
+"abertas": [
+{
+"id_op": "copy|hyperliquid:0x6e28520e5e4c821f55086805bfe8354d1b6df5f5|BTC|S",
+"origem": "copy",
+"estrategia": "copy:hyperliquid:0x6e28520e5e4c821f55086805bfe8354d1b6df5f5",
+"b": "BTC",
+"inst": "BTC-USD_UM_XPERP-310404",
+"lado": "SHORT",
+"tf": "1H",
+"t_sinal": 1795188473,
+"t_ref": 1795188352,
+"atr_ref": 654.1499999999988,
+"saida": {
+"tipo": "fixa",
+"k": 1.5,
+"tp": 2.0,
+"hold": 4
+},
+"regime": null,
+"decisao": {
+"fecho": 60114.2
+},
+"decisao_copy": "COPY_DIRECT",
+"motivo": "trader aprovado de topo, sinal fresco e preco viavel",
+"aberta_em": 1795188473
+}
+],
 "fechadas": [],
-"t": 1795188352,
+"t": 1795188473,
 "aviso": "CopyTrading: sinais para o piloto OKX (execucao real so la, com os limites do piloto)",
 "estrategias": {
 "copy:hyperliquid:0x6e28520e5e4c821f55086805bfe8354d1b6df5f5": {
