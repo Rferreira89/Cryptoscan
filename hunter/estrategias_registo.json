@@ -283,7 +283,7 @@
   },
   "29933c49ce9e": {
    "id": "29933c49ce9e",
-   "estado": "EXPERIMENTAL_REAL",
+   "estado": "PAPER_TRADING",
    "historico": [
     {
      "t": 1794914965,
@@ -296,6 +296,12 @@
      "de": "PAPER_TRADING",
      "para": "EXPERIMENTAL_REAL",
      "motivo": "auditoria tecnica cumprida; experimenta em real com os limites do piloto (papel: 0 fechadas, 0 acontecimentos, 0 dias)"
+    },
+    {
+     "t": 1795161676,
+     "de": "EXPERIMENTAL_REAL",
+     "para": "PAPER_TRADING",
+     "motivo": "papel: 26 fechadas, 9 acontecimentos, 2.8 dias | experimental recusada: bloqueada pelo motor de sobrevivencia do papel"
     }
    ],
    "criado": 1794914965,
@@ -331,16 +337,16 @@
     "operacoes_por_semana": 37.2
    },
    "papel": {
-    "fechadas": 22,
+    "fechadas": 26,
     "acontecimentos": 9,
-    "dias": 2.7,
-    "r_medio": -0.1745,
-    "r_medio_por_acontecimento": -0.3242,
-    "falhas_criticas": 0,
+    "dias": 2.8,
+    "r_medio": -0.2727,
+    "r_medio_por_acontecimento": -0.3049,
+    "falhas_criticas": 1,
     "desde": 1794916800,
     "ic95_acontecimento": [
-     -0.9965,
-     0.2182
+     -0.7972,
+     0.1346
     ],
     "ok": false
    },
@@ -351,8 +357,8 @@
       -1.0721
      ],
      "VVV": [
-      1,
-      -1.0406
+      2,
+      -1.0378
      ],
      "O": [
       1,
@@ -425,18 +431,30 @@
      "WDC": [
       1,
       -1.074
+     ],
+     "BASED": [
+      1,
+      -0.4307
+     ],
+     "SOON": [
+      1,
+      -0.7567
+     ],
+     "USELESS": [
+      1,
+      -1.029
      ]
     },
     "por_tf": {
      "4H": [
-      22,
-      -0.1745
+      26,
+      -0.2727
      ]
     },
     "por_regime": {
      "btc_abaixo_media50": [
-      22,
-      -0.1745
+      26,
+      -0.2727
      ]
     }
    },
@@ -446,12 +464,14 @@
     "deslize_medio_pct": -0.007,
     "papel_vs_real_r": -0.0577
    },
-   "desde": 1794923573,
-   "motivo": "auditoria tecnica cumprida; experimenta em real com os limites do piloto (papel: 22 fechadas, 9 acontecimentos, 2.7 dias)",
+   "desde": 1795161676,
+   "motivo": "papel: 26 fechadas, 9 acontecimentos, 2.8 dias | experimental recusada: bloqueada pelo motor de sobrevivencia do papel",
    "estado_estatistico": "PAPER_TRADING",
    "auditoria_tecnica": {
-    "ok": true,
-    "falhas": [],
+    "ok": false,
+    "falhas": [
+     "bloqueada pelo motor de sobrevivencia do papel"
+    ],
     "sinal": "velas fechadas; entrada na abertura da vela seguinte",
     "saida_real": "stop inicial na OKX + objetivo na OKX + fecho quando o papel fecha (trailing/inversao) + saida por tempo"
    }
@@ -1033,7 +1053,7 @@
    }
   }
  },
- "t": 1795159876,
+ "t": 1795161676,
  "pedidos_teste_final": [],
  "piloto_operacional": true,
  "criterios": {
