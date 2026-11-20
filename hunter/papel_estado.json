@@ -5654,8 +5654,8 @@
 "funil_total": {
 "instrumentos_descobertos": 263,
 "com_dados_validos": 263,
-"falhas_tecnicas": 23,
-"excluidos_por_dados": 1450,
+"falhas_tecnicas": 24,
+"excluidos_por_dados": 1460,
 "candidatos": 1,
 "aprovados": 1,
 "abertas_novas": 65,
@@ -5672,7 +5672,7 @@
 "filtro cripto": 2
 }
 },
-"voltas": 130,
+"voltas": 131,
 "bloqueadas": {
 "057f68c36111": [
 "drawdown 10.35R >= 8.0R"
@@ -5738,7 +5738,7 @@
 "funil_ultima": {
 "instrumentos_descobertos": 263,
 "com_dados_validos": 263,
-"falhas_tecnicas": 0,
+"falhas_tecnicas": 1,
 "excluidos_por_dados": 10,
 "dados_fiaveis": true,
 "sinais_brutos": 0,
@@ -5748,10 +5748,10 @@
 "fechadas_agora": 0,
 "acontecimentos_novos": 0,
 "moedas_com_sinal": 0,
-"t": 1795136476,
+"t": 1795138276,
 "versao_codigo": "f1c64eb"
 },
-"t": 1795136476,
+"t": 1795138276,
 "aviso": "PAPEL: simulado, nunca somado aos resultados reais; sem ordens",
 "vistos": [
 "057f68c36111|APR|1794902400",
