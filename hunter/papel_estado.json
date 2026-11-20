@@ -67,7 +67,7 @@
 "t_entrada": 1795147200,
 "stop_inicial": 0.2132922857142857,
 "objetivo": 0.40400657142857144,
-"r_atual": 0.0223
+"r_atual": 0.0457
 },
 {
 "id_op": "a576dd368963|YB|1795132800",
@@ -136,7 +136,7 @@
 "t_entrada": 1795147200,
 "stop_inicial": 0.04322005400000001,
 "objetivo": 0.06755755399999999,
-"r_atual": -0.5617
+"r_atual": -0.5069
 },
 {
 "id_op": "29933c49ce9e|RAVE|1795147200",
@@ -205,7 +205,7 @@
 "t_entrada": 1795161600,
 "stop_inicial": 0.10659079964285714,
 "objetivo": 0.1376622282142857,
-"r_atual": -0.7626
+"r_atual": -1.0132
 },
 {
 "id_op": "a576dd368963|DOS|1795176000",
@@ -264,8 +264,18 @@
 {
 "t": 1795190476,
 "estado": "sinal aceite: entrada na abertura da vela seguinte"
+},
+{
+"t": 1795204875,
+"estado": "entrada simulada",
+"preco": 0.185452758
 }
-]
+],
+"entrada": 0.185452758,
+"t_entrada": 1795190400,
+"stop_inicial": 0.16198847228571428,
+"objetivo": 0.22064918657142857,
+"r_atual": -0.5559
 }
 ],
 "fechadas": [
@@ -6304,7 +6314,7 @@
 "instrumentos_descobertos": 263,
 "com_dados_validos": 263,
 "falhas_tecnicas": 34,
-"excluidos_por_dados": 1820,
+"excluidos_por_dados": 1830,
 "candidatos": 1,
 "aprovados": 1,
 "abertas_novas": 71,
@@ -6321,7 +6331,7 @@
 "filtro cripto": 5
 }
 },
-"voltas": 167,
+"voltas": 168,
 "bloqueadas": {
 "057f68c36111": [
 "drawdown 10.35R >= 8.0R"
@@ -6406,10 +6416,10 @@
 "fechadas_agora": 0,
 "acontecimentos_novos": 0,
 "moedas_com_sinal": 0,
-"t": 1795203075,
+"t": 1795204875,
 "versao_codigo": "f1c64eb"
 },
-"t": 1795203075,
+"t": 1795204875,
 "aviso": "PAPEL: simulado, nunca somado aos resultados reais; sem ordens",
 "vistos": [
 "057f68c36111|APR|1794902400",
