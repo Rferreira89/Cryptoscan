@@ -3173,3 +3173,16 @@ pelo F. Se se trocasse hoje, CAP_MERCADO_V2_N5K2 deixava de se qualificar (perce
 BOUNCE_ALVO ficariam a aguardar amostra. Nada foi ligado nem desligado; o papel ao vivo de CAP_MERCADO_V2
 continua a correr e é ele que vai dar a prova final, mas a leitura certa dos números dele é contra o U, não contra
 o acaso atual.
+
+## 2026-11-20 (dados novos, caçador noturno) — sem hipótese nova; acompanhamento H52, H53, H57–H60
+
+- **Registo (dia par, SHORT)**: nenhum. As ideias SHORT com os campos novos continuam cobertas e sem operações
+  — H52 (queda com OI a subir) e H59 (subida com OI a cair e financiamento positivo); o excesso de longs por
+  financiamento chumbou (H44). Outra combinação de preço, OI e financiamento seria variante cosmética. Sem ideia
+  séria não se regista nada.
+- **Acompanhamento** (ramo `dados-novos`, velas de 05/11 a 19/11, lidas só por `dados_para_avaliar`):
+  H52 — a acumular: 0 de 30 (13 dias de dados depois do registo); H53 — a acumular: 0 de 30, controlo 0 de 10
+  (12 dias); H57, H58, H59 — a acumular: 0 de 30 (9 dias); H60 — a acumular: 0 de 30, controlo 0 de 10 (8 dias).
+  Só contam operações fechadas (saída em D+3); as primeiras fechadas possíveis continuam a ser a 20/11 (H52),
+  21/11 (H53), 24/11 (H57–H59) e 25/11 (H60). Regras, parâmetros e critérios inalterados; nenhum resultado calculado.
+- Nenhum resultado em dados antigos foi usado como validação.
