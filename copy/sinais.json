@@ -1,7 +1,33 @@
 {
 "abertas": [],
 "fechadas": [],
-"t": 1795170330,
+"t": 1795170451,
 "aviso": "CopyTrading: sinais para o piloto OKX (execucao real so la, com os limites do piloto)",
-"estrategias": {}
+"estrategias": {
+"copy:hyperliquid:0x6e28520e5e4c821f55086805bfe8354d1b6df5f5": {
+"id": "copy:hyperliquid:0x6e28520e5e4c821f55086805bfe8354d1b6df5f5",
+"versao": "copy:hyperliquid:0x6e28520e5e4c821f55086805bfe8354d1b6df5f5",
+"estado": "EXPERIMENTAL_REAL",
+"lado": "AMBOS",
+"tf": "1H",
+"definicao": {
+"tf": "1H",
+"saida": {
+"tipo": "fixa",
+"k": 1.5,
+"tp": 2.0,
+"hold": 4
+}
+},
+"auditoria_tecnica": {
+"ok": true,
+"falhas": [],
+"sinal": "posicao publica do trader + preco atual da OKX EEA"
+},
+"backtest": {
+"r_medio": 0.03172
+},
+"origem": "copy"
+}
+}
 }
