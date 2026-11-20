@@ -245,16 +245,16 @@
    "tf": "4H",
    "versao": "1a40f1f6422a",
    "backtest": {
-    "n": 847,
+    "n": 862,
     "dias": 72,
-    "acontecimentos": 215,
-    "r_medio": 0.0992,
+    "acontecimentos": 218,
+    "r_medio": 0.0925,
     "ic95_blocos_acontecimento": [
-     -0.0266,
-     0.216
+     -0.0292,
+     0.2053
     ],
-    "profit_factor": 1.307,
-    "operacoes_por_semana": 38.79
+    "profit_factor": 1.286,
+    "operacoes_por_semana": 39.31
    },
    "papel": {
     "fechadas": 0,
@@ -283,7 +283,7 @@
   },
   "29933c49ce9e": {
    "id": "29933c49ce9e",
-   "estado": "PAPER_TRADING",
+   "estado": "EXPLORATORY",
    "historico": [
     {
      "t": 1794914965,
@@ -302,6 +302,12 @@
      "de": "EXPERIMENTAL_REAL",
      "para": "PAPER_TRADING",
      "motivo": "papel: 26 fechadas, 9 acontecimentos, 2.8 dias | experimental recusada: bloqueada pelo motor de sobrevivencia do papel"
+    },
+    {
+     "t": 1795170675,
+     "de": "PAPER_TRADING",
+     "para": "EXPLORATORY",
+     "motivo": "sem amostra/expectativa suficientes no backtest; fora do papel"
     }
    ],
    "criado": 1794914965,
@@ -325,16 +331,16 @@
    "tf": "4H",
    "versao": "29933c49ce9e",
    "backtest": {
-    "n": 799,
+    "n": 817,
     "dias": 110,
-    "acontecimentos": 333,
-    "r_medio": 0.0703,
+    "acontecimentos": 338,
+    "r_medio": 0.0679,
     "ic95_blocos_acontecimento": [
-     -0.034,
-     0.1675
+     -0.0296,
+     0.1702
     ],
-    "profit_factor": 1.18,
-    "operacoes_por_semana": 37.2
+    "profit_factor": 1.173,
+    "operacoes_por_semana": 37.87
    },
    "papel": {
     "fechadas": 26,
@@ -464,12 +470,13 @@
     "deslize_medio_pct": -0.007,
     "papel_vs_real_r": -0.0577
    },
-   "desde": 1795161676,
-   "motivo": "papel: 26 fechadas, 9 acontecimentos, 2.8 dias | experimental recusada: bloqueada pelo motor de sobrevivencia do papel",
-   "estado_estatistico": "PAPER_TRADING",
+   "desde": 1795170675,
+   "motivo": "sem amostra/expectativa suficientes no backtest; fora do papel",
+   "estado_estatistico": "EXPLORATORY",
    "auditoria_tecnica": {
     "ok": false,
     "falhas": [
+     "fora do paper trading (sem sinais vivos)",
      "bloqueada pelo motor de sobrevivencia do papel"
     ],
     "sinal": "velas fechadas; entrada na abertura da vela seguinte",
@@ -514,16 +521,16 @@
    "tf": "1H",
    "versao": "987b19a113db",
    "backtest": {
-    "n": 529,
+    "n": 531,
     "dias": 11,
     "acontecimentos": 11,
-    "r_medio": 0.0262,
+    "r_medio": 0.0417,
     "ic95_blocos_acontecimento": [
-     -0.1,
-     0.1947
+     -0.0827,
+     0.2041
     ],
-    "profit_factor": 1.046,
-    "operacoes_por_semana": 34.45
+    "profit_factor": 1.075,
+    "operacoes_por_semana": 34.58
    },
    "papel": {
     "fechadas": 0,
@@ -588,16 +595,16 @@
    "tf": "4H",
    "versao": "a576dd368963",
    "backtest": {
-    "n": 380,
-    "dias": 81,
-    "acontecimentos": 201,
-    "r_medio": 0.0975,
+    "n": 389,
+    "dias": 82,
+    "acontecimentos": 206,
+    "r_medio": 0.0906,
     "ic95_blocos_acontecimento": [
-     0.0017,
-     0.1865
+     -0.0006,
+     0.1793
     ],
-    "profit_factor": 1.392,
-    "operacoes_por_semana": 18.89
+    "profit_factor": 1.356,
+    "operacoes_por_semana": 19.24
    },
    "papel": {
     "fechadas": 1,
@@ -841,16 +848,16 @@
    "tf": "4H",
    "versao": "e495d11739f6",
    "backtest": {
-    "n": 532,
+    "n": 540,
     "dias": 103,
-    "acontecimentos": 254,
-    "r_medio": 0.1095,
+    "acontecimentos": 259,
+    "r_medio": 0.1057,
     "ic95_blocos_acontecimento": [
-     0.0151,
-     0.198
+     0.0131,
+     0.197
     ],
-    "profit_factor": 1.461,
-    "operacoes_por_semana": 24.77
+    "profit_factor": 1.438,
+    "operacoes_por_semana": 25.03
    },
    "oos": {
     "n": 382,
@@ -946,16 +953,16 @@
    "tf": "4H",
    "versao": "f482badea9f5",
    "backtest": {
-    "n": 1451,
+    "n": 1530,
     "dias": 78,
-    "acontecimentos": 274,
-    "r_medio": 0.0968,
+    "acontecimentos": 278,
+    "r_medio": 0.0837,
     "ic95_blocos_acontecimento": [
-     -0.0215,
-     0.2105
+     -0.0273,
+     0.203
     ],
-    "profit_factor": 1.329,
-    "operacoes_por_semana": 66.39
+    "profit_factor": 1.277,
+    "operacoes_por_semana": 69.7
    },
    "papel": {
     "fechadas": 0,
@@ -1053,7 +1060,7 @@
    }
   }
  },
- "t": 1795168875,
+ "t": 1795170675,
  "pedidos_teste_final": [],
  "piloto_operacional": true,
  "criterios": {
