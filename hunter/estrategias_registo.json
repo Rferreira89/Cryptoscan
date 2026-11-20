@@ -607,14 +607,17 @@
     "operacoes_por_semana": 19.24
    },
    "papel": {
-    "fechadas": 1,
-    "acontecimentos": 1,
-    "dias": 0.2,
-    "r_medio": 1.4838,
-    "r_medio_por_acontecimento": 1.4838,
+    "fechadas": 2,
+    "acontecimentos": 2,
+    "dias": 2.0,
+    "r_medio": 0.4736,
+    "r_medio_por_acontecimento": 0.4736,
     "falhas_criticas": 0,
     "desde": 1795003200,
-    "ic95_acontecimento": null,
+    "ic95_acontecimento": [
+     -0.5367,
+     1.4838
+    ],
     "ok": false
    },
    "metricas_papel": {
@@ -622,18 +625,22 @@
      "PIEVERSE": [
       1,
       1.4838
+     ],
+     "BASED": [
+      1,
+      -0.5367
      ]
     },
     "por_tf": {
      "4H": [
-      1,
-      1.4838
+      2,
+      0.4736
      ]
     },
     "por_regime": {
      "btc_abaixo_media50": [
-      1,
-      1.4838
+      2,
+      0.4736
      ]
     }
    },
@@ -644,7 +651,7 @@
     "papel_vs_real_r": null
    },
    "desde": 1794923573,
-   "motivo": "auditoria tecnica cumprida; experimenta em real com os limites do piloto (papel: 1 fechadas, 1 acontecimentos, 0.2 dias)",
+   "motivo": "auditoria tecnica cumprida; experimenta em real com os limites do piloto (papel: 2 fechadas, 2 acontecimentos, 2.0 dias)",
    "estado_estatistico": "PAPER_TRADING",
    "auditoria_tecnica": {
     "ok": true,
@@ -1060,7 +1067,7 @@
    }
   }
  },
- "t": 1795174275,
+ "t": 1795176076,
  "pedidos_teste_final": [],
  "piloto_operacional": true,
  "criterios": {
