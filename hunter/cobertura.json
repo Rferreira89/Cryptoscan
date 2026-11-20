@@ -1,15 +1,15 @@
 {
 "resumo": {
-"t": 1795147276,
+"t": 1795149076,
 "janela_h": 24,
-"instrumentos_com_1h": 260,
-"movimentos": 410,
+"instrumentos_com_1h": 261,
+"movimentos": 411,
 "detetados": 1,
-"nao_detetados_D": 409,
+"nao_detetados_D": 410,
 "D_identificaveis": 295,
 "D_por_condicao": {
 "extensao_baixa": 69,
-"nenhuma": 114,
+"nenhuma": 115,
 "volume": 106,
 "forca_relativa": 69,
 "rompimento_baixa": 13,
@@ -19,12 +19,12 @@
 },
 "D_por_lado": {
 "LONG": 104,
-"SHORT": 305
+"SHORT": 306
 },
 "D_por_classe": {
-"precious_metal": 2,
-"equity": 169,
-"crypto": 238
+"equity": 170,
+"crypto": 238,
+"precious_metal": 2
 },
 "aviso": "teto_hipotetico = excursao maxima menos custos, escolhida depois do movimento: NAO e resultado real nem realizavel"
 },
@@ -25320,6 +25320,18 @@
 "condicoes_em_tempo_real": [],
 "identificavel": false,
 "teto_hipotetico": 0.0491
+},
+{
+"base": "SNDK",
+"classe": "equity",
+"lado": "SHORT",
+"inicio": 1795132800,
+"movimento": 0.8777,
+"limite": 0.0813,
+"detetado": false,
+"condicoes_em_tempo_real": [],
+"identificavel": false,
+"teto_hipotetico": 0.8765
 },
 {
 "base": "AXIS",
