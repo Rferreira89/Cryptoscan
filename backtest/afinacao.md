@@ -2278,3 +2278,159 @@ Notas para as próximas execuções:
 - Hipóteses testadas até agora: 17 entradas neste diário (H1 a H17; 16 sinais);
   28 contra os mesmos dados (diários agendados); 103 no contador global. Com 28
   tentativas, a probabilidade de pelo menos um falso positivo a 5% ronda os 76%.
+
+### 2026-11-20 — H18: o acaso do ringue favorece o momento e castiga a sobrevenda? (Tartarugas com controlo sem condicionamento)
+
+**Escrito antes de correr qualquer teste.**
+
+- Situação: regime atual (scan.json, `mercado`) **lateral** desde 2026-10-17
+  (BTC abaixo da média de 200 dias: compras bloqueadas ao vivo). Ringue de 90
+  dias (forma.json de 20/11, 50 moedas): sobem BOUNCE_G0 (+0,15R), DIP_TREND,
+  BOUNCE_SQUEEZE, BOUNCE_V2/V3, CAPITULACAO, BOUNCE_FORTE: **todos
+  sobrevenda/recuo**. Ringue longo (longo.json de 20/11, 46 moedas), quem passa
+  o filtro atual: **lateral** só CAP_MERCADO_V2 (4 variantes, 21-22 op.,
+  capitulação do mercado = sobrevenda); **queda** SHORT_X30, SHORT_ISOLADA,
+  SHORT_FALSO_ROMP (mortos ou em papel); **subida** ninguém. Regimes sem
+  campeão vivo que ganhe: **subida, lateral (fora da sobrevenda) e queda**.
+- Observação que motiva a hipótese: no ringue longo, **SHORT_TURTLE** tem na
+  lateral 169 op. a **+0,54R** e **TURTLE** 113 op. a +0,19R, e morrem porque o
+  acaso com a mesma geometria dá p95 de +0,93R e +0,87R (mediana do acaso no
+  ringue de 90 dias: +1,11R e +0,45R). Ao contrário, para a sobrevenda o acaso é
+  muito negativo (BOUNCE_G0: mediana −0,49R, p95 −0,26R).
+- Hipótese (mecanismo, família **tendência/rompimento**): `arena.control_rs`
+  sorteia entradas na mesma moeda em **±90 velas à volta do sinal**. Metade
+  dessas entradas fica **antes** do sinal, num troço de preço que o próprio
+  sinal selecionou: antes de um rompimento de 20 dias o preço subiu (entradas
+  ao acaso antes do sinal apanham essa subida e a continuação, e por isso o
+  acaso do momento sai alto); antes de uma sobrevenda o preço caiu (o acaso
+  perde, e a sobrevenda parece boa). Se for isto, o ringue **mata o momento e
+  promove a sobrevenda por construção**, o que explica em parte o problema da
+  família única.
+- Grelha (6 configurações, escrita antes de testar): lutadores já existentes,
+  sem mudar uma linha da regra nem das saídas, julgados com três controlos:
+  T1 TURTLE + controlo atual (±90 velas, referência);
+  T2 TURTLE + controlo **só para a frente** (entradas de i+1 a i+90, depois da
+  entrada real: nada do troço que gerou o sinal);
+  T3 TURTLE + controlo **incondicional** (entrada uniforme em qualquer vela da
+  mesma moeda dentro da janela avaliada, sem ligação à data do sinal);
+  T4, T5, T6: o mesmo para SHORT_TURTLE (no espelho, como o ringue).
+  Informativo, não candidato (mostra a direção do viés): BOUNCE_G0 e SHORT_X30
+  com os três controlos.
+- Custos e método: 0,25% de comissão + 0,1% de slippage por lado,
+  `generic_trades` do ringue (só velas fechadas, entrada na abertura seguinte),
+  juros da margem nos shorts reais, mesma gestão no acaso (`trade.step`, tempo
+  máximo, stop que segue), 200 controlos por operação e 1000 carteiras.
+- Janelas (ramo `history`, 4H até 2026-11-14, 70 moedas): **L** últimos 365
+  dias (total e por regime), **C** últimos 90 dias, **B** 2021-08-01 a
+  2024-10-10 (fora do período que o ringue longo viu).
+- Critérios (por lado; T2 e T3 são as candidatas): a correção **conta** se,
+  com o controlo T3 **e** com o T2, em L: ≥ 30 op., R > 0 e R acima do p95; em B:
+  ≥ 30 op., R > 0 e acima do p95; e no regime onde o ringue longo o mostra a
+  ganhar (lateral para SHORT_TURTLE e TURTLE) em L: ≥ 20 op., R > 0 e acima do
+  p95 (T3). O viés só se dá por **provado** se a mediana do acaso T1 ficar acima
+  da T3 para as Tartarugas **e** abaixo para BOUNCE_G0 em L e em B.
+- O que faço com o resultado: o controlo está em `engine/arena.py`, que não
+  posso alterar, e um lutador novo seria julgado com o mesmo controlo (morreria
+  outra vez). Por isso, se passar, **não acrescento lutador**: é proposta para
+  uma sessão com o Rui (mudar o controlo para todos, o que também reavalia os
+  campeões da sobrevenda). REAL_OK não se mexe.
+- Previsão honesta: o viés deve existir (é mecânico), mas é provável que as
+  Tartarugas continuem sem bater um acaso incondicional: em 4H a investigação já
+  mostrou várias vezes que a saída larga devolve a tendência (TURTLE_FORTES,
+  H6, H13).
+- Hipóteses testadas até agora (com esta): 18 entradas neste diário (H1 a
+  H18); **29 contra os mesmos dados** (diários agendados); 104 no contador
+  global. Com 29 tentativas, a probabilidade de pelo menos um falso positivo a
+  5% ronda os 77%.
+
+**Resultados** (ramo `history`, 4H até 2026-11-14 16:00 UTC; 70 moedas além do
+BTC; compras só com o BTC acima da média de 200 dias, shorts sem esse filtro e
+com juros da margem; 0,25% + 0,1% por lado; `backtest/afinacao_h18_controlo.json`;
+código `tools/afinacao_h18_controlo.py`; testes em `tests/test_afinacao_h18.py`,
+incluindo um que prova que o controlo S reproduz `arena.control_rs` exatamente).
+Med./p95 = mediana e percentil 95 do R médio de 1000 carteiras ao acaso; perc. =
+posição do R médio real nessa distribuição. Desvio declarado: cada sinal vê só as
+últimas 600 velas fechadas (o ringue ao vivo usa uma janela parecida), para o
+teste de 5 anos caber no tempo; o informativo da sobrevenda é o BOUNCE_X30
+(`sig_x30`, saída G0) e não o BOUNCE_G0 do ringue, que usa outro caminho.
+Nos últimos 365 dias o BTC só esteve acima da média de 200 dias nos últimos ~90,
+por isso L e C coincidem nas compras.
+
+| Lutador, janela | op. | R médio | S (atual): med. / p95 / perc. | F (só para a frente) | U (incondicional) |
+|---|---|---|---|---|---|
+| TURTLE, L 365 d | 209 | **+0,210** | +0,58 / +0,73 / 0 | −0,02 / +0,09 / **100** | −0,10 / +0,04 / **100** |
+| TURTLE, L lateral | 152 | +0,179 | +0,64 / +0,82 / 0 | +0,04 / +0,17 / 96 | −0,11 / +0,06 / **99,6** |
+| TURTLE, L subida | 57 | +0,294 | +0,42 / +0,70 / 23 | −0,15 / +0,05 / 100 | −0,10 / +0,17 / 99,5 |
+| TURTLE, B 2021-24 | 692 | +0,029 | +0,49 / +0,56 / 0 | −0,02 / +0,04 / **91** | −0,03 / +0,05 / **89** |
+| SHORT_TURTLE, L 365 d | 659 | +0,202 | +0,60 / +0,66 / 0 | +0,22 / +0,27 / **33** | +0,19 / +0,28 / **58** |
+| SHORT_TURTLE, L lateral | 396 | +0,369 | +0,65 / +0,74 / 0 | +0,31 / +0,38 / 93 | +0,19 / +0,30 / **99,5** |
+| SHORT_TURTLE, L queda | 222 | +0,053 | +0,63 / +0,74 / 0 | +0,07 / +0,16 / 35 | +0,19 / +0,33 / 4,5 |
+| SHORT_TURTLE, L subida | 41 | −0,601 | — | — | +0,23 / +0,53 / 0 |
+| SHORT_TURTLE, C 90 d | 105 | +0,019 | +0,55 / +0,68 / 0 | +0,47 / +0,59 / 0 | +0,12 / +0,31 / 18 |
+| SHORT_TURTLE, B 2021-24 | 914 | +0,313 | +0,65 / +0,71 / 0 | +0,12 / +0,17 / 100 | +0,15 / +0,23 / 100 |
+| *BOUNCE_X30, L 365 d* | 241 | −0,084 | −0,38 / −0,31 / 100 | −0,39 / −0,31 / 100 | −0,24 / −0,15 / 99,8 |
+| *BOUNCE_X30, L lateral* | 189 | −0,234 | −0,47 / −0,38 / **100** | −0,51 / −0,44 / 100 | −0,24 / −0,14 / **52** |
+| *BOUNCE_X30, B 2021-24* | 862 | −0,259 | −0,32 / −0,28 / **99,5** | −0,25 / −0,21 / 34 | −0,20 / −0,16 / **1,4** |
+| *SHORT_X30, L 365 d* | 875 | −0,136 | −0,18 / −0,14 / 96 | −0,07 / −0,03 / 0,7 | −0,06 / −0,02 / 0,4 |
+| *SHORT_X30, L queda* | 111 | +0,345 | −0,05 / +0,10 / 100 | −0,05 / +0,08 / 100 | −0,05 / +0,08 / 100 |
+
+- **O viés do controlo atual está provado (critério pré-registado cumprido).**
+  Para as Tartarugas, a mediana do acaso atual fica **+0,5R a +0,7R acima** do
+  acaso incondicional em L e em B (TURTLE +0,58 contra −0,10; SHORT_TURTLE +0,60
+  contra +0,19). Para a sobrevenda é o contrário: o acaso atual fica 0,12R a
+  0,23R **abaixo** (BOUNCE_X30 em L −0,38 contra −0,24; na lateral −0,47 contra
+  −0,24). Ou seja, `arena.control_rs` **exige demais ao momento e de menos à
+  sobrevenda**. O exemplo mais claro: em 2021-24, BOUNCE_X30 perde −0,26R e o
+  controlo atual põe-no no percentil 99,5 ("bate o acaso"); contra o acaso
+  incondicional fica no percentil 1,4. Na lateral do último ano passa de 100 para
+  52. A regra "R > 0" impede que um perdedor opere, mas o viés explica em parte
+  porque é que **só a sobrevenda se qualifica** e o momento morre sempre.
+- O mecanismo confirma-se por partes: para as Tartarugas, quase todo o viés vem
+  das entradas **antes** do sinal (o controlo só para a frente já cai para perto
+  do incondicional); para a sobrevenda, o controlo só para a frente continua
+  duro (−0,39R), porque a geometria G0 (objetivo na média de 20, stop curto)
+  perde ao acaso logo a seguir a uma queda; o incondicional é o único neutro.
+- **TURTLE corrigido (T2/T3): falha.** No último ano bate os dois controlos novos
+  (+0,21R, percentil 100; lateral +0,18R, percentil 99,6), mas em 2021-24 dá
+  +0,03R em 692 op., percentil 91 e 89: **abaixo do p95 em B**. A vantagem do
+  último ano é uma só fase (as compras só existiram nos últimos ~90 dias).
+- **SHORT_TURTLE corrigido (T5/T6): falha.** Em B ganha com folga (+0,31R,
+  percentil 100), mas no último ano +0,20R é **o mesmo que um short ao acaso**
+  (percentil 33 e 58: num ano de queda qualquer short ganha). Na lateral do
+  último ano bate o incondicional (+0,37R, percentil 99,5) mas não o só para a
+  frente (93). Na queda perde para o acaso (percentil 4,5) e na subida perde
+  dinheiro (−0,60R).
+
+**Veredicto: correções das Tartarugas REJEITADAS** (TURTLE falha B; SHORT_TURTLE
+falha L e a lateral com o controlo F). **Viés do controlo: PROVADO.** Nada entra
+no ringue; REAL_OK e `engine/` não se mexem.
+
+**Para decidir com o Rui (não fiz nada disto; é em `engine/arena.py`):**
+
+1. Trocar o controlo ao acaso por um **incondicional** (entrada uniforme na mesma
+   moeda dentro da janela do combate, mesma geometria e gestão; é a função
+   `controlo(..., "U", ...)` deste estudo, já testada) ou, no mínimo, **só para a
+   frente**. Isto reavalia todos os lutadores: deve endurecer a sobrevenda e
+   aliviar o momento. Antes de trocar, correr o ringue de 90 dias e o longo com
+   os dois controlos lado a lado (só medir) durante uma semana.
+2. Até lá, ler os percentis da sobrevenda no `forma.json` com desconto: o acaso
+   atual é 0,1R a 0,2R mais fácil para ela.
+
+Notas para as próximas execuções:
+
+- Regime atual **lateral**, BTC abaixo da média de 200 dias (compras bloqueadas
+  ao vivo). Regimes sem campeão vivo que ganhe: **subida, lateral (fora da
+  sobrevenda) e queda**, como antes.
+- Lição: **o próprio juiz pode ter viés de família.** Um controlo à volta da data
+  do sinal herda o caminho de preço que o sinal selecionou. Qualquer família
+  nova deve ser julgada também contra o acaso incondicional (a função deste
+  estudo serve).
+- Proposta para a próxima execução (H19): **reavaliar os campeões que sobem**
+  (BOUNCE_G0, DIP_TREND, BOUNCE_SQUEEZE, CAPITULACAO, BOUNCE_FORTE, V2/V3, e os
+  CAP_MERCADO_V2 da lateral do ringue longo) com o controlo incondicional, sem
+  mudar regras: saber quantos continuam acima do p95 é mais urgente do que uma
+  família nova, porque são estes que dão sinais reais. Depois, se o Rui aceitar o
+  controlo novo, voltar às famílias de momento (subida) com o juiz corrigido.
+- Hipóteses testadas até agora: 18 entradas neste diário (H1 a H18); 29 contra
+  os mesmos dados (diários agendados); 104 no contador global. Com 29
+  tentativas, a probabilidade de pelo menos um falso positivo a 5% ronda os 77%.
