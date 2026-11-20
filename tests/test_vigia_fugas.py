@@ -1,5 +1,5 @@
 """(20/11) O vigia avisa quando um ficheiro publico (okx.json, state.json, scan.json, piloto_publico.json) parece ter
-valores em dinheiro da conta. O repositorio e publico; a 19/11 o piloto publicou "risco 0.0240, nocional 14.28" (USDC
+valores em dinheiro da conta. O repositorio e publico; a 19/11 o piloto publicou "risco X, nocional Y" (USDC
 livres) num motivo sem ninguem ver. O aviso diz o caminho do campo, nunca o valor."""
 import unittest
 from tools import vigia as V
@@ -21,7 +21,7 @@ class Fugas(unittest.TestCase):
 
     def test_motivo_do_piloto_de_19_11(self):
         st = {"sinais_perdidos": [{"motivo": "tamanho minimo (0.01 contratos) passaria o risco ou o nocional autorizados "
-                                             "(livre depois das 1 posicoes abertas: risco 0.0240, nocional 14.28)"}]}
+                                             "(livre depois das 1 posicoes abertas: risco 0.0111, nocional 9.99)"}]}
         self.assertEqual(V.fugas(st), ["sinais_perdidos[].motivo"])
 
     def test_campos_numericos_de_dinheiro(self):
