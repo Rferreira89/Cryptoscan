@@ -29,9 +29,19 @@ class PrazoPedido(unittest.TestCase):
         op = dict(btc(), hold_s=3 * 86400, sair_em=FILL + 3 * 86400)
         E.aplicar_prazo_pedido("BTC", op, [])
         self.assertEqual(op["hold_s"], 3 * 86400)
-        xlm = dict(btc(), id_bybit="XLM-SHORT_TURTLE-1794673840")
-        self.assertFalse(E.aplicar_prazo_pedido("XLM", xlm, []))
-        self.assertEqual(xlm["hold_s"], 1728000)
+        outra = dict(btc(), id_bybit="AAA-OUTRA-1", estrategia_bybit="OUTRA", estrategia="espelho")
+        self.assertFalse(E.aplicar_prazo_pedido("AAA", outra, []))
+        self.assertEqual(outra["hold_s"], 1728000)
+
+    def test_xlm_e_proximas_short_turtle_tambem_7_dias(self):
+        xlm = {"estado": "aberta", "lado": "SHORT", "id_bybit": "XLM-SHORT_TURTLE-1794673840", "estrategia": "espelho",
+               "estrategia_bybit": "SHORT_TURTLE", "t_fill": 1794677700, "hold_s": 1728000, "sair_em": 1794677700 + 1728000}
+        msgs = []
+        self.assertTrue(E.aplicar_prazo_pedido("XLM", xlm, msgs))
+        self.assertEqual(xlm["sair_em"], 1794677700 + 7 * 86400)
+        self.assertIn("21/11 17:35", msgs[0])
+        self.assertEqual(E.prazo_max({"estrategia_bybit": "SHORT_TURTLE"}), 7 * 86400)
+        self.assertIsNone(E.prazo_max({"estrategia_bybit": "OUTRA", "estrategia": "espelho"}))
 
     def test_saida_por_tempo_usa_o_prazo_novo(self):
         src = open(E.__file__, encoding="utf-8").read()

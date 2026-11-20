@@ -319,7 +319,7 @@ class Execucao(unittest.TestCase):
         self.assertLess(float(o["px"]), 0.0236)                                  # limite 0,2% abaixo: entra ja
         op = st["real"]["ops"]["XLM"]
         self.assertEqual((op["estrategia"], op["lado"], op["hold_s"], op["estrategia_bybit"]),
-                         ("espelho", "SHORT", 20 * 86400, "SHORT_TURTLE"))
+                         ("espelho", "SHORT", 7 * 86400, "SHORT_TURTLE"))  # (20/11) 7 dias, pedido do Rui (antes 20)
         self.assertLessEqual(op["risco_pct"], 5.0)
         self.assertEqual(op["valido_ate"], now - 600 + H4)
         self.assertTrue(any("campeão da arena SHORT_TURTLE" in m and "venda a descoberto" in m for m in msgs))

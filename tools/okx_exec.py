@@ -189,6 +189,9 @@ def abrir(base, sig, info, eq, c, now, msgs):
         op["lado"] = "SHORT"
     if esp:
         op.update(hold_s=int(sig.get("hold_s") or 18 * H4), estrategia_bybit=sig.get("estrategia"), id_bybit=sig.get("id"))
+    pm = prazo_max(op)                                    # (20/11) prazo maximo pedido pelo Rui (so encurta)
+    if pm and op.get("hold_s") and int(op["hold_s"]) > pm:
+        op["hold_s"] = pm
     return op
 
 
@@ -313,18 +316,29 @@ def acompanhar_estado(base, op, d, now, msgs):
 # SHORT_TURTLE com custos da OKX (backtest/estudos/short_turtle_duracao_custos_okx_2026-11-19.json) fechar aos 7 dias
 # da o mesmo R medio que aos 20 no total e melhor em mercado em queda e no ultimo ano (intervalos largos).
 PRAZO_PEDIDO = {"BTC-SHORT_TURTLE-1795161609": 7 * 86400}
+# (20/11 10:34, Rui: "Sim quero") os 7 dias valem para TODAS as operacoes SHORT_TURTLE deste executor na OKX: a XLM
+# aberta e as proximas (espelho da Bybit ou campeao lido na OKX). So encurta.
+PRAZO_MAX_ESTRATEGIA = {"SHORT_TURTLE": 7 * 86400}
+
+
+def prazo_max(op):
+    """Prazo maximo pedido pelo Rui para esta operacao (ou None)."""
+    v = [PRAZO_PEDIDO.get(op.get("id_bybit"))]
+    v += [PRAZO_MAX_ESTRATEGIA.get(op.get(k)) for k in ("estrategia_bybit", "estrategia")]
+    v = [int(x) for x in v if x]
+    return min(v) if v else None
 
 
 def aplicar_prazo_pedido(base, op, msgs):
-    """Encurta hold_s/sair_em de uma operacao aberta que esteja em PRAZO_PEDIDO; avisa uma vez."""
-    pedido = PRAZO_PEDIDO.get(op.get("id_bybit"))
+    """Encurta hold_s/sair_em de uma operacao aberta com prazo maximo pedido pelo Rui; avisa uma vez."""
+    pedido = prazo_max(op)
     if not pedido or op.get("estado") != "aberta" or not op.get("t_fill"):
         return False
     if int(op.get("hold_s") or 18 * H4) <= pedido and op.get("prazo_pedido"):
         return False
     op["hold_s"] = min(int(op.get("hold_s") or 18 * H4), int(pedido))
     op["sair_em"] = int(op["t_fill"]) + op["hold_s"]
-    op["prazo_pedido"] = "Rui, 20/11/2026 10:14"
+    op["prazo_pedido"] = "Rui, 20/11/2026"
     quando = time.strftime("%d/%m %H:%M UTC", time.gmtime(op["sair_em"]))
     msgs.append(f"⏱️ OKX real — {base}: prazo máximo encurtado para {op['hold_s'] // 86400} dias, como pediste. "
                 f"Se o stop ou o objetivo não chegarem antes, sai por tempo a {quando}. Stop e objetivo não mudaram.")
