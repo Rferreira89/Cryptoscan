@@ -331,16 +331,16 @@
     "operacoes_por_semana": 37.2
    },
    "papel": {
-    "fechadas": 20,
-    "acontecimentos": 8,
-    "dias": 2.5,
-    "r_medio": -0.0183,
-    "r_medio_por_acontecimento": -0.0639,
+    "fechadas": 22,
+    "acontecimentos": 9,
+    "dias": 2.7,
+    "r_medio": -0.1745,
+    "r_medio_por_acontecimento": -0.3242,
     "falhas_criticas": 0,
     "desde": 1794916800,
     "ic95_acontecimento": [
-     -0.4793,
-     0.3334
+     -0.9965,
+     0.2182
     ],
     "ok": false
    },
@@ -375,8 +375,8 @@
       1.4373
      ],
      "COHR": [
-      1,
-      -0.1513
+      2,
+      -1.2753
      ],
      "GEV": [
       1,
@@ -421,18 +421,22 @@
      "ETHFI": [
       1,
       -1.0489
+     ],
+     "WDC": [
+      1,
+      -1.074
      ]
     },
     "por_tf": {
      "4H": [
-      20,
-      -0.0183
+      22,
+      -0.1745
      ]
     },
     "por_regime": {
      "btc_abaixo_media50": [
-      20,
-      -0.0183
+      22,
+      -0.1745
      ]
     }
    },
@@ -443,7 +447,7 @@
     "papel_vs_real_r": -0.0577
    },
    "desde": 1794923573,
-   "motivo": "auditoria tecnica cumprida; experimenta em real com os limites do piloto (papel: 20 fechadas, 8 acontecimentos, 2.5 dias)",
+   "motivo": "auditoria tecnica cumprida; experimenta em real com os limites do piloto (papel: 22 fechadas, 9 acontecimentos, 2.7 dias)",
    "estado_estatistico": "PAPER_TRADING",
    "auditoria_tecnica": {
     "ok": true,
@@ -1029,7 +1033,7 @@
    }
   }
  },
- "t": 1795145476,
+ "t": 1795147276,
  "pedidos_teste_final": [],
  "piloto_operacional": true,
  "criterios": {
