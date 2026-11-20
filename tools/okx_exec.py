@@ -307,8 +307,33 @@ def acompanhar_estado(base, op, d, now, msgs):
     return False
 
 
+# (20/11) Prazo maximo pedido pelo Rui para uma operacao concreta (id do sinal da Bybit -> segundos). So ENCURTA a
+# saida por tempo: nunca a alonga, nao mexe no stop, no objetivo nem no tamanho. "Nao quero 20 dias nessa posicao.
+# Tem de ser menos tempo" (Rui, 20/11 10:14, short BTC do espelho SHORT_TURTLE). 7 dias: no estudo de duracao da
+# SHORT_TURTLE com custos da OKX (backtest/estudos/short_turtle_duracao_custos_okx_2026-11-19.json) fechar aos 7 dias
+# da o mesmo R medio que aos 20 no total e melhor em mercado em queda e no ultimo ano (intervalos largos).
+PRAZO_PEDIDO = {"BTC-SHORT_TURTLE-1795161609": 7 * 86400}
+
+
+def aplicar_prazo_pedido(base, op, msgs):
+    """Encurta hold_s/sair_em de uma operacao aberta que esteja em PRAZO_PEDIDO; avisa uma vez."""
+    pedido = PRAZO_PEDIDO.get(op.get("id_bybit"))
+    if not pedido or op.get("estado") != "aberta" or not op.get("t_fill"):
+        return False
+    if int(op.get("hold_s") or 18 * H4) <= pedido and op.get("prazo_pedido"):
+        return False
+    op["hold_s"] = min(int(op.get("hold_s") or 18 * H4), int(pedido))
+    op["sair_em"] = int(op["t_fill"]) + op["hold_s"]
+    op["prazo_pedido"] = "Rui, 20/11/2026 10:14"
+    quando = time.strftime("%d/%m %H:%M UTC", time.gmtime(op["sair_em"]))
+    msgs.append(f"⏱️ OKX real — {base}: prazo máximo encurtado para {op['hold_s'] // 86400} dias, como pediste. "
+                f"Se o stop ou o objetivo não chegarem antes, sai por tempo a {quando}. Stop e objetivo não mudaram.")
+    return True
+
+
 def acompanhar(base, op, now, msgs):
     """Atualiza uma operacao real; devolve True quando acabou (cancelada ou fechada)."""
+    aplicar_prazo_pedido(base, op, msgs)
     if op["estado"] == "pendente":
         r = privado("GET", f"/api/v5/trade/order?instId={op['inst']}&ordId={op['ordId']}")
         d = (r.get("data") or [{}])[0]
