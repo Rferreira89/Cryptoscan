@@ -155,3 +155,23 @@ class FechoPedidoPeloRui(unittest.TestCase):
         st["auto_ops"]["XLM-SHORT_TURTLE-1"] = "fechada"                      # executor fechou, registo ainda nao
         AC.atualizar(st, cfg, NOW + 60, None)
         self.assertEqual([r["acao"] for r in st["exec_req"]], ["acumular"])
+
+
+class PapelForaDaConta(unittest.TestCase):
+    """(20/11) A decisao do campeao em PAPEL (espelho_okx) nao e uma operacao da Bybit: nao pode gerar "Programa e
+    Bybit nao batem certo" nem entrar nas verificacoes de stop ou no resultado real."""
+
+    def test_espelho_fora_das_verificacoes(self):
+        from engine import account, run
+        papel = {"id": "BTC-SHORT_TURTLE-1795161609", "kind": "4H", "asset": "BTC", "pair": "BTC/USDC", "mode": "PAPER",
+                 "status": "OPEN", "side": "SHORT", "espelho_okx": True, "issued_at": NOW}
+        real = {"id": "XLM-SHORT_TURTLE-1", "kind": "4H", "asset": "XLM", "pair": "XLM/USDC", "mode": "REAL",
+                "status": "OPEN", "side": "SHORT", "executed": True, "issued_at": NOW}
+        self.assertFalse(account.na_bybit(papel))
+        self.assertTrue(account.na_bybit(real))
+        self.assertTrue(account.na_bybit({"kind": "4H"}))                  # registos antigos sem modo contam como reais
+        linhas = account.check_trades([papel, real], {}, [], [], NOW)
+        self.assertEqual([x["id"] for x in linhas], ["XLM-SHORT_TURTLE-1"])
+        st = {}
+        conta = {"t": NOW, "trades": [x for x in linhas if x["id"] != "XLM-SHORT_TURTLE-1"]}
+        self.assertEqual(run.reconciliar(st, conta, {}, NOW) + run.reconciliar(st, dict(conta, t=NOW + 900), {}, NOW), [])

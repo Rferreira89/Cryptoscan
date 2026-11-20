@@ -206,6 +206,13 @@ def symbol_of(rec):
     return f"{base}{quote or 'USDC'}".upper()
 
 
+def na_bybit(r):
+    """(20/11) So operacoes REAIS da Bybit contam na conta. Com a Bybit em acumulacao, as decisoes dos campeoes ficam
+    no registo em PAPEL (marca espelho_okx, executadas na OKX): nao tem moedas, divida nem stop na Bybit e nao podem
+    gerar o aviso "Programa e Bybit nao batem certo" nem apanhar as compras da acumulacao como resultado real."""
+    return r.get("mode", "REAL") == "REAL" and not r.get("espelho_okx")
+
+
 def check_trades(ledger, held, orders, execs, now, debt=None, leitura=None):
     """Para cada operacao 4H aberta: moedas na conta, stop, entrada vista.
     (24/10) Num short a posicao existe quando a moeda esta negativa ou em
@@ -220,7 +227,7 @@ def check_trades(ledger, held, orders, execs, now, debt=None, leitura=None):
     for r in ledger:
         if r.get("kind") != "4H" or r.get("status") != "OPEN":
             continue
-        if r.get("executed") is False or r.get("fora_programa"):
+        if r.get("executed") is False or r.get("fora_programa") or not na_bybit(r):
             continue
         side = "SHORT" if r.get("side") == "SHORT" else "LONG"
         sym = symbol_of(r)
@@ -311,7 +318,7 @@ def real_results(led, execs, now, janela=6.5 * 86400):
     limite da Bybit); o scanner guarda o que ja fechou no registo.
     Devolve {id: {compra_usdc, venda_usdc, comissoes_usdc, pnl_usdc, fechada, n}}.
     O juro de um short em margem nao aparece nas execucoes (fica de fora)."""
-    rows = sorted((r for r in led or [] if r.get("kind") == "4H" and r.get("executed") is not False
+    rows = sorted((r for r in led or [] if r.get("kind") == "4H" and r.get("executed") is not False and na_bybit(r)
                    and (janela is None or (r.get("issued_at") or 0) >= now - janela)),
                   key=lambda r: r.get("issued_at") or 0)
     out = {}
@@ -830,13 +837,13 @@ def snapshot(state, now=None):
             wallet = get("/v5/account/wallet-balance", {"accountType": "SPOT"})
         held = coins(wallet)
         led = state.get("ledger", [])
-        opened = [r for r in led if r.get("kind") == "4H"
+        opened = [r for r in led if r.get("kind") == "4H" and na_bybit(r)
                   and r.get("status") == "OPEN" and r.get("executed") is not False]
         orders, ordens_ok, ordens_t = open_orders_lidas()
         since = min([r.get("issued_at") or now for r in opened] or [now])
         execs = executions([symbol_of(r) for r in opened], since - 600)
         try:                                 # resultado real (fase 1): ultimos 6,5 dias
-            recent = [r for r in led if r.get("kind") == "4H" and r.get("executed") is not False
+            recent = [r for r in led if r.get("kind") == "4H" and r.get("executed") is not False and na_bybit(r)
                       and (r.get("issued_at") or 0) >= now - 6.5 * 86400]
             reais = real_results(recent, executions([symbol_of(r) for r in recent],
                                                     now - 6.5 * 86400), now)
