@@ -7,7 +7,7 @@
 "fechada_em": 1795191233
 }
 ],
-"t": 1795192913,
+"t": 1795193034,
 "aviso": "CopyTrading: sinais para o piloto OKX (execucao real so la, com os limites do piloto)",
 "estrategias": {
 "copy:hyperliquid:0x6e28520e5e4c821f55086805bfe8354d1b6df5f5": {
@@ -31,7 +31,7 @@
 "sinal": "posicao publica do trader + preco atual da OKX EEA"
 },
 "backtest": {
-"r_medio": 0.03182
+"r_medio": 0.03206
 },
 "origem": "copy"
 }
