@@ -1,18 +1,17 @@
 # Diário de investigação
 
-**Hipóteses testadas contra esta reserva: 31** (15 neste diário: compra de
+**Hipóteses testadas contra esta reserva: 32** (15 neste diário: compra de
 quedas, compressão, oversold bounce 4H, day trade 1H, bounce com outras
 saídas, sweep a mercado, funding negativo, quebra com compradores,
 capitulação do mercado, atraso face ao BTC, resiliente, impulso de
 amplitude, CAP_MERCADO_V2 e BOUNCE_LARGO (2026-11-14) e BOUNCE_ALVO
-(2026-11-17); mais 16 no diário de afinação, H1 a H13 e H15 a H17, a última
-de 2026-11-18). Atualizado em 2026-11-19 (sem hipótese nova; autópsia de RACIO_DISP sem sucessor). O contador global do
+(2026-11-17); mais 17 no diário de afinação, H1 a H13 e H15 a H18, a última
+de 2026-11-20). Atualizado em 2026-11-20 (sem hipótese nova; sem mortos novos). O contador global do
 programa (`engine/hipoteses.py` mais `backtest/hipoteses_offline.json`,
-contra dados que incluem esta reserva) já vai em 103 (28 agendadas + 75
-offline, segundo a H17 de 2026-11-18).
+contra dados que incluem esta reserva) já vai em 104 (segundo a H18 de 2026-11-20).
 Quanto maior este número, maior a probabilidade de uma hipótese passar por
-sorte: com 31 testes, a probabilidade de pelo menos um falso positivo a 5%
-já ronda os 80% (e as várias configurações de cada grelha aumentam-na
+sorte: com 32 testes, a probabilidade de pelo menos um falso positivo a 5%
+já ronda os 81% (e as várias configurações de cada grelha aumentam-na
 ainda mais).
 
 Uma hipótese por entrada, com o veredicto. Método: `tools/research.py`
@@ -3019,3 +3018,51 @@ no BTC). Não tenho hoje uma ideia de entrada com lógica económica séria que 
   Só contam operações fechadas (saída em D+3); as primeiras fechadas possíveis continuam a ser a 20/11 (H52),
   21/11 (H53), 24/11 (H57–H59) e 25/11 (H60). Regras, parâmetros e critérios inalterados; nenhum resultado calculado.
 - Nenhum resultado em dados antigos foi usado como validação.
+
+## 2026-11-20 — Sem hipótese nova hoje (sem mortos novos; fila vazia)
+
+**Veredicto da corrida: nenhuma hipótese testada por este agente.** Contador desta reserva: de 31 para **32**, só
+pela H18 da afinação (2026-11-20, viés do controlo ao acaso; correções das Tartarugas rejeitadas). Com 32 testes, a
+probabilidade de pelo menos um falso positivo a 5% ronda os 81%.
+
+- **Histórico** (ramo `history`): último commit 2026-11-14 14:39 UTC, última vela de 4H 2026-11-14 (6 dias de
+  atraso, ainda dentro do limite de 7, que passa amanhã às 12:00 UTC). Lancei já o workflow "Historico para
+  backtest" (2026-11-20, ~12:00 UTC) para a próxima corrida ter a janela atualizada; não foi preciso esperar, porque
+  hoje não há teste. Janela inalterada: desenho 2024-11-14 → 2026-05-13, reserva 2026-05-14 → 2026-11-13.
+- **Arena** (`scan.json` do ramo `data`, 2026-11-20 11:51 UTC): **10 lutadores a competir** (mínimo 5), `recrutar`
+  falso. Último morto: RACIO_DISP (2026-11-19 05:40 UTC), já com autópsia (sem sucessor). Nenhum morto novo.
+- **Fila do Rui**: vazia (5 de 5 testadas). Regime lateral, BTC abaixo da SMA200 diária: compras com filtro do BTC
+  bloqueadas.
+- **Combate de 90 dias** (`forma.json` do ramo `arena`, 2026-11-20, 52 moedas), lutadores vivos:
+
+| Lutador | Op. | Ganhadoras | R médio | Acaso mediana | Acaso p95 |
+|---|---|---|---|---|---|
+| BOUNCE_AMPLITUDE | 17 | 17 | +0,849 | −0,398 | −0,065 |
+| CAP_MERCADO_V2_N5K2 | 24 | 19 | +0,408 | −0,592 | −0,350 |
+| BOUNCE_ALVO | 7 | 3 | +0,364 | −0,504 | +0,176 |
+| REVERSAO_INTERVALO | 27 | 20 | +0,036 | −0,253 | −0,057 |
+| MAIORES_RECUO | 17 | 9 | −0,019 | −0,311 | +0,085 |
+| MAIORES_TENDENCIA | 3 | 0 | −0,793 | −0,096 | +1,261 |
+| SHORT_SQUEEZE | 3 | 0 | −0,775 | −0,153 | +0,545 |
+| BOUNCE_MEDO | 2 | 0 | −1,015 | −1,015 | +0,040 |
+| BREAKOUT_R2 | 2 | 0 | −1,017 | −0,261 | +0,518 |
+
+  SHORT_TURTLE_SHORT não aparece no `forma.json` (5 op. no `scan.json`). Estes números são do combate, dentro da
+  reserva: não validam nada.
+- **Aviso novo (H18 da afinação):** o controlo ao acaso da arena (`arena.control_rs`) é demasiado fácil para a
+  sobrevenda (0,1R a 0,2R) e demasiado duro para o momento. Os três lutadores que lideram (BOUNCE_AMPLITUDE,
+  CAP_MERCADO_V2_N5K2, BOUNCE_ALVO) são todos de sobrevenda/capitulação: os percentis deles contra o acaso devem ser
+  lidos com desconto até o controlo incondicional ser medido ao lado (proposta da H18, numa sessão com o Rui).
+
+### Porque não há hipótese nova
+
+Fila do Rui vazia, `recrutar` falso e a ordem de 2026-11-14 manda não gerar hipóteses artificialmente. As fontes
+pouco usadas (funding, fluxo comprador, valor relativo) já foram exploradas e a H18 mostrou que o próprio juiz tem
+viés de família: testar uma família nova antes de corrigir o controlo seria julgá-la com uma régua torta.
+
+- **Testes**: 1721, todos a passar.
+- **Próxima corrida**: verificar que o histórico chegou ao presente (workflow lançado hoje); autópsia se morrer
+  alguém; testar o que entrar na fila do Rui. Proposta para a fila (só com o sim do Rui): reavaliar BOUNCE_AMPLITUDE,
+  CAP_MERCADO_V2_N5K2 e BOUNCE_ALVO com o controlo incondicional da H18 (`tools/afinacao_h18_controlo.py`, modo U),
+  fora da amostra, sem mudar regras — se caírem abaixo do p95, a arena não tem hoje nenhum lutador com vantagem
+  provada.
