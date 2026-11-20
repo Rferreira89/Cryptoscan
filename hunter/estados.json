@@ -35,8 +35,8 @@
    "nome": "extremo 1H SHORT"
   },
   "29933c49ce9e": {
-   "estado": "PAPEL",
-   "porque": "em validacao prospetiva",
+   "estado": "REJEITADA",
+   "porque": "degradada no papel (motor de sobrevivencia): 7 perdas seguidas",
    "p_holm": 1.0,
    "historico": [
     {
@@ -44,6 +44,12 @@
      "de": null,
      "para": "PAPEL",
      "porque": "em validacao prospetiva"
+    },
+    {
+     "t": 1795169633,
+     "de": "PAPEL",
+     "para": "REJEITADA",
+     "porque": "degradada no papel (motor de sobrevivencia): 7 perdas seguidas"
     }
    ],
    "nome": "rompimento_reteste 4H LONG"
@@ -125,5 +131,5 @@
    "nome": "rompimento_reteste 4H LONG (cripto)"
   }
  },
- "t": 1795084339
+ "t": 1795169633
 }

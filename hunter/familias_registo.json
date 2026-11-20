@@ -10,7 +10,7 @@
    "custos (deriva menor que o custo)": 11,
    "entrada (sem deriva a favor)": 7
   },
-  "melhor_deriva_liquida_atr_treino": -0.0202,
+  "melhor_deriva_liquida_atr_treino": -0.0255,
   "validacao": [],
   "decisao": "REJEITADA nesta ronda: custos (deriva menor que o custo)"
  },
@@ -119,7 +119,24 @@
    "nenhum a priori: passa a geometria": 6
   },
   "melhor_deriva_liquida_atr_treino": 0.5954,
-  "validacao": [],
+  "validacao": [
+   {
+    "tf": "4H",
+    "lado": "SHORT",
+    "n": 212,
+    "r": -0.2824,
+    "p_holm": 1.0,
+    "veredicto": "REJEITADA"
+   },
+   {
+    "tf": "4H",
+    "lado": "SHORT",
+    "n": 129,
+    "r": -0.276,
+    "p_holm": 1.0,
+    "veredicto": "REJEITADA"
+   }
+  ],
   "decisao": "REJEITADA nesta ronda: nenhum a priori: passa a geometria"
  },
  "rompimento_reteste": {
@@ -134,9 +151,9 @@
    "entrada (sem deriva a favor)": 1,
    "nenhum a priori: passa a geometria": 3
   },
-  "melhor_deriva_liquida_atr_treino": 0.1802,
+  "melhor_deriva_liquida_atr_treino": 0.1793,
   "validacao": [],
-  "decisao": "EM PAPEL (3 estrategia(s): PAPEL)"
+  "decisao": "EM PAPEL (2 estrategia(s): PAPEL)"
  },
  "estrutura": {
   "grupo": "C",
@@ -146,12 +163,12 @@
   "riscos": "sinal precoce numa queda que continua",
   "variantes_diagnostico": 12,
   "onde_falha": {
-   "custos (deriva menor que o custo)": 5,
-   "entrada (sem deriva a favor)": 7
+   "custos (deriva menor que o custo)": 6,
+   "entrada (sem deriva a favor)": 6
   },
-  "melhor_deriva_liquida_atr_treino": -0.0462,
+  "melhor_deriva_liquida_atr_treino": -0.0409,
   "validacao": [],
-  "decisao": "REJEITADA nesta ronda: entrada (sem deriva a favor)"
+  "decisao": "REJEITADA nesta ronda: custos (deriva menor que o custo)"
  },
  "volume_anormal": {
   "grupo": "D",
@@ -164,7 +181,7 @@
    "custos (deriva menor que o custo)": 8,
    "entrada (sem deriva a favor)": 4
   },
-  "melhor_deriva_liquida_atr_treino": -0.1061,
+  "melhor_deriva_liquida_atr_treino": -0.1074,
   "validacao": [],
   "decisao": "REJEITADA nesta ronda: custos (deriva menor que o custo)"
  },
@@ -176,12 +193,21 @@
   "riscos": "volume das X-Perps nao representa o mercado todo",
   "variantes_diagnostico": 12,
   "onde_falha": {
-   "custos (deriva menor que o custo)": 6,
+   "custos (deriva menor que o custo)": 5,
    "entrada (sem deriva a favor)": 5,
-   "nenhum a priori: passa a geometria": 1
+   "nenhum a priori: passa a geometria": 2
   },
   "melhor_deriva_liquida_atr_treino": 0.1677,
-  "validacao": [],
+  "validacao": [
+   {
+    "tf": "4H",
+    "lado": "LONG",
+    "n": 413,
+    "r": -0.0422,
+    "p_holm": 1.0,
+    "veredicto": "REJEITADA"
+   }
+  ],
   "decisao": "REJEITADA nesta ronda: custos (deriva menor que o custo)"
  },
  "acumulacao": {
@@ -196,7 +222,7 @@
    "entrada (sem deriva a favor)": 2,
    "nenhum a priori: passa a geometria": 2
   },
-  "melhor_deriva_liquida_atr_treino": 1.3593,
+  "melhor_deriva_liquida_atr_treino": 1.2885,
   "validacao": [],
   "decisao": "REJEITADA nesta ronda: custos (deriva menor que o custo)"
  },
@@ -224,12 +250,21 @@
   "riscos": "inversoes do BTC",
   "variantes_diagnostico": 24,
   "onde_falha": {
-   "entrada (sem deriva a favor)": 12,
+   "entrada (sem deriva a favor)": 11,
    "custos (deriva menor que o custo)": 9,
-   "nenhum a priori: passa a geometria": 3
+   "nenhum a priori: passa a geometria": 4
   },
   "melhor_deriva_liquida_atr_treino": 0.0788,
-  "validacao": [],
+  "validacao": [
+   {
+    "tf": "4H",
+    "lado": "SHORT",
+    "n": 424,
+    "r": -0.0498,
+    "p_holm": 1.0,
+    "veredicto": "REJEITADA"
+   }
+  ],
   "decisao": "EM PAPEL (2 estrategia(s): PAPEL)"
  },
  "forca_relativa": {
@@ -244,7 +279,7 @@
    "custos (deriva menor que o custo)": 11,
    "nenhum a priori: passa a geometria": 2
   },
-  "melhor_deriva_liquida_atr_treino": 0.2099,
+  "melhor_deriva_liquida_atr_treino": 0.2032,
   "validacao": [],
   "decisao": "REJEITADA nesta ronda: entrada (sem deriva a favor)"
  },
@@ -277,7 +312,16 @@
    "nenhum a priori: passa a geometria": 5
   },
   "melhor_deriva_liquida_atr_treino": 2.4185,
-  "validacao": [],
+  "validacao": [
+   {
+    "tf": "4H",
+    "lado": "SHORT",
+    "n": 724,
+    "r": -0.3094,
+    "p_holm": 1.0,
+    "veredicto": "REJEITADA"
+   }
+  ],
   "decisao": "REJEITADA nesta ronda: entrada (sem deriva a favor)"
  }
 }

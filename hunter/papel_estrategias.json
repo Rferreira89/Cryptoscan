@@ -1,5 +1,5 @@
 {
- "t": 1795084339,
+ "t": 1795169633,
  "estrategias": [
   {
    "id": "987b19a113db",
@@ -19,25 +19,6 @@
    },
    "veredicto": "EXPLORATORIA",
    "estado": "EXPLORATORIA"
-  },
-  {
-   "id": "29933c49ce9e",
-   "familia": "rompimento_reteste",
-   "parametros": {
-    "n": 24
-   },
-   "tf": "4H",
-   "lado": "LONG",
-   "filtro": null,
-   "stop_ref": "4H",
-   "saida": {
-    "tipo": "fixa",
-    "k": 2.0,
-    "tp": 2.0,
-    "hold": 6
-   },
-   "veredicto": "EXPLORATORIA",
-   "estado": "PAPEL"
   },
   {
    "id": "1a40f1f6422a",
