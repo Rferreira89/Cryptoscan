@@ -1,16 +1,16 @@
 {
 "resumo": {
-"t": 1795190476,
+"t": 1795192275,
 "janela_h": 24,
-"instrumentos_com_1h": 260,
-"movimentos": 444,
+"instrumentos_com_1h": 261,
+"movimentos": 445,
 "detetados": 0,
-"nao_detetados_D": 444,
-"D_identificaveis": 312,
+"nao_detetados_D": 445,
+"D_identificaveis": 313,
 "D_por_condicao": {
 "volume": 106,
 "extensao_alta": 47,
-"extensao_baixa": 183,
+"extensao_baixa": 184,
 "fraqueza_relativa": 60,
 "forca_relativa": 56,
 "nenhuma": 132,
@@ -19,12 +19,12 @@
 },
 "D_por_lado": {
 "LONG": 82,
-"SHORT": 362
+"SHORT": 363
 },
 "D_por_classe": {
 "precious_metal": 2,
 "equity": 150,
-"crypto": 292
+"crypto": 293
 },
 "aviso": "teto_hipotetico = excursao maxima menos custos, escolhida depois do movimento: NAO e resultado real nem realizavel"
 },
@@ -32167,6 +32167,20 @@
 ],
 "identificavel": true,
 "teto_hipotetico": 0.1638
+},
+{
+"base": "OKB",
+"classe": "crypto",
+"lado": "SHORT",
+"inicio": 1795183200,
+"movimento": 0.0511,
+"limite": 0.0332,
+"detetado": false,
+"condicoes_em_tempo_real": [
+"extensao_baixa"
+],
+"identificavel": true,
+"teto_hipotetico": 0.0499
 },
 {
 "base": "AAOI",
