@@ -16,12 +16,16 @@ falha de um seja vista pelo outro). So le o estado publico (precos e ids, sem va
     via): sem volta ha mais de 2 h; posicao com o stop por confirmar na OKX (logo, se a OKX disse que falta ou nao cobre;
     com 2 voltas seguidas, se a OKX so nao respondeu); fecho pedido ha mais de 3 h e por confirmar (o piloto nao volta a
     pedir o fecho); ordem de entrada que ja devia ter sido cancelada.
+  - (20/11) valores monetarios absolutos da conta (saldo, capital, nocional, margem, PnL em USD) nos ficheiros PUBLICOS
+    (okx.json, state.json, scan.json, piloto_publico.json; o repositorio e publico): a 19/11 o piloto publicou o risco e
+    o nocional livres em USDC sem ninguem ver. O aviso diz so o ficheiro e o caminho do campo, nunca o valor.
 Cada aviso repete no maximo de 6 em 6 horas (ficheiro local do ciclo)."""
-import json, os, sys, time, urllib.request
+import json, os, re, sys, time, urllib.request
 
 URL = "https://raw.githubusercontent.com/Rferreira89/Cryptoscan/okx/okx.json"
 URL_BYBIT = "https://raw.githubusercontent.com/Rferreira89/Cryptoscan/data/state.json"
 URL_PILOTO = "https://raw.githubusercontent.com/Rferreira89/Cryptoscan/piloto-okx/piloto_publico.json"
+URL_SCAN = "https://raw.githubusercontent.com/Rferreira89/Cryptoscan/data/scan.json"
 EUROPA_S = 45 * 60
 MEM = os.environ.get("VIGIA_MEM", "/tmp/vigia.json")
 LIMITE_S, REPETE_S, ATRASO_SAIDA_S, STOP_OK_S = 9000, 6 * 3600, 7200, 3 * 3600
@@ -119,6 +123,54 @@ def problemas_piloto(st, now):
     return out
 
 
+# chave com nome de dinheiro (por palavra: "imbalance" nao conta) e valor numerico; percentagens, R e multiplos nao sao
+# valores da conta. Texto "12.5 USDT" tambem conta (motivos e eventos). Campos cifrados ficam de fora.
+_CH_DINHEIRO = re.compile(r"(^|[_.\-])(saldo|balance|equity|capital|nocional|notional|margem|margin|pnl|lucro|"
+                          r"wallet|avail|disponivel|usd|usdt|usdc)([_.\-]|$)", re.I)
+_CH_RELATIVA = re.compile(r"(pct|_r|_x|frac|ratio|racio|_ok|_min_r)$", re.I)
+_TX_DINHEIRO = re.compile(r"(?<![\w.])\d[\d.,]*\s?(USD|USDT|USDC)\b")
+# (19/11, piloto) "livre ...: risco 0.0240, nocional 14.28": palavra de dinheiro seguida de um numero sem % nem R
+_TX_PALAVRA = re.compile(r"\b(saldo|capital|nocional|notional|margem|margin|risco|pnl|lucro|equity|balance)\s*[:=]?\s*"
+                         r"[-+]?\d+(?:[.,]\d+)?(?![\d.,]*\s*(%|R\b|x\b|h\b|min\b|dias?\b|vezes\b))", re.I)
+_SIMULADA = re.compile(r"(simulad|papel|20 USD)", re.I)           # a conta de papel de 20 USD e publica por desenho
+
+
+def fugas(o, caminho="", out=None, limite=20):
+    """Caminhos (sem os valores) de campos que parecem valores monetarios absolutos num ficheiro publico."""
+    out = [] if out is None else out
+    if len(out) >= limite:
+        return out
+    if isinstance(o, dict):
+        for k, v in o.items():
+            k = str(k)
+            if "cifr" in k.lower():
+                continue
+            q = f"{caminho}.{k}" if caminho else k
+            # chave so em maiusculas = ticker ("USDC" num mapa de ativos); so conta debaixo de um campo de dinheiro
+            dinheiro = (_CH_DINHEIRO.search(caminho.rsplit(".", 1)[-1].replace("[]", "")) if k.isupper()
+                        else _CH_DINHEIRO.search(k) and not _CH_RELATIVA.search(k))
+            if isinstance(v, (int, float)) and not isinstance(v, bool) and v != 0 and dinheiro and q not in out:
+                out.append(q)
+            fugas(v, q, out, limite)
+    elif isinstance(o, list):
+        for v in o:
+            fugas(v, caminho + "[]", out, limite)
+    elif (isinstance(o, str) and (_TX_DINHEIRO.search(o) or _TX_PALAVRA.search(o)) and not _SIMULADA.search(o)
+          and caminho not in out):
+        out.append(caminho)
+    return out[:limite]
+
+
+def problemas_fugas(nome, st):
+    f = fugas(st)
+    if not f:
+        return []
+    mais = f" e mais {len(f) - 3}" if len(f) > 3 else ""
+    return [(f"fuga-{nome}", f"⚠️ Vigia: o ficheiro público {nome} parece ter valores em dinheiro da conta "
+                             f"(campo {', '.join(f[:3])}{mais}). O repositório é público: confirma e corrige o programa "
+                             "que o escreve.")]
+
+
 def telegram(txt):
     t, c = (os.environ.get("TELEGRAM_BOT_TOKEN") or "").strip(), (os.environ.get("TELEGRAM_CHAT_ID") or "").strip()
     if not t or not c:
@@ -142,15 +194,21 @@ def main():
         mem = json.load(open(MEM))
     except Exception:
         mem = {}
-    lista = problemas(st, now)
+    lista = problemas(st, now) + problemas_fugas("okx.json", st)
     try:
-        lista += problemas_bybit(json.loads(urllib.request.urlopen(URL_BYBIT + f"?t={int(now)}", timeout=20).read()), now)
+        sb = json.loads(urllib.request.urlopen(URL_BYBIT + f"?t={int(now)}", timeout=20).read())
+        lista += problemas_bybit(sb, now) + problemas_fugas("state.json", sb)
     except Exception as e:
         print("vigia: sem estado da Bybit", type(e).__name__)
     try:
-        lista += problemas_piloto(json.loads(urllib.request.urlopen(URL_PILOTO + f"?t={int(now)}", timeout=20).read()), now)
+        sp = json.loads(urllib.request.urlopen(URL_PILOTO + f"?t={int(now)}", timeout=20).read())
+        lista += problemas_piloto(sp, now) + problemas_fugas("piloto_publico.json", sp)
     except Exception as e:
         print("vigia: sem estado do piloto", type(e).__name__)
+    try:
+        lista += problemas_fugas("scan.json", json.loads(urllib.request.urlopen(URL_SCAN + f"?t={int(now)}", timeout=20).read()))
+    except Exception as e:
+        print("vigia: sem scan.json", type(e).__name__)
     for chave, msg in lista:
         if now - mem.get(chave, 0) >= REPETE_S:
             telegram(msg); mem[chave] = now
