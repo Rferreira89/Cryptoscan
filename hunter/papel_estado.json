@@ -14223,7 +14223,7 @@
 "instrumentos_descobertos": 263,
 "com_dados_validos": 263,
 "falhas_tecnicas": 36,
-"excluidos_por_dados": 2050,
+"excluidos_por_dados": 2060,
 "candidatos": 1,
 "aprovados": 1,
 "abertas_novas": 208,
@@ -14241,7 +14241,7 @@
 "ATR de referencia indisponivel": 19
 }
 },
-"voltas": 190,
+"voltas": 191,
 "bloqueadas": {
 "057f68c36111": [
 "drawdown 10.35R >= 8.0R"
@@ -14319,20 +14319,17 @@
 "falhas_tecnicas": 0,
 "excluidos_por_dados": 10,
 "dados_fiaveis": true,
-"sinais_brutos": 155,
-"rejeitados": {
-"ATR de referencia indisponivel": 19,
-"concentracao: acontecimento ja com 3 posicoes (segue so nas carteiras-sombra max5/sem_limite)": 133
-},
-"elegiveis_apos_concentracao": 3,
-"abertas_novas": 136,
+"sinais_brutos": 0,
+"rejeitados": {},
+"elegiveis_apos_concentracao": 0,
+"abertas_novas": 0,
 "fechadas_agora": 0,
-"acontecimentos_novos": 1,
-"moedas_com_sinal": 155,
-"t": 1795244475,
+"acontecimentos_novos": 0,
+"moedas_com_sinal": 0,
+"t": 1795246275,
 "versao_codigo": "f1c64eb"
 },
-"t": 1795244475,
+"t": 1795246275,
 "aviso": "PAPEL: simulado, nunca somado aos resultados reais; sem ordens",
 "vistos": [
 "057f68c36111|APR|1794902400",
