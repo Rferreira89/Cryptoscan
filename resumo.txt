@@ -1,0 +1,66 @@
+STATUS OK
+  binance  OK 338 pares
+  okx      OK 308 pares
+  kucoin   OK 58 pares
+  bybit-eu {'ok': True, 'pairs': 82}
+COUNTS {'pairs_seen': 407, 'eligible': 44, 'deep_checked': 44, 'data_valid': 32, 'data_invalid': 0, 'long': 0, 'short': 0, 'watch_short': 0, 'paper': 0, 'watchlist': 0, 'no_trade': 44}
+DERIVADOS {'ok': True, 'with_perp': 44, 'incomplete': 0, 'binance': 42}
+EUROPA {'ok': True, 't': 1795270645, 'moedas': 120} CONTA lida
+REGIME BTC STRONG BEAR
+  BTC      NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  ETH      NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  SOL      NO TRADE  -     STRONG BEAR -                -        score - | LIQUIDITY_SWEEP: sweep de fundo em regime de descida forte
+      rejeitado LIQUIDITY_SWEEP: sweep de fundo em regime de descida forte
+  XRP      NO TRADE  -     STRONG BEAR -                -        score - | LIQUIDITY_SWEEP: sweep de fundo em regime de descida forte
+      rejeitado LIQUIDITY_SWEEP: sweep de fundo em regime de descida forte
+  BNB      NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  NEAR     NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  HYPE     NO TRADE  -     NEUTRAL     -                -        score - | LIQUIDITY_SWEEP: estratégia desligada
+      rejeitado LIQUIDITY_SWEEP: estratégia desligada
+  SUI      NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  DOGE     NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  PEPE     NO TRADE  -     HIGH VOLATILITY -                -        score - | regime HIGH VOLATILITY: sem vantagem identificável
+  LINK     NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  PUMP     NO TRADE  -     -           -                -        score - | spread elevado na Bybit UE
+  ENA      NO TRADE  -     -           -                -        score - | spread elevado na Bybit UE
+  ADA      NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  LTC      NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  UNI      NO TRADE  -     HIGH VOLATILITY -                -        score - | regime HIGH VOLATILITY: sem vantagem identificável
+  INJ      NO TRADE  -     HIGH VOLATILITY -                -        score - | regime HIGH VOLATILITY: sem vantagem identificável
+  AAVE     NO TRADE  -     BEAR        -                -        score - | LIQUIDITY_SWEEP: estratégia desligada
+      rejeitado LIQUIDITY_SWEEP: estratégia desligada
+  AVAX     NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  TRX      NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  BCH      NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  ICP      NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  WLD      NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  XLM      NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  ZRO      NO TRADE  -     -           -                -        score - | spread elevado na Bybit UE
+  ONDO     NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  SHIB     NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  ARB      NO TRADE  -     HIGH VOLATILITY -                -        score - | regime HIGH VOLATILITY: sem vantagem identificável
+  APT      NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  DOT      NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  ASTER    NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  HBAR     NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  CRV      NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  XPL      NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+  RENDER   NO TRADE  -     BEAR        -                -        score - | nenhuma estratégia aplicável em regime BEAR
+  PENGU    NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  TRUMP    NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  VIRTUAL  NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  BONK     NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  WIF      NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  SEI      NO TRADE  -     STRONG BEAR -                -        score - | nenhuma estratégia aplicável em regime STRONG BEAR
+  AERO     NO TRADE  -     -           -                -        score - | dados inválidos ou histórico insuficiente
+  AVNT     NO TRADE  -     -           -                -        score - | volume baixo na Bybit UE
+  ZORA     NO TRADE  -     -           -                -        score - | spread elevado na Bybit UE
+FILTRO DE MERCADO {'btc_above_sma200': False, 'close': 58821.75, 'sma200': 72545.4, 'distance_pct': -18.9, 'since': 1794528030}
+PAPEL TENDENCIA capital -3.04% n 1 posicoes []
+REGISTO {'REAL:BREAKOUT': {'n': 4, 'wins': 0, 'sum_r': -4.243}, 'REAL:PULLBACK': {'n': 2, 'wins': 0, 'sum_r': -2.605}, 'REAL:LIQUIDITY_SWEEP': {'n': 3, 'wins': 1, 'sum_r': -1.438}, 'REAL:BOUNCE_X30': {'n': 4, 'wins': 0, 'sum_r': -4.0}, 'REAL:BOUNCE_SQUEEZE': {'n': 4, 'wins': 2, 'sum_r': 0.059}, 'REAL:SHORT_TURTLE': {'n': 4, 'wins': 4, 'sum_r': 3.768}} TRAVAO None
+SINAIS ATIVOS 5
+  PEPE-SHORT_TURTLE-1795147207 TRIGGERED {'side': 'SHORT', 'leverage': {'use': 1.0, 'max_safe': 2.0, 'needed': 1.0, 'collateral_pct': 22.1, 'borrowed_pct': 0.0, 'liquidation_est': None}, 'position_usdc': 5.01, 'collateral_usdc': 5.01, 'borrowed_usdc': 0.0, 'risk_usdc': 0.87, 'max_position_usdc': 6.52, 'max_risk_usdc': 1.129, 'entry_zone': [3.58282e-06, 3.6007699999999995e-06], 'entry_ref': 3.58282e-06, 'stop': 4.184257975004299e-06, 'tp': [2.795853006271686e-06, 2.099278272621891e-06, 2.099278272621891e-06], 'tp_projected': [], 'partials': [100, 0, 0], 'rr': 2.37, 'rr_tp1': 1.24, 'rr_tp3': 2.37, 'stop_pct': 17.33, 'stop_atr': None, 'position_pct': 22.144, 'risk_pct': 3.848, 'breakeven': True, 'max_hold_s': 1728000, 'no_react_s': None, 'trail_r': 1.0, 'lote': {'qtd': 1403967.0, 'passo': 1.0, 'qtd_min': 1.0, 'valor_min': 5.0, 'preco_limite': 3.56846e-06, 'risco_efetivo': 0.8918}}
+  BTC-SHORT_TURTLE-1795161609 TRIGGERED {'side': 'SHORT', 'leverage': {'use': 1.0, 'max_safe': 4.0, 'needed': 1.0, 'collateral_pct': 29.7, 'borrowed_pct': 0.0, 'liquidation_est': None}, 'position_usdc': 6.64, 'collateral_usdc': 6.64, 'borrowed_usdc': 0.0, 'risk_usdc': 0.52, 'max_position_usdc': 7.21, 'max_risk_usdc': 1.1245, 'entry_zone': [61693.04664, 62002.13004], 'entry_ref': 61693.04664, 'stop': 66182.94979660021, 'tp': [54577.934747798136, 46435.57293977905, 46435.57293977905], 'tp_projected': [], 'partials': [100, 0, 0], 'rr': 3.12, 'rr_tp1': 1.42, 'rr_tp3': 3.12, 'stop_pct': 7.8, 'stop_atr': None, 'position_pct': 29.461, 'risk_pct': 2.301, 'breakeven': True, 'max_hold_s': 1728000, 'no_react_s': None, 'trail_r': 1.0, 'lote': {'qtd': 0.000108, 'passo': 1e-06, 'qtd_min': 1e-06, 'valor_min': 1.0, 'preco_limite': 61445.77992, 'risco_efetivo': 0.5461}}
+  SHIB-SHORT_TURTLE-1795176010 TRIGGERED {'side': 'SHORT', 'leverage': {'use': 1.0, 'max_safe': 3.0, 'needed': 1.0, 'collateral_pct': 23.5, 'borrowed_pct': 0.0, 'liquidation_est': None}, 'position_usdc': 5.28, 'collateral_usdc': 5.28, 'borrowed_usdc': 0.0, 'risk_usdc': 0.53, 'max_position_usdc': 5.6, 'max_risk_usdc': 1.124, 'entry_zone': [3.68262e-06, 3.7010699999999996e-06], 'entry_ref': 3.68262e-06, 'stop': 4.0326645869889055e-06, 'tp': [3.1539957617366666e-06, 2.5897258337557266e-06, 2.5897258337557266e-06], 'tp_projected': [], 'partials': [100, 0, 0], 'rr': 2.92, 'rr_tp1': 1.39, 'rr_tp3': 2.92, 'stop_pct': 10.03, 'stop_atr': None, 'position_pct': 23.5, 'risk_pct': 2.36, 'breakeven': True, 'max_hold_s': 1728000, 'no_react_s': None, 'trail_r': 1.0, 'lote': {'qtd': 1439531.0, 'passo': 1.0, 'qtd_min': 1.0, 'valor_min': 5.0, 'preco_limite': 3.66786e-06, 'risco_efetivo': 0.5529}}
+  AAVE-SHORT_TURTLE-1795204810 TRIGGERED {'side': 'SHORT', 'leverage': {'use': 1.0, 'max_safe': 2.5, 'needed': 1.0, 'collateral_pct': 23.6, 'borrowed_pct': 0.0, 'liquidation_est': None}, 'position_usdc': 5.02, 'collateral_usdc': 5.02, 'borrowed_usdc': 0.0, 'risk_usdc': 0.7, 'max_position_usdc': 7.57, 'max_risk_usdc': 1.0575, 'entry_zone': [94.8599, 95.33514999999998], 'entry_ref': 94.8599, 'stop': 107.61041149937905, 'tp': [77.2187004570722, 60.21310381746333, 60.21310381746333], 'tp_projected': [], 'partials': [100, 0, 0], 'rr': 2.58, 'rr_tp1': 1.3, 'rr_tp3': 2.58, 'stop_pct': 13.98, 'stop_atr': None, 'position_pct': 23.68, 'risk_pct': 3.311, 'breakeven': True, 'max_hold_s': 1728000, 'no_react_s': None, 'trail_r': 1.0, 'lote': {'qtd': 0.0531, 'passo': 0.0001, 'qtd_min': 0.0001, 'valor_min': 5.0, 'preco_limite': 94.4797, 'risco_efetivo': 0.7241}}
+  ASTER-SHORT_TURTLE-1795248009 TRIGGERED {'side': 'SHORT', 'leverage': {'use': 1.0, 'max_safe': 2.0, 'needed': 1.0, 'collateral_pct': 23.8, 'borrowed_pct': 0.0, 'liquidation_est': None}, 'position_usdc': 5.02, 'collateral_usdc': 5.02, 'borrowed_usdc': 0.0, 'risk_usdc': 0.85, 'max_position_usdc': 6.16, 'max_risk_usdc': 1.0525, 'entry_zone': [0.47509789999999996, 0.47747814999999993], 'entry_ref': 0.47509789999999996, 'stop': 0.5536669734320155, 'tp': [0.37299703641512705, 0.28122805392531647, 0.28122805392531647], 'tp_projected': [], 'partials': [100, 0, 0], 'rr': 2.37, 'rr_tp1': 1.23, 'rr_tp3': 2.37, 'stop_pct': 17.08, 'stop_atr': None, 'position_pct': 23.875, 'risk_pct': 4.073, 'breakeven': True, 'max_hold_s': 1728000, 'no_react_s': None, 'trail_r': 1.0, 'lote': {'qtd': 10.6, 'passo': 0.1, 'qtd_min': 0.1, 'valor_min': 5.0, 'preco_limite': 0.4731937, 'risco_efetivo': 0.8802}}

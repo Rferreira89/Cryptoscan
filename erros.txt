@@ -1,0 +1,200 @@
+
+----------------------------------------------------------------------
+Ran 809 tests in 17.230s
+
+FAILED (failures=12, errors=78)
+2026-11-16T10:45:25Z testes falharam:
+  File "/home/runner/work/Cryptoscan/Cryptoscan/tests/test_okx_suspensao_protecao.py", line 79, in test_parcialmente_executada_fica_aberta_e_gerida
+    self.assertTrue(any("execução parcial" in m for m in msgs))
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 809 tests in 17.256s
+
+FAILED (failures=12, errors=78)
+2026-11-16T10:50:25Z testes falharam:
+  File "/home/runner/work/Cryptoscan/Cryptoscan/tests/test_okx_suspensao_protecao.py", line 79, in test_parcialmente_executada_fica_aberta_e_gerida
+    self.assertTrue(any("execução parcial" in m for m in msgs))
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 809 tests in 17.321s
+
+FAILED (failures=12, errors=78)
+2026-11-16T10:55:25Z testes falharam:
+  File "/home/runner/work/Cryptoscan/Cryptoscan/tests/test_okx_suspensao_protecao.py", line 79, in test_parcialmente_executada_fica_aberta_e_gerida
+    self.assertTrue(any("execução parcial" in m for m in msgs))
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 809 tests in 17.244s
+
+FAILED (failures=12, errors=78)
+2026-11-16T11:00:25Z testes falharam:
+  File "/home/runner/work/Cryptoscan/Cryptoscan/tests/test_okx_suspensao_protecao.py", line 79, in test_parcialmente_executada_fica_aberta_e_gerida
+    self.assertTrue(any("execução parcial" in m for m in msgs))
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 809 tests in 17.548s
+
+FAILED (failures=12, errors=78)
+2026-11-16T11:05:25Z testes falharam:
+  File "/home/runner/work/Cryptoscan/Cryptoscan/tests/test_okx_suspensao_protecao.py", line 79, in test_parcialmente_executada_fica_aberta_e_gerida
+    self.assertTrue(any("execução parcial" in m for m in msgs))
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 809 tests in 17.270s
+
+FAILED (failures=12, errors=78)
+2026-11-16T11:10:24Z testes falharam:
+  File "/home/runner/work/Cryptoscan/Cryptoscan/tests/test_okx_suspensao_protecao.py", line 79, in test_parcialmente_executada_fica_aberta_e_gerida
+    self.assertTrue(any("execução parcial" in m for m in msgs))
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 809 tests in 17.332s
+
+FAILED (failures=12, errors=78)
+2026-11-16T11:15:25Z testes falharam:
+  File "/home/runner/work/Cryptoscan/Cryptoscan/tests/test_okx_suspensao_protecao.py", line 79, in test_parcialmente_executada_fica_aberta_e_gerida
+    self.assertTrue(any("execução parcial" in m for m in msgs))
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 809 tests in 17.318s
+
+FAILED (failures=12, errors=78)
+2026-11-16T11:20:24Z testes falharam:
+  File "/home/runner/work/Cryptoscan/Cryptoscan/tests/test_okx_suspensao_protecao.py", line 79, in test_parcialmente_executada_fica_aberta_e_gerida
+    self.assertTrue(any("execução parcial" in m for m in msgs))
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 809 tests in 17.206s
+
+FAILED (failures=12, errors=78)
+2026-11-16T11:25:30Z testes falharam:
+  File "/home/runner/work/Cryptoscan/Cryptoscan/tests/test_okx_suspensao_protecao.py", line 79, in test_parcialmente_executada_fica_aberta_e_gerida
+    self.assertTrue(any("execução parcial" in m for m in msgs))
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 809 tests in 21.481s
+
+FAILED (failures=12, errors=78)
+2026-11-16T11:30:26Z testes falharam:
+  File "/home/runner/work/Cryptoscan/Cryptoscan/tests/test_okx_suspensao_protecao.py", line 79, in test_parcialmente_executada_fica_aberta_e_gerida
+    self.assertTrue(any("execução parcial" in m for m in msgs))
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 809 tests in 17.903s
+
+FAILED (failures=12, errors=78)
+2026-11-16T11:35:25Z testes falharam:
+  File "/home/runner/work/Cryptoscan/Cryptoscan/tests/test_okx_suspensao_protecao.py", line 79, in test_parcialmente_executada_fica_aberta_e_gerida
+    self.assertTrue(any("execução parcial" in m for m in msgs))
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 809 tests in 17.827s
+
+FAILED (failures=12, errors=78)
+2026-11-16T11:40:26Z testes falharam:
+  File "/home/runner/work/Cryptoscan/Cryptoscan/tests/test_okx_suspensao_protecao.py", line 79, in test_parcialmente_executada_fica_aberta_e_gerida
+    self.assertTrue(any("execução parcial" in m for m in msgs))
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 809 tests in 17.892s
+
+FAILED (failures=12, errors=78)
+2026-11-16T11:45:25Z testes falharam:
+  File "/home/runner/work/Cryptoscan/Cryptoscan/tests/test_okx_suspensao_protecao.py", line 79, in test_parcialmente_executada_fica_aberta_e_gerida
+    self.assertTrue(any("execução parcial" in m for m in msgs))
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 809 tests in 17.874s
+
+FAILED (failures=12, errors=78)
+2026-11-16T11:50:25Z testes falharam:
+  File "/home/runner/work/Cryptoscan/Cryptoscan/tests/test_okx_suspensao_protecao.py", line 79, in test_parcialmente_executada_fica_aberta_e_gerida
+    self.assertTrue(any("execução parcial" in m for m in msgs))
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 809 tests in 17.859s
+
+FAILED (failures=12, errors=78)
+2026-11-16T11:55:26Z testes falharam:
+  File "/home/runner/work/Cryptoscan/Cryptoscan/tests/test_okx_suspensao_protecao.py", line 79, in test_parcialmente_executada_fica_aberta_e_gerida
+    self.assertTrue(any("execução parcial" in m for m in msgs))
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 809 tests in 17.880s
+
+FAILED (failures=12, errors=78)
+2026-11-16T12:00:27Z testes falharam:
+  File "/home/runner/work/Cryptoscan/Cryptoscan/tests/test_okx_suspensao_protecao.py", line 79, in test_parcialmente_executada_fica_aberta_e_gerida
+    self.assertTrue(any("execução parcial" in m for m in msgs))
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 809 tests in 17.936s
+
+FAILED (failures=12, errors=78)
+2026-11-16T12:05:26Z testes falharam:
+  File "/home/runner/work/Cryptoscan/Cryptoscan/tests/test_okx_suspensao_protecao.py", line 79, in test_parcialmente_executada_fica_aberta_e_gerida
+    self.assertTrue(any("execução parcial" in m for m in msgs))
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 809 tests in 18.017s
+
+FAILED (failures=12, errors=78)
+2026-11-16T12:10:26Z testes falharam:
+  File "/home/runner/work/Cryptoscan/Cryptoscan/tests/test_okx_suspensao_protecao.py", line 79, in test_parcialmente_executada_fica_aberta_e_gerida
+    self.assertTrue(any("execução parcial" in m for m in msgs))
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 809 tests in 18.239s
+
+FAILED (failures=12, errors=78)
+2026-11-16T12:15:26Z testes falharam:
+  File "/home/runner/work/Cryptoscan/Cryptoscan/tests/test_okx_suspensao_protecao.py", line 79, in test_parcialmente_executada_fica_aberta_e_gerida
+    self.assertTrue(any("execução parcial" in m for m in msgs))
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 809 tests in 18.048s
+
+FAILED (failures=12, errors=78)
+2026-11-19T16:28:22Z scan falhou:
+    closed.sort(key=lambda s: s["closed_at"])
+  File "/home/runner/work/Cryptoscan/Cryptoscan/engine/signals.py", line 306, in <lambda>
+    closed.sort(key=lambda s: s["closed_at"])
+                              ~^^^^^^^^^^^^^
+KeyError: 'closed_at'
+2026-11-19T16:33:25Z scan falhou:
+    closed.sort(key=lambda s: s["closed_at"])
+  File "/home/runner/work/Cryptoscan/Cryptoscan/engine/signals.py", line 306, in <lambda>
+    closed.sort(key=lambda s: s["closed_at"])
+                              ~^^^^^^^^^^^^^
+KeyError: 'closed_at'
+2026-11-19T16:38:24Z scan falhou:
+    closed.sort(key=lambda s: s["closed_at"])
+  File "/home/runner/work/Cryptoscan/Cryptoscan/engine/signals.py", line 306, in <lambda>
+    closed.sort(key=lambda s: s["closed_at"])
+                              ~^^^^^^^^^^^^^
+KeyError: 'closed_at'
+2026-11-19T16:43:25Z scan falhou:
+    closed.sort(key=lambda s: s["closed_at"])
+  File "/home/runner/work/Cryptoscan/Cryptoscan/engine/signals.py", line 306, in <lambda>
+    closed.sort(key=lambda s: s["closed_at"])
+                              ~^^^^^^^^^^^^^
+KeyError: 'closed_at'
