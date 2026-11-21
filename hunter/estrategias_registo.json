@@ -343,15 +343,15 @@
     "operacoes_por_semana": 37.87
    },
    "papel": {
-    "fechadas": 30,
+    "fechadas": 31,
     "acontecimentos": 12,
-    "dias": 3.2,
-    "r_medio": -0.3544,
-    "r_medio_por_acontecimento": -0.4139,
+    "dias": 3.5,
+    "r_medio": -0.3779,
+    "r_medio_por_acontecimento": -0.414,
     "falhas_criticas": 1,
     "desde": 1794916800,
     "ic95_acontecimento": [
-     -0.7818,
+     -0.782,
      -0.04
     ],
     "ok": false
@@ -423,8 +423,8 @@
       -1.1209
      ],
      "RAVE": [
-      1,
-      1.8807
+      2,
+      0.3998
      ],
      "DOS": [
       1,
@@ -465,14 +465,14 @@
     },
     "por_tf": {
      "4H": [
-      30,
-      -0.3544
+      31,
+      -0.3779
      ]
     },
     "por_regime": {
      "btc_abaixo_media50": [
-      30,
-      -0.3544
+      31,
+      -0.3779
      ]
     }
    },
@@ -1079,7 +1079,7 @@
    }
   }
  },
- "t": 1795217476,
+ "t": 1795219275,
  "pedidos_teste_final": [],
  "piloto_operacional": true,
  "criterios": {
