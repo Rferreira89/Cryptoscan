@@ -6,7 +6,7 @@ saídas, sweep a mercado, funding negativo, quebra com compradores,
 capitulação do mercado, atraso face ao BTC, resiliente, impulso de
 amplitude, CAP_MERCADO_V2 e BOUNCE_LARGO (2026-11-14) e BOUNCE_ALVO
 (2026-11-17); mais 17 no diário de afinação, H1 a H13 e H15 a H18, a última
-de 2026-11-20). Atualizado em 2026-11-20 (sem hipótese nova; sem mortos novos). O contador global do
+de 2026-11-20). Atualizado em 2026-11-21 (sem hipótese nova; sem mortos novos). O contador global do
 programa (`engine/hipoteses.py` mais `backtest/hipoteses_offline.json`,
 contra dados que incluem esta reserva) já vai em 104 (segundo a H18 de 2026-11-20).
 Quanto maior este número, maior a probabilidade de uma hipótese passar por
@@ -3186,3 +3186,42 @@ o acaso atual.
   Só contam operações fechadas (saída em D+3); as primeiras fechadas possíveis continuam a ser a 20/11 (H52),
   21/11 (H53), 24/11 (H57–H59) e 25/11 (H60). Regras, parâmetros e critérios inalterados; nenhum resultado calculado.
 - Nenhum resultado em dados antigos foi usado como validação.
+
+## 2026-11-21 — Sem hipótese nova hoje (sem mortos novos; fila vazia)
+
+**Veredicto da corrida: nenhuma hipótese testada.** Contador desta reserva: **32** (inalterado; a afinação não
+registou hipótese nova depois da H18). Com 32 testes, a probabilidade de pelo menos um falso positivo a 5% ronda os 81%.
+
+- **Histórico** (ramo `history`): última vela de 4H 2026-11-20 12:00 UTC (1 dia de atraso, dentro do limite de 7);
+  não foi preciso correr o workflow. Janela atual: desenho 2024-11-20 → 2026-05-20, reserva 2026-05-20 → 2026-11-20.
+- **Arena** (`scan.json` do ramo `data`, 2026-11-21 ~10:30 UTC): **10 lutadores a competir** (mínimo 5), `recrutar`
+  falso. Último morto continua a ser RACIO_DISP (2026-11-19), já com autópsia. Nenhum morto novo → sem sucessor.
+- **Fila do Rui**: vazia (6 de 6 testadas).
+- **Combate de 90 dias** (`forma.json` do ramo `arena`, 2026-11-21 11:28 UTC, 51 moedas), vivos com operações:
+
+| Lutador | Op. | Ganhadoras | R médio | Acaso mediana | Acaso p95 |
+|---|---|---|---|---|---|
+| BOUNCE_AMPLITUDE | 16 | 16 | +0,842 | −0,393 | −0,048 |
+| CAP_MERCADO_V2_N5K2 | 24 | 19 | +0,331 | −0,625 | −0,405 |
+| BOUNCE_ALVO | 7 | 4 | +0,581 | −0,461 | +0,190 |
+| REVERSAO_INTERVALO | 27 | 19 | −0,102 | −0,270 | −0,090 |
+| MAIORES_RECUO | 17 | 9 | −0,019 | −0,327 | +0,034 |
+| MAIORES_TENDENCIA | 3 | 0 | −0,793 | −0,108 | +0,956 |
+| SHORT_SQUEEZE | 1 | 0 | −1,012 | −0,161 | +1,600 |
+| BOUNCE_MEDO | 1 | 0 | −1,015 | −1,015 | +0,426 |
+| BREAKOUT_R2 | 2 | 0 | −1,017 | −0,261 | +0,518 |
+
+  REVERSAO_INTERVALO passou de +0,036R (20/11) para −0,102R: continua acima da mediana do acaso e acima de −0,2R,
+  logo não cumpre a regra de morte, mas caiu abaixo do p95. Estes números são do combate, dentro da reserva, e lidos
+  com o juiz atual (que a H18 mostrou ser fácil para a sobrevenda): não validam nada. Contra o acaso incondicional U,
+  nenhum dos três líderes tem vantagem provada (entrada de 2026-11-20).
+
+### Porque não há hipótese nova
+
+Fila vazia, nenhum morto novo, `recrutar` falso, e a ordem de 2026-11-14 manda não gerar hipóteses artificialmente.
+Não há dados novos materiais desde ontem (um dia de velas).
+
+- **Testes**: 1732, todos a passar.
+- **Próxima corrida**: autópsia se morrer alguém (o mais perto é REVERSAO_INTERVALO, se descer abaixo de −0,27R ou
+  de −0,2R); testar o que entrar na fila do Rui.
+
