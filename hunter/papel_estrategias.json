@@ -1,5 +1,5 @@
 {
- "t": 1795255144,
+ "t": 1795256278,
  "estrategias": [
   {
    "id": "1a40f1f6422a",
@@ -79,6 +79,49 @@
    },
    "veredicto": "EXPLORATORIA",
    "estado": "PAPEL"
+  },
+  {
+   "id": "987b19a113db",
+   "familia": "lideranca_btc",
+   "parametros": {
+    "x": 0.02
+   },
+   "tf": "1H",
+   "lado": "LONG",
+   "filtro": null,
+   "stop_ref": "30m",
+   "saida": {
+    "tipo": "trailing",
+    "k": 2.0,
+    "tp": null,
+    "hold": 4
+   },
+   "veredicto": "EXPLORATORIA",
+   "estado": "EXPLORATORIA",
+   "nota": "21/11: de volta ao papel (so simulacao) para juntar provas; fora do real ate 20+ acontecimentos negociaveis com media positiva"
+  },
+  {
+   "id": "4c020b59f463",
+   "familia": "venda_repique",
+   "parametros": {
+    "ema": 50,
+    "k": 6,
+    "x": 0.03,
+    "tendencia": 300
+   },
+   "tf": "4H",
+   "lado": "SHORT",
+   "filtro": "cripto",
+   "stop_ref": "4H",
+   "saida": {
+    "tipo": "fixa",
+    "k": 3.0,
+    "tp": 2.5,
+    "hold": 30
+   },
+   "veredicto": "EXPLORATORIA",
+   "estado": "PAPEL",
+   "origem": "investigacao de shorts 21/11 (pedido do Rui): backtest 4H 2021-2026, 252 moedas, custos OKX; ver backtest/estudos/shorts_piloto_2026-11-21.json (main)"
   }
  ]
 }
