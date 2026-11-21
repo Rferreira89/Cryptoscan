@@ -551,11 +551,11 @@
     "operacoes_por_semana": 34.58
    },
    "papel": {
-    "fechadas": 19,
+    "fechadas": 32,
     "acontecimentos": 1,
-    "dias": 0.0,
-    "r_medio": -3.4899,
-    "r_medio_por_acontecimento": -3.4899,
+    "dias": 0.1,
+    "r_medio": -2.7478,
+    "r_medio_por_acontecimento": -2.7478,
     "falhas_criticas": 1,
     "desde": 1795244400,
     "ic95_acontecimento": null,
@@ -638,18 +638,70 @@
      "W": [
       1,
       -1.3556
+     ],
+     "ALLO": [
+      1,
+      -1.3515
+     ],
+     "BASED": [
+      1,
+      -1.2182
+     ],
+     "BAT": [
+      1,
+      -1.8259
+     ],
+     "BICO": [
+      1,
+      -1.8428
+     ],
+     "BILL": [
+      1,
+      -3.3689
+     ],
+     "CL": [
+      1,
+      -1.6257
+     ],
+     "EWY": [
+      1,
+      -1.8949
+     ],
+     "GRVT": [
+      1,
+      -1.1724
+     ],
+     "JTO": [
+      1,
+      -1.7293
+     ],
+     "SAND": [
+      1,
+      -1.4208
+     ],
+     "SHIB": [
+      1,
+      -1.1832
+     ],
+     "TSLA": [
+      1,
+      -1.4577
+     ],
+     "WDC": [
+      1,
+      -1.5293
      ]
     },
     "por_tf": {
      "1H": [
-      19,
-      -3.4899
+      32,
+      -2.7478
      ]
     },
     "por_regime": {
      "btc_abaixo_media50": [
-      19,
-      -3.4899
+      32,
+      -2.7478
      ]
     }
    },
@@ -660,7 +712,7 @@
     "papel_vs_real_r": null
    },
    "desde": 1795248076,
-   "motivo": "papel: 19 fechadas, 1 acontecimentos, 0.0 dias | experimental recusada: bloqueada pelo motor de sobrevivencia do papel",
+   "motivo": "papel: 32 fechadas, 1 acontecimentos, 0.1 dias | experimental recusada: bloqueada pelo motor de sobrevivencia do papel",
    "estado_estatistico": "PAPER_TRADING",
    "auditoria_tecnica": {
     "ok": false,
@@ -1193,7 +1245,7 @@
    }
   }
  },
- "t": 1795249876,
+ "t": 1795251676,
  "pedidos_teste_final": [],
  "piloto_operacional": true,
  "criterios": {
