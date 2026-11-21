@@ -497,7 +497,7 @@
   },
   "987b19a113db": {
    "id": "987b19a113db",
-   "estado": "EXPERIMENTAL_REAL",
+   "estado": "PAPER_TRADING",
    "historico": [
     {
      "t": 1794914965,
@@ -510,6 +510,12 @@
      "de": "PAPER_TRADING",
      "para": "EXPERIMENTAL_REAL",
      "motivo": "auditoria tecnica cumprida; experimenta em real com os limites do piloto (papel: 0 fechadas, 0 acontecimentos, 0 dias)"
+    },
+    {
+     "t": 1795248076,
+     "de": "EXPERIMENTAL_REAL",
+     "para": "PAPER_TRADING",
+     "motivo": "papel: 19 fechadas, 1 acontecimentos, 0.0 dias | experimental recusada: bloqueada pelo motor de sobrevivencia do papel"
     }
    ],
    "criado": 1794914965,
@@ -545,26 +551,122 @@
     "operacoes_por_semana": 34.58
    },
    "papel": {
-    "fechadas": 0,
-    "acontecimentos": 0,
-    "dias": 0,
-    "r_medio": null,
-    "falhas_criticas": 0,
+    "fechadas": 19,
+    "acontecimentos": 1,
+    "dias": 0.0,
+    "r_medio": -3.4899,
+    "r_medio_por_acontecimento": -3.4899,
+    "falhas_criticas": 1,
+    "desde": 1795244400,
+    "ic95_acontecimento": null,
     "ok": false
    },
-   "metricas_papel": {},
+   "metricas_papel": {
+    "por_moeda": {
+     "ADBE": [
+      1,
+      -2.4935
+     ],
+     "APP": [
+      1,
+      -2.5187
+     ],
+     "BE": [
+      1,
+      -2.461
+     ],
+     "BZ": [
+      1,
+      -1.8339
+     ],
+     "DNA": [
+      1,
+      -11.4533
+     ],
+     "DYDX": [
+      1,
+      -2.8166
+     ],
+     "EWZ": [
+      1,
+      -2.3846
+     ],
+     "FLOCK": [
+      1,
+      -2.4686
+     ],
+     "GPRO": [
+      1,
+      -2.2807
+     ],
+     "HOME": [
+      1,
+      -2.6451
+     ],
+     "IONQ": [
+      1,
+      -5.7308
+     ],
+     "KII": [
+      1,
+      -12.4412
+     ],
+     "OL": [
+      1,
+      -3.7108
+     ],
+     "RESOLV": [
+      1,
+      -2.3432
+     ],
+     "SOPH": [
+      1,
+      -1.2546
+     ],
+     "UNITREE": [
+      1,
+      -3.0673
+     ],
+     "UP": [
+      1,
+      -1.1009
+     ],
+     "US100": [
+      1,
+      -1.9477
+     ],
+     "W": [
+      1,
+      -1.3556
+     ]
+    },
+    "por_tf": {
+     "1H": [
+      19,
+      -3.4899
+     ]
+    },
+    "por_regime": {
+     "btc_abaixo_media50": [
+      19,
+      -3.4899
+     ]
+    }
+   },
    "real": {
     "fechadas": 0,
     "r_medio": null,
-    "deslize_medio_pct": null,
+    "deslize_medio_pct": -0.0035,
     "papel_vs_real_r": null
    },
-   "desde": 1794923573,
-   "motivo": "auditoria tecnica cumprida; experimenta em real com os limites do piloto (papel: 0 fechadas, 0 acontecimentos, 0 dias)",
+   "desde": 1795248076,
+   "motivo": "papel: 19 fechadas, 1 acontecimentos, 0.0 dias | experimental recusada: bloqueada pelo motor de sobrevivencia do papel",
    "estado_estatistico": "PAPER_TRADING",
    "auditoria_tecnica": {
-    "ok": true,
-    "falhas": [],
+    "ok": false,
+    "falhas": [
+     "bloqueada pelo motor de sobrevivencia do papel"
+    ],
     "sinal": "velas fechadas; entrada na abertura da vela seguinte",
     "saida_real": "stop inicial na OKX + fecho quando o papel fecha (trailing/inversao) + saida por tempo"
    }
@@ -1091,7 +1193,7 @@
    }
   }
  },
- "t": 1795246275,
+ "t": 1795248076,
  "pedidos_teste_final": [],
  "piloto_operacional": true,
  "criterios": {
