@@ -1082,10 +1082,10 @@
     }
    },
    "real": {
-    "fechadas": 0,
-    "r_medio": null,
+    "fechadas": 2,
+    "r_medio": -0.065,
     "deslize_medio_pct": -0.0035,
-    "papel_vs_real_r": null
+    "papel_vs_real_r": 0.1089
    },
    "desde": 1795248076,
    "motivo": "papel: 126 fechadas, 1 acontecimentos, 0.2 dias | experimental recusada: bloqueada pelo motor de sobrevivencia do papel",
@@ -1681,7 +1681,7 @@
    "motivo": "auditoria tecnica cumprida; experimenta em real com os limites do piloto (papel: 0 fechadas, 0 acontecimentos, 0 dias)"
   }
  },
- "t": 1795260676,
+ "t": 1795262476,
  "pedidos_teste_final": [],
  "piloto_operacional": true,
  "criterios": {

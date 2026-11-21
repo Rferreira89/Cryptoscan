@@ -68,7 +68,7 @@
 "t_entrada": 1795233600,
 "stop_inicial": 0.006341383514285715,
 "objetivo": 0.008149419228571427,
-"r_atual": 0.2207
+"r_atual": -0.4039
 },
 {
 "id_op": "987b19a113db|ARM|1795240800",
@@ -697,8 +697,18 @@
 {
 "t": 1795248076,
 "estado": "sinal aceite: entrada na abertura da vela seguinte"
+},
+{
+"t": 1795262476,
+"estado": "entrada simulada",
+"preco": 0.4551854892
 }
-]
+],
+"entrada": 0.4551854892,
+"t_entrada": 1795248000,
+"stop_inicial": 0.3956354892,
+"objetivo": 0.5445104892,
+"r_atual": 0.0043
 }
 ],
 "fechadas": [
@@ -18306,7 +18316,7 @@
 "instrumentos_descobertos": 263,
 "com_dados_validos": 263,
 "falhas_tecnicas": 37,
-"excluidos_por_dados": 2132,
+"excluidos_por_dados": 2140,
 "candidatos": 1,
 "aprovados": 1,
 "abertas_novas": 209,
@@ -18324,22 +18334,19 @@
 "ATR de referencia indisponivel": 19
 }
 },
-"voltas": 199,
+"voltas": 200,
 "bloqueadas": {
-"057f68c36111": [
-"drawdown 10.35R >= 8.0R"
-],
 "bbc2557ab78e": [
-"drawdown 13.70R >= 8.0R"
+"readmissao ao real: precisa de 20+ acontecimentos negociaveis com media positiva (tem 2, media +0.03R)"
+],
+"057f68c36111": [
+"readmissao ao real: precisa de 20+ acontecimentos negociaveis com media positiva (tem 2, media -0.19R)"
 ],
 "29933c49ce9e": [
-"drawdown 12.40R >= 8.0R",
-"12 perdas seguidas",
-"media das ultimas 30 = -0.355R (expectativa degradada)"
+"readmissao ao real: precisa de 20+ acontecimentos negociaveis com media positiva (tem 4, media -0.40R)"
 ],
 "987b19a113db": [
-"drawdown 145.43R >= 8.0R",
-"media das ultimas 30 = -0.533R (expectativa degradada)"
+"readmissao ao real: precisa de 20+ acontecimentos negociaveis com media positiva (tem 1, media -0.89R)"
 ]
 },
 "resumo": {
@@ -18351,11 +18358,11 @@
 "r_medio": -0.986,
 "r_total": -10.846,
 "acerto": 0.364,
-"drawdown_r": 13.696,
-"novas_entradas": false,
-"motivos": [
-"drawdown 13.70R >= 8.0R"
-]
+"drawdown_r": 1.166,
+"novas_entradas": true,
+"motivos": [],
+"acontecimentos_negociaveis": 2,
+"contagem": "por acontecimento, so negociaveis"
 },
 "057f68c36111": {
 "n": 24,
@@ -18365,11 +18372,11 @@
 "r_medio": -0.3592,
 "r_total": -8.621,
 "acerto": 0.333,
-"drawdown_r": 10.352,
-"novas_entradas": false,
-"motivos": [
-"drawdown 10.35R >= 8.0R"
-]
+"drawdown_r": 0.526,
+"novas_entradas": true,
+"motivos": [],
+"acontecimentos_negociaveis": 2,
+"contagem": "por acontecimento, so negociaveis"
 },
 "29933c49ce9e": {
 "n": 31,
@@ -18379,13 +18386,11 @@
 "r_medio": -0.3779,
 "r_total": -11.714,
 "acerto": 0.258,
-"drawdown_r": 12.396,
-"novas_entradas": false,
-"motivos": [
-"drawdown 12.40R >= 8.0R",
-"12 perdas seguidas",
-"media das ultimas 30 = -0.355R (expectativa degradada)"
-]
+"drawdown_r": 2.894,
+"novas_entradas": true,
+"motivos": [],
+"acontecimentos_negociaveis": 4,
+"contagem": "por acontecimento, so negociaveis"
 },
 "a576dd368963": {
 "n": 5,
@@ -18395,9 +18400,11 @@
 "r_medio": -0.0559,
 "r_total": -0.279,
 "acerto": 0.4,
-"drawdown_r": 1.763,
+"drawdown_r": 0.537,
 "novas_entradas": true,
-"motivos": []
+"motivos": [],
+"acontecimentos_negociaveis": 3,
+"contagem": "por acontecimento, so negociaveis"
 },
 "987b19a113db": {
 "n": 126,
@@ -18407,19 +18414,18 @@
 "r_medio": -1.1542,
 "r_total": -145.428,
 "acerto": 0.111,
-"drawdown_r": 145.428,
-"novas_entradas": false,
-"motivos": [
-"drawdown 145.43R >= 8.0R",
-"media das ultimas 30 = -0.533R (expectativa degradada)"
-]
+"drawdown_r": 0.889,
+"novas_entradas": true,
+"motivos": [],
+"acontecimentos_negociaveis": 1,
+"contagem": "por acontecimento, so negociaveis"
 }
 },
 "funil_ultima": {
 "instrumentos_descobertos": 263,
 "com_dados_validos": 263,
 "falhas_tecnicas": 0,
-"excluidos_por_dados": 9,
+"excluidos_por_dados": 8,
 "dados_fiaveis": true,
 "sinais_brutos": 0,
 "rejeitados": {},
@@ -18428,10 +18434,10 @@
 "fechadas_agora": 0,
 "acontecimentos_novos": 0,
 "moedas_com_sinal": 0,
-"t": 1795260676,
-"versao_codigo": "f1c64eb"
+"t": 1795262476,
+"versao_codigo": "f9f2631"
 },
-"t": 1795260676,
+"t": 1795262476,
 "aviso": "PAPEL: simulado, nunca somado aos resultados reais; sem ordens",
 "vistos": [
 "057f68c36111|APR|1794902400",
@@ -18668,6 +18674,35 @@
 "acontecimentos": 22,
 "r_total": -176.89,
 "r_medio": -0.8979
+}
+},
+"historico_bloqueio": {
+"057f68c36111": {
+"t": 1795262476,
+"motivos": [
+"drawdown 10.35R >= 8.0R"
+]
+},
+"bbc2557ab78e": {
+"t": 1795262476,
+"motivos": [
+"drawdown 13.70R >= 8.0R"
+]
+},
+"29933c49ce9e": {
+"t": 1795262476,
+"motivos": [
+"drawdown 12.40R >= 8.0R",
+"12 perdas seguidas",
+"media das ultimas 30 = -0.355R (expectativa degradada)"
+]
+},
+"987b19a113db": {
+"t": 1795262476,
+"motivos": [
+"drawdown 145.43R >= 8.0R",
+"media das ultimas 30 = -0.533R (expectativa degradada)"
+]
 }
 }
 }
