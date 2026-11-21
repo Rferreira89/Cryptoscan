@@ -61,8 +61,8 @@ class Familias(unittest.TestCase):
                     for x, y in zip(a, b):
                         self.assertEqual([i for i in x if i <= corte], [i for i in y if i <= corte], (fam, p))
 
-    def test_familias_cobrem_os_seis_grupos(self):
-        self.assertEqual(set(FA.GRUPO.values()), set("ABCDEF"))
+    def test_familias_cobrem_os_grupos(self):
+        self.assertEqual(set(FA.GRUPO.values()), set("ABCDEFG"))   # G: shorts para o piloto (21/11)
         self.assertEqual(set(FA.GRUPO), set(FA.FAMILIAS))
 
 

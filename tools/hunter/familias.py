@@ -260,6 +260,36 @@ def forte_na_queda(S, M, p):
     return idx((m <= -x) & (r > 0)), idx((m >= x) & (r < 0))
 
 
+# ------------------------------------------------- G. shorts para o piloto (21/11) ------------------------------
+def _ema(x, n):
+    """Media exponencial causal (o valor em i so usa x[..i])."""
+    x = np.asarray(x, dtype=float)
+    out = np.full(len(x), np.nan)
+    a, m = 2.0 / (n + 1), np.nan
+    for i, v in enumerate(x):
+        if v != v:
+            out[i] = m
+            continue
+        m = v if m != m else a * v + (1 - a) * m
+        out[i] = m
+    return out
+
+
+def venda_repique(S, M, p):
+    """(21/11, investigacao de shorts pedida pelo Rui) Vender o repique num mercado em queda: fecho abaixo da media de
+    p["tendencia"] velas (tendencia de baixa), o preco subiu mais de x nas ultimas k velas (repique) e a vela tocou
+    na media de p["ema"] velas mas fechou abaixo dela (rejeicao) -> SHORT. Sem lado LONG.
+    Backtest 4H 2021-2026, 252 moedas (vivas e deslistadas), custos OKX: ver
+    backtest/estudos/shorts_piloto_2026-11-21.json (ramo main)."""
+    c, h = S["c"], S["h"]
+    e = _ema(c, p["ema"])
+    t = _ema(c, p["tendencia"])
+    r = ret(c, p["k"])
+    sinal = (c < t) & (h >= e) & (c < e) & (r > p["x"])
+    sinal[: p["tendencia"]] = False                       # media longa ainda sem historico suficiente
+    return idx(np.zeros(len(c))), idx(sinal)
+
+
 FAMILIAS = {
     # grupo A - liquidez
     "varrimento": (varrimento, [{"n": n} for n in (12, 24, 48)]),
@@ -285,11 +315,14 @@ FAMILIAS = {
     # grupo F - multiactivo
     "lideranca_btc": (lideranca_btc, [{"x": x} for x in (0.01, 0.02)]),
     "forte_na_queda": (forte_na_queda, [{"k": k, "x": x} for k in (6, 24) for x in (0.02, 0.05)]),
+    # grupo G - shorts para o piloto (21/11)
+    "venda_repique": (venda_repique, [{"ema": 50, "k": 6, "x": 0.03, "tendencia": 300}]),
 }
 GRUPO = {"varrimento": "A", "falso_rompimento": "A", "rejeicao": "A", "recuperacao": "A", "funding_extremo": "B",
          "compressao": "C", "extremo": "C", "impulso_correcao": "C", "rompimento_reteste": "C", "estrutura": "C",
          "volume_anormal": "D", "divergencia_volume": "D", "acumulacao": "D", "vwap_desvio": "E",
-         "momentum_regime": "E", "forca_relativa": "E", "lideranca_btc": "F", "forte_na_queda": "F"}
+         "momentum_regime": "E", "forca_relativa": "E", "lideranca_btc": "F", "forte_na_queda": "F",
+         "venda_repique": "G"}
 
 
 # (17/11) hipotese economica de cada familia (registo: condicoes, regime esperado, custos e riscos especificos).
@@ -330,4 +363,6 @@ HIPOTESES = {
                       "medio", "um so acontecimento do BTC vira dezenas de operacoes correlacionadas"),
     "forte_na_queda": ("o que sobe com o mercado a cair tem procura propria", "queda", "medio",
                        "noticias especificas de uma moeda"),
+    "venda_repique": ("num mercado em queda os repiques ate a media sao vendidos por quem ficou preso mais acima",
+                      "queda", "medio (stop largo de 3 ATR de 4H)", "o repique vira inversao de tendencia"),
 }
