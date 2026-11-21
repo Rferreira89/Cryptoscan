@@ -1,0 +1,2159 @@
+{
+ "atualizado": 1795267438,
+ "janela_dias": 90,
+ "desde": 1787491438,
+ "moedas": 49,
+ "lutadores": {
+  "PULLBACK": {
+   "n": 55,
+   "wins": 23,
+   "avg_r": -0.122,
+   "total_r": -6.7,
+   "ultimas": [
+    -1.01,
+    -1.01,
+    0.96,
+    -1.01,
+    -1.01,
+    -1.0,
+    0.46,
+    -1.01,
+    -1.01,
+    -1.01
+   ],
+   "acaso_mediana": -0.064,
+   "acaso_p95": 0.182,
+   "veredicto": "MORTA",
+   "validacao": {
+    "dentro": {
+     "n": 52,
+     "avg_r": -0.071,
+     "avg_r_liq": -0.071
+    },
+    "fora": {
+     "n": 3,
+     "avg_r": -1.008,
+     "avg_r_liq": -1.008
+    },
+    "avg_r_liq": -0.122,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "BREAKOUT": {
+   "n": 36,
+   "wins": 8,
+   "avg_r": -0.436,
+   "total_r": -15.7,
+   "ultimas": [
+    -1.01,
+    2.03,
+    1.76,
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.03
+   ],
+   "acaso_mediana": -0.064,
+   "acaso_p95": 0.287,
+   "veredicto": "MORTA",
+   "validacao": {
+    "dentro": {
+     "n": 34,
+     "avg_r": -0.402,
+     "avg_r_liq": -0.403
+    },
+    "fora": {
+     "n": 2,
+     "avg_r": -1.017,
+     "avg_r_liq": -1.017
+    },
+    "avg_r_liq": -0.437,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "LIQUIDITY_SWEEP": {
+   "n": 32,
+   "wins": 9,
+   "avg_r": -0.427,
+   "total_r": -13.66,
+   "ultimas": [
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.0,
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.01
+   ],
+   "acaso_mediana": -0.227,
+   "acaso_p95": 0.11,
+   "veredicto": "MORTA",
+   "validacao": {
+    "dentro": {
+     "n": 27,
+     "avg_r": -0.319,
+     "avg_r_liq": -0.322
+    },
+    "fora": {
+     "n": 5,
+     "avg_r": -1.008,
+     "avg_r_liq": -1.008
+    },
+    "avg_r_liq": -0.429,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "RANGE": {
+   "n": 0,
+   "wins": 0,
+   "avg_r": null,
+   "total_r": 0,
+   "ultimas": [],
+   "acaso_mediana": null,
+   "acaso_p95": null,
+   "veredicto": "A COMPETIR"
+  },
+  "REJEITADOS": {
+   "n": 61,
+   "wins": 12,
+   "avg_r": -0.52,
+   "total_r": -31.7,
+   "ultimas": [
+    0.47,
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.0,
+    -1.0,
+    -1.0,
+    -1.0
+   ],
+   "acaso_mediana": -0.269,
+   "acaso_p95": -0.003,
+   "veredicto": "MORTA",
+   "validacao": {
+    "dentro": {
+     "n": 52,
+     "avg_r": -0.435,
+     "avg_r_liq": -0.436
+    },
+    "fora": {
+     "n": 9,
+     "avg_r": -1.007,
+     "avg_r_liq": -1.007
+    },
+    "avg_r_liq": -0.52,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "BOUNCE_G0": {
+   "n": 36,
+   "wins": 22,
+   "avg_r": 0.235,
+   "total_r": 8.46,
+   "ultimas": [
+    -1.03,
+    0.16,
+    -0.31,
+    0.4,
+    -1.02,
+    -1.02,
+    -1.02,
+    -1.03,
+    -1.01,
+    -1.02
+   ],
+   "acaso_mediana": -0.49,
+   "acaso_p95": -0.261,
+   "veredicto": "SOBE",
+   "validacao": {
+    "dentro": {
+     "n": 20,
+     "avg_r": 0.815,
+     "avg_r_liq": 0.814
+    },
+    "fora": {
+     "n": 16,
+     "avg_r": -0.49,
+     "avg_r_liq": -0.49
+    },
+    "avg_r_liq": 0.234,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "BOUNCE_V1": {
+   "n": 12,
+   "wins": 3,
+   "avg_r": -0.373,
+   "total_r": -4.48,
+   "ultimas": [
+    -1.03,
+    -1.02,
+    -1.03,
+    0.56,
+    -1.01,
+    -1.01,
+    -1.03,
+    -1.02,
+    -1.03,
+    -1.01
+   ],
+   "acaso_mediana": -0.621,
+   "acaso_p95": -0.194,
+   "veredicto": "A COMPETIR",
+   "validacao": {
+    "dentro": {
+     "n": 8,
+     "avg_r": -0.049,
+     "avg_r_liq": -0.051
+    },
+    "fora": {
+     "n": 4,
+     "avg_r": -1.021,
+     "avg_r_liq": -1.023
+    },
+    "avg_r_liq": -0.375,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "BOUNCE_V2": {
+   "n": 36,
+   "wins": 19,
+   "avg_r": 0.108,
+   "total_r": 3.9,
+   "ultimas": [
+    -1.02,
+    -1.02,
+    -0.35,
+    -1.03,
+    -1.02,
+    -1.03,
+    -1.02,
+    -1.03,
+    -1.01,
+    -1.03
+   ],
+   "acaso_mediana": -0.519,
+   "acaso_p95": -0.279,
+   "veredicto": "SOBE",
+   "validacao": {
+    "dentro": {
+     "n": 20,
+     "avg_r": 0.789,
+     "avg_r_liq": 0.788
+    },
+    "fora": {
+     "n": 16,
+     "avg_r": -0.742,
+     "avg_r_liq": -0.743
+    },
+    "avg_r_liq": 0.108,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "BOUNCE_V3": {
+   "n": 36,
+   "wins": 21,
+   "avg_r": 0.151,
+   "total_r": 5.42,
+   "ultimas": [
+    -1.03,
+    -1.02,
+    -0.31,
+    0.4,
+    -1.02,
+    -1.02,
+    -1.02,
+    -1.03,
+    -1.01,
+    -1.02
+   ],
+   "acaso_mediana": -0.521,
+   "acaso_p95": -0.297,
+   "veredicto": "SOBE",
+   "validacao": {
+    "dentro": {
+     "n": 20,
+     "avg_r": 0.686,
+     "avg_r_liq": 0.686
+    },
+    "fora": {
+     "n": 16,
+     "avg_r": -0.519,
+     "avg_r_liq": -0.52
+    },
+    "avg_r_liq": 0.15,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "TREND_DAILY": {
+   "n": 32,
+   "wins": 3,
+   "avg_r": -0.532,
+   "total_r": -17.01,
+   "ultimas": [
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.0,
+    -1.01,
+    -2.4
+   ],
+   "acaso_mediana": null,
+   "acaso_p95": null,
+   "veredicto": "MORTA",
+   "validacao": {
+    "dentro": {
+     "n": 31,
+     "avg_r": -0.471,
+     "avg_r_liq": -0.471
+    },
+    "fora": {
+     "n": 1,
+     "avg_r": -2.405,
+     "avg_r_liq": -2.405
+    },
+    "avg_r_liq": -0.532,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "BOUNCE_1H": {
+   "n": 324,
+   "wins": 169,
+   "avg_r": -0.166,
+   "total_r": -53.7,
+   "ultimas": [
+    -1.03,
+    -1.03,
+    0.07,
+    0.11,
+    0.14,
+    -1.06,
+    0.05,
+    -1.07,
+    -1.04,
+    -0.0
+   ],
+   "acaso_mediana": -0.414,
+   "acaso_p95": -0.352,
+   "veredicto": "MORTA",
+   "validacao": {
+    "dentro": {
+     "n": 206,
+     "avg_r": -0.149,
+     "avg_r_liq": -0.151
+    },
+    "fora": {
+     "n": 118,
+     "avg_r": -0.195,
+     "avg_r_liq": -0.197
+    },
+    "avg_r_liq": -0.167,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "BRK_ESPACO": {
+   "n": 116,
+   "wins": 32,
+   "avg_r": -0.477,
+   "total_r": -55.3,
+   "ultimas": [
+    -1.03,
+    0.87,
+    -1.04,
+    1.21,
+    -1.01,
+    -1.02,
+    -1.02,
+    -1.01,
+    -1.01,
+    -1.05
+   ],
+   "acaso_mediana": -0.047,
+   "acaso_p95": 0.142,
+   "veredicto": "MORTA",
+   "validacao": {
+    "dentro": {
+     "n": 116,
+     "avg_r": -0.477,
+     "avg_r_liq": -0.478
+    },
+    "fora": {
+     "n": 0,
+     "avg_r": null,
+     "avg_r_liq": null
+    },
+    "avg_r_liq": -0.478,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "RETESTE": {
+   "n": 159,
+   "wins": 60,
+   "avg_r": -0.151,
+   "total_r": -23.98,
+   "ultimas": [
+    -1.01,
+    -1.01,
+    -1.01,
+    -0.57,
+    0.45,
+    -1.01,
+    -1.04,
+    -0.28,
+    -1.02,
+    -1.01
+   ],
+   "acaso_mediana": 0.088,
+   "acaso_p95": 0.22,
+   "veredicto": "MORTA",
+   "validacao": {
+    "dentro": {
+     "n": 155,
+     "avg_r": -0.133,
+     "avg_r_liq": -0.134
+    },
+    "fora": {
+     "n": 4,
+     "avg_r": -0.837,
+     "avg_r_liq": -0.837
+    },
+    "avg_r_liq": -0.151,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "TURTLE": {
+   "n": 110,
+   "wins": 34,
+   "avg_r": -0.169,
+   "total_r": -18.64,
+   "ultimas": [
+    -1.0,
+    -1.0,
+    -1.0,
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.03,
+    -1.0,
+    -1.03,
+    -1.01
+   ],
+   "acaso_mediana": 0.439,
+   "acaso_p95": 0.631,
+   "veredicto": "MORTA",
+   "validacao": {
+    "dentro": {
+     "n": 104,
+     "avg_r": -0.121,
+     "avg_r_liq": -0.121
+    },
+    "fora": {
+     "n": 6,
+     "avg_r": -1.014,
+     "avg_r_liq": -1.014
+    },
+    "avg_r_liq": -0.17,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "SQUEEZE_BB": {
+   "n": 76,
+   "wins": 13,
+   "avg_r": -0.639,
+   "total_r": -48.53,
+   "ultimas": [
+    -1.02,
+    -1.04,
+    -1.02,
+    -1.02,
+    -1.03,
+    1.07,
+    -1.02,
+    -1.04,
+    -1.01,
+    -1.01
+   ],
+   "acaso_mediana": -0.281,
+   "acaso_p95": -0.099,
+   "veredicto": "MORTA",
+   "validacao": {
+    "dentro": {
+     "n": 49,
+     "avg_r": -0.537,
+     "avg_r_liq": -0.538
+    },
+    "fora": {
+     "n": 27,
+     "avg_r": -0.823,
+     "avg_r_liq": -0.823
+    },
+    "avg_r_liq": -0.639,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "MOMENTUM": {
+   "n": 44,
+   "wins": 13,
+   "avg_r": -0.32,
+   "total_r": -14.09,
+   "ultimas": [
+    -1.01,
+    -1.01,
+    -1.0,
+    -0.88,
+    -0.39,
+    -0.53,
+    0.05,
+    -1.01,
+    -1.01,
+    -1.01
+   ],
+   "acaso_mediana": 0.157,
+   "acaso_p95": 0.427,
+   "veredicto": "MORTA",
+   "validacao": {
+    "dentro": {
+     "n": 39,
+     "avg_r": -0.271,
+     "avg_r_liq": -0.272
+    },
+    "fora": {
+     "n": 5,
+     "avg_r": -0.7,
+     "avg_r_liq": -0.7
+    },
+    "avg_r_liq": -0.321,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "BOUNCE_ABSORCAO": {
+   "n": 57,
+   "wins": 25,
+   "avg_r": -0.139,
+   "total_r": -7.94,
+   "ultimas": [
+    -1.03,
+    0.07,
+    0.16,
+    -1.01,
+    -0.31,
+    0.4,
+    -1.03,
+    -1.03,
+    -1.02,
+    -1.02
+   ],
+   "acaso_mediana": -0.417,
+   "acaso_p95": -0.251,
+   "veredicto": "MORTA",
+   "validacao": {
+    "dentro": {
+     "n": 29,
+     "avg_r": 0.267,
+     "avg_r_liq": 0.267
+    },
+    "fora": {
+     "n": 28,
+     "avg_r": -0.56,
+     "avg_r_liq": -0.561
+    },
+    "avg_r_liq": -0.139,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "BOUNCE_LSR": {
+   "n": 49,
+   "wins": 21,
+   "avg_r": -0.245,
+   "total_r": -12.01,
+   "ultimas": [
+    -1.01,
+    0.07,
+    0.16,
+    0.17,
+    0.4,
+    -1.02,
+    -1.02,
+    -1.02,
+    -1.02,
+    -1.02
+   ],
+   "acaso_mediana": -0.542,
+   "acaso_p95": -0.383,
+   "veredicto": "MORTA",
+   "validacao": {
+    "dentro": {
+     "n": 16,
+     "avg_r": 0.208,
+     "avg_r_liq": 0.206
+    },
+    "fora": {
+     "n": 33,
+     "avg_r": -0.465,
+     "avg_r_liq": -0.466
+    },
+    "avg_r_liq": -0.246,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "BOUNCE_MACRO": {
+   "n": 96,
+   "wins": 48,
+   "avg_r": -0.117,
+   "total_r": -11.24,
+   "ultimas": [
+    -1.02,
+    -1.02,
+    -0.34,
+    -1.02,
+    -1.03,
+    -1.02,
+    0.03,
+    -1.02,
+    -1.02,
+    0.94
+   ],
+   "acaso_mediana": -0.399,
+   "acaso_p95": -0.26,
+   "veredicto": "MORTA",
+   "validacao": {
+    "dentro": {
+     "n": 63,
+     "avg_r": 0.092,
+     "avg_r_liq": 0.09
+    },
+    "fora": {
+     "n": 33,
+     "avg_r": -0.516,
+     "avg_r_liq": -0.516
+    },
+    "avg_r_liq": -0.118,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "BOUNCE_MEDO": {
+   "n": 1,
+   "wins": 0,
+   "avg_r": -1.015,
+   "total_r": -1.01,
+   "ultimas": [
+    -1.01
+   ],
+   "acaso_mediana": -1.015,
+   "acaso_p95": 0.426,
+   "veredicto": "A COMPETIR",
+   "validacao": {
+    "dentro": {
+     "n": 0,
+     "avg_r": null,
+     "avg_r_liq": null
+    },
+    "fora": {
+     "n": 1,
+     "avg_r": -1.015,
+     "avg_r_liq": -1.015
+    },
+    "avg_r_liq": -1.015,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "BOUNCE_DESALAV": {
+   "n": 20,
+   "wins": 13,
+   "avg_r": 0.299,
+   "total_r": 5.98,
+   "ultimas": [
+    0.27,
+    0.51,
+    0.4,
+    -1.02,
+    -0.08,
+    -0.32,
+    -0.32,
+    -1.01,
+    0.94,
+    -1.02
+   ],
+   "acaso_mediana": -0.475,
+   "acaso_p95": -0.185,
+   "veredicto": "A COMPETIR",
+   "validacao": {
+    "dentro": {
+     "n": 13,
+     "avg_r": 0.677,
+     "avg_r_liq": 0.677
+    },
+    "fora": {
+     "n": 7,
+     "avg_r": -0.403,
+     "avg_r_liq": -0.404
+    },
+    "avg_r_liq": 0.299,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "BOUNCE_NOREACT": {
+   "n": 156,
+   "wins": 53,
+   "avg_r": -0.09,
+   "total_r": -14.1,
+   "ultimas": [
+    -0.48,
+    -0.61,
+    -1.03,
+    -1.03,
+    -1.03,
+    -0.44,
+    -1.02,
+    -1.02,
+    -1.02,
+    -0.5
+   ],
+   "acaso_mediana": -0.302,
+   "acaso_p95": -0.209,
+   "veredicto": "MORTA",
+   "validacao": {
+    "dentro": {
+     "n": 87,
+     "avg_r": 0.247,
+     "avg_r_liq": 0.246
+    },
+    "fora": {
+     "n": 69,
+     "avg_r": -0.516,
+     "avg_r_liq": -0.517
+    },
+    "avg_r_liq": -0.091,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "BOUNCE_TRAIL": {
+   "n": 152,
+   "wins": 74,
+   "avg_r": -0.068,
+   "total_r": -10.28,
+   "ultimas": [
+    -1.01,
+    -1.02,
+    -1.03,
+    -1.03,
+    -1.03,
+    -1.01,
+    -1.02,
+    -1.02,
+    -1.02,
+    -1.02
+   ],
+   "acaso_mediana": -0.38,
+   "acaso_p95": -0.28,
+   "veredicto": "MORTA",
+   "validacao": {
+    "dentro": {
+     "n": 86,
+     "avg_r": 0.295,
+     "avg_r_liq": 0.294
+    },
+    "fora": {
+     "n": 66,
+     "avg_r": -0.54,
+     "avg_r_liq": -0.541
+    },
+    "avg_r_liq": -0.069,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "BOUNCE_HORAS": {
+   "n": 94,
+   "wins": 47,
+   "avg_r": -0.078,
+   "total_r": -7.31,
+   "ultimas": [
+    -1.02,
+    -1.02,
+    -1.01,
+    -1.02,
+    -1.03,
+    -1.01,
+    -1.02,
+    -1.02,
+    -1.02,
+    -1.02
+   ],
+   "acaso_mediana": -0.333,
+   "acaso_p95": -0.187,
+   "veredicto": "MORTA",
+   "validacao": {
+    "dentro": {
+     "n": 59,
+     "avg_r": 0.215,
+     "avg_r_liq": 0.214
+    },
+    "fora": {
+     "n": 35,
+     "avg_r": -0.572,
+     "avg_r_liq": -0.572
+    },
+    "avg_r_liq": -0.079,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "BOUNCE_X30": {
+   "n": 152,
+   "wins": 74,
+   "avg_r": -0.061,
+   "total_r": -9.29,
+   "ultimas": [
+    -1.01,
+    -1.02,
+    -1.03,
+    -1.03,
+    -1.03,
+    -1.01,
+    -1.02,
+    -1.02,
+    -1.02,
+    -1.02
+   ],
+   "acaso_mediana": -0.383,
+   "acaso_p95": -0.283,
+   "veredicto": "MORTA",
+   "validacao": {
+    "dentro": {
+     "n": 86,
+     "avg_r": 0.311,
+     "avg_r_liq": 0.31
+    },
+    "fora": {
+     "n": 66,
+     "avg_r": -0.546,
+     "avg_r_liq": -0.547
+    },
+    "avg_r_liq": -0.062,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "DIP_TREND": {
+   "n": 83,
+   "wins": 54,
+   "avg_r": 0.042,
+   "total_r": 3.52,
+   "ultimas": [
+    0.46,
+    0.21,
+    0.06,
+    0.27,
+    -1.02,
+    -1.02,
+    -1.02,
+    0.21,
+    0.51,
+    -1.02
+   ],
+   "acaso_mediana": -0.271,
+   "acaso_p95": -0.137,
+   "veredicto": "SOBE",
+   "validacao": {
+    "dentro": {
+     "n": 77,
+     "avg_r": 0.089,
+     "avg_r_liq": 0.088
+    },
+    "fora": {
+     "n": 6,
+     "avg_r": -0.557,
+     "avg_r_liq": -0.558
+    },
+    "avg_r_liq": 0.042,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "CAPITULACAO": {
+   "n": 39,
+   "wins": 25,
+   "avg_r": 0.017,
+   "total_r": 0.66,
+   "ultimas": [
+    0.21,
+    0.54,
+    0.54,
+    -0.0,
+    0.1,
+    0.28,
+    -0.58,
+    0.08,
+    -1.03,
+    -1.03
+   ],
+   "acaso_mediana": -0.377,
+   "acaso_p95": -0.175,
+   "veredicto": "SOBE",
+   "validacao": {
+    "dentro": {
+     "n": 14,
+     "avg_r": -0.3,
+     "avg_r_liq": -0.301
+    },
+    "fora": {
+     "n": 25,
+     "avg_r": 0.194,
+     "avg_r_liq": 0.194
+    },
+    "avg_r_liq": 0.016,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "BOUNCE_FLUXO": {
+   "n": 52,
+   "wins": 22,
+   "avg_r": -0.131,
+   "total_r": -6.8,
+   "ultimas": [
+    -1.02,
+    0.07,
+    0.16,
+    -0.31,
+    0.33,
+    0.4,
+    -1.02,
+    -1.02,
+    -1.02,
+    -1.01
+   ],
+   "acaso_mediana": -0.404,
+   "acaso_p95": -0.23,
+   "veredicto": "MORTA",
+   "validacao": {
+    "dentro": {
+     "n": 24,
+     "avg_r": 0.233,
+     "avg_r_liq": 0.233
+    },
+    "fora": {
+     "n": 28,
+     "avg_r": -0.443,
+     "avg_r_liq": -0.444
+    },
+    "avg_r_liq": -0.131,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "BOUNCE_FORTE": {
+   "n": 39,
+   "wins": 22,
+   "avg_r": -0.024,
+   "total_r": -0.95,
+   "ultimas": [
+    0.27,
+    0.18,
+    0.51,
+    -1.02,
+    -1.02,
+    -0.32,
+    0.94,
+    -1.02,
+    0.37,
+    -1.02
+   ],
+   "acaso_mediana": -0.342,
+   "acaso_p95": -0.133,
+   "veredicto": "A COMPETIR",
+   "validacao": {
+    "dentro": {
+     "n": 31,
+     "avg_r": 0.052,
+     "avg_r_liq": 0.052
+    },
+    "fora": {
+     "n": 8,
+     "avg_r": -0.322,
+     "avg_r_liq": -0.322
+    },
+    "avg_r_liq": -0.025,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "BOUNCE_SQUEEZE": {
+   "n": 69,
+   "wins": 33,
+   "avg_r": 0.001,
+   "total_r": 0.05,
+   "ultimas": [
+    -1.01,
+    -1.01,
+    -1.01,
+    -1.02,
+    -1.01,
+    -1.03,
+    -1.03,
+    -1.01,
+    -1.02,
+    -1.02
+   ],
+   "acaso_mediana": -0.386,
+   "acaso_p95": -0.237,
+   "veredicto": "SOBE",
+   "validacao": {
+    "dentro": {
+     "n": 44,
+     "avg_r": 0.385,
+     "avg_r_liq": 0.385
+    },
+    "fora": {
+     "n": 25,
+     "avg_r": -0.676,
+     "avg_r_liq": -0.677
+    },
+    "avg_r_liq": 0.0,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "BOUNCE_ISOLADA": {
+   "n": 137,
+   "wins": 71,
+   "avg_r": -0.013,
+   "total_r": -1.83,
+   "ultimas": [
+    0.07,
+    0.16,
+    0.4,
+    -1.02,
+    -1.02,
+    -1.02,
+    -1.01,
+    -1.02,
+    -1.03,
+    -1.01
+   ],
+   "acaso_mediana": -0.362,
+   "acaso_p95": -0.241,
+   "veredicto": "MORTA",
+   "validacao": {
+    "dentro": {
+     "n": 85,
+     "avg_r": 0.327,
+     "avg_r_liq": 0.326
+    },
+    "fora": {
+     "n": 52,
+     "avg_r": -0.569,
+     "avg_r_liq": -0.57
+    },
+    "avg_r_liq": -0.014,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "BOUNCE_X30_PAVIO": {
+   "n": 148,
+   "wins": 80,
+   "avg_r": -0.007,
+   "total_r": -1.11,
+   "ultimas": [
+    -1.01,
+    -1.02,
+    -1.02,
+    -1.02,
+    -1.02,
+    -1.01,
+    -1.01,
+    -1.02,
+    -1.01,
+    -1.02
+   ],
+   "acaso_mediana": -0.336,
+   "acaso_p95": -0.238,
+   "veredicto": "MORTA",
+   "validacao": {
+    "dentro": {
+     "n": 83,
+     "avg_r": 0.336,
+     "avg_r_liq": 0.335
+    },
+    "fora": {
+     "n": 65,
+     "avg_r": -0.446,
+     "avg_r_liq": -0.447
+    },
+    "avg_r_liq": -0.008,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "BOUNCE_X30_LIQ": {
+   "n": 146,
+   "wins": 75,
+   "avg_r": -0.015,
+   "total_r": -2.14,
+   "ultimas": [
+    -1.01,
+    -1.02,
+    -1.03,
+    -1.03,
+    -1.03,
+    -1.01,
+    -1.02,
+    -1.02,
+    -1.02,
+    -1.02
+   ],
+   "acaso_mediana": -0.373,
+   "acaso_p95": -0.276,
+   "veredicto": "MORTA",
+   "validacao": {
+    "dentro": {
+     "n": 82,
+     "avg_r": 0.354,
+     "avg_r_liq": 0.353
+    },
+    "fora": {
+     "n": 64,
+     "avg_r": -0.487,
+     "avg_r_liq": -0.488
+    },
+    "avg_r_liq": -0.016,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "REVERSAO_INTERVALO": {
+   "n": 26,
+   "wins": 18,
+   "avg_r": -0.112,
+   "total_r": -2.92,
+   "ultimas": [
+    -0.64,
+    0.07,
+    0.05,
+    0.09,
+    -1.02,
+    0.04,
+    0.01,
+    -0.14,
+    0.16,
+    0.02
+   ],
+   "acaso_mediana": -0.277,
+   "acaso_p95": -0.08,
+   "veredicto": "A COMPETIR",
+   "validacao": {
+    "dentro": {
+     "n": 20,
+     "avg_r": -0.099,
+     "avg_r_liq": -0.1
+    },
+    "fora": {
+     "n": 6,
+     "avg_r": -0.156,
+     "avg_r_liq": -0.158
+    },
+    "avg_r_liq": -0.113,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "VOLUME_ACUMULACAO": {
+   "n": 34,
+   "wins": 9,
+   "avg_r": -0.38,
+   "total_r": -12.92,
+   "ultimas": [
+    -1.02,
+    -1.03,
+    -1.02,
+    1.14,
+    -1.01,
+    0.21,
+    -1.03,
+    -1.03,
+    -1.03,
+    -1.03
+   ],
+   "acaso_mediana": -0.416,
+   "acaso_p95": -0.108,
+   "veredicto": "MORTA",
+   "validacao": {
+    "dentro": {
+     "n": 23,
+     "avg_r": -0.219,
+     "avg_r_liq": -0.22
+    },
+    "fora": {
+     "n": 11,
+     "avg_r": -0.716,
+     "avg_r_liq": -0.716
+    },
+    "avg_r_liq": -0.381,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "FIBO_RECUO": {
+   "n": 177,
+   "wins": 65,
+   "avg_r": -0.14,
+   "total_r": -24.71,
+   "ultimas": [
+    -1.01,
+    -1.02,
+    1.3,
+    -1.01,
+    -1.01,
+    -1.02,
+    1.68,
+    0.74,
+    -1.02,
+    0.18
+   ],
+   "acaso_mediana": 0.0,
+   "acaso_p95": 0.142,
+   "veredicto": "MORTA",
+   "validacao": {
+    "dentro": {
+     "n": 171,
+     "avg_r": -0.142,
+     "avg_r_liq": -0.142
+    },
+    "fora": {
+     "n": 6,
+     "avg_r": -0.074,
+     "avg_r_liq": -0.074
+    },
+    "avg_r_liq": -0.14,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "MAIORES_RECUO": {
+   "n": 17,
+   "wins": 9,
+   "avg_r": -0.019,
+   "total_r": -0.32,
+   "ultimas": [
+    -1.04,
+    -1.03,
+    1.44,
+    1.68,
+    1.6,
+    0.48,
+    0.12,
+    -1.02,
+    0.27,
+    -0.12
+   ],
+   "acaso_mediana": -0.347,
+   "acaso_p95": 0.015,
+   "veredicto": "A COMPETIR",
+   "validacao": {
+    "dentro": {
+     "n": 17,
+     "avg_r": -0.019,
+     "avg_r_liq": -0.019
+    },
+    "fora": {
+     "n": 0,
+     "avg_r": null,
+     "avg_r_liq": null
+    },
+    "avg_r_liq": -0.019,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "MAIORES_TENDENCIA": {
+   "n": 3,
+   "wins": 0,
+   "avg_r": -0.793,
+   "total_r": -2.38,
+   "ultimas": [
+    -0.35,
+    -1.02,
+    -1.01
+   ],
+   "acaso_mediana": -0.045,
+   "acaso_p95": 1.215,
+   "veredicto": "A COMPETIR",
+   "validacao": {
+    "dentro": {
+     "n": 3,
+     "avg_r": -0.793,
+     "avg_r_liq": -0.793
+    },
+    "fora": {
+     "n": 0,
+     "avg_r": null,
+     "avg_r_liq": null
+    },
+    "avg_r_liq": -0.793,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "MAIORES_FUNDING": {
+   "n": 10,
+   "wins": 2,
+   "avg_r": -0.676,
+   "total_r": -6.76,
+   "ultimas": [
+    -1.03,
+    0.38,
+    -1.04,
+    -1.03,
+    0.2,
+    -0.06,
+    -1.05,
+    -1.05,
+    -1.06,
+    -1.02
+   ],
+   "acaso_mediana": -0.368,
+   "acaso_p95": 0.084,
+   "veredicto": "MORTA",
+   "validacao": {
+    "dentro": {
+     "n": 10,
+     "avg_r": -0.676,
+     "avg_r_liq": -0.676
+    },
+    "fora": {
+     "n": 0,
+     "avg_r": null,
+     "avg_r_liq": null
+    },
+    "avg_r_liq": -0.676,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "BOUNCE_AMPLITUDE": {
+   "n": 14,
+   "wins": 14,
+   "avg_r": 0.94,
+   "total_r": 13.17,
+   "ultimas": [
+    0.51,
+    1.28,
+    0.85,
+    0.39,
+    1.44,
+    0.93,
+    0.2,
+    0.9,
+    1.25,
+    0.28
+   ],
+   "acaso_mediana": -0.411,
+   "acaso_p95": 0.001,
+   "veredicto": "A COMPETIR",
+   "validacao": {
+    "dentro": {
+     "n": 14,
+     "avg_r": 0.94,
+     "avg_r_liq": 0.94
+    },
+    "fora": {
+     "n": 0,
+     "avg_r": null,
+     "avg_r_liq": null
+    },
+    "avg_r_liq": 0.94,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "TURTLE_FORTES": {
+   "n": 51,
+   "wins": 16,
+   "avg_r": -0.133,
+   "total_r": -6.8,
+   "ultimas": [
+    -1.0,
+    3.36,
+    -1.01,
+    -1.01,
+    -1.0,
+    -1.0,
+    -1.0,
+    -1.0,
+    -1.0,
+    -1.0
+   ],
+   "acaso_mediana": 0.302,
+   "acaso_p95": 0.574,
+   "veredicto": "MORTA",
+   "validacao": {
+    "dentro": {
+     "n": 51,
+     "avg_r": -0.133,
+     "avg_r_liq": -0.134
+    },
+    "fora": {
+     "n": 0,
+     "avg_r": null,
+     "avg_r_liq": null
+    },
+    "avg_r_liq": -0.134,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "RACIO_DISP": {
+   "n": 24,
+   "wins": 7,
+   "avg_r": -0.255,
+   "total_r": -6.13,
+   "ultimas": [
+    0.48,
+    -1.03,
+    -1.01,
+    -1.02,
+    -1.02,
+    1.3,
+    -0.51,
+    -0.49,
+    -0.58,
+    -0.56
+   ],
+   "acaso_mediana": -0.218,
+   "acaso_p95": 0.033,
+   "veredicto": "MORTA",
+   "validacao": {
+    "dentro": {
+     "n": 19,
+     "avg_r": -0.279,
+     "avg_r_liq": -0.28
+    },
+    "fora": {
+     "n": 5,
+     "avg_r": -0.166,
+     "avg_r_liq": -0.166
+    },
+    "avg_r_liq": -0.256,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "CAP_MERCADO_V2_N3K15": {
+   "n": 30,
+   "wins": 19,
+   "avg_r": 0.026,
+   "total_r": 0.78,
+   "ultimas": [
+    0.27,
+    0.11,
+    -0.41,
+    0.21,
+    0.54,
+    0.43,
+    -0.0,
+    0.1,
+    1.37,
+    -1.03
+   ],
+   "acaso_mediana": -0.489,
+   "acaso_p95": -0.268,
+   "veredicto": "SOBE",
+   "validacao": {
+    "dentro": {
+     "n": 8,
+     "avg_r": -0.875,
+     "avg_r_liq": -0.875
+    },
+    "fora": {
+     "n": 22,
+     "avg_r": 0.354,
+     "avg_r_liq": 0.353
+    },
+    "avg_r_liq": 0.025,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "CAP_MERCADO_V2_N3K2": {
+   "n": 30,
+   "wins": 19,
+   "avg_r": 0.006,
+   "total_r": 0.19,
+   "ultimas": [
+    0.27,
+    0.11,
+    -0.41,
+    0.21,
+    0.54,
+    0.43,
+    -0.0,
+    0.1,
+    1.85,
+    -1.03
+   ],
+   "acaso_mediana": -0.481,
+   "acaso_p95": -0.272,
+   "veredicto": "SOBE",
+   "validacao": {
+    "dentro": {
+     "n": 8,
+     "avg_r": -0.875,
+     "avg_r_liq": -0.875
+    },
+    "fora": {
+     "n": 22,
+     "avg_r": 0.327,
+     "avg_r_liq": 0.326
+    },
+    "avg_r_liq": 0.006,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "CAP_MERCADO_V2_N5K15": {
+   "n": 25,
+   "wins": 18,
+   "avg_r": 0.189,
+   "total_r": 4.74,
+   "ultimas": [
+    0.27,
+    0.11,
+    -0.41,
+    0.21,
+    0.54,
+    0.43,
+    -0.0,
+    0.1,
+    1.37,
+    -1.03
+   ],
+   "acaso_mediana": -0.511,
+   "acaso_p95": -0.278,
+   "veredicto": "A COMPETIR",
+   "validacao": {
+    "dentro": {
+     "n": 3,
+     "avg_r": -1.014,
+     "avg_r_liq": -1.014
+    },
+    "fora": {
+     "n": 22,
+     "avg_r": 0.354,
+     "avg_r_liq": 0.353
+    },
+    "avg_r_liq": 0.189,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "CAP_MERCADO_V2_N5K2": {
+   "n": 25,
+   "wins": 18,
+   "avg_r": 0.166,
+   "total_r": 4.15,
+   "ultimas": [
+    0.27,
+    0.11,
+    -0.41,
+    0.21,
+    0.54,
+    0.43,
+    -0.0,
+    0.1,
+    1.85,
+    -1.03
+   ],
+   "acaso_mediana": -0.544,
+   "acaso_p95": -0.326,
+   "veredicto": "A COMPETIR",
+   "validacao": {
+    "dentro": {
+     "n": 3,
+     "avg_r": -1.014,
+     "avg_r_liq": -1.014
+    },
+    "fora": {
+     "n": 22,
+     "avg_r": 0.327,
+     "avg_r_liq": 0.326
+    },
+    "avg_r_liq": 0.165,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "BOUNCE_LARGO_X30V20": {
+   "n": 25,
+   "wins": 11,
+   "avg_r": -0.091,
+   "total_r": -2.26,
+   "ultimas": [
+    -0.04,
+    -1.03,
+    0.03,
+    -1.03,
+    -1.01,
+    0.53,
+    0.71,
+    -1.01,
+    -1.02,
+    -1.01
+   ],
+   "acaso_mediana": -0.283,
+   "acaso_p95": 0.004,
+   "veredicto": "A COMPETIR",
+   "validacao": {
+    "dentro": {
+     "n": 16,
+     "avg_r": 0.16,
+     "avg_r_liq": 0.159
+    },
+    "fora": {
+     "n": 9,
+     "avg_r": -0.537,
+     "avg_r_liq": -0.537
+    },
+    "avg_r_liq": -0.092,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "BOUNCE_LARGO_X35V20": {
+   "n": 42,
+   "wins": 18,
+   "avg_r": -0.277,
+   "total_r": -11.64,
+   "ultimas": [
+    0.71,
+    -1.01,
+    -1.02,
+    -1.03,
+    -1.03,
+    0.07,
+    0.04,
+    -1.01,
+    0.08,
+    -1.02
+   ],
+   "acaso_mediana": -0.274,
+   "acaso_p95": -0.064,
+   "veredicto": "MORTA",
+   "validacao": {
+    "dentro": {
+     "n": 25,
+     "avg_r": -0.127,
+     "avg_r_liq": -0.129
+    },
+    "fora": {
+     "n": 17,
+     "avg_r": -0.498,
+     "avg_r_liq": -0.498
+    },
+    "avg_r_liq": -0.278,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "BOUNCE_ALVO": {
+   "n": 9,
+   "wins": 4,
+   "avg_r": 0.228,
+   "total_r": 2.06,
+   "ultimas": [
+    3.32,
+    2.57,
+    -1.02,
+    -1.03,
+    -1.01,
+    0.53,
+    0.71,
+    -1.01,
+    -1.01
+   ],
+   "acaso_mediana": -0.455,
+   "acaso_p95": 0.099,
+   "veredicto": "A COMPETIR",
+   "validacao": {
+    "dentro": {
+     "n": 3,
+     "avg_r": 1.623,
+     "avg_r_liq": 1.62
+    },
+    "fora": {
+     "n": 6,
+     "avg_r": -0.469,
+     "avg_r_liq": -0.469
+    },
+    "avg_r_liq": 0.227,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "SHORT_X30": {
+   "n": 98,
+   "wins": 45,
+   "avg_r": -0.294,
+   "total_r": -28.84,
+   "ultimas": [
+    0.42,
+    0.92,
+    -1.02,
+    0.02,
+    -0.3,
+    -1.02,
+    1.66,
+    0.24,
+    0.07,
+    1.56
+   ],
+   "acaso_mediana": -0.248,
+   "acaso_p95": -0.115,
+   "veredicto": "MORTA",
+   "validacao": {
+    "dentro": {
+     "n": 96,
+     "avg_r": -0.317,
+     "avg_r_liq": -0.318
+    },
+    "fora": {
+     "n": 2,
+     "avg_r": 0.811,
+     "avg_r_liq": 0.811
+    },
+    "avg_r_liq": -0.295,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "SHORT_FLUXO": {
+   "n": 42,
+   "wins": 17,
+   "avg_r": -0.424,
+   "total_r": -17.8,
+   "ultimas": [
+    -1.01,
+    0.21,
+    -0.45,
+    -1.04,
+    -1.02,
+    0.25,
+    0.02,
+    1.66,
+    0.24,
+    0.07
+   ],
+   "acaso_mediana": -0.265,
+   "acaso_p95": -0.065,
+   "veredicto": "MORTA",
+   "validacao": {
+    "dentro": {
+     "n": 41,
+     "avg_r": -0.436,
+     "avg_r_liq": -0.436
+    },
+    "fora": {
+     "n": 1,
+     "avg_r": 0.066,
+     "avg_r_liq": 0.066
+    },
+    "avg_r_liq": -0.424,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "SHORT_TURTLE": {
+   "n": 53,
+   "wins": 34,
+   "avg_r": 0.601,
+   "total_r": 31.88,
+   "ultimas": [
+    2.41,
+    1.43,
+    1.66,
+    1.33,
+    2.3,
+    3.1,
+    -1.01,
+    1.67,
+    1.43,
+    1.57
+   ],
+   "acaso_mediana": 1.119,
+   "acaso_p95": 1.297,
+   "veredicto": "MORTA",
+   "validacao": {
+    "dentro": {
+     "n": 33,
+     "avg_r": -0.083,
+     "avg_r_liq": -0.084
+    },
+    "fora": {
+     "n": 20,
+     "avg_r": 1.731,
+     "avg_r_liq": 1.731
+    },
+    "avg_r_liq": 0.601,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "SHORT_SQUEEZE": {
+   "n": 1,
+   "wins": 0,
+   "avg_r": -1.012,
+   "total_r": -1.01,
+   "ultimas": [
+    -1.01
+   ],
+   "acaso_mediana": -0.082,
+   "acaso_p95": 1.516,
+   "veredicto": "A COMPETIR",
+   "validacao": {
+    "dentro": {
+     "n": 1,
+     "avg_r": -1.012,
+     "avg_r_liq": -1.012
+    },
+    "fora": {
+     "n": 0,
+     "avg_r": null,
+     "avg_r_liq": null
+    },
+    "avg_r_liq": -1.012,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "SHORT_ISOLADA": {
+   "n": 71,
+   "wins": 39,
+   "avg_r": -0.156,
+   "total_r": -11.07,
+   "ultimas": [
+    0.42,
+    0.92,
+    -1.02,
+    0.02,
+    -0.3,
+    -1.02,
+    1.66,
+    0.24,
+    0.07,
+    1.56
+   ],
+   "acaso_mediana": -0.247,
+   "acaso_p95": -0.094,
+   "veredicto": "MORTA",
+   "validacao": {
+    "dentro": {
+     "n": 69,
+     "avg_r": -0.184,
+     "avg_r_liq": -0.184
+    },
+    "fora": {
+     "n": 2,
+     "avg_r": 0.811,
+     "avg_r_liq": 0.811
+    },
+    "avg_r_liq": -0.156,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "SHORT_MAIORES_RECUO": {
+   "n": 0,
+   "wins": 0,
+   "avg_r": null,
+   "total_r": 0,
+   "ultimas": [],
+   "acaso_mediana": null,
+   "acaso_p95": null,
+   "veredicto": "A COMPETIR"
+  },
+  "SHORT_MAIORES_TENDENCIA": {
+   "n": 0,
+   "wins": 0,
+   "avg_r": null,
+   "total_r": 0,
+   "ultimas": [],
+   "acaso_mediana": null,
+   "acaso_p95": null,
+   "veredicto": "A COMPETIR"
+  },
+  "SHORT_FALSO_ROMP": {
+   "n": 0,
+   "wins": 0,
+   "avg_r": null,
+   "total_r": 0,
+   "ultimas": [],
+   "acaso_mediana": null,
+   "acaso_p95": null,
+   "veredicto": "A COMPETIR"
+  },
+  "VOLUME_ACUMULACAO_R2": {
+   "n": 9,
+   "wins": 2,
+   "avg_r": -0.648,
+   "total_r": -5.83,
+   "ultimas": [
+    -1.03,
+    -1.02,
+    1.14,
+    -1.01,
+    0.21,
+    -1.03,
+    -1.03,
+    -1.03,
+    -1.03
+   ],
+   "acaso_mediana": -0.806,
+   "acaso_p95": -0.417,
+   "veredicto": "A COMPETIR",
+   "validacao": {
+    "dentro": {
+     "n": 0,
+     "avg_r": null,
+     "avg_r_liq": null
+    },
+    "fora": {
+     "n": 9,
+     "avg_r": -0.648,
+     "avg_r_liq": -0.648
+    },
+    "avg_r_liq": -0.648,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "BOUNCE_MACRO_R2": {
+   "n": 5,
+   "wins": 2,
+   "avg_r": -0.417,
+   "total_r": -2.08,
+   "ultimas": [
+    -1.02,
+    0.03,
+    -1.02,
+    -1.02,
+    0.94
+   ],
+   "acaso_mediana": -0.433,
+   "acaso_p95": 0.077,
+   "veredicto": "A COMPETIR",
+   "validacao": {
+    "dentro": {
+     "n": 0,
+     "avg_r": null,
+     "avg_r_liq": null
+    },
+    "fora": {
+     "n": 5,
+     "avg_r": -0.417,
+     "avg_r_liq": -0.417
+    },
+    "avg_r_liq": -0.417,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "CAPITULACAO_R2": {
+   "n": 3,
+   "wins": 1,
+   "avg_r": -0.66,
+   "total_r": -1.98,
+   "ultimas": [
+    0.08,
+    -1.03,
+    -1.03
+   ],
+   "acaso_mediana": -0.66,
+   "acaso_p95": -0.074,
+   "veredicto": "A COMPETIR",
+   "validacao": {
+    "dentro": {
+     "n": 0,
+     "avg_r": null,
+     "avg_r_liq": null
+    },
+    "fora": {
+     "n": 3,
+     "avg_r": -0.66,
+     "avg_r_liq": -0.66
+    },
+    "avg_r_liq": -0.66,
+    "fora_dias": 30,
+    "passa": false
+   }
+  },
+  "BREAKOUT_R2": {
+   "n": 2,
+   "wins": 0,
+   "avg_r": -1.017,
+   "total_r": -2.03,
+   "ultimas": [
+    -1.01,
+    -1.03
+   ],
+   "acaso_mediana": -0.261,
+   "acaso_p95": 0.518,
+   "veredicto": "A COMPETIR",
+   "validacao": {
+    "dentro": {
+     "n": 0,
+     "avg_r": null,
+     "avg_r_liq": null
+    },
+    "fora": {
+     "n": 2,
+     "avg_r": -1.017,
+     "avg_r_liq": -1.017
+    },
+    "avg_r_liq": -1.017,
+    "fora_dias": 30,
+    "passa": false
+   }
+  }
+ },
+ "universo_fonte": "bybit_ue_direto",
+ "shorts_universo": [
+  "AAVE",
+  "ADA",
+  "APT",
+  "ARB",
+  "ASTER",
+  "AVAX",
+  "BNB",
+  "BONK",
+  "BTC",
+  "CRV",
+  "DOGE",
+  "ETH",
+  "HBAR",
+  "LINK",
+  "LTC",
+  "ONDO",
+  "PEPE",
+  "RENDER",
+  "SEI",
+  "SHIB",
+  "SOL",
+  "SUI",
+  "UNI",
+  "VIRTUAL",
+  "WIF",
+  "WLD",
+  "XLM",
+  "XRP"
+ ],
+ "macro_series": [
+  "DXY",
+  "SP",
+  "US10Y",
+  "VIX"
+ ],
+ "funding_moedas": 49,
+ "funding_fonte": {
+  "binance": 31,
+  "okx": 18
+ },
+ "oi_moedas": 45,
+ "segundos": 574,
+ "falhas": [
+  "CC: HTTPError: HTTP Error 400: Bad Request",
+  "EURC: HTTPError: HTTP Error 400: Bad Request",
+  "GRASS: HTTPError: HTTP Error 400: Bad Request",
+  "GROVE: HTTPError: HTTP Error 400: Bad Request",
+  "MNT: HTTPError: HTTP Error 400: Bad Request",
+  "SPX: HTTPError: HTTP Error 400: Bad Request",
+  "USDT: HTTPError: HTTP Error 400: Bad Request",
+  "ZEREBRO: HTTPError: HTTP Error 400: Bad Request",
+  "ZIG: HTTPError: HTTP Error 400: Bad Request"
+ ],
+ "sem_liquidez": [
+  "AERO",
+  "AIXBT",
+  "ALGO",
+  "ANIME",
+  "APE",
+  "ARX",
+  "ATH",
+  "AVNT",
+  "BILL",
+  "BRETT",
+  "CHILLGUY",
+  "DEEP",
+  "DOT",
+  "ENA",
+  "ENS",
+  "FLR",
+  "GOAT",
+  "GRAM",
+  "HOME",
+  "ICNT",
+  "IMX",
+  "KAIA",
+  "KII",
+  "KOR",
+  "LA",
+  "LIT",
+  "MASK",
+  "MON",
+  "NXPC",
+  "OP",
+  "OPG",
+  "PNUT",
+  "PONS",
+  "POPCAT",
+  "PUMP",
+  "PYTH",
+  "ROBO",
+  "S",
+  "SKR",
+  "SLX",
+  "SPK",
+  "TRIA",
+  "TRUMP",
+  "W",
+  "WAL",
+  "XPL",
+  "ZAMA",
+  "ZK",
+  "ZORA"
+ ]
+}
