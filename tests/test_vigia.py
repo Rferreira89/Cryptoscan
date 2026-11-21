@@ -11,6 +11,10 @@ class Vigia(unittest.TestCase):
                                                                  "Y": {"estado": "pendente"}}}}
         chaves = [k for k, _ in V.problemas(mau, now)]
         self.assertEqual(chaves, ["batimento", "stop-X", "tempo-X"])
+        self.assertIn("prazo 72 h", V.problemas(mau, now)[-1][1])
+        esp = {"resumo": {"t": now - 600}, "real": {"ops": {"B": {"estado": "aberta", "stop": 1.0, "stop_ok": now - 60,
+                                                              "hold_s": 7 * 86400, "sair_em": now - 3 * 3600}}}}
+        self.assertIn("prazo 168 h", V.problemas(esp, now)[0][1])
 
 
 class OrdemPresa(unittest.TestCase):

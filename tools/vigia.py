@@ -63,7 +63,9 @@ def problemas(st, now):
             out.append((f"stopok-{a}", f"⚠️ Vigia: o stop de {a} não é confirmado na OKX há {h} h (o agente corre, mas a "
                                        "confirmação falha). Confirma na app da OKX que o stop está ativo."))
         if o.get("sair_em") and now - o["sair_em"] > ATRASO_SAIDA_S:
-            out.append((f"tempo-{a}", f"⚠️ Vigia: {a} já devia ter fechado por tempo (72 h) e continua aberta."))
+            # (21/11) o prazo e o da propria operacao (hold_s: 72 h no panico, 7 dias nos espelhos SHORT_TURTLE)
+            prazo = int(o.get("hold_s") or 72 * 3600) // 3600
+            out.append((f"tempo-{a}", f"⚠️ Vigia: {a} já devia ter fechado por tempo (prazo {prazo} h) e continua aberta."))
     return out
 
 
