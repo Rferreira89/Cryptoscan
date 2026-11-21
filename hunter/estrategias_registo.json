@@ -551,11 +551,11 @@
     "operacoes_por_semana": 34.58
    },
    "papel": {
-    "fechadas": 35,
+    "fechadas": 126,
     "acontecimentos": 1,
-    "dias": 0.1,
-    "r_medio": -2.6158,
-    "r_medio_por_acontecimento": -2.6158,
+    "dias": 0.2,
+    "r_medio": -1.1542,
+    "r_medio_por_acontecimento": -1.1542,
     "falhas_criticas": 1,
     "desde": 1795244400,
     "ic95_acontecimento": null,
@@ -702,18 +702,382 @@
      "NES": [
       1,
       -0.5082
+     ],
+     "AAOI": [
+      1,
+      -1.2139
+     ],
+     "AAPL": [
+      1,
+      -1.2243
+     ],
+     "ACT": [
+      1,
+      -1.1956
+     ],
+     "AEON": [
+      1,
+      -1.0216
+     ],
+     "AGLD": [
+      1,
+      -0.667
+     ],
+     "AI": [
+      1,
+      0.1036
+     ],
+     "AMD": [
+      1,
+      -0.9834
+     ],
+     "AMZN": [
+      1,
+      -0.8698
+     ],
+     "ANTHROPIC": [
+      1,
+      -0.0608
+     ],
+     "APE": [
+      1,
+      0.5447
+     ],
+     "APR": [
+      1,
+      4.1152
+     ],
+     "ARX": [
+      1,
+      -0.5184
+     ],
+     "ASML": [
+      1,
+      -1.15
+     ],
+     "AVNT": [
+      1,
+      2.1503
+     ],
+     "BIO": [
+      1,
+      2.0212
+     ],
+     "BSB": [
+      1,
+      -1.1537
+     ],
+     "BSP": [
+      1,
+      -0.3898
+     ],
+     "CAP": [
+      1,
+      -0.0574
+     ],
+     "CBRS": [
+      1,
+      -1.0582
+     ],
+     "CFX": [
+      1,
+      -0.5834
+     ],
+     "CHIP": [
+      1,
+      -0.4469
+     ],
+     "COHR": [
+      1,
+      -0.6476
+     ],
+     "CRWV": [
+      1,
+      -0.8999
+     ],
+     "CXMT": [
+      1,
+      -2.3403
+     ],
+     "DATA": [
+      1,
+      -1.0319
+     ],
+     "DELL": [
+      1,
+      -1.9771
+     ],
+     "DOS": [
+      1,
+      -0.6586
+     ],
+     "DRAM": [
+      1,
+      -1.1113
+     ],
+     "EIGEN": [
+      1,
+      -0.8113
+     ],
+     "ENSO": [
+      1,
+      -0.5859
+     ],
+     "ETC": [
+      1,
+      -0.1153
+     ],
+     "FLNC": [
+      1,
+      -1.0905
+     ],
+     "GOOGL": [
+      1,
+      0.0217
+     ],
+     "HOOD": [
+      1,
+      -0.9188
+     ],
+     "HUMA": [
+      1,
+      -0.287
+     ],
+     "INTC": [
+      1,
+      -0.7677
+     ],
+     "IOST": [
+      1,
+      -1.2529
+     ],
+     "KITE": [
+      1,
+      -1.2469
+     ],
+     "KSM": [
+      1,
+      -0.7257
+     ],
+     "LITE": [
+      1,
+      -1.3002
+     ],
+     "MARA": [
+      1,
+      -2.2992
+     ],
+     "MET": [
+      1,
+      -1.034
+     ],
+     "META": [
+      1,
+      -0.4771
+     ],
+     "MEW": [
+      1,
+      -0.8157
+     ],
+     "MINA": [
+      1,
+      -1.39
+     ],
+     "MINIMAX": [
+      1,
+      -1.3759
+     ],
+     "MOODENG": [
+      1,
+      -0.6977
+     ],
+     "MRNA": [
+      1,
+      -0.3233
+     ],
+     "MSFT": [
+      1,
+      -0.6567
+     ],
+     "MU": [
+      1,
+      -0.9353
+     ],
+     "NIGHT": [
+      1,
+      -0.2068
+     ],
+     "NOW": [
+      1,
+      -0.9584
+     ],
+     "NVDA": [
+      1,
+      -0.8225
+     ],
+     "OKTA": [
+      1,
+      -1.6133
+     ],
+     "ON": [
+      1,
+      -1.409
+     ],
+     "ONT": [
+      1,
+      -0.4206
+     ],
+     "OPN": [
+      1,
+      2.3928
+     ],
+     "ORCL": [
+      1,
+      -0.5311
+     ],
+     "PANW": [
+      1,
+      -1.213
+     ],
+     "PIEVERSE": [
+      1,
+      -0.5008
+     ],
+     "PLTR": [
+      1,
+      -1.1804
+     ],
+     "POL": [
+      1,
+      0.1747
+     ],
+     "PROS": [
+      1,
+      0.5903
+     ],
+     "PURR": [
+      1,
+      -0.3763
+     ],
+     "PYTH": [
+      1,
+      1.4231
+     ],
+     "QQQ": [
+      1,
+      -0.2826
+     ],
+     "RAVE": [
+      1,
+      -0.5272
+     ],
+     "RKLB": [
+      1,
+      -0.8988
+     ],
+     "RLS": [
+      1,
+      -1.6712
+     ],
+     "ROBO": [
+      1,
+      -1.3236
+     ],
+     "SAMSUNG": [
+      1,
+      -1.3483
+     ],
+     "SKDD": [
+      1,
+      0.297
+     ],
+     "SKHY": [
+      1,
+      -1.5039
+     ],
+     "SKHYNIX": [
+      1,
+      -0.6372
+     ],
+     "SNDK": [
+      1,
+      -1.0748
+     ],
+     "SOON": [
+      1,
+      -1.1977
+     ],
+     "SOXS": [
+      1,
+      1.0514
+     ],
+     "SPCX": [
+      1,
+      -0.4819
+     ],
+     "SPY": [
+      1,
+      -1.0033
+     ],
+     "STX": [
+      1,
+      -0.5568
+     ],
+     "SUSHI": [
+      1,
+      1.9672
+     ],
+     "TQQQ": [
+      1,
+      -1.724
+     ],
+     "TRX": [
+      1,
+      -0.1545
+     ],
+     "TSM": [
+      1,
+      -0.559
+     ],
+     "US500": [
+      1,
+      -1.7135
+     ],
+     "USAR": [
+      1,
+      -1.5079
+     ],
+     "WLFI": [
+      1,
+      0.0109
+     ],
+     "XAG": [
+      1,
+      -0.6868
+     ],
+     "XAU": [
+      1,
+      -0.423
+     ],
+     "ZEN": [
+      1,
+      -0.8915
+     ],
+     "ZHIPU": [
+      1,
+      -0.9701
      ]
     },
     "por_tf": {
      "1H": [
-      35,
-      -2.6158
+      126,
+      -1.1542
      ]
     },
     "por_regime": {
      "btc_abaixo_media50": [
-      35,
-      -2.6158
+      126,
+      -1.1542
      ]
     }
    },
@@ -724,7 +1088,7 @@
     "papel_vs_real_r": null
    },
    "desde": 1795248076,
-   "motivo": "papel: 35 fechadas, 1 acontecimentos, 0.1 dias | experimental recusada: bloqueada pelo motor de sobrevivencia do papel",
+   "motivo": "papel: 126 fechadas, 1 acontecimentos, 0.2 dias | experimental recusada: bloqueada pelo motor de sobrevivencia do papel",
    "estado_estatistico": "PAPER_TRADING",
    "auditoria_tecnica": {
     "ok": false,
@@ -1317,7 +1681,7 @@
    "motivo": "auditoria tecnica cumprida; experimenta em real com os limites do piloto (papel: 0 fechadas, 0 acontecimentos, 0 dias)"
   }
  },
- "t": 1795257076,
+ "t": 1795258875,
  "pedidos_teste_final": [],
  "piloto_operacional": true,
  "criterios": {
