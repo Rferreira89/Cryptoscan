@@ -19,6 +19,10 @@ falha de um seja vista pelo outro). So le o estado publico (precos e ids, sem va
   - (20/11) valores monetarios absolutos da conta (saldo, capital, nocional, margem, PnL em USD) nos ficheiros PUBLICOS
     (okx.json, state.json, scan.json, piloto_publico.json; o repositorio e publico): a 19/11 o piloto publicou o risco e
     o nocional livres em USDC sem ninguem ver. O aviso diz so o ficheiro e o caminho do campo, nunca o valor.
+  - (21/11, XLM) um espelho real aberto na OKX cuja operacao original na Bybit (id_bybit, state.json) ja fechou ou foi
+    cancelada ha mais de 1 h: a 19/11 16:17 a XLM foi fechada a mao na Bybit (+0,20R) e o espelho na OKX ficou aberto
+    (mais de 36 h)
+    sem ninguem dizer nada. So avisa (no maximo 1 vez por dia): o vigia nao fecha nada, a decisao e do Rui.
 Cada aviso repete no maximo de 6 em 6 horas (ficheiro local do ciclo)."""
 import json, os, re, sys, time, urllib.request
 
@@ -29,6 +33,7 @@ URL_SCAN = "https://raw.githubusercontent.com/Rferreira89/Cryptoscan/data/scan.j
 EUROPA_S = 45 * 60
 MEM = os.environ.get("VIGIA_MEM", "/tmp/vigia.json")
 LIMITE_S, REPETE_S, ATRASO_SAIDA_S, STOP_OK_S = 9000, 6 * 3600, 7200, 3 * 3600
+DIVERGE_S, REPETE_DIVERGE_S = 3600, 24 * 3600
 PILOTO_PARADO_S, PILOTO_FECHO_S, PILOTO_PRAZO_S, PILOTO_SEM_RESPOSTA_S = 7200, 3 * 3600, 900, 5400
 
 
@@ -77,6 +82,30 @@ def problemas_bybit(st, now):
                            "essa leitura o programa não abre operações nem executa ordens; os stops já colocados "
                            "continuam na Bybit.")]
     return []
+
+
+def problemas_espelho(st_okx, st_bybit, now):
+    """Espelhos reais abertos na OKX cuja original na Bybit ja nao esta viva. Sem a original no state.json (ja
+    limpa, ou campeao lido na propria OKX) nao diz nada: nada assumido."""
+    out = []
+    sinais = (st_bybit or {}).get("signals") or {}
+    for a, o in ((st_okx or {}).get("real") or {}).get("ops", {}).items():
+        if o.get("estado") != "aberta" or o.get("estrategia") != "espelho" or not o.get("id_bybit"):
+            continue
+        b = sinais.get(o["id_bybit"])
+        if not b or b.get("status") not in ("CLOSED", "CANCELLED", "EXPIRED"):
+            continue
+        t = b.get("closed_at") or 0
+        if not t or now - float(t) < DIVERGE_S:
+            continue
+        h = int((now - float(t)) // 3600)
+        motivo = ((b.get("position") or {}).get("exit_reason") or b["status"]).lower()
+        r = b.get("result_r")
+        rtxt = f", {r:+.2f}R" if isinstance(r, (int, float)) else ""
+        out.append((f"diverge-{a}", f"ℹ️ Vigia: a operação original de {a} na Bybit fechou há {h} h ({motivo}{rtxt}), "
+                                    f"mas o espelho na OKX continua aberto (com stop; sai por stop, objetivo ou tempo). "
+                                    "Se queres o mesmo na OKX, fecha-o na app."))
+    return out
 
 
 def problemas_piloto(st, now):
@@ -197,7 +226,7 @@ def main():
     lista = problemas(st, now) + problemas_fugas("okx.json", st)
     try:
         sb = json.loads(urllib.request.urlopen(URL_BYBIT + f"?t={int(now)}", timeout=20).read())
-        lista += problemas_bybit(sb, now) + problemas_fugas("state.json", sb)
+        lista += problemas_bybit(sb, now) + problemas_fugas("state.json", sb) + problemas_espelho(st, sb, now)
     except Exception as e:
         print("vigia: sem estado da Bybit", type(e).__name__)
     try:
@@ -210,7 +239,7 @@ def main():
     except Exception as e:
         print("vigia: sem scan.json", type(e).__name__)
     for chave, msg in lista:
-        if now - mem.get(chave, 0) >= REPETE_S:
+        if now - mem.get(chave, 0) >= (REPETE_DIVERGE_S if chave.startswith("diverge-") else REPETE_S):
             telegram(msg); mem[chave] = now
             print("vigia:", chave)
     json.dump(mem, open(MEM, "w"))
