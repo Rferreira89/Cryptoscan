@@ -551,11 +551,11 @@
     "operacoes_por_semana": 34.58
    },
    "papel": {
-    "fechadas": 32,
+    "fechadas": 35,
     "acontecimentos": 1,
     "dias": 0.1,
-    "r_medio": -2.7478,
-    "r_medio_por_acontecimento": -2.7478,
+    "r_medio": -2.6158,
+    "r_medio_por_acontecimento": -2.6158,
     "falhas_criticas": 1,
     "desde": 1795244400,
     "ic95_acontecimento": null,
@@ -690,18 +690,30 @@
      "WDC": [
       1,
       -1.5293
+     ],
+     "AMAT": [
+      1,
+      -1.8653
+     ],
+     "MRVL": [
+      1,
+      -1.2524
+     ],
+     "NES": [
+      1,
+      -0.5082
      ]
     },
     "por_tf": {
      "1H": [
-      32,
-      -2.7478
+      35,
+      -2.6158
      ]
     },
     "por_regime": {
      "btc_abaixo_media50": [
-      32,
-      -2.7478
+      35,
+      -2.6158
      ]
     }
    },
@@ -712,7 +724,7 @@
     "papel_vs_real_r": null
    },
    "desde": 1795248076,
-   "motivo": "papel: 32 fechadas, 1 acontecimentos, 0.1 dias | experimental recusada: bloqueada pelo motor de sobrevivencia do papel",
+   "motivo": "papel: 35 fechadas, 1 acontecimentos, 0.1 dias | experimental recusada: bloqueada pelo motor de sobrevivencia do papel",
    "estado_estatistico": "PAPER_TRADING",
    "auditoria_tecnica": {
     "ok": false,
@@ -1245,7 +1257,7 @@
    }
   }
  },
- "t": 1795253475,
+ "t": 1795255275,
  "pedidos_teste_final": [],
  "piloto_operacional": true,
  "criterios": {
