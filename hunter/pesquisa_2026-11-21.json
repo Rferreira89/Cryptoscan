@@ -1,0 +1,5830 @@
+{
+ "cortes": {
+  "treino_ate": 1785087000,
+  "validacao_ate": 1790169300,
+  "teste_ate": 1795251600
+ },
+ "moedas_por_tf": {
+  "30m": 263,
+  "1H": 261,
+  "4H": 252
+ },
+ "diagnostico": {
+  "varrimento {\"n\": 12} 30m LONG": {
+   "n_treino": 6631,
+   "custo_ida_volta_atr": 0.52,
+   "mfe8_atr": 1.907,
+   "mae8_atr": 2.012,
+   "deriva1_atr": 0.0306,
+   "deriva2_atr": 0.0284,
+   "deriva4_atr": -0.0372,
+   "deriva8_atr": -0.0133,
+   "deriva_liquida_max_atr": -0.4894,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "varrimento {\"n\": 12} 30m SHORT": {
+   "n_treino": 6342,
+   "custo_ida_volta_atr": 0.553,
+   "mfe8_atr": 2.05,
+   "mae8_atr": 2.083,
+   "deriva1_atr": 0.0104,
+   "deriva2_atr": 0.0033,
+   "deriva4_atr": -0.0092,
+   "deriva8_atr": 0.0491,
+   "deriva_liquida_max_atr": -0.5039,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "varrimento {\"n\": 12} 1H LONG": {
+   "n_treino": 3874,
+   "custo_ida_volta_atr": 0.34,
+   "mfe8_atr": 1.835,
+   "mae8_atr": 1.971,
+   "deriva1_atr": -0.0344,
+   "deriva2_atr": -0.0429,
+   "deriva4_atr": -0.0419,
+   "deriva8_atr": -0.0929,
+   "deriva_liquida_max_atr": -0.3744,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "varrimento {\"n\": 12} 1H SHORT": {
+   "n_treino": 3794,
+   "custo_ida_volta_atr": 0.385,
+   "mfe8_atr": 2.076,
+   "mae8_atr": 2.099,
+   "deriva1_atr": 0.0167,
+   "deriva2_atr": 0.0037,
+   "deriva4_atr": 0.0584,
+   "deriva8_atr": 0.0905,
+   "deriva_liquida_max_atr": -0.2945,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "varrimento {\"n\": 12} 4H LONG": {
+   "n_treino": 981,
+   "custo_ida_volta_atr": 0.156,
+   "mfe8_atr": 1.744,
+   "mae8_atr": 1.902,
+   "deriva1_atr": -0.0307,
+   "deriva2_atr": -0.0628,
+   "deriva4_atr": -0.0831,
+   "deriva8_atr": -0.0143,
+   "deriva_liquida_max_atr": -0.1703,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "varrimento {\"n\": 12} 4H SHORT": {
+   "n_treino": 805,
+   "custo_ida_volta_atr": 0.178,
+   "mfe8_atr": 1.834,
+   "mae8_atr": 2.114,
+   "deriva1_atr": -0.0336,
+   "deriva2_atr": -0.1179,
+   "deriva4_atr": -0.1739,
+   "deriva8_atr": -0.1181,
+   "deriva_liquida_max_atr": -0.2116,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "varrimento {\"n\": 24} 30m LONG": {
+   "n_treino": 4499,
+   "custo_ida_volta_atr": 0.491,
+   "mfe8_atr": 1.836,
+   "mae8_atr": 2.024,
+   "deriva1_atr": 0.0279,
+   "deriva2_atr": 0.0146,
+   "deriva4_atr": -0.0445,
+   "deriva8_atr": -0.099,
+   "deriva_liquida_max_atr": -0.4631,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "varrimento {\"n\": 24} 30m SHORT": {
+   "n_treino": 4487,
+   "custo_ida_volta_atr": 0.56,
+   "mfe8_atr": 2.007,
+   "mae8_atr": 2.127,
+   "deriva1_atr": 0.0208,
+   "deriva2_atr": -0.0001,
+   "deriva4_atr": -0.0673,
+   "deriva8_atr": 0.0342,
+   "deriva_liquida_max_atr": -0.5258,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "varrimento {\"n\": 24} 1H LONG": {
+   "n_treino": 2682,
+   "custo_ida_volta_atr": 0.321,
+   "mfe8_atr": 1.81,
+   "mae8_atr": 1.96,
+   "deriva1_atr": -0.0367,
+   "deriva2_atr": -0.0622,
+   "deriva4_atr": -0.0865,
+   "deriva8_atr": -0.1301,
+   "deriva_liquida_max_atr": -0.3577,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "varrimento {\"n\": 24} 1H SHORT": {
+   "n_treino": 2538,
+   "custo_ida_volta_atr": 0.37,
+   "mfe8_atr": 1.887,
+   "mae8_atr": 2.092,
+   "deriva1_atr": 0.0046,
+   "deriva2_atr": -0.0386,
+   "deriva4_atr": 0.0115,
+   "deriva8_atr": -0.0848,
+   "deriva_liquida_max_atr": -0.3585,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "varrimento {\"n\": 24} 4H LONG": {
+   "n_treino": 645,
+   "custo_ida_volta_atr": 0.13,
+   "mfe8_atr": 1.467,
+   "mae8_atr": 1.811,
+   "deriva1_atr": -0.0992,
+   "deriva2_atr": -0.1504,
+   "deriva4_atr": -0.1323,
+   "deriva8_atr": -0.1902,
+   "deriva_liquida_max_atr": -0.2292,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "varrimento {\"n\": 24} 4H SHORT": {
+   "n_treino": 489,
+   "custo_ida_volta_atr": 0.151,
+   "mfe8_atr": 1.768,
+   "mae8_atr": 1.905,
+   "deriva1_atr": 0.0219,
+   "deriva2_atr": -0.0215,
+   "deriva4_atr": 0.0088,
+   "deriva8_atr": 0.007,
+   "deriva_liquida_max_atr": -0.1291,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "varrimento {\"n\": 48} 30m LONG": {
+   "n_treino": 3156,
+   "custo_ida_volta_atr": 0.428,
+   "mfe8_atr": 1.738,
+   "mae8_atr": 2.002,
+   "deriva1_atr": 0.021,
+   "deriva2_atr": -0.0033,
+   "deriva4_atr": -0.0898,
+   "deriva8_atr": -0.1516,
+   "deriva_liquida_max_atr": -0.407,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "varrimento {\"n\": 48} 30m SHORT": {
+   "n_treino": 3025,
+   "custo_ida_volta_atr": 0.544,
+   "mfe8_atr": 1.992,
+   "mae8_atr": 2.156,
+   "deriva1_atr": 0.0024,
+   "deriva2_atr": -0.0263,
+   "deriva4_atr": -0.1034,
+   "deriva8_atr": -0.0091,
+   "deriva_liquida_max_atr": -0.5416,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "varrimento {\"n\": 48} 1H LONG": {
+   "n_treino": 1994,
+   "custo_ida_volta_atr": 0.3,
+   "mfe8_atr": 1.797,
+   "mae8_atr": 1.957,
+   "deriva1_atr": -0.0211,
+   "deriva2_atr": -0.0558,
+   "deriva4_atr": -0.0621,
+   "deriva8_atr": -0.1173,
+   "deriva_liquida_max_atr": -0.3211,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "varrimento {\"n\": 48} 1H SHORT": {
+   "n_treino": 1758,
+   "custo_ida_volta_atr": 0.341,
+   "mfe8_atr": 2.0,
+   "mae8_atr": 2.116,
+   "deriva1_atr": 0.0297,
+   "deriva2_atr": 0.0004,
+   "deriva4_atr": 0.0379,
+   "deriva8_atr": -0.0124,
+   "deriva_liquida_max_atr": -0.3031,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "varrimento {\"n\": 48} 4H LONG": {
+   "n_treino": 433,
+   "custo_ida_volta_atr": 0.124,
+   "mfe8_atr": 1.44,
+   "mae8_atr": 1.857,
+   "deriva1_atr": -0.1059,
+   "deriva2_atr": -0.122,
+   "deriva4_atr": -0.0636,
+   "deriva8_atr": -0.2241,
+   "deriva_liquida_max_atr": -0.1876,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "varrimento {\"n\": 48} 4H SHORT": {
+   "n_treino": 296,
+   "custo_ida_volta_atr": 0.148,
+   "mfe8_atr": 1.6,
+   "mae8_atr": 1.75,
+   "deriva1_atr": 0.0154,
+   "deriva2_atr": -0.0702,
+   "deriva4_atr": -0.0593,
+   "deriva8_atr": 0.1326,
+   "deriva_liquida_max_atr": -0.0154,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "falso_rompimento {\"n\": 12} 30m LONG": {
+   "n_treino": 2934,
+   "custo_ida_volta_atr": 0.577,
+   "mfe8_atr": 2.113,
+   "mae8_atr": 2.146,
+   "deriva1_atr": 0.0158,
+   "deriva2_atr": -0.0157,
+   "deriva4_atr": 0.0136,
+   "deriva8_atr": 0.0315,
+   "deriva_liquida_max_atr": -0.5455,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "falso_rompimento {\"n\": 12} 30m SHORT": {
+   "n_treino": 2827,
+   "custo_ida_volta_atr": 0.645,
+   "mfe8_atr": 2.283,
+   "mae8_atr": 2.09,
+   "deriva1_atr": 0.0211,
+   "deriva2_atr": 0.0254,
+   "deriva4_atr": 0.0608,
+   "deriva8_atr": 0.1719,
+   "deriva_liquida_max_atr": -0.4731,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "falso_rompimento {\"n\": 12} 1H LONG": {
+   "n_treino": 1528,
+   "custo_ida_volta_atr": 0.41,
+   "mfe8_atr": 2.0,
+   "mae8_atr": 2.186,
+   "deriva1_atr": -0.0273,
+   "deriva2_atr": -0.0639,
+   "deriva4_atr": -0.128,
+   "deriva8_atr": -0.118,
+   "deriva_liquida_max_atr": -0.4373,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "falso_rompimento {\"n\": 12} 1H SHORT": {
+   "n_treino": 1466,
+   "custo_ida_volta_atr": 0.485,
+   "mfe8_atr": 2.164,
+   "mae8_atr": 2.375,
+   "deriva1_atr": -0.0846,
+   "deriva2_atr": -0.0681,
+   "deriva4_atr": -0.1191,
+   "deriva8_atr": -0.1408,
+   "deriva_liquida_max_atr": -0.5531,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "falso_rompimento {\"n\": 12} 4H LONG": {
+   "n_treino": 250,
+   "custo_ida_volta_atr": 0.178,
+   "mfe8_atr": 1.892,
+   "mae8_atr": 2.351,
+   "deriva1_atr": -0.0343,
+   "deriva2_atr": 0.021,
+   "deriva4_atr": -0.1333,
+   "deriva8_atr": -0.24,
+   "deriva_liquida_max_atr": -0.157,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "falso_rompimento {\"n\": 12} 4H SHORT": {
+   "n_treino": 239,
+   "custo_ida_volta_atr": 0.183,
+   "mfe8_atr": 1.946,
+   "mae8_atr": 2.138,
+   "deriva1_atr": 0.017,
+   "deriva2_atr": -0.1151,
+   "deriva4_atr": -0.1201,
+   "deriva8_atr": -0.0547,
+   "deriva_liquida_max_atr": -0.166,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "falso_rompimento {\"n\": 24} 30m LONG": {
+   "n_treino": 2062,
+   "custo_ida_volta_atr": 0.537,
+   "mfe8_atr": 2.066,
+   "mae8_atr": 2.071,
+   "deriva1_atr": 0.0103,
+   "deriva2_atr": 0.0021,
+   "deriva4_atr": 0.0672,
+   "deriva8_atr": 0.0099,
+   "deriva_liquida_max_atr": -0.4698,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "falso_rompimento {\"n\": 24} 30m SHORT": {
+   "n_treino": 1903,
+   "custo_ida_volta_atr": 0.646,
+   "mfe8_atr": 2.276,
+   "mae8_atr": 2.062,
+   "deriva1_atr": 0.0242,
+   "deriva2_atr": 0.0305,
+   "deriva4_atr": 0.0734,
+   "deriva8_atr": 0.1979,
+   "deriva_liquida_max_atr": -0.4481,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "falso_rompimento {\"n\": 24} 1H LONG": {
+   "n_treino": 1051,
+   "custo_ida_volta_atr": 0.383,
+   "mfe8_atr": 1.87,
+   "mae8_atr": 2.047,
+   "deriva1_atr": -0.0376,
+   "deriva2_atr": -0.0709,
+   "deriva4_atr": -0.1159,
+   "deriva8_atr": -0.0951,
+   "deriva_liquida_max_atr": -0.4206,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "falso_rompimento {\"n\": 24} 1H SHORT": {
+   "n_treino": 948,
+   "custo_ida_volta_atr": 0.456,
+   "mfe8_atr": 1.973,
+   "mae8_atr": 2.409,
+   "deriva1_atr": -0.1256,
+   "deriva2_atr": -0.0636,
+   "deriva4_atr": -0.1577,
+   "deriva8_atr": -0.3058,
+   "deriva_liquida_max_atr": -0.5196,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "falso_rompimento {\"n\": 24} 4H LONG": {
+   "n_treino": 152,
+   "custo_ida_volta_atr": 0.135,
+   "mfe8_atr": 1.531,
+   "mae8_atr": 1.914,
+   "deriva1_atr": 0.017,
+   "deriva2_atr": 0.0783,
+   "deriva4_atr": -0.1222,
+   "deriva8_atr": -0.2732,
+   "deriva_liquida_max_atr": -0.0567,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "falso_rompimento {\"n\": 24} 4H SHORT": {
+   "n_treino": 154,
+   "custo_ida_volta_atr": 0.158,
+   "mfe8_atr": 1.815,
+   "mae8_atr": 2.054,
+   "deriva1_atr": 0.0431,
+   "deriva2_atr": -0.1271,
+   "deriva4_atr": -0.1526,
+   "deriva8_atr": -0.1609,
+   "deriva_liquida_max_atr": -0.1149,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "falso_rompimento {\"n\": 48} 30m LONG": {
+   "n_treino": 1413,
+   "custo_ida_volta_atr": 0.476,
+   "mfe8_atr": 1.849,
+   "mae8_atr": 1.993,
+   "deriva1_atr": -0.0333,
+   "deriva2_atr": -0.0547,
+   "deriva4_atr": -0.0076,
+   "deriva8_atr": -0.1037,
+   "deriva_liquida_max_atr": -0.4836,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "falso_rompimento {\"n\": 48} 30m SHORT": {
+   "n_treino": 1240,
+   "custo_ida_volta_atr": 0.583,
+   "mfe8_atr": 2.179,
+   "mae8_atr": 2.025,
+   "deriva1_atr": 0.0297,
+   "deriva2_atr": 0.002,
+   "deriva4_atr": 0.0328,
+   "deriva8_atr": 0.1733,
+   "deriva_liquida_max_atr": -0.4097,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "falso_rompimento {\"n\": 48} 1H LONG": {
+   "n_treino": 750,
+   "custo_ida_volta_atr": 0.321,
+   "mfe8_atr": 1.725,
+   "mae8_atr": 2.089,
+   "deriva1_atr": -0.0537,
+   "deriva2_atr": -0.0793,
+   "deriva4_atr": -0.1301,
+   "deriva8_atr": -0.1952,
+   "deriva_liquida_max_atr": -0.3747,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "falso_rompimento {\"n\": 48} 1H SHORT": {
+   "n_treino": 635,
+   "custo_ida_volta_atr": 0.409,
+   "mfe8_atr": 1.999,
+   "mae8_atr": 2.444,
+   "deriva1_atr": -0.1904,
+   "deriva2_atr": -0.1076,
+   "deriva4_atr": -0.1699,
+   "deriva8_atr": -0.241,
+   "deriva_liquida_max_atr": -0.5166,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "falso_rompimento {\"n\": 48} 4H LONG": {
+   "n_treino": 100,
+   "custo_ida_volta_atr": 0.122,
+   "mfe8_atr": 1.379,
+   "mae8_atr": 2.112,
+   "deriva1_atr": 0.1024,
+   "deriva2_atr": 0.1245,
+   "deriva4_atr": -0.2224,
+   "deriva8_atr": -0.5759,
+   "deriva_liquida_max_atr": 0.0025,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "falso_rompimento {\"n\": 48} 4H SHORT": {
+   "n_treino": 90,
+   "custo_ida_volta_atr": 0.164,
+   "mfe8_atr": 1.791,
+   "mae8_atr": 1.822,
+   "deriva1_atr": 0.1273,
+   "deriva2_atr": -0.0803,
+   "deriva4_atr": -0.0583,
+   "deriva8_atr": -0.0742,
+   "deriva_liquida_max_atr": -0.0367,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "rejeicao {\"n\": 24, \"w\": 0.5} 30m LONG": {
+   "n_treino": 3014,
+   "custo_ida_volta_atr": 0.491,
+   "mfe8_atr": 1.968,
+   "mae8_atr": 2.064,
+   "deriva1_atr": 0.0428,
+   "deriva2_atr": 0.0349,
+   "deriva4_atr": 0.0369,
+   "deriva8_atr": -0.0377,
+   "deriva_liquida_max_atr": -0.4482,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "rejeicao {\"n\": 24, \"w\": 0.5} 30m SHORT": {
+   "n_treino": 2592,
+   "custo_ida_volta_atr": 0.557,
+   "mfe8_atr": 2.083,
+   "mae8_atr": 2.076,
+   "deriva1_atr": -0.0099,
+   "deriva2_atr": -0.0136,
+   "deriva4_atr": 0.0094,
+   "deriva8_atr": 0.1207,
+   "deriva_liquida_max_atr": -0.4363,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "rejeicao {\"n\": 24, \"w\": 0.5} 1H LONG": {
+   "n_treino": 1665,
+   "custo_ida_volta_atr": 0.329,
+   "mfe8_atr": 1.795,
+   "mae8_atr": 2.063,
+   "deriva1_atr": -0.0247,
+   "deriva2_atr": -0.0537,
+   "deriva4_atr": -0.0835,
+   "deriva8_atr": -0.2812,
+   "deriva_liquida_max_atr": -0.3537,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "rejeicao {\"n\": 24, \"w\": 0.5} 1H SHORT": {
+   "n_treino": 1346,
+   "custo_ida_volta_atr": 0.364,
+   "mfe8_atr": 2.034,
+   "mae8_atr": 2.12,
+   "deriva1_atr": 0.0138,
+   "deriva2_atr": -0.059,
+   "deriva4_atr": 0.0673,
+   "deriva8_atr": 0.0538,
+   "deriva_liquida_max_atr": -0.2967,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "rejeicao {\"n\": 24, \"w\": 0.5} 4H LONG": {
+   "n_treino": 349,
+   "custo_ida_volta_atr": 0.126,
+   "mfe8_atr": 1.323,
+   "mae8_atr": 1.756,
+   "deriva1_atr": -0.1859,
+   "deriva2_atr": -0.2793,
+   "deriva4_atr": -0.1219,
+   "deriva8_atr": -0.1989,
+   "deriva_liquida_max_atr": -0.2479,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "rejeicao {\"n\": 24, \"w\": 0.5} 4H SHORT": {
+   "n_treino": 261,
+   "custo_ida_volta_atr": 0.154,
+   "mfe8_atr": 1.808,
+   "mae8_atr": 1.808,
+   "deriva1_atr": -0.0088,
+   "deriva2_atr": 0.0518,
+   "deriva4_atr": 0.1082,
+   "deriva8_atr": 0.1459,
+   "deriva_liquida_max_atr": -0.0081,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "rejeicao {\"n\": 24, \"w\": 0.65} 30m LONG": {
+   "n_treino": 1576,
+   "custo_ida_volta_atr": 0.507,
+   "mfe8_atr": 1.978,
+   "mae8_atr": 2.074,
+   "deriva1_atr": 0.0419,
+   "deriva2_atr": 0.0247,
+   "deriva4_atr": 0.032,
+   "deriva8_atr": -0.0496,
+   "deriva_liquida_max_atr": -0.4651,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "rejeicao {\"n\": 24, \"w\": 0.65} 30m SHORT": {
+   "n_treino": 1282,
+   "custo_ida_volta_atr": 0.534,
+   "mfe8_atr": 1.961,
+   "mae8_atr": 2.05,
+   "deriva1_atr": -0.0338,
+   "deriva2_atr": -0.0199,
+   "deriva4_atr": -0.0399,
+   "deriva8_atr": 0.0952,
+   "deriva_liquida_max_atr": -0.4388,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "rejeicao {\"n\": 24, \"w\": 0.65} 1H LONG": {
+   "n_treino": 871,
+   "custo_ida_volta_atr": 0.35,
+   "mfe8_atr": 1.814,
+   "mae8_atr": 2.176,
+   "deriva1_atr": -0.024,
+   "deriva2_atr": -0.1046,
+   "deriva4_atr": -0.1583,
+   "deriva8_atr": -0.3495,
+   "deriva_liquida_max_atr": -0.374,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "rejeicao {\"n\": 24, \"w\": 0.65} 1H SHORT": {
+   "n_treino": 660,
+   "custo_ida_volta_atr": 0.397,
+   "mfe8_atr": 1.987,
+   "mae8_atr": 2.166,
+   "deriva1_atr": -0.013,
+   "deriva2_atr": -0.0988,
+   "deriva4_atr": 0.041,
+   "deriva8_atr": -0.0669,
+   "deriva_liquida_max_atr": -0.356,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "rejeicao {\"n\": 24, \"w\": 0.65} 4H LONG": {
+   "n_treino": 160,
+   "custo_ida_volta_atr": 0.128,
+   "mfe8_atr": 1.31,
+   "mae8_atr": 1.949,
+   "deriva1_atr": -0.2049,
+   "deriva2_atr": -0.3277,
+   "deriva4_atr": -0.0988,
+   "deriva8_atr": -0.3796,
+   "deriva_liquida_max_atr": -0.2268,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "rejeicao {\"n\": 24, \"w\": 0.65} 4H SHORT": {
+   "n_treino": 122,
+   "custo_ida_volta_atr": 0.147,
+   "mfe8_atr": 1.564,
+   "mae8_atr": 1.644,
+   "deriva1_atr": -0.0606,
+   "deriva2_atr": 0.0157,
+   "deriva4_atr": 0.0381,
+   "deriva8_atr": 0.0007,
+   "deriva_liquida_max_atr": -0.1089,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "rejeicao {\"n\": 48, \"w\": 0.5} 30m LONG": {
+   "n_treino": 2119,
+   "custo_ida_volta_atr": 0.438,
+   "mfe8_atr": 1.848,
+   "mae8_atr": 2.008,
+   "deriva1_atr": 0.0389,
+   "deriva2_atr": 0.0041,
+   "deriva4_atr": -0.0404,
+   "deriva8_atr": -0.086,
+   "deriva_liquida_max_atr": -0.3991,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "rejeicao {\"n\": 48, \"w\": 0.5} 30m SHORT": {
+   "n_treino": 1735,
+   "custo_ida_volta_atr": 0.57,
+   "mfe8_atr": 2.037,
+   "mae8_atr": 2.154,
+   "deriva1_atr": -0.0152,
+   "deriva2_atr": -0.0276,
+   "deriva4_atr": -0.0693,
+   "deriva8_atr": 0.0042,
+   "deriva_liquida_max_atr": -0.5658,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "rejeicao {\"n\": 48, \"w\": 0.5} 1H LONG": {
+   "n_treino": 1247,
+   "custo_ida_volta_atr": 0.295,
+   "mfe8_atr": 1.752,
+   "mae8_atr": 2.001,
+   "deriva1_atr": -0.0077,
+   "deriva2_atr": -0.0491,
+   "deriva4_atr": -0.0383,
+   "deriva8_atr": -0.218,
+   "deriva_liquida_max_atr": -0.3027,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "rejeicao {\"n\": 48, \"w\": 0.5} 1H SHORT": {
+   "n_treino": 904,
+   "custo_ida_volta_atr": 0.337,
+   "mfe8_atr": 2.104,
+   "mae8_atr": 2.117,
+   "deriva1_atr": 0.0701,
+   "deriva2_atr": -0.0327,
+   "deriva4_atr": 0.0717,
+   "deriva8_atr": 0.0642,
+   "deriva_liquida_max_atr": -0.2653,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "rejeicao {\"n\": 48, \"w\": 0.5} 4H LONG": {
+   "n_treino": 251,
+   "custo_ida_volta_atr": 0.117,
+   "mfe8_atr": 1.221,
+   "mae8_atr": 1.801,
+   "deriva1_atr": -0.2104,
+   "deriva2_atr": -0.2954,
+   "deriva4_atr": -0.125,
+   "deriva8_atr": -0.318,
+   "deriva_liquida_max_atr": -0.242,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "rejeicao {\"n\": 48, \"w\": 0.5} 4H SHORT": {
+   "n_treino": 168,
+   "custo_ida_volta_atr": 0.156,
+   "mfe8_atr": 1.685,
+   "mae8_atr": 1.531,
+   "deriva1_atr": 0.0175,
+   "deriva2_atr": 0.0889,
+   "deriva4_atr": 0.0979,
+   "deriva8_atr": 0.2948,
+   "deriva_liquida_max_atr": 0.1388,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "rejeicao {\"n\": 48, \"w\": 0.65} 30m LONG": {
+   "n_treino": 1104,
+   "custo_ida_volta_atr": 0.427,
+   "mfe8_atr": 1.866,
+   "mae8_atr": 2.034,
+   "deriva1_atr": 0.0317,
+   "deriva2_atr": -0.0003,
+   "deriva4_atr": -0.0718,
+   "deriva8_atr": -0.1024,
+   "deriva_liquida_max_atr": -0.3953,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "rejeicao {\"n\": 48, \"w\": 0.65} 30m SHORT": {
+   "n_treino": 867,
+   "custo_ida_volta_atr": 0.535,
+   "mfe8_atr": 1.936,
+   "mae8_atr": 2.124,
+   "deriva1_atr": -0.0333,
+   "deriva2_atr": -0.0505,
+   "deriva4_atr": -0.0594,
+   "deriva8_atr": 0.0159,
+   "deriva_liquida_max_atr": -0.5191,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "rejeicao {\"n\": 48, \"w\": 0.65} 1H LONG": {
+   "n_treino": 664,
+   "custo_ida_volta_atr": 0.315,
+   "mfe8_atr": 1.801,
+   "mae8_atr": 2.013,
+   "deriva1_atr": 0.0324,
+   "deriva2_atr": -0.0556,
+   "deriva4_atr": -0.0159,
+   "deriva8_atr": -0.2048,
+   "deriva_liquida_max_atr": -0.2826,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "rejeicao {\"n\": 48, \"w\": 0.65} 1H SHORT": {
+   "n_treino": 436,
+   "custo_ida_volta_atr": 0.364,
+   "mfe8_atr": 2.114,
+   "mae8_atr": 2.097,
+   "deriva1_atr": 0.0502,
+   "deriva2_atr": -0.052,
+   "deriva4_atr": 0.1169,
+   "deriva8_atr": 0.024,
+   "deriva_liquida_max_atr": -0.2471,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "rejeicao {\"n\": 48, \"w\": 0.65} 4H LONG": {
+   "n_treino": 117,
+   "custo_ida_volta_atr": 0.118,
+   "mfe8_atr": 1.278,
+   "mae8_atr": 2.038,
+   "deriva1_atr": -0.2327,
+   "deriva2_atr": -0.3353,
+   "deriva4_atr": -0.0833,
+   "deriva8_atr": -0.484,
+   "deriva_liquida_max_atr": -0.2013,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "rejeicao {\"n\": 48, \"w\": 0.65} 4H SHORT": {
+   "n_treino": 76,
+   "custo_ida_volta_atr": 0.15,
+   "mfe8_atr": 1.522,
+   "mae8_atr": 1.429,
+   "deriva1_atr": -0.0425,
+   "deriva2_atr": 0.0556,
+   "deriva4_atr": 0.0285,
+   "deriva8_atr": 0.2796,
+   "deriva_liquida_max_atr": 0.1296,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "recuperacao {\"k\": 2.5} 30m LONG": {
+   "n_treino": 405,
+   "custo_ida_volta_atr": 11.836,
+   "mfe8_atr": 8.818,
+   "mae8_atr": 12.23,
+   "deriva1_atr": -0.2591,
+   "deriva2_atr": -1.3085,
+   "deriva4_atr": -1.3058,
+   "deriva8_atr": -2.2608,
+   "deriva_liquida_max_atr": -12.0951,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "recuperacao {\"k\": 2.5} 30m SHORT": {
+   "n_treino": 403,
+   "custo_ida_volta_atr": 8.353,
+   "mfe8_atr": 7.986,
+   "mae8_atr": 10.004,
+   "deriva1_atr": -0.0528,
+   "deriva2_atr": -0.4535,
+   "deriva4_atr": 0.6366,
+   "deriva8_atr": -3.7321,
+   "deriva_liquida_max_atr": -7.7164,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "recuperacao {\"k\": 2.5} 1H LONG": {
+   "n_treino": 226,
+   "custo_ida_volta_atr": 3.036,
+   "mfe8_atr": 6.369,
+   "mae8_atr": 5.155,
+   "deriva1_atr": -0.4687,
+   "deriva2_atr": -0.0843,
+   "deriva4_atr": 0.9499,
+   "deriva8_atr": 0.2147,
+   "deriva_liquida_max_atr": -2.0861,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "recuperacao {\"k\": 2.5} 1H SHORT": {
+   "n_treino": 204,
+   "custo_ida_volta_atr": 2.418,
+   "mfe8_atr": 6.047,
+   "mae8_atr": 10.074,
+   "deriva1_atr": -0.3642,
+   "deriva2_atr": -0.2118,
+   "deriva4_atr": -1.6675,
+   "deriva8_atr": -3.7081,
+   "deriva_liquida_max_atr": -2.6298,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "recuperacao {\"k\": 2.5} 4H LONG": {
+   "n_treino": 15,
+   "custo_ida_volta_atr": 0.645,
+   "mfe8_atr": 6.631,
+   "mae8_atr": 4.745,
+   "deriva1_atr": -0.4575,
+   "deriva2_atr": -0.4221,
+   "deriva4_atr": -0.3699,
+   "deriva8_atr": 2.0788,
+   "deriva_liquida_max_atr": 1.4338,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "recuperacao {\"k\": 2.5} 4H SHORT": {
+   "n_treino": 11,
+   "custo_ida_volta_atr": 0.419,
+   "mfe8_atr": 2.546,
+   "mae8_atr": 3.197,
+   "deriva1_atr": -0.0619,
+   "deriva2_atr": 0.2301,
+   "deriva4_atr": -0.8167,
+   "deriva8_atr": -1.2968,
+   "deriva_liquida_max_atr": -0.1889,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "recuperacao {\"k\": 3.5} 30m LONG": {
+   "n_treino": 294,
+   "custo_ida_volta_atr": 15.816,
+   "mfe8_atr": 11.169,
+   "mae8_atr": 15.774,
+   "deriva1_atr": -0.2604,
+   "deriva2_atr": -1.6052,
+   "deriva4_atr": -1.627,
+   "deriva8_atr": -3.0337,
+   "deriva_liquida_max_atr": -16.0764,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "recuperacao {\"k\": 3.5} 30m SHORT": {
+   "n_treino": 268,
+   "custo_ida_volta_atr": 12.061,
+   "mfe8_atr": 10.567,
+   "mae8_atr": 13.358,
+   "deriva1_atr": -0.0435,
+   "deriva2_atr": -0.7229,
+   "deriva4_atr": 0.8552,
+   "deriva8_atr": -5.3048,
+   "deriva_liquida_max_atr": -11.2058,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "recuperacao {\"k\": 3.5} 1H LONG": {
+   "n_treino": 142,
+   "custo_ida_volta_atr": 4.323,
+   "mfe8_atr": 7.652,
+   "mae8_atr": 6.214,
+   "deriva1_atr": -0.9436,
+   "deriva2_atr": -0.5893,
+   "deriva4_atr": 0.8873,
+   "deriva8_atr": -0.0587,
+   "deriva_liquida_max_atr": -3.4357,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "recuperacao {\"k\": 3.5} 1H SHORT": {
+   "n_treino": 136,
+   "custo_ida_volta_atr": 3.112,
+   "mfe8_atr": 7.341,
+   "mae8_atr": 12.947,
+   "deriva1_atr": -0.3987,
+   "deriva2_atr": 0.0164,
+   "deriva4_atr": -2.2766,
+   "deriva8_atr": -4.8471,
+   "deriva_liquida_max_atr": -3.0956,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "recuperacao {\"k\": 3.5} 4H LONG": {
+   "n_treino": 7,
+   "custo_ida_volta_atr": 0.573,
+   "mfe8_atr": 4.738,
+   "mae8_atr": 5.428,
+   "deriva1_atr": -0.6676,
+   "deriva2_atr": -1.1053,
+   "deriva4_atr": -1.2923,
+   "deriva8_atr": -0.0418,
+   "deriva_liquida_max_atr": -0.6148,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "recuperacao {\"k\": 3.5} 4H SHORT": {
+   "n_treino": 5,
+   "custo_ida_volta_atr": 0.705,
+   "mfe8_atr": 2.592,
+   "mae8_atr": 6.404,
+   "deriva1_atr": -0.9001,
+   "deriva2_atr": -0.3765,
+   "deriva4_atr": -2.0813,
+   "deriva8_atr": -3.2312,
+   "deriva_liquida_max_atr": -1.0815,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "funding_extremo {\"z\": 1.5} 30m LONG": {
+   "n_treino": 0
+  },
+  "funding_extremo {\"z\": 1.5} 30m SHORT": {
+   "n_treino": 0
+  },
+  "funding_extremo {\"z\": 1.5} 1H LONG": {
+   "n_treino": 0
+  },
+  "funding_extremo {\"z\": 1.5} 1H SHORT": {
+   "n_treino": 0
+  },
+  "funding_extremo {\"z\": 1.5} 4H LONG": {
+   "n_treino": 0
+  },
+  "funding_extremo {\"z\": 1.5} 4H SHORT": {
+   "n_treino": 0
+  },
+  "funding_extremo {\"z\": 2.0} 30m LONG": {
+   "n_treino": 0
+  },
+  "funding_extremo {\"z\": 2.0} 30m SHORT": {
+   "n_treino": 0
+  },
+  "funding_extremo {\"z\": 2.0} 1H LONG": {
+   "n_treino": 0
+  },
+  "funding_extremo {\"z\": 2.0} 1H SHORT": {
+   "n_treino": 0
+  },
+  "funding_extremo {\"z\": 2.0} 4H LONG": {
+   "n_treino": 0
+  },
+  "funding_extremo {\"z\": 2.0} 4H SHORT": {
+   "n_treino": 0
+  },
+  "compressao {\"c\": 0.5} 30m LONG": {
+   "n_treino": 2597,
+   "custo_ida_volta_atr": 4.668,
+   "mfe8_atr": 5.92,
+   "mae8_atr": 5.886,
+   "deriva1_atr": 0.0093,
+   "deriva2_atr": -0.1055,
+   "deriva4_atr": -0.0351,
+   "deriva8_atr": 0.2328,
+   "deriva_liquida_max_atr": -4.4352,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "compressao {\"c\": 0.5} 30m SHORT": {
+   "n_treino": 2231,
+   "custo_ida_volta_atr": 4.463,
+   "mfe8_atr": 5.645,
+   "mae8_atr": 5.545,
+   "deriva1_atr": 0.0196,
+   "deriva2_atr": -0.1758,
+   "deriva4_atr": 0.0242,
+   "deriva8_atr": -0.4548,
+   "deriva_liquida_max_atr": -4.4388,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "compressao {\"c\": 0.5} 1H LONG": {
+   "n_treino": 1220,
+   "custo_ida_volta_atr": 2.188,
+   "mfe8_atr": 5.81,
+   "mae8_atr": 4.628,
+   "deriva1_atr": -0.2753,
+   "deriva2_atr": -0.0112,
+   "deriva4_atr": 0.2615,
+   "deriva8_atr": 0.9403,
+   "deriva_liquida_max_atr": -1.2477,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "compressao {\"c\": 0.5} 1H SHORT": {
+   "n_treino": 924,
+   "custo_ida_volta_atr": 2.103,
+   "mfe8_atr": 5.528,
+   "mae8_atr": 6.0,
+   "deriva1_atr": -0.0204,
+   "deriva2_atr": 0.0548,
+   "deriva4_atr": -0.0185,
+   "deriva8_atr": -0.5198,
+   "deriva_liquida_max_atr": -2.0482,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "compressao {\"c\": 0.5} 4H LONG": {
+   "n_treino": 97,
+   "custo_ida_volta_atr": 0.508,
+   "mfe8_atr": 4.994,
+   "mae8_atr": 4.747,
+   "deriva1_atr": 0.1651,
+   "deriva2_atr": -0.2011,
+   "deriva4_atr": 0.0068,
+   "deriva8_atr": 0.3593,
+   "deriva_liquida_max_atr": -0.1487,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "compressao {\"c\": 0.5} 4H SHORT": {
+   "n_treino": 96,
+   "custo_ida_volta_atr": 0.511,
+   "mfe8_atr": 4.058,
+   "mae8_atr": 4.683,
+   "deriva1_atr": -0.3006,
+   "deriva2_atr": -0.5102,
+   "deriva4_atr": -0.3944,
+   "deriva8_atr": -0.4796,
+   "deriva_liquida_max_atr": -0.8116,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "compressao {\"c\": 0.7} 30m LONG": {
+   "n_treino": 4702,
+   "custo_ida_volta_atr": 2.955,
+   "mfe8_atr": 4.565,
+   "mae8_atr": 4.495,
+   "deriva1_atr": 0.0118,
+   "deriva2_atr": -0.0514,
+   "deriva4_atr": -0.0153,
+   "deriva8_atr": 0.1378,
+   "deriva_liquida_max_atr": -2.8172,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "compressao {\"c\": 0.7} 30m SHORT": {
+   "n_treino": 4526,
+   "custo_ida_volta_atr": 2.572,
+   "mfe8_atr": 4.302,
+   "mae8_atr": 4.102,
+   "deriva1_atr": 0.007,
+   "deriva2_atr": -0.0608,
+   "deriva4_atr": 0.0515,
+   "deriva8_atr": -0.1953,
+   "deriva_liquida_max_atr": -2.5205,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "compressao {\"c\": 0.7} 1H LONG": {
+   "n_treino": 2165,
+   "custo_ida_volta_atr": 1.463,
+   "mfe8_atr": 4.576,
+   "mae8_atr": 3.853,
+   "deriva1_atr": -0.1731,
+   "deriva2_atr": -0.0311,
+   "deriva4_atr": 0.0767,
+   "deriva8_atr": 0.5448,
+   "deriva_liquida_max_atr": -0.9182,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "compressao {\"c\": 0.7} 1H SHORT": {
+   "n_treino": 1908,
+   "custo_ida_volta_atr": 1.266,
+   "mfe8_atr": 3.998,
+   "mae8_atr": 4.303,
+   "deriva1_atr": -0.009,
+   "deriva2_atr": 0.0313,
+   "deriva4_atr": -0.0449,
+   "deriva8_atr": -0.384,
+   "deriva_liquida_max_atr": -1.2347,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "compressao {\"c\": 0.7} 4H LONG": {
+   "n_treino": 302,
+   "custo_ida_volta_atr": 0.318,
+   "mfe8_atr": 3.341,
+   "mae8_atr": 3.314,
+   "deriva1_atr": -0.0425,
+   "deriva2_atr": -0.179,
+   "deriva4_atr": 0.0102,
+   "deriva8_atr": -0.0464,
+   "deriva_liquida_max_atr": -0.3078,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "compressao {\"c\": 0.7} 4H SHORT": {
+   "n_treino": 263,
+   "custo_ida_volta_atr": 0.318,
+   "mfe8_atr": 3.11,
+   "mae8_atr": 3.066,
+   "deriva1_atr": -0.036,
+   "deriva2_atr": -0.1374,
+   "deriva4_atr": -0.1015,
+   "deriva8_atr": 0.065,
+   "deriva_liquida_max_atr": -0.253,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "extremo {\"k\": 1, \"z\": 3.0} 30m LONG": {
+   "n_treino": 1716,
+   "custo_ida_volta_atr": 0.593,
+   "mfe8_atr": 2.318,
+   "mae8_atr": 2.158,
+   "deriva1_atr": -0.0882,
+   "deriva2_atr": -0.0439,
+   "deriva4_atr": 0.0686,
+   "deriva8_atr": 0.3964,
+   "deriva_liquida_max_atr": -0.1966,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "extremo {\"k\": 1, \"z\": 3.0} 30m SHORT": {
+   "n_treino": 1767,
+   "custo_ida_volta_atr": 0.549,
+   "mfe8_atr": 2.344,
+   "mae8_atr": 2.266,
+   "deriva1_atr": -0.0146,
+   "deriva2_atr": 0.094,
+   "deriva4_atr": 0.0944,
+   "deriva8_atr": 0.225,
+   "deriva_liquida_max_atr": -0.324,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "extremo {\"k\": 1, \"z\": 3.0} 1H LONG": {
+   "n_treino": 707,
+   "custo_ida_volta_atr": 0.361,
+   "mfe8_atr": 2.453,
+   "mae8_atr": 1.862,
+   "deriva1_atr": 0.1243,
+   "deriva2_atr": 0.1687,
+   "deriva4_atr": 0.5904,
+   "deriva8_atr": 0.5857,
+   "deriva_liquida_max_atr": 0.2294,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "extremo {\"k\": 1, \"z\": 3.0} 1H SHORT": {
+   "n_treino": 724,
+   "custo_ida_volta_atr": 0.337,
+   "mfe8_atr": 2.154,
+   "mae8_atr": 2.227,
+   "deriva1_atr": 0.0125,
+   "deriva2_atr": -0.0213,
+   "deriva4_atr": 0.0761,
+   "deriva8_atr": 0.1264,
+   "deriva_liquida_max_atr": -0.2106,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "extremo {\"k\": 1, \"z\": 3.0} 4H LONG": {
+   "n_treino": 63,
+   "custo_ida_volta_atr": 0.149,
+   "mfe8_atr": 1.38,
+   "mae8_atr": 2.297,
+   "deriva1_atr": -0.0091,
+   "deriva2_atr": -0.0264,
+   "deriva4_atr": -0.125,
+   "deriva8_atr": -0.9199,
+   "deriva_liquida_max_atr": -0.1581,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "extremo {\"k\": 1, \"z\": 3.0} 4H SHORT": {
+   "n_treino": 69,
+   "custo_ida_volta_atr": 0.119,
+   "mfe8_atr": 1.867,
+   "mae8_atr": 1.708,
+   "deriva1_atr": -0.0381,
+   "deriva2_atr": 0.1155,
+   "deriva4_atr": -0.0833,
+   "deriva8_atr": 0.374,
+   "deriva_liquida_max_atr": 0.255,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "extremo {\"k\": 1, \"z\": 4.0} 30m LONG": {
+   "n_treino": 782,
+   "custo_ida_volta_atr": 0.646,
+   "mfe8_atr": 2.407,
+   "mae8_atr": 2.246,
+   "deriva1_atr": -0.0824,
+   "deriva2_atr": -0.1107,
+   "deriva4_atr": -0.0147,
+   "deriva8_atr": 0.4109,
+   "deriva_liquida_max_atr": -0.2351,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "extremo {\"k\": 1, \"z\": 4.0} 30m SHORT": {
+   "n_treino": 810,
+   "custo_ida_volta_atr": 0.627,
+   "mfe8_atr": 2.436,
+   "mae8_atr": 2.416,
+   "deriva1_atr": -0.0532,
+   "deriva2_atr": 0.0789,
+   "deriva4_atr": 0.1233,
+   "deriva8_atr": 0.1857,
+   "deriva_liquida_max_atr": -0.4413,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "extremo {\"k\": 1, \"z\": 4.0} 1H LONG": {
+   "n_treino": 316,
+   "custo_ida_volta_atr": 0.387,
+   "mfe8_atr": 2.944,
+   "mae8_atr": 1.851,
+   "deriva1_atr": 0.0863,
+   "deriva2_atr": 0.0817,
+   "deriva4_atr": 0.7749,
+   "deriva8_atr": 1.0786,
+   "deriva_liquida_max_atr": 0.6916,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "extremo {\"k\": 1, \"z\": 4.0} 1H SHORT": {
+   "n_treino": 304,
+   "custo_ida_volta_atr": 0.41,
+   "mfe8_atr": 2.698,
+   "mae8_atr": 2.507,
+   "deriva1_atr": 0.1829,
+   "deriva2_atr": 0.1107,
+   "deriva4_atr": 0.1388,
+   "deriva8_atr": 0.4882,
+   "deriva_liquida_max_atr": 0.0782,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "extremo {\"k\": 1, \"z\": 4.0} 4H LONG": {
+   "n_treino": 21,
+   "custo_ida_volta_atr": 0.163,
+   "mfe8_atr": 1.174,
+   "mae8_atr": 2.462,
+   "deriva1_atr": 0.0698,
+   "deriva2_atr": 0.0751,
+   "deriva4_atr": -0.5096,
+   "deriva8_atr": -1.4391,
+   "deriva_liquida_max_atr": -0.0879,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "extremo {\"k\": 1, \"z\": 4.0} 4H SHORT": {
+   "n_treino": 26,
+   "custo_ida_volta_atr": 0.124,
+   "mfe8_atr": 1.641,
+   "mae8_atr": 2.173,
+   "deriva1_atr": -0.189,
+   "deriva2_atr": -0.2902,
+   "deriva4_atr": -0.4869,
+   "deriva8_atr": -0.2005,
+   "deriva_liquida_max_atr": -0.313,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "extremo {\"k\": 4, \"z\": 3.0} 30m LONG": {
+   "n_treino": 1848,
+   "custo_ida_volta_atr": 0.524,
+   "mfe8_atr": 2.246,
+   "mae8_atr": 1.771,
+   "deriva1_atr": -0.0033,
+   "deriva2_atr": 0.0547,
+   "deriva4_atr": 0.2184,
+   "deriva8_atr": 0.6403,
+   "deriva_liquida_max_atr": 0.1163,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "extremo {\"k\": 4, \"z\": 3.0} 30m SHORT": {
+   "n_treino": 1887,
+   "custo_ida_volta_atr": 0.511,
+   "mfe8_atr": 1.904,
+   "mae8_atr": 2.055,
+   "deriva1_atr": 0.0283,
+   "deriva2_atr": 0.0149,
+   "deriva4_atr": -0.0665,
+   "deriva8_atr": 0.0732,
+   "deriva_liquida_max_atr": -0.4378,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "extremo {\"k\": 4, \"z\": 3.0} 1H LONG": {
+   "n_treino": 718,
+   "custo_ida_volta_atr": 0.341,
+   "mfe8_atr": 2.492,
+   "mae8_atr": 1.601,
+   "deriva1_atr": 0.1954,
+   "deriva2_atr": 0.3401,
+   "deriva4_atr": 0.7522,
+   "deriva8_atr": 0.9037,
+   "deriva_liquida_max_atr": 0.5627,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "extremo {\"k\": 4, \"z\": 3.0} 1H SHORT": {
+   "n_treino": 747,
+   "custo_ida_volta_atr": 0.28,
+   "mfe8_atr": 2.063,
+   "mae8_atr": 1.98,
+   "deriva1_atr": 0.0448,
+   "deriva2_atr": 0.1043,
+   "deriva4_atr": 0.2331,
+   "deriva8_atr": 0.4041,
+   "deriva_liquida_max_atr": 0.1241,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "extremo {\"k\": 4, \"z\": 3.0} 4H LONG": {
+   "n_treino": 78,
+   "custo_ida_volta_atr": 0.119,
+   "mfe8_atr": 0.975,
+   "mae8_atr": 2.707,
+   "deriva1_atr": -0.0932,
+   "deriva2_atr": -0.2718,
+   "deriva4_atr": -0.5465,
+   "deriva8_atr": -1.4578,
+   "deriva_liquida_max_atr": -0.2122,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "extremo {\"k\": 4, \"z\": 3.0} 4H SHORT": {
+   "n_treino": 48,
+   "custo_ida_volta_atr": 0.114,
+   "mfe8_atr": 1.765,
+   "mae8_atr": 1.544,
+   "deriva1_atr": -0.1386,
+   "deriva2_atr": 0.0333,
+   "deriva4_atr": 0.4702,
+   "deriva8_atr": 0.4084,
+   "deriva_liquida_max_atr": 0.3562,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "extremo {\"k\": 4, \"z\": 4.0} 30m LONG": {
+   "n_treino": 771,
+   "custo_ida_volta_atr": 0.556,
+   "mfe8_atr": 2.352,
+   "mae8_atr": 1.844,
+   "deriva1_atr": -0.0112,
+   "deriva2_atr": -0.0595,
+   "deriva4_atr": 0.0558,
+   "deriva8_atr": 0.7024,
+   "deriva_liquida_max_atr": 0.1464,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "extremo {\"k\": 4, \"z\": 4.0} 30m SHORT": {
+   "n_treino": 824,
+   "custo_ida_volta_atr": 0.634,
+   "mfe8_atr": 1.984,
+   "mae8_atr": 2.147,
+   "deriva1_atr": -0.0206,
+   "deriva2_atr": -0.0411,
+   "deriva4_atr": -0.1315,
+   "deriva8_atr": 0.1187,
+   "deriva_liquida_max_atr": -0.5153,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "extremo {\"k\": 4, \"z\": 4.0} 1H LONG": {
+   "n_treino": 264,
+   "custo_ida_volta_atr": 0.405,
+   "mfe8_atr": 3.949,
+   "mae8_atr": 1.451,
+   "deriva1_atr": 0.2532,
+   "deriva2_atr": 0.6195,
+   "deriva4_atr": 1.7069,
+   "deriva8_atr": 2.2992,
+   "deriva_liquida_max_atr": 1.8942,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "extremo {\"k\": 4, \"z\": 4.0} 1H SHORT": {
+   "n_treino": 278,
+   "custo_ida_volta_atr": 0.313,
+   "mfe8_atr": 2.294,
+   "mae8_atr": 2.335,
+   "deriva1_atr": -0.0588,
+   "deriva2_atr": 0.0062,
+   "deriva4_atr": 0.2916,
+   "deriva8_atr": 0.5251,
+   "deriva_liquida_max_atr": 0.2121,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "extremo {\"k\": 4, \"z\": 4.0} 4H LONG": {
+   "n_treino": 15,
+   "custo_ida_volta_atr": 0.1,
+   "mfe8_atr": 0.703,
+   "mae8_atr": 2.44,
+   "deriva1_atr": -0.0049,
+   "deriva2_atr": -0.1905,
+   "deriva4_atr": -0.6096,
+   "deriva8_atr": -1.3107,
+   "deriva_liquida_max_atr": -0.1049,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "extremo {\"k\": 4, \"z\": 4.0} 4H SHORT": {
+   "n_treino": 12,
+   "custo_ida_volta_atr": 0.101,
+   "mfe8_atr": 1.831,
+   "mae8_atr": 1.416,
+   "deriva1_atr": -0.1546,
+   "deriva2_atr": 0.2174,
+   "deriva4_atr": 0.4149,
+   "deriva8_atr": 0.5006,
+   "deriva_liquida_max_atr": 0.3996,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "impulso_correcao {\"x\": 0.03} 30m LONG": {
+   "n_treino": 255,
+   "custo_ida_volta_atr": 0.119,
+   "mfe8_atr": 1.543,
+   "mae8_atr": 1.377,
+   "deriva1_atr": 0.0215,
+   "deriva2_atr": 0.0161,
+   "deriva4_atr": 0.1011,
+   "deriva8_atr": 0.0624,
+   "deriva_liquida_max_atr": -0.0179,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "impulso_correcao {\"x\": 0.03} 30m SHORT": {
+   "n_treino": 243,
+   "custo_ida_volta_atr": 0.128,
+   "mfe8_atr": 1.314,
+   "mae8_atr": 1.43,
+   "deriva1_atr": 0.0196,
+   "deriva2_atr": -0.0565,
+   "deriva4_atr": -0.1351,
+   "deriva8_atr": 0.0081,
+   "deriva_liquida_max_atr": -0.1084,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "impulso_correcao {\"x\": 0.03} 1H LONG": {
+   "n_treino": 265,
+   "custo_ida_volta_atr": 0.102,
+   "mfe8_atr": 1.343,
+   "mae8_atr": 1.341,
+   "deriva1_atr": -0.0016,
+   "deriva2_atr": -0.1108,
+   "deriva4_atr": -0.1753,
+   "deriva8_atr": -0.0491,
+   "deriva_liquida_max_atr": -0.1036,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "impulso_correcao {\"x\": 0.03} 1H SHORT": {
+   "n_treino": 248,
+   "custo_ida_volta_atr": 0.108,
+   "mfe8_atr": 1.343,
+   "mae8_atr": 1.221,
+   "deriva1_atr": -0.0272,
+   "deriva2_atr": -0.0326,
+   "deriva4_atr": 0.0691,
+   "deriva8_atr": 0.1688,
+   "deriva_liquida_max_atr": 0.0608,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "impulso_correcao {\"x\": 0.03} 4H LONG": {
+   "n_treino": 105,
+   "custo_ida_volta_atr": 0.079,
+   "mfe8_atr": 1.353,
+   "mae8_atr": 1.464,
+   "deriva1_atr": 0.096,
+   "deriva2_atr": 0.0457,
+   "deriva4_atr": 0.0212,
+   "deriva8_atr": -0.1597,
+   "deriva_liquida_max_atr": 0.017,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "impulso_correcao {\"x\": 0.03} 4H SHORT": {
+   "n_treino": 98,
+   "custo_ida_volta_atr": 0.075,
+   "mfe8_atr": 1.735,
+   "mae8_atr": 1.094,
+   "deriva1_atr": -0.0197,
+   "deriva2_atr": 0.1455,
+   "deriva4_atr": 0.3979,
+   "deriva8_atr": 0.3946,
+   "deriva_liquida_max_atr": 0.3229,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "impulso_correcao {\"x\": 0.06} 30m LONG": {
+   "n_treino": 49,
+   "custo_ida_volta_atr": 0.068,
+   "mfe8_atr": 1.1,
+   "mae8_atr": 1.556,
+   "deriva1_atr": -0.0569,
+   "deriva2_atr": -0.1084,
+   "deriva4_atr": -0.2471,
+   "deriva8_atr": -0.4204,
+   "deriva_liquida_max_atr": -0.1249,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "impulso_correcao {\"x\": 0.06} 30m SHORT": {
+   "n_treino": 43,
+   "custo_ida_volta_atr": 0.079,
+   "mfe8_atr": 0.988,
+   "mae8_atr": 1.668,
+   "deriva1_atr": -0.0444,
+   "deriva2_atr": -0.221,
+   "deriva4_atr": -0.4205,
+   "deriva8_atr": -0.4715,
+   "deriva_liquida_max_atr": -0.1234,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "impulso_correcao {\"x\": 0.06} 1H LONG": {
+   "n_treino": 58,
+   "custo_ida_volta_atr": 0.063,
+   "mfe8_atr": 1.474,
+   "mae8_atr": 0.974,
+   "deriva1_atr": 0.0929,
+   "deriva2_atr": 0.2086,
+   "deriva4_atr": 0.085,
+   "deriva8_atr": 0.2846,
+   "deriva_liquida_max_atr": 0.2216,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "impulso_correcao {\"x\": 0.06} 1H SHORT": {
+   "n_treino": 43,
+   "custo_ida_volta_atr": 0.067,
+   "mfe8_atr": 0.993,
+   "mae8_atr": 1.518,
+   "deriva1_atr": -0.0656,
+   "deriva2_atr": -0.2297,
+   "deriva4_atr": -0.1808,
+   "deriva8_atr": -0.2977,
+   "deriva_liquida_max_atr": -0.1326,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "impulso_correcao {\"x\": 0.06} 4H LONG": {
+   "n_treino": 33,
+   "custo_ida_volta_atr": 0.053,
+   "mfe8_atr": 1.186,
+   "mae8_atr": 1.226,
+   "deriva1_atr": 0.1211,
+   "deriva2_atr": 0.0302,
+   "deriva4_atr": 0.1038,
+   "deriva8_atr": -0.2611,
+   "deriva_liquida_max_atr": 0.0681,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "impulso_correcao {\"x\": 0.06} 4H SHORT": {
+   "n_treino": 28,
+   "custo_ida_volta_atr": 0.046,
+   "mfe8_atr": 1.734,
+   "mae8_atr": 0.798,
+   "deriva1_atr": 0.1218,
+   "deriva2_atr": 0.1985,
+   "deriva4_atr": 0.4968,
+   "deriva8_atr": 0.5586,
+   "deriva_liquida_max_atr": 0.5126,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "rompimento_reteste {\"n\": 24} 30m LONG": {
+   "n_treino": 2956,
+   "custo_ida_volta_atr": 0.566,
+   "mfe8_atr": 1.964,
+   "mae8_atr": 1.903,
+   "deriva1_atr": 0.0149,
+   "deriva2_atr": 0.0095,
+   "deriva4_atr": -0.0245,
+   "deriva8_atr": -0.0974,
+   "deriva_liquida_max_atr": -0.5511,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "rompimento_reteste {\"n\": 24} 30m SHORT": {
+   "n_treino": 3160,
+   "custo_ida_volta_atr": 0.434,
+   "mfe8_atr": 1.781,
+   "mae8_atr": 1.769,
+   "deriva1_atr": -0.0115,
+   "deriva2_atr": -0.0079,
+   "deriva4_atr": -0.0361,
+   "deriva8_atr": -0.07,
+   "deriva_liquida_max_atr": -0.4419,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "rompimento_reteste {\"n\": 24} 1H LONG": {
+   "n_treino": 1658,
+   "custo_ida_volta_atr": 0.383,
+   "mfe8_atr": 1.975,
+   "mae8_atr": 1.82,
+   "deriva1_atr": 0.0356,
+   "deriva2_atr": 0.0258,
+   "deriva4_atr": 0.047,
+   "deriva8_atr": 0.0835,
+   "deriva_liquida_max_atr": -0.2995,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "rompimento_reteste {\"n\": 24} 1H SHORT": {
+   "n_treino": 1849,
+   "custo_ida_volta_atr": 0.294,
+   "mfe8_atr": 1.77,
+   "mae8_atr": 1.651,
+   "deriva1_atr": -0.0235,
+   "deriva2_atr": -0.0325,
+   "deriva4_atr": -0.0255,
+   "deriva8_atr": 0.0475,
+   "deriva_liquida_max_atr": -0.2465,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "rompimento_reteste {\"n\": 24} 4H LONG": {
+   "n_treino": 349,
+   "custo_ida_volta_atr": 0.138,
+   "mfe8_atr": 1.929,
+   "mae8_atr": 1.335,
+   "deriva1_atr": 0.0715,
+   "deriva2_atr": 0.1637,
+   "deriva4_atr": 0.2552,
+   "deriva8_atr": 0.2964,
+   "deriva_liquida_max_atr": 0.1584,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "rompimento_reteste {\"n\": 24} 4H SHORT": {
+   "n_treino": 410,
+   "custo_ida_volta_atr": 0.124,
+   "mfe8_atr": 1.497,
+   "mae8_atr": 1.429,
+   "deriva1_atr": 0.0003,
+   "deriva2_atr": 0.0462,
+   "deriva4_atr": -0.0302,
+   "deriva8_atr": 0.0124,
+   "deriva_liquida_max_atr": -0.0778,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "rompimento_reteste {\"n\": 48} 30m LONG": {
+   "n_treino": 1993,
+   "custo_ida_volta_atr": 0.552,
+   "mfe8_atr": 2.024,
+   "mae8_atr": 1.936,
+   "deriva1_atr": 0.0308,
+   "deriva2_atr": 0.0587,
+   "deriva4_atr": 0.0499,
+   "deriva8_atr": -0.0759,
+   "deriva_liquida_max_atr": -0.4933,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "rompimento_reteste {\"n\": 48} 30m SHORT": {
+   "n_treino": 2230,
+   "custo_ida_volta_atr": 0.399,
+   "mfe8_atr": 1.727,
+   "mae8_atr": 1.647,
+   "deriva1_atr": 0.0058,
+   "deriva2_atr": 0.0009,
+   "deriva4_atr": -0.0035,
+   "deriva8_atr": -0.0259,
+   "deriva_liquida_max_atr": -0.3932,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "rompimento_reteste {\"n\": 48} 1H LONG": {
+   "n_treino": 1117,
+   "custo_ida_volta_atr": 0.35,
+   "mfe8_atr": 2.071,
+   "mae8_atr": 1.93,
+   "deriva1_atr": 0.0484,
+   "deriva2_atr": -0.0018,
+   "deriva4_atr": 0.0469,
+   "deriva8_atr": 0.1059,
+   "deriva_liquida_max_atr": -0.2441,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "rompimento_reteste {\"n\": 48} 1H SHORT": {
+   "n_treino": 1364,
+   "custo_ida_volta_atr": 0.263,
+   "mfe8_atr": 1.905,
+   "mae8_atr": 1.576,
+   "deriva1_atr": -0.0024,
+   "deriva2_atr": 0.0183,
+   "deriva4_atr": 0.0347,
+   "deriva8_atr": 0.1698,
+   "deriva_liquida_max_atr": -0.0932,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "rompimento_reteste {\"n\": 48} 4H LONG": {
+   "n_treino": 244,
+   "custo_ida_volta_atr": 0.139,
+   "mfe8_atr": 1.899,
+   "mae8_atr": 1.264,
+   "deriva1_atr": 0.0555,
+   "deriva2_atr": 0.1916,
+   "deriva4_atr": 0.3157,
+   "deriva8_atr": 0.2285,
+   "deriva_liquida_max_atr": 0.1767,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "rompimento_reteste {\"n\": 48} 4H SHORT": {
+   "n_treino": 273,
+   "custo_ida_volta_atr": 0.115,
+   "mfe8_atr": 1.627,
+   "mae8_atr": 1.379,
+   "deriva1_atr": -0.0152,
+   "deriva2_atr": 0.0249,
+   "deriva4_atr": 0.0079,
+   "deriva8_atr": 0.1523,
+   "deriva_liquida_max_atr": 0.0373,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "estrutura {\"n\": 24} 30m LONG": {
+   "n_treino": 7300,
+   "custo_ida_volta_atr": 1.335,
+   "mfe8_atr": 2.614,
+   "mae8_atr": 2.811,
+   "deriva1_atr": 0.0059,
+   "deriva2_atr": -0.0542,
+   "deriva4_atr": -0.0725,
+   "deriva8_atr": -0.1385,
+   "deriva_liquida_max_atr": -1.3291,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "estrutura {\"n\": 24} 30m SHORT": {
+   "n_treino": 6755,
+   "custo_ida_volta_atr": 1.474,
+   "mfe8_atr": 2.769,
+   "mae8_atr": 2.749,
+   "deriva1_atr": 0.0142,
+   "deriva2_atr": -0.0101,
+   "deriva4_atr": 0.021,
+   "deriva8_atr": -0.1611,
+   "deriva_liquida_max_atr": -1.453,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "estrutura {\"n\": 24} 1H LONG": {
+   "n_treino": 3226,
+   "custo_ida_volta_atr": 0.661,
+   "mfe8_atr": 2.579,
+   "mae8_atr": 2.596,
+   "deriva1_atr": -0.0927,
+   "deriva2_atr": -0.0632,
+   "deriva4_atr": -0.054,
+   "deriva8_atr": -0.1187,
+   "deriva_liquida_max_atr": -0.715,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "estrutura {\"n\": 24} 1H SHORT": {
+   "n_treino": 3108,
+   "custo_ida_volta_atr": 0.699,
+   "mfe8_atr": 2.461,
+   "mae8_atr": 2.97,
+   "deriva1_atr": -0.0587,
+   "deriva2_atr": -0.1424,
+   "deriva4_atr": -0.2122,
+   "deriva8_atr": -0.4216,
+   "deriva_liquida_max_atr": -0.7577,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "estrutura {\"n\": 24} 4H LONG": {
+   "n_treino": 639,
+   "custo_ida_volta_atr": 0.197,
+   "mfe8_atr": 1.906,
+   "mae8_atr": 1.976,
+   "deriva1_atr": -0.0625,
+   "deriva2_atr": -0.0902,
+   "deriva4_atr": 0.0106,
+   "deriva8_atr": -0.1637,
+   "deriva_liquida_max_atr": -0.1864,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "estrutura {\"n\": 24} 4H SHORT": {
+   "n_treino": 502,
+   "custo_ida_volta_atr": 0.215,
+   "mfe8_atr": 2.215,
+   "mae8_atr": 2.104,
+   "deriva1_atr": -0.1239,
+   "deriva2_atr": -0.1329,
+   "deriva4_atr": -0.0592,
+   "deriva8_atr": 0.1741,
+   "deriva_liquida_max_atr": -0.0409,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "estrutura {\"n\": 48} 30m LONG": {
+   "n_treino": 8307,
+   "custo_ida_volta_atr": 1.152,
+   "mfe8_atr": 2.499,
+   "mae8_atr": 2.65,
+   "deriva1_atr": 0.0054,
+   "deriva2_atr": -0.0692,
+   "deriva4_atr": -0.0999,
+   "deriva8_atr": -0.1016,
+   "deriva_liquida_max_atr": -1.1466,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "estrutura {\"n\": 48} 30m SHORT": {
+   "n_treino": 7633,
+   "custo_ida_volta_atr": 1.401,
+   "mfe8_atr": 2.542,
+   "mae8_atr": 2.739,
+   "deriva1_atr": -0.0107,
+   "deriva2_atr": -0.0447,
+   "deriva4_atr": -0.0836,
+   "deriva8_atr": -0.3067,
+   "deriva_liquida_max_atr": -1.4117,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "estrutura {\"n\": 48} 1H LONG": {
+   "n_treino": 3803,
+   "custo_ida_volta_atr": 0.633,
+   "mfe8_atr": 2.604,
+   "mae8_atr": 2.51,
+   "deriva1_atr": -0.0475,
+   "deriva2_atr": -0.0036,
+   "deriva4_atr": 0.0026,
+   "deriva8_atr": -0.0206,
+   "deriva_liquida_max_atr": -0.6304,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "estrutura {\"n\": 48} 1H SHORT": {
+   "n_treino": 3514,
+   "custo_ida_volta_atr": 0.677,
+   "mfe8_atr": 2.298,
+   "mae8_atr": 2.623,
+   "deriva1_atr": -0.0582,
+   "deriva2_atr": -0.0949,
+   "deriva4_atr": -0.1493,
+   "deriva8_atr": -0.2463,
+   "deriva_liquida_max_atr": -0.7352,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "estrutura {\"n\": 48} 4H LONG": {
+   "n_treino": 725,
+   "custo_ida_volta_atr": 0.197,
+   "mfe8_atr": 1.964,
+   "mae8_atr": 1.983,
+   "deriva1_atr": -0.0668,
+   "deriva2_atr": -0.0931,
+   "deriva4_atr": 0.0151,
+   "deriva8_atr": -0.0771,
+   "deriva_liquida_max_atr": -0.1819,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "estrutura {\"n\": 48} 4H SHORT": {
+   "n_treino": 517,
+   "custo_ida_volta_atr": 0.2,
+   "mfe8_atr": 1.821,
+   "mae8_atr": 2.063,
+   "deriva1_atr": -0.085,
+   "deriva2_atr": -0.1658,
+   "deriva4_atr": -0.1549,
+   "deriva8_atr": -0.0638,
+   "deriva_liquida_max_atr": -0.2638,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "volume_anormal {\"m\": 3.0} 30m LONG": {
+   "n_treino": 14129,
+   "custo_ida_volta_atr": 0.824,
+   "mfe8_atr": 2.422,
+   "mae8_atr": 2.383,
+   "deriva1_atr": 0.0069,
+   "deriva2_atr": -0.0208,
+   "deriva4_atr": -0.0221,
+   "deriva8_atr": -0.0235,
+   "deriva_liquida_max_atr": -0.8171,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "volume_anormal {\"m\": 3.0} 30m SHORT": {
+   "n_treino": 14272,
+   "custo_ida_volta_atr": 0.842,
+   "mfe8_atr": 2.407,
+   "mae8_atr": 2.471,
+   "deriva1_atr": 0.0297,
+   "deriva2_atr": -0.0205,
+   "deriva4_atr": -0.0737,
+   "deriva8_atr": -0.1197,
+   "deriva_liquida_max_atr": -0.8123,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "volume_anormal {\"m\": 3.0} 1H LONG": {
+   "n_treino": 6946,
+   "custo_ida_volta_atr": 0.609,
+   "mfe8_atr": 2.657,
+   "mae8_atr": 2.463,
+   "deriva1_atr": -0.0404,
+   "deriva2_atr": 0.003,
+   "deriva4_atr": 0.0513,
+   "deriva8_atr": 0.0312,
+   "deriva_liquida_max_atr": -0.5577,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "volume_anormal {\"m\": 3.0} 1H SHORT": {
+   "n_treino": 7277,
+   "custo_ida_volta_atr": 0.586,
+   "mfe8_atr": 2.524,
+   "mae8_atr": 2.633,
+   "deriva1_atr": -0.0269,
+   "deriva2_atr": -0.0582,
+   "deriva4_atr": -0.0764,
+   "deriva8_atr": -0.0866,
+   "deriva_liquida_max_atr": -0.6129,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "volume_anormal {\"m\": 3.0} 4H LONG": {
+   "n_treino": 860,
+   "custo_ida_volta_atr": 0.19,
+   "mfe8_atr": 1.843,
+   "mae8_atr": 2.088,
+   "deriva1_atr": -0.0278,
+   "deriva2_atr": -0.1732,
+   "deriva4_atr": -0.1915,
+   "deriva8_atr": -0.1873,
+   "deriva_liquida_max_atr": -0.2178,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "volume_anormal {\"m\": 3.0} 4H SHORT": {
+   "n_treino": 895,
+   "custo_ida_volta_atr": 0.176,
+   "mfe8_atr": 1.975,
+   "mae8_atr": 1.836,
+   "deriva1_atr": -0.0153,
+   "deriva2_atr": -0.0755,
+   "deriva4_atr": 0.001,
+   "deriva8_atr": 0.0843,
+   "deriva_liquida_max_atr": -0.0917,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "volume_anormal {\"m\": 5.0} 30m LONG": {
+   "n_treino": 10601,
+   "custo_ida_volta_atr": 0.931,
+   "mfe8_atr": 2.593,
+   "mae8_atr": 2.533,
+   "deriva1_atr": 0.0139,
+   "deriva2_atr": -0.0159,
+   "deriva4_atr": -0.026,
+   "deriva8_atr": -0.0073,
+   "deriva_liquida_max_atr": -0.9171,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "volume_anormal {\"m\": 5.0} 30m SHORT": {
+   "n_treino": 10646,
+   "custo_ida_volta_atr": 0.968,
+   "mfe8_atr": 2.549,
+   "mae8_atr": 2.663,
+   "deriva1_atr": 0.0392,
+   "deriva2_atr": -0.0228,
+   "deriva4_atr": -0.0947,
+   "deriva8_atr": -0.153,
+   "deriva_liquida_max_atr": -0.9288,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "volume_anormal {\"m\": 5.0} 1H LONG": {
+   "n_treino": 4958,
+   "custo_ida_volta_atr": 0.705,
+   "mfe8_atr": 2.91,
+   "mae8_atr": 2.673,
+   "deriva1_atr": -0.0566,
+   "deriva2_atr": -0.0061,
+   "deriva4_atr": 0.0795,
+   "deriva8_atr": 0.0667,
+   "deriva_liquida_max_atr": -0.6255,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "volume_anormal {\"m\": 5.0} 1H SHORT": {
+   "n_treino": 5327,
+   "custo_ida_volta_atr": 0.679,
+   "mfe8_atr": 2.704,
+   "mae8_atr": 2.923,
+   "deriva1_atr": -0.0441,
+   "deriva2_atr": -0.0967,
+   "deriva4_atr": -0.1312,
+   "deriva8_atr": -0.1602,
+   "deriva_liquida_max_atr": -0.7231,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "volume_anormal {\"m\": 5.0} 4H LONG": {
+   "n_treino": 474,
+   "custo_ida_volta_atr": 0.227,
+   "mfe8_atr": 2.014,
+   "mae8_atr": 2.297,
+   "deriva1_atr": -0.0102,
+   "deriva2_atr": -0.1976,
+   "deriva4_atr": -0.2319,
+   "deriva8_atr": -0.2855,
+   "deriva_liquida_max_atr": -0.2372,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "volume_anormal {\"m\": 5.0} 4H SHORT": {
+   "n_treino": 488,
+   "custo_ida_volta_atr": 0.192,
+   "mfe8_atr": 2.044,
+   "mae8_atr": 1.914,
+   "deriva1_atr": 0.0163,
+   "deriva2_atr": -0.0984,
+   "deriva4_atr": -0.0357,
+   "deriva8_atr": 0.0125,
+   "deriva_liquida_max_atr": -0.1757,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "divergencia_volume {\"n\": 24} 30m LONG": {
+   "n_treino": 3361,
+   "custo_ida_volta_atr": 0.733,
+   "mfe8_atr": 2.212,
+   "mae8_atr": 2.318,
+   "deriva1_atr": -0.0257,
+   "deriva2_atr": -0.0375,
+   "deriva4_atr": 0.0655,
+   "deriva8_atr": -0.035,
+   "deriva_liquida_max_atr": -0.6675,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "divergencia_volume {\"n\": 24} 30m SHORT": {
+   "n_treino": 2973,
+   "custo_ida_volta_atr": 1.039,
+   "mfe8_atr": 2.373,
+   "mae8_atr": 2.394,
+   "deriva1_atr": -0.0075,
+   "deriva2_atr": 0.0294,
+   "deriva4_atr": 0.0463,
+   "deriva8_atr": 0.132,
+   "deriva_liquida_max_atr": -0.907,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "divergencia_volume {\"n\": 24} 1H LONG": {
+   "n_treino": 1588,
+   "custo_ida_volta_atr": 0.444,
+   "mfe8_atr": 1.935,
+   "mae8_atr": 2.238,
+   "deriva1_atr": -0.0641,
+   "deriva2_atr": -0.0694,
+   "deriva4_atr": -0.1162,
+   "deriva8_atr": -0.1866,
+   "deriva_liquida_max_atr": -0.5081,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "divergencia_volume {\"n\": 24} 1H SHORT": {
+   "n_treino": 1333,
+   "custo_ida_volta_atr": 0.637,
+   "mfe8_atr": 2.365,
+   "mae8_atr": 2.598,
+   "deriva1_atr": 0.0195,
+   "deriva2_atr": -0.0336,
+   "deriva4_atr": -0.0924,
+   "deriva8_atr": -0.0847,
+   "deriva_liquida_max_atr": -0.6175,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "divergencia_volume {\"n\": 24} 4H LONG": {
+   "n_treino": 200,
+   "custo_ida_volta_atr": 0.16,
+   "mfe8_atr": 1.757,
+   "mae8_atr": 1.572,
+   "deriva1_atr": -0.0496,
+   "deriva2_atr": -0.0704,
+   "deriva4_atr": 0.1735,
+   "deriva8_atr": 0.0824,
+   "deriva_liquida_max_atr": 0.0135,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "divergencia_volume {\"n\": 24} 4H SHORT": {
+   "n_treino": 132,
+   "custo_ida_volta_atr": 0.214,
+   "mfe8_atr": 1.93,
+   "mae8_atr": 2.07,
+   "deriva1_atr": -0.0235,
+   "deriva2_atr": -0.0092,
+   "deriva4_atr": 0.0401,
+   "deriva8_atr": -0.0272,
+   "deriva_liquida_max_atr": -0.1739,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "divergencia_volume {\"n\": 48} 30m LONG": {
+   "n_treino": 2149,
+   "custo_ida_volta_atr": 0.677,
+   "mfe8_atr": 2.133,
+   "mae8_atr": 2.407,
+   "deriva1_atr": -0.0606,
+   "deriva2_atr": -0.0984,
+   "deriva4_atr": -0.0368,
+   "deriva8_atr": -0.0978,
+   "deriva_liquida_max_atr": -0.7138,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "divergencia_volume {\"n\": 48} 30m SHORT": {
+   "n_treino": 1847,
+   "custo_ida_volta_atr": 0.966,
+   "mfe8_atr": 2.567,
+   "mae8_atr": 3.106,
+   "deriva1_atr": -0.0843,
+   "deriva2_atr": -0.0984,
+   "deriva4_atr": -0.0804,
+   "deriva8_atr": -0.4131,
+   "deriva_liquida_max_atr": -1.0464,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "divergencia_volume {\"n\": 48} 1H LONG": {
+   "n_treino": 1072,
+   "custo_ida_volta_atr": 0.416,
+   "mfe8_atr": 1.98,
+   "mae8_atr": 2.471,
+   "deriva1_atr": -0.0653,
+   "deriva2_atr": -0.0469,
+   "deriva4_atr": -0.0938,
+   "deriva8_atr": -0.3632,
+   "deriva_liquida_max_atr": -0.4629,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "divergencia_volume {\"n\": 48} 1H SHORT": {
+   "n_treino": 755,
+   "custo_ida_volta_atr": 0.613,
+   "mfe8_atr": 2.555,
+   "mae8_atr": 2.65,
+   "deriva1_atr": 0.1137,
+   "deriva2_atr": 0.0521,
+   "deriva4_atr": 0.0717,
+   "deriva8_atr": 0.093,
+   "deriva_liquida_max_atr": -0.4993,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "divergencia_volume {\"n\": 48} 4H LONG": {
+   "n_treino": 135,
+   "custo_ida_volta_atr": 0.172,
+   "mfe8_atr": 1.784,
+   "mae8_atr": 1.658,
+   "deriva1_atr": 0.0071,
+   "deriva2_atr": 0.0894,
+   "deriva4_atr": 0.3397,
+   "deriva8_atr": 0.0367,
+   "deriva_liquida_max_atr": 0.1677,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "divergencia_volume {\"n\": 48} 4H SHORT": {
+   "n_treino": 69,
+   "custo_ida_volta_atr": 0.251,
+   "mfe8_atr": 1.826,
+   "mae8_atr": 2.19,
+   "deriva1_atr": -0.1255,
+   "deriva2_atr": -0.2992,
+   "deriva4_atr": -0.0974,
+   "deriva8_atr": -0.1605,
+   "deriva_liquida_max_atr": -0.3484,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "acumulacao {\"n\": 24} 30m LONG": {
+   "n_treino": 14930,
+   "custo_ida_volta_atr": 4.473,
+   "mfe8_atr": 4.946,
+   "mae8_atr": 4.551,
+   "deriva1_atr": -0.0279,
+   "deriva2_atr": -0.0563,
+   "deriva4_atr": -0.0328,
+   "deriva8_atr": 0.242,
+   "deriva_liquida_max_atr": -4.231,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "acumulacao {\"n\": 24} 30m SHORT": {
+   "n_treino": 16060,
+   "custo_ida_volta_atr": 3.949,
+   "mfe8_atr": 4.434,
+   "mae8_atr": 4.959,
+   "deriva1_atr": 0.0222,
+   "deriva2_atr": -0.0226,
+   "deriva4_atr": -0.034,
+   "deriva8_atr": -0.3203,
+   "deriva_liquida_max_atr": -3.9268,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "acumulacao {\"n\": 24} 1H LONG": {
+   "n_treino": 4854,
+   "custo_ida_volta_atr": 2.353,
+   "mfe8_atr": 5.155,
+   "mae8_atr": 3.342,
+   "deriva1_atr": 0.1599,
+   "deriva2_atr": 0.3208,
+   "deriva4_atr": 0.7385,
+   "deriva8_atr": 1.5267,
+   "deriva_liquida_max_atr": -0.8263,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "acumulacao {\"n\": 24} 1H SHORT": {
+   "n_treino": 5030,
+   "custo_ida_volta_atr": 2.073,
+   "mfe8_atr": 4.147,
+   "mae8_atr": 3.892,
+   "deriva1_atr": -0.0029,
+   "deriva2_atr": 0.0241,
+   "deriva4_atr": 0.0133,
+   "deriva8_atr": 0.263,
+   "deriva_liquida_max_atr": -1.81,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "acumulacao {\"n\": 24} 4H LONG": {
+   "n_treino": 323,
+   "custo_ida_volta_atr": 0.344,
+   "mfe8_atr": 2.343,
+   "mae8_atr": 2.428,
+   "deriva1_atr": -0.0964,
+   "deriva2_atr": -0.0921,
+   "deriva4_atr": -0.1394,
+   "deriva8_atr": -0.105,
+   "deriva_liquida_max_atr": -0.4361,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "acumulacao {\"n\": 24} 4H SHORT": {
+   "n_treino": 234,
+   "custo_ida_volta_atr": 0.286,
+   "mfe8_atr": 2.466,
+   "mae8_atr": 1.548,
+   "deriva1_atr": 0.0187,
+   "deriva2_atr": 0.0633,
+   "deriva4_atr": 0.2327,
+   "deriva8_atr": 0.7737,
+   "deriva_liquida_max_atr": 0.4877,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "acumulacao {\"n\": 48} 30m LONG": {
+   "n_treino": 7546,
+   "custo_ida_volta_atr": 5.878,
+   "mfe8_atr": 5.527,
+   "mae8_atr": 4.452,
+   "deriva1_atr": -0.0742,
+   "deriva2_atr": 0.0332,
+   "deriva4_atr": 0.1285,
+   "deriva8_atr": 0.4402,
+   "deriva_liquida_max_atr": -5.4378,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "acumulacao {\"n\": 48} 30m SHORT": {
+   "n_treino": 8981,
+   "custo_ida_volta_atr": 4.639,
+   "mfe8_atr": 5.079,
+   "mae8_atr": 5.021,
+   "deriva1_atr": -0.0147,
+   "deriva2_atr": 0.0624,
+   "deriva4_atr": 0.2805,
+   "deriva8_atr": -0.2891,
+   "deriva_liquida_max_atr": -4.3585,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "acumulacao {\"n\": 48} 1H LONG": {
+   "n_treino": 2150,
+   "custo_ida_volta_atr": 2.575,
+   "mfe8_atr": 4.927,
+   "mae8_atr": 3.084,
+   "deriva1_atr": 0.0913,
+   "deriva2_atr": 0.3347,
+   "deriva4_atr": 0.8733,
+   "deriva8_atr": 1.7227,
+   "deriva_liquida_max_atr": -0.8523,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "acumulacao {\"n\": 48} 1H SHORT": {
+   "n_treino": 2314,
+   "custo_ida_volta_atr": 2.187,
+   "mfe8_atr": 4.857,
+   "mae8_atr": 4.299,
+   "deriva1_atr": 0.0632,
+   "deriva2_atr": 0.0501,
+   "deriva4_atr": -0.2351,
+   "deriva8_atr": 0.2379,
+   "deriva_liquida_max_atr": -1.9491,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "acumulacao {\"n\": 48} 4H LONG": {
+   "n_treino": 144,
+   "custo_ida_volta_atr": 0.412,
+   "mfe8_atr": 1.849,
+   "mae8_atr": 2.758,
+   "deriva1_atr": -0.1828,
+   "deriva2_atr": -0.2958,
+   "deriva4_atr": -0.3077,
+   "deriva8_atr": -0.39,
+   "deriva_liquida_max_atr": -0.5948,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "acumulacao {\"n\": 48} 4H SHORT": {
+   "n_treino": 92,
+   "custo_ida_volta_atr": 0.36,
+   "mfe8_atr": 4.075,
+   "mae8_atr": 1.497,
+   "deriva1_atr": 1.2523,
+   "deriva2_atr": 1.3823,
+   "deriva4_atr": 1.5403,
+   "deriva8_atr": 1.4748,
+   "deriva_liquida_max_atr": 1.1803,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "vwap_desvio {\"n\": 24, \"z\": 2.0} 30m LONG": {
+   "n_treino": 14589,
+   "custo_ida_volta_atr": 1.054,
+   "mfe8_atr": 2.483,
+   "mae8_atr": 2.625,
+   "deriva1_atr": -0.0253,
+   "deriva2_atr": 0.0025,
+   "deriva4_atr": 0.0446,
+   "deriva8_atr": 0.0124,
+   "deriva_liquida_max_atr": -1.0094,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "vwap_desvio {\"n\": 24, \"z\": 2.0} 30m SHORT": {
+   "n_treino": 13869,
+   "custo_ida_volta_atr": 1.249,
+   "mfe8_atr": 2.715,
+   "mae8_atr": 2.913,
+   "deriva1_atr": -0.0005,
+   "deriva2_atr": -0.0367,
+   "deriva4_atr": -0.1325,
+   "deriva8_atr": -0.0396,
+   "deriva_liquida_max_atr": -1.2495,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "vwap_desvio {\"n\": 24, \"z\": 2.0} 1H LONG": {
+   "n_treino": 7323,
+   "custo_ida_volta_atr": 0.545,
+   "mfe8_atr": 2.481,
+   "mae8_atr": 2.351,
+   "deriva1_atr": -0.0115,
+   "deriva2_atr": -0.0188,
+   "deriva4_atr": 0.08,
+   "deriva8_atr": 0.2065,
+   "deriva_liquida_max_atr": -0.3385,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "vwap_desvio {\"n\": 24, \"z\": 2.0} 1H SHORT": {
+   "n_treino": 6610,
+   "custo_ida_volta_atr": 0.674,
+   "mfe8_atr": 2.405,
+   "mae8_atr": 2.948,
+   "deriva1_atr": -0.0243,
+   "deriva2_atr": -0.1005,
+   "deriva4_atr": -0.1021,
+   "deriva8_atr": -0.1809,
+   "deriva_liquida_max_atr": -0.6983,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "vwap_desvio {\"n\": 24, \"z\": 2.0} 4H LONG": {
+   "n_treino": 1344,
+   "custo_ida_volta_atr": 0.145,
+   "mfe8_atr": 1.582,
+   "mae8_atr": 1.797,
+   "deriva1_atr": -0.0339,
+   "deriva2_atr": -0.0398,
+   "deriva4_atr": -0.0448,
+   "deriva8_atr": -0.1066,
+   "deriva_liquida_max_atr": -0.1789,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "vwap_desvio {\"n\": 24, \"z\": 2.0} 4H SHORT": {
+   "n_treino": 1095,
+   "custo_ida_volta_atr": 0.195,
+   "mfe8_atr": 1.914,
+   "mae8_atr": 2.232,
+   "deriva1_atr": 0.015,
+   "deriva2_atr": 0.0443,
+   "deriva4_atr": -0.0453,
+   "deriva8_atr": -0.1873,
+   "deriva_liquida_max_atr": -0.1507,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "vwap_desvio {\"n\": 24, \"z\": 3.0} 30m LONG": {
+   "n_treino": 3912,
+   "custo_ida_volta_atr": 1.187,
+   "mfe8_atr": 2.627,
+   "mae8_atr": 2.998,
+   "deriva1_atr": -0.0105,
+   "deriva2_atr": -0.0086,
+   "deriva4_atr": 0.014,
+   "deriva8_atr": -0.18,
+   "deriva_liquida_max_atr": -1.173,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "vwap_desvio {\"n\": 24, \"z\": 3.0} 30m SHORT": {
+   "n_treino": 3912,
+   "custo_ida_volta_atr": 1.376,
+   "mfe8_atr": 2.749,
+   "mae8_atr": 3.05,
+   "deriva1_atr": -0.0187,
+   "deriva2_atr": -0.0246,
+   "deriva4_atr": -0.135,
+   "deriva8_atr": -0.0973,
+   "deriva_liquida_max_atr": -1.3947,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "vwap_desvio {\"n\": 24, \"z\": 3.0} 1H LONG": {
+   "n_treino": 1955,
+   "custo_ida_volta_atr": 0.564,
+   "mfe8_atr": 2.937,
+   "mae8_atr": 2.461,
+   "deriva1_atr": 0.067,
+   "deriva2_atr": 0.1416,
+   "deriva4_atr": 0.436,
+   "deriva8_atr": 0.6092,
+   "deriva_liquida_max_atr": 0.0452,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "vwap_desvio {\"n\": 24, \"z\": 3.0} 1H SHORT": {
+   "n_treino": 1938,
+   "custo_ida_volta_atr": 0.692,
+   "mfe8_atr": 2.779,
+   "mae8_atr": 3.393,
+   "deriva1_atr": -0.0101,
+   "deriva2_atr": -0.1698,
+   "deriva4_atr": -0.1275,
+   "deriva8_atr": 0.0701,
+   "deriva_liquida_max_atr": -0.6219,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "vwap_desvio {\"n\": 24, \"z\": 3.0} 4H LONG": {
+   "n_treino": 309,
+   "custo_ida_volta_atr": 0.17,
+   "mfe8_atr": 1.688,
+   "mae8_atr": 2.138,
+   "deriva1_atr": 0.0093,
+   "deriva2_atr": -0.021,
+   "deriva4_atr": -0.0838,
+   "deriva8_atr": -0.204,
+   "deriva_liquida_max_atr": -0.1607,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "vwap_desvio {\"n\": 24, \"z\": 3.0} 4H SHORT": {
+   "n_treino": 311,
+   "custo_ida_volta_atr": 0.181,
+   "mfe8_atr": 2.01,
+   "mae8_atr": 2.617,
+   "deriva1_atr": 0.0426,
+   "deriva2_atr": 0.0911,
+   "deriva4_atr": -0.177,
+   "deriva8_atr": -0.3914,
+   "deriva_liquida_max_atr": -0.0899,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "vwap_desvio {\"n\": 48, \"z\": 2.0} 30m LONG": {
+   "n_treino": 13634,
+   "custo_ida_volta_atr": 1.19,
+   "mfe8_atr": 2.612,
+   "mae8_atr": 2.692,
+   "deriva1_atr": -0.0293,
+   "deriva2_atr": 0.008,
+   "deriva4_atr": 0.0078,
+   "deriva8_atr": 0.098,
+   "deriva_liquida_max_atr": -1.092,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "vwap_desvio {\"n\": 48, \"z\": 2.0} 30m SHORT": {
+   "n_treino": 12235,
+   "custo_ida_volta_atr": 1.106,
+   "mfe8_atr": 2.529,
+   "mae8_atr": 3.015,
+   "deriva1_atr": -0.0282,
+   "deriva2_atr": -0.0556,
+   "deriva4_atr": -0.1301,
+   "deriva8_atr": -0.2006,
+   "deriva_liquida_max_atr": -1.1342,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "vwap_desvio {\"n\": 48, \"z\": 2.0} 1H LONG": {
+   "n_treino": 6984,
+   "custo_ida_volta_atr": 0.505,
+   "mfe8_atr": 2.375,
+   "mae8_atr": 2.378,
+   "deriva1_atr": 0.0565,
+   "deriva2_atr": 0.0878,
+   "deriva4_atr": 0.1027,
+   "deriva8_atr": 0.0558,
+   "deriva_liquida_max_atr": -0.4023,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "vwap_desvio {\"n\": 48, \"z\": 2.0} 1H SHORT": {
+   "n_treino": 5786,
+   "custo_ida_volta_atr": 0.677,
+   "mfe8_atr": 2.371,
+   "mae8_atr": 2.678,
+   "deriva1_atr": 0.0061,
+   "deriva2_atr": 0.0162,
+   "deriva4_atr": 0.0324,
+   "deriva8_atr": -0.1341,
+   "deriva_liquida_max_atr": -0.6446,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "vwap_desvio {\"n\": 48, \"z\": 2.0} 4H LONG": {
+   "n_treino": 1152,
+   "custo_ida_volta_atr": 0.141,
+   "mfe8_atr": 1.558,
+   "mae8_atr": 1.736,
+   "deriva1_atr": 0.0034,
+   "deriva2_atr": 0.0154,
+   "deriva4_atr": 0.0276,
+   "deriva8_atr": -0.0762,
+   "deriva_liquida_max_atr": -0.1134,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "vwap_desvio {\"n\": 48, \"z\": 2.0} 4H SHORT": {
+   "n_treino": 880,
+   "custo_ida_volta_atr": 0.167,
+   "mfe8_atr": 1.539,
+   "mae8_atr": 1.935,
+   "deriva1_atr": -0.019,
+   "deriva2_atr": -0.0544,
+   "deriva4_atr": -0.1194,
+   "deriva8_atr": -0.0892,
+   "deriva_liquida_max_atr": -0.186,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "vwap_desvio {\"n\": 48, \"z\": 3.0} 30m LONG": {
+   "n_treino": 2992,
+   "custo_ida_volta_atr": 1.127,
+   "mfe8_atr": 3.397,
+   "mae8_atr": 2.396,
+   "deriva1_atr": -0.0321,
+   "deriva2_atr": 0.0711,
+   "deriva4_atr": 0.3184,
+   "deriva8_atr": 1.209,
+   "deriva_liquida_max_atr": 0.082,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "vwap_desvio {\"n\": 48, \"z\": 3.0} 30m SHORT": {
+   "n_treino": 3100,
+   "custo_ida_volta_atr": 1.004,
+   "mfe8_atr": 2.59,
+   "mae8_atr": 3.777,
+   "deriva1_atr": -0.0108,
+   "deriva2_atr": -0.1622,
+   "deriva4_atr": -0.477,
+   "deriva8_atr": -0.4709,
+   "deriva_liquida_max_atr": -1.0148,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "vwap_desvio {\"n\": 48, \"z\": 3.0} 1H LONG": {
+   "n_treino": 1442,
+   "custo_ida_volta_atr": 0.595,
+   "mfe8_atr": 2.327,
+   "mae8_atr": 2.471,
+   "deriva1_atr": 0.0212,
+   "deriva2_atr": -0.0539,
+   "deriva4_atr": 0.0173,
+   "deriva8_atr": -0.0835,
+   "deriva_liquida_max_atr": -0.5738,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "vwap_desvio {\"n\": 48, \"z\": 3.0} 1H SHORT": {
+   "n_treino": 1454,
+   "custo_ida_volta_atr": 0.643,
+   "mfe8_atr": 3.0,
+   "mae8_atr": 2.575,
+   "deriva1_atr": 0.0617,
+   "deriva2_atr": 0.1263,
+   "deriva4_atr": 0.3756,
+   "deriva8_atr": 0.4595,
+   "deriva_liquida_max_atr": -0.1835,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "vwap_desvio {\"n\": 48, \"z\": 3.0} 4H LONG": {
+   "n_treino": 149,
+   "custo_ida_volta_atr": 0.151,
+   "mfe8_atr": 1.603,
+   "mae8_atr": 1.754,
+   "deriva1_atr": 0.1019,
+   "deriva2_atr": 0.2246,
+   "deriva4_atr": 0.2344,
+   "deriva8_atr": -0.0056,
+   "deriva_liquida_max_atr": 0.0834,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "vwap_desvio {\"n\": 48, \"z\": 3.0} 4H SHORT": {
+   "n_treino": 210,
+   "custo_ida_volta_atr": 0.163,
+   "mfe8_atr": 1.761,
+   "mae8_atr": 2.195,
+   "deriva1_atr": -0.0249,
+   "deriva2_atr": 0.0724,
+   "deriva4_atr": -0.1198,
+   "deriva8_atr": -0.0713,
+   "deriva_liquida_max_atr": -0.0906,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "momentum_regime {\"k\": 3, \"x\": 0.02} 30m LONG": {
+   "n_treino": 4165,
+   "custo_ida_volta_atr": 0.23,
+   "mfe8_atr": 2.041,
+   "mae8_atr": 1.918,
+   "deriva1_atr": -0.0084,
+   "deriva2_atr": -0.0065,
+   "deriva4_atr": -0.0374,
+   "deriva8_atr": -0.1069,
+   "deriva_liquida_max_atr": -0.2365,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "momentum_regime {\"k\": 3, \"x\": 0.02} 30m SHORT": {
+   "n_treino": 4118,
+   "custo_ida_volta_atr": 0.214,
+   "mfe8_atr": 1.623,
+   "mae8_atr": 1.98,
+   "deriva1_atr": -0.0561,
+   "deriva2_atr": -0.161,
+   "deriva4_atr": -0.243,
+   "deriva8_atr": -0.3641,
+   "deriva_liquida_max_atr": -0.2701,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "momentum_regime {\"k\": 3, \"x\": 0.02} 1H LONG": {
+   "n_treino": 3227,
+   "custo_ida_volta_atr": 0.185,
+   "mfe8_atr": 1.913,
+   "mae8_atr": 1.779,
+   "deriva1_atr": -0.0215,
+   "deriva2_atr": -0.0435,
+   "deriva4_atr": -0.0818,
+   "deriva8_atr": -0.1028,
+   "deriva_liquida_max_atr": -0.2065,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "momentum_regime {\"k\": 3, \"x\": 0.02} 1H SHORT": {
+   "n_treino": 3407,
+   "custo_ida_volta_atr": 0.158,
+   "mfe8_atr": 1.685,
+   "mae8_atr": 1.732,
+   "deriva1_atr": -0.0376,
+   "deriva2_atr": -0.0665,
+   "deriva4_atr": -0.1044,
+   "deriva8_atr": -0.0299,
+   "deriva_liquida_max_atr": -0.1879,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "momentum_regime {\"k\": 3, \"x\": 0.02} 4H LONG": {
+   "n_treino": 1167,
+   "custo_ida_volta_atr": 0.104,
+   "mfe8_atr": 1.87,
+   "mae8_atr": 1.641,
+   "deriva1_atr": -0.0429,
+   "deriva2_atr": -0.0431,
+   "deriva4_atr": 0.0268,
+   "deriva8_atr": 0.0413,
+   "deriva_liquida_max_atr": -0.0627,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "momentum_regime {\"k\": 3, \"x\": 0.02} 4H SHORT": {
+   "n_treino": 1237,
+   "custo_ida_volta_atr": 0.102,
+   "mfe8_atr": 1.694,
+   "mae8_atr": 1.411,
+   "deriva1_atr": 0.0065,
+   "deriva2_atr": 0.0017,
+   "deriva4_atr": 0.0574,
+   "deriva8_atr": 0.1466,
+   "deriva_liquida_max_atr": 0.0446,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "momentum_regime {\"k\": 3, \"x\": 0.05} 30m LONG": {
+   "n_treino": 520,
+   "custo_ida_volta_atr": 0.134,
+   "mfe8_atr": 2.261,
+   "mae8_atr": 1.98,
+   "deriva1_atr": 0.0077,
+   "deriva2_atr": -0.0304,
+   "deriva4_atr": 0.0094,
+   "deriva8_atr": 0.0222,
+   "deriva_liquida_max_atr": -0.1118,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "momentum_regime {\"k\": 3, \"x\": 0.05} 30m SHORT": {
+   "n_treino": 475,
+   "custo_ida_volta_atr": 0.124,
+   "mfe8_atr": 1.448,
+   "mae8_atr": 2.108,
+   "deriva1_atr": -0.1236,
+   "deriva2_atr": -0.3039,
+   "deriva4_atr": -0.4047,
+   "deriva8_atr": -0.5593,
+   "deriva_liquida_max_atr": -0.2476,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "momentum_regime {\"k\": 3, \"x\": 0.05} 1H LONG": {
+   "n_treino": 518,
+   "custo_ida_volta_atr": 0.111,
+   "mfe8_atr": 2.116,
+   "mae8_atr": 1.777,
+   "deriva1_atr": -0.0076,
+   "deriva2_atr": 0.0269,
+   "deriva4_atr": -0.0431,
+   "deriva8_atr": 0.0191,
+   "deriva_liquida_max_atr": -0.0841,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "momentum_regime {\"k\": 3, \"x\": 0.05} 1H SHORT": {
+   "n_treino": 495,
+   "custo_ida_volta_atr": 0.089,
+   "mfe8_atr": 1.614,
+   "mae8_atr": 1.717,
+   "deriva1_atr": -0.1128,
+   "deriva2_atr": -0.1513,
+   "deriva4_atr": -0.1748,
+   "deriva8_atr": -0.0399,
+   "deriva_liquida_max_atr": -0.1289,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "momentum_regime {\"k\": 3, \"x\": 0.05} 4H LONG": {
+   "n_treino": 278,
+   "custo_ida_volta_atr": 0.07,
+   "mfe8_atr": 1.975,
+   "mae8_atr": 1.67,
+   "deriva1_atr": 0.0014,
+   "deriva2_atr": -0.0006,
+   "deriva4_atr": 0.0227,
+   "deriva8_atr": 0.1488,
+   "deriva_liquida_max_atr": 0.0788,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "momentum_regime {\"k\": 3, \"x\": 0.05} 4H SHORT": {
+   "n_treino": 239,
+   "custo_ida_volta_atr": 0.06,
+   "mfe8_atr": 1.504,
+   "mae8_atr": 1.358,
+   "deriva1_atr": 0.0173,
+   "deriva2_atr": -0.0392,
+   "deriva4_atr": -0.0109,
+   "deriva8_atr": 0.0981,
+   "deriva_liquida_max_atr": 0.0381,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "momentum_regime {\"k\": 12, \"x\": 0.02} 30m LONG": {
+   "n_treino": 12555,
+   "custo_ida_volta_atr": 0.283,
+   "mfe8_atr": 1.891,
+   "mae8_atr": 1.748,
+   "deriva1_atr": -0.0021,
+   "deriva2_atr": -0.0135,
+   "deriva4_atr": -0.0319,
+   "deriva8_atr": -0.0812,
+   "deriva_liquida_max_atr": -0.2851,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "momentum_regime {\"k\": 12, \"x\": 0.02} 30m SHORT": {
+   "n_treino": 13480,
+   "custo_ida_volta_atr": 0.28,
+   "mfe8_atr": 1.702,
+   "mae8_atr": 1.795,
+   "deriva1_atr": -0.028,
+   "deriva2_atr": -0.0759,
+   "deriva4_atr": -0.0984,
+   "deriva8_atr": -0.1266,
+   "deriva_liquida_max_atr": -0.308,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "momentum_regime {\"k\": 12, \"x\": 0.02} 1H LONG": {
+   "n_treino": 8541,
+   "custo_ida_volta_atr": 0.222,
+   "mfe8_atr": 1.804,
+   "mae8_atr": 1.646,
+   "deriva1_atr": -0.0016,
+   "deriva2_atr": -0.0192,
+   "deriva4_atr": -0.0486,
+   "deriva8_atr": 0.0183,
+   "deriva_liquida_max_atr": -0.2037,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "momentum_regime {\"k\": 12, \"x\": 0.02} 1H SHORT": {
+   "n_treino": 9842,
+   "custo_ida_volta_atr": 0.21,
+   "mfe8_atr": 1.859,
+   "mae8_atr": 1.703,
+   "deriva1_atr": -0.0213,
+   "deriva2_atr": -0.0129,
+   "deriva4_atr": 0.0125,
+   "deriva8_atr": 0.0936,
+   "deriva_liquida_max_atr": -0.1164,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "momentum_regime {\"k\": 12, \"x\": 0.02} 4H LONG": {
+   "n_treino": 2633,
+   "custo_ida_volta_atr": 0.123,
+   "mfe8_atr": 1.799,
+   "mae8_atr": 1.522,
+   "deriva1_atr": -0.0017,
+   "deriva2_atr": 0.0101,
+   "deriva4_atr": 0.0479,
+   "deriva8_atr": 0.024,
+   "deriva_liquida_max_atr": -0.0751,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "momentum_regime {\"k\": 12, \"x\": 0.02} 4H SHORT": {
+   "n_treino": 2795,
+   "custo_ida_volta_atr": 0.118,
+   "mfe8_atr": 1.598,
+   "mae8_atr": 1.504,
+   "deriva1_atr": 0.0015,
+   "deriva2_atr": -0.0069,
+   "deriva4_atr": -0.0417,
+   "deriva8_atr": -0.0133,
+   "deriva_liquida_max_atr": -0.1165,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "momentum_regime {\"k\": 12, \"x\": 0.05} 30m LONG": {
+   "n_treino": 2705,
+   "custo_ida_volta_atr": 0.152,
+   "mfe8_atr": 1.978,
+   "mae8_atr": 1.745,
+   "deriva1_atr": 0.0078,
+   "deriva2_atr": 0.0013,
+   "deriva4_atr": -0.0338,
+   "deriva8_atr": -0.0237,
+   "deriva_liquida_max_atr": -0.1442,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "momentum_regime {\"k\": 12, \"x\": 0.05} 30m SHORT": {
+   "n_treino": 2417,
+   "custo_ida_volta_atr": 0.143,
+   "mfe8_atr": 1.35,
+   "mae8_atr": 1.674,
+   "deriva1_atr": -0.0718,
+   "deriva2_atr": -0.1326,
+   "deriva4_atr": -0.202,
+   "deriva8_atr": -0.2264,
+   "deriva_liquida_max_atr": -0.2148,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "momentum_regime {\"k\": 12, \"x\": 0.05} 1H LONG": {
+   "n_treino": 2289,
+   "custo_ida_volta_atr": 0.133,
+   "mfe8_atr": 1.81,
+   "mae8_atr": 1.638,
+   "deriva1_atr": -0.0211,
+   "deriva2_atr": -0.0577,
+   "deriva4_atr": -0.0464,
+   "deriva8_atr": -0.0141,
+   "deriva_liquida_max_atr": -0.1471,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "momentum_regime {\"k\": 12, \"x\": 0.05} 1H SHORT": {
+   "n_treino": 2433,
+   "custo_ida_volta_atr": 0.117,
+   "mfe8_atr": 1.497,
+   "mae8_atr": 1.553,
+   "deriva1_atr": -0.0704,
+   "deriva2_atr": -0.0863,
+   "deriva4_atr": -0.0858,
+   "deriva8_atr": -0.0335,
+   "deriva_liquida_max_atr": -0.1505,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "momentum_regime {\"k\": 12, \"x\": 0.05} 4H LONG": {
+   "n_treino": 1055,
+   "custo_ida_volta_atr": 0.085,
+   "mfe8_atr": 1.821,
+   "mae8_atr": 1.43,
+   "deriva1_atr": 0.0043,
+   "deriva2_atr": 0.0177,
+   "deriva4_atr": 0.1247,
+   "deriva8_atr": 0.1006,
+   "deriva_liquida_max_atr": 0.0397,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "momentum_regime {\"k\": 12, \"x\": 0.05} 4H SHORT": {
+   "n_treino": 1235,
+   "custo_ida_volta_atr": 0.081,
+   "mfe8_atr": 1.518,
+   "mae8_atr": 1.338,
+   "deriva1_atr": 0.0088,
+   "deriva2_atr": -0.0132,
+   "deriva4_atr": -0.0316,
+   "deriva8_atr": 0.063,
+   "deriva_liquida_max_atr": -0.018,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "forca_relativa {\"k\": 6, \"x\": 0.03} 30m LONG": {
+   "n_treino": 5219,
+   "custo_ida_volta_atr": 0.217,
+   "mfe8_atr": 2.053,
+   "mae8_atr": 2.103,
+   "deriva1_atr": -0.0149,
+   "deriva2_atr": -0.047,
+   "deriva4_atr": -0.2145,
+   "deriva8_atr": -0.2436,
+   "deriva_liquida_max_atr": -0.2319,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "forca_relativa {\"k\": 6, \"x\": 0.03} 30m SHORT": {
+   "n_treino": 5060,
+   "custo_ida_volta_atr": 0.2,
+   "mfe8_atr": 1.702,
+   "mae8_atr": 1.703,
+   "deriva1_atr": -0.0049,
+   "deriva2_atr": -0.016,
+   "deriva4_atr": -0.0176,
+   "deriva8_atr": -0.0016,
+   "deriva_liquida_max_atr": -0.2016,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "forca_relativa {\"k\": 6, \"x\": 0.03} 1H LONG": {
+   "n_treino": 4079,
+   "custo_ida_volta_atr": 0.178,
+   "mfe8_atr": 2.03,
+   "mae8_atr": 1.877,
+   "deriva1_atr": -0.0232,
+   "deriva2_atr": -0.0341,
+   "deriva4_atr": -0.0383,
+   "deriva8_atr": -0.1153,
+   "deriva_liquida_max_atr": -0.2012,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "forca_relativa {\"k\": 6, \"x\": 0.03} 1H SHORT": {
+   "n_treino": 4135,
+   "custo_ida_volta_atr": 0.182,
+   "mfe8_atr": 1.602,
+   "mae8_atr": 1.711,
+   "deriva1_atr": -0.0062,
+   "deriva2_atr": 0.0077,
+   "deriva4_atr": -0.032,
+   "deriva8_atr": -0.0839,
+   "deriva_liquida_max_atr": -0.1743,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "forca_relativa {\"k\": 6, \"x\": 0.03} 4H LONG": {
+   "n_treino": 1384,
+   "custo_ida_volta_atr": 0.104,
+   "mfe8_atr": 1.876,
+   "mae8_atr": 1.797,
+   "deriva1_atr": 0.0008,
+   "deriva2_atr": -0.0327,
+   "deriva4_atr": -0.0675,
+   "deriva8_atr": -0.0212,
+   "deriva_liquida_max_atr": -0.1032,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "forca_relativa {\"k\": 6, \"x\": 0.03} 4H SHORT": {
+   "n_treino": 1513,
+   "custo_ida_volta_atr": 0.091,
+   "mfe8_atr": 1.469,
+   "mae8_atr": 1.494,
+   "deriva1_atr": 0.0105,
+   "deriva2_atr": 0.0256,
+   "deriva4_atr": 0.0143,
+   "deriva8_atr": 0.021,
+   "deriva_liquida_max_atr": -0.0654,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "forca_relativa {\"k\": 6, \"x\": 0.08} 30m LONG": {
+   "n_treino": 658,
+   "custo_ida_volta_atr": 0.094,
+   "mfe8_atr": 1.94,
+   "mae8_atr": 2.163,
+   "deriva1_atr": -0.0305,
+   "deriva2_atr": -0.0484,
+   "deriva4_atr": -0.1769,
+   "deriva8_atr": -0.426,
+   "deriva_liquida_max_atr": -0.1245,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "forca_relativa {\"k\": 6, \"x\": 0.08} 30m SHORT": {
+   "n_treino": 522,
+   "custo_ida_volta_atr": 0.087,
+   "mfe8_atr": 1.528,
+   "mae8_atr": 1.698,
+   "deriva1_atr": 0.03,
+   "deriva2_atr": -0.0167,
+   "deriva4_atr": -0.0813,
+   "deriva8_atr": -0.2417,
+   "deriva_liquida_max_atr": -0.057,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "forca_relativa {\"k\": 6, \"x\": 0.08} 1H LONG": {
+   "n_treino": 647,
+   "custo_ida_volta_atr": 0.079,
+   "mfe8_atr": 2.167,
+   "mae8_atr": 1.81,
+   "deriva1_atr": 0.0004,
+   "deriva2_atr": -0.0049,
+   "deriva4_atr": -0.0143,
+   "deriva8_atr": 0.0433,
+   "deriva_liquida_max_atr": -0.0357,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "forca_relativa {\"k\": 6, \"x\": 0.08} 1H SHORT": {
+   "n_treino": 520,
+   "custo_ida_volta_atr": 0.074,
+   "mfe8_atr": 1.378,
+   "mae8_atr": 1.49,
+   "deriva1_atr": -0.0108,
+   "deriva2_atr": -0.0273,
+   "deriva4_atr": -0.0761,
+   "deriva8_atr": -0.0006,
+   "deriva_liquida_max_atr": -0.0746,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "forca_relativa {\"k\": 6, \"x\": 0.08} 4H LONG": {
+   "n_treino": 285,
+   "custo_ida_volta_atr": 0.056,
+   "mfe8_atr": 2.06,
+   "mae8_atr": 1.739,
+   "deriva1_atr": -0.0071,
+   "deriva2_atr": -0.0646,
+   "deriva4_atr": -0.0304,
+   "deriva8_atr": 0.1441,
+   "deriva_liquida_max_atr": 0.0881,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "forca_relativa {\"k\": 6, \"x\": 0.08} 4H SHORT": {
+   "n_treino": 244,
+   "custo_ida_volta_atr": 0.045,
+   "mfe8_atr": 1.463,
+   "mae8_atr": 1.184,
+   "deriva1_atr": 0.027,
+   "deriva2_atr": 0.0309,
+   "deriva4_atr": 0.1411,
+   "deriva8_atr": 0.2834,
+   "deriva_liquida_max_atr": 0.2384,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "forca_relativa {\"k\": 24, \"x\": 0.03} 30m LONG": {
+   "n_treino": 14272,
+   "custo_ida_volta_atr": 0.361,
+   "mfe8_atr": 2.081,
+   "mae8_atr": 2.16,
+   "deriva1_atr": -0.0053,
+   "deriva2_atr": -0.0602,
+   "deriva4_atr": -0.1643,
+   "deriva8_atr": -0.2258,
+   "deriva_liquida_max_atr": -0.3663,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "forca_relativa {\"k\": 24, \"x\": 0.03} 30m SHORT": {
+   "n_treino": 15862,
+   "custo_ida_volta_atr": 0.383,
+   "mfe8_atr": 1.88,
+   "mae8_atr": 2.028,
+   "deriva1_atr": 0.0035,
+   "deriva2_atr": -0.0537,
+   "deriva4_atr": -0.1103,
+   "deriva8_atr": -0.1196,
+   "deriva_liquida_max_atr": -0.3795,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "forca_relativa {\"k\": 24, \"x\": 0.03} 1H LONG": {
+   "n_treino": 10023,
+   "custo_ida_volta_atr": 0.309,
+   "mfe8_atr": 2.26,
+   "mae8_atr": 2.207,
+   "deriva1_atr": -0.0227,
+   "deriva2_atr": -0.0446,
+   "deriva4_atr": -0.0421,
+   "deriva8_atr": -0.079,
+   "deriva_liquida_max_atr": -0.3317,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "forca_relativa {\"k\": 24, \"x\": 0.03} 1H SHORT": {
+   "n_treino": 11754,
+   "custo_ida_volta_atr": 0.3,
+   "mfe8_atr": 1.917,
+   "mae8_atr": 2.038,
+   "deriva1_atr": -0.0068,
+   "deriva2_atr": -0.0194,
+   "deriva4_atr": -0.0454,
+   "deriva8_atr": -0.0414,
+   "deriva_liquida_max_atr": -0.3068,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "forca_relativa {\"k\": 24, \"x\": 0.03} 4H LONG": {
+   "n_treino": 2721,
+   "custo_ida_volta_atr": 0.123,
+   "mfe8_atr": 1.707,
+   "mae8_atr": 1.715,
+   "deriva1_atr": -0.0208,
+   "deriva2_atr": -0.0468,
+   "deriva4_atr": -0.067,
+   "deriva8_atr": -0.1054,
+   "deriva_liquida_max_atr": -0.1438,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "forca_relativa {\"k\": 24, \"x\": 0.03} 4H SHORT": {
+   "n_treino": 3740,
+   "custo_ida_volta_atr": 0.15,
+   "mfe8_atr": 1.737,
+   "mae8_atr": 1.759,
+   "deriva1_atr": -0.0046,
+   "deriva2_atr": -0.0106,
+   "deriva4_atr": -0.0247,
+   "deriva8_atr": -0.0036,
+   "deriva_liquida_max_atr": -0.1536,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "forca_relativa {\"k\": 24, \"x\": 0.08} 30m LONG": {
+   "n_treino": 3053,
+   "custo_ida_volta_atr": 0.124,
+   "mfe8_atr": 1.955,
+   "mae8_atr": 1.763,
+   "deriva1_atr": -0.0074,
+   "deriva2_atr": -0.0237,
+   "deriva4_atr": -0.0182,
+   "deriva8_atr": -0.0027,
+   "deriva_liquida_max_atr": -0.1267,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "forca_relativa {\"k\": 24, \"x\": 0.08} 30m SHORT": {
+   "n_treino": 2808,
+   "custo_ida_volta_atr": 0.181,
+   "mfe8_atr": 1.522,
+   "mae8_atr": 1.73,
+   "deriva1_atr": 0.0122,
+   "deriva2_atr": -0.0189,
+   "deriva4_atr": -0.0993,
+   "deriva8_atr": -0.195,
+   "deriva_liquida_max_atr": -0.1688,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "forca_relativa {\"k\": 24, \"x\": 0.08} 1H LONG": {
+   "n_treino": 2475,
+   "custo_ida_volta_atr": 0.103,
+   "mfe8_atr": 1.974,
+   "mae8_atr": 1.791,
+   "deriva1_atr": -0.0101,
+   "deriva2_atr": -0.0095,
+   "deriva4_atr": 0.0078,
+   "deriva8_atr": -0.0458,
+   "deriva_liquida_max_atr": -0.0952,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "forca_relativa {\"k\": 24, \"x\": 0.08} 1H SHORT": {
+   "n_treino": 2593,
+   "custo_ida_volta_atr": 0.129,
+   "mfe8_atr": 1.804,
+   "mae8_atr": 1.901,
+   "deriva1_atr": 0.0185,
+   "deriva2_atr": -0.0014,
+   "deriva4_atr": -0.0021,
+   "deriva8_atr": -0.0124,
+   "deriva_liquida_max_atr": -0.1105,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "forca_relativa {\"k\": 24, \"x\": 0.08} 4H LONG": {
+   "n_treino": 1031,
+   "custo_ida_volta_atr": 0.078,
+   "mfe8_atr": 1.617,
+   "mae8_atr": 1.63,
+   "deriva1_atr": -0.0456,
+   "deriva2_atr": -0.0854,
+   "deriva4_atr": -0.1206,
+   "deriva8_atr": -0.2198,
+   "deriva_liquida_max_atr": -0.1236,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "forca_relativa {\"k\": 24, \"x\": 0.08} 4H SHORT": {
+   "n_treino": 1136,
+   "custo_ida_volta_atr": 0.088,
+   "mfe8_atr": 1.503,
+   "mae8_atr": 1.609,
+   "deriva1_atr": -0.0049,
+   "deriva2_atr": -0.0118,
+   "deriva4_atr": -0.0293,
+   "deriva8_atr": -0.0888,
+   "deriva_liquida_max_atr": -0.0929,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "lideranca_btc {\"x\": 0.01} 30m LONG": {
+   "n_treino": 430,
+   "custo_ida_volta_atr": 1.205,
+   "mfe8_atr": 2.946,
+   "mae8_atr": 2.664,
+   "deriva1_atr": 0.343,
+   "deriva2_atr": -0.3963,
+   "deriva4_atr": -0.1386,
+   "deriva8_atr": 0.2422,
+   "deriva_liquida_max_atr": -0.862,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "lideranca_btc {\"x\": 0.01} 30m SHORT": {
+   "n_treino": 259,
+   "custo_ida_volta_atr": 2.138,
+   "mfe8_atr": 7.046,
+   "mae8_atr": 4.531,
+   "deriva1_atr": 0.408,
+   "deriva2_atr": 2.4453,
+   "deriva4_atr": 2.0865,
+   "deriva8_atr": 2.428,
+   "deriva_liquida_max_atr": 0.3073,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "lideranca_btc {\"x\": 0.01} 1H LONG": {
+   "n_treino": 624,
+   "custo_ida_volta_atr": 1.057,
+   "mfe8_atr": 5.244,
+   "mae8_atr": 4.111,
+   "deriva1_atr": 0.1355,
+   "deriva2_atr": 0.7403,
+   "deriva4_atr": 1.1743,
+   "deriva8_atr": 0.0662,
+   "deriva_liquida_max_atr": 0.1173,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "lideranca_btc {\"x\": 0.01} 1H SHORT": {
+   "n_treino": 311,
+   "custo_ida_volta_atr": 1.13,
+   "mfe8_atr": 5.333,
+   "mae8_atr": 6.097,
+   "deriva1_atr": 0.0997,
+   "deriva2_atr": -0.7537,
+   "deriva4_atr": -1.2441,
+   "deriva8_atr": -0.6874,
+   "deriva_liquida_max_atr": -1.0303,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "lideranca_btc {\"x\": 0.01} 4H LONG": {
+   "n_treino": 368,
+   "custo_ida_volta_atr": 0.239,
+   "mfe8_atr": 1.97,
+   "mae8_atr": 2.272,
+   "deriva1_atr": -0.0761,
+   "deriva2_atr": -0.1807,
+   "deriva4_atr": -0.0115,
+   "deriva8_atr": -0.1594,
+   "deriva_liquida_max_atr": -0.2505,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "lideranca_btc {\"x\": 0.01} 4H SHORT": {
+   "n_treino": 266,
+   "custo_ida_volta_atr": 0.251,
+   "mfe8_atr": 2.644,
+   "mae8_atr": 2.005,
+   "deriva1_atr": 0.0469,
+   "deriva2_atr": 0.0446,
+   "deriva4_atr": 0.2586,
+   "deriva8_atr": 0.7455,
+   "deriva_liquida_max_atr": 0.4945,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "lideranca_btc {\"x\": 0.02} 30m LONG": {
+   "n_treino": 20,
+   "custo_ida_volta_atr": 0.819,
+   "mfe8_atr": 5.503,
+   "mae8_atr": 0.625,
+   "deriva1_atr": 1.459,
+   "deriva2_atr": 2.0197,
+   "deriva4_atr": 3.9127,
+   "deriva8_atr": 3.2769,
+   "deriva_liquida_max_atr": 3.0937,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "lideranca_btc {\"x\": 0.02} 30m SHORT": {
+   "n_treino": 14,
+   "custo_ida_volta_atr": 0.728,
+   "mfe8_atr": 2.306,
+   "mae8_atr": 2.068,
+   "deriva1_atr": -0.5612,
+   "deriva2_atr": -0.73,
+   "deriva4_atr": -0.6376,
+   "deriva8_atr": 0.3524,
+   "deriva_liquida_max_atr": -0.3756,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "lideranca_btc {\"x\": 0.02} 1H LONG": {
+   "n_treino": 83,
+   "custo_ida_volta_atr": 0.918,
+   "mfe8_atr": 4.426,
+   "mae8_atr": 1.504,
+   "deriva1_atr": 0.1425,
+   "deriva2_atr": 0.0578,
+   "deriva4_atr": 0.4067,
+   "deriva8_atr": 2.3325,
+   "deriva_liquida_max_atr": 1.4145,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "lideranca_btc {\"x\": 0.02} 1H SHORT": {
+   "n_treino": 61,
+   "custo_ida_volta_atr": 1.534,
+   "mfe8_atr": 5.97,
+   "mae8_atr": 7.233,
+   "deriva1_atr": -0.6121,
+   "deriva2_atr": -4.5857,
+   "deriva4_atr": -1.5048,
+   "deriva8_atr": 2.3796,
+   "deriva_liquida_max_atr": 0.8456,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "lideranca_btc {\"x\": 0.02} 4H LONG": {
+   "n_treino": 75,
+   "custo_ida_volta_atr": 0.234,
+   "mfe8_atr": 1.855,
+   "mae8_atr": 2.277,
+   "deriva1_atr": -0.0141,
+   "deriva2_atr": -0.1311,
+   "deriva4_atr": 0.0981,
+   "deriva8_atr": -0.1925,
+   "deriva_liquida_max_atr": -0.1359,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "lideranca_btc {\"x\": 0.02} 4H SHORT": {
+   "n_treino": 39,
+   "custo_ida_volta_atr": 0.159,
+   "mfe8_atr": 2.446,
+   "mae8_atr": 0.877,
+   "deriva1_atr": 0.1085,
+   "deriva2_atr": 0.3323,
+   "deriva4_atr": 0.5655,
+   "deriva8_atr": 0.9733,
+   "deriva_liquida_max_atr": 0.8143,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "forte_na_queda {\"k\": 6, \"x\": 0.02} 30m LONG": {
+   "n_treino": 135,
+   "custo_ida_volta_atr": 0.796,
+   "mfe8_atr": 2.4,
+   "mae8_atr": 3.314,
+   "deriva1_atr": 0.164,
+   "deriva2_atr": 0.1042,
+   "deriva4_atr": -0.6092,
+   "deriva8_atr": -1.1818,
+   "deriva_liquida_max_atr": -0.632,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "forte_na_queda {\"k\": 6, \"x\": 0.02} 30m SHORT": {
+   "n_treino": 141,
+   "custo_ida_volta_atr": 1.264,
+   "mfe8_atr": 1.462,
+   "mae8_atr": 1.503,
+   "deriva1_atr": -0.1936,
+   "deriva2_atr": 0.0227,
+   "deriva4_atr": 0.053,
+   "deriva8_atr": -0.0443,
+   "deriva_liquida_max_atr": -1.211,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "forte_na_queda {\"k\": 6, \"x\": 0.02} 1H LONG": {
+   "n_treino": 192,
+   "custo_ida_volta_atr": 0.602,
+   "mfe8_atr": 2.073,
+   "mae8_atr": 3.422,
+   "deriva1_atr": -0.0693,
+   "deriva2_atr": -0.5266,
+   "deriva4_atr": -0.9862,
+   "deriva8_atr": -1.6877,
+   "deriva_liquida_max_atr": -0.6713,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "forte_na_queda {\"k\": 6, \"x\": 0.02} 1H SHORT": {
+   "n_treino": 149,
+   "custo_ida_volta_atr": 0.952,
+   "mfe8_atr": 2.006,
+   "mae8_atr": 2.921,
+   "deriva1_atr": -0.1902,
+   "deriva2_atr": -0.1102,
+   "deriva4_atr": -0.0001,
+   "deriva8_atr": -0.7781,
+   "deriva_liquida_max_atr": -0.9521,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "forte_na_queda {\"k\": 6, \"x\": 0.02} 4H LONG": {
+   "n_treino": 276,
+   "custo_ida_volta_atr": 0.167,
+   "mfe8_atr": 1.844,
+   "mae8_atr": 2.22,
+   "deriva1_atr": -0.0311,
+   "deriva2_atr": -0.0214,
+   "deriva4_atr": -0.1506,
+   "deriva8_atr": -0.248,
+   "deriva_liquida_max_atr": -0.1884,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "forte_na_queda {\"k\": 6, \"x\": 0.02} 4H SHORT": {
+   "n_treino": 129,
+   "custo_ida_volta_atr": 0.172,
+   "mfe8_atr": 1.695,
+   "mae8_atr": 2.167,
+   "deriva1_atr": -0.1727,
+   "deriva2_atr": -0.3957,
+   "deriva4_atr": -0.5208,
+   "deriva8_atr": -0.1075,
+   "deriva_liquida_max_atr": -0.2795,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "forte_na_queda {\"k\": 6, \"x\": 0.05} 30m LONG": {
+   "n_treino": 5,
+   "custo_ida_volta_atr": 0.35,
+   "mfe8_atr": 3.64,
+   "mae8_atr": 0.069,
+   "deriva1_atr": 1.1419,
+   "deriva2_atr": 1.0921,
+   "deriva4_atr": 2.263,
+   "deriva8_atr": 2.7685,
+   "deriva_liquida_max_atr": 2.4185,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "forte_na_queda {\"k\": 6, \"x\": 0.05} 30m SHORT": {
+   "n_treino": 0
+  },
+  "forte_na_queda {\"k\": 6, \"x\": 0.05} 1H LONG": {
+   "n_treino": 8,
+   "custo_ida_volta_atr": 0.585,
+   "mfe8_atr": 1.968,
+   "mae8_atr": 3.13,
+   "deriva1_atr": 0.5466,
+   "deriva2_atr": 0.4172,
+   "deriva4_atr": 0.3944,
+   "deriva8_atr": -2.0459,
+   "deriva_liquida_max_atr": -0.0384,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "forte_na_queda {\"k\": 6, \"x\": 0.05} 1H SHORT": {
+   "n_treino": 0
+  },
+  "forte_na_queda {\"k\": 6, \"x\": 0.05} 4H LONG": {
+   "n_treino": 9,
+   "custo_ida_volta_atr": 0.153,
+   "mfe8_atr": 1.078,
+   "mae8_atr": 1.916,
+   "deriva1_atr": 0.1312,
+   "deriva2_atr": -0.1042,
+   "deriva4_atr": -0.0788,
+   "deriva8_atr": -1.3375,
+   "deriva_liquida_max_atr": -0.0218,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "forte_na_queda {\"k\": 6, \"x\": 0.05} 4H SHORT": {
+   "n_treino": 0
+  },
+  "forte_na_queda {\"k\": 24, \"x\": 0.02} 30m LONG": {
+   "n_treino": 1222,
+   "custo_ida_volta_atr": 1.238,
+   "mfe8_atr": 2.551,
+   "mae8_atr": 4.037,
+   "deriva1_atr": -0.0633,
+   "deriva2_atr": -0.5159,
+   "deriva4_atr": -0.6857,
+   "deriva8_atr": -1.2761,
+   "deriva_liquida_max_atr": -1.3013,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "forte_na_queda {\"k\": 24, \"x\": 0.02} 30m SHORT": {
+   "n_treino": 563,
+   "custo_ida_volta_atr": 1.088,
+   "mfe8_atr": 1.901,
+   "mae8_atr": 2.631,
+   "deriva1_atr": -0.0519,
+   "deriva2_atr": -0.16,
+   "deriva4_atr": -0.1973,
+   "deriva8_atr": -0.3397,
+   "deriva_liquida_max_atr": -1.1399,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "forte_na_queda {\"k\": 24, \"x\": 0.02} 1H LONG": {
+   "n_treino": 1751,
+   "custo_ida_volta_atr": 0.553,
+   "mfe8_atr": 1.902,
+   "mae8_atr": 2.289,
+   "deriva1_atr": -0.1458,
+   "deriva2_atr": -0.1561,
+   "deriva4_atr": -0.3396,
+   "deriva8_atr": -0.5075,
+   "deriva_liquida_max_atr": -0.6988,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "forte_na_queda {\"k\": 24, \"x\": 0.02} 1H SHORT": {
+   "n_treino": 961,
+   "custo_ida_volta_atr": 0.485,
+   "mfe8_atr": 1.666,
+   "mae8_atr": 2.5,
+   "deriva1_atr": -0.0704,
+   "deriva2_atr": -0.2243,
+   "deriva4_atr": -0.4167,
+   "deriva8_atr": -0.7111,
+   "deriva_liquida_max_atr": -0.5554,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "forte_na_queda {\"k\": 24, \"x\": 0.02} 4H LONG": {
+   "n_treino": 884,
+   "custo_ida_volta_atr": 0.15,
+   "mfe8_atr": 1.782,
+   "mae8_atr": 1.629,
+   "deriva1_atr": 0.0078,
+   "deriva2_atr": 0.0104,
+   "deriva4_atr": 0.0702,
+   "deriva8_atr": 0.1346,
+   "deriva_liquida_max_atr": -0.0154,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "forte_na_queda {\"k\": 24, \"x\": 0.02} 4H SHORT": {
+   "n_treino": 575,
+   "custo_ida_volta_atr": 0.213,
+   "mfe8_atr": 2.297,
+   "mae8_atr": 2.066,
+   "deriva1_atr": 0.0723,
+   "deriva2_atr": 0.1176,
+   "deriva4_atr": 0.0404,
+   "deriva8_atr": 0.2238,
+   "deriva_liquida_max_atr": 0.0108,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "forte_na_queda {\"k\": 24, \"x\": 0.05} 30m LONG": {
+   "n_treino": 20,
+   "custo_ida_volta_atr": 1.146,
+   "mfe8_atr": 2.516,
+   "mae8_atr": 1.354,
+   "deriva1_atr": 0.4454,
+   "deriva2_atr": 0.467,
+   "deriva4_atr": 0.3166,
+   "deriva8_atr": 0.2828,
+   "deriva_liquida_max_atr": -0.679,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "forte_na_queda {\"k\": 24, \"x\": 0.05} 30m SHORT": {
+   "n_treino": 8,
+   "custo_ida_volta_atr": 1.26,
+   "mfe8_atr": 1.846,
+   "mae8_atr": 4.418,
+   "deriva1_atr": -0.5104,
+   "deriva2_atr": 0.0573,
+   "deriva4_atr": -0.3468,
+   "deriva8_atr": -0.2515,
+   "deriva_liquida_max_atr": -1.2027,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "forte_na_queda {\"k\": 24, \"x\": 0.05} 1H LONG": {
+   "n_treino": 56,
+   "custo_ida_volta_atr": 0.718,
+   "mfe8_atr": 3.073,
+   "mae8_atr": 2.057,
+   "deriva1_atr": 0.2804,
+   "deriva2_atr": 0.4059,
+   "deriva4_atr": 0.2958,
+   "deriva8_atr": 0.5237,
+   "deriva_liquida_max_atr": -0.1943,
+   "onde_falha": "custos (deriva menor que o custo)"
+  },
+  "forte_na_queda {\"k\": 24, \"x\": 0.05} 1H SHORT": {
+   "n_treino": 12,
+   "custo_ida_volta_atr": 0.447,
+   "mfe8_atr": 2.813,
+   "mae8_atr": 2.041,
+   "deriva1_atr": -0.0773,
+   "deriva2_atr": -0.208,
+   "deriva4_atr": 0.7558,
+   "deriva8_atr": 1.5176,
+   "deriva_liquida_max_atr": 1.0706,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  },
+  "forte_na_queda {\"k\": 24, \"x\": 0.05} 4H LONG": {
+   "n_treino": 95,
+   "custo_ida_volta_atr": 0.127,
+   "mfe8_atr": 1.524,
+   "mae8_atr": 1.709,
+   "deriva1_atr": -0.0403,
+   "deriva2_atr": -0.0255,
+   "deriva4_atr": -0.06,
+   "deriva8_atr": -0.1193,
+   "deriva_liquida_max_atr": -0.1525,
+   "onde_falha": "entrada (sem deriva a favor)"
+  },
+  "forte_na_queda {\"k\": 24, \"x\": 0.05} 4H SHORT": {
+   "n_treino": 48,
+   "custo_ida_volta_atr": 0.264,
+   "mfe8_atr": 2.603,
+   "mae8_atr": 1.864,
+   "deriva1_atr": 0.4279,
+   "deriva2_atr": 0.0857,
+   "deriva4_atr": -0.1323,
+   "deriva8_atr": 0.6589,
+   "deriva_liquida_max_atr": 0.3949,
+   "onde_falha": "nenhum a priori: passa a geometria"
+  }
+ },
+ "hipoteses": {
+  "990407dc384e": {
+   "familia": "momentum_regime",
+   "grupo": "E",
+   "parametros": {
+    "k": 3,
+    "x": 0.05
+   },
+   "tf": "4H",
+   "lado": "SHORT",
+   "filtro": null,
+   "stop_ref": "4H",
+   "saida": {
+    "tipo": "fixa",
+    "k": 1.0,
+    "tp": 1.0,
+    "hold": 6
+   },
+   "r_treino": 0.0577,
+   "n_treino": 152,
+   "origem": "grelha",
+   "id": "990407dc384e",
+   "validacao": {
+    "periodo": "validacao",
+    "n": 496,
+    "dias_com_operacoes": 34,
+    "r_medio": -0.1537,
+    "ic95_r": [
+     -0.3625,
+     0.0182
+    ],
+    "p_r_positivo": 0.95102,
+    "controlo_medio": -0.2266,
+    "vantagem_sobre_acaso": 0.0728,
+    "ic95_vantagem": [
+     -0.1642,
+     0.2732
+    ],
+    "p_vantagem": 0.26587,
+    "acerto": 0.466,
+    "drawdown_r": 83.62,
+    "por_regime": {
+     "btc_abaixo_media50": [
+      496,
+      -0.154
+     ]
+    }
+   },
+   "p_holm_validacao": 1.0,
+   "passa_validacao": false,
+   "veredicto": "REJEITADA"
+  },
+  "67a034938411": {
+   "familia": "divergencia_volume",
+   "grupo": "D",
+   "parametros": {
+    "n": 24
+   },
+   "tf": "4H",
+   "lado": "LONG",
+   "filtro": null,
+   "stop_ref": "4H",
+   "saida": {
+    "tipo": "fixa",
+    "k": 2.0,
+    "tp": 3.0,
+    "hold": 6
+   },
+   "r_treino": 0.0355,
+   "n_treino": 137,
+   "origem": "grelha",
+   "id": "67a034938411",
+   "validacao": {
+    "periodo": "validacao",
+    "n": 416,
+    "dias_com_operacoes": 54,
+    "r_medio": -0.0482,
+    "ic95_r": [
+     -0.234,
+     0.164
+    ],
+    "p_r_positivo": 0.68016,
+    "controlo_medio": -0.029,
+    "vantagem_sobre_acaso": -0.0193,
+    "ic95_vantagem": [
+     -0.2232,
+     0.2132
+    ],
+    "p_vantagem": 0.57671,
+    "acerto": 0.418,
+    "drawdown_r": 51.81,
+    "por_regime": {
+     "btc_abaixo_media50": [
+      322,
+      -0.055
+     ],
+     "btc_acima_media50": [
+      94,
+      -0.024
+     ]
+    }
+   },
+   "p_holm_validacao": 1.0,
+   "passa_validacao": false,
+   "veredicto": "REJEITADA"
+  }
+ },
+ "evolucao": {
+  "genomas_avaliados": 166,
+  "melhores_no_treino": [
+   [
+    "dc287290e9fa",
+    0.3201,
+    69
+   ],
+   [
+    "95662418252a",
+    0.2872,
+    84
+   ],
+   [
+    "1bf85604bb46",
+    0.2576,
+    69
+   ],
+   [
+    "ee722e50b82c",
+    0.2297,
+    84
+   ],
+   [
+    "bfd78564fd3d",
+    0.1914,
+    69
+   ],
+   [
+    "a5939fa9d6a3",
+    0.177,
+    69
+   ],
+   [
+    "90e24c21fd26",
+    0.1701,
+    53
+   ],
+   [
+    "edfa60d9059e",
+    0.1426,
+    69
+   ],
+   [
+    "778517751240",
+    0.1426,
+    69
+   ],
+   [
+    "0dbc9cb1987d",
+    0.1117,
+    69
+   ],
+   [
+    "d867ec4b2036",
+    0.0997,
+    53
+   ],
+   [
+    "5fe0e308ce62",
+    0.0541,
+    69
+   ],
+   [
+    "400c04a3f329",
+    0.0538,
+    69
+   ],
+   [
+    "8295b7739caf",
+    0.0537,
+    69
+   ],
+   [
+    "2d4beafc7e98",
+    0.0491,
+    69
+   ],
+   [
+    "e8e56ba9d13a",
+    0.049,
+    69
+   ],
+   [
+    "bce0724f10cb",
+    0.0191,
+    69
+   ],
+   [
+    "d2aa613ac885",
+    0.0174,
+    69
+   ],
+   [
+    "dc3234298e4a",
+    0.0163,
+    84
+   ],
+   [
+    "f233a95d3530",
+    0.0108,
+    69
+   ]
+  ]
+ },
+ "ja_avaliadas_nao_repetidas": 13,
+ "papel": [],
+ "segundos": 71,
+ "testes_finais": {},
+ "painel": {
+  "987b19a113db": {
+   "estrategia": {
+    "familia": "lideranca_btc",
+    "parametros": {
+     "x": 0.02
+    },
+    "tf": "1H",
+    "lado": "LONG",
+    "filtro": null,
+    "stop_ref": "30m",
+    "saida": {
+     "tipo": "trailing",
+     "k": 2.0,
+     "tp": null,
+     "hold": 4
+    }
+   },
+   "hipotese_economica": [
+    "as altcoins seguem o BTC com atraso (descoberta de preco centrada no BTC)",
+    "movimentos do BTC",
+    "medio",
+    "um so acontecimento do BTC vira dezenas de operacoes correlacionadas"
+   ],
+   "estado": "REJEITADA",
+   "porque": "degradada no papel (motor de sobrevivencia): drawdown 87.93R >= 8.0R; 32 perdas seguidas; media das ultimas 30 = -2.764R (expectativa degradada)",
+   "backtest_treino_validacao": {
+    "n": 531,
+    "dias": 11,
+    "acontecimentos": 11,
+    "moedas": 166,
+    "r_medio": 0.0437,
+    "r_mediana": -0.244,
+    "ic95_blocos_dia": [
+     -0.0887,
+     0.2136
+    ],
+    "ic95_blocos_acontecimento": [
+     -0.0887,
+     0.2136
+    ],
+    "p_blocos_dia": 0.2824,
+    "drawdown_r": 49.44,
+    "profit_factor": 1.079,
+    "por_regime": {
+     "lateral": [
+      62,
+      0.096
+     ],
+     "queda": [
+      5,
+      -0.227
+     ],
+     "subida": [
+      464,
+      0.04
+     ]
+    },
+    "por_tier": {
+     "A": [
+      40,
+      0.002
+     ],
+     "B": [
+      148,
+      0.053
+     ],
+     "C": [
+      343,
+      0.045
+     ]
+    },
+    "custo_medio_r": 0.1192,
+    "bruto_medio_r": 0.163,
+    "peso_custos": 0.732,
+    "rentavel_antes_mas_nao_depois_dos_custos": false,
+    "operacoes_por_semana": 34.58,
+    "meses": {
+     "2026-06": [
+      35,
+      13.97
+     ],
+     "2026-07": [
+      32,
+      -9.15
+     ],
+     "2026-08": [
+      204,
+      -11.93
+     ],
+     "2026-09": [
+      260,
+      30.34
+     ]
+    },
+    "fracao_meses_positivos": 0.5,
+    "top3_moedas": [
+     "TRB",
+     "IRYS",
+     "AVNT"
+    ],
+    "quota_top3": 3.37,
+    "r_sem_top3_moedas": -0.1069,
+    "stop_medio_pct": 1.651,
+    "stops_com_gap_pct": 23.4,
+    "duracao_media_min": 186,
+    "horizonte": "rapido (30 min - 4 h)"
+   },
+   "papel": {
+    "n": 32,
+    "moedas": 32,
+    "dias": 1,
+    "acontecimentos": 1,
+    "r_medio": -2.7478,
+    "r_total": -87.929,
+    "acerto": 0.0,
+    "drawdown_r": 87.929,
+    "novas_entradas": false,
+    "motivos": [
+     "drawdown 87.93R >= 8.0R",
+     "32 perdas seguidas",
+     "media das ultimas 30 = -2.764R (expectativa degradada)"
+    ]
+   },
+   "teste_final": "nao usado",
+   "criterios_por_cumprir": [
+    "dias distintos >= 30",
+    "acontecimentos independentes >= 30",
+    "IC 95% (blocos) acima de 0",
+    "sobrevive a Holm cumulativo",
+    "resultado fora da amostra (teste final)",
+    "estabilidade mensal >= 60% meses positivos",
+    "nao depende de 3 moedas (quota < 50% e R sem elas > 0)",
+    "drawdown <= 20R",
+    "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0"
+   ],
+   "criterios": [
+    {
+     "criterio": "amostra >= 100 operacoes",
+     "ok": true,
+     "valor": 531
+    },
+    {
+     "criterio": "dias distintos >= 30",
+     "ok": false,
+     "valor": 11
+    },
+    {
+     "criterio": "acontecimentos independentes >= 30",
+     "ok": false,
+     "valor": 11
+    },
+    {
+     "criterio": "expectativa liquida > 0",
+     "ok": true,
+     "valor": 0.0437
+    },
+    {
+     "criterio": "IC 95% (blocos) acima de 0",
+     "ok": false,
+     "valor": [
+      -0.0887,
+      0.2136
+     ]
+    },
+    {
+     "criterio": "sobrevive a Holm cumulativo",
+     "ok": false,
+     "valor": null
+    },
+    {
+     "criterio": "resultado fora da amostra (teste final)",
+     "ok": false,
+     "valor": null
+    },
+    {
+     "criterio": "estabilidade mensal >= 60% meses positivos",
+     "ok": false,
+     "valor": 0.5
+    },
+    {
+     "criterio": "positiva em >= 2 regimes (n >= 20)",
+     "ok": true,
+     "valor": {
+      "lateral": [
+       62,
+       0.096
+      ],
+      "queda": [
+       5,
+       -0.227
+      ],
+      "subida": [
+       464,
+       0.04
+      ]
+     }
+    },
+    {
+     "criterio": "custos realistas: positiva depois de custos por escalao",
+     "ok": true,
+     "valor": 0.732
+    },
+    {
+     "criterio": "nao depende de 3 moedas (quota < 50% e R sem elas > 0)",
+     "ok": false,
+     "valor": 3.37
+    },
+    {
+     "criterio": "drawdown <= 20R",
+     "ok": false,
+     "valor": 49.44
+    },
+    {
+     "criterio": "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0",
+     "ok": false,
+     "valor": {
+      "n": 32,
+      "dias": 1,
+      "r_medio": -2.7478
+     }
+    }
+   ]
+  },
+  "1a40f1f6422a": {
+   "estrategia": {
+    "familia": "momentum_regime",
+    "parametros": {
+     "k": 3,
+     "x": 0.05
+    },
+    "tf": "4H",
+    "lado": "LONG",
+    "filtro": null,
+    "stop_ref": "4H",
+    "saida": {
+     "tipo": "trailing",
+     "k": 2.0,
+     "tp": null,
+     "hold": 6
+    }
+   },
+   "hipotese_economica": [
+    "momentum funciona a favor do regime do BTC (fluxo do mercado inteiro)",
+    "subida/queda",
+    "medio",
+    "inversoes do BTC"
+   ],
+   "estado": "PAPEL",
+   "porque": "em validacao prospetiva",
+   "backtest_treino_validacao": {
+    "n": 897,
+    "dias": 73,
+    "acontecimentos": 221,
+    "moedas": 141,
+    "r_medio": 0.066,
+    "r_mediana": -0.163,
+    "ic95_blocos_dia": [
+     -0.1167,
+     0.2309
+    ],
+    "ic95_blocos_acontecimento": [
+     -0.0552,
+     0.1902
+    ],
+    "p_blocos_dia": 0.2414,
+    "drawdown_r": 69.02,
+    "profit_factor": 1.196,
+    "por_regime": {
+     "subida": [
+      522,
+      0.079
+     ],
+     "lateral": [
+      375,
+      0.048
+     ]
+    },
+    "por_tier": {
+     "A": [
+      113,
+      0.364
+     ],
+     "B": [
+      284,
+      0.066
+     ],
+     "C": [
+      500,
+      -0.001
+     ]
+    },
+    "custo_medio_r": 0.0205,
+    "bruto_medio_r": 0.0865,
+    "peso_custos": 0.237,
+    "rentavel_antes_mas_nao_depois_dos_custos": false,
+    "operacoes_por_semana": 40.73,
+    "meses": {
+     "2026-04": [
+      3,
+      -2.57
+     ],
+     "2026-05": [
+      11,
+      -2.28
+     ],
+     "2026-06": [
+      16,
+      1.77
+     ],
+     "2026-07": [
+      131,
+      8.84
+     ],
+     "2026-08": [
+      335,
+      39.1
+     ],
+     "2026-09": [
+      401,
+      14.36
+     ]
+    },
+    "fracao_meses_positivos": 0.67,
+    "top3_moedas": [
+     "INJ",
+     "HYPE",
+     "SUI"
+    ],
+    "quota_top3": 0.352,
+    "r_sem_top3_moedas": 0.0442,
+    "stop_medio_pct": 7.048,
+    "stops_com_gap_pct": 0.2,
+    "duracao_media_min": 1098,
+    "horizonte": "HORIZONTE SUPERIOR (> 4 h): nao e oportunidade rapida"
+   },
+   "papel": null,
+   "teste_final": "nao usado",
+   "criterios_por_cumprir": [
+    "IC 95% (blocos) acima de 0",
+    "sobrevive a Holm cumulativo",
+    "resultado fora da amostra (teste final)",
+    "drawdown <= 20R",
+    "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0"
+   ],
+   "criterios": [
+    {
+     "criterio": "amostra >= 100 operacoes",
+     "ok": true,
+     "valor": 897
+    },
+    {
+     "criterio": "dias distintos >= 30",
+     "ok": true,
+     "valor": 73
+    },
+    {
+     "criterio": "acontecimentos independentes >= 30",
+     "ok": true,
+     "valor": 221
+    },
+    {
+     "criterio": "expectativa liquida > 0",
+     "ok": true,
+     "valor": 0.066
+    },
+    {
+     "criterio": "IC 95% (blocos) acima de 0",
+     "ok": false,
+     "valor": [
+      -0.0552,
+      0.1902
+     ]
+    },
+    {
+     "criterio": "sobrevive a Holm cumulativo",
+     "ok": false,
+     "valor": null
+    },
+    {
+     "criterio": "resultado fora da amostra (teste final)",
+     "ok": false,
+     "valor": null
+    },
+    {
+     "criterio": "estabilidade mensal >= 60% meses positivos",
+     "ok": true,
+     "valor": 0.67
+    },
+    {
+     "criterio": "positiva em >= 2 regimes (n >= 20)",
+     "ok": true,
+     "valor": {
+      "subida": [
+       522,
+       0.079
+      ],
+      "lateral": [
+       375,
+       0.048
+      ]
+     }
+    },
+    {
+     "criterio": "custos realistas: positiva depois de custos por escalao",
+     "ok": true,
+     "valor": 0.237
+    },
+    {
+     "criterio": "nao depende de 3 moedas (quota < 50% e R sem elas > 0)",
+     "ok": true,
+     "valor": 0.352
+    },
+    {
+     "criterio": "drawdown <= 20R",
+     "ok": false,
+     "valor": 69.02
+    },
+    {
+     "criterio": "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0",
+     "ok": false,
+     "valor": {
+      "n": null,
+      "dias": null,
+      "r_medio": null
+     }
+    }
+   ]
+  },
+  "f482badea9f5": {
+   "estrategia": {
+    "familia": "momentum_regime",
+    "parametros": {
+     "k": 12,
+     "x": 0.05
+    },
+    "tf": "4H",
+    "lado": "LONG",
+    "filtro": null,
+    "stop_ref": "4H",
+    "saida": {
+     "tipo": "fixa",
+     "k": 2.5,
+     "tp": 3.0,
+     "hold": 6,
+     "inversao": true
+    }
+   },
+   "hipotese_economica": [
+    "momentum funciona a favor do regime do BTC (fluxo do mercado inteiro)",
+    "subida/queda",
+    "medio",
+    "inversoes do BTC"
+   ],
+   "estado": "PAPEL",
+   "porque": "em validacao prospetiva",
+   "backtest_treino_validacao": {
+    "n": 1569,
+    "dias": 79,
+    "acontecimentos": 283,
+    "moedas": 160,
+    "r_medio": 0.0719,
+    "r_mediana": -0.0764,
+    "ic95_blocos_dia": [
+     -0.0854,
+     0.2296
+    ],
+    "ic95_blocos_acontecimento": [
+     -0.0426,
+     0.1892
+    ],
+    "p_blocos_dia": 0.2114,
+    "drawdown_r": 94.63,
+    "profit_factor": 1.233,
+    "por_regime": {
+     "lateral": [
+      672,
+      0.059
+     ],
+     "subida": [
+      897,
+      0.082
+     ]
+    },
+    "por_tier": {
+     "A": [
+      235,
+      0.15
+     ],
+     "B": [
+      521,
+      0.077
+     ],
+     "C": [
+      813,
+      0.046
+     ]
+    },
+    "custo_medio_r": 0.0197,
+    "bruto_medio_r": 0.0917,
+    "peso_custos": 0.215,
+    "rentavel_antes_mas_nao_depois_dos_custos": false,
+    "operacoes_por_semana": 71.09,
+    "meses": {
+     "2026-04": [
+      5,
+      -5.23
+     ],
+     "2026-05": [
+      22,
+      -2.46
+     ],
+     "2026-06": [
+      33,
+      0.36
+     ],
+     "2026-07": [
+      246,
+      -5.45
+     ],
+     "2026-08": [
+      483,
+      67.56
+     ],
+     "2026-09": [
+      780,
+      58.1
+     ]
+    },
+    "fracao_meses_positivos": 0.5,
+    "top3_moedas": [
+     "ENA",
+     "ZIL",
+     "SUI"
+    ],
+    "quota_top3": 0.23,
+    "r_sem_top3_moedas": 0.0573,
+    "stop_medio_pct": 7.728,
+    "stops_com_gap_pct": 1.2,
+    "duracao_media_min": 1323,
+    "horizonte": "HORIZONTE SUPERIOR (> 4 h): nao e oportunidade rapida"
+   },
+   "papel": null,
+   "teste_final": "nao usado",
+   "criterios_por_cumprir": [
+    "IC 95% (blocos) acima de 0",
+    "sobrevive a Holm cumulativo",
+    "resultado fora da amostra (teste final)",
+    "estabilidade mensal >= 60% meses positivos",
+    "drawdown <= 20R",
+    "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0"
+   ],
+   "criterios": [
+    {
+     "criterio": "amostra >= 100 operacoes",
+     "ok": true,
+     "valor": 1569
+    },
+    {
+     "criterio": "dias distintos >= 30",
+     "ok": true,
+     "valor": 79
+    },
+    {
+     "criterio": "acontecimentos independentes >= 30",
+     "ok": true,
+     "valor": 283
+    },
+    {
+     "criterio": "expectativa liquida > 0",
+     "ok": true,
+     "valor": 0.0719
+    },
+    {
+     "criterio": "IC 95% (blocos) acima de 0",
+     "ok": false,
+     "valor": [
+      -0.0426,
+      0.1892
+     ]
+    },
+    {
+     "criterio": "sobrevive a Holm cumulativo",
+     "ok": false,
+     "valor": null
+    },
+    {
+     "criterio": "resultado fora da amostra (teste final)",
+     "ok": false,
+     "valor": null
+    },
+    {
+     "criterio": "estabilidade mensal >= 60% meses positivos",
+     "ok": false,
+     "valor": 0.5
+    },
+    {
+     "criterio": "positiva em >= 2 regimes (n >= 20)",
+     "ok": true,
+     "valor": {
+      "lateral": [
+       672,
+       0.059
+      ],
+      "subida": [
+       897,
+       0.082
+      ]
+     }
+    },
+    {
+     "criterio": "custos realistas: positiva depois de custos por escalao",
+     "ok": true,
+     "valor": 0.215
+    },
+    {
+     "criterio": "nao depende de 3 moedas (quota < 50% e R sem elas > 0)",
+     "ok": true,
+     "valor": 0.23
+    },
+    {
+     "criterio": "drawdown <= 20R",
+     "ok": false,
+     "valor": 94.63
+    },
+    {
+     "criterio": "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0",
+     "ok": false,
+     "valor": {
+      "n": null,
+      "dias": null,
+      "r_medio": null
+     }
+    }
+   ]
+  },
+  "a576dd368963": {
+   "estrategia": {
+    "familia": "rompimento_reteste",
+    "parametros": {
+     "n": 48
+    },
+    "tf": "4H",
+    "lado": "LONG",
+    "filtro": "cripto",
+    "stop_ref": "4H",
+    "saida": {
+     "tipo": "fixa",
+     "k": 3.0,
+     "tp": 1.5,
+     "hold": 6
+    }
+   },
+   "hipotese_economica": [
+    "o nivel rompido passa de resistencia a suporte; o reteste confirma",
+    "subida",
+    "baixo com stop de 4H",
+    "reteste falha e volta para dentro do intervalo"
+   ],
+   "estado": "PAPEL",
+   "porque": "em validacao prospetiva",
+   "backtest_treino_validacao": {
+    "n": 414,
+    "dias": 82,
+    "acontecimentos": 210,
+    "moedas": 95,
+    "r_medio": 0.0541,
+    "r_mediana": -0.0709,
+    "ic95_blocos_dia": [
+     -0.0872,
+     0.2035
+    ],
+    "ic95_blocos_acontecimento": [
+     -0.0471,
+     0.1516
+    ],
+    "p_blocos_dia": 0.2434,
+    "drawdown_r": 17.81,
+    "profit_factor": 1.197,
+    "por_regime": {
+     "subida": [
+      262,
+      0.063
+     ],
+     "lateral": [
+      144,
+      0.041
+     ],
+     "queda": [
+      8,
+      -0.011
+     ]
+    },
+    "por_tier": {
+     "A": [
+      89,
+      0.066
+     ],
+     "B": [
+      136,
+      0.163
+     ],
+     "C": [
+      189,
+      -0.03
+     ]
+    },
+    "custo_medio_r": 0.0177,
+    "bruto_medio_r": 0.0718,
+    "peso_custos": 0.247,
+    "rentavel_antes_mas_nao_depois_dos_custos": false,
+    "operacoes_por_semana": 20.36,
+    "meses": {
+     "2026-05": [
+      12,
+      1.93
+     ],
+     "2026-06": [
+      19,
+      5.29
+     ],
+     "2026-07": [
+      62,
+      2.26
+     ],
+     "2026-08": [
+      126,
+      22.09
+     ],
+     "2026-09": [
+      195,
+      -9.2
+     ]
+    },
+    "fracao_meses_positivos": 0.8,
+    "top3_moedas": [
+     "BICO",
+     "PEPE",
+     "SUI"
+    ],
+    "quota_top3": 0.66,
+    "r_sem_top3_moedas": 0.0194,
+    "stop_medio_pct": 9.521,
+    "stops_com_gap_pct": 0.0,
+    "duracao_media_min": 1303,
+    "horizonte": "HORIZONTE SUPERIOR (> 4 h): nao e oportunidade rapida"
+   },
+   "papel": {
+    "n": 5,
+    "moedas": 5,
+    "dias": 3,
+    "acontecimentos": 4,
+    "r_medio": -0.0559,
+    "r_total": -0.279,
+    "acerto": 0.4,
+    "drawdown_r": 1.763,
+    "novas_entradas": true,
+    "motivos": []
+   },
+   "teste_final": "nao usado",
+   "criterios_por_cumprir": [
+    "IC 95% (blocos) acima de 0",
+    "sobrevive a Holm cumulativo",
+    "resultado fora da amostra (teste final)",
+    "nao depende de 3 moedas (quota < 50% e R sem elas > 0)",
+    "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0"
+   ],
+   "criterios": [
+    {
+     "criterio": "amostra >= 100 operacoes",
+     "ok": true,
+     "valor": 414
+    },
+    {
+     "criterio": "dias distintos >= 30",
+     "ok": true,
+     "valor": 82
+    },
+    {
+     "criterio": "acontecimentos independentes >= 30",
+     "ok": true,
+     "valor": 210
+    },
+    {
+     "criterio": "expectativa liquida > 0",
+     "ok": true,
+     "valor": 0.0541
+    },
+    {
+     "criterio": "IC 95% (blocos) acima de 0",
+     "ok": false,
+     "valor": [
+      -0.0471,
+      0.1516
+     ]
+    },
+    {
+     "criterio": "sobrevive a Holm cumulativo",
+     "ok": false,
+     "valor": null
+    },
+    {
+     "criterio": "resultado fora da amostra (teste final)",
+     "ok": false,
+     "valor": null
+    },
+    {
+     "criterio": "estabilidade mensal >= 60% meses positivos",
+     "ok": true,
+     "valor": 0.8
+    },
+    {
+     "criterio": "positiva em >= 2 regimes (n >= 20)",
+     "ok": true,
+     "valor": {
+      "subida": [
+       262,
+       0.063
+      ],
+      "lateral": [
+       144,
+       0.041
+      ],
+      "queda": [
+       8,
+       -0.011
+      ]
+     }
+    },
+    {
+     "criterio": "custos realistas: positiva depois de custos por escalao",
+     "ok": true,
+     "valor": 0.247
+    },
+    {
+     "criterio": "nao depende de 3 moedas (quota < 50% e R sem elas > 0)",
+     "ok": false,
+     "valor": 0.66
+    },
+    {
+     "criterio": "drawdown <= 20R",
+     "ok": true,
+     "valor": 17.81
+    },
+    {
+     "criterio": "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0",
+     "ok": false,
+     "valor": {
+      "n": 5,
+      "dias": 3,
+      "r_medio": -0.0559
+     }
+    }
+   ]
+  },
+  "e495d11739f6": {
+   "estrategia": {
+    "familia": "rompimento_reteste",
+    "parametros": {
+     "n": 24
+    },
+    "tf": "4H",
+    "lado": "LONG",
+    "filtro": "cripto",
+    "stop_ref": "4H",
+    "saida": {
+     "tipo": "fixa",
+     "k": 3.0,
+     "tp": 1.5,
+     "hold": 6
+    }
+   },
+   "hipotese_economica": [
+    "o nivel rompido passa de resistencia a suporte; o reteste confirma",
+    "subida",
+    "baixo com stop de 4H",
+    "reteste falha e volta para dentro do intervalo"
+   ],
+   "estado": "PAPEL",
+   "porque": "em validacao prospetiva",
+   "backtest_treino_validacao": {
+    "n": 565,
+    "dias": 104,
+    "acontecimentos": 263,
+    "moedas": 102,
+    "r_medio": 0.079,
+    "r_mediana": -0.0392,
+    "ic95_blocos_dia": [
+     -0.0618,
+     0.2118
+    ],
+    "ic95_blocos_acontecimento": [
+     -0.0123,
+     0.1741
+    ],
+    "p_blocos_dia": 0.1444,
+    "drawdown_r": 30.25,
+    "profit_factor": 1.308,
+    "por_regime": {
+     "lateral": [
+      260,
+      0.083
+     ],
+     "subida": [
+      292,
+      0.085
+     ],
+     "queda": [
+      13,
+      -0.146
+     ]
+    },
+    "por_tier": {
+     "A": [
+      124,
+      0.115
+     ],
+     "B": [
+      187,
+      0.145
+     ],
+     "C": [
+      254,
+      0.013
+     ]
+    },
+    "custo_medio_r": 0.0189,
+    "bruto_medio_r": 0.0979,
+    "peso_custos": 0.193,
+    "rentavel_antes_mas_nao_depois_dos_custos": false,
+    "operacoes_por_semana": 26.05,
+    "meses": {
+     "2026-04": [
+      3,
+      -2.18
+     ],
+     "2026-05": [
+      17,
+      -0.75
+     ],
+     "2026-06": [
+      24,
+      2.42
+     ],
+     "2026-07": [
+      94,
+      5.52
+     ],
+     "2026-08": [
+      160,
+      35.21
+     ],
+     "2026-09": [
+      267,
+      4.43
+     ]
+    },
+    "fracao_meses_positivos": 0.67,
+    "top3_moedas": [
+     "BICO",
+     "BCH",
+     "SOL"
+    ],
+    "quota_top3": 0.356,
+    "r_sem_top3_moedas": 0.0536,
+    "stop_medio_pct": 8.971,
+    "stops_com_gap_pct": 1.8,
+    "duracao_media_min": 1308,
+    "horizonte": "HORIZONTE SUPERIOR (> 4 h): nao e oportunidade rapida"
+   },
+   "papel": null,
+   "teste_final": {
+    "n": 382,
+    "r_medio": -0.3034,
+    "p_vantagem": 0.97401,
+    "p_r_positivo": 1.0,
+    "ic95_r": [
+     -0.4399,
+     -0.1635
+    ],
+    "dias_com_operacoes": 54
+   },
+   "criterios_por_cumprir": [
+    "IC 95% (blocos) acima de 0",
+    "sobrevive a Holm cumulativo",
+    "resultado fora da amostra (teste final)",
+    "drawdown <= 20R",
+    "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0"
+   ],
+   "criterios": [
+    {
+     "criterio": "amostra >= 100 operacoes",
+     "ok": true,
+     "valor": 565
+    },
+    {
+     "criterio": "dias distintos >= 30",
+     "ok": true,
+     "valor": 104
+    },
+    {
+     "criterio": "acontecimentos independentes >= 30",
+     "ok": true,
+     "valor": 263
+    },
+    {
+     "criterio": "expectativa liquida > 0",
+     "ok": true,
+     "valor": 0.079
+    },
+    {
+     "criterio": "IC 95% (blocos) acima de 0",
+     "ok": false,
+     "valor": [
+      -0.0123,
+      0.1741
+     ]
+    },
+    {
+     "criterio": "sobrevive a Holm cumulativo",
+     "ok": false,
+     "valor": null
+    },
+    {
+     "criterio": "resultado fora da amostra (teste final)",
+     "ok": false,
+     "valor": -0.3034
+    },
+    {
+     "criterio": "estabilidade mensal >= 60% meses positivos",
+     "ok": true,
+     "valor": 0.67
+    },
+    {
+     "criterio": "positiva em >= 2 regimes (n >= 20)",
+     "ok": true,
+     "valor": {
+      "lateral": [
+       260,
+       0.083
+      ],
+      "subida": [
+       292,
+       0.085
+      ],
+      "queda": [
+       13,
+       -0.146
+      ]
+     }
+    },
+    {
+     "criterio": "custos realistas: positiva depois de custos por escalao",
+     "ok": true,
+     "valor": 0.193
+    },
+    {
+     "criterio": "nao depende de 3 moedas (quota < 50% e R sem elas > 0)",
+     "ok": true,
+     "valor": 0.356
+    },
+    {
+     "criterio": "drawdown <= 20R",
+     "ok": false,
+     "valor": 30.25
+    },
+    {
+     "criterio": "papel prospetivo: >= 30 fechadas em >= 14 dias com media > 0",
+     "ok": false,
+     "valor": {
+      "n": null,
+      "dias": null,
+      "r_medio": null
+     }
+    }
+   ]
+  }
+ },
+ "risco_simulado": {
+  "aviso": "simulacao sobre treino+validacao (historico); nao e rentabilidade comprovada; 1% por operacao nao e recomendado quando o drawdown simulado e de 60-97%",
+  "por_estrategia": {
+   "987b19a113db": {
+    "niveis": {
+     "dias_com_operacoes": 11,
+     "dias_com_operacoes_por_mes": 3.03,
+     "max_posicoes_simultaneas": 3,
+     "kelly_inteiro_pct": 0.0,
+     "kelly_0.1": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.25": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.5": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_1.0": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "fixo_0.25pct": {
+      "risco_pct": 0.25,
+      "capital_12m_p05": 52.29,
+      "capital_12m_mediana": 56.8,
+      "capital_12m_p95": 62.28,
+      "drawdown_mediano_pct": 43.21,
+      "drawdown_p95_pct": 47.71,
+      "prob_acabar_abaixo_de_metade_pct": 0.4
+     },
+     "fixo_0.5pct": {
+      "risco_pct": 0.5,
+      "capital_12m_p05": 26.93,
+      "capital_12m_mediana": 31.93,
+      "capital_12m_p95": 38.27,
+      "drawdown_mediano_pct": 68.13,
+      "drawdown_p95_pct": 73.03,
+      "prob_acabar_abaixo_de_metade_pct": 100.0
+     },
+     "fixo_1.0pct": {
+      "risco_pct": 1.0,
+      "capital_12m_p05": 6.92,
+      "capital_12m_mediana": 9.76,
+      "capital_12m_p95": 14.02,
+      "drawdown_mediano_pct": 90.25,
+      "drawdown_p95_pct": 93.07,
+      "prob_acabar_abaixo_de_metade_pct": 100.0
+     },
+     "fixo_2.0pct": {
+      "risco_pct": 2.0,
+      "capital_12m_p05": 0.37,
+      "capital_12m_mediana": 0.77,
+      "capital_12m_p95": 1.68,
+      "drawdown_mediano_pct": 99.24,
+      "drawdown_p95_pct": 99.63,
+      "prob_acabar_abaixo_de_metade_pct": 100.0
+     }
+    },
+    "pior_sequencia_de_perdas": 75
+   },
+   "1a40f1f6422a": {
+    "niveis": {
+     "dias_com_operacoes": 73,
+     "dias_com_operacoes_por_mes": 14.13,
+     "max_posicoes_simultaneas": 3,
+     "kelly_inteiro_pct": 0.0,
+     "kelly_0.1": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.25": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.5": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_1.0": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "fixo_0.25pct": {
+      "risco_pct": 0.25,
+      "capital_12m_p05": 68.72,
+      "capital_12m_mediana": 74.21,
+      "capital_12m_p95": 80.03,
+      "drawdown_mediano_pct": 26.04,
+      "drawdown_p95_pct": 31.37,
+      "prob_acabar_abaixo_de_metade_pct": 0.0
+     },
+     "fixo_0.5pct": {
+      "risco_pct": 0.5,
+      "capital_12m_p05": 47.06,
+      "capital_12m_mediana": 55.26,
+      "capital_12m_p95": 64.01,
+      "drawdown_mediano_pct": 45.18,
+      "drawdown_p95_pct": 53.25,
+      "prob_acabar_abaixo_de_metade_pct": 14.9
+     },
+     "fixo_1.0pct": {
+      "risco_pct": 1.0,
+      "capital_12m_p05": 22.11,
+      "capital_12m_mediana": 29.89,
+      "capital_12m_p95": 40.22,
+      "drawdown_mediano_pct": 70.59,
+      "drawdown_p95_pct": 78.24,
+      "prob_acabar_abaixo_de_metade_pct": 99.7
+     },
+     "fixo_2.0pct": {
+      "risco_pct": 2.0,
+      "capital_12m_p05": 4.7,
+      "capital_12m_mediana": 8.66,
+      "capital_12m_p95": 16.28,
+      "drawdown_mediano_pct": 91.56,
+      "drawdown_p95_pct": 95.35,
+      "prob_acabar_abaixo_de_metade_pct": 100.0
+     }
+    },
+    "pior_sequencia_de_perdas": 31
+   },
+   "f482badea9f5": {
+    "niveis": {
+     "dias_com_operacoes": 79,
+     "dias_com_operacoes_por_mes": 15.29,
+     "max_posicoes_simultaneas": 3,
+     "kelly_inteiro_pct": 0.0,
+     "kelly_0.1": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.25": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.5": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_1.0": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "fixo_0.25pct": {
+      "risco_pct": 0.25,
+      "capital_12m_p05": 55.02,
+      "capital_12m_mediana": 59.32,
+      "capital_12m_p95": 64.16,
+      "drawdown_mediano_pct": 40.78,
+      "drawdown_p95_pct": 44.97,
+      "prob_acabar_abaixo_de_metade_pct": 0.0
+     },
+     "fixo_0.5pct": {
+      "risco_pct": 0.5,
+      "capital_12m_p05": 30.34,
+      "capital_12m_mediana": 35.04,
+      "capital_12m_p95": 40.71,
+      "drawdown_mediano_pct": 65.03,
+      "drawdown_p95_pct": 69.73,
+      "prob_acabar_abaixo_de_metade_pct": 100.0
+     },
+     "fixo_1.0pct": {
+      "risco_pct": 1.0,
+      "capital_12m_p05": 9.08,
+      "capital_12m_mediana": 12.12,
+      "capital_12m_p95": 16.51,
+      "drawdown_mediano_pct": 87.92,
+      "drawdown_p95_pct": 90.95,
+      "prob_acabar_abaixo_de_metade_pct": 100.0
+     },
+     "fixo_2.0pct": {
+      "risco_pct": 2.0,
+      "capital_12m_p05": 0.76,
+      "capital_12m_mediana": 1.4,
+      "capital_12m_p95": 2.65,
+      "drawdown_mediano_pct": 98.61,
+      "drawdown_p95_pct": 99.24,
+      "prob_acabar_abaixo_de_metade_pct": 100.0
+     }
+    },
+    "pior_sequencia_de_perdas": 49
+   },
+   "a576dd368963": {
+    "niveis": {
+     "dias_com_operacoes": 82,
+     "dias_com_operacoes_por_mes": 17.2,
+     "max_posicoes_simultaneas": 3,
+     "kelly_inteiro_pct": 0.0,
+     "kelly_0.1": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.25": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.5": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_1.0": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "fixo_0.25pct": {
+      "risco_pct": 0.25,
+      "capital_12m_p05": 90.69,
+      "capital_12m_mediana": 97.72,
+      "capital_12m_p95": 105.22,
+      "drawdown_mediano_pct": 5.75,
+      "drawdown_p95_pct": 10.96,
+      "prob_acabar_abaixo_de_metade_pct": 0.0
+     },
+     "fixo_0.5pct": {
+      "risco_pct": 0.5,
+      "capital_12m_p05": 81.26,
+      "capital_12m_mediana": 94.93,
+      "capital_12m_p95": 110.81,
+      "drawdown_mediano_pct": 11.7,
+      "drawdown_p95_pct": 21.02,
+      "prob_acabar_abaixo_de_metade_pct": 0.0
+     },
+     "fixo_1.0pct": {
+      "risco_pct": 1.0,
+      "capital_12m_p05": 67.36,
+      "capital_12m_mediana": 90.38,
+      "capital_12m_p95": 123.0,
+      "drawdown_mediano_pct": 22.35,
+      "drawdown_p95_pct": 37.74,
+      "prob_acabar_abaixo_de_metade_pct": 0.0
+     },
+     "fixo_2.0pct": {
+      "risco_pct": 2.0,
+      "capital_12m_p05": 42.48,
+      "capital_12m_mediana": 78.74,
+      "capital_12m_p95": 146.7,
+      "drawdown_mediano_pct": 40.33,
+      "drawdown_p95_pct": 62.4,
+      "prob_acabar_abaixo_de_metade_pct": 11.0
+     }
+    },
+    "pior_sequencia_de_perdas": 14
+   },
+   "e495d11739f6": {
+    "niveis": {
+     "dias_com_operacoes": 104,
+     "dias_com_operacoes_por_mes": 20.39,
+     "max_posicoes_simultaneas": 3,
+     "kelly_inteiro_pct": 0.0,
+     "kelly_0.1": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.25": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.5": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_1.0": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "fixo_0.25pct": {
+      "risco_pct": 0.25,
+      "capital_12m_p05": 84.5,
+      "capital_12m_mediana": 91.82,
+      "capital_12m_p95": 101.06,
+      "drawdown_mediano_pct": 10.05,
+      "drawdown_p95_pct": 16.8,
+      "prob_acabar_abaixo_de_metade_pct": 0.0
+     },
+     "fixo_0.5pct": {
+      "risco_pct": 0.5,
+      "capital_12m_p05": 70.97,
+      "capital_12m_mediana": 84.0,
+      "capital_12m_p95": 98.77,
+      "drawdown_mediano_pct": 19.82,
+      "drawdown_p95_pct": 31.03,
+      "prob_acabar_abaixo_de_metade_pct": 0.0
+     },
+     "fixo_1.0pct": {
+      "risco_pct": 1.0,
+      "capital_12m_p05": 49.24,
+      "capital_12m_mediana": 68.81,
+      "capital_12m_p95": 99.39,
+      "drawdown_mediano_pct": 37.06,
+      "drawdown_p95_pct": 52.83,
+      "prob_acabar_abaixo_de_metade_pct": 5.6
+     },
+     "fixo_2.0pct": {
+      "risco_pct": 2.0,
+      "capital_12m_p05": 23.34,
+      "capital_12m_mediana": 45.19,
+      "capital_12m_p95": 92.31,
+      "drawdown_mediano_pct": 61.62,
+      "drawdown_p95_pct": 78.58,
+      "prob_acabar_abaixo_de_metade_pct": 58.8
+     }
+    },
+    "pior_sequencia_de_perdas": 14
+   }
+  },
+  "carteira": {
+   "max1_por_acontecimento": {
+    "operacoes": 431,
+    "acontecimentos": 431,
+    "r_medio": -0.0059,
+    "pior_sequencia_de_perdas": 9,
+    "niveis": {
+     "dias_com_operacoes": 121,
+     "dias_com_operacoes_por_mes": 23.42,
+     "max_posicoes_simultaneas": 1,
+     "kelly_inteiro_pct": 0.0,
+     "kelly_0.1": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.25": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.5": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_1.0": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "fixo_0.25pct": {
+      "risco_pct": 0.25,
+      "capital_12m_p05": 91.91,
+      "capital_12m_mediana": 97.44,
+      "capital_12m_p95": 102.89,
+      "drawdown_mediano_pct": 4.96,
+      "drawdown_p95_pct": 9.04,
+      "prob_acabar_abaixo_de_metade_pct": 0.0
+     },
+     "fixo_0.5pct": {
+      "risco_pct": 0.5,
+      "capital_12m_p05": 84.76,
+      "capital_12m_mediana": 95.26,
+      "capital_12m_p95": 106.59,
+      "drawdown_mediano_pct": 9.05,
+      "drawdown_p95_pct": 17.06,
+      "prob_acabar_abaixo_de_metade_pct": 0.0
+     },
+     "fixo_1.0pct": {
+      "risco_pct": 1.0,
+      "capital_12m_p05": 72.33,
+      "capital_12m_mediana": 89.47,
+      "capital_12m_p95": 111.96,
+      "drawdown_mediano_pct": 18.33,
+      "drawdown_p95_pct": 30.32,
+      "prob_acabar_abaixo_de_metade_pct": 0.0
+     },
+     "fixo_2.0pct": {
+      "risco_pct": 2.0,
+      "capital_12m_p05": 49.57,
+      "capital_12m_mediana": 78.67,
+      "capital_12m_p95": 123.34,
+      "drawdown_mediano_pct": 33.97,
+      "drawdown_p95_pct": 53.65,
+      "prob_acabar_abaixo_de_metade_pct": 5.1
+     }
+    },
+    "custos_adversos_mais_0_1R": {
+     "dias_com_operacoes": 121,
+     "dias_com_operacoes_por_mes": 23.42,
+     "max_posicoes_simultaneas": 1,
+     "kelly_inteiro_pct": 0.0,
+     "kelly_0.1": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.25": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.5": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_1.0": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "fixo_0.25pct": {
+      "risco_pct": 0.25,
+      "capital_12m_p05": 85.68,
+      "capital_12m_mediana": 90.83,
+      "capital_12m_p95": 95.91,
+      "drawdown_mediano_pct": 10.05,
+      "drawdown_p95_pct": 14.77,
+      "prob_acabar_abaixo_de_metade_pct": 0.0
+     },
+     "fixo_0.5pct": {
+      "risco_pct": 0.5,
+      "capital_12m_p05": 73.65,
+      "capital_12m_mediana": 82.77,
+      "capital_12m_p95": 92.62,
+      "drawdown_mediano_pct": 18.51,
+      "drawdown_p95_pct": 27.32,
+      "prob_acabar_abaixo_de_metade_pct": 0.0
+     },
+     "fixo_1.0pct": {
+      "risco_pct": 1.0,
+      "capital_12m_p05": 54.59,
+      "capital_12m_mediana": 67.54,
+      "capital_12m_p95": 84.53,
+      "drawdown_mediano_pct": 34.68,
+      "drawdown_p95_pct": 46.5,
+      "prob_acabar_abaixo_de_metade_pct": 0.9
+     },
+     "fixo_2.0pct": {
+      "risco_pct": 2.0,
+      "capital_12m_p05": 28.2,
+      "capital_12m_mediana": 44.8,
+      "capital_12m_p95": 70.3,
+      "drawdown_mediano_pct": 58.3,
+      "drawdown_p95_pct": 72.57,
+      "prob_acabar_abaixo_de_metade_pct": 66.0
+     }
+    },
+    "cenario_extremo_piores_dias": {
+     "dias_com_operacoes": 36,
+     "dias_com_operacoes_por_mes": 30.0,
+     "max_posicoes_simultaneas": 1,
+     "kelly_inteiro_pct": 0.0,
+     "kelly_0.1": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.25": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.5": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_1.0": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "fixo_0.25pct": {
+      "risco_pct": 0.25,
+      "capital_12m_p05": 79.65,
+      "capital_12m_mediana": 80.12,
+      "capital_12m_p95": 80.65,
+      "drawdown_mediano_pct": 19.88,
+      "drawdown_p95_pct": 20.35,
+      "prob_acabar_abaixo_de_metade_pct": 0.0
+     },
+     "fixo_0.5pct": {
+      "risco_pct": 0.5,
+      "capital_12m_p05": 63.39,
+      "capital_12m_mediana": 64.16,
+      "capital_12m_p95": 64.96,
+      "drawdown_mediano_pct": 35.84,
+      "drawdown_p95_pct": 36.61,
+      "prob_acabar_abaixo_de_metade_pct": 0.0
+     },
+     "fixo_1.0pct": {
+      "risco_pct": 1.0,
+      "capital_12m_p05": 40.11,
+      "capital_12m_mediana": 41.13,
+      "capital_12m_p95": 42.16,
+      "drawdown_mediano_pct": 58.87,
+      "drawdown_p95_pct": 59.88,
+      "prob_acabar_abaixo_de_metade_pct": 100.0
+     },
+     "fixo_2.0pct": {
+      "risco_pct": 2.0,
+      "capital_12m_p05": 15.9,
+      "capital_12m_mediana": 16.72,
+      "capital_12m_p95": 17.59,
+      "drawdown_mediano_pct": 83.28,
+      "drawdown_p95_pct": 84.1,
+      "prob_acabar_abaixo_de_metade_pct": 100.0
+     }
+    }
+   },
+   "max3_por_acontecimento": {
+    "operacoes": 992,
+    "acontecimentos": 431,
+    "r_medio": 0.0109,
+    "pior_sequencia_de_perdas": 12,
+    "niveis": {
+     "dias_com_operacoes": 121,
+     "dias_com_operacoes_por_mes": 23.42,
+     "max_posicoes_simultaneas": 3,
+     "kelly_inteiro_pct": 0.0,
+     "kelly_0.1": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.25": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.5": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_1.0": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "fixo_0.25pct": {
+      "risco_pct": 0.25,
+      "capital_12m_p05": 80.19,
+      "capital_12m_mediana": 89.12,
+      "capital_12m_p95": 101.13,
+      "drawdown_mediano_pct": 13.65,
+      "drawdown_p95_pct": 21.8,
+      "prob_acabar_abaixo_de_metade_pct": 0.0
+     },
+     "fixo_0.5pct": {
+      "risco_pct": 0.5,
+      "capital_12m_p05": 63.46,
+      "capital_12m_mediana": 80.32,
+      "capital_12m_p95": 103.69,
+      "drawdown_mediano_pct": 25.01,
+      "drawdown_p95_pct": 38.59,
+      "prob_acabar_abaixo_de_metade_pct": 0.1
+     },
+     "fixo_1.0pct": {
+      "risco_pct": 1.0,
+      "capital_12m_p05": 38.54,
+      "capital_12m_mediana": 61.73,
+      "capital_12m_p95": 101.51,
+      "drawdown_mediano_pct": 45.67,
+      "drawdown_p95_pct": 63.43,
+      "prob_acabar_abaixo_de_metade_pct": 22.7
+     },
+     "fixo_2.0pct": {
+      "risco_pct": 2.0,
+      "capital_12m_p05": 13.73,
+      "capital_12m_mediana": 35.86,
+      "capital_12m_p95": 92.84,
+      "drawdown_mediano_pct": 72.09,
+      "drawdown_p95_pct": 87.86,
+      "prob_acabar_abaixo_de_metade_pct": 74.1
+     }
+    },
+    "custos_adversos_mais_0_1R": {
+     "dias_com_operacoes": 121,
+     "dias_com_operacoes_por_mes": 23.42,
+     "max_posicoes_simultaneas": 3,
+     "kelly_inteiro_pct": 0.0,
+     "kelly_0.1": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.25": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.5": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_1.0": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "fixo_0.25pct": {
+      "risco_pct": 0.25,
+      "capital_12m_p05": 66.78,
+      "capital_12m_mediana": 74.32,
+      "capital_12m_p95": 84.2,
+      "drawdown_mediano_pct": 26.5,
+      "drawdown_p95_pct": 33.95,
+      "prob_acabar_abaixo_de_metade_pct": 0.0
+     },
+     "fixo_0.5pct": {
+      "risco_pct": 0.5,
+      "capital_12m_p05": 44.16,
+      "capital_12m_mediana": 55.88,
+      "capital_12m_p95": 71.83,
+      "drawdown_mediano_pct": 45.63,
+      "drawdown_p95_pct": 56.51,
+      "prob_acabar_abaixo_de_metade_pct": 21.9
+     },
+     "fixo_1.0pct": {
+      "risco_pct": 1.0,
+      "capital_12m_p05": 18.65,
+      "capital_12m_mediana": 29.75,
+      "capital_12m_p95": 48.75,
+      "drawdown_mediano_pct": 71.73,
+      "drawdown_p95_pct": 81.78,
+      "prob_acabar_abaixo_de_metade_pct": 96.1
+     },
+     "fixo_2.0pct": {
+      "risco_pct": 2.0,
+      "capital_12m_p05": 3.19,
+      "capital_12m_mediana": 8.32,
+      "capital_12m_p95": 21.42,
+      "drawdown_mediano_pct": 92.49,
+      "drawdown_p95_pct": 97.07,
+      "prob_acabar_abaixo_de_metade_pct": 99.6
+     }
+    },
+    "cenario_extremo_piores_dias": {
+     "dias_com_operacoes": 36,
+     "dias_com_operacoes_por_mes": 30.0,
+     "max_posicoes_simultaneas": 3,
+     "kelly_inteiro_pct": 0.0,
+     "kelly_0.1": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.25": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.5": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_1.0": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "fixo_0.25pct": {
+      "risco_pct": 0.25,
+      "capital_12m_p05": 49.09,
+      "capital_12m_mediana": 49.9,
+      "capital_12m_p95": 50.54,
+      "drawdown_mediano_pct": 50.1,
+      "drawdown_p95_pct": 50.91,
+      "prob_acabar_abaixo_de_metade_pct": 59.3
+     },
+     "fixo_0.5pct": {
+      "risco_pct": 0.5,
+      "capital_12m_p05": 23.97,
+      "capital_12m_mediana": 24.74,
+      "capital_12m_p95": 25.4,
+      "drawdown_mediano_pct": 75.26,
+      "drawdown_p95_pct": 76.02,
+      "prob_acabar_abaixo_de_metade_pct": 100.0
+     },
+     "fixo_1.0pct": {
+      "risco_pct": 1.0,
+      "capital_12m_p05": 5.62,
+      "capital_12m_mediana": 6.0,
+      "capital_12m_p95": 6.32,
+      "drawdown_mediano_pct": 94.0,
+      "drawdown_p95_pct": 94.37,
+      "prob_acabar_abaixo_de_metade_pct": 100.0
+     },
+     "fixo_2.0pct": {
+      "risco_pct": 2.0,
+      "capital_12m_p05": 0.28,
+      "capital_12m_mediana": 0.33,
+      "capital_12m_p95": 0.37,
+      "drawdown_mediano_pct": 99.67,
+      "drawdown_p95_pct": 99.71,
+      "prob_acabar_abaixo_de_metade_pct": 100.0
+     }
+    }
+   },
+   "max5_por_acontecimento": {
+    "operacoes": 1370,
+    "acontecimentos": 431,
+    "r_medio": 0.0144,
+    "pior_sequencia_de_perdas": 15,
+    "niveis": {
+     "dias_com_operacoes": 121,
+     "dias_com_operacoes_por_mes": 23.42,
+     "max_posicoes_simultaneas": 5,
+     "kelly_inteiro_pct": 0.0,
+     "kelly_0.1": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.25": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.5": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_1.0": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "fixo_0.25pct": {
+      "risco_pct": 0.25,
+      "capital_12m_p05": 68.58,
+      "capital_12m_mediana": 79.25,
+      "capital_12m_p95": 92.92,
+      "drawdown_mediano_pct": 22.69,
+      "drawdown_p95_pct": 32.31,
+      "prob_acabar_abaixo_de_metade_pct": 0.0
+     },
+     "fixo_0.5pct": {
+      "risco_pct": 0.5,
+      "capital_12m_p05": 47.45,
+      "capital_12m_mediana": 63.26,
+      "capital_12m_p95": 85.33,
+      "drawdown_mediano_pct": 39.84,
+      "drawdown_p95_pct": 53.77,
+      "prob_acabar_abaixo_de_metade_pct": 9.8
+     },
+     "fixo_1.0pct": {
+      "risco_pct": 1.0,
+      "capital_12m_p05": 20.52,
+      "capital_12m_mediana": 37.95,
+      "capital_12m_p95": 67.53,
+      "drawdown_mediano_pct": 65.98,
+      "drawdown_p95_pct": 80.42,
+      "prob_acabar_abaixo_de_metade_pct": 77.4
+     },
+     "fixo_2.0pct": {
+      "risco_pct": 2.0,
+      "capital_12m_p05": 3.95,
+      "capital_12m_mediana": 12.19,
+      "capital_12m_p95": 38.93,
+      "drawdown_mediano_pct": 89.77,
+      "drawdown_p95_pct": 96.43,
+      "prob_acabar_abaixo_de_metade_pct": 97.0
+     }
+    },
+    "custos_adversos_mais_0_1R": {
+     "dias_com_operacoes": 121,
+     "dias_com_operacoes_por_mes": 23.42,
+     "max_posicoes_simultaneas": 5,
+     "kelly_inteiro_pct": 0.0,
+     "kelly_0.1": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.25": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.5": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_1.0": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "fixo_0.25pct": {
+      "risco_pct": 0.25,
+      "capital_12m_p05": 52.34,
+      "capital_12m_mediana": 60.45,
+      "capital_12m_p95": 70.63,
+      "drawdown_mediano_pct": 40.17,
+      "drawdown_p95_pct": 48.01,
+      "prob_acabar_abaixo_de_metade_pct": 1.5
+     },
+     "fixo_0.5pct": {
+      "risco_pct": 0.5,
+      "capital_12m_p05": 27.46,
+      "capital_12m_mediana": 36.83,
+      "capital_12m_p95": 49.87,
+      "drawdown_mediano_pct": 63.92,
+      "drawdown_p95_pct": 72.78,
+      "prob_acabar_abaixo_de_metade_pct": 95.1
+     },
+     "fixo_1.0pct": {
+      "risco_pct": 1.0,
+      "capital_12m_p05": 7.01,
+      "capital_12m_mediana": 12.8,
+      "capital_12m_p95": 23.05,
+      "drawdown_mediano_pct": 87.67,
+      "drawdown_p95_pct": 93.18,
+      "prob_acabar_abaixo_de_metade_pct": 100.0
+     },
+     "fixo_2.0pct": {
+      "risco_pct": 2.0,
+      "capital_12m_p05": 0.43,
+      "capital_12m_mediana": 1.35,
+      "capital_12m_p95": 4.4,
+      "drawdown_mediano_pct": 98.74,
+      "drawdown_p95_pct": 99.59,
+      "prob_acabar_abaixo_de_metade_pct": 100.0
+     }
+    },
+    "cenario_extremo_piores_dias": {
+     "dias_com_operacoes": 36,
+     "dias_com_operacoes_por_mes": 30.0,
+     "max_posicoes_simultaneas": 5,
+     "kelly_inteiro_pct": 0.0,
+     "kelly_0.1": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.25": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.5": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_1.0": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "fixo_0.25pct": {
+      "risco_pct": 0.25,
+      "capital_12m_p05": 30.6,
+      "capital_12m_mediana": 31.46,
+      "capital_12m_p95": 32.26,
+      "drawdown_mediano_pct": 68.54,
+      "drawdown_p95_pct": 69.4,
+      "prob_acabar_abaixo_de_metade_pct": 100.0
+     },
+     "fixo_0.5pct": {
+      "risco_pct": 0.5,
+      "capital_12m_p05": 9.27,
+      "capital_12m_mediana": 9.72,
+      "capital_12m_p95": 10.21,
+      "drawdown_mediano_pct": 90.27,
+      "drawdown_p95_pct": 90.73,
+      "prob_acabar_abaixo_de_metade_pct": 100.0
+     },
+     "fixo_1.0pct": {
+      "risco_pct": 1.0,
+      "capital_12m_p05": 0.81,
+      "capital_12m_mediana": 0.89,
+      "capital_12m_p95": 0.99,
+      "drawdown_mediano_pct": 99.11,
+      "drawdown_p95_pct": 99.19,
+      "prob_acabar_abaixo_de_metade_pct": 100.0
+     },
+     "fixo_2.0pct": {
+      "risco_pct": 2.0,
+      "capital_12m_p05": 0.0,
+      "capital_12m_mediana": 0.01,
+      "capital_12m_p95": 0.01,
+      "drawdown_mediano_pct": 99.99,
+      "drawdown_p95_pct": 100.0,
+      "prob_acabar_abaixo_de_metade_pct": 100.0
+     }
+    }
+   },
+   "sem_limite": {
+    "operacoes": 3270,
+    "acontecimentos": 431,
+    "r_medio": 0.0585,
+    "pior_sequencia_de_perdas": 75,
+    "niveis": {
+     "dias_com_operacoes": 121,
+     "dias_com_operacoes_por_mes": 23.42,
+     "max_posicoes_simultaneas": 10,
+     "kelly_inteiro_pct": 0.0,
+     "kelly_0.1": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.25": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.5": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_1.0": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "fixo_0.25pct": {
+      "risco_pct": 0.25,
+      "capital_12m_p05": 36.37,
+      "capital_12m_mediana": 46.69,
+      "capital_12m_p95": 60.12,
+      "drawdown_mediano_pct": 53.98,
+      "drawdown_p95_pct": 63.96,
+      "prob_acabar_abaixo_de_metade_pct": 66.8
+     },
+     "fixo_0.5pct": {
+      "risco_pct": 0.5,
+      "capital_12m_p05": 12.12,
+      "capital_12m_mediana": 21.44,
+      "capital_12m_p95": 34.43,
+      "drawdown_mediano_pct": 79.3,
+      "drawdown_p95_pct": 88.16,
+      "prob_acabar_abaixo_de_metade_pct": 99.8
+     },
+     "fixo_1.0pct": {
+      "risco_pct": 1.0,
+      "capital_12m_p05": 1.28,
+      "capital_12m_mediana": 3.94,
+      "capital_12m_p95": 11.18,
+      "drawdown_mediano_pct": 96.35,
+      "drawdown_p95_pct": 98.82,
+      "prob_acabar_abaixo_de_metade_pct": 100.0
+     },
+     "fixo_2.0pct": {
+      "risco_pct": 2.0,
+      "capital_12m_p05": 0.01,
+      "capital_12m_mediana": 0.09,
+      "capital_12m_p95": 0.73,
+      "drawdown_mediano_pct": 99.92,
+      "drawdown_p95_pct": 99.99,
+      "prob_acabar_abaixo_de_metade_pct": 100.0
+     }
+    },
+    "custos_adversos_mais_0_1R": {
+     "dias_com_operacoes": 121,
+     "dias_com_operacoes_por_mes": 23.42,
+     "max_posicoes_simultaneas": 10,
+     "kelly_inteiro_pct": 0.0,
+     "kelly_0.1": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.25": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.5": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_1.0": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "fixo_0.25pct": {
+      "risco_pct": 0.25,
+      "capital_12m_p05": 22.79,
+      "capital_12m_mediana": 29.75,
+      "capital_12m_p95": 38.33,
+      "drawdown_mediano_pct": 70.5,
+      "drawdown_p95_pct": 77.25,
+      "prob_acabar_abaixo_de_metade_pct": 100.0
+     },
+     "fixo_0.5pct": {
+      "risco_pct": 0.5,
+      "capital_12m_p05": 4.89,
+      "capital_12m_mediana": 8.6,
+      "capital_12m_p95": 14.02,
+      "drawdown_mediano_pct": 91.51,
+      "drawdown_p95_pct": 95.22,
+      "prob_acabar_abaixo_de_metade_pct": 100.0
+     },
+     "fixo_1.0pct": {
+      "risco_pct": 1.0,
+      "capital_12m_p05": 0.19,
+      "capital_12m_mediana": 0.63,
+      "capital_12m_p95": 1.83,
+      "drawdown_mediano_pct": 99.4,
+      "drawdown_p95_pct": 99.82,
+      "prob_acabar_abaixo_de_metade_pct": 100.0
+     },
+     "fixo_2.0pct": {
+      "risco_pct": 2.0,
+      "capital_12m_p05": 0.0,
+      "capital_12m_mediana": 0.0,
+      "capital_12m_p95": 0.02,
+      "drawdown_mediano_pct": 100.0,
+      "drawdown_p95_pct": 100.0,
+      "prob_acabar_abaixo_de_metade_pct": 100.0
+     }
+    },
+    "cenario_extremo_piores_dias": {
+     "dias_com_operacoes": 36,
+     "dias_com_operacoes_por_mes": 30.0,
+     "max_posicoes_simultaneas": 10,
+     "kelly_inteiro_pct": 0.0,
+     "kelly_0.1": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.25": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_0.5": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "kelly_1.0": {
+      "risco_pct": 0.0,
+      "nota": "Kelly = 0 (sem media positiva)"
+     },
+     "fixo_0.25pct": {
+      "risco_pct": 0.25,
+      "capital_12m_p05": 8.09,
+      "capital_12m_mediana": 8.47,
+      "capital_12m_p95": 8.92,
+      "drawdown_mediano_pct": 91.53,
+      "drawdown_p95_pct": 91.91,
+      "prob_acabar_abaixo_de_metade_pct": 100.0
+     },
+     "fixo_0.5pct": {
+      "risco_pct": 0.5,
+      "capital_12m_p05": 0.6,
+      "capital_12m_mediana": 0.67,
+      "capital_12m_p95": 0.73,
+      "drawdown_mediano_pct": 99.33,
+      "drawdown_p95_pct": 99.4,
+      "prob_acabar_abaixo_de_metade_pct": 100.0
+     },
+     "fixo_1.0pct": {
+      "risco_pct": 1.0,
+      "capital_12m_p05": 0.0,
+      "capital_12m_mediana": 0.0,
+      "capital_12m_p95": 0.0,
+      "drawdown_mediano_pct": 100.0,
+      "drawdown_p95_pct": 100.0,
+      "prob_acabar_abaixo_de_metade_pct": 100.0
+     },
+     "fixo_2.0pct": {
+      "risco_pct": 2.0,
+      "capital_12m_p05": 0.0,
+      "capital_12m_mediana": 0.0,
+      "capital_12m_p95": 0.0,
+      "drawdown_mediano_pct": 100.0,
+      "drawdown_p95_pct": 100.0,
+      "prob_acabar_abaixo_de_metade_pct": 100.0
+     }
+    }
+   }
+  }
+ },
+ "funil_dados": {
+  "instrumentos_descobertos": 263,
+  "pedidos": 263,
+  "com_dados_validos": 263,
+  "excluidos": {},
+  "por_classe": {
+   "crypto": 168,
+   "equity": 91,
+   "precious_metal": 4
+  },
+  "por_tier": {
+   "A": 15,
+   "B": 44,
+   "C": 204
+  },
+  "falhas_api": {
+   "total": 0,
+   "por_endpoint": {},
+   "ultimas": []
+  },
+  "universo_novos": 0,
+  "universo_desaparecidos": [],
+  "survivorship": "os X-Perps deslistados antes da primeira corrida nao estao nos dados (a OKX so lista os vivos); a partir de agora ficam no historico do universo"
+ },
+ "segundos_total": 597
+}

@@ -1,8 +1,8 @@
 {
  "estrategias": {
   "987b19a113db": {
-   "estado": "EXPLORATORIA",
-   "porque": "amostra ou expectativa insuficientes",
+   "estado": "REJEITADA",
+   "porque": "degradada no papel (motor de sobrevivencia): drawdown 87.93R >= 8.0R; 32 perdas seguidas; media das ultimas 30 = -2.764R (expectativa degradada)",
    "p_holm": null,
    "historico": [
     {
@@ -10,6 +10,12 @@
      "de": null,
      "para": "EXPLORATORIA",
      "porque": "amostra ou expectativa insuficientes"
+    },
+    {
+     "t": 1795255144,
+     "de": "EXPLORATORIA",
+     "para": "REJEITADA",
+     "porque": "degradada no papel (motor de sobrevivencia): drawdown 87.93R >= 8.0R; 32 perdas seguidas; media das ultimas 30 = -2.764R (expectativa degradada)"
     }
    ],
    "nome": "lideranca_btc 1H LONG"
@@ -131,5 +137,5 @@
    "nome": "rompimento_reteste 4H LONG (cripto)"
   }
  },
- "t": 1795169633
+ "t": 1795255144
 }
