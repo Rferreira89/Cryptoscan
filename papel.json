@@ -1,0 +1,127 @@
+{
+ "abertas": [
+  {
+   "k": "FRAQUEZA_RELATIVA",
+   "a": "WLD",
+   "lado": "SHORT",
+   "fase": "queda",
+   "sinal_dia": 20769,
+   "t": 1794528000,
+   "ent": 0.3012,
+   "m_atr": 2.0,
+   "h": 10,
+   "stop": 0.3552428571428572
+  },
+  {
+   "k": "FRAQUEZA_RELATIVA",
+   "a": "TRUMP",
+   "lado": "SHORT",
+   "fase": "queda",
+   "sinal_dia": 20769,
+   "t": 1794528000,
+   "ent": 1.114,
+   "m_atr": 2.0,
+   "h": 10,
+   "stop": 1.3555714285714286
+  },
+  {
+   "k": "FRAQUEZA_RELATIVA",
+   "a": "ENA",
+   "lado": "SHORT",
+   "fase": "queda",
+   "sinal_dia": 20771,
+   "t": 1794700800,
+   "ent": 0.1151,
+   "m_atr": 2.0,
+   "h": 10,
+   "stop": 0.1457142857142857
+  },
+  {
+   "k": "PERDA_MOMENTO",
+   "a": "PEPE",
+   "lado": "SHORT",
+   "fase": "queda",
+   "sinal_dia": 20774,
+   "t": 1794960000,
+   "ent": 3.83e-06,
+   "m_atr": 2.0,
+   "h": 10,
+   "stop": 4.745714285714285e-06
+  }
+ ],
+ "fechadas": [
+  {
+   "k": "FORCA_RELATIVA",
+   "a": "PEPE",
+   "lado": "LONG",
+   "fase": "lateral",
+   "sinal_dia": 20768,
+   "t": 1794441600,
+   "ent": 4.52e-06,
+   "m_atr": 2.0,
+   "h": 10,
+   "stop": 3.384285714285714e-06,
+   "saida": 3.384285714285714e-06,
+   "t_fim": 1795176000,
+   "r": -1.0279
+  }
+ ],
+ "t": 1795246790,
+ "resumo": {
+  "FORCA_RELATIVA": {
+   "n": 1,
+   "soma_r": -1.028,
+   "r_op": -1.028,
+   "pf": 0.0,
+   "acerto": 0.0,
+   "max_dd_r": -1.028,
+   "lado": "LONG",
+   "abertas": 0
+  },
+  "ROTACAO": {
+   "n": 0,
+   "lado": "LONG",
+   "abertas": 0
+  },
+  "ESTRUTURA_FLUXO": {
+   "n": 0,
+   "lado": "LONG",
+   "abertas": 0
+  },
+  "RESILIENCIA": {
+   "n": 0,
+   "lado": "LONG",
+   "abertas": 0
+  },
+  "ACELERACAO": {
+   "n": 0,
+   "lado": "LONG",
+   "abertas": 0
+  },
+  "FRAQUEZA_RELATIVA": {
+   "n": 0,
+   "lado": "SHORT",
+   "abertas": 3
+  },
+  "QUEBRA_FLUXO": {
+   "n": 0,
+   "lado": "SHORT",
+   "abertas": 0
+  },
+  "EXCESSO": {
+   "n": 0,
+   "lado": "SHORT",
+   "abertas": 0
+  },
+  "PERDA_MOMENTO": {
+   "n": 0,
+   "lado": "SHORT",
+   "abertas": 1
+  }
+ },
+ "universo": {
+  "moedas": 80,
+  "margem": 33
+ },
+ "ultimo_dia": 20777
+}
