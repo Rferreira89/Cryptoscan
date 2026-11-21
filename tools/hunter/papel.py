@@ -28,6 +28,35 @@ VELAS = 300               # velas por timeframe (um pedido por moeda e por timef
 RISCO_PAPEL_PCT = 0.5     # dimensionamento simulado (Kelly = 0 sem vantagem demonstrada: usa-se um minimo fixo)
 
 
+
+# (21/11, OK do Rui) O motor de sobrevivencia julgava todas as operacoes de papel como independentes, incluindo as que o
+# piloto real nunca faria. 21/11 04:00: um so acontecimento (BTC +4% numa hora) gerou 32 operacoes da 987b19a113db,
+# 26 delas em instrumentos com spread de 0,4% a 6% (o piloto recusa acima de SPREAD_REAL_MAX_PCT): -88R e "32 perdas
+# seguidas" em vez de 6 operacoes negociaveis (-9R) num unico acontecimento. Agora: so operacoes negociaveis pelo
+# piloto, e um resultado por acontecimento (media das operacoes desse acontecimento), por ordem de tempo.
+SPREAD_REAL_MAX_PCT = 0.3            # = spread_max_pct de piloto_okx_config.json (ramo main)
+
+
+READMISSAO_N = 20                   # (21/11, decisao com o Rui) 20+ acontecimentos negociaveis, media > 0
+
+
+def readmitida(ra):
+    return len(ra) >= READMISSAO_N and sum(ra) / len(ra) > 0
+
+
+def negociavel(o):
+    sp = (o.get("custos_previstos") or {}).get("spread_pct")
+    return sp is not None and float(sp) <= SPREAD_REAL_MAX_PCT
+
+
+def r_por_acontecimento(ops):
+    """Lista de R, um por acontecimento (media), so com operacoes negociaveis pelo piloto real, por ordem de tempo."""
+    grupos = {}
+    for o in sorted((o for o in ops if o.get("r") is not None and negociavel(o)),
+                    key=lambda o: (o.get("t_sinal") or 0, o.get("fechada_em") or 0)):
+        grupos.setdefault(o.get("acontecimento") or o.get("t_sinal"), []).append(float(o["r"]))
+    return [sum(v) / len(v) for v in grupos.values()]
+
 def _carregar(p, padrao):
     if os.path.exists(p):
         with open(p, encoding="utf-8") as f:
@@ -205,9 +234,8 @@ def volta(pasta, now=None, uni=None, velas=None, funding_fn=None, falhas=None, s
         if not fiavel:
             rejeita("dados pouco fiaveis nesta volta (falhas de API): sem entradas novas")
             continue
-        if st["bloqueadas"].get(e["id"]):
-            rejeita("estrategia bloqueada pelo motor de sobrevivencia")
-            continue
+        # (21/11, OK do Rui) o bloqueio do motor de sobrevivencia so tira a estrategia do REAL (qualificacao); o papel
+        # nao tem dinheiro e continua a simular, senao uma estrategia bloqueada nunca mais juntava provas para voltar
         if S["t"][i] + s > now:
             rejeita("vela ainda aberta")
             continue
@@ -322,15 +350,27 @@ def volta(pasta, now=None, uni=None, velas=None, funding_fn=None, falhas=None, s
             for k in o.get("carteiras") or ["sem_limite"]:
                 cart.setdefault(k, []).append(o)
     resumo = {}
+    # (21/11) recalculado em cada volta com a contagem corrigida; uma estrategia que ja foi bloqueada (historico, inclui
+    # as bloqueadas antes desta correcao) so volta a ser elegivel para o real com READMISSAO_N acontecimentos bons
+    hist = st.setdefault("historico_bloqueio", {})
+    for k, m in (st.get("bloqueadas") or {}).items():
+        hist.setdefault(k, {"t": now, "motivos": m})
+    st["bloqueadas"] = {}
     for k, ops in por.items():
         rs = [o["r"] for o in ops]
-        sv = AU.sobrevivencia(rs)
+        sv = AU.sobrevivencia(r_por_acontecimento(ops))
         resumo[k] = {"n": len(rs), "moedas": len({o["b"] for o in ops}), "dias": len({o["t_sinal"] // 86400 for o in ops}),
                      "acontecimentos": len({o.get("acontecimento") for o in ops}), "r_medio": round(sum(rs) / len(rs), 4),
                      "r_total": round(sum(rs), 3), "acerto": round(sum(1 for x in rs if x > 0) / len(rs), 3),
                      "drawdown_r": sv["drawdown_r"], "novas_entradas": sv["novas_entradas"], "motivos": sv["motivos"]}
+        ra = r_por_acontecimento(ops)
+        resumo[k].update(acontecimentos_negociaveis=len(ra), contagem="por acontecimento, so negociaveis")
         if not sv["novas_entradas"]:
             st["bloqueadas"][k] = sv["motivos"]
+            hist.setdefault(k, {"t": now, "motivos": sv["motivos"]})
+        elif k in hist and not readmitida(ra):
+            st["bloqueadas"][k] = [f"readmissao ao real: precisa de {READMISSAO_N}+ acontecimentos negociaveis com media "
+                                   f"positiva (tem {len(ra)}, media {(sum(ra) / len(ra)) if ra else 0:+.2f}R)"]
     st["resumo"] = resumo
     st["carteiras_sombra"] = {k: {"n": len(v), "acontecimentos": len({o.get("acontecimento") for o in v}),
                                   "r_total": round(sum(o["r"] for o in v), 3),

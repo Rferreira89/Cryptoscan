@@ -147,7 +147,10 @@ def avaliar_papel(fechadas, falhas_criticas=0):
 def degradada(fechadas, reais=()):
     """Vantagem desapareceu? Ultimos 30 acontecimentos de papel com media <= 0, ou >= 10 operacoes reais com media
     < 0 e muito abaixo do papel."""
-    ops = sorted((o for o in fechadas if o.get("r") is not None), key=lambda o: o.get("fechada_em") or o["t_sinal"])
+    # (21/11) so operacoes que o piloto real conseguiria fazer (spread dentro do limite), como o motor de sobrevivencia
+    from tools.hunter.papel import negociavel
+    ops = sorted((o for o in fechadas if o.get("r") is not None and negociavel(o)),
+                 key=lambda o: o.get("fechada_em") or o["t_sinal"])
     por_ac = {}
     for o in ops:
         por_ac.setdefault(o.get("acontecimento") or o.get("t_sinal"), []).append(o["r"])

@@ -23,7 +23,8 @@ def ops_oos(n=200, media=0.3, dias=60, moedas=40, seed=1):
 def papel(n=40, media=0.4, dias=20, seed=2):
     rng = random.Random(seed)
     return [{"r": rng.gauss(media, 0.5), "t_sinal": 1_800_000_000 + k * (dias * DIA) // n, "acontecimento": f"1H@{k}",
-             "t_entrada": 1_800_000_000 + k * (dias * DIA) // n, "fechada_em": 1_800_000_000 + k * (dias * DIA) // n + 3600}
+             "t_entrada": 1_800_000_000 + k * (dias * DIA) // n, "fechada_em": 1_800_000_000 + k * (dias * DIA) // n + 3600,
+             "custos_previstos": {"spread_pct": 0.05}}     # (21/11) negociaveis pelo piloto (a degradacao so conta essas)
             for k in range(n)]
 
 
@@ -161,3 +162,15 @@ class Cobertura(unittest.TestCase):
         for b in v2[51:]:
             b["c"] *= 5; b["h"] *= 5; b["v"] = 10 ** 6
         self.assertEqual(CB.condicoes(v2, 50), a)          # mudar o futuro nao muda a condicao no fecho da vela
+
+
+class DegradacaoSoNegociaveis(unittest.TestCase):
+    """(21/11) A degradacao do papel ignora operacoes que o piloto real nao faria (spread acima do limite)."""
+
+    def test_iliquidas_nao_degradam(self):
+        if Q is None:
+            self.skipTest("sem numpy")
+        boas = papel(n=40)
+        iliquidas = [dict(x, r=-10.0, acontecimento=f"1H@i{k}", fechada_em=1_900_000_000 + k,
+                          custos_previstos={"spread_pct": 3.0}) for k, x in enumerate(papel(n=40))]
+        self.assertIsNone(Q.degradada(boas + iliquidas))
