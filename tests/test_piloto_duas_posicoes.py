@@ -498,3 +498,29 @@ class ResumoContaOportunidades(Base):
         decididas = sum(1 for r in st["oportunidades"].values() if r.get("decisao"))
         contadas = sum(v.get("X", 0) + v.get("B", 0) + v.get("A", 0) + v.get("C", 0) for v in st["resumo_oportunidades"].values())
         self.assertEqual(contadas, decididas)
+
+
+class MaximoDeShorts(Base):
+    """(21/11, Rui: "nao posso ter quatro operacoes todas em short") no maximo 1 short vivo no piloto; o segundo
+    lugar fica para um long."""
+
+    def setUp(self):
+        super().setUp()
+        self.reg["estrategias"]["curta2"] = dict(estrategia("curta2"), lado="SHORT")
+
+    def test_config(self):
+        self.assertEqual(CFG["shorts_max"], 1)
+
+    def test_segundo_short_espera_e_long_entra(self):
+        api = MultiOKX()
+        st, _ = self.corre(api, sinal("curta", "AAA", atr=0.05, lado="SHORT"))
+        st, _ = self.corre(api, now=NOW0 + 900)
+        self.assertEqual([(o["base"], o["lado"]) for o in self.vivas(st)], [("AAA", "SHORT")])
+        t = NOW0 + 1800 - 660
+        st, _ = self.corre(api, sinal("curta2", "BBB", t_fecho=t, atr=0.0025, lado="SHORT"), now=NOW0 + 1800)
+        self.assertEqual(len(self.vivas(st)), 1)
+        r = st["oportunidades"]["curta2|BBB|" + str(t - 3600)]
+        self.assertIn("limite de shorts", r["aguarda"])
+        st, _ = self.corre(api, sinal("fraca", "CCC", t_fecho=t, atr=0.0025), now=NOW0 + 1800)
+        self.assertEqual(sorted((o["base"], o["lado"]) for o in self.vivas(st)), [("AAA", "SHORT"), ("CCC", "LONG")])
+        self.limites_respeitados(st)

@@ -1,0 +1,177 @@
+{
+ "t": "2026-11-21",
+ "pedido": "Rui 21/11: estrategia de short para o piloto OKX, diferente da SHORT_TURTLE",
+ "natureza": "so backtest (velas de 4H 2021-01..2026-11, 252 moedas vivas e deslistadas dos ramos history/history-delistadas); nao e resultado real",
+ "metodo": {
+  "entrada": "abertura da vela seguinte ao sinal (vela fechada)",
+  "stop_objetivo": "k x ATR(14) de 4H; mesma vela com stop e objetivo conta o stop; salto acima do stop sai na abertura",
+  "custos": "comissao 0,05%/lado (OKX taker) + deslize 0,05% majors / 0,10% resto por lado + 0,05% no stop",
+  "liquidez": "volume diario medio de 30 dias >= 5M USD",
+  "periodos": {
+   "treino": "2021-2023",
+   "validacao": "2024",
+   "teste": "2025-01..2026-11 (visto uma vez, so para as 3 sobreviventes)"
+  },
+  "ic": "bootstrap por blocos de semana, 90%",
+  "funding": "familia de funding com periodos proprios 2024-09..2025-06 / 2025-07..12 / 2026"
+ },
+ "familias": {
+  "pump_fade": {
+   "variantes": 486,
+   "treino_e_validacao_positivos": 0
+  },
+  "bull_trap": {
+   "variantes": 162,
+   "treino_e_validacao_positivos": 0
+  },
+  "sell_rally": {
+   "variantes": 216,
+   "treino_e_validacao_positivos": 3
+  },
+  "rel_weak": {
+   "variantes": 108,
+   "treino_e_validacao_positivos": 0
+  },
+  "blowoff": {
+   "variantes": 108,
+   "treino_e_validacao_positivos": 0
+  },
+  "vol_div_high": {
+   "variantes": 108,
+   "treino_e_validacao_positivos": 0
+  },
+  "funding": {
+   "variantes": 1296,
+   "treino_e_validacao_positivos": 0
+  }
+ },
+ "escolhida": {
+  "id_papel": "4c020b59f463",
+  "familia": "venda_repique (sell_rally no laboratorio)",
+  "regra": "fecho < EMA300 de 4H; subida > 3% em 6 velas; maximo >= EMA50 e fecho < EMA50 -> SHORT",
+  "saida": {
+   "stop_atr": 3.0,
+   "objetivo_r": 2.5,
+   "tempo_max_velas_4h": 30
+  },
+  "filtro": "cripto",
+  "treino": {
+   "n": 2408,
+   "semanas": 138,
+   "r": 0.0249,
+   "ic90": [
+    -0.0718,
+    0.132
+   ],
+   "acerto": 0.517,
+   "pf": 1.064
+  },
+  "validacao": {
+   "n": 665,
+   "semanas": 49,
+   "r": 0.0392,
+   "ic90": [
+    -0.0913,
+    0.1753
+   ],
+   "acerto": 0.531,
+   "pf": 1.111
+  },
+  "teste": {
+   "n": 1068,
+   "semanas": 93,
+   "r": 0.1709,
+   "ic90": [
+    0.053,
+    0.2894
+   ],
+   "acerto": 0.569,
+   "pf": 1.49
+  },
+  "por_ano_r": {
+   "2021": -0.035,
+   "2022": 0.116,
+   "2023": -0.052,
+   "2024": 0.039,
+   "2025": 0.216,
+   "2026": 0.048
+  },
+  "controlo_shorts_ao_acaso_em_queda": {
+   "estrategia|treino": {
+    "n": 2408,
+    "semanas": 138,
+    "r": 0.0249,
+    "ic90": [
+     -0.0718,
+     0.132
+    ],
+    "acerto": 0.517,
+    "pf": 1.064
+   },
+   "estrategia|validacao": {
+    "n": 665,
+    "semanas": 49,
+    "r": 0.0392,
+    "ic90": [
+     -0.0913,
+     0.1753
+    ],
+    "acerto": 0.531,
+    "pf": 1.111
+   },
+   "estrategia|teste": {
+    "n": 1068,
+    "semanas": 93,
+    "r": 0.1709,
+    "ic90": [
+     0.053,
+     0.2894
+    ],
+    "acerto": 0.569,
+    "pf": 1.49
+   },
+   "acaso_em_queda|treino": {
+    "n": 13773,
+    "semanas": 150,
+    "r": 0.0122,
+    "ic90": [
+     -0.0826,
+     0.1011
+    ],
+    "acerto": 0.479,
+    "pf": 1.03
+   },
+   "acaso_em_queda|validacao": {
+    "n": 4557,
+    "semanas": 53,
+    "r": -0.0303,
+    "ic90": [
+     -0.1529,
+     0.0898
+    ],
+    "acerto": 0.449,
+    "pf": 0.929
+   },
+   "acaso_em_queda|teste": {
+    "n": 7396,
+    "semanas": 100,
+    "r": 0.0785,
+    "ic90": [
+     -0.0259,
+     0.1799
+    ],
+    "acerto": 0.517,
+    "pf": 1.202
+   }
+  },
+  "correlacao_diaria_com_short_turtle": 0.076,
+  "sobreposicao_de_sinais_com_short_turtle": 0.046
+ },
+ "limites_da_evidencia": [
+  "vantagem pequena (~+0,06R em 5 anos) e dependente do regime: forte em 2022 e 2025 (quedas), negativa em 2021 e 2023",
+  "1188+1296 variantes testadas: 3 positivas em treino e validacao (o que o acaso daria); a escolhida ganha a shorts ao acaso em queda nos 3 periodos",
+  "variantes vizinhas negativas na validacao: ponto escolhido sensivel aos parametros",
+  "dados de spot (Binance) aplicados a X-Perps da OKX"
+ ],
+ "rejeitadas": "pump_fade, bull_trap, rel_weak, blowoff, vol_div_high e funding: nenhuma variante positiva em treino e validacao com amostra"
+}

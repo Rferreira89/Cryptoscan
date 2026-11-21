@@ -754,6 +754,12 @@ def escolher_e_entrar(api, st, c, cands, now, msgs, simular):
         if cand.get("base") in orc["ativos"]:
             perdido(st, now, cand["id"], f"o piloto ja tem uma operacao viva em {cand.get('base')} (sem duplicar)")
             continue
+        # (21/11, Rui: "nao posso ter quatro operacoes todas em short") no maximo shorts_max shorts vivos no piloto:
+        # com os 2 do executor antigo, nunca mais de 3 shorts na OKX, e o piloto guarda sempre vaga para um long
+        shorts_max = int(c.get("shorts_max", c["posicoes_max"]))
+        if cand.get("lado") == "SHORT" and sum(1 for o in ativas(st) if o.get("lado") == "SHORT") >= shorts_max:
+            aguarda(cand, f"limite de shorts: {shorts_max} short(s) vivo(s) no piloto (maximo {shorts_max})")
+            continue
         x = cand["_dim"]
         dim, porque = dimensionar(cand["plano"], x["inst"], c, x["spread"], saldo=st.get("_saldo_usdc"), funding_8h=x["f8"],
                                   horas=x["horas"], orc=orc)
